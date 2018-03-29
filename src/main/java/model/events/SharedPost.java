@@ -1,25 +1,25 @@
 package model.events;
 
-import model.Message;
+import model.InboundMessage;
 
 public class SharedPost {
 
-    private Message message;
-    private Message sharedMessage;
+    private InboundMessage message;
+    private InboundMessage sharedMessage;
 
-    public Message getMessage() {
+    public InboundMessage getMessage() {
         return message;
     }
 
-    public void setMessage(Message message) {
+    public void setMessage(InboundMessage message) {
         this.message = message;
     }
 
-    public Message getSharedMessage() {
+    public InboundMessage getSharedMessage() {
         return sharedMessage;
     }
 
-    public void setSharedMessage(Message sharedMessage) {
+    public void setSharedMessage(InboundMessage sharedMessage) {
         this.sharedMessage = sharedMessage;
     }
 }

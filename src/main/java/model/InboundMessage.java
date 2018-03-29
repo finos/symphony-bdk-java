@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 
-public class Message {
+public class InboundMessage {
     @JsonIgnoreProperties
     private String messageId;
     private Long timestamp;
@@ -18,6 +18,8 @@ public class Message {
     private String diagnostic;
     private String userAgent;
     private String originalFormat;
+    private String messageText;
+
 
     public String getMessageId() {
         return messageId;
@@ -105,5 +107,13 @@ public class Message {
 
     public void setOriginalFormat(String originalFormat) {
         this.originalFormat = originalFormat;
+    }
+
+    public String getMessageText() {
+        return messageText;
+    }
+
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
     }
 }

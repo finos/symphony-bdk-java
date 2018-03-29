@@ -1,10 +1,10 @@
 package listeners;
 
-import model.Message;
+import model.InboundMessage;
 import model.Stream;
 
 public interface IMListener {
 
-    void onIMMessage(Message message);
+    void onIMMessage(InboundMessage message);
     void onIMCreated (Stream stream);
 }

@@ -1,19 +1,19 @@
 package model.events;
 
-import model.Message;
+import model.InboundMessage;
 
 
 public class MessageSent {
 
-    private Message message;
+    private InboundMessage message;
 
 
 
-    public Message getMessage() {
+    public InboundMessage getMessage() {
         return message;
     }
 
-    public void setMessage(Message message) {
+    public void setMessage(InboundMessage message) {
         this.message = message;
     }
 

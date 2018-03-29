@@ -1,12 +1,12 @@
 package listeners;
 
-import model.Message;
+import model.InboundMessage;
 import model.Stream;
 import model.events.*;
 
 public interface RoomListener {
 
-    void onRoomMessage(Message message);
+    void onRoomMessage(InboundMessage message);
 
     void onRoomCreated(RoomCreated roomCreated);
 

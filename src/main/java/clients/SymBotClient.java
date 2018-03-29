@@ -3,9 +3,12 @@ package clients;
 import authentication.SymBotAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
+import model.UserInfo;
 import services.DatafeedEventsService;
 import services.FirehoseEventsService;
 import services.PresenceService;
+
+import javax.ws.rs.core.NoContentException;
 
 public class SymBotClient {
 
@@ -24,6 +27,7 @@ public class SymBotClient {
     private DatafeedEventsService datafeedEventsService;
     private PresenceService presenceService;
     private FirehoseEventsService firehoseEventsService;
+    private UserInfo botUserInfo;
 
 
     public static SymBotClient initBot(SymConfig config, SymBotAuth symBotAuth){
@@ -37,9 +41,16 @@ public class SymBotClient {
     private SymBotClient(SymConfig config, SymBotAuth symBotAuth){
         this.config = config;
         this.symBotAuth = symBotAuth;
+        try {
+            botUserInfo = this.getUsersClient().getUserFromEmail(config.getBotEmailAddress(), true);
+        } catch (NoContentException e) {
+            e.printStackTrace();
+        }
     }
 
-
+    public UserInfo getBotUserInfo() {
+        return botUserInfo;
+    }
 
     public DatafeedClient getDatafeedClient() {
         if (datafeedClient == null){

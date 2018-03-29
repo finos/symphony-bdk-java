@@ -26,10 +26,12 @@ import java.util.List;
 public class DatafeedClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
+    private SymBotAuth botAuth;
     private SymConfig config;
 
     public DatafeedClient(SymBotClient client){
         this.botClient = client;
+        this.botAuth = client.getSymBotAuth();
         this.config = client.getConfig();
     }
 
@@ -41,8 +43,8 @@ public class DatafeedClient {
                 = client.target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.CREATEDATAFEED)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botAuth.getSessionToken())
+                .header("keyManagerToken", botAuth.getKmToken())
                 .post(null);
         Id datafeedId = response.readEntity(Id.class);
         return datafeedId.getId();
@@ -55,8 +57,8 @@ public class DatafeedClient {
                 = client.target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.READDATAFEED.replace("{id}",id))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botAuth.getSessionToken())
+                .header("keyManagerToken", botAuth.getKmToken())
                 .get();
         if(response.getStatus() == 204){
             datafeedEvents = new ArrayList<DatafeedEvent>();
