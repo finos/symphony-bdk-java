@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class DatafeedClientTest {
-    String configFilePath = "/Users/manuela.caicedo/Documents/Bots/symphonyapiclient/src/main/resources/config.json";
+    String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
     SymConfigLoader configLoader = new SymConfigLoader();
     SymConfig config = configLoader.loadFromFile(configFilePath);
     SymBotAuth botAuth = new SymBotAuth(config);
@@ -30,18 +30,18 @@ public class DatafeedClientTest {
 
     }
 
-    @Test
-    public void datafeedClientReadTest(){
-        botAuth.authenticate();
-        SymBotClient botClient = SymBotClient.initBot(config, botAuth);
-        DatafeedClient datafeedClient = botClient.getDatafeedClient();
-        String datafeedId = datafeedClient.createDatafeed();
-        try {
-            List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed(datafeedId);
-            assertNotNull(datafeedEvents);
-            assertTrue(datafeedEvents.get(0).getPayload().getMessageSent().getMessage().getMessage().contains("test"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    @Test
+//    public void datafeedClientReadTest(){
+//        botAuth.authenticate();
+//        SymBotClient botClient = SymBotClient.initBot(config, botAuth);
+//        DatafeedClient datafeedClient = botClient.getDatafeedClient();
+//        String datafeedId = datafeedClient.createDatafeed();
+//        try {
+//            List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed(datafeedId);
+//            assertNotNull(datafeedEvents);
+//            assertTrue(datafeedEvents.get(0).getPayload().getMessageSent().getMessage().getMessage().contains("test"));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 }

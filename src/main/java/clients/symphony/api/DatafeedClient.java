@@ -12,7 +12,7 @@ import exceptions.UnauthorizedException;
 import model.ClientError;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
-import model.Id;
+import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatafeedClient {
+public class DatafeedClient extends  APIClient{
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
     private SymBotAuth botAuth;
@@ -46,7 +46,7 @@ public class DatafeedClient {
                 .header("sessionToken",botAuth.getSessionToken())
                 .header("keyManagerToken", botAuth.getKmToken())
                 .post(null);
-        Id datafeedId = response.readEntity(Id.class);
+        StringId datafeedId = response.readEntity(StringId.class);
         return datafeedId.getId();
     }
 
@@ -65,7 +65,7 @@ public class DatafeedClient {
         } else if (response.getStatus() == 200) {
             datafeedEvents = response.readEntity(DatafeedEventsList.class);
         } else {
-            handleErrorStatus(response);
+            handleError(response, botClient);
 
         }
 
@@ -73,21 +73,5 @@ public class DatafeedClient {
 
     }
 
-    public void handleErrorStatus(Response response) throws Exception {
-        ClientError error = response.readEntity((ClientError.class));
-        if (response.getStatus() == 400){
-            logger.error("Client error occurred", error);
-            throw new APIClientErrorException(error.getMessage());
-        } else if (response.getStatus() == 401){
-            logger.error("User unauthorized, refreshing tokens");
-            throw new UnauthorizedException(error.getMessage());
-        } else if (response.getStatus() == 403){
-            logger.error("Forbidden: Caller lacks necessary entitlement.");
-            throw new ForbiddenException(error.getMessage());
-        } else if (response.getStatus() == 500) {
-            logger.error(error.getMessage());
-            throw new ServerErrorException(error.getMessage());
-        }
-    }
 
 }

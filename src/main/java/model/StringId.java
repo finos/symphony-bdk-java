@@ -1,6 +1,6 @@
 package model;
 
-public class Id {
+public class StringId {
     private String id;
 
     public String getId() {

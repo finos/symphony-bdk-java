@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 public class DatafeedEventsServiceTest {
 
-    String configFilePath = "/Users/manuela.caicedo/Documents/Bots/symphonyapiclient/src/main/resources/config.json";
+    String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
     SymConfigLoader configLoader = new SymConfigLoader();
     SymConfig config = configLoader.loadFromFile(configFilePath);
     SymBotAuth botAuth = new SymBotAuth(config);

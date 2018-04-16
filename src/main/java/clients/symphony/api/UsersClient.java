@@ -3,6 +3,10 @@ package clients.symphony.api;
 import clients.SymBotClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
+import exceptions.APIClientErrorException;
+import exceptions.ForbiddenException;
+import exceptions.ServerErrorException;
+import exceptions.UnauthorizedException;
 import model.User;
 import model.UserInfo;
 import model.UserInfoList;
@@ -15,7 +19,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersClient {
+public class UsersClient extends APIClient{
 
     private SymBotClient botClient;
 
@@ -23,7 +27,7 @@ public class UsersClient {
         botClient = client;
     }
 
-    public UserInfo getUserFromUsername(String username) throws NoContentException {
+    public UserInfo getUserFromUsername(String username) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
         Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
@@ -39,14 +43,14 @@ public class UsersClient {
             throw new NoContentException("No user found.");
         } else if (response.getStatus() == 200) {
             info = response.readEntity(UserInfo.class);
-        } else {
-//            handleErrorStatus(response);
-
+        } if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            handleError(response, botClient);
+            return null;
         }
         return info;
     }
 
-    public UserInfo getUserFromEmail(String email, Boolean local) throws NoContentException {
+    public UserInfo getUserFromEmail(String email, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
         Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
@@ -63,29 +67,96 @@ public class UsersClient {
         } else if (response.getStatus() == 200) {
             UserInfoList infoList = response.readEntity(UserInfoList.class);
             info = infoList.getUsers().get(0);
-        } else {
-//            handleErrorStatus(response);
-
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            handleError(response, botClient);
+            return null;
         }
         return info;
     }
 
-    public UserInfo getUserFromId(Long id, Boolean local){
-        return null;
+    public UserInfo getUserFromId(Long id, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+        Client client = ClientBuilder.newClient();
+        UserInfo info = null;
+        Response response
+                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.GETUSERSV3)
+                .queryParam("uid", id)
+                .queryParam("local", local)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .get();
+        if(response.getStatus() == 204){
+            throw new NoContentException("No user found.");
+        } else if (response.getStatus() == 200) {
+            UserInfoList infoList = response.readEntity(UserInfoList.class);
+            info = infoList.getUsers().get(0);
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            handleError(response, botClient);
+            return null;
+        }
+        return info;
     }
 
-    public List<UserInfo> getUsersFromIdList(List<Long> idList, Boolean local){
-        return null;
+    public List<UserInfo> getUsersFromIdList(List<Long> idList, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+        return getUsersV3(null, idList, local);
     }
 
-    public List<UserInfo> getUsersFromEmailList(List<Long> emailList, Boolean local){
-        return null;
+    public List<UserInfo> getUsersFromEmailList(List<String> emailList, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+        return getUsersV3(emailList, null, local);
     }
 
 
 
-    public List<UserInfo> getUsersV3(String email, List<String> userIds, Boolean local){
-        return null;
+    public List<UserInfo> getUsersV3(List<String> emailList, List<Long> idList, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+        List<UserInfo> infoList = new ArrayList<>();
+        boolean emailBased=false;
+        StringBuilder lookUpListString = new StringBuilder();
+        if(emailList!=null) {
+            if (emailList.isEmpty()) {
+                throw new NoContentException("No user sent for lookup");
+            }
+            emailBased = true;
+            lookUpListString.append(emailList.get(0));
+            for (int i = 1; i < emailList.size(); i++) {
+                lookUpListString.append("," + emailList.get(i));
+            }
+        } else if (idList!=null){
+            if (idList.isEmpty()) {
+                throw new NoContentException("No user sent for lookup");
+            }
+            lookUpListString.append(idList.get(0));
+            for (int i = 1; i < idList.size(); i++) {
+                lookUpListString.append("," + idList.get(i));
+            }
+        }
+        else{
+            throw new NoContentException("No user sent for lookup");
+        }
+
+        Client client = ClientBuilder.newClient();
+        Response response
+                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.GETUSERSV3)
+                .queryParam(emailBased? "email" :"uid", lookUpListString.toString())
+                .queryParam("local", local)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .get();
+        if(response.getStatus() == 204){
+            return infoList;
+        } else if (response.getStatus() == 200) {
+            UserInfoList userInfo = response.readEntity(UserInfoList.class);
+            infoList = userInfo.getUsers();
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            handleError(response, botClient);
+            return null;
+        }
+        return infoList;
     }
 
 

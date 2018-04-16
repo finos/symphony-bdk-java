@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class SymBotAuthTest {
 
-    String configFilePath = "/Users/manuela.caicedo/Documents/Bots/symphonyapiclient/src/main/resources/config.json";
+    String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
     SymConfigLoader configLoader = new SymConfigLoader();
     SymConfig config = configLoader.loadFromFile(configFilePath);
 

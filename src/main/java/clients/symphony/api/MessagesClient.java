@@ -3,31 +3,18 @@ package clients.symphony.api;
 import authentication.AuthEndpointConstants;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
-import exceptions.UnauthorizedException;
-import model.ClientError;
 import model.InboundMessage;
 import model.OutboundMessage;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.*;
-import sun.jvm.hotspot.debugger.cdbg.Sym;
 
 import javax.ws.rs.client.*;
-import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
 
-public class MessagesClient {
+public class MessagesClient extends APIClient{
     private SymBotClient botClient;
 
     public MessagesClient(SymBotClient client) {
@@ -59,13 +46,12 @@ public class MessagesClient {
 
                 int statusCode = response.getStatusInfo().getStatusCode();
                 if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
-//                message = null;
                     return null;
                 }
 
                 if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-                    System.out.println("error: "+ response.getStatus() +" "+response.readEntity(ClientError.class).getMessage());
-                    throw new Exception("Error sending message");
+                    handleError(response,botClient);
+                    return null;
                 }
                 else {
                     return response.readEntity(InboundMessage.class);
@@ -76,4 +62,5 @@ public class MessagesClient {
     public List<InboundMessage> getMessagesFromStream(String streamId, int since, int offset, int limit){
         return null;
     }
+
 }

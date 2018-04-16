@@ -36,6 +36,15 @@ public class SymBotAuth {
 
         sessionAuthenticate();
         kmAuthenticate();
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        authenticate();
+                    }
+                },
+                config.getAuthTokenRefreshPeriod()*1000
+        );
     }
 
     public void sessionAuthenticate(){

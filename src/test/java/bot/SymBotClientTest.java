@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 public class SymBotClientTest {
 
-    String configFilePath = "/Users/manuela.caicedo/Documents/Bots/symphonyapiclient/src/main/resources/config.json";
+    String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
     SymConfigLoader configLoader = new SymConfigLoader();
     SymConfig config = configLoader.loadFromFile(configFilePath);
     SymBotAuth botAuth = new SymBotAuth(config);
@@ -27,5 +27,6 @@ public class SymBotClientTest {
         botClient.clearBotClient();
         SymBotClient botClient2 = SymBotClient.initBot(config,botAuth);
         assertNotEquals(botClient,botClient2);
+        assertEquals(botClient.getMessagesClient().getBotClient(), botClient);
     }
 }

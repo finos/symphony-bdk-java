@@ -15,6 +15,6 @@
   "appCertName": "",
   "appCertPassword": "",
   "authTokenRefreshPeriod": "30",
-  "truststorePath": "/Users/manuela.caicedo/Downloads/all_symphony_certs_truststore",
+  "truststorePath": "/Users/manuela.caicedo/Documents/Downloads/all_symphony_certs_truststore",
   "truststorePassword": "changeit"
 }
