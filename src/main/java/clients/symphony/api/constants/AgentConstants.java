@@ -6,5 +6,4 @@ public class AgentConstants {
     public static final String CREATEMESSAGE = "/agent/v4/stream/{sid}/message/create";
     public static final String GETMESSAGES = "/agent/v4/stream/{sid}/message";
 
-
 }

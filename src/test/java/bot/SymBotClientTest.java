@@ -27,6 +27,5 @@ public class SymBotClientTest {
         botClient.clearBotClient();
         SymBotClient botClient2 = SymBotClient.initBot(config,botAuth);
         assertNotEquals(botClient,botClient2);
-        assertEquals(botClient.getMessagesClient().getBotClient(), botClient);
     }
 }

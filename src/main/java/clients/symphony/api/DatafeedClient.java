@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import authentication.ISymBotAuth;
 import authentication.SymBotAuth;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
@@ -26,7 +27,7 @@ import java.util.List;
 public class DatafeedClient extends  APIClient{
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
-    private SymBotAuth botAuth;
+    private ISymBotAuth botAuth;
     private SymConfig config;
 
     public DatafeedClient(SymBotClient client){

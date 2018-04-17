@@ -17,5 +17,11 @@ public class PodConstants {
     public static final String SETACTIVE = POD+"/v1/admin/room/{id}/setActive";
     public static final String PROMOTEOWNER = POD+"/v1/room/{id}/membership/promoteOwner";
     public static final String DEMOTEOWNER = POD+"/v1/room/{id}/membership/demoteOwner";
+    public static final String ACCEPTCONNECTION = POD+"/v1/connection/accept";
+    public static final String REJECTCONNECTION = POD+"/v1/connection/reject";
+    public static final String GETCONNECTIONSTATUS = POD+"/v1/connection/user/{userId}/info";
+    public static final String REMOVECONNECTION = POD+"/v1/connection/user/{userId}/remove";
+    public static final String GETCONNECTIONS = POD + "v1/connection/list";
+    public static final String SENDCONNECTIONREQUEST = POD+"/v1/connection/create";
 
 }

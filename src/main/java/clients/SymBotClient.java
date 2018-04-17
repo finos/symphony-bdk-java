@@ -1,8 +1,13 @@
 package clients;
 
+import authentication.ISymBotAuth;
 import authentication.SymBotAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
+import exceptions.APIClientErrorException;
+import exceptions.ForbiddenException;
+import exceptions.ServerErrorException;
+import exceptions.UnauthorizedException;
 import model.UserInfo;
 import services.DatafeedEventsService;
 import services.FirehoseEventsService;
@@ -14,7 +19,7 @@ public class SymBotClient {
 
     private static SymBotClient botClient;
     private SymConfig config;
-    private SymBotAuth symBotAuth;
+    private ISymBotAuth symBotAuth;
     private DatafeedClient datafeedClient;
     private MessagesClient messagesClient;
     private PresenceClient presenceClient;
@@ -38,12 +43,20 @@ public class SymBotClient {
         return botClient;
     }
 
-    private SymBotClient(SymConfig config, SymBotAuth symBotAuth){
+    private SymBotClient(SymConfig config, ISymBotAuth symBotAuth){
         this.config = config;
         this.symBotAuth = symBotAuth;
         try {
             botUserInfo = this.getUsersClient().getUserFromEmail(config.getBotEmailAddress(), true);
         } catch (NoContentException e) {
+            e.printStackTrace();
+        } catch (ForbiddenException e) {
+            e.printStackTrace();
+        } catch (APIClientErrorException e) {
+            e.printStackTrace();
+        } catch (ServerErrorException e) {
+            e.printStackTrace();
+        } catch (UnauthorizedException e) {
             e.printStackTrace();
         }
     }
@@ -63,7 +76,7 @@ public class SymBotClient {
         return config;
     }
 
-    public SymBotAuth getSymBotAuth() {
+    public ISymBotAuth getSymBotAuth() {
         return symBotAuth;
     }
 

@@ -12,7 +12,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class SymBotAuth {
+public class SymBotAuth implements ISymBotAuth{
     private final Logger logger = LoggerFactory.getLogger(SymBotAuth.class);
     private String sessionToken;
     private String kmToken;
