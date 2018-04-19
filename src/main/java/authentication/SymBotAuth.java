@@ -20,6 +20,7 @@ public class SymBotAuth implements ISymBotAuth{
 
     public SymBotAuth(SymConfig config){
         this.config = config;
+        //TODO: not use system properties
         System.setProperty("javax.net.ssl.trustStore", config.getTruststorePath());
         if (config.getTruststorePassword() != null) {
             System.setProperty("javax.net.ssl.trustStorePassword", config.getTruststorePassword());
