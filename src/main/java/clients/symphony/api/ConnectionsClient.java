@@ -4,10 +4,7 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
-import exceptions.APIClientErrorException;
-import exceptions.ForbiddenException;
-import exceptions.ServerErrorException;
-import exceptions.UnauthorizedException;
+import exceptions.*;
 import model.InboundConnectionRequest;
 import model.InboundConnectionRequestList;
 import model.InboundMessage;
@@ -29,27 +26,27 @@ public class ConnectionsClient extends APIClient {
         botClient = client;
     }
 
-    public List<InboundConnectionRequest> getPendingConnections() throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public List<InboundConnectionRequest> getPendingConnections() throws SymClientException {
        return getConnections(null, null);
     }
 
-    public List<InboundConnectionRequest> getInboundPendingConnections() throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public List<InboundConnectionRequest> getInboundPendingConnections() throws SymClientException {
         return getConnections("PENDING_INCOMING", null);
     }
 
-    public List<InboundConnectionRequest> getAllConnections() throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public List<InboundConnectionRequest> getAllConnections() throws SymClientException {
         return getConnections("ALL", null);
     }
 
-    public List<InboundConnectionRequest> getAcceptedConnections() throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public List<InboundConnectionRequest> getAcceptedConnections() throws SymClientException {
         return getConnections("ACCEPTED", null);
     }
 
-    public List<InboundConnectionRequest> getRejectedConnections() throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public List<InboundConnectionRequest> getRejectedConnections() throws SymClientException {
         return getConnections("REJECTED", null);
     }
 
-    public List<InboundConnectionRequest> getConnections(String status, List<Long> userIds) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public List<InboundConnectionRequest> getConnections(String status, List<Long> userIds) throws SymClientException {
         boolean userList = false;
         StringBuilder userIdList= new StringBuilder();
         if(userIds!=null) {
@@ -84,7 +81,7 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest acceptConnectionRequest(Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public InboundConnectionRequest acceptConnectionRequest(Long userId) throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
         Client client = ClientBuilder.newClient();
@@ -102,7 +99,7 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest rejectConnectionRequest(Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public InboundConnectionRequest rejectConnectionRequest(Long userId) throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
         Client client = ClientBuilder.newClient();
@@ -120,7 +117,7 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest sendConnectionRequest(Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public InboundConnectionRequest sendConnectionRequest(Long userId) throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
         Client client = ClientBuilder.newClient();
@@ -138,7 +135,7 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest getConnectionRequestStatus(Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public InboundConnectionRequest getConnectionRequestStatus(Long userId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -154,7 +151,7 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public void removeConnection(Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public void removeConnection(Long userId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())

@@ -32,8 +32,6 @@ public class SymBotAuth implements ISymBotAuth{
     }
 
     public void authenticate(){
-        //TODO: Throttle this function to avoid bombing pod and read from config for timer
-
         sessionAuthenticate();
         kmAuthenticate();
         new java.util.Timer().schedule(
@@ -43,7 +41,7 @@ public class SymBotAuth implements ISymBotAuth{
                         authenticate();
                     }
                 },
-                config.getAuthTokenRefreshPeriod()*1000
+                config.getAuthTokenRefreshPeriod()*1000*60
         );
     }
 
@@ -61,6 +59,7 @@ public class SymBotAuth implements ISymBotAuth{
             try {
                 throw new NoConfigException("Must provide a SymConfig object to authenticate");
             } catch (NoConfigException e) {
+                logger.error(e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -80,6 +79,7 @@ public class SymBotAuth implements ISymBotAuth{
             try {
                 throw new NoConfigException("Must provide a SymConfig object to authenticate");
             } catch (NoConfigException e) {
+                logger.error(e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -103,9 +103,10 @@ public class SymBotAuth implements ISymBotAuth{
 
     public void logout(){
         Client client = ClientBuilder.newClient();
-        Response kmTokenResponse = client.target(AuthEndpointConstants.HTTPSPREFIX+config.getSessionAuthHost()+":"+config.getSessionAuthPort())
-                .path(AuthEndpointConstants.KEYAUTHPATH)
+        Response response = client.target(AuthEndpointConstants.HTTPSPREFIX+config.getSessionAuthHost()+":"+config.getSessionAuthPort())
+                .path(AuthEndpointConstants.LOGOUTPATH)
                 .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",getSessionToken())
                 .post(null);
     }
 }

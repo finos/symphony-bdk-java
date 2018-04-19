@@ -5,6 +5,7 @@ import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
+import exceptions.SymClientException;
 import model.DatafeedEvent;
 import org.junit.Test;
 
@@ -26,7 +27,11 @@ public class DatafeedClientTest {
         SymBotClient botClient = SymBotClient.initBot(config, botAuth);
         DatafeedClient datafeedClient = botClient.getDatafeedClient();
         assertNotNull(datafeedClient);
-        assertNotNull(datafeedClient.createDatafeed());
+        try {
+            assertNotNull(datafeedClient.createDatafeed());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
 
     }
 

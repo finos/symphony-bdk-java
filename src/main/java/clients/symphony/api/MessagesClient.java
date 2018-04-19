@@ -3,10 +3,7 @@ package clients.symphony.api;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
-import exceptions.APIClientErrorException;
-import exceptions.ForbiddenException;
-import exceptions.ServerErrorException;
-import exceptions.UnauthorizedException;
+import exceptions.*;
 import model.InboundMessage;
 import model.InboundMessageList;
 import model.OutboundMessage;
@@ -27,7 +24,7 @@ public class MessagesClient extends APIClient{
         botClient = client;
     }
 
-    public InboundMessage sendMessage(String streamId, OutboundMessage message) throws Exception {
+    public InboundMessage sendMessage(String streamId, OutboundMessage message) throws SymClientException {
 
                 ClientConfig clientConfig = new ClientConfig();
                 clientConfig.register(MultiPartFeature.class);
@@ -65,7 +62,7 @@ public class MessagesClient extends APIClient{
 
     }
 
-    public List<InboundMessage> getMessagesFromStream(String streamId, int since, int skip, int limit) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public List<InboundMessage> getMessagesFromStream(String streamId, int since, int skip, int limit) throws SymClientException {
         List<InboundMessage> result = null;
         Client client = ClientBuilder.newClient();
         WebTarget builder

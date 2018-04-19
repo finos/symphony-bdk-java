@@ -3,6 +3,7 @@ package services;
 import authentication.SymBotAuth;
 import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
+import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import listeners.ConnectionListener;
 import listeners.IMListener;
@@ -31,11 +32,15 @@ public class DatafeedEventsService {
 
     public DatafeedEventsService(SymBotClient client) {
         this.botClient = client;
-        roomListeners = new ArrayList<RoomListener>();
-        IMListeners = new ArrayList<IMListener>();
-        connectionListeners = new ArrayList<ConnectionListener>();
+        roomListeners = new ArrayList<>();
+        IMListeners = new ArrayList<>();
+        connectionListeners = new ArrayList<>();
         datafeedClient = this.botClient.getDatafeedClient();
-        datafeedId = datafeedClient.createDatafeed();
+        try {
+            datafeedId = datafeedClient.createDatafeed();
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
         readDatafeed(datafeedId);
     }
 
@@ -91,7 +96,11 @@ public class DatafeedEventsService {
     private void handleError(Throwable e) {
         if (e instanceof UnauthorizedException){
             botClient.getSymBotAuth().authenticate();
-            datafeedId = datafeedClient.createDatafeed();
+            try {
+                datafeedId = datafeedClient.createDatafeed();
+            } catch (SymClientException e1) {
+                e1.printStackTrace();
+            }
             readDatafeed(datafeedId);
         }
         logger.error(e.getMessage());

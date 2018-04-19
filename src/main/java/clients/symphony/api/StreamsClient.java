@@ -3,10 +3,7 @@ package clients.symphony.api;
 import clients.SymBotClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
-import exceptions.APIClientErrorException;
-import exceptions.ForbiddenException;
-import exceptions.ServerErrorException;
-import exceptions.UnauthorizedException;
+import exceptions.*;
 import model.*;
 
 import javax.ws.rs.client.Client;
@@ -23,13 +20,13 @@ public class StreamsClient extends APIClient {
         botClient=client;
     }
 
-    public String getUserIMStreamId(Long userId) throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public String getUserIMStreamId(Long userId) throws SymClientException {
         List<Long> userIdList = new ArrayList<>();
         userIdList.add(userId);
         return getUserListIM(userIdList);
     }
 
-    public String getUserListIM(List<Long> userIdList) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public String getUserListIM(List<Long> userIdList) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -46,7 +43,7 @@ public class StreamsClient extends APIClient {
         return streamId;
     }
 
-    public RoomInfo createRoom(Room room) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public RoomInfo createRoom(Room room) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -63,7 +60,7 @@ public class StreamsClient extends APIClient {
         return roomInfo;
     }
 
-    public void addMemberToRoom(String streamId, Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public void addMemberToRoom(String streamId, Long userId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         NumericId id = new NumericId(userId);
         Response response
@@ -78,7 +75,7 @@ public class StreamsClient extends APIClient {
         }
     }
 
-    public void removeMemberFromRoom(String streamId, Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public void removeMemberFromRoom(String streamId, Long userId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         NumericId id = new NumericId(userId);
         Response response
@@ -93,7 +90,7 @@ public class StreamsClient extends APIClient {
         }
     }
 
-    public RoomInfo getRoomInfo(String streamId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public RoomInfo getRoomInfo(String streamId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -109,7 +106,7 @@ public class StreamsClient extends APIClient {
         return response.readEntity(RoomInfo.class);
     }
 
-    public RoomInfo updateRoom(String streamId, Room room) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public RoomInfo updateRoom(String streamId, Room room) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -129,7 +126,7 @@ public class StreamsClient extends APIClient {
     }
 
     //TODO: CHECK WHY 404
-    public StreamInfo getStreamInfo(String streamId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public StreamInfo getStreamInfo(String streamId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -148,7 +145,7 @@ public class StreamsClient extends APIClient {
 
     }
 
-    public List<RoomMember> getRoomMembers(String streamId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public List<RoomMember> getRoomMembers(String streamId) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -165,16 +162,16 @@ public class StreamsClient extends APIClient {
 
     }
 
-    public void activateRoom(String streamId) throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public void activateRoom(String streamId) throws SymClientException {
         setActiveRoom(streamId,true);
     }
 
-    public void deactivateRoom(String streamId) throws APIClientErrorException, ForbiddenException, ServerErrorException, UnauthorizedException {
+    public void deactivateRoom(String streamId) throws SymClientException {
         setActiveRoom(streamId,false);
     }
 
     //TODO: CHECK WHY 403
-    private void setActiveRoom(String streamId, boolean active) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    private void setActiveRoom(String streamId, boolean active) throws SymClientException {
         Client client = ClientBuilder.newClient();
         Response response
                 = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
@@ -189,7 +186,7 @@ public class StreamsClient extends APIClient {
         }
     }
 
-    public void promoteUserToOwner(String streamId, Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public void promoteUserToOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
         Client client = ClientBuilder.newClient();
         Response response
@@ -205,7 +202,7 @@ public class StreamsClient extends APIClient {
         }
     }
 
-    public void demoteUserFromOwner(String streamId, Long userId) throws UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public void demoteUserFromOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
         Client client = ClientBuilder.newClient();
         Response response

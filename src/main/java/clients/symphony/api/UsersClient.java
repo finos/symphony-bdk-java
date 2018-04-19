@@ -3,10 +3,7 @@ package clients.symphony.api;
 import clients.SymBotClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
-import exceptions.APIClientErrorException;
-import exceptions.ForbiddenException;
-import exceptions.ServerErrorException;
-import exceptions.UnauthorizedException;
+import exceptions.*;
 import model.User;
 import model.UserInfo;
 import model.UserInfoList;
@@ -27,7 +24,7 @@ public class UsersClient extends APIClient{
         botClient = client;
     }
 
-    public UserInfo getUserFromUsername(String username) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public UserInfo getUserFromUsername(String username) throws SymClientException, NoContentException {
         Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
@@ -50,7 +47,7 @@ public class UsersClient extends APIClient{
         return info;
     }
 
-    public UserInfo getUserFromEmail(String email, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public UserInfo getUserFromEmail(String email, Boolean local) throws SymClientException, NoContentException {
         Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
@@ -75,7 +72,7 @@ public class UsersClient extends APIClient{
         return info;
     }
 
-    public UserInfo getUserFromId(Long id, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public UserInfo getUserFromId(Long id, Boolean local) throws SymClientException, NoContentException {
         Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
@@ -100,17 +97,17 @@ public class UsersClient extends APIClient{
         return info;
     }
 
-    public List<UserInfo> getUsersFromIdList(List<Long> idList, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public List<UserInfo> getUsersFromIdList(List<Long> idList, Boolean local) throws SymClientException, NoContentException {
         return getUsersV3(null, idList, local);
     }
 
-    public List<UserInfo> getUsersFromEmailList(List<String> emailList, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public List<UserInfo> getUsersFromEmailList(List<String> emailList, Boolean local) throws SymClientException, NoContentException {
         return getUsersV3(emailList, null, local);
     }
 
 
 
-    public List<UserInfo> getUsersV3(List<String> emailList, List<Long> idList, Boolean local) throws NoContentException, UnauthorizedException, ForbiddenException, ServerErrorException, APIClientErrorException {
+    public List<UserInfo> getUsersV3(List<String> emailList, List<Long> idList, Boolean local) throws SymClientException, NoContentException {
         List<UserInfo> infoList = new ArrayList<>();
         boolean emailBased=false;
         StringBuilder lookUpListString = new StringBuilder();
