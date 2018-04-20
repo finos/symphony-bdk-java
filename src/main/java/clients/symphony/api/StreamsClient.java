@@ -33,7 +33,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.GETIM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
         String streamId = response.readEntity(StringId.class).getId();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -50,7 +49,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.CREATEROOM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
         RoomInfo roomInfo = response.readEntity(RoomInfo.class);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -68,7 +66,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.ADDMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -83,7 +80,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.REMOVEMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -97,7 +93,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.GETROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -113,7 +108,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.UPDATEROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -133,7 +127,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.GETSTREAMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -152,7 +145,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.GETROOMMEMBERS.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -179,7 +171,6 @@ public class StreamsClient extends APIClient {
                 .queryParam("active", active)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -194,7 +185,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.PROMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);
@@ -210,7 +200,6 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.DEMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             handleError(response, botClient);

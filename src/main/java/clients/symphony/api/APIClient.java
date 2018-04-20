@@ -19,6 +19,7 @@ public abstract class APIClient {
                 throw new APIClientErrorException(error.getMessage());
             } else if (response.getStatus() == 401){
                 logger.error("User unauthorized, refreshing tokens");
+                botClient.getSymBotAuth().authenticate();
                 throw new UnauthorizedException(error.getMessage());
             } else if (response.getStatus() == 403){
                 logger.error("Forbidden: Caller lacks necessary entitlement.");

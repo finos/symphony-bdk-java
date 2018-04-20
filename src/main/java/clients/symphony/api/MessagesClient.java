@@ -3,10 +3,9 @@ package clients.symphony.api;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
+import clients.symphony.api.constants.PodConstants;
 import exceptions.*;
-import model.InboundMessage;
-import model.InboundMessageList;
-import model.OutboundMessage;
+import model.*;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.*;
@@ -14,7 +13,9 @@ import org.glassfish.jersey.media.multipart.*;
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class MessagesClient extends APIClient{
@@ -25,6 +26,7 @@ public class MessagesClient extends APIClient{
     }
 
     public InboundMessage sendMessage(String streamId, OutboundMessage message) throws SymClientException {
+        //TODO: Add file support
 
                 ClientConfig clientConfig = new ClientConfig();
                 clientConfig.register(MultiPartFeature.class);
@@ -92,6 +94,53 @@ public class MessagesClient extends APIClient{
             return null;
         }
         return result;
+    }
+
+    public byte[] getAttachment(String streamId, String attachmentId, String messageId) throws SymClientException {
+        Client client = ClientBuilder.newClient();
+        Response response
+                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentHost())
+                .path(AgentConstants.GETATTACHMENT.replace("{sid}", streamId))
+                .queryParam("fileId", attachmentId)
+                .queryParam("messageId", messageId)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .get();
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            handleError(response, botClient);
+            return null;
+        } else {
+            return Base64.getDecoder().decode(response.readEntity(String.class));
+        }
+    }
+
+    public List<FileAttachment> getMessageAttachments(InboundMessage message) throws SymClientException {
+        List<FileAttachment> result = new ArrayList<>();
+        for (Attachment attachment : message.getAttachments()) {
+            FileAttachment fileAttachment = new FileAttachment();
+            fileAttachment.setFileName(attachment.getName());
+            fileAttachment.setSize(attachment.getSize());
+            fileAttachment.setFileContent(getAttachment(message.getStream().getStreamId(), attachment.getId(), message.getMessageId()));
+            result.add(fileAttachment);
+        }
+        return result;
+    }
+
+    public MessageStatus getMessageStatus(String messageId) throws SymClientException {
+        Client client = ClientBuilder.newClient();
+        Response response
+                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.GETMESSAGESTATUS.replace("{mid}", messageId))
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .get();
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            handleError(response, botClient);
+            return null;
+        }
+        return response.readEntity(MessageStatus.class);
+
     }
 
 }

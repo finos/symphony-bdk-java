@@ -3,6 +3,7 @@ package services;
 import authentication.SymBotAuth;
 import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
+import exceptions.APIClientErrorException;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import listeners.ConnectionListener;
@@ -94,8 +95,7 @@ public class DatafeedEventsService {
     }
 
     private void handleError(Throwable e) {
-        if (e instanceof UnauthorizedException){
-            botClient.getSymBotAuth().authenticate();
+        if (e instanceof UnauthorizedException || e instanceof APIClientErrorException){
             try {
                 datafeedId = datafeedClient.createDatafeed();
             } catch (SymClientException e1) {

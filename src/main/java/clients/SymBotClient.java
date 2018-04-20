@@ -52,6 +52,7 @@ public class SymBotClient {
         }
     }
 
+
     public UserInfo getBotUserInfo() {
         return botUserInfo;
     }
