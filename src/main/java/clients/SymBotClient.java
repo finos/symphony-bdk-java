@@ -7,7 +7,6 @@ import configuration.SymConfig;
 import exceptions.*;
 import model.UserInfo;
 import services.DatafeedEventsService;
-import services.FirehoseEventsService;
 import services.PresenceService;
 
 import javax.ws.rs.core.NoContentException;
@@ -22,13 +21,8 @@ public class SymBotClient {
     private PresenceClient presenceClient;
     private StreamsClient streamsClient;
     private UsersClient usersClient;
-    private ShareClient shareClient;
     private ConnectionsClient connectionsClient;
-    private FirehoseClient firehoseClient;
-    private SignalsClient signalsClient;
     private DatafeedEventsService datafeedEventsService;
-    private PresenceService presenceService;
-    private FirehoseEventsService firehoseEventsService;
     private UserInfo botUserInfo;
 
 
@@ -100,13 +94,6 @@ public class SymBotClient {
         return usersClient;
     }
 
-    public ShareClient getShareClient() {
-        if (shareClient == null){
-            shareClient = new ShareClient(this);
-        }
-        return shareClient;
-    }
-
     public ConnectionsClient getConnectionsClient() {
         if (connectionsClient == null){
             connectionsClient = new ConnectionsClient(this);
@@ -114,39 +101,11 @@ public class SymBotClient {
         return connectionsClient;
     }
 
-    public FirehoseClient getFirehoseClient() {
-        if (firehoseClient == null){
-            firehoseClient = new FirehoseClient(this);
-        }
-        return firehoseClient;
-    }
-
-    public SignalsClient getSignalsClient() {
-        if (signalsClient == null){
-            signalsClient = new SignalsClient(this);
-        }
-        return signalsClient;
-    }
-
     public DatafeedEventsService getDatafeedEventsService() {
         if (datafeedEventsService == null){
             datafeedEventsService = new DatafeedEventsService(this);
         }
         return datafeedEventsService;
-    }
-
-    public PresenceService getPresenceService() {
-        if (presenceService == null){
-            presenceService = new PresenceService(this);
-        }
-        return presenceService;
-    }
-
-    public FirehoseEventsService getFirehoseEventsService() {
-        if (firehoseEventsService == null){
-            firehoseEventsService = new FirehoseEventsService(this);
-        }
-        return firehoseEventsService;
     }
 
     public void clearBotClient(){

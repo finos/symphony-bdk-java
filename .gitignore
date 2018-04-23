@@ -24,3 +24,4 @@ hs_err_pid*
 target/*
 .idea/*
 .DS_Store
+settings.xml
