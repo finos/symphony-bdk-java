@@ -48,6 +48,7 @@ public class SymBotAuth implements ISymBotAuth{
 
     public void sessionAuthenticate(){
         if (config!=null) {
+            logger.info("Session auth");
             Client client = ClientBuilder.newClient();
             Response sessionTokenResponse
                     = client.target(AuthEndpointConstants.HTTPSPREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
@@ -67,6 +68,7 @@ public class SymBotAuth implements ISymBotAuth{
     }
 
     public void kmAuthenticate(){
+        logger.info("KM auth");
         if (config!=null) {
             Client client = ClientBuilder.newClient();
             Response kmTokenResponse

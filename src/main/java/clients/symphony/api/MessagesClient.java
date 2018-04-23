@@ -25,7 +25,7 @@ public class MessagesClient extends APIClient{
         botClient = client;
     }
 
-    public InboundMessage sendMessage(String streamId, OutboundMessage message) throws SymClientException {
+    private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags) throws SymClientException {
         //TODO: Add file support
 
                 ClientConfig clientConfig = new ClientConfig();
@@ -41,10 +41,19 @@ public class MessagesClient extends APIClient{
                 invocationBuilder = invocationBuilder.header("sessionToken",botClient.getSymBotAuth().getSessionToken());
                 invocationBuilder = invocationBuilder.header("keyManagerToken", botClient.getSymBotAuth().getKmToken());
 
+                String messageContent = null;
+                if(appendTags){
+                    messageContent = "<messageML>"+message.getMessage()+"</messageML>";
+                }
+
                 FormDataMultiPart multiPart = new FormDataMultiPart();
 
-                FormDataContentDisposition contentDisp = FormDataContentDisposition.name("message").build();
-                multiPart.bodyPart(new FormDataBodyPart(contentDisp, message.getMessage()));
+                FormDataContentDisposition contentDispMessage = FormDataContentDisposition.name("message").build();
+                multiPart.bodyPart(new FormDataBodyPart(contentDispMessage, messageContent));
+                if(message.getData()!=null){
+                    FormDataContentDisposition contentDispData = FormDataContentDisposition.name("data").build();
+                    multiPart.bodyPart(new FormDataBodyPart(contentDispData, message.getData()));
+                }
                 Entity entity = Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
                 Response response = invocationBuilder.post(entity);
 
@@ -62,6 +71,20 @@ public class MessagesClient extends APIClient{
                     return response.readEntity(InboundMessage.class);
                 }
 
+    }
+
+    public InboundMessage forwardMessage(String streamId, InboundMessage message) throws SymClientException {
+        OutboundMessage outboundMessage = new OutboundMessage();
+        outboundMessage.setMessage(message.getMessage());
+        outboundMessage.setData(message.getData());
+        //outboundMessage.setAttachment(message.getAttachments());
+
+        return sendMessage(streamId, outboundMessage, false);
+
+    }
+
+    public InboundMessage sendMessage(String streamId, OutboundMessage message) throws SymClientException {
+        return sendMessage(streamId, message, true);
     }
 
     public List<InboundMessage> getMessagesFromStream(String streamId, int since, int skip, int limit) throws SymClientException {
