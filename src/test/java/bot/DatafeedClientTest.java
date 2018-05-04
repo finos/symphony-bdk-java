@@ -35,18 +35,18 @@ public class DatafeedClientTest {
 
     }
 
-//    @Test
-//    public void datafeedClientReadTest(){
-//        botAuth.authenticate();
-//        SymBotClient botClient = SymBotClient.initBot(config, botAuth);
-//        DatafeedClient datafeedClient = botClient.getDatafeedClient();
-//        String datafeedId = datafeedClient.createDatafeed();
-//        try {
-//            List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed(datafeedId);
-//            assertNotNull(datafeedEvents);
-//            assertTrue(datafeedEvents.get(0).getPayload().getMessageSent().getMessage().getMessage().contains("test"));
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Test
+    public void datafeedClientReadTest(){
+        botAuth.authenticate();
+        SymBotClient botClient = SymBotClient.initBot(config, botAuth);
+        DatafeedClient datafeedClient = botClient.getDatafeedClient();
+        try {
+            String datafeedId = datafeedClient.createDatafeed();
+            List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed(datafeedId);
+            assertNotNull(datafeedEvents);
+            //assertTrue(datafeedEvents.get(0).getPayload().getMessageSent().getMessage().getMessage().contains("test"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

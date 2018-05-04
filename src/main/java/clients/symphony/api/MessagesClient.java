@@ -91,7 +91,7 @@ public class MessagesClient extends APIClient{
         List<InboundMessage> result = null;
         Client client = ClientBuilder.newClient();
         WebTarget builder
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentHost())
+                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getPodPort())
                 .path(AgentConstants.GETMESSAGES.replace("{sid}", streamId))
                 .queryParam("since", since);
 
