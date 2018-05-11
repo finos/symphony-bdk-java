@@ -1,14 +1,14 @@
 # symphony-api-client-java
 The Java client is built in an event handler architecture. If you are building a bot that listens to conversations, you will only have to implement an interface of a listener with the functions to handle all events that will come through the Data Feed. 
 
-###Install using maven
+### Install using maven
         <dependency>
                     <groupId>com.symphony.platformsolutions</groupId>
                     <artifactId>symphony-api-client-java</artifactId>
                     <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-##Configuration
+## Configuration
 Create a config.json file in your project which includes the following properties
 
         {
@@ -33,7 +33,7 @@ Create a config.json file in your project which includes the following propertie
           "authTokenRefreshPeriod": "30"
         }
         
-##Example main class
+## Example main class
 
     public class BotExample {
     
@@ -55,7 +55,7 @@ Create a config.json file in your project which includes the following propertie
         }
     }
     
-##Example RoomListener implementation
+## Example RoomListener implementation
     
     public class RoomListenerTestImpl implements RoomListener {
     
