@@ -57,14 +57,16 @@ public class MessagesClient extends APIClient{
                 Entity entity = Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
                 Response response = invocationBuilder.post(entity);
 
-
-                int statusCode = response.getStatusInfo().getStatusCode();
                 if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
                     return null;
                 }
 
                 if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-                    handleError(response,botClient);
+                    try {
+                        handleError(response, botClient);
+                    } catch (UnauthorizedException ex){
+                        return sendMessage(streamId,message,appendTags);
+                    }
                     return null;
                 }
                 else {
@@ -113,7 +115,11 @@ public class MessagesClient extends APIClient{
             result = response.readEntity(InboundMessageList.class);
         }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getMessagesFromStream(streamId,since,skip,limit);
+            }
             return null;
         }
         return result;
@@ -131,7 +137,11 @@ public class MessagesClient extends APIClient{
                 .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getAttachment(streamId,attachmentId,messageId);
+            }
             return null;
         } else {
             return Base64.getDecoder().decode(response.readEntity(String.class));
@@ -159,7 +169,11 @@ public class MessagesClient extends APIClient{
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getMessageStatus(messageId);
+            }
             return null;
         }
         return response.readEntity(MessageStatus.class);

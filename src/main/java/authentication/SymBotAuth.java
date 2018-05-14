@@ -35,15 +35,6 @@ public class SymBotAuth implements ISymBotAuth{
     public void authenticate(){
         sessionAuthenticate();
         kmAuthenticate();
-        new java.util.Timer().schedule(
-                new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        authenticate();
-                    }
-                },
-                config.getAuthTokenRefreshPeriod()*1000*60
-        );
     }
 
     public void sessionAuthenticate(){

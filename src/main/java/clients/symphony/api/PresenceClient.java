@@ -4,6 +4,7 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
+import exceptions.UnauthorizedException;
 import model.MessageStatus;
 import model.UserPresence;
 
@@ -31,7 +32,11 @@ public class PresenceClient extends APIClient{
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getUserPresence(userId,local);
+            }
             return null;
         }
         return response.readEntity(UserPresence.class);
@@ -48,7 +53,12 @@ public class PresenceClient extends APIClient{
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(category, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return setPresence(status);
+            }
+            return null;
         }
         return response.readEntity(UserPresence.class);
     }
@@ -62,7 +72,11 @@ public class PresenceClient extends APIClient{
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(userIds, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                registerInterestExtUser(userIds);
+            }
         }
     }
 

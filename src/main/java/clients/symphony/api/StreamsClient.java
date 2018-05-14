@@ -36,7 +36,11 @@ public class StreamsClient extends APIClient {
                 .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
         String streamId = response.readEntity(StringId.class).getId();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+               return getUserListIM(userIdList);
+            }
             return null;
         }
         return streamId;
@@ -52,7 +56,11 @@ public class StreamsClient extends APIClient {
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
         RoomInfo roomInfo = response.readEntity(RoomInfo.class);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return createRoom(room);
+            }
             return null;
         }
         return roomInfo;
@@ -68,7 +76,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                addMemberToRoom(streamId,userId);
+            }
         }
     }
 
@@ -82,7 +94,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                removeMemberFromRoom(streamId,userId);
+            }
         }
     }
 
@@ -95,7 +111,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getRoomInfo(streamId);
+            }
             return null;
         }
         return response.readEntity(RoomInfo.class);
@@ -110,7 +130,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return updateRoom(streamId,room);
+            }
             return null;
         }
         else {
@@ -129,7 +153,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getStreamInfo(streamId);
+            }
             return null;
         }
         else {
@@ -147,7 +175,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+               return getRoomMembers(streamId);
+            }
             return null;
         }
         return response.readEntity(MemberList.class);
@@ -173,7 +205,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                setActiveRoom(streamId,active);
+            }
         }
     }
 
@@ -187,8 +223,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
-
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                promoteUserToOwner(streamId,userId);
+            }
         }
     }
 
@@ -202,7 +241,11 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                demoteUserFromOwner(streamId,userId);
+            }
         }
     }
 }

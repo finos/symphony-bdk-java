@@ -45,8 +45,11 @@ public class DatafeedClient extends  APIClient{
                 .header("keyManagerToken", botAuth.getKmToken())
                 .post(null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response,botClient);
-            return null;
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return createDatafeed();
+            }            return null;
         }
         else {
             StringId datafeedId = response.readEntity(StringId.class);
@@ -69,7 +72,11 @@ public class DatafeedClient extends  APIClient{
         } else if (response.getStatus() == 200) {
             datafeedEvents = response.readEntity(DatafeedEventsList.class);
         } else {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return readDatafeed(createDatafeed());
+            }
 
         }
 

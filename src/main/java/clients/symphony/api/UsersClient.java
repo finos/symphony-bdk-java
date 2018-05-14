@@ -41,7 +41,11 @@ public class UsersClient extends APIClient{
         } else if (response.getStatus() == 200) {
             info = response.readEntity(UserInfo.class);
         } if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+               return getUserFromUsername(username);
+            }
             return null;
         }
         return info;
@@ -66,7 +70,11 @@ public class UsersClient extends APIClient{
             info = infoList.getUsers().get(0);
         }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getUserFromEmail(email,local);
+            }
             return null;
         }
         return info;
@@ -91,7 +99,11 @@ public class UsersClient extends APIClient{
             info = infoList.getUsers().get(0);
         }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getUserFromId(id,local);
+            }
             return null;
         }
         return info;
@@ -150,7 +162,11 @@ public class UsersClient extends APIClient{
             infoList = userInfo.getUsers();
         }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getUsersV3(emailList,idList,local);
+            }
             return null;
         }
         return infoList;

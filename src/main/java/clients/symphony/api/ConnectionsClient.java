@@ -74,7 +74,11 @@ public class ConnectionsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getConnections(status,userIds);
+            }
             return null;
         } else {
             return response.readEntity(InboundConnectionRequestList.class);
@@ -92,7 +96,11 @@ public class ConnectionsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return acceptConnectionRequest(userId);
+            }
             return null;
         } else {
             return response.readEntity(InboundConnectionRequest.class);
@@ -110,7 +118,11 @@ public class ConnectionsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return rejectConnectionRequest(userId);
+            }
             return null;
         } else {
             return response.readEntity(InboundConnectionRequest.class);
@@ -128,8 +140,11 @@ public class ConnectionsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
-            return null;
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return sendConnectionRequest(userId);
+            }            return null;
         } else {
             return response.readEntity(InboundConnectionRequest.class);
         }
@@ -144,7 +159,11 @@ public class ConnectionsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getConnectionRequestStatus(userId);
+            }
             return null;
         } else {
             return response.readEntity(InboundConnectionRequest.class);
@@ -160,7 +179,11 @@ public class ConnectionsClient extends APIClient {
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
                 .post(null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            handleError(response, botClient);
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                removeConnection(userId);
+            }
         }
     }
 
