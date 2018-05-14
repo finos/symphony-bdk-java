@@ -2,7 +2,7 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoomMember {
     private Long id;
     private Boolean owner;

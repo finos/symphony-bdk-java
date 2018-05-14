@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Stream {
 
     private String streamId;

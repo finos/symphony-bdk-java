@@ -113,8 +113,6 @@ public class DatafeedEventsService {
                     case "MESSAGESENT":
 
                         MessageSent messageSent = event.getPayload().getMessageSent();
-                        String messageContent = SymMessageParser.parseContent(messageSent.getMessage().getMessage());
-                        messageSent.getMessage().setMessageText(messageContent);
 
                         if (messageSent.getMessage().getStream().getStreamType().equals("ROOM")) {
                             for (RoomListener listener : roomListeners) {

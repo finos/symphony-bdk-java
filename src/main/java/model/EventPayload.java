@@ -3,7 +3,7 @@ package model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import model.events.*;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EventPayload {
 
     private MessageSent messageSent;

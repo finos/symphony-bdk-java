@@ -7,7 +7,6 @@ import configuration.SymConfig;
 import exceptions.*;
 import model.UserInfo;
 import services.DatafeedEventsService;
-import services.PresenceService;
 
 import javax.ws.rs.core.NoContentException;
 

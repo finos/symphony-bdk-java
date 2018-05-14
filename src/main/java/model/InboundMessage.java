@@ -1,12 +1,12 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import utils.SymMessageParser;
 
 import java.util.List;
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InboundMessage {
-    @JsonIgnoreProperties
     private String messageId;
     private Long timestamp;
     private String message;
@@ -110,10 +110,10 @@ public class InboundMessage {
     }
 
     public String getMessageText() {
+        if(messageText==null){
+            messageText = SymMessageParser.messageToText(message,data);
+        }
         return messageText;
     }
 
-    public void setMessageText(String messageText) {
-        this.messageText = messageText;
-    }
 }

@@ -2,7 +2,7 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StreamInfo {
     private String id;
     private Boolean crossPod;

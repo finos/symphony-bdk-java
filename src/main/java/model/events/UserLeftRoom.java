@@ -1,7 +1,9 @@
 package model.events;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import model.Stream;
 import model.User;
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class UserLeftRoom {
     private Stream stream;

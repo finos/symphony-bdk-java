@@ -1,6 +1,8 @@
 package model.events;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import model.InboundMessage;
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class SharedPost {
 

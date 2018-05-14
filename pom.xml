@@ -125,6 +125,11 @@
             <artifactId>jersey-media-multipart</artifactId>
             <version>2.26</version>
         </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony</groupId>
+            <artifactId>messageml</artifactId>
+            <version>0.9.33</version>
+        </dependency>
     </dependencies>
 
     <distributionManagement>

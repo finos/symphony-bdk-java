@@ -58,6 +58,7 @@ public class MessagesTest {
         try {
             List<InboundMessage> inboundMessages = botClient.getMessagesClient().getMessagesFromStream(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("mike.scannell@symphony.com",true).getId()),0,0,100);
             assertNotNull(!inboundMessages.isEmpty());
+            assertNotNull(inboundMessages.get(0).getMessageText());
         } catch (SymClientException e) {
             e.printStackTrace();
         } catch (NoContentException e) {
