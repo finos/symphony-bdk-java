@@ -25,7 +25,7 @@ public class SymBotClient {
     private UserInfo botUserInfo;
 
 
-    public static SymBotClient initBot(SymConfig config, SymBotAuth symBotAuth){
+    public static SymBotClient initBot(SymConfig config, ISymBotAuth symBotAuth){
         if(botClient==null){
             botClient = new SymBotClient(config, symBotAuth);
             return botClient;

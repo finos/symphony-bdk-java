@@ -1,5 +1,8 @@
 package configuration;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SymConfig {
 
     private String sessionAuthHost;
@@ -23,6 +26,34 @@ public class SymConfig {
     private int authTokenRefreshPeriod;
     private String truststorePath;
     private String truststorePassword;
+    private String botUsername;
+    private String botPrivateKeyPath;
+    private String botPrivateKeyName;
+
+
+    public String getBotPrivateKeyPath() {
+        return botPrivateKeyPath;
+    }
+
+    public void setBotPrivateKeyPath(String botPrivateKeyPath) {
+        this.botPrivateKeyPath = botPrivateKeyPath;
+    }
+
+    public String getBotPrivateKeyName() {
+        return botPrivateKeyName;
+    }
+
+    public void setBotPrivateKeyName(String botPrivateKeyName) {
+        this.botPrivateKeyName = botPrivateKeyName;
+    }
+
+    public String getBotUsername() {
+        return botUsername;
+    }
+
+    public void setBotUsername(String botUsername) {
+        this.botUsername = botUsername;
+    }
 
     public String getSessionAuthHost() {
         return sessionAuthHost;

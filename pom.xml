@@ -31,6 +31,13 @@
         <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
     </scm>
 
+
+    <properties>
+        <jjwt.version>0.6.0</jjwt.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <commons-io.version>2.5</commons-io.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -129,6 +136,21 @@
             <groupId>org.symphonyoss.symphony</groupId>
             <artifactId>messageml</artifactId>
             <version>0.9.33</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-codec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
     </dependencies>
 
