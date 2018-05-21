@@ -59,6 +59,16 @@ public class SymBotAuth implements ISymBotAuth{
         this.config = config;
         this.sessionAuthClient = sessionAuthClient;
         this.kmAuthClient = kmAuthClient;
+        if(config.getTruststorePath()!=null) {
+            System.setProperty("javax.net.ssl.trustStore", config.getTruststorePath());
+        }
+        if (config.getTruststorePassword() != null) {
+            System.setProperty("javax.net.ssl.trustStorePassword", config.getTruststorePassword());
+        }
+
+        System.setProperty("javax.net.ssl.keyStore", config.getBotCertPath()+config.getBotCertName()+".p12");
+        System.setProperty("javax.net.ssl.keyStorePassword", config.getBotCertPassword());
+        System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     }
 
     public void authenticate(){
