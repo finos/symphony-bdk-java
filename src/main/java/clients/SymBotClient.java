@@ -39,15 +39,15 @@ public class SymBotClient {
         return botClient;
     }
 
-    public static SymBotClient initBot(SymConfig config, ISymBotAuth symBotAuth, Client sessionAuthClient, Client podClient, Client agentClient, Client kmAuthClient) {
+    public static SymBotClient initBot(SymConfig config, ISymBotAuth symBotAuth, Client podClient, Client agentClient) {
         if(botClient==null){
-            botClient = new SymBotClient(config, symBotAuth,sessionAuthClient,podClient,agentClient,kmAuthClient);
+            botClient = new SymBotClient(config, symBotAuth,podClient,agentClient);
             return botClient;
         }
         return botClient;
     }
 
-    private SymBotClient(SymConfig config, ISymBotAuth symBotAuth, Client sessionAuthClient, Client podClient, Client agentClient, Client kmAuthClient) {
+    private SymBotClient(SymConfig config, ISymBotAuth symBotAuth, Client podClient, Client agentClient) {
         this.config = config;
         this.symBotAuth = symBotAuth;
         this.podClient = podClient;

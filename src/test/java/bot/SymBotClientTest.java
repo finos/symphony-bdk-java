@@ -4,7 +4,12 @@ import authentication.SymBotAuth;
 import clients.SymBotClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.junit.Test;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 
 import static org.junit.Assert.*;
 
@@ -27,5 +32,13 @@ public class SymBotClientTest {
         botClient.clearBotClient();
         SymBotClient botClient2 = SymBotClient.initBot(config,botAuth);
         assertNotEquals(botClient,botClient2);
+    }
+
+    public void proxyClientInitTest(){
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
+        Client proxyClient =  ClientBuilder.newClient(clientConfig);
+        SymBotAuth botAuth = new SymBotAuth(config,proxyClient,proxyClient);
+        SymBotClient botClient = SymBotClient.initBot(config,botAuth,proxyClient,proxyClient);
     }
 }
