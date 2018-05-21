@@ -58,9 +58,8 @@ public class ConnectionsClient extends APIClient {
                 }
             }
         }
-        Client client = ClientBuilder.newClient();
         WebTarget builder
-                = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETCONNECTIONS);
 
         if(status!=null){
@@ -88,9 +87,8 @@ public class ConnectionsClient extends APIClient {
     public InboundConnectionRequest acceptConnectionRequest(Long userId) throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ACCEPTCONNECTION)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -110,9 +108,8 @@ public class ConnectionsClient extends APIClient {
     public InboundConnectionRequest rejectConnectionRequest(Long userId) throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REJECTCONNECTION)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -132,9 +129,8 @@ public class ConnectionsClient extends APIClient {
     public InboundConnectionRequest sendConnectionRequest(Long userId) throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SENDCONNECTIONREQUEST)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -151,9 +147,8 @@ public class ConnectionsClient extends APIClient {
     }
 
     public InboundConnectionRequest getConnectionRequestStatus(Long userId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -171,9 +166,8 @@ public class ConnectionsClient extends APIClient {
     }
 
     public void removeConnection(Long userId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())

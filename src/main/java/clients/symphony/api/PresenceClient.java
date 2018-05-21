@@ -23,9 +23,8 @@ public class PresenceClient extends APIClient{
     }
 
     public UserPresence getUserPresence(Long userId, boolean local) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERPRESENCE.replace("{uid}", Long.toString(userId)))
                 .queryParam("local", local)
                 .request(MediaType.APPLICATION_JSON)
@@ -45,9 +44,8 @@ public class PresenceClient extends APIClient{
     public UserPresence setPresence(String status) throws SymClientException {
         Category category = new Category();
         category.setCategory(status);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SETPRESENCE)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -64,9 +62,8 @@ public class PresenceClient extends APIClient{
     }
 
     public void registerInterestExtUser(List<Long> userIds) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REGISTERPRESENCEINTEREST)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())

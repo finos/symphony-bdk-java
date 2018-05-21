@@ -27,9 +27,8 @@ public class StreamsClient extends APIClient {
     }
 
     public String getUserListIM(List<Long> userIdList) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETIM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -47,9 +46,8 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo createRoom(Room room) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.CREATEROOM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -67,10 +65,9 @@ public class StreamsClient extends APIClient {
     }
 
     public void addMemberToRoom(String streamId, Long userId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         NumericId id = new NumericId(userId);
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADDMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -85,10 +82,9 @@ public class StreamsClient extends APIClient {
     }
 
     public void removeMemberFromRoom(String streamId, Long userId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         NumericId id = new NumericId(userId);
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REMOVEMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -103,9 +99,8 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo getRoomInfo(String streamId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -122,9 +117,8 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo updateRoom(String streamId, Room room) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.UPDATEROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -145,9 +139,8 @@ public class StreamsClient extends APIClient {
 
     //TODO: CHECK WHY 404
     public StreamInfo getStreamInfo(String streamId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETSTREAMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -167,9 +160,8 @@ public class StreamsClient extends APIClient {
     }
 
     public List<RoomMember> getRoomMembers(String streamId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETROOMMEMBERS.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -196,9 +188,8 @@ public class StreamsClient extends APIClient {
 
     //TODO: CHECK WHY 403
     private void setActiveRoom(String streamId, boolean active) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SETACTIVE.replace("{id}", streamId))
                 .queryParam("active", active)
                 .request(MediaType.APPLICATION_JSON)
@@ -215,9 +206,8 @@ public class StreamsClient extends APIClient {
 
     public void promoteUserToOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.PROMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
@@ -233,9 +223,8 @@ public class StreamsClient extends APIClient {
 
     public void demoteUserFromOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.DEMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())

@@ -25,10 +25,9 @@ public class UsersClient extends APIClient{
     }
 
     public UserInfo getUserFromUsername(String username) throws SymClientException, NoContentException {
-        Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERV2)
                 .queryParam("username", username)
                 .queryParam("local", true)
@@ -52,10 +51,9 @@ public class UsersClient extends APIClient{
     }
 
     public UserInfo getUserFromEmail(String email, Boolean local) throws SymClientException, NoContentException {
-        Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERSV3)
                 .queryParam("email", email)
                 .queryParam("local", local)
@@ -81,10 +79,9 @@ public class UsersClient extends APIClient{
     }
 
     public UserInfo getUserFromId(Long id, Boolean local) throws SymClientException, NoContentException {
-        Client client = ClientBuilder.newClient();
         UserInfo info = null;
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERSV3)
                 .queryParam("uid", id)
                 .queryParam("local", local)
@@ -145,9 +142,8 @@ public class UsersClient extends APIClient{
             throw new NoContentException("No user sent for lookup");
         }
 
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERSV3)
                 .queryParam(emailBased? "email" :"uid", lookUpListString.toString())
                 .queryParam("local", local)

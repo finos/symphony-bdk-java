@@ -31,7 +31,7 @@ public class UsersTest {
         botAuth.authenticate();
         botClient = SymBotClient.initBot(config, botAuth);
         try {
-            user = botClient.getUsersClient().getUserFromEmail("manuela.caicedo@example.com",true);
+            user = botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com",true);
         } catch (SymClientException e) {
             e.printStackTrace();
         } catch (NoContentException e) {

@@ -13,6 +13,6 @@ public class SymConfigLoaderTest {
     public void loadConfig() {
         SymConfig config = configLoader.loadFromFile(configFilePath);
         assertNotNull(config);
-        assertEquals("preview.symphony.com", config.getSessionAuthHost());
+        assertEquals("sup-api.symphony.com", config.getSessionAuthHost());
     }
 }

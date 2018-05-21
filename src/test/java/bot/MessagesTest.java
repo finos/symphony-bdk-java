@@ -39,9 +39,9 @@ public class MessagesTest {
     public void messageCreateTest() {
 
         OutboundMessage message = new OutboundMessage();
-        message.setMessage("test");
+        message.setMessage("test <emoji shortcode=\"thumbsup\"/>");
         try {
-            InboundMessage inboundMessage = botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@example.com",true).getId()),message);
+            InboundMessage inboundMessage = botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com",true).getId()),message);
             assertNotNull(inboundMessage.getMessage());
             assertNotNull(inboundMessage.getMessageId());
             MessageStatus messageStatus = botClient.getMessagesClient().getMessageStatus(inboundMessage.getMessageId());

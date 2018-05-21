@@ -23,16 +23,16 @@ public class MessagesClient extends APIClient{
 
     public MessagesClient(SymBotClient client) {
         botClient = client;
+
     }
 
     private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags) throws SymClientException {
         //TODO: Add file support
+                Client httpClient =  botClient.getAgentClient();
+                httpClient.register(MultiPartFeature.class);
+                httpClient.register(JacksonFeature.class);
 
-                ClientConfig clientConfig = new ClientConfig();
-                clientConfig.register(MultiPartFeature.class);
-                clientConfig.register(JacksonFeature.class);
 
-                Client httpClient =  ClientBuilder.newClient(clientConfig);
                 WebTarget target = httpClient.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                         .path(AgentConstants.CREATEMESSAGE.replace("{sid}", streamId));
 
@@ -91,9 +91,8 @@ public class MessagesClient extends APIClient{
 
     public List<InboundMessage> getMessagesFromStream(String streamId, int since, int skip, int limit) throws SymClientException {
         List<InboundMessage> result = null;
-        Client client = ClientBuilder.newClient();
         WebTarget builder
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getPodPort())
                 .path(AgentConstants.GETMESSAGES.replace("{sid}", streamId))
                 .queryParam("since", since);
 
@@ -126,9 +125,9 @@ public class MessagesClient extends APIClient{
     }
 
     public byte[] getAttachment(String streamId, String attachmentId, String messageId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
+
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentHost())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentHost())
                 .path(AgentConstants.GETATTACHMENT.replace("{sid}", streamId))
                 .queryParam("fileId", attachmentId)
                 .queryParam("messageId", messageId)
@@ -161,9 +160,8 @@ public class MessagesClient extends APIClient{
     }
 
     public MessageStatus getMessageStatus(String messageId) throws SymClientException {
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETMESSAGESTATUS.replace("{mid}", messageId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymBotAuth().getSessionToken())

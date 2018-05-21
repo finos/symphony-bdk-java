@@ -36,9 +36,9 @@ public class DatafeedClient extends  APIClient{
 
     public String createDatafeed() throws SymClientException {
 
-        Client client = ClientBuilder.newClient();
+
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.CREATEDATAFEED)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botAuth.getSessionToken())
@@ -59,9 +59,8 @@ public class DatafeedClient extends  APIClient{
 
     public List<DatafeedEvent> readDatafeed(String id) throws SymClientException {
         List<DatafeedEvent> datafeedEvents = null;
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.READDATAFEED.replace("{id}",id))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botAuth.getSessionToken())

@@ -29,7 +29,7 @@ public class StreamsTest {
     private Long userId1;
     private Long userId2;
     private List<Long> userList;
-    private String streamId= "JjZgRyHTib--xjKRocvfWn___pzVLyU6dA";
+    private String streamId= "yDbrhJBuBDNZaJv6Pm_NGH___px_gz5fdA";
 
     @Before
     public void oneTimeSetUp() {
@@ -39,7 +39,7 @@ public class StreamsTest {
         botAuth.authenticate();
         botClient = SymBotClient.initBot(config, botAuth);
         try {
-           userId1 = botClient.getUsersClient().getUserFromEmail("manuela.caicedo@example.com",true).getId();
+           userId1 = botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com",true).getId();
            userId2 = botClient.getUsersClient().getUserFromEmail("mike.scannell@symphony.com",true).getId();
            userList = new ArrayList<>();
            userList.add(userId1);

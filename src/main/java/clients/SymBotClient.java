@@ -6,8 +6,12 @@ import clients.symphony.api.*;
 import configuration.SymConfig;
 import exceptions.*;
 import model.UserInfo;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import services.DatafeedEventsService;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.NoContentException;
 
 public class SymBotClient {
@@ -23,6 +27,8 @@ public class SymBotClient {
     private ConnectionsClient connectionsClient;
     private DatafeedEventsService datafeedEventsService;
     private UserInfo botUserInfo;
+    private Client podClient;
+    private Client agentClient;
 
 
     public static SymBotClient initBot(SymConfig config, ISymBotAuth symBotAuth){
@@ -33,9 +39,49 @@ public class SymBotClient {
         return botClient;
     }
 
+    public static SymBotClient initBot(SymConfig config, ISymBotAuth symBotAuth, Client sessionAuthClient, Client podClient, Client agentClient, Client kmAuthClient) {
+        if(botClient==null){
+            botClient = new SymBotClient(config, symBotAuth,sessionAuthClient,podClient,agentClient,kmAuthClient);
+            return botClient;
+        }
+        return botClient;
+    }
+
+    private SymBotClient(SymConfig config, ISymBotAuth symBotAuth, Client sessionAuthClient, Client podClient, Client agentClient, Client kmAuthClient) {
+        this.config = config;
+        this.symBotAuth = symBotAuth;
+        this.podClient = podClient;
+        this.agentClient = agentClient;
+        try {
+            botUserInfo = this.getUsersClient().getUserFromEmail(config.getBotEmailAddress(), true);
+        } catch (NoContentException e) {
+            e.printStackTrace();
+        }  catch (SymClientException e) {
+            e.printStackTrace();
+        }
+    }
+
     private SymBotClient(SymConfig config, ISymBotAuth symBotAuth){
         this.config = config;
         this.symBotAuth = symBotAuth;
+
+        if(config.getProxyURL()==null){
+            Client client = ClientBuilder.newClient();
+            this.podClient = client;
+            this.agentClient = client;
+        }
+        else {
+            Client client = ClientBuilder.newClient();
+            this.agentClient = client;
+            ClientConfig clientConfig = new ClientConfig();
+            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
+            if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD,config.getProxyPassword());
+            }
+            Client proxyClient =  ClientBuilder.newClient(clientConfig);
+            this.podClient = proxyClient;
+        }
         try {
             botUserInfo = this.getUsersClient().getUserFromEmail(config.getBotEmailAddress(), true);
         } catch (NoContentException e) {
@@ -110,4 +156,26 @@ public class SymBotClient {
     public void clearBotClient(){
         botClient = null;
     }
+
+    public static SymBotClient getBotClient() {
+        return botClient;
+    }
+
+
+    public Client getPodClient() {
+        return podClient;
+    }
+
+    public Client getAgentClient() {
+        return agentClient;
+    }
+
+    public void setPodClient(Client podClient) {
+        this.podClient = podClient;
+    }
+
+    public void setAgentClient(Client agentClient) {
+        this.agentClient = agentClient;
+    }
+
 }
