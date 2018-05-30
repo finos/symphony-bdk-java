@@ -1,13 +1,11 @@
 package clients.symphony.api;
 
-import clients.SymBotClient;
+import clients.ISymClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.*;
 import model.*;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -15,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StreamsClient extends APIClient {
-    private SymBotClient botClient;
-    public StreamsClient(SymBotClient client) {
+    private ISymClient botClient;
+    public StreamsClient(ISymClient client) {
         botClient=client;
     }
 
@@ -31,7 +29,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETIM)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
         String streamId = response.readEntity(StringId.class).getId();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -50,7 +48,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.CREATEROOM)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
         RoomInfo roomInfo = response.readEntity(RoomInfo.class);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -70,7 +68,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADDMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -87,7 +85,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REMOVEMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -103,7 +101,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -121,7 +119,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.UPDATEROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -143,7 +141,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETSTREAMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -164,7 +162,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETROOMMEMBERS.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -193,7 +191,7 @@ public class StreamsClient extends APIClient {
                 .path(PodConstants.SETACTIVE.replace("{id}", streamId))
                 .queryParam("active", active)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -210,7 +208,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.PROMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -227,7 +225,7 @@ public class StreamsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.DEMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {

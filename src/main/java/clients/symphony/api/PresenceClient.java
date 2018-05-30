@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import clients.ISymClient;
 import clients.SymBotClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
@@ -17,8 +18,8 @@ import java.util.List;
 
 public class PresenceClient extends APIClient{
 
-    SymBotClient botClient;
-    public PresenceClient(SymBotClient client) {
+    ISymClient botClient;
+    public PresenceClient(ISymClient client) {
         botClient = client;
     }
 
@@ -28,7 +29,7 @@ public class PresenceClient extends APIClient{
                 .path(PodConstants.GETUSERPRESENCE.replace("{uid}", Long.toString(userId)))
                 .queryParam("local", local)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -48,7 +49,7 @@ public class PresenceClient extends APIClient{
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SETPRESENCE)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(category, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -66,7 +67,7 @@ public class PresenceClient extends APIClient{
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REGISTERPRESENCEINTEREST)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(userIds, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {

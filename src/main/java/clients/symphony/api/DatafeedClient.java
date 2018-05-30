@@ -1,6 +1,6 @@
 package clients.symphony.api;
 
-import authentication.ISymBotAuth;
+
 import authentication.SymBotAuth;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
@@ -24,12 +24,10 @@ import java.util.List;
 public class DatafeedClient extends  APIClient{
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
-    private ISymBotAuth botAuth;
     private SymConfig config;
 
     public DatafeedClient(SymBotClient client){
         this.botClient = client;
-        this.botAuth = client.getSymBotAuth();
         this.config = client.getConfig();
     }
 
@@ -41,8 +39,8 @@ public class DatafeedClient extends  APIClient{
                 = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.CREATEDATAFEED)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botAuth.getSessionToken())
-                .header("keyManagerToken", botAuth.getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -63,8 +61,8 @@ public class DatafeedClient extends  APIClient{
                 = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.READDATAFEED.replace("{id}",id))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botAuth.getSessionToken())
-                .header("keyManagerToken", botAuth.getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
         if(response.getStatus() == 204){
             datafeedEvents = new ArrayList<>();

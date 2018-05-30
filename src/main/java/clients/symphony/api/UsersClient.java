@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import clients.ISymClient;
 import clients.SymBotClient;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class UsersClient extends APIClient{
 
-    private SymBotClient botClient;
+    private ISymClient botClient;
 
-    public UsersClient(SymBotClient client) {
+    public UsersClient(ISymClient client) {
         botClient = client;
     }
 
@@ -32,8 +33,7 @@ public class UsersClient extends APIClient{
                 .queryParam("username", username)
                 .queryParam("local", true)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if(response.getStatus() == 204){
             throw new NoContentException("No user found.");
@@ -58,8 +58,7 @@ public class UsersClient extends APIClient{
                 .queryParam("email", email)
                 .queryParam("local", local)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if(response.getStatus() == 204){
             throw new NoContentException("No user found.");
@@ -86,8 +85,7 @@ public class UsersClient extends APIClient{
                 .queryParam("uid", id)
                 .queryParam("local", local)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if(response.getStatus() == 204){
             throw new NoContentException("No user found.");
@@ -148,8 +146,7 @@ public class UsersClient extends APIClient{
                 .queryParam(emailBased? "email" :"uid", lookUpListString.toString())
                 .queryParam("local", local)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if(response.getStatus() == 204){
             return infoList;

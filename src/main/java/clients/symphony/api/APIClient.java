@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import clients.ISymClient;
 import clients.SymBotClient;
 import exceptions.*;
 import model.ClientError;
@@ -11,7 +12,7 @@ import javax.ws.rs.core.Response;
 public abstract class APIClient {
     private final Logger logger = LoggerFactory.getLogger(APIClient.class);
 
-    void handleError(Response response, SymBotClient botClient) throws SymClientException {
+    void handleError(Response response, ISymClient botClient) throws SymClientException {
         try {
             ClientError error = response.readEntity((ClientError.class));
             if (response.getStatus() == 400){
@@ -19,7 +20,7 @@ public abstract class APIClient {
                 throw new APIClientErrorException(error.getMessage());
             } else if (response.getStatus() == 401){
                 logger.error("User unauthorized, refreshing tokens");
-                botClient.getSymBotAuth().authenticate();
+                botClient.getSymAuth().authenticate();
                 throw new UnauthorizedException(error.getMessage());
             } else if (response.getStatus() == 403){
                 logger.error("Forbidden: Caller lacks necessary entitlement.");

@@ -26,7 +26,7 @@ public class SymBotClientTest {
         botAuth.authenticate();
         SymBotClient botClient = SymBotClient.initBot(config,botAuth);
         assertNotNull(botClient);
-        assertNotNull(botClient.getSymBotAuth());
+        assertNotNull(botClient.getSymAuth());
         SymBotClient botClient1 = SymBotClient.initBot(config,botAuth);
         assertEquals(botClient,botClient1);
         botClient.clearBotClient();
@@ -37,8 +37,7 @@ public class SymBotClientTest {
     public void proxyClientInitTest(){
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-        Client proxyClient =  ClientBuilder.newClient(clientConfig);
-        SymBotAuth botAuth = new SymBotAuth(config,proxyClient,proxyClient);
-        SymBotClient botClient = SymBotClient.initBot(config,botAuth,proxyClient,proxyClient);
+        SymBotAuth botAuth = new SymBotAuth(config,clientConfig,clientConfig);
+        SymBotClient botClient = SymBotClient.initBot(config,botAuth,clientConfig,clientConfig);
     }
 }

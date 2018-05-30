@@ -1,10 +1,10 @@
 package clients;
 
 import authentication.ISymAuth;
-import authentication.SymBotAuth;
+import authentication.SymOBOUserAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
-import exceptions.*;
+import exceptions.SymClientException;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -14,49 +14,46 @@ import utils.HttpClientBuilderHelper;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.NoContentException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
-public class SymBotClient implements ISymClient {
-
-    private static SymBotClient botClient;
+public class SymOBOClient implements ISymClient {
+    private static SymOBOClient oboClient;
     private SymConfig config;
-    private ISymAuth symBotAuth;
-    private DatafeedClient datafeedClient;
+    private SymOBOUserAuth symAuth;
     private MessagesClient messagesClient;
     private PresenceClient presenceClient;
     private StreamsClient streamsClient;
     private UsersClient usersClient;
     private ConnectionsClient connectionsClient;
-    private DatafeedEventsService datafeedEventsService;
-    private UserInfo botUserInfo;
     private Client podClient;
     private Client agentClient;
 
-
-    public static SymBotClient initBot(SymConfig config, ISymAuth symBotAuth){
-        if(botClient==null){
-            botClient = new SymBotClient(config, symBotAuth);
-            return botClient;
+    public static SymOBOClient initOBOClient(SymConfig config, SymOBOUserAuth auth) {
+        if(oboClient==null){
+            oboClient = new SymOBOClient(config, auth);
+            return oboClient;
         }
-        return botClient;
+        return oboClient;
     }
 
-    private SymBotClient(SymConfig config, ISymAuth symBotAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
+    private SymOBOClient(SymConfig config, SymOBOUserAuth symAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
         this.config = config;
-        this.symBotAuth = symBotAuth;
-        this.podClient = ClientBuilder.newClient(podClientConfig);
-        this.agentClient = ClientBuilder.newClient(agentClientConfig);
-        try {
-            botUserInfo = this.getUsersClient().getUserFromEmail(config.getBotEmailAddress(), true);
-        } catch (NoContentException e) {
-            e.printStackTrace();
-        }  catch (SymClientException e) {
-            e.printStackTrace();
-        }
+        this.symAuth = symAuth;
+        this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podClientConfig).build();
+        this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentClientConfig).build();
     }
 
-    private SymBotClient(SymConfig config, ISymAuth symBotAuth){
+    public SymOBOClient(SymConfig config, SymOBOUserAuth symAuth) {
         this.config = config;
-        this.symBotAuth = symBotAuth;
+        this.symAuth = symAuth;
+
+
 
         if(config.getProxyURL()==null){
             this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build();
@@ -72,41 +69,16 @@ public class SymBotClient implements ISymClient {
             }
             this.podClient =  HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(clientConfig).build();
         }
-        try {
-            botUserInfo = this.getUsersClient().getUserFromEmail(config.getBotEmailAddress(), true);
-        } catch (NoContentException e) {
-            e.printStackTrace();
-        }  catch (SymClientException e) {
-            e.printStackTrace();
-        }
     }
 
-    public static SymBotClient initBot(SymConfig config, SymBotAuth botAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
-        if(botClient==null){
-            botClient = new SymBotClient(config, botAuth,podClientConfig,agentClientConfig);
-            return botClient;
-        }
-        return botClient;
-    }
-
-
-    public UserInfo getBotUserInfo() {
-        return botUserInfo;
-    }
-
-    public DatafeedClient getDatafeedClient() {
-        if (datafeedClient == null){
-            datafeedClient= new DatafeedClient(this);
-        }
-        return datafeedClient;
-    }
-
+    @Override
     public SymConfig getConfig() {
         return config;
     }
 
+    @Override
     public ISymAuth getSymAuth() {
-        return symBotAuth;
+        return symAuth;
     }
 
     public MessagesClient getMessagesClient() {
@@ -144,36 +116,25 @@ public class SymBotClient implements ISymClient {
         return connectionsClient;
     }
 
-    public DatafeedEventsService getDatafeedEventsService() {
-        if (datafeedEventsService == null){
-            datafeedEventsService = new DatafeedEventsService(this);
-        }
-        return datafeedEventsService;
-    }
-
-    public void clearBotClient(){
-        botClient = null;
-    }
-
-    public static SymBotClient getBotClient() {
-        return botClient;
-    }
-
-
+    @Override
     public Client getPodClient() {
         return podClient;
     }
 
+    @Override
     public Client getAgentClient() {
         return agentClient;
     }
 
+    @Override
     public void setPodClient(Client podClient) {
         this.podClient = podClient;
     }
 
+    @Override
     public void setAgentClient(Client agentClient) {
         this.agentClient = agentClient;
     }
+
 
 }

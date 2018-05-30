@@ -1,20 +1,33 @@
 package authentication;
 
 import configuration.SymConfig;
-import exceptions.NoConfigException;
+import exceptions.*;
+import model.ClientError;
 import model.Token;
+import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.HttpClientBuilderHelper;
 
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.concurrent.TimeUnit;
 
-public class SymBotAuth implements ISymBotAuth{
+public class SymBotAuth implements ISymAuth{
     private final Logger logger = LoggerFactory.getLogger(SymBotAuth.class);
     private String sessionToken;
     private String kmToken;
@@ -24,14 +37,13 @@ public class SymBotAuth implements ISymBotAuth{
 
     public SymBotAuth(SymConfig config){
         this.config = config;
-
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBotBuilder(config);
+        Client client = clientBuilder.build();
         if(config.getProxyURL()==null){
-            Client client = ClientBuilder.newClient();
             this.sessionAuthClient = client;
             this.kmAuthClient = client;
         }
         else {
-            Client client = ClientBuilder.newClient();
             this.kmAuthClient = client;
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
@@ -39,37 +51,27 @@ public class SymBotAuth implements ISymBotAuth{
                 clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,config.getProxyPassword());
             }
-            Client proxyClient =  ClientBuilder.newClient(clientConfig);
+            Client proxyClient = clientBuilder.withConfig(clientConfig).build();
             this.sessionAuthClient = proxyClient;
         }
-        //TODO: not use system properties
-        if(config.getTruststorePath()!=null) {
-            System.setProperty("javax.net.ssl.trustStore", config.getTruststorePath());
-        }
-        if (config.getTruststorePassword() != null) {
-            System.setProperty("javax.net.ssl.trustStorePassword", config.getTruststorePassword());
-        }
 
-        System.setProperty("javax.net.ssl.keyStore", config.getBotCertPath()+config.getBotCertName()+".p12");
-        System.setProperty("javax.net.ssl.keyStorePassword", config.getBotCertPassword());
-        System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     }
 
-    public SymBotAuth(SymConfig config, Client sessionAuthClient, Client kmAuthClient) {
+    public SymBotAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
         this.config = config;
-        this.sessionAuthClient = sessionAuthClient;
-        this.kmAuthClient = kmAuthClient;
-        if(config.getTruststorePath()!=null) {
-            System.setProperty("javax.net.ssl.trustStore", config.getTruststorePath());
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBotBuilder(config);
+        if (sessionAuthClientConfig!=null){
+            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+        } else {
+            this.sessionAuthClient = clientBuilder.build();
         }
-        if (config.getTruststorePassword() != null) {
-            System.setProperty("javax.net.ssl.trustStorePassword", config.getTruststorePassword());
+        if (kmAuthClient==null){
+            this.kmAuthClient = clientBuilder.withConfig(kmAuthClientConfig).build();
+        } else {
+            this.kmAuthClient = clientBuilder.build();
         }
-
-        System.setProperty("javax.net.ssl.keyStore", config.getBotCertPath()+config.getBotCertName()+".p12");
-        System.setProperty("javax.net.ssl.keyStorePassword", config.getBotCertPassword());
-        System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     }
+
 
     public void authenticate(){
         sessionAuthenticate();
@@ -79,13 +81,37 @@ public class SymBotAuth implements ISymBotAuth{
     public void sessionAuthenticate(){
         if (config!=null) {
             logger.info("Session auth");
-            Response sessionTokenResponse
+            Response response
                     = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
                     .path(AuthEndpointConstants.SESSIONAUTHPATH)
                     .request(MediaType.APPLICATION_JSON)
                     .post(null);
-            Token sessionTokenResponseContent = sessionTokenResponse.readEntity(Token.class);
-            this.sessionToken = sessionTokenResponseContent.getToken();
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    ClientError error = response.readEntity((ClientError.class));
+                    if (response.getStatus() == 400){
+                        logger.error("Client error occurred", error);
+                    } else if (response.getStatus() == 401){
+                        logger.error("User unauthorized, refreshing tokens");
+                    } else if (response.getStatus() == 403){
+                        logger.error("Forbidden: Caller lacks necessary entitlement.");
+                    } else if (response.getStatus() == 500) {
+                        logger.error(error.getMessage());
+                    }
+                } catch (Exception e){
+                    logger.error("Unexpected error");
+                    e.printStackTrace();
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                sessionAuthenticate();
+            } else {
+                Token sessionTokenResponseContent = response.readEntity(Token.class);
+                this.sessionToken = sessionTokenResponseContent.getToken();
+            }
         } else {
             try {
                 throw new NoConfigException("Must provide a SymConfig object to authenticate");
@@ -99,13 +125,38 @@ public class SymBotAuth implements ISymBotAuth{
     public void kmAuthenticate(){
         logger.info("KM auth");
         if (config!=null) {
-            Response kmTokenResponse
+            Response response
                     = kmAuthClient.target(AuthEndpointConstants.HTTPSPREFIX+config.getKeyAuthHost()+":"+config.getKeyAuthPort())
                     .path(AuthEndpointConstants.KEYAUTHPATH)
                     .request(MediaType.APPLICATION_JSON)
                     .post(null);
-            Token kmTokenResponseContent = kmTokenResponse.readEntity(Token.class);
-            this.kmToken = kmTokenResponseContent.getToken();
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    ClientError error = response.readEntity((ClientError.class));
+                    if (response.getStatus() == 400){
+                        logger.error("Client error occurred", error);
+                    } else if (response.getStatus() == 401){
+                        logger.error("User unauthorized, refreshing tokens");
+                    } else if (response.getStatus() == 403){
+                        logger.error("Forbidden: Caller lacks necessary entitlement.");
+                    } else if (response.getStatus() == 500) {
+                        logger.error(error.getMessage());
+                    }
+                } catch (Exception e){
+                    logger.error("Unexpected error");
+                    e.printStackTrace();
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(30);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                kmAuthenticate();
+            } else {
+                Token kmTokenResponseContent = response.readEntity(Token.class);
+                this.kmToken = kmTokenResponseContent.getToken();
+            }
+
         } else {
             try {
                 throw new NoConfigException("Must provide a SymConfig object to authenticate");

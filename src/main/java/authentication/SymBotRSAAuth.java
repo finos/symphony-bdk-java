@@ -1,19 +1,9 @@
 package authentication;
 
-import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
-import clients.symphony.api.constants.PodConstants;
 import configuration.SymConfig;
-import exceptions.NoConfigException;
 import exceptions.UnauthorizedException;
-import model.InboundMessage;
 import model.Token;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.FormDataBodyPart;
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.JwtHelper;
@@ -28,7 +18,7 @@ import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SymBotRSAAuth implements ISymBotAuth {
+public class SymBotRSAAuth implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
     private String sessionToken;
     private String kmToken;

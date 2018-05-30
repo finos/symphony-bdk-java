@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import clients.ISymClient;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
@@ -20,9 +21,9 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 public class ConnectionsClient extends APIClient {
-    private SymBotClient botClient;
+    private ISymClient botClient;
 
-    public ConnectionsClient(SymBotClient client) {
+    public ConnectionsClient(ISymClient client) {
         botClient = client;
     }
 
@@ -70,7 +71,7 @@ public class ConnectionsClient extends APIClient {
         }
 
         Response response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -91,7 +92,7 @@ public class ConnectionsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ACCEPTCONNECTION)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -112,7 +113,7 @@ public class ConnectionsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REJECTCONNECTION)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -133,7 +134,7 @@ public class ConnectionsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SENDCONNECTIONREQUEST)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -151,7 +152,7 @@ public class ConnectionsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -170,7 +171,7 @@ public class ConnectionsClient extends APIClient {
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(null);
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {

@@ -1,6 +1,6 @@
 package authentication;
 
-public interface ISymBotAuth {
+public interface ISymAuth {
 
 
     public void authenticate();

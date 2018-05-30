@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import clients.ISymClient;
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
@@ -19,9 +20,9 @@ import java.util.Base64;
 import java.util.List;
 
 public class MessagesClient extends APIClient{
-    private SymBotClient botClient;
+    private ISymClient botClient;
 
-    public MessagesClient(SymBotClient client) {
+    public MessagesClient(ISymClient client) {
         botClient = client;
 
     }
@@ -38,8 +39,8 @@ public class MessagesClient extends APIClient{
 
                 Invocation.Builder invocationBuilder = target.request().accept(new String[]{"application/json"});
 
-                invocationBuilder = invocationBuilder.header("sessionToken",botClient.getSymBotAuth().getSessionToken());
-                invocationBuilder = invocationBuilder.header("keyManagerToken", botClient.getSymBotAuth().getKmToken());
+                invocationBuilder = invocationBuilder.header("sessionToken",botClient.getSymAuth().getSessionToken());
+                invocationBuilder = invocationBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
                 String messageContent = null;
                 if(appendTags){
@@ -104,8 +105,8 @@ public class MessagesClient extends APIClient{
             builder.queryParam("limit", limit);
         }
         Response response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
 
         if(response.getStatus() == 204){
@@ -132,8 +133,8 @@ public class MessagesClient extends APIClient{
                 .queryParam("fileId", attachmentId)
                 .queryParam("messageId", messageId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymBotAuth().getKmToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -164,7 +165,7 @@ public class MessagesClient extends APIClient{
                 = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETMESSAGESTATUS.replace("{mid}", messageId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymBotAuth().getSessionToken())
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
