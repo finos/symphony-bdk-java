@@ -55,6 +55,12 @@ public class MessagesClient extends APIClient{
                     FormDataContentDisposition contentDispData = FormDataContentDisposition.name("data").build();
                     multiPart.bodyPart(new FormDataBodyPart(contentDispData, message.getData()));
                 }
+                if(message.getAttachment()!=null && message.getAttachment().length>0){
+                    for (File file : message.getAttachment()) {
+                        FormDataContentDisposition contentDisp = ((FormDataContentDisposition.FormDataContentDispositionBuilder)((FormDataContentDisposition.FormDataContentDispositionBuilder)FormDataContentDisposition.name("attachment").fileName(file.getName())).size(file.length())).build();
+                        multiPart.bodyPart(new FormDataBodyPart(contentDisp, file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                    }
+                }
                 Entity entity = Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
                 Response response = invocationBuilder.post(entity);
 

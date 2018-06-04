@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.NoContentException;
 
+import java.io.File;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
@@ -40,6 +41,10 @@ public class MessagesTest {
 
         OutboundMessage message = new OutboundMessage();
         message.setMessage("test <emoji shortcode=\"thumbsup\"/>");
+        File file = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/innovatebot-img.png");
+        File file2 = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/report812269383544218386.xlsx");
+        File[] files = {file,file2};
+        message.setAttachment(files);
         try {
             InboundMessage inboundMessage = botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com",true).getId()),message);
             assertNotNull(inboundMessage.getMessage());
