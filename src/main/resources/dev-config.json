@@ -1,0 +1,21 @@
+{
+  "keyAuthHost": "develop.symphony.com",
+  "keyAuthPort": 443,
+  "podHost": "develop.symphony.com",
+  "podPort": 443,
+  "agentHost": "develop.symphony.com",
+  "agentPort": 443,
+  "botEmailAddress": "rsatest@example.com",
+  "appCertPath": "",
+  "appCertName": "",
+  "appCertPassword": "",
+  "proxyURL": "",
+  "proxyUsername": "",
+  "proxyPassword": "",
+  "authTokenRefreshPeriod": "30",
+  "truststorePath": "/Users/manuela.caicedo/Documents/generated/nlpbot/certificates/all_symphony_certs_truststore",
+  "truststorePassword": "changeit",
+  "botPrivateKeyPath": "/Users/manuela.caicedo/Documents/rsa/rsatestbot/",
+  "botPrivateKeyName": "rsatestbot_privatekey.pkcs8",
+  "botUsername": "rsatestbot"
+}

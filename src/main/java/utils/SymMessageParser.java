@@ -23,7 +23,7 @@ public class SymMessageParser {
     }
 
     public static String messageToText(String message, String entityJSON){
-        MessageMLContext context = new MessageMLContext(/*IDataProvider*/ null);
+        MessageMLContext context = new MessageMLContext(/*IDataProvider*/ new DataProvider());
 
         /* Parse the message and entity data */
         try {
