@@ -1,15 +1,18 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Map;
-
-public class SearchResult {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UserSearchResult {
 
     private int count;
     private int skip;
     private String query;
     private Map<String, String> filters;
     private List<UserInfo> users;
+    private int limit;
 
     public int getCount() {
         return count;
@@ -49,5 +52,13 @@ public class SearchResult {
 
     public void setUsers(List<UserInfo> users) {
         this.users = users;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 }

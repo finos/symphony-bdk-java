@@ -1,9 +1,13 @@
 package utils;
 
+import clients.SymBotClient;
+import exceptions.SymClientException;
+import model.UserInfo;
 import org.symphonyoss.symphony.messageml.exceptions.InvalidInputException;
 import org.symphonyoss.symphony.messageml.util.IDataProvider;
 import org.symphonyoss.symphony.messageml.util.IUserPresentation;
 
+import javax.ws.rs.core.NoContentException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,10 +15,12 @@ import java.util.Set;
 public class DataProvider implements IDataProvider {
     private static final Set<String> STANDARD_URI_SCHEMES = new HashSet<>();
     private UserPresentation user;
+    private SymBotClient botClient;
 
-    public DataProvider() {
+    public DataProvider(SymBotClient botClient) {
         STANDARD_URI_SCHEMES.add("http");
         STANDARD_URI_SCHEMES.add("https");
+        this.botClient = botClient;
     }
 
     @Override
@@ -28,11 +34,15 @@ public class DataProvider implements IDataProvider {
 
     @Override
     public IUserPresentation getUserPresentation(Long uid) throws InvalidInputException {
-        if (uid == null || user.getId() != uid) {
-            throw new InvalidInputException("Failed to lookup user \"" + uid + "\"");
+        UserInfo userInfo = null;
+        try {
+            userInfo = botClient.getUsersClient().getUserFromId(uid, false);
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        } catch (NoContentException e) {
+            e.printStackTrace();
         }
-
-        return new UserPresentation(uid, user.getScreenName(), user.getPrettyName());
+        return new UserPresentation(uid, userInfo.getDisplayName(),userInfo.getDisplayName());
     }
 
     @Override

@@ -13,10 +13,9 @@ public class SymConfigLoader {
         ObjectMapper mapper = new ObjectMapper();
         SymConfig config = null;
         try {
-           config = mapper.readValue(new File(path), SymConfig.class);
-            return config;
+            config = mapper.readValue(new File(path), SymConfig.class);
         } catch (IOException e) {
-            logger.error("Error reading json config file", e);
+            e.printStackTrace();
         }
         return config;
     }

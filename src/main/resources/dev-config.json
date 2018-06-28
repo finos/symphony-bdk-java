@@ -16,6 +16,6 @@
   "truststorePath": "/Users/manuela.caicedo/Documents/generated/nlpbot/certificates/all_symphony_certs_truststore",
   "truststorePassword": "changeit",
   "botPrivateKeyPath": "/Users/manuela.caicedo/Documents/rsa/rsatestbot/",
-  "botPrivateKeyName": "rsatestbot_privatekey.pkcs8",
+  "botPrivateKeyName": "rsatestbot_privatekey.pem",
   "botUsername": "rsatestbot"
 }

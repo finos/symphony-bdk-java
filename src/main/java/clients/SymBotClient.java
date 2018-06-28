@@ -10,6 +10,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import services.DatafeedEventsService;
 import utils.HttpClientBuilderHelper;
+import utils.SymMessageParser;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -111,6 +112,7 @@ public class SymBotClient implements ISymClient {
 
     public MessagesClient getMessagesClient() {
         if (messagesClient == null){
+            SymMessageParser.createInstance(this);
             messagesClient = new MessagesClient(this);
         }
         return messagesClient;
@@ -146,6 +148,7 @@ public class SymBotClient implements ISymClient {
 
     public DatafeedEventsService getDatafeedEventsService() {
         if (datafeedEventsService == null){
+            SymMessageParser.createInstance(this);
             datafeedEventsService = new DatafeedEventsService(this);
         }
         return datafeedEventsService;

@@ -27,5 +27,9 @@ public class PodConstants {
     public static final String GETUSERPRESENCE =  POD+"/v3/user/{uid}/presence";
     public static final String SETPRESENCE =  POD+"/v2/user/presence";
     public static final String REGISTERPRESENCEINTEREST =  POD+"/v1/user/presence/register";
+    public static final String SEARCHUSERS =  POD+"/v1/user/search";
 
+    public static final String SEARCHROOMS = POD+"/v3/room/search";
+    public static final String MESSAGESUPPRESS = POD+"/v1/admin/messagesuppression/{id}/suppress";
+    public static final String GETATTACHMENTTYPES = POD+ "/v1/files/allowedTypes";
 }

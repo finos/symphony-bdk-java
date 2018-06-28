@@ -6,7 +6,9 @@ import configuration.SymConfig;
 import configuration.SymConfigLoader;
 import exceptions.SymClientException;
 import model.User;
+import model.UserFilter;
 import model.UserInfo;
+import model.UserSearchResult;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,5 +108,20 @@ public class UsersTest {
             e.printStackTrace();
         }
         Assert.assertEquals(info.get(0).getId(),user.getId());
+    }
+
+    @Test
+    public void searchForUser(){
+        try {
+            UserFilter filter = new UserFilter();
+            filter.setLocation("NYC");
+            UserSearchResult result = botClient.getUsersClient().searchUsers("scannell",false,0,0,filter);
+            Assert.assertTrue(!result.getUsers().isEmpty());
+            Assert.assertTrue(result.getUsers().get(0).getDisplayName().toLowerCase().contains("scannell"));
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        } catch (NoContentException e) {
+            e.printStackTrace();
+        }
     }
 }

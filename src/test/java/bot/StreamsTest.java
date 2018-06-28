@@ -1,14 +1,13 @@
 package bot;
 
+import authentication.ISymAuth;
 import authentication.SymBotAuth;
+import authentication.SymBotRSAAuth;
 import clients.SymBotClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
 import exceptions.SymClientException;
-import model.Room;
-import model.RoomInfo;
-import model.RoomMember;
-import model.UserInfo;
+import model.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,21 +20,19 @@ import java.util.stream.Stream;
 
 public class StreamsTest {
 
-    private String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
-    private SymConfig config;
-    private SymBotAuth botAuth;
     private SymBotClient botClient;
     private Stream stream;
     private Long userId1;
     private Long userId2;
     private List<Long> userList;
-    private String streamId= "yDbrhJBuBDNZaJv6Pm_NGH___px_gz5fdA";
+    private String streamId= "1_vv_nyaIQ2OQniAKfkmgX___pu9TLmzdA";
 
     @Before
     public void oneTimeSetUp() {
+        String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/dev-config.json";
         SymConfigLoader configLoader = new SymConfigLoader();
-        config = configLoader.loadFromFile(configFilePath);
-        botAuth = new SymBotAuth(config);
+        SymConfig config = configLoader.loadFromFile(configFilePath);
+        ISymAuth botAuth = new SymBotRSAAuth(config);
         botAuth.authenticate();
         botClient = SymBotClient.initBot(config, botAuth);
         try {
@@ -140,6 +137,21 @@ public class StreamsTest {
             e.printStackTrace();
         }
     }
+
+//    @Test
+//    public void searchRoomTest(){
+//        RoomSearchQuery query = new RoomSearchQuery();
+//        query.setQuery("test room");
+//        try {
+//            RoomSearchResult result = botClient.getStreamsClient().searchRooms(query,0,0);
+//            Assert.assertTrue(!result.getRooms().isEmpty());
+//        } catch (SymClientException e) {
+//            e.printStackTrace();
+//        } catch (NoContentException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
 
 
 

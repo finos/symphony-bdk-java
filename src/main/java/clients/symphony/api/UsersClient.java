@@ -1,21 +1,21 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.SymBotClient;
+import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.*;
-import model.User;
-import model.UserInfo;
-import model.UserInfoList;
+import model.*;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UsersClient extends APIClient{
 
@@ -166,4 +166,43 @@ public class UsersClient extends APIClient{
     }
 
 
+    public UserSearchResult searchUsers(String query, boolean local, int skip, int limit, UserFilter filter) throws SymClientException, NoContentException {
+
+        UserSearchResult result = null;
+        WebTarget builder
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.SEARCHUSERS);
+
+
+        if(skip>0){
+            builder.queryParam("skip", skip);
+        }
+        if(limit>0){
+            builder.queryParam("limit", limit);
+        }
+        if(local){
+            builder.queryParam("local",local);
+        }
+        Map<String, Object> body = new HashMap<>();
+        body.put("query", query);
+        body.put("filters", filter);
+        Response response = builder.request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .post(Entity.entity(body, MediaType.APPLICATION_JSON));
+
+        if(response.getStatus() == 204){
+            throw new NoContentException("No user found");
+        } else if (response.getStatus() == 200) {
+            result = response.readEntity(UserSearchResult.class);
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return searchUsers(query, local,skip, limit, filter);
+            }
+            return null;
+        }
+        return result;
+    }
 }

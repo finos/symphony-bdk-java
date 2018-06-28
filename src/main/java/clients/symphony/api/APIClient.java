@@ -13,7 +13,6 @@ public abstract class APIClient {
     private final Logger logger = LoggerFactory.getLogger(APIClient.class);
 
     void handleError(Response response, ISymClient botClient) throws SymClientException {
-        try {
             ClientError error = response.readEntity((ClientError.class));
             if (response.getStatus() == 400){
                 logger.error("Client error occurred", error);
@@ -29,10 +28,7 @@ public abstract class APIClient {
                 logger.error(error.getMessage());
                 throw new ServerErrorException(error.getMessage());
             }
-        } catch (Exception e){
-            logger.error("Unexpected error");
-            e.printStackTrace();
-        }
+
 
     }
 }

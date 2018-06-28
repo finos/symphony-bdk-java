@@ -111,7 +111,7 @@ public class InboundMessage {
 
     public String getMessageText() {
         if(messageText==null){
-            messageText = SymMessageParser.messageToText(message,data);
+            messageText = SymMessageParser.getInstance().messageToText(message,data);
         }
         return messageText;
     }

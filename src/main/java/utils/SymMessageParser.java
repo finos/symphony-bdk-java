@@ -1,5 +1,6 @@
 package utils;
 
+import clients.SymBotClient;
 import org.symphonyoss.symphony.messageml.MessageMLContext;
 import org.symphonyoss.symphony.messageml.exceptions.InvalidInputException;
 import org.symphonyoss.symphony.messageml.exceptions.ProcessingException;
@@ -12,18 +13,37 @@ public class SymMessageParser {
 
     final static String regex = "(\\<div.*\\>)(.*)(\\<\\/div\\>)";
     final static Pattern pattern = Pattern.compile(regex);
+    private static SymMessageParser instance;
+    private SymBotClient botClient;
 
-    public static String parseContent(String presentationML){
-        Matcher matcher = pattern.matcher(presentationML);
-        String content = null;
-        while (matcher.find()) {
-            content = matcher.group(2);
-        }
-        return content;
+    protected SymMessageParser(SymBotClient botClient) {
+        this.botClient = botClient;
     }
 
-    public static String messageToText(String message, String entityJSON){
-        MessageMLContext context = new MessageMLContext(/*IDataProvider*/ new DataProvider());
+    public static SymMessageParser getInstance() {
+        if(instance!=null){
+            return instance;
+        } else {
+            try {
+                throw new Exception("SymMessageParser needs to be initialized at startup");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+    public static SymMessageParser createInstance(SymBotClient botClient) {
+        if(instance==null){
+            instance = new SymMessageParser(botClient);
+            return instance;
+        } else {
+            return instance;
+        }
+    }
+
+    public String messageToText(String message, String entityJSON){
+        MessageMLContext context = new MessageMLContext(/*IDataProvider*/ new DataProvider(botClient));
 
         /* Parse the message and entity data */
         try {

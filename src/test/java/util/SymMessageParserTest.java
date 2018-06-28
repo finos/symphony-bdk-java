@@ -10,7 +10,7 @@ public class SymMessageParserTest {
     public void parseMessageTest(){
         String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\">hi</div>";
         String entityJSON = "{}";
-        String text = SymMessageParser.messageToText(presentationML,entityJSON);
+        String text = SymMessageParser.getInstance().messageToText(presentationML,entityJSON);
         Assert.assertNotNull(text);
     }
 }

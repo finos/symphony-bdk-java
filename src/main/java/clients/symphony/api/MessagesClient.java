@@ -13,11 +13,10 @@ import org.glassfish.jersey.media.multipart.*;
 
 import javax.ws.rs.client.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 public class MessagesClient extends APIClient{
     private ISymClient botClient;
@@ -99,7 +98,7 @@ public class MessagesClient extends APIClient{
     public List<InboundMessage> getMessagesFromStream(String streamId, int since, int skip, int limit) throws SymClientException {
         List<InboundMessage> result = null;
         WebTarget builder
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.GETMESSAGES.replace("{sid}", streamId))
                 .queryParam("since", since);
 
@@ -134,7 +133,7 @@ public class MessagesClient extends APIClient{
     public byte[] getAttachment(String streamId, String attachmentId, String messageId) throws SymClientException {
 
         Response response
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentHost())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.GETATTACHMENT.replace("{sid}", streamId))
                 .queryParam("fileId", attachmentId)
                 .queryParam("messageId", messageId)
@@ -184,5 +183,110 @@ public class MessagesClient extends APIClient{
         return response.readEntity(MessageStatus.class);
 
     }
+
+    public InboundMessageList messageSearch(Map<String,String> query, int skip, int limit, boolean orderAscending) throws SymClientException, NoContentException {
+
+        InboundMessageList result = null;
+        WebTarget builder
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                .path(AgentConstants.SEARCHMESSAGES);
+
+
+        if(skip>0){
+            builder.queryParam("skip", skip);
+        }
+        if(limit>0){
+            builder.queryParam("limit", limit);
+        }
+        //default is DESC
+        if (orderAscending){
+            builder.queryParam("sortDir", "ASC");
+        }
+        builder.queryParam("query", query);
+        Response response = builder.request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+                .post(Entity.entity(query,MediaType.APPLICATION_JSON));
+
+        if(response.getStatus() == 204){
+            throw new NoContentException("No messages found");
+        } else if (response.getStatus() == 200) {
+            result = response.readEntity(InboundMessageList.class);
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return messageSearch(query,skip, limit, orderAscending);
+            }
+            return null;
+        }
+        return result;
+    }
+
+    public InboundImportMessageList importMessages(OutboundImportMessageList messageList){
+        Response response
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                .path(AgentConstants.MESSAGEIMPORT)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+                .post(Entity.entity(messageList,MediaType.APPLICATION_JSON));
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return importMessages(messageList);
+            } catch (SymClientException e) {
+                e.printStackTrace();
+            }
+            return null;
+        } else {
+            return response.readEntity(InboundImportMessageList.class);
+        }
+    }
+
+    public SuppressionResult suppressMessage(String id){
+        Response response
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.MESSAGESUPPRESS.replace("{id}",id))
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .post(null);
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return suppressMessage(id);
+            } catch (SymClientException e) {
+                e.printStackTrace();
+            }
+            return null;
+        } else {
+            return response.readEntity(SuppressionResult.class);
+        }
+    }
+
+    //Included in release 1.52
+//    public List<String> getSupportedAttachmentTypes(){
+//        Response response
+//                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+//                .path(PodConstants.GETATTACHMENTTYPES)
+//                .request(MediaType.APPLICATION_JSON)
+//                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+//                .get();
+//        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+//            try {
+//                handleError(response, botClient);
+//            } catch (UnauthorizedException ex){
+//                return getSupportedAttachmentTypes();
+//            } catch (SymClientException e) {
+//                e.printStackTrace();
+//            }
+//            return null;
+//        } else {
+//            return response.readEntity(StringList.class);
+//        }
+//    }
 
 }
