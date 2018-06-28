@@ -175,13 +175,13 @@ public class UsersClient extends APIClient{
 
 
         if(skip>0){
-            builder.queryParam("skip", skip);
+            builder = builder.queryParam("skip", skip);
         }
         if(limit>0){
-            builder.queryParam("limit", limit);
+            builder = builder.queryParam("limit", limit);
         }
         if(local){
-            builder.queryParam("local",local);
+            builder = builder.queryParam("local",local);
         }
         Map<String, Object> body = new HashMap<>();
         body.put("query", query);

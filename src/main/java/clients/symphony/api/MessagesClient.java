@@ -104,10 +104,10 @@ public class MessagesClient extends APIClient{
 
 
         if(skip>0){
-            builder.queryParam("skip", skip);
+            builder = builder.queryParam("skip", skip);
         }
         if(limit>0){
-            builder.queryParam("limit", limit);
+            builder = builder.queryParam("limit", limit);
         }
         Response response = builder.request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
@@ -193,16 +193,16 @@ public class MessagesClient extends APIClient{
 
 
         if(skip>0){
-            builder.queryParam("skip", skip);
+            builder = builder.queryParam("skip", skip);
         }
         if(limit>0){
-            builder.queryParam("limit", limit);
+            builder = builder.queryParam("limit", limit);
         }
         //default is DESC
         if (orderAscending){
-            builder.queryParam("sortDir", "ASC");
+            builder = builder.queryParam("sortDir", "ASC");
         }
-        builder.queryParam("query", query);
+        builder = builder.queryParam("query", query);
         Response response = builder.request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
@@ -224,7 +224,7 @@ public class MessagesClient extends APIClient{
         return result;
     }
 
-    public InboundImportMessageList importMessages(OutboundImportMessageList messageList){
+    public InboundImportMessageList importMessages(OutboundImportMessageList messageList) throws SymClientException {
         Response response
                 = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.MESSAGEIMPORT)
@@ -237,8 +237,6 @@ public class MessagesClient extends APIClient{
                 handleError(response, botClient);
             } catch (UnauthorizedException ex){
                 return importMessages(messageList);
-            } catch (SymClientException e) {
-                e.printStackTrace();
             }
             return null;
         } else {
@@ -246,7 +244,7 @@ public class MessagesClient extends APIClient{
         }
     }
 
-    public SuppressionResult suppressMessage(String id){
+    public SuppressionResult suppressMessage(String id) throws SymClientException {
         Response response
                 = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.MESSAGESUPPRESS.replace("{id}",id))
@@ -258,8 +256,6 @@ public class MessagesClient extends APIClient{
                 handleError(response, botClient);
             } catch (UnauthorizedException ex){
                 return suppressMessage(id);
-            } catch (SymClientException e) {
-                e.printStackTrace();
             }
             return null;
         } else {
@@ -288,5 +284,26 @@ public class MessagesClient extends APIClient{
 //            return response.readEntity(StringList.class);
 //        }
 //    }
+
+    public InboundShare shareContent(String streamId, OutboundShare shareContent) throws SymClientException {
+        Map<String,Object> map = new HashMap<>();
+        map.put("content",shareContent);
+        Response response
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                .path(AgentConstants.SHARE.replace("{sid}",streamId))
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+                .post(Entity.entity(map,MediaType.APPLICATION_JSON));
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return shareContent(streamId, shareContent);
+            }
+            return null;
+        }
+            return response.readEntity(InboundShare.class);
+    }
 
 }

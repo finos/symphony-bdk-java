@@ -7,15 +7,11 @@ import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.*;
-import model.ClientError;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
 import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;

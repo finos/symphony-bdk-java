@@ -32,4 +32,7 @@ public class PodConstants {
     public static final String SEARCHROOMS = POD+"/v3/room/search";
     public static final String MESSAGESUPPRESS = POD+"/v1/admin/messagesuppression/{id}/suppress";
     public static final String GETATTACHMENTTYPES = POD+ "/v1/files/allowedTypes";
+    public static final String ADMINCREATEIM = POD+ "/v1/admin/im/create";
+    public static final String LISTUSERSTREAMS = POD+"/v1/streams/list";
+    public static final String ENTERPRISESTREAMS = POD+"/v2/admin/streams/list";
 }

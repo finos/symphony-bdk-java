@@ -10,4 +10,5 @@ public class AgentConstants {
     public static final String SEARCHMESSAGES = "/agent/v1/message/search";
     public static final String MESSAGEIMPORT = "/agent/v4/message/import" ;
 
+    public static final String SHARE = "/agent/v3/stream/{sid}/share";
 }

@@ -1,22 +1,14 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.SymBotClient;
-import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.*;
 import model.InboundConnectionRequest;
 import model.InboundConnectionRequestList;
-import model.InboundMessage;
-import model.StringId;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -64,10 +56,10 @@ public class ConnectionsClient extends APIClient {
                 .path(PodConstants.GETCONNECTIONS);
 
         if(status!=null){
-            builder.queryParam("status", status);
+            builder = builder.queryParam("status", status);
         }
         if(userList){
-            builder.queryParam("userIds", userIdList.toString());
+            builder = builder.queryParam("userIds", userIdList.toString());
         }
 
         Response response = builder.request(MediaType.APPLICATION_JSON)

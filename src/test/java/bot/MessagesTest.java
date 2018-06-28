@@ -128,7 +128,12 @@ public class MessagesTest {
         } catch (NoContentException e) {
             e.printStackTrace();
         }
-        InboundImportMessageList result = botClient.getMessagesClient().importMessages(importMessages);
+        InboundImportMessageList result = null;
+        try {
+            result = botClient.getMessagesClient().importMessages(importMessages);
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
         Assert.assertTrue(!result.isEmpty());
     }
 
@@ -145,8 +150,13 @@ public class MessagesTest {
             } catch (NoContentException e) {
                 e.printStackTrace();
             }
-        SuppressionResult result = botClient.getMessagesClient().suppressMessage(inboundMessage.getMessageId());
-            Assert.assertTrue(result.isSuppressed());
+        SuppressionResult result = null;
+        try {
+            result = botClient.getMessagesClient().suppressMessage(inboundMessage.getMessageId());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+        Assert.assertTrue(result.isSuppressed());
 
     }
 

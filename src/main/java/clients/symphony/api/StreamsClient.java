@@ -6,6 +6,7 @@ import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.*;
 import model.*;
+import model.events.AdminStreamInfoList;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -13,7 +14,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StreamsClient extends APIClient {
     private ISymClient botClient;
@@ -34,7 +37,7 @@ public class StreamsClient extends APIClient {
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
-        String streamId = response.readEntity(StringId.class).getId();
+
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -43,6 +46,7 @@ public class StreamsClient extends APIClient {
             }
             return null;
         }
+        String streamId = response.readEntity(StringId.class).getId();
         return streamId;
     }
 
@@ -53,7 +57,7 @@ public class StreamsClient extends APIClient {
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
-        RoomInfo roomInfo = response.readEntity(RoomInfo.class);
+
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -62,6 +66,7 @@ public class StreamsClient extends APIClient {
             }
             return null;
         }
+        RoomInfo roomInfo = response.readEntity(RoomInfo.class);
         return roomInfo;
     }
 
@@ -239,37 +244,129 @@ public class StreamsClient extends APIClient {
         }
     }
 //TODO: CHECK WHY 500
-//    public RoomSearchResult searchRooms(RoomSearchQuery query, int skip, int limit)throws SymClientException , NoContentException {
-//        RoomSearchResult result = null;
-//        WebTarget builder
-//                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-//                .path(PodConstants.SEARCHROOMS);
-//
-//
-//        if(skip>0){
-//            builder.queryParam("skip", skip);
-//        }
-//        if(limit>0){
-//            builder.queryParam("limit", limit);
-//        }
-//        builder.queryParam("query", query);
-//        Response response = builder.request(MediaType.APPLICATION_JSON)
-//                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-//                .post(Entity.entity(query,MediaType.APPLICATION_JSON));
-//
-//        if(response.getStatus() == 204){
-//            throw new NoContentException("No messages found");
-//        } else if (response.getStatus() == 200) {
-//            result = response.readEntity(RoomSearchResult.class);
-//        }
-//        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-//            try {
-//                handleError(response, botClient);
-//            } catch (UnauthorizedException ex){
-//                return searchRooms(query,skip, limit);
-//            }
-//            return null;
-//        }
-//        return result;
-//    }
+    public RoomSearchResult searchRooms(RoomSearchQuery query, int skip, int limit)throws SymClientException , NoContentException {
+        RoomSearchResult result = null;
+        WebTarget builder
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.SEARCHROOMS);
+
+
+        if(skip>0){
+            builder = builder.queryParam("skip", skip);
+        }
+        if(limit>0){
+            builder = builder.queryParam("limit", limit);
+        }
+        if(query.getLabels()==null){
+            query.setLabels(new ArrayList<>());
+        }
+        Response response = builder.request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .post(Entity.entity(query,MediaType.APPLICATION_JSON));
+
+        if(response.getStatus() == 204){
+            throw new NoContentException("No messages found");
+        } else if (response.getStatus() == 200) {
+            result = response.readEntity(RoomSearchResult.class);
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return searchRooms(query,skip, limit);
+            }
+            return null;
+        }
+        return result;
+    }
+
+    public String adminCreateIM(List<Long> userIdList) throws SymClientException {
+        Response response
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.ADMINCREATEIM)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
+
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return adminCreateIM(userIdList);
+            }
+            return null;
+        }
+        String streamId = response.readEntity(StringId.class).getId();
+        return streamId;
+    }
+
+    public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams) throws SymClientException {
+        List<Map> inputStreamTypes = new ArrayList();
+        if(streamTypes!=null) {
+            for (String type : streamTypes) {
+                Map<String, String> streamTypesMap = new HashMap<>();
+                streamTypesMap.put("type", type);
+                inputStreamTypes.add(streamTypesMap);
+            }
+        }
+        Map<String, Object> input = new HashMap<>();
+        input.put("streamTypes", inputStreamTypes);
+        input.put("includeInactiveStreams", includeInactiveStreams);
+        Response response
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.LISTUSERSTREAMS)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .post( Entity.entity(input, MediaType.APPLICATION_JSON));
+
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return getUserStreams(streamTypes, includeInactiveStreams);
+            }
+            return null;
+        }
+
+        return response.readEntity(StreamInfoList.class);
+
+    }
+
+    public StreamListItem getUserWallStream() throws SymClientException {
+        List<String> streamTypes = new ArrayList<>();
+        streamTypes.add("POST");
+        return getUserStreams(streamTypes, false).get(0);
+    }
+
+    public AdminStreamInfoList adminListEnterpriseStreams(AdminStreamFilter filter, int skip, int limit) throws SymClientException {
+        AdminStreamInfoList result = null;
+        WebTarget builder
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.ENTERPRISESTREAMS);
+
+
+        if(skip>0){
+            builder = builder.queryParam("skip", skip);
+        }
+        if(limit>0){
+            builder = builder.queryParam("limit", limit);
+        }
+        Response response = builder.request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .post(Entity.entity(filter,MediaType.APPLICATION_JSON));
+
+        if (response.getStatus() == 200) {
+            result = response.readEntity(AdminStreamInfoList.class);
+        }
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, botClient);
+            } catch (UnauthorizedException ex){
+                return adminListEnterpriseStreams(filter,skip, limit);
+            }
+            return null;
+        }
+        return result;
+    }
+
 }

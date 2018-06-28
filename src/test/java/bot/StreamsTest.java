@@ -8,6 +8,7 @@ import configuration.SymConfig;
 import configuration.SymConfigLoader;
 import exceptions.SymClientException;
 import model.*;
+import model.events.AdminStreamInfoList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,22 +139,72 @@ public class StreamsTest {
         }
     }
 
-//    @Test
-//    public void searchRoomTest(){
-//        RoomSearchQuery query = new RoomSearchQuery();
-//        query.setQuery("test room");
-//        try {
-//            RoomSearchResult result = botClient.getStreamsClient().searchRooms(query,0,0);
-//            Assert.assertTrue(!result.getRooms().isEmpty());
-//        } catch (SymClientException e) {
-//            e.printStackTrace();
-//        } catch (NoContentException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Test
+    public void searchRoomTest(){
+        RoomSearchQuery query = new RoomSearchQuery();
+        query.setQuery("test room");
+        try {
+            RoomSearchResult result = botClient.getStreamsClient().searchRooms(query,0,0);
+            Assert.assertTrue(!result.getRooms().isEmpty());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        } catch (NoContentException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Test
+    public void adminCreateIMTest(){
+        try {
+            String id = botClient.getStreamsClient().adminCreateIM(userList);
+            Assert.assertNotNull(id);
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Test
+    public void getUserStreamsTest(){
+        List<String> streamTypesRoom = new ArrayList<>();
+        streamTypesRoom.add("ROOM");
+        try {
+            List<StreamListItem> list = botClient.getStreamsClient().getUserStreams(streamTypesRoom,true);
+            Assert.assertTrue(!list.isEmpty());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+        List<String> streamTypes = new ArrayList<>();
+        streamTypes.add("IM");
+        try {
+            List<StreamListItem> list = botClient.getStreamsClient().getUserStreams(streamTypes,true);
+            Assert.assertTrue(!list.isEmpty());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+        try {
+            List<StreamListItem> list = botClient.getStreamsClient().getUserStreams(null,true);
+            Assert.assertTrue(!list.isEmpty());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+        try {
+            Assert.assertNotNull(botClient.getStreamsClient().getUserWallStream());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+    }
 
-
+    @Test
+    public void enterpriseStreamsTest(){
+        try {
+            AdminStreamInfoList list = botClient.getStreamsClient().adminListEnterpriseStreams(null, 0, 100);
+            for (AdminStreamInfo item: list.getStreams()) {
+                Assert.assertNotNull(item);
+            }
+            Assert.assertTrue(!list.getStreams().isEmpty());
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
