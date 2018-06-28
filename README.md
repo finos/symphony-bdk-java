@@ -5,7 +5,7 @@ The Java client is built in an event handler architecture. If you are building a
         <dependency>
                     <groupId>com.symphony.platformsolutions</groupId>
                     <artifactId>symphony-api-client-java</artifactId>
-                    <version>1.0.0-SNAPSHOT</version>
+                    <version>1.0.2</version>
         </dependency>
 
 ## Configuration
@@ -29,8 +29,7 @@ Create a config.json file in your project which includes the following propertie
           "appCertPassword": "",
           "proxyURL": "",
           "proxyUsername": "",
-          "proxyPassword": "",
-          "authTokenRefreshPeriod": "30"
+          "proxyPassword": ""
         }
         
 ## Example main class
