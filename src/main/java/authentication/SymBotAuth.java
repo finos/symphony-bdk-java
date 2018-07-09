@@ -34,6 +34,7 @@ public class SymBotAuth implements ISymAuth{
     private SymConfig config;
     private Client sessionAuthClient;
     private Client kmAuthClient;
+    private long lastAuthTime=0;
 
     public SymBotAuth(SymConfig config){
         this.config = config;
@@ -74,8 +75,18 @@ public class SymBotAuth implements ISymAuth{
 
 
     public void authenticate(){
-        sessionAuthenticate();
-        kmAuthenticate();
+        if(lastAuthTime==0 | System.currentTimeMillis()-lastAuthTime>3000) {
+            sessionAuthenticate();
+            kmAuthenticate();
+        } else{
+            try {
+                logger.info("Re-authenticated too fast. Wait 30 seconds to try again.");
+                TimeUnit.SECONDS.sleep(30);
+                authenticate();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void sessionAuthenticate(){

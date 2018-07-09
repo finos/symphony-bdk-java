@@ -17,6 +17,7 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class SymBotRSAAuth implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
@@ -24,6 +25,7 @@ public class SymBotRSAAuth implements ISymAuth {
     private String kmToken;
     private SymConfig config;
     private String jwt;
+    private long lastAuthTime=0;
 
     public SymBotRSAAuth(SymConfig config) {
         this.config = config;
@@ -41,10 +43,22 @@ public class SymBotRSAAuth implements ISymAuth {
         } catch (GeneralSecurityException e) {
             e.printStackTrace();
         }
-
-        jwt = JwtHelper.createSignedJwt(config.getBotUsername(), expiration, privateKey);
-        sessionAuthenticate();
-        kmAuthenticate();
+        if(lastAuthTime==0 | System.currentTimeMillis()-lastAuthTime>3000) {
+            System.out.println("last auth time was" +lastAuthTime);
+            System.out.println("now is "+System.currentTimeMillis());
+            jwt = JwtHelper.createSignedJwt(config.getBotUsername(), expiration, privateKey);
+            sessionAuthenticate();
+            kmAuthenticate();
+            lastAuthTime=System.currentTimeMillis();
+        } else{
+            try {
+                logger.info("Re-authenticated too fast. Wait 30 seconds to try again.");
+                TimeUnit.SECONDS.sleep(30);
+                authenticate();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
