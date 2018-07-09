@@ -1,6 +1,8 @@
 package clients.symphony.api.constants;
 
 
+import java.util.concurrent.ConcurrentHashMap;
+
 public class PodConstants {
 
     public static final String POD = "/pod";
@@ -35,4 +37,15 @@ public class PodConstants {
     public static final String ADMINCREATEIM = POD+ "/v1/admin/im/create";
     public static final String LISTUSERSTREAMS = POD+"/v1/streams/list";
     public static final String ENTERPRISESTREAMS = POD+"/v2/admin/streams/list";
+    public static final String GETUSERADMIN = POD+"/v2/admin/user/{uid}" ;
+    public static final String LISTUSERSADMIN = POD+"/v2/admin/user/list" ;
+    public static final String GETAVATARADMIN = POD+"/v1/admin/user/{uid}/avatar";
+    public static final String GETUSERSTATUSADMIN = POD+"/v1/admin/user/{uid}/status";
+    public static final String UPDATEUSERSTATUSADMIN = POD+"/v1/admin/user/{uid}/status/update";
+    public static final String PODFEATURESADMIN = POD+"/v1/admin/system/features/list";
+
+    public static final String GETUSERFEATURESADMIN = POD+ "/v1/admin/user/{uid}/features" ;
+    public static final String UPDATEUSERFEATURESADMIN = POD +"/v1/admin/user/{uid}/features/update";
+    public static final String GETUSERAPPLICATIONSADMIN = POD +"/v1/admin/user/{uid}/app/entitlement/list";
+    public static final String UPDATEUSERAPPLICATIONSADMIN = POD +"/v1/admin/user/{uid}/app/entitlement/list";
 }

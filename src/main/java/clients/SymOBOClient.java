@@ -31,6 +31,7 @@ public class SymOBOClient implements ISymClient {
     private StreamsClient streamsClient;
     private UsersClient usersClient;
     private ConnectionsClient connectionsClient;
+    private SignalsClient signalsClient;
     private Client podClient;
     private Client agentClient;
 
@@ -114,6 +115,13 @@ public class SymOBOClient implements ISymClient {
             connectionsClient = new ConnectionsClient(this);
         }
         return connectionsClient;
+    }
+
+    public SignalsClient getSignalsClient() {
+        if (signalsClient == null){
+            signalsClient = new SignalsClient(this);
+        }
+        return signalsClient;
     }
 
     @Override

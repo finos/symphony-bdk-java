@@ -26,7 +26,7 @@ public class UsersClient extends APIClient{
     }
 
     public UserInfo getUserFromUsername(String username) throws SymClientException, NoContentException {
-        UserInfo info = null;
+        UserInfo info ;
         Response response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERV2)
@@ -35,23 +35,23 @@ public class UsersClient extends APIClient{
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
-        if(response.getStatus() == 204){
-            throw new NoContentException("No user found.");
-        } else if (response.getStatus() == 200) {
-            info = response.readEntity(UserInfo.class);
-        } if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
             } catch (UnauthorizedException ex){
-               return getUserFromUsername(username);
+                return getUserFromUsername(username);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            throw new NoContentException("No user found.");
+        } else {
+            info = response.readEntity(UserInfo.class);
         }
         return info;
     }
 
     public UserInfo getUserFromEmail(String email, Boolean local) throws SymClientException, NoContentException {
-        UserInfo info = null;
+        UserInfo info;
         Response response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERSV3)
@@ -60,12 +60,6 @@ public class UsersClient extends APIClient{
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
-        if(response.getStatus() == 204){
-            throw new NoContentException("No user found.");
-        } else if (response.getStatus() == 200) {
-            UserInfoList infoList = response.readEntity(UserInfoList.class);
-            info = infoList.getUsers().get(0);
-        }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -73,12 +67,18 @@ public class UsersClient extends APIClient{
                 return getUserFromEmail(email,local);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            throw new NoContentException("No user found.");
+        } else  {
+            UserInfoList infoList = response.readEntity(UserInfoList.class);
+            info = infoList.getUsers().get(0);
         }
+
         return info;
     }
 
     public UserInfo getUserFromId(Long id, Boolean local) throws SymClientException, NoContentException {
-        UserInfo info = null;
+        UserInfo info;
         Response response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERSV3)
@@ -87,12 +87,6 @@ public class UsersClient extends APIClient{
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
-        if(response.getStatus() == 204){
-            throw new NoContentException("No user found.");
-        } else if (response.getStatus() == 200) {
-            UserInfoList infoList = response.readEntity(UserInfoList.class);
-            info = infoList.getUsers().get(0);
-        }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -100,7 +94,13 @@ public class UsersClient extends APIClient{
                 return getUserFromId(id,local);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            throw new NoContentException("No user found.");
+        } else {
+            UserInfoList infoList = response.readEntity(UserInfoList.class);
+            info = infoList.getUsers().get(0);
         }
+
         return info;
     }
 
@@ -148,12 +148,7 @@ public class UsersClient extends APIClient{
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
-        if(response.getStatus() == 204){
-            return infoList;
-        } else if (response.getStatus() == 200) {
-            UserInfoList userInfo = response.readEntity(UserInfoList.class);
-            infoList = userInfo.getUsers();
-        }
+
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -161,7 +156,13 @@ public class UsersClient extends APIClient{
                 return getUsersV3(emailList,idList,local);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            return infoList;
+        } else {
+            UserInfoList userInfo = response.readEntity(UserInfoList.class);
+            infoList = userInfo.getUsers();
         }
+
         return infoList;
     }
 
@@ -190,11 +191,7 @@ public class UsersClient extends APIClient{
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(body, MediaType.APPLICATION_JSON));
 
-        if(response.getStatus() == 204){
-            throw new NoContentException("No user found");
-        } else if (response.getStatus() == 200) {
-            result = response.readEntity(UserSearchResult.class);
-        }
+
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -202,7 +199,12 @@ public class UsersClient extends APIClient{
                 return searchUsers(query, local,skip, limit, filter);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            throw new NoContentException("No user found");
+        } else {
+            result = response.readEntity(UserSearchResult.class);
         }
+
         return result;
     }
 }

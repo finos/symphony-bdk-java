@@ -27,7 +27,6 @@ public class MessagesClient extends APIClient{
     }
 
     private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags) throws SymClientException {
-        //TODO: Add file support
                 Client httpClient =  botClient.getAgentClient();
                 httpClient.register(MultiPartFeature.class);
                 httpClient.register(JacksonFeature.class);
@@ -114,11 +113,6 @@ public class MessagesClient extends APIClient{
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
 
-        if(response.getStatus() == 204){
-            result = new ArrayList<>();
-        } else if (response.getStatus() == 200) {
-            result = response.readEntity(InboundMessageList.class);
-        }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -126,7 +120,12 @@ public class MessagesClient extends APIClient{
                 return getMessagesFromStream(streamId,since,skip,limit);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            result = new ArrayList<>();
+        } else {
+            result = response.readEntity(InboundMessageList.class);
         }
+
         return result;
     }
 
@@ -155,19 +154,21 @@ public class MessagesClient extends APIClient{
 
     public List<FileAttachment> getMessageAttachments(InboundMessage message) throws SymClientException {
         List<FileAttachment> result = new ArrayList<>();
-        for (Attachment attachment : message.getAttachments()) {
-            FileAttachment fileAttachment = new FileAttachment();
-            fileAttachment.setFileName(attachment.getName());
-            fileAttachment.setSize(attachment.getSize());
-            fileAttachment.setFileContent(getAttachment(message.getStream().getStreamId(), attachment.getId(), message.getMessageId()));
-            result.add(fileAttachment);
+        if(message.getAttachments()!=null) {
+            for (Attachment attachment : message.getAttachments()) {
+                FileAttachment fileAttachment = new FileAttachment();
+                fileAttachment.setFileName(attachment.getName());
+                fileAttachment.setSize(attachment.getSize());
+                fileAttachment.setFileContent(getAttachment(message.getStream().getStreamId(), attachment.getId(), message.getMessageId()));
+                result.add(fileAttachment);
+            }
         }
         return result;
     }
 
     public MessageStatus getMessageStatus(String messageId) throws SymClientException {
         Response response
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETMESSAGESTATUS.replace("{mid}", messageId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
@@ -188,7 +189,7 @@ public class MessagesClient extends APIClient{
 
         InboundMessageList result = null;
         WebTarget builder
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.SEARCHMESSAGES);
 
 
@@ -202,17 +203,11 @@ public class MessagesClient extends APIClient{
         if (orderAscending){
             builder = builder.queryParam("sortDir", "ASC");
         }
-        builder = builder.queryParam("query", query);
         Response response = builder.request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(Entity.entity(query,MediaType.APPLICATION_JSON));
 
-        if(response.getStatus() == 204){
-            throw new NoContentException("No messages found");
-        } else if (response.getStatus() == 200) {
-            result = response.readEntity(InboundMessageList.class);
-        }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -220,48 +215,16 @@ public class MessagesClient extends APIClient{
                 return messageSearch(query,skip, limit, orderAscending);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            throw new NoContentException("No messages found");
+        } else {
+            result = response.readEntity(InboundMessageList.class);
         }
+
         return result;
     }
 
-    public InboundImportMessageList importMessages(OutboundImportMessageList messageList) throws SymClientException {
-        Response response
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
-                .path(AgentConstants.MESSAGEIMPORT)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-                .post(Entity.entity(messageList,MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return importMessages(messageList);
-            }
-            return null;
-        } else {
-            return response.readEntity(InboundImportMessageList.class);
-        }
-    }
 
-    public SuppressionResult suppressMessage(String id) throws SymClientException {
-        Response response
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.MESSAGESUPPRESS.replace("{id}",id))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .post(null);
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return suppressMessage(id);
-            }
-            return null;
-        } else {
-            return response.readEntity(SuppressionResult.class);
-        }
-    }
 
     //Included in release 1.52
 //    public List<String> getSupportedAttachmentTypes(){

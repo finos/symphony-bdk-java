@@ -264,11 +264,6 @@ public class StreamsClient extends APIClient {
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(query,MediaType.APPLICATION_JSON));
 
-        if(response.getStatus() == 204){
-            throw new NoContentException("No messages found");
-        } else if (response.getStatus() == 200) {
-            result = response.readEntity(RoomSearchResult.class);
-        }
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
@@ -276,28 +271,13 @@ public class StreamsClient extends APIClient {
                 return searchRooms(query,skip, limit);
             }
             return null;
+        } else if(response.getStatus() == 204){
+            throw new NoContentException("No messages found");
+        } else{
+            result = response.readEntity(RoomSearchResult.class);
         }
+
         return result;
-    }
-
-    public String adminCreateIM(List<Long> userIdList) throws SymClientException {
-        Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.ADMINCREATEIM)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
-
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return adminCreateIM(userIdList);
-            }
-            return null;
-        }
-        String streamId = response.readEntity(StringId.class).getId();
-        return streamId;
     }
 
     public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams) throws SymClientException {
@@ -338,35 +318,6 @@ public class StreamsClient extends APIClient {
         return getUserStreams(streamTypes, false).get(0);
     }
 
-    public AdminStreamInfoList adminListEnterpriseStreams(AdminStreamFilter filter, int skip, int limit) throws SymClientException {
-        AdminStreamInfoList result = null;
-        WebTarget builder
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.ENTERPRISESTREAMS);
 
-
-        if(skip>0){
-            builder = builder.queryParam("skip", skip);
-        }
-        if(limit>0){
-            builder = builder.queryParam("limit", limit);
-        }
-        Response response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(filter,MediaType.APPLICATION_JSON));
-
-        if (response.getStatus() == 200) {
-            result = response.readEntity(AdminStreamInfoList.class);
-        }
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return adminListEnterpriseStreams(filter,skip, limit);
-            }
-            return null;
-        }
-        return result;
-    }
 
 }

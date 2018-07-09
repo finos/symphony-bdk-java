@@ -9,8 +9,8 @@ public class AdminStreamFilter {
     private String origin;
     private String status;
     private String privacy;
-    private long startDate;
-    private long endDate;
+    private Long startDate;
+    private Long endDate;
 
     public List<String> getStreamTypes() {
         return streamTypes;
@@ -52,19 +52,19 @@ public class AdminStreamFilter {
         this.privacy = privacy;
     }
 
-    public long getStartDate() {
+    public Long getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(long startDate) {
+    public void setStartDate(Long startDate) {
         this.startDate = startDate;
     }
 
-    public long getEndDate() {
+    public Long getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(long endDate) {
+    public void setEndDate(Long endDate) {
         this.endDate = endDate;
     }
 }

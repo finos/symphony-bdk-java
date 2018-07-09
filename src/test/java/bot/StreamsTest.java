@@ -153,15 +153,7 @@ public class StreamsTest {
         }
     }
 
-    @Test
-    public void adminCreateIMTest(){
-        try {
-            String id = botClient.getStreamsClient().adminCreateIM(userList);
-            Assert.assertNotNull(id);
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     @Test
     public void getUserStreamsTest(){
@@ -194,17 +186,5 @@ public class StreamsTest {
         }
     }
 
-    @Test
-    public void enterpriseStreamsTest(){
-        try {
-            AdminStreamInfoList list = botClient.getStreamsClient().adminListEnterpriseStreams(null, 0, 100);
-            for (AdminStreamInfo item: list.getStreams()) {
-                Assert.assertNotNull(item);
-            }
-            Assert.assertTrue(!list.getStreams().isEmpty());
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        }
-    }
 
 }

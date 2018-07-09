@@ -5,6 +5,7 @@ import authentication.SymBotAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
 import exceptions.*;
+import model.Signal;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -28,9 +29,11 @@ public class SymBotClient implements ISymClient {
     private UsersClient usersClient;
     private ConnectionsClient connectionsClient;
     private DatafeedEventsService datafeedEventsService;
+    private SignalsClient signalsClient;
     private UserInfo botUserInfo;
     private Client podClient;
     private Client agentClient;
+    private AdminClient adminClient;
 
 
     public static SymBotClient initBot(SymConfig config, ISymAuth symBotAuth){
@@ -152,6 +155,20 @@ public class SymBotClient implements ISymClient {
             datafeedEventsService = new DatafeedEventsService(this);
         }
         return datafeedEventsService;
+    }
+
+    public SignalsClient getSignalsClient() {
+        if (signalsClient == null){
+            signalsClient = new SignalsClient(this);
+        }
+        return signalsClient;
+    }
+
+    public AdminClient getAdminClient() {
+        if (adminClient == null){
+            adminClient = new AdminClient(this);
+        }
+        return adminClient;
     }
 
     public void clearBotClient(){

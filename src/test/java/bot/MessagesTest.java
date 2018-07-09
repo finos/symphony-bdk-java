@@ -53,6 +53,7 @@ public class MessagesTest {
             assertNotNull(inboundMessage.getMessageId());
             MessageStatus messageStatus = botClient.getMessagesClient().getMessageStatus(inboundMessage.getMessageId());
             assertNotNull(messageStatus);
+
         } catch (SymClientException e) {
             e.printStackTrace();
         } catch (NoContentException e) {
@@ -86,9 +87,13 @@ public class MessagesTest {
     public void searchMessageTest() {
         try {
             OutboundMessage message = new OutboundMessage();
-            message.setMessage("test <hash tag=\"apisearchtest\"/>");
+            message.setMessage("test with attachment <hash tag=\"apisearchtest\"/>");
+            File file = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/innovatebot-img.png");
+            File file2 = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/report812269383544218386.xlsx");
+            File[] files = {file,file2};
+            message.setAttachment(files);
             try {
-                InboundMessage inboundMessage = botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com", true).getId()), message);
+                botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com", true).getId()), message);
 
             } catch (SymClientException e) {
                 e.printStackTrace();
@@ -98,6 +103,13 @@ public class MessagesTest {
             query.put("streamType", "im");
             List<InboundMessage> result = botClient.getMessagesClient().messageSearch(query, 0, 0, false);
             Assert.assertTrue(!result.isEmpty());
+            for (InboundMessage inboundMessage: result) {
+                if(inboundMessage.getAttachments()!=null && !inboundMessage.getAttachments().isEmpty()) {
+                    List<FileAttachment> filesAttached = botClient.getMessagesClient().getMessageAttachments(inboundMessage);
+                    Assert.assertTrue(!filesAttached.isEmpty());
+                }
+            }
+
         } catch (SymClientException e) {
             e.printStackTrace();
         } catch (NoContentException e) {
@@ -111,53 +123,6 @@ public class MessagesTest {
 //        Assert.assertTrue(!types.isEmpty());
 //    }
 
-    @Test
-    public void importMessageTest(){
-        OutboundImportMessageList importMessages = new OutboundImportMessageList();
-        OutboundImportMessage message = new OutboundImportMessage();
-        message.setIntendedMessageFromUserId(botClient.getBotUserInfo().getId());
-        message.setIntendedMessageTimestamp(1530197282);
-        message.setMessage("<messageML>import message test</messageML>");
-        message.setOriginatingSystemId("api client");
-        message.setOriginalMessageId("1");
-        importMessages.add(message);
-        try {
-            message.setStreamId(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com", true).getId()));
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        } catch (NoContentException e) {
-            e.printStackTrace();
-        }
-        InboundImportMessageList result = null;
-        try {
-            result = botClient.getMessagesClient().importMessages(importMessages);
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        }
-        Assert.assertTrue(!result.isEmpty());
-    }
 
-    @Test
-    public void suppressMessageTest(){
-            OutboundMessage message = new OutboundMessage();
-            message.setMessage("test <hash tag=\"tobesuppressedt\"/>");
-            InboundMessage inboundMessage=null;
-            try {
-                inboundMessage = botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com", true).getId()), message);
-
-            } catch (SymClientException e) {
-                e.printStackTrace();
-            } catch (NoContentException e) {
-                e.printStackTrace();
-            }
-        SuppressionResult result = null;
-        try {
-            result = botClient.getMessagesClient().suppressMessage(inboundMessage.getMessageId());
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        }
-        Assert.assertTrue(result.isSuppressed());
-
-    }
 
     }

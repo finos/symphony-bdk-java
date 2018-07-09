@@ -22,6 +22,8 @@ public interface ISymClient {
 
     public UsersClient getUsersClient();
 
+    public SignalsClient getSignalsClient();
+
     public ConnectionsClient getConnectionsClient();
 
     public Client getPodClient();
