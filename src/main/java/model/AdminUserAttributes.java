@@ -11,7 +11,7 @@ public class AdminUserAttributes {
     private String firstName;
     private String lastName;
     private String displayName;
-    private String username;
+    private String userName;
     private String accountType;
     private List<String> assetClasses;
     private List<String> industries;
@@ -59,12 +59,12 @@ public class AdminUserAttributes {
         this.displayName = displayName;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getAccountType() {

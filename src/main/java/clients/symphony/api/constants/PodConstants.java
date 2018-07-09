@@ -48,4 +48,7 @@ public class PodConstants {
     public static final String UPDATEUSERFEATURESADMIN = POD +"/v1/admin/user/{uid}/features/update";
     public static final String GETUSERAPPLICATIONSADMIN = POD +"/v1/admin/user/{uid}/app/entitlement/list";
     public static final String UPDATEUSERAPPLICATIONSADMIN = POD +"/v1/admin/user/{uid}/app/entitlement/list";
+    public static final String ADMINCREATEUSER =  POD +"/v2/admin/user/create";
+    public static final String ADMINUPDATEUSER = POD +"/v2/admin/user/{uid}/update";
+    public static final String ADMINUPDATEAVATAR = POD + "/v1/admin/user/{uid}/avatar/update";
 }

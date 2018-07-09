@@ -1,6 +1,10 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class ApplicationEntitlement {
 
@@ -40,5 +44,13 @@ public class ApplicationEntitlement {
 
     public void setInstall(Boolean install) {
         this.install = install;
+    }
+
+    public List<ApplicationProduct> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ApplicationProduct> products) {
+        this.products = products;
     }
 }
