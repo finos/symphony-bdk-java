@@ -43,7 +43,8 @@ public class DatafeedClient extends  APIClient{
                 handleError(response, botClient);
             } catch (UnauthorizedException ex){
                 return createDatafeed();
-            }            return null;
+            }
+            return null;
         }
         else {
             StringId datafeedId = response.readEntity(StringId.class);
@@ -65,11 +66,7 @@ public class DatafeedClient extends  APIClient{
         } else if (response.getStatus() == 200) {
             datafeedEvents = response.readEntity(DatafeedEventsList.class);
         } else {
-            try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return readDatafeed(createDatafeed());
-            }
 
         }
 

@@ -1,5 +1,6 @@
 package authentication;
 
+import clients.symphony.api.APIClient;
 import configuration.SymConfig;
 import exceptions.*;
 import model.ClientError;
@@ -27,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
-public class SymBotAuth implements ISymAuth{
+public class SymBotAuth extends APIClient implements ISymAuth{
     private final Logger logger = LoggerFactory.getLogger(SymBotAuth.class);
     private String sessionToken;
     private String kmToken;
@@ -99,19 +100,9 @@ public class SymBotAuth implements ISymAuth{
                     .post(null);
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
-                    ClientError error = response.readEntity((ClientError.class));
-                    if (response.getStatus() == 400){
-                        logger.error("Client error occurred", error);
-                    } else if (response.getStatus() == 401){
-                        logger.error("User unauthorized, refreshing tokens");
-                    } else if (response.getStatus() == 403){
-                        logger.error("Forbidden: Caller lacks necessary entitlement.");
-                    } else if (response.getStatus() == 500) {
-                        logger.error(error.getMessage());
-                    }
+                    handleError(response, null);
                 } catch (Exception e){
-                    logger.error("Unexpected error");
-                    e.printStackTrace();
+                    logger.error("Unexpected error, retry authentication in 30 seconds");
                 }
                 try {
                     TimeUnit.SECONDS.sleep(30);
@@ -124,12 +115,7 @@ public class SymBotAuth implements ISymAuth{
                 this.sessionToken = sessionTokenResponseContent.getToken();
             }
         } else {
-            try {
-                throw new NoConfigException("Must provide a SymConfig object to authenticate");
-            } catch (NoConfigException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
-            }
+            throw new NoConfigException("Must provide a SymConfig object to authenticate");
         }
     }
 
@@ -143,19 +129,9 @@ public class SymBotAuth implements ISymAuth{
                     .post(null);
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
-                    ClientError error = response.readEntity((ClientError.class));
-                    if (response.getStatus() == 400){
-                        logger.error("Client error occurred", error);
-                    } else if (response.getStatus() == 401){
-                        logger.error("User unauthorized, refreshing tokens");
-                    } else if (response.getStatus() == 403){
-                        logger.error("Forbidden: Caller lacks necessary entitlement.");
-                    } else if (response.getStatus() == 500) {
-                        logger.error(error.getMessage());
-                    }
+                    handleError(response, null);
                 } catch (Exception e){
-                    logger.error("Unexpected error");
-                    e.printStackTrace();
+                    logger.error("Unexpected error, retry authentication in 30 seconds");
                 }
                 try {
                     TimeUnit.SECONDS.sleep(30);

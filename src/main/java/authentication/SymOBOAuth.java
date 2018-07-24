@@ -1,5 +1,6 @@
 package authentication;
 
+import clients.symphony.api.APIClient;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.ClientError;
@@ -16,7 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 
-public class SymOBOAuth  {
+public class SymOBOAuth extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(SymOBOAuth.class);
     private String sessionToken;
     private SymConfig config;
@@ -73,19 +74,9 @@ public class SymOBOAuth  {
                     .post(null);
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
-                    ClientError error = response.readEntity((ClientError.class));
-                    if (response.getStatus() == 400){
-                        logger.error("Client error occurred", error);
-                    } else if (response.getStatus() == 401){
-                        logger.error("User unauthorized, refreshing tokens");
-                    } else if (response.getStatus() == 403){
-                        logger.error("Forbidden: Caller lacks necessary entitlement.");
-                    } else if (response.getStatus() == 500) {
-                        logger.error(error.getMessage());
-                    }
+                    handleError(response, null);
                 } catch (Exception e){
-                    logger.error("Unexpected error");
-                    e.printStackTrace();
+                    logger.error("Unexpected error, retry authentication in 30 seconds");
                 }
                 try {
                     TimeUnit.SECONDS.sleep(30);

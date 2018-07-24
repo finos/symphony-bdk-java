@@ -51,8 +51,6 @@ public class MessagesTest {
             InboundMessage inboundMessage = botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com",true).getId()),message);
             assertNotNull(inboundMessage.getMessage());
             assertNotNull(inboundMessage.getMessageId());
-            MessageStatus messageStatus = botClient.getMessagesClient().getMessageStatus(inboundMessage.getMessageId());
-            assertNotNull(messageStatus);
 
         } catch (SymClientException e) {
             e.printStackTrace();
@@ -86,21 +84,20 @@ public class MessagesTest {
     @Test
     public void searchMessageTest() {
         try {
-            OutboundMessage message = new OutboundMessage();
-            message.setMessage("test with attachment <hash tag=\"apisearchtest\"/>");
-            File file = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/innovatebot-img.png");
-            File file2 = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/report812269383544218386.xlsx");
-            File[] files = {file,file2};
-            message.setAttachment(files);
-            try {
-                botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com", true).getId()), message);
-
-            } catch (SymClientException e) {
-                e.printStackTrace();
-            }
+//            OutboundMessage message = new OutboundMessage();
+//            message.setMessage("test with attachment <hash tag=\"apisearchtest\"/>");
+//            File file = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/innovatebot-img.png");
+//            File file2 = new File ("/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/report812269383544218386.xlsx");
+//            File[] files = {file,file2};
+//            message.setAttachment(files);
+//            try {
+//                botClient.getMessagesClient().sendMessage(botClient.getStreamsClient().getUserIMStreamId(botClient.getUsersClient().getUserFromEmail("manuela.caicedo@symphony.com", true).getId()), message);
+//
+//            } catch (SymClientException e) {
+//                e.printStackTrace();
+//            }
             Map<String,String> query = new HashMap<>();
-            query.put("hashtag", "apisearchtest");
-            query.put("streamType", "im");
+            query.put("hashtag", "manuelatest");
             List<InboundMessage> result = botClient.getMessagesClient().messageSearch(query, 0, 0, false);
             Assert.assertTrue(!result.isEmpty());
             for (InboundMessage inboundMessage: result) {

@@ -12,22 +12,25 @@ import javax.ws.rs.core.Response;
 public abstract class APIClient {
     private final Logger logger = LoggerFactory.getLogger(APIClient.class);
 
-    void handleError(Response response, ISymClient botClient) throws SymClientException {
+    protected void handleError(Response response, ISymClient botClient) throws SymClientException {
+        if (response.getStatusInfo().getFamily() == Response.Status.Family.SERVER_ERROR) {
+            logger.error(response.getStatusInfo().getReasonPhrase());
+            throw new ServerErrorException(response.getStatusInfo().getReasonPhrase());
+        } else {
             ClientError error = response.readEntity((ClientError.class));
-            if (response.getStatus() == 400){
+            if (response.getStatus() == 400) {
                 logger.error("Client error occurred", error);
                 throw new APIClientErrorException(error.getMessage());
-            } else if (response.getStatus() == 401){
+            } else if (response.getStatus() == 401) {
                 logger.error("User unauthorized, refreshing tokens");
-                botClient.getSymAuth().authenticate();
+                if(botClient!=null)
+                    botClient.getSymAuth().authenticate();
                 throw new UnauthorizedException(error.getMessage());
-            } else if (response.getStatus() == 403){
+            } else if (response.getStatus() == 403) {
                 logger.error("Forbidden: Caller lacks necessary entitlement.");
                 throw new ForbiddenException(error.getMessage());
-            } else if (response.getStatus() == 500) {
-                logger.error(error.getMessage());
-                throw new ServerErrorException(error.getMessage());
             }
+        }
 
 
     }

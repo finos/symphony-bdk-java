@@ -1,6 +1,6 @@
 package exceptions;
 
-public class SymClientException extends Exception {
+public class SymClientException extends RuntimeException {
 
     public SymClientException(String message) {
         super(message);

@@ -18,9 +18,8 @@ import utils.SymMessageParser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DatafeedEventsService {
     private final Logger logger = LoggerFactory.getLogger(DatafeedEventsService.class);
@@ -30,6 +29,8 @@ public class DatafeedEventsService {
     private List<IMListener> IMListeners;
     private List<ConnectionListener> connectionListeners;
     private String datafeedId;
+    private ExecutorService pool;
+    private AtomicBoolean stop = new AtomicBoolean();
 
     public DatafeedEventsService(SymBotClient client) {
         this.botClient = client;
@@ -37,12 +38,10 @@ public class DatafeedEventsService {
         IMListeners = new ArrayList<>();
         connectionListeners = new ArrayList<>();
         datafeedClient = this.botClient.getDatafeedClient();
-        try {
-            datafeedId = datafeedClient.createDatafeed();
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        }
-        readDatafeed(datafeedId);
+        datafeedId = datafeedClient.createDatafeed();
+
+        readDatafeed();
+        stop.set(false);
     }
 
     public void addRoomListener(RoomListener listener){
@@ -69,41 +68,65 @@ public class DatafeedEventsService {
         connectionListeners.remove(listener);
     }
 
-    public void readDatafeed(String id){
-
-        ExecutorService pool = Executors.newFixedThreadPool(5);
+    public void readDatafeed(){
+        if( pool!=null) {
+            pool.shutdown();
+        }
+        pool = Executors.newFixedThreadPool(5);
         CompletableFuture.supplyAsync(() -> {
-            try {
-                return datafeedClient.readDatafeed(id);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        },pool)
-            .exceptionally((ex)-> {
-                handleError(ex);
-                return null;
-            })
-            .thenApply(events -> {
-                if(!events.isEmpty()){
-                    handleEvents(events);
-                }
-                readDatafeed(id);
+            while(!stop.get()) {
+                CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return datafeedClient.readDatafeed(datafeedId);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }, pool)
+                        .exceptionally((ex) -> {
+                            handleError(ex);
+                            return null;
+                        })
+                        .thenApply(events -> {
+                            if (!events.isEmpty()) {
+                                handleEvents(events);
+                            }
 
-                return null;
-            });
+                            return null;
+                        });
+                try {
+                    future.get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        },pool);
+
+
 
     }
 
     private void handleError(Throwable e) {
-        if (e instanceof UnauthorizedException || e instanceof APIClientErrorException){
-            try {
-                datafeedId = datafeedClient.createDatafeed();
-            } catch (SymClientException e1) {
-                e1.printStackTrace();
-            }
-            readDatafeed(datafeedId);
-        }
         logger.error(e.getMessage());
+        try {
+            TimeUnit.SECONDS.sleep(30);
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+        try {
+            datafeedId = datafeedClient.createDatafeed();
+        } catch (SymClientException e1) {
+            try {
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+            handleError(e);
+        }
+
+
     }
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {

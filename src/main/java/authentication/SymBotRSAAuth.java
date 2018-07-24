@@ -1,5 +1,6 @@
 package authentication;
 
+import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.UnauthorizedException;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class SymBotRSAAuth implements ISymAuth {
+public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
     private String sessionToken;
     private String kmToken;
@@ -77,10 +78,16 @@ public class SymBotRSAAuth implements ISymAuth {
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
-                throw new UnauthorizedException("could not authenticate");
-            } catch (UnauthorizedException e) {
+                handleError(response, null);
+            } catch (Exception e){
+                logger.error("Unexpected error, retry authentication in 30 seconds");
+            }
+            try {
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            sessionAuthenticate();
         }
         else {
             sessionToken =  response.readEntity(Token.class).getToken();
@@ -103,10 +110,16 @@ public class SymBotRSAAuth implements ISymAuth {
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
-                throw new UnauthorizedException("could not authenticate");
-            } catch (UnauthorizedException e) {
+                handleError(response, null);
+            } catch (Exception e){
+                logger.error("Unexpected error, retry authentication in 30 seconds");
+            }
+            try {
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            kmAuthenticate();
         }
         else {
             kmToken =  response.readEntity(Token.class).getToken();
