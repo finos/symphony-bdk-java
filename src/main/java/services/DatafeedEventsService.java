@@ -108,6 +108,17 @@ public class DatafeedEventsService {
 
     }
 
+    public void stopDatafeedService(){
+        if(!stop.get()) stop.set(true);
+    }
+
+    public void restartDatafeedService(){
+        if(stop.get()) stop.set(false);
+        datafeedId = datafeedClient.createDatafeed();
+
+        readDatafeed();
+    }
+
     private void handleError(Throwable e) {
         logger.error(e.getMessage());
         try {

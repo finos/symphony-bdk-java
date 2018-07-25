@@ -5,7 +5,7 @@ The Java client is built in an event handler architecture. If you are building a
         <dependency>
                     <groupId>com.symphony.platformsolutions</groupId>
                     <artifactId>symphony-api-client-java</artifactId>
-                    <version>1.0.3</version>
+                    <version>1.0.4</version>
         </dependency>
 
 ## Configuration
