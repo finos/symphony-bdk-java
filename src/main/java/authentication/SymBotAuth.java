@@ -6,6 +6,7 @@ import exceptions.*;
 import model.ClientError;
 import model.Token;
 import org.glassfish.jersey.SslConfigurator;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -48,6 +49,7 @@ public class SymBotAuth extends APIClient implements ISymAuth{
         else {
             this.kmAuthClient = client;
             ClientConfig clientConfig = new ClientConfig();
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
             if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());

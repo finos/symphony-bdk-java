@@ -7,6 +7,7 @@ import configuration.SymConfig;
 import exceptions.*;
 import model.Signal;
 import model.UserInfo;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import services.DatafeedEventsService;
@@ -69,6 +70,7 @@ public class SymBotClient implements ISymClient {
         else {
             this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build();
             ClientConfig clientConfig = new ClientConfig();
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
             if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
