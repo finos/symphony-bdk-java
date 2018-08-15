@@ -5,8 +5,12 @@ import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.UnauthorizedException;
 import model.Token;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
 
 import javax.ws.rs.client.*;
@@ -25,11 +29,46 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private String sessionToken;
     private String kmToken;
     private SymConfig config;
+    private Client sessionAuthClient;
+    private Client kmAuthClient;
     private String jwt;
     private long lastAuthTime=0;
 
     public SymBotRSAAuth(SymConfig config) {
         this.config = config;
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        Client client = clientBuilder.build();
+        if(config.getProxyURL()==null || config.getProxyURL().equals("")){
+            this.sessionAuthClient = client;
+            this.kmAuthClient = client;
+        }
+        else {
+            this.kmAuthClient = client;
+            ClientConfig clientConfig = new ClientConfig();
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
+            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
+            if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD,config.getProxyPassword());
+            }
+            Client proxyClient = clientBuilder.withConfig(clientConfig).build();
+            this.sessionAuthClient = proxyClient;
+        }
+    }
+
+    public SymBotRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
+        this.config = config;
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        if (sessionAuthClientConfig!=null){
+            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+        } else {
+            this.sessionAuthClient = clientBuilder.build();
+        }
+        if (kmAuthClient==null){
+            this.kmAuthClient = clientBuilder.withConfig(kmAuthClientConfig).build();
+        } else {
+            this.kmAuthClient = clientBuilder.build();
+        }
     }
 
     @Override
@@ -68,9 +107,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
 
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + config.getPodHost() + ":" + config.getPodPort())
+                = this.sessionAuthClient.target(CommonConstants.HTTPSPREFIX + config.getPodHost() + ":" + config.getPodPort())
                 .path(AuthEndpointConstants.RSASESSIONAUTH)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(token,MediaType.APPLICATION_JSON));
@@ -98,15 +136,11 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void kmAuthenticate() {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
-        Client client = ClientBuilder.newClient();
         Response response
-                = client.target(CommonConstants.HTTPSPREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort())
+                = this.kmAuthClient.target(CommonConstants.HTTPSPREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort())
                 .path(AuthEndpointConstants.RSAKMAUTH)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(token,MediaType.APPLICATION_JSON));
-
-
-
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {

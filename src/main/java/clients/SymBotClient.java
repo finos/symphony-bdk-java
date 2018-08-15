@@ -63,7 +63,7 @@ public class SymBotClient implements ISymClient {
         this.config = config;
         this.symBotAuth = symBotAuth;
 
-        if(config.getProxyURL()==null){
+        if(config.getProxyURL()==null || config.getProxyURL().equals("")){
             this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build();
             this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build();
         }
@@ -87,7 +87,7 @@ public class SymBotClient implements ISymClient {
         }
     }
 
-    public static SymBotClient initBot(SymConfig config, SymBotAuth botAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
+    public static SymBotClient initBot(SymConfig config, ISymAuth botAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
         if(botClient==null){
             botClient = new SymBotClient(config, botAuth,podClientConfig,agentClientConfig);
             return botClient;

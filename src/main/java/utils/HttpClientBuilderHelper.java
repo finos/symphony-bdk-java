@@ -150,7 +150,7 @@ public class HttpClientBuilderHelper {
                 }
             }
         }
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder().keyStore(cks, config.getBotCertPassword().toCharArray());
+        ClientBuilder clientBuilder = ClientBuilder.newBuilder().keyStore(cks, config.getAppCertPassword().toCharArray());
         if(config.getTruststorePath()!=null){
             clientBuilder.trustStore(tks);
         }

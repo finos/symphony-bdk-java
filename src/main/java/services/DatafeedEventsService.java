@@ -87,7 +87,7 @@ public class DatafeedEventsService {
                             return null;
                         })
                         .thenApply(events -> {
-                            if (!events.isEmpty()) {
+                            if (events!=null || !events.isEmpty()) {
                                 handleEvents(events);
                             }
 

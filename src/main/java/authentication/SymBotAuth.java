@@ -42,7 +42,7 @@ public class SymBotAuth extends APIClient implements ISymAuth{
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBotBuilder(config);
         Client client = clientBuilder.build();
-        if(config.getProxyURL()==null){
+        if(config.getProxyURL()==null || config.getProxyURL().equals("")){
             this.sessionAuthClient = client;
             this.kmAuthClient = client;
         }
@@ -81,6 +81,7 @@ public class SymBotAuth extends APIClient implements ISymAuth{
         if(lastAuthTime==0 | System.currentTimeMillis()-lastAuthTime>3000) {
             sessionAuthenticate();
             kmAuthenticate();
+            lastAuthTime=System.currentTimeMillis();
         } else{
             try {
                 logger.info("Re-authenticated too fast. Wait 30 seconds to try again.");
