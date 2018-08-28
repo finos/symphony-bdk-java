@@ -5,7 +5,7 @@ The Java client is built in an event handler architecture. If you are building a
         <dependency>
                     <groupId>com.symphony.platformsolutions</groupId>
                     <artifactId>symphony-api-client-java</artifactId>
-                    <version>1.0.4</version>
+                    <version>1.0.7</version>
         </dependency>
 
 ## Configuration
@@ -18,7 +18,7 @@ Create a config.json file in your project which includes the following propertie
           "keyAuthPort": 8444,
           "podHost": "COMPANYNAME.symphony.com",
           "podPort": 443,
-          "agentHost": "COMAPNYNAME.symphony.com",
+          "agentHost": "COMPANYNAME.symphony.com",
           "agentPort": 443,
           "botCertPath": "PATH",
           "botCertName": "BOT-CERT-NAME",

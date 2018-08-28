@@ -14,7 +14,7 @@ public class SymBotAuthTest {
 
     @Test
     public void authenticationTest(){
-        SymBotAuth botAuth = new SymBotAuth(config);
+        ISymAuth botAuth = new SymBotAuth(config);
         botAuth.authenticate();
         assertNotNull(botAuth.getSessionToken());
         assertNotNull(botAuth.getKmToken());

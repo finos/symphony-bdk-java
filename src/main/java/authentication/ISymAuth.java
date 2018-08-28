@@ -3,20 +3,20 @@ package authentication;
 public interface ISymAuth {
 
 
-    public void authenticate();
+    void authenticate();
 
-    public void sessionAuthenticate();
+    void sessionAuthenticate();
 
-    public void kmAuthenticate();
+    void kmAuthenticate();
 
-    public String getSessionToken();
+    String getSessionToken();
 
-    public void setSessionToken(String sessionToken);
+    void setSessionToken(String sessionToken);
 
-    public String getKmToken();
+    String getKmToken();
 
-    public void setKmToken(String kmToken);
+    void setKmToken(String kmToken);
 
-    public void logout();
+    void logout();
 
 }

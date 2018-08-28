@@ -12,37 +12,44 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-public class ConnectionsClient extends APIClient {
+public final class ConnectionsClient extends APIClient {
     private ISymClient botClient;
 
     public ConnectionsClient(ISymClient client) {
         botClient = client;
     }
 
-    public List<InboundConnectionRequest> getPendingConnections() throws SymClientException {
+    public List<InboundConnectionRequest> getPendingConnections()
+            throws SymClientException {
        return getConnections(null, null);
     }
 
-    public List<InboundConnectionRequest> getInboundPendingConnections() throws SymClientException {
+    public List<InboundConnectionRequest> getInboundPendingConnections()
+            throws SymClientException {
         return getConnections("PENDING_INCOMING", null);
     }
 
-    public List<InboundConnectionRequest> getAllConnections() throws SymClientException {
+    public List<InboundConnectionRequest> getAllConnections()
+            throws SymClientException {
         return getConnections("ALL", null);
     }
 
-    public List<InboundConnectionRequest> getAcceptedConnections() throws SymClientException {
+    public List<InboundConnectionRequest> getAcceptedConnections()
+            throws SymClientException {
         return getConnections("ACCEPTED", null);
     }
 
-    public List<InboundConnectionRequest> getRejectedConnections() throws SymClientException {
+    public List<InboundConnectionRequest> getRejectedConnections()
+            throws SymClientException {
         return getConnections("REJECTED", null);
     }
 
-    public List<InboundConnectionRequest> getConnections(String status, List<Long> userIds) throws SymClientException {
+    public List<InboundConnectionRequest> getConnections(String status,
+                                                         List<Long> userIds)
+            throws SymClientException {
         boolean userList = false;
-        StringBuilder userIdList= new StringBuilder();
-        if(userIds!=null) {
+        StringBuilder userIdList = new StringBuilder();
+        if (userIds != null) {
             if (!userIds.isEmpty()) {
                 userList = true;
                 userIdList.append(userIds.get(0));
@@ -52,24 +59,28 @@ public class ConnectionsClient extends APIClient {
             }
         }
         WebTarget builder
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+                +  botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETCONNECTIONS);
 
-        if(status!=null){
+        if (status != null) {
             builder = builder.queryParam("status", status);
         }
-        if(userList){
+        if (userList) {
             builder = builder.queryParam("userIds", userIdList.toString());
         }
 
         Response response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken",
+                        botClient.getSymAuth().getSessionToken())
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return getConnections(status,userIds);
+            } catch (UnauthorizedException ex) {
+                return getConnections(status, userIds);
             }
             return null;
         } else {
@@ -77,19 +88,24 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest acceptConnectionRequest(Long userId) throws SymClientException {
+    public InboundConnectionRequest acceptConnectionRequest(Long userId)
+            throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
         Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+                +  botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ACCEPTCONNECTION)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken",
+                        botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
+            } catch (UnauthorizedException ex) {
                 return acceptConnectionRequest(userId);
             }
             return null;
@@ -98,19 +114,24 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest rejectConnectionRequest(Long userId) throws SymClientException {
+    public InboundConnectionRequest rejectConnectionRequest(Long userId)
+            throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
         Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+                +  botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REJECTCONNECTION)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken",
+                        botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
+            } catch (UnauthorizedException ex) {
                 return rejectConnectionRequest(userId);
             }
             return null;
@@ -119,37 +140,49 @@ public class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest sendConnectionRequest(Long userId) throws SymClientException {
+    public InboundConnectionRequest sendConnectionRequest(Long userId)
+            throws SymClientException {
         UserId userIdObject = new UserId();
         userIdObject.setUserId(userId);
         Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+                + botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SENDCONNECTIONREQUEST)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken",
+                        botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
+            } catch (UnauthorizedException ex) {
                 return sendConnectionRequest(userId);
-            }            return null;
+            }
+            return null;
         } else {
             return response.readEntity(InboundConnectionRequest.class);
         }
     }
 
-    public InboundConnectionRequest getConnectionRequestStatus(Long userId) throws SymClientException {
+    public InboundConnectionRequest getConnectionRequestStatus(Long userId)
+            throws SymClientException {
         Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)))
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+                +  botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}",
+                        Long.toString(userId)))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken",
+                        botClient.getSymAuth().getSessionToken())
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
+            } catch (UnauthorizedException ex) {
                 return getConnectionRequestStatus(userId);
             }
             return null;
@@ -160,22 +193,27 @@ public class ConnectionsClient extends APIClient {
 
     public void removeConnection(Long userId) throws SymClientException {
         Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX +  botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)))
+                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+                +  botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
+                .path(PodConstants.REMOVECONNECTION.replace("{userId}",
+                        Long.toString(userId)))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken",
+                        botClient.getSymAuth().getSessionToken())
                 .post(null);
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, botClient);
-            } catch (UnauthorizedException ex){
+            } catch (UnauthorizedException ex) {
                 removeConnection(userId);
             }
         }
     }
 
-    private class UserId{
-        Long userId;
+    private class UserId {
+        private Long userId;
 
         public Long getUserId() {
             return userId;

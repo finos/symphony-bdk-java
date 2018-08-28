@@ -26,7 +26,7 @@ public class StreamsTest {
     private Long userId1;
     private Long userId2;
     private List<Long> userList;
-    private String streamId= "1_vv_nyaIQ2OQniAKfkmgX___pu9TLmzdA";
+    private String streamId= "-Jkv7nCrpyYCfolcWoVeeX___pq83KKydA";
 
     @Before
     public void oneTimeSetUp() {

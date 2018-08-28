@@ -21,4 +21,6 @@ public class AgentConstants {
     public static final String SUBSCRIBESIGNAL = "/agent/v1/signals/{id}/subscribe";
     public static final String UNSUBSCRIBESIGNAL = "/agent/v1/signals/{id}/unsubscribe";
     public static final String GETSUBSCRIBERS = "/v1/signals/{id}/subscribers";
+    public static final String CREATEFIREHOSE = "/agent/v4/firehose/create";
+    public static final String READFIREHOSE = "/agent/v4/firehose/{id}/read";
 }

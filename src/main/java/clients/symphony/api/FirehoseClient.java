@@ -1,39 +1,36 @@
 package clients.symphony.api;
 
-
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
-import exceptions.*;
-import model.DatafeedEvent;
-import model.DatafeedEventsList;
-import model.StringId;
+import exceptions.SymClientException;
+import exceptions.UnauthorizedException;
+import model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DatafeedClient extends  APIClient {
+public class FirehoseClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
-    private SymConfig config;
 
-    public DatafeedClient(SymBotClient client) {
+    public FirehoseClient(SymBotClient client) {
         this.botClient = client;
-        this.config = client.getConfig();
     }
 
 
-    public String createDatafeed() throws SymClientException {
+    public String createFirehose() throws SymClientException {
 
 
         Response response
                 = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
-                + config.getAgentHost() + ":" + config.getAgentPort())
-                .path(AgentConstants.CREATEDATAFEED)
+                + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                .path(AgentConstants.CREATEFIREHOSE)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
                         botClient.getSymAuth().getSessionToken())
@@ -44,24 +41,24 @@ public final class DatafeedClient extends  APIClient {
             try {
                 handleError(response, botClient);
             } catch (UnauthorizedException ex) {
-                return createDatafeed();
+                return createFirehose();
             }
             return null;
         } else {
-            StringId datafeedId = response.readEntity(StringId.class);
-            return datafeedId.getId();
+            StringId firehoseId = response.readEntity(StringId.class);
+            return firehoseId.getId();
         }
     }
 
-    public List<DatafeedEvent> readDatafeed(String id)
+    public List<DatafeedEvent> readFirehose(String id)
             throws SymClientException {
-        List<DatafeedEvent> datafeedEvents = null;
+        List<DatafeedEvent> firehoseEvents = null;
         Response response
                 = botClient.getAgentClient().target(
-                        CommonConstants.HTTPSPREFIX
-                                + config.getAgentHost()
-                                + ":" + config.getAgentPort())
-                .path(AgentConstants.READDATAFEED.replace("{id}", id))
+                CommonConstants.HTTPSPREFIX
+                        + botClient.getConfig().getAgentHost()
+                        + ":" + botClient.getConfig().getAgentPort())
+                .path(AgentConstants.READFIREHOSE.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
                         botClient.getSymAuth().getSessionToken())
@@ -70,17 +67,17 @@ public final class DatafeedClient extends  APIClient {
                 .get();
         if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
-                handleError(response, botClient);
+            handleError(response, botClient);
         } else {
             if (response.getStatus() == CommonConstants.NOCONTENT) {
-                datafeedEvents = new ArrayList<>();
+                firehoseEvents = new ArrayList<>();
             } else {
-                datafeedEvents = response.readEntity(DatafeedEventsList.class);
+                firehoseEvents = response.readEntity(DatafeedEventsList.class);
             }
         }
 
 
-        return datafeedEvents;
+        return firehoseEvents;
 
     }
 

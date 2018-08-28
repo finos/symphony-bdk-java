@@ -5,7 +5,6 @@ import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
 import model.PodCert;
-import model.Token;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jose4j.jwt.JwtClaims;
@@ -15,8 +14,6 @@ import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
-
-import javax.security.auth.login.LoginException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -32,120 +29,140 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class SymExtensionAppAuth extends APIClient {
-    private final Logger logger = LoggerFactory.getLogger(SymExtensionAppAuth.class);
+public final class SymExtensionAppAuth extends APIClient {
+    private final Logger logger = LoggerFactory
+            .getLogger(SymExtensionAppAuth.class);
     private SymConfig config;
     private Client sessionAuthClient;
 
-    public SymExtensionAppAuth(SymConfig config){
-        this.config = config;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
+    public SymExtensionAppAuth(final SymConfig configuration) {
+        this.config = configuration;
+        ClientBuilder clientBuilder = HttpClientBuilderHelper
+                .getHttpClientAppBuilder(config);
         Client client = clientBuilder.build();
-        if(config.getProxyURL()==null || config.getProxyURL().equals("")){
+        if (config.getProxyURL() == null
+                || config.getProxyURL().equals("")) {
             this.sessionAuthClient = client;
-        }
-        else {
+        } else {
             ClientConfig clientConfig = new ClientConfig();
-            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,config.getProxyPassword());
+            clientConfig.property(ClientProperties.PROXY_URI,
+                    config.getProxyURL());
+            if (config.getProxyUsername()  !=  null
+                    && config.getProxyPassword()  !=  null) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME,
+                        config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD,
+                        config.getProxyPassword());
             }
             Client proxyClient = clientBuilder.withConfig(clientConfig).build();
             this.sessionAuthClient = proxyClient;
         }
     }
 
-    public SymExtensionAppAuth(SymConfig config, ClientConfig sessionAuthClientConfig) {
-        this.config = config;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
-        if (sessionAuthClientConfig!=null){
-            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+    public SymExtensionAppAuth(final SymConfig configuration,
+                               final ClientConfig sessionAuthClientConfig) {
+        this.config = configuration;
+        ClientBuilder clientBuilder = HttpClientBuilderHelper
+                .getHttpClientAppBuilder(config);
+        if (sessionAuthClientConfig  !=  null) {
+            this.sessionAuthClient = clientBuilder
+                    .withConfig(sessionAuthClientConfig).build();
         } else {
             this.sessionAuthClient = clientBuilder.build();
         }
     }
 
-    public AppAuthResponse sessionAppAuthenticate(String appToken) {
-        if (config!=null) {
+    public AppAuthResponse sessionAppAuthenticate(final String appToken) {
+        if (config != null) {
             logger.info("Session extension app auth");
             Map<String, String> input = new HashMap<>();
             input.put("appToken", appToken);
             Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
+                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                    + config.getSessionAuthHost() + ":"
+                    + config.getSessionAuthPort())
                     .path(AuthEndpointConstants.SESSIONEXTAPPAUTH)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(input, MediaType.APPLICATION_JSON));
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily()
+                     !=  Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, null);
-                } catch (Exception e){
-                    logger.error("Unexpected error, retry authentication in 30 seconds");
+                } catch (Exception e) {
+                    logger.error("Unexpected error, "
+                            + "retry authentication in 30 seconds");
                 }
                 try {
-                    TimeUnit.SECONDS.sleep(30);
+                    TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 sessionAppAuthenticate(appToken);
             } else {
-                AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
+                AppAuthResponse appAuthResponse =
+                        response.readEntity(AppAuthResponse.class);
                 return appAuthResponse;
             }
         } else {
-            throw new NoConfigException("Must provide a SymConfig object to authenticate");
+            throw new NoConfigException(
+                    "Must provide a SymConfig object to authenticate");
 
         }
         return null;
     }
 
-    public AppAuthResponse sessionAppAuthenticate(String appToken, String podSessionAuthUrl) {
-        if (config!=null) {
-            logger.info("Session extension app auth");
-            Map<String, String> input = new HashMap<>();
-            input.put("appToken", appToken);
-            Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX + podSessionAuthUrl)
-                    .path(AuthEndpointConstants.SESSIONEXTAPPAUTH)
-                    .request(MediaType.APPLICATION_JSON)
-                    .post(Entity.entity(input, MediaType.APPLICATION_JSON));
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-                try {
-                    handleError(response, null);
-                } catch (Exception e){
-                    logger.error("Unexpected error, retry authentication in 30 seconds");
-                }
-                try {
-                    TimeUnit.SECONDS.sleep(30);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                sessionAppAuthenticate(appToken,podSessionAuthUrl);
-            } else {
-                AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
-                return appAuthResponse;
-            }
-        } else {
-            throw new NoConfigException("Must provide a SymConfig object to authenticate");
-
-        }
-        return null;
-    }
-
-    public Object verifyJWT(String jwt){
+    public AppAuthResponse sessionAppAuthenticate(final String appToken,
+                                                  final String podSessionAuthUrl
+    ) {
+        logger.info("Session extension app auth");
+        Map<String, String> input = new HashMap<>();
+        input.put("appToken", appToken);
         Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX  + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
+                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                + podSessionAuthUrl)
+                .path(AuthEndpointConstants.SESSIONEXTAPPAUTH)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(input, MediaType.APPLICATION_JSON));
+        if (response.getStatusInfo().getFamily()
+                 !=  Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, null);
+            } catch (Exception e) {
+                logger.error("Unexpected error, "
+                        + "retry authentication in 30 seconds");
+            }
+            try {
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            sessionAppAuthenticate(appToken, podSessionAuthUrl);
+        } else {
+            AppAuthResponse appAuthResponse =
+                    response.readEntity(AppAuthResponse.class);
+            return appAuthResponse;
+        }
+        return null;
+    }
+
+    public Object verifyJWT(final String jwt) {
+        Response response
+                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                + config.getSessionAuthHost() + ":"
+                + config.getSessionAuthPort())
                 .path(AuthEndpointConstants.PODCERT)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                !=  Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, null);
-            } catch (Exception e){
-                logger.error("Unexpected error, retry authentication in 30 seconds");
+            } catch (Exception e) {
+                logger.error("Unexpected error, "
+                        + "retry authentication in 30 seconds");
             }
             try {
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -156,7 +173,8 @@ public class SymExtensionAppAuth extends APIClient {
             PublicKey publicKey;
             try {
 
-                X509Certificate x509Certificate = parseX509Certificate(cert.getCertificate());
+                X509Certificate x509Certificate =
+                        parseX509Certificate(cert.getCertificate());
                 publicKey = x509Certificate.getPublicKey();
                 JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                         .setVerificationKey(publicKey)
@@ -175,20 +193,23 @@ public class SymExtensionAppAuth extends APIClient {
         return null;
     }
 
-    public Object verifyJWT(String jwt, String podSessionAuthUrl){
+    public Object verifyJWT(final String jwt, final String podSessionAuthUrl) {
         Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX  + podSessionAuthUrl)
+                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                + podSessionAuthUrl)
                 .path(AuthEndpointConstants.PODCERT)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        if (response.getStatusInfo().getFamily()
+                !=  Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, null);
-            } catch (Exception e){
-                logger.error("Unexpected error, retry authentication in 30 seconds");
+            } catch (Exception e) {
+                logger.error("Unexpected error, "
+                        + "retry authentication in 30 seconds");
             }
             try {
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -199,7 +220,8 @@ public class SymExtensionAppAuth extends APIClient {
             PublicKey publicKey;
             try {
 
-                X509Certificate x509Certificate = parseX509Certificate(cert.getCertificate());
+                X509Certificate x509Certificate =
+                        parseX509Certificate(cert.getCertificate());
                 publicKey = x509Certificate.getPublicKey();
                 JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                         .setVerificationKey(publicKey)
@@ -222,9 +244,10 @@ public class SymExtensionAppAuth extends APIClient {
             throws GeneralSecurityException {
         try {
             CertificateFactory f = CertificateFactory.getInstance("X.509");
-            byte [] bytes = certificateString.getBytes("UTF-8");
+            byte[] bytes = certificateString.getBytes("UTF-8");
             ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            X509Certificate certificate = (X509Certificate)f.generateCertificate(stream);
+            X509Certificate certificate =
+                    (X509Certificate) f.generateCertificate(stream);
             return certificate;
 
         } catch (UnsupportedEncodingException e) {

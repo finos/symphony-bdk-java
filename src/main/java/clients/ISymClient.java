@@ -1,36 +1,41 @@
 package clients;
 
 import authentication.ISymAuth;
-import clients.symphony.api.*;
+import clients.symphony.api.MessagesClient;
+import clients.symphony.api.PresenceClient;
+import clients.symphony.api.StreamsClient;
+import clients.symphony.api.UsersClient;
+import clients.symphony.api.SignalsClient;
+import clients.symphony.api.ConnectionsClient;
+
 import configuration.SymConfig;
-import org.glassfish.jersey.client.ClientConfig;
 
 import javax.ws.rs.client.Client;
 
-public interface ISymClient {
+ public interface ISymClient {
 
 
-    public SymConfig getConfig();
+     SymConfig getConfig();
 
-    public ISymAuth getSymAuth();
+     ISymAuth getSymAuth();
 
-    public MessagesClient getMessagesClient() ;
+     MessagesClient getMessagesClient();
 
-    public PresenceClient getPresenceClient();
+     PresenceClient getPresenceClient();
 
-    public StreamsClient getStreamsClient();
+     StreamsClient getStreamsClient();
 
-    public UsersClient getUsersClient();
+     UsersClient getUsersClient();
 
-    public SignalsClient getSignalsClient();
+     SignalsClient getSignalsClient();
 
-    public ConnectionsClient getConnectionsClient();
+     ConnectionsClient getConnectionsClient();
 
-    public Client getPodClient();
+     Client getPodClient();
 
-    public Client getAgentClient();
+     Client getAgentClient();
 
-    public void setPodClient(Client podClient);
+     void setPodClient(Client podClient);
 
-    public void setAgentClient(Client agentClient);
+     void setAgentClient(Client agentClient);
 }
