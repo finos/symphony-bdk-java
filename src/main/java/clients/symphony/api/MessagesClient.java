@@ -81,7 +81,7 @@ public final class MessagesClient extends APIClient {
                     }
                 }
                 Entity entity = Entity.entity(multiPart,
-                        MediaType.MULTIPART_FORM_DATA_TYPE);
+                        MultiPartMediaTypes.createFormData());
                 Response response = invocationBuilder.post(entity);
 
                 if (response.getStatus()
