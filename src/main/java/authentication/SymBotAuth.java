@@ -34,7 +34,6 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
             this.sessionAuthClient = client;
             this.kmAuthClient = client;
         } else {
-            this.kmAuthClient = client;
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig
@@ -49,6 +48,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
             Client proxyClient = clientBuilder.withConfig(clientConfig)
                     .build();
             this.sessionAuthClient = proxyClient;
+            this.kmAuthClient = proxyClient;
         }
     }
 

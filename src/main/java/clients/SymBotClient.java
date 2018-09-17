@@ -79,8 +79,6 @@ public final class SymBotClient implements ISymClient {
             this.agentClient = HttpClientBuilderHelper
                     .getHttpClientBuilderWithTruststore(config).build();
         } else {
-            this.agentClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config).build();
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI,
@@ -92,6 +90,9 @@ public final class SymBotClient implements ISymClient {
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,
                         config.getProxyPassword());
             }
+            this.agentClient = HttpClientBuilderHelper
+                    .getHttpClientBuilderWithTruststore(config)
+                    .withConfig(clientConfig).build();
             this.podClient =  HttpClientBuilderHelper
                     .getHttpClientBuilderWithTruststore(config)
                     .withConfig(clientConfig).build();
