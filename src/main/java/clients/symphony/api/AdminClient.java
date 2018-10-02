@@ -61,7 +61,7 @@ public final class AdminClient extends APIClient {
     public SuppressionResult suppressMessage(String id)
             throws SymClientException {
         Response response
-                = botClient.getAgentClient().target(
+                = botClient.getPodClient().target(
                         CommonConstants.HTTPSPREFIX
                                 + botClient.getConfig().getPodHost()
                                 + ":" + botClient.getConfig().getPodPort())

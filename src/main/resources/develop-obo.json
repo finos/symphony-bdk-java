@@ -1,0 +1,15 @@
+{
+  "sessionAuthHost": "develop-api.symphony.com",
+  "sessionAuthPort": 8444,
+  "keyAuthHost": "develop-api.symphony.com",
+  "keyAuthPort": 8444,
+  "podHost": "develop.symphony.com",
+  "podPort": 443,
+  "agentHost": "develop.symphony.com",
+  "agentPort": 443,
+  "appCertPath": "/Users/manuela.caicedo/Documents/generated/obocert/certificates/",
+  "appCertName": "ben-obo-test",
+  "appCertPassword": "changeit",
+  "truststorePath": "/Users/manuela.caicedo/Documents/generated/nlpbot/certificates/all_symphony_certs_truststore",
+  "truststorePassword": "changeit"
+}
