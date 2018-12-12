@@ -172,43 +172,39 @@ public final class AdminClient extends APIClient {
         return info;
     }
 
-    /*R52 endpoint*/
-//    public List<AdminUserInfo> listUsers(int skip, int limit)
-// throws SymClientException {
-//        AdminUserInfoList result = null;
-//        WebTarget builder
-//                = botClient.getPodClient()
-// .target(CommonConstants.HTTPSPREFIX
-// + botClient.getConfig().getPodHost() + ":"
-// + botClient.getConfig().getPodPort())
-//                .path(PodConstants.LISTUSERSADMIN);
-//
-//
-//        if(skip>0){
-//            builder = builder.queryParam("skip", skip);
-//        }
-//        if(limit>0){
-//            builder = builder.queryParam("limit", limit);
-//        }
-//        Response response = builder.request(MediaType.APPLICATION_JSON)
-//                .header("sessionToken",
-// botClient.getSymAuth().getSessionToken())
-//                .get();
-//
-//        if (response.getStatus() == 200) {
-//            result = response.readEntity(AdminUserInfoList.class);
-//        }
-//        if (response.getStatusInfo().getFamily()
-// != Response.Status.Family.SUCCESSFUL) {
-//            try {
-//                handleError(response, botClient);
-//            } catch (UnauthorizedException ex){
-//                return listUsers(skip, limit);
-//            }
-//            return null;
-//        }
-//        return result;
-//    }
+   public List<AdminUserInfo> listUsers(int skip, int limit) throws SymClientException {
+       AdminUserInfoList result = null;
+       WebTarget builder
+               = botClient.getPodClient()
+                .target(CommonConstants.HTTPSPREFIX
+                + botClient.getConfig().getPodHost() + ":"
+                + botClient.getConfig().getPodPort())
+                .path(PodConstants.LISTUSERSADMIN);
+
+
+       if(skip>0){
+           builder = builder.queryParam("skip", skip);
+       }
+       if(limit>0){
+           builder = builder.queryParam("limit", limit);
+       }
+       Response response = builder.request(MediaType.APPLICATION_JSON)
+               .header("sessionToken", botClient.getSymAuth().getSessionToken())
+               .get();
+
+       if (response.getStatus() == 200) {
+           result = response.readEntity(AdminUserInfoList.class);
+       }
+       if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+           try {
+               handleError(response, botClient);
+           } catch (UnauthorizedException ex){
+               return listUsers(skip, limit);
+           }
+           return null;
+       }
+       return result;
+   }
 
     public AdminUserInfo createUser(AdminNewUser newUser)
             throws SymClientException {
