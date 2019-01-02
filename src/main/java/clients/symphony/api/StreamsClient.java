@@ -1,22 +1,32 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
-import exceptions.*;
-import model.*;
-import model.events.AdminStreamInfoList;
+import exceptions.SymClientException;
+import exceptions.UnauthorizedException;
+import model.MemberList;
+import model.NumericId;
+import model.Room;
+import model.RoomInfo;
+import model.RoomMember;
+import model.RoomSearchQuery;
+import model.RoomSearchResult;
+import model.StreamInfo;
+import model.StreamInfoList;
+import model.StreamListItem;
+import model.StringId;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class StreamsClient extends APIClient {
     private ISymClient botClient;
@@ -31,43 +41,60 @@ public class StreamsClient extends APIClient {
     }
 
     public String getUserListIM(List<Long> userIdList) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETIM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-               return getUserListIM(userIdList);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getUserListIM(userIdList);
+                }
+                return null;
             }
-            return null;
+            String streamId = response.readEntity(StringId.class).getId();
+            return streamId;
+
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        String streamId = response.readEntity(StringId.class).getId();
-        return streamId;
     }
 
     public RoomInfo createRoom(Room room) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.CREATEROOM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return createRoom(room);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return createRoom(room);
+                }
+                return null;
             }
-            return null;
+            RoomInfo roomInfo = response.readEntity(RoomInfo.class);
+            return roomInfo;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        RoomInfo roomInfo = response.readEntity(RoomInfo.class);
-        return roomInfo;
     }
 
     public void addMemberToRoom(String streamId, Long userId) throws SymClientException {
