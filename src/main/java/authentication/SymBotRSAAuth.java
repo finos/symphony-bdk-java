@@ -84,8 +84,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
             e.printStackTrace();
         }
         if(lastAuthTime==0 | System.currentTimeMillis()-lastAuthTime>3000) {
-            System.out.println("last auth time was" +lastAuthTime);
-            System.out.println("now is "+System.currentTimeMillis());
+            logger.info("Last auth time was {}", lastAuthTime);
+            logger.info("Now is {}",System.currentTimeMillis());
             jwt = JwtHelper.createSignedJwt(config.getBotUsername(), expiration, privateKey);
             sessionAuthenticate();
             kmAuthenticate();
