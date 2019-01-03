@@ -4,17 +4,37 @@ import clients.ISymClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
-import exceptions.*;
-import model.*;
+import exceptions.SymClientException;
+import exceptions.UnauthorizedException;
+import model.Attachment;
+import model.FileAttachment;
+import model.InboundMessage;
+import model.InboundMessageList;
+import model.InboundShare;
+import model.MessageStatus;
+import model.OutboundMessage;
+import model.OutboundShare;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.*;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
 
-import javax.ws.rs.client.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.util.*;
 
 public final class MessagesClient extends APIClient {
     private ISymClient botClient;
@@ -33,73 +53,82 @@ public final class MessagesClient extends APIClient {
                 httpClient.register(JacksonFeature.class);
 
 
-                WebTarget target = httpClient.target(
-                        CommonConstants.HTTPSPREFIX + botClient.getConfig()
-                                .getAgentHost()
-                                + ":" + botClient.getConfig().getAgentPort())
-                        .path(AgentConstants.CREATEMESSAGE
-                                .replace("{sid}", streamId));
+        WebTarget target = httpClient.target(
+            CommonConstants.HTTPSPREFIX + botClient.getConfig()
+                .getAgentHost()
+                + ":" + botClient.getConfig().getAgentPort())
+            .path(AgentConstants.CREATEMESSAGE
+                .replace("{sid}", streamId));
 
-                Invocation.Builder invocationBuilder = target.request()
-                        .accept(new String[]{"application/json"});
+        Invocation.Builder invocationBuilder = target.request()
+            .accept(new String[] {"application/json"});
 
-                invocationBuilder = invocationBuilder.header("sessionToken",
-                        botClient.getSymAuth().getSessionToken());
-                invocationBuilder = invocationBuilder.header("keyManagerToken",
-                        botClient.getSymAuth().getKmToken());
+        invocationBuilder = invocationBuilder.header("sessionToken",
+            botClient.getSymAuth().getSessionToken());
+        invocationBuilder = invocationBuilder.header("keyManagerToken",
+            botClient.getSymAuth().getKmToken());
 
-                String messageContent = null;
-                if (appendTags) {
-                    messageContent = "<messageML>"
-                            + message.getMessage() + "</messageML>";
-                }
+        String messageContent = null;
+        if (appendTags) {
+            messageContent = "<messageML>"
+                + message.getMessage() + "</messageML>";
+        }
 
-                FormDataMultiPart multiPart = new FormDataMultiPart();
+        FormDataMultiPart multiPart = new FormDataMultiPart();
 
-                FormDataContentDisposition contentDispMessage =
-                        FormDataContentDisposition.name("message").build();
-                multiPart.bodyPart(new FormDataBodyPart(contentDispMessage,
-                        messageContent));
-                if (message.getData() != null) {
-                    FormDataContentDisposition contentDispData =
-                            FormDataContentDisposition
-                            .name("data").build();
-                    multiPart.bodyPart(new FormDataBodyPart(contentDispData,
-                            message.getData()));
-                }
-                if (message.getAttachment() != null
-                        && message.getAttachment().length > 0) {
-                    for (File file : message.getAttachment()) {
-                        FormDataContentDisposition contentDisp =
-                                ((FormDataContentDisposition.FormDataContentDispositionBuilder)
-                                ((FormDataContentDisposition.FormDataContentDispositionBuilder)
-                                        FormDataContentDisposition.name("attachment")
-                                                .fileName(file.getName())).size(file.length()))
-                                                .build();
-                        multiPart.bodyPart(new FormDataBodyPart(contentDisp,
-                                file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
-                    }
-                }
-                Entity entity = Entity.entity(multiPart,
-                        MultiPartMediaTypes.createFormData());
-                Response response = invocationBuilder.post(entity);
+        FormDataContentDisposition contentDispMessage =
+            FormDataContentDisposition.name("message").build();
+        multiPart.bodyPart(new FormDataBodyPart(contentDispMessage,
+            messageContent));
+        if (message.getData() != null) {
+            FormDataContentDisposition contentDispData =
+                FormDataContentDisposition
+                    .name("data").build();
+            multiPart.bodyPart(new FormDataBodyPart(contentDispData,
+                message.getData()));
+        }
+        if (message.getAttachment() != null
+            && message.getAttachment().length > 0) {
+            for (File file : message.getAttachment()) {
+                FormDataContentDisposition contentDisp =
+                    ((FormDataContentDisposition.FormDataContentDispositionBuilder)
+                        ((FormDataContentDisposition.FormDataContentDispositionBuilder)
+                            FormDataContentDisposition.name("attachment")
+                                .fileName(file.getName())).size(file.length()))
+                        .build();
+                multiPart.bodyPart(new FormDataBodyPart(contentDisp,
+                    file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+            }
+        }
+        Entity entity = Entity.entity(multiPart,
+            MultiPartMediaTypes.createFormData());
 
-                if (response.getStatus()
+        Response response = null;
+
+        try {
+            response = invocationBuilder.post(entity);
+
+            if (response.getStatus()
                         == Response.Status.NO_CONTENT.getStatusCode()) {
-                    return null;
-                }
+                return null;
+            }
 
-                if (response.getStatusInfo().getFamily()
+            if (response.getStatusInfo().getFamily()
                         != Response.Status.Family.SUCCESSFUL) {
-                    try {
-                        handleError(response, botClient);
-                    } catch (UnauthorizedException ex) {
-                        return sendMessage(streamId,message,appendTags);
-                    }
-                    return null;
-                } else {
-                    return response.readEntity(InboundMessage.class);
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return sendMessage(streamId, message, appendTags);
                 }
+                return null;
+            } else {
+                return response.readEntity(InboundMessage.class);
+            }
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
 
     }
 
@@ -140,56 +169,72 @@ public final class MessagesClient extends APIClient {
         if (limit > 0) {
             builder = builder.queryParam("limit", limit);
         }
-        Response response = builder.request(MediaType.APPLICATION_JSON)
+
+        Response response = null;
+
+        try {
+            response = builder.request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
-                        botClient.getSymAuth().getSessionToken())
+                    botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
 
-        if (response.getStatusInfo().getFamily()
+            if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex) {
-                return getMessagesFromStream(streamId, since, skip, limit);
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getMessagesFromStream(streamId, since, skip, limit);
+                }
+                return null;
+            } else if (response.getStatus() == 204) {
+                result = new ArrayList<>();
+            } else {
+                result = response.readEntity(InboundMessageList.class);
             }
-            return null;
-        } else if (response.getStatus() == 204) {
-            result = new ArrayList<>();
-        } else {
-            result = response.readEntity(InboundMessageList.class);
-        }
 
-        return result;
+            return result;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
     }
 
     public byte[] getAttachment(String streamId, String attachmentId,
                                 String messageId) throws SymClientException {
 
-        Response response
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
+        Response response = null;
+
+        try {
+            response = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
                 + botClient.getConfig().getAgentHost()
                 + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.GETATTACHMENT
-                        .replace("{sid}", streamId))
+                    .replace("{sid}", streamId))
                 .queryParam("fileId", attachmentId)
                 .queryParam("messageId", messageId)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
-                        botClient.getSymAuth().getSessionToken())
+                    botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
-        if (response.getStatusInfo().getFamily()
+            if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return getAttachment(streamId, attachmentId, messageId);
-            }
-            return null;
-        } else {
-            return Base64.getDecoder()
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getAttachment(streamId, attachmentId, messageId);
+                }
+                return null;
+            } else {
+                return Base64.getDecoder()
                     .decode(response.readEntity(String.class));
+            }
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 
@@ -211,26 +256,33 @@ public final class MessagesClient extends APIClient {
 
     public MessageStatus getMessageStatus(String messageId)
             throws SymClientException {
-        Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        Response response = null;
+
+        try {
+            response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
                 + botClient.getConfig().getPodHost()
                 + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETMESSAGESTATUS
-                        .replace("{mid}", messageId))
+                    .replace("{mid}", messageId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
-                        botClient.getSymAuth().getSessionToken())
+                    botClient.getSymAuth().getSessionToken())
                 .get();
-        if (response.getStatusInfo().getFamily()
+            if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return getMessageStatus(messageId);
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getMessageStatus(messageId);
+                }
+                return null;
             }
-            return null;
+            return response.readEntity(MessageStatus.class);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        return response.readEntity(MessageStatus.class);
 
     }
 
@@ -257,27 +309,36 @@ public final class MessagesClient extends APIClient {
         if (orderAscending) {
             builder = builder.queryParam("sortDir", "ASC");
         }
-        Response response = builder.request(MediaType.APPLICATION_JSON)
+
+        Response response = null;
+
+        try {
+            response = builder.request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
-                        botClient.getSymAuth().getSessionToken())
+                    botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(Entity.entity(query,MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily()
+            if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex) {
-                return messageSearch(query, skip, limit, orderAscending);
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return messageSearch(query, skip, limit, orderAscending);
+                }
+                return null;
+            } else if (response.getStatus() == CommonConstants.NOCONTENT) {
+                throw new NoContentException("No messages found");
+            } else {
+                result = response.readEntity(InboundMessageList.class);
             }
-            return null;
-        } else if(response.getStatus() == CommonConstants.NOCONTENT) {
-            throw new NoContentException("No messages found");
-        } else {
-            result = response.readEntity(InboundMessageList.class);
-        }
 
-        return result;
+            return result;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
     }
 
 
@@ -311,26 +372,34 @@ public final class MessagesClient extends APIClient {
             throws SymClientException {
         Map<String,Object> map = new HashMap<>();
         map.put("content",shareContent);
-        Response response
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
+
+        Response response = null;
+
+        try {
+            response = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
                 + botClient.getConfig().getAgentHost()
                 + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.SHARE.replace("{sid}",streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
-                        botClient.getSymAuth().getSessionToken())
+                    botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(Entity.entity(map,MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily()
+            if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return shareContent(streamId, shareContent);
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex){
+                    return shareContent(streamId, shareContent);
+                }
+                return null;
             }
-            return null;
-        }
             return response.readEntity(InboundShare.class);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
     }
 
 }

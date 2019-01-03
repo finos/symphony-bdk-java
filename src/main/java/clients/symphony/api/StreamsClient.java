@@ -1,22 +1,32 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
-import exceptions.*;
-import model.*;
-import model.events.AdminStreamInfoList;
+import exceptions.SymClientException;
+import exceptions.UnauthorizedException;
+import model.MemberList;
+import model.NumericId;
+import model.Room;
+import model.RoomInfo;
+import model.RoomMember;
+import model.RoomSearchQuery;
+import model.RoomSearchResult;
+import model.StreamInfo;
+import model.StreamInfoList;
+import model.StreamListItem;
+import model.StringId;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class StreamsClient extends APIClient {
     private ISymClient botClient;
@@ -31,156 +41,223 @@ public class StreamsClient extends APIClient {
     }
 
     public String getUserListIM(List<Long> userIdList) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETIM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(userIdList, MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-               return getUserListIM(userIdList);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getUserListIM(userIdList);
+                }
+                return null;
             }
-            return null;
+            String streamId = response.readEntity(StringId.class).getId();
+            return streamId;
+
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        String streamId = response.readEntity(StringId.class).getId();
-        return streamId;
     }
 
     public RoomInfo createRoom(Room room) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.CREATEROOM)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return createRoom(room);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return createRoom(room);
+                }
+                return null;
             }
-            return null;
+            RoomInfo roomInfo = response.readEntity(RoomInfo.class);
+            return roomInfo;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        RoomInfo roomInfo = response.readEntity(RoomInfo.class);
-        return roomInfo;
     }
 
     public void addMemberToRoom(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
-        Response response
+
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADDMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                addMemberToRoom(streamId,userId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    addMemberToRoom(streamId, userId);
+                }
+            }
+        } finally {
+            if (response != null) {
+                response.close();
             }
         }
     }
 
     public void removeMemberFromRoom(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
-        Response response
+
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.REMOVEMEMBER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                removeMemberFromRoom(streamId,userId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    removeMemberFromRoom(streamId, userId);
+                }
+            }
+        } finally {
+            if (response != null) {
+                response.close();
             }
         }
     }
 
     public RoomInfo getRoomInfo(String streamId) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return getRoomInfo(streamId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getRoomInfo(streamId);
+                }
+                return null;
             }
-            return null;
+            return response.readEntity(RoomInfo.class);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        return response.readEntity(RoomInfo.class);
     }
 
     public RoomInfo updateRoom(String streamId, Room room) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+
                 .path(PodConstants.UPDATEROOMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(room, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return updateRoom(streamId,room);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return updateRoom(streamId, room);
+                }
+                return null;
+            } else {
+                RoomInfo roomInfo = response.readEntity(RoomInfo.class);
+                return roomInfo;
             }
-            return null;
-        }
-        else {
-            RoomInfo roomInfo = response.readEntity(RoomInfo.class);
-            return roomInfo;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 
     //TODO: CHECK WHY 404
     public StreamInfo getStreamInfo(String streamId) throws SymClientException {
-        Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+        Response response = null;
+
+        try {
+            response
+                = botClient.getPodClient()
+                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                    .getPodPort())
                 .path(PodConstants.GETSTREAMINFO.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return getStreamInfo(streamId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getStreamInfo(streamId);
+                }
+                return null;
+            } else {
+                return response.readEntity(StreamInfo.class);
             }
-            return null;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        else {
-            return response.readEntity(StreamInfo.class);
-        }
-
     }
 
     public List<RoomMember> getRoomMembers(String streamId) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETROOMMEMBERS.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .get();
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-               return getRoomMembers(streamId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getRoomMembers(streamId);
+                }
+                return null;
             }
-            return null;
+            return response.readEntity(MemberList.class);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-        return response.readEntity(MemberList.class);
 
     }
 
@@ -194,52 +271,79 @@ public class StreamsClient extends APIClient {
 
     //TODO: CHECK WHY 403
     private void setActiveRoom(String streamId, boolean active) throws SymClientException {
-        Response response
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+
                 .path(PodConstants.SETACTIVE.replace("{id}", streamId))
                 .queryParam("active", active)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( null);
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                setActiveRoom(streamId,active);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    setActiveRoom(streamId, active);
+                }
+            }
+        } finally {
+            if (response != null) {
+                response.close();
             }
         }
     }
 
     public void promoteUserToOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
-        Response response
+
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.PROMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                promoteUserToOwner(streamId,userId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    promoteUserToOwner(streamId, userId);
+                }
+            }
+        } finally {
+            if (response != null) {
+                response.close();
             }
         }
     }
 
     public void demoteUserFromOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
-        Response response
+
+        Response response = null;
+
+        try {
+            response
                 = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.DEMOTEOWNER.replace("{id}", streamId))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post( Entity.entity(id, MediaType.APPLICATION_JSON));
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                demoteUserFromOwner(streamId,userId);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    demoteUserFromOwner(streamId, userId);
+                }
+            }
+        } finally {
+            if (response != null) {
+                response.close();
             }
         }
     }
@@ -260,24 +364,33 @@ public class StreamsClient extends APIClient {
         if(query.getLabels()==null){
             query.setLabels(new ArrayList<>());
         }
-        Response response = builder.request(MediaType.APPLICATION_JSON)
+
+        Response response = null;
+
+        try {
+            response = builder.request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",botClient.getSymAuth().getSessionToken())
                 .post(Entity.entity(query,MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return searchRooms(query,skip, limit);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return searchRooms(query, skip, limit);
+                }
+                return null;
+            } else if (response.getStatus() == 204) {
+                throw new NoContentException("No messages found");
+            } else {
+                result = response.readEntity(RoomSearchResult.class);
             }
-            return null;
-        } else if(response.getStatus() == 204){
-            throw new NoContentException("No messages found");
-        } else{
-            result = response.readEntity(RoomSearchResult.class);
-        }
 
-        return result;
+            return result;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
     }
 
     public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams) throws SymClientException {
@@ -292,24 +405,34 @@ public class StreamsClient extends APIClient {
         Map<String, Object> input = new HashMap<>();
         input.put("streamTypes", inputStreamTypes);
         input.put("includeInactiveStreams", includeInactiveStreams);
-        Response response
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+
+
+        Response response = null;
+
+        try {
+            response = botClient.getPodClient()
+                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                    .getPodPort())
                 .path(PodConstants.LISTUSERSTREAMS)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .post( Entity.entity(input, MediaType.APPLICATION_JSON));
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
+                .post(Entity.entity(input, MediaType.APPLICATION_JSON));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, botClient);
-            } catch (UnauthorizedException ex){
-                return getUserStreams(streamTypes, includeInactiveStreams);
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getUserStreams(streamTypes, includeInactiveStreams);
+                }
+                return null;
             }
-            return null;
+
+            return response.readEntity(StreamInfoList.class);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
-
-        return response.readEntity(StreamInfoList.class);
-
     }
 
     public StreamListItem getUserWallStream() throws SymClientException {
