@@ -19,13 +19,13 @@
     <developers>
         <developer>
             <name>Symphony Platform Solutions</name>
-            <email>platformsolutions.wong@symphony.com</email>
+            <email>platformsolutions@symphony.com</email>
             <organization>Symphony Communication Services</organization>
             <organizationUrl>https://symphony.com/</organizationUrl>
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</connection>
+        <connection>scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</connection>
         <developerConnection>scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</developerConnection>
         <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
       <tag>symphony-api-client-java-1.0.12</tag>
