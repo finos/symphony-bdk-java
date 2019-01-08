@@ -72,22 +72,19 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         }
     }
 
-    public AppAuthResponse RSAAppAuthenticate(final String appToken, final String podSessionAuthUrl) {
-      String authUrl = podSessionAuthUrl;
-      if(StringUtils.isBlank(authUrl)) {
-        authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
-      }
+    public AppAuthResponse RSAAppAuthenticate() {
       PrivateKey privateKey = getPrivateKey();
         if (config != null) {
             logger.info("RSA extension app auth");
             jwt = JwtHelper.createSignedJwt(config.getAppId(), expiration, privateKey);
-            Map<String, String> input = new HashMap<>();
-            input.put("appToken", appToken);
+            Map<String, String> token = new HashMap<>();
+            token.put("token", jwt);
             Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX + authUrl)
+                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX +
+                config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
                     .path(AuthEndpointConstants.RSASESSIONEXTAPPAUTH)
                     .request(MediaType.APPLICATION_JSON)
-                    .post(Entity.entity(input, MediaType.APPLICATION_JSON));
+                    .post(Entity.entity(token, MediaType.APPLICATION_JSON));
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, null);
@@ -99,7 +96,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                RSAAppAuthenticate(appToken, podSessionAuthUrl);
+                RSAAppAuthenticate();
             } else {
                 AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
                 return appAuthResponse;
