@@ -5,6 +5,7 @@ import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
 import model.PodCert;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jose4j.jwt.JwtClaims;
@@ -13,6 +14,7 @@ import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.CertificateUtils;
 import utils.HttpClientBuilderHelper;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -145,58 +147,13 @@ public final class SymExtensionAppAuth extends APIClient {
         return null;
     }
 
-    public Object verifyJWT(final String jwt) {
-        Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
-                + config.getSessionAuthHost() + ":"
-                + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.PODCERT)
-                .request(MediaType.APPLICATION_JSON)
-                .get();
-        if (response.getStatusInfo().getFamily()
-                !=  Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, "
-                        + "retry authentication in 30 seconds");
-            }
-            try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            verifyJWT(jwt);
-        } else {
-            PodCert cert = response.readEntity(PodCert.class);
-            // Get the public key from the cert
-            PublicKey publicKey;
-            try {
-
-                X509Certificate x509Certificate =
-                        parseX509Certificate(cert.getCertificate());
-                publicKey = x509Certificate.getPublicKey();
-                JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-                        .setVerificationKey(publicKey)
-                        .setSkipAllValidators()
-                        .build();
-
-                // validate and decode the jwt
-                JwtClaims jwtDecoded = jwtConsumer.processToClaims(jwt);
-                return jwtDecoded.getClaimValue("user");
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (InvalidJwtException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
-    }
-
     public Object verifyJWT(final String jwt, final String podSessionAuthUrl) {
+        String authUrl = podSessionAuthUrl;
+        if(StringUtils.isBlank(authUrl)) {
+            authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        }
         Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
-                + podSessionAuthUrl)
+                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX + authUrl)
                 .path(AuthEndpointConstants.PODCERT)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -205,8 +162,7 @@ public final class SymExtensionAppAuth extends APIClient {
             try {
                 handleError(response, null);
             } catch (Exception e) {
-                logger.error("Unexpected error, "
-                        + "retry authentication in 30 seconds");
+                logger.error("Unexpected error, retry authentication in 30 seconds");
             }
             try {
                 TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
@@ -219,15 +175,13 @@ public final class SymExtensionAppAuth extends APIClient {
             // Get the public key from the cert
             PublicKey publicKey;
             try {
-
                 X509Certificate x509Certificate =
-                        parseX509Certificate(cert.getCertificate());
+                        CertificateUtils.parseX509Certificate(cert.getCertificate());
                 publicKey = x509Certificate.getPublicKey();
                 JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                         .setVerificationKey(publicKey)
                         .setSkipAllValidators()
                         .build();
-
                 // validate and decode the jwt
                 JwtClaims jwtDecoded = jwtConsumer.processToClaims(jwt);
                 return jwtDecoded.getClaimValue("user");
@@ -239,22 +193,5 @@ public final class SymExtensionAppAuth extends APIClient {
         }
         return null;
     }
-
-    private X509Certificate parseX509Certificate(final String certificateString)
-            throws GeneralSecurityException {
-        try {
-            CertificateFactory f = CertificateFactory.getInstance("X.509");
-            byte[] bytes = certificateString.getBytes("UTF-8");
-            ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-            X509Certificate certificate =
-                    (X509Certificate) f.generateCertificate(stream);
-            return certificate;
-
-        } catch (UnsupportedEncodingException e) {
-            throw new GeneralSecurityException(e);
-        }
-    }
-
-
 
 }
