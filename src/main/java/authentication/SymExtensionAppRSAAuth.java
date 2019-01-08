@@ -72,7 +72,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         }
     }
 
-    public AppAuthResponse RSAAppAuthenticate() {
+    public AppAuthResponse appAuthenticate() {
       PrivateKey privateKey = getPrivateKey();
         if (config != null) {
             logger.info("RSA extension app auth");
@@ -96,7 +96,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                RSAAppAuthenticate();
+                appAuthenticate();
             } else {
                 AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
                 return appAuthResponse;
