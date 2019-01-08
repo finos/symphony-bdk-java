@@ -13,7 +13,7 @@ public final class AuthEndpointConstants {
     public static final String SESSIONEXTAPPAUTH =
             "/sessionauth/v1/authenticate/extensionApp";
     public static final String RSASESSIONEXTAPPAUTH =
-            "/sessionauth/v1/authenticate/extensionApp";
+            "/login/v1/pubkey/app/authenticate/extensionApp";
     public static final String OBOUSERAUTH =
             "/sessionauth/v1/app/user/{uid}/authenticate";
     public static final String OBOUSERAUTHUSERNAME =
