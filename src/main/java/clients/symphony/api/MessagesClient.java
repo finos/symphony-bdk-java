@@ -73,7 +73,10 @@ public final class MessagesClient extends APIClient {
             messageContent = "<messageML>"
                 + message.getMessage() + "</messageML>";
         }
-
+        else {
+            messageContent = message.getMessage();
+        }
+        
         FormDataMultiPart multiPart = new FormDataMultiPart();
 
         FormDataContentDisposition contentDispMessage =
@@ -146,6 +149,15 @@ public final class MessagesClient extends APIClient {
 
     public InboundMessage sendMessage(String streamId, OutboundMessage message)
             throws SymClientException {
+        String messageContent = message.getMessage();
+        if (messageContent.startsWith("<messageML>") && messageContent.endsWith("</messageML>"))
+            return sendMessage(streamId, message, false);
+        if (messageContent.startsWith("<div ") && messageContent.endsWith("</div>")) {
+            String rootDiv = messageContent.substring(messageContent.indexOf("<"), messageContent.indexOf(">"));
+            String dataFormat = rootDiv.substring(rootDiv.indexOf("\"", rootDiv.indexOf("data-format"))+1, rootDiv.indexOf("\"", rootDiv.indexOf("\"", rootDiv.indexOf("data-format"))+1));
+            if (dataFormat.equalsIgnoreCase("PresentationML"))
+                return sendMessage(streamId, message, false);
+        }
         return sendMessage(streamId, message, true);
     }
 
