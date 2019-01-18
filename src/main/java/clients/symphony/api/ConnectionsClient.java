@@ -146,7 +146,7 @@ public final class ConnectionsClient extends APIClient {
           .request(MediaType.APPLICATION_JSON)
           .header("sessionToken",
               botClient.getSymAuth().getSessionToken())
-          .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
+          .post(Entity.entity(userIdObject, MediaType.APPLICATION_JSON));
       if (response.getStatusInfo().getFamily()
           != Response.Status.Family.SUCCESSFUL) {
         try {
@@ -179,7 +179,7 @@ public final class ConnectionsClient extends APIClient {
           .request(MediaType.APPLICATION_JSON)
           .header("sessionToken",
               botClient.getSymAuth().getSessionToken())
-          .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
+          .post(Entity.entity(userIdObject, MediaType.APPLICATION_JSON));
       if (response.getStatusInfo().getFamily()
           != Response.Status.Family.SUCCESSFUL) {
         try {
