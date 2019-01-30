@@ -36,7 +36,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
 
     public SymBotRSAAuth(SymConfig config) {
         this.config = config;
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
         if(config.getProxyURL()==null || config.getProxyURL().equals("")){
             this.sessionAuthClient = client;
@@ -58,7 +58,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
 
     public SymBotRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
         this.config = config;
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         if (sessionAuthClientConfig!=null){
             this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
         } else {
