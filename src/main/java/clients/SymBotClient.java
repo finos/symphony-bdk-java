@@ -138,6 +138,14 @@ public final class SymBotClient implements ISymClient {
         return firehoseClient;
     }
 
+    public FirehoseService getFirehoseService() {
+        if (this.firehoseService == null) {
+            this.firehoseService = new FirehoseService(this);
+        }
+
+        return this.firehoseService;
+    }
+
     public SymConfig getConfig() {
         return config;
     }
