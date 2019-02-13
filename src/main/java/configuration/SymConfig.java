@@ -29,7 +29,9 @@ public class SymConfig {
     private String botUsername;
     private String botPrivateKeyPath;
     private String botPrivateKeyName;
-
+    private String appPrivateKeyPath;
+    private String appPrivateKeyName;
+    private String appId;
 
     public String getBotPrivateKeyPath() {
         return botPrivateKeyPath;
@@ -221,5 +223,29 @@ public class SymConfig {
 
     public void setTruststorePassword(String truststorePassword) {
         this.truststorePassword = truststorePassword;
+    }
+
+    public String getAppPrivateKeyPath() {
+        return appPrivateKeyPath;
+    }
+
+    public void setAppPrivateKeyPath(String appPrivateKeyPath) {
+        this.appPrivateKeyPath = appPrivateKeyPath;
+    }
+
+    public String getAppPrivateKeyName() {
+        return appPrivateKeyName;
+    }
+
+    public void setAppPrivateKeyName(String appPrivateKeyName) {
+        this.appPrivateKeyName = appPrivateKeyName;
+    }
+
+    public String getAppId() {
+        return appId;
+    }
+
+    public void setAppId(String appId) {
+        this.appId = appId;
     }
 }
