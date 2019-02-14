@@ -32,7 +32,6 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         Client client = clientBuilder.build();
         if (config.getProxyURL() == null || config.getProxyURL().equals("")) {
             this.sessionAuthClient = client;
-            this.kmAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
@@ -48,6 +47,23 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
             Client proxyClient = clientBuilder.withConfig(clientConfig)
                     .build();
             this.sessionAuthClient = proxyClient;
+        }
+        if (config.getKeyManagerProxyURL() == null || config.getKeyManagerProxyURL().equals("")) {
+            this.kmAuthClient = client;
+        } else {
+            ClientConfig clientConfig = new ClientConfig();
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
+            clientConfig
+                    .property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
+            if (config.getKeyManagerProxyUsername() != null
+                    && config.getKeyManagerProxyPassword() != null) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME,
+                        config.getKeyManagerProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD,
+                        config.getKeyManagerProxyPassword());
+            }
+            Client proxyClient = clientBuilder.withConfig(clientConfig)
+                    .build();
             this.kmAuthClient = proxyClient;
         }
     }
