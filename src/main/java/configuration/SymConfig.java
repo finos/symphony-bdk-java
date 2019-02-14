@@ -23,6 +23,9 @@ public class SymConfig {
     private String proxyURL;
     private String proxyUsername;
     private String proxyPassword;
+    private String keyManagerProxyURL;
+    private String keyManagerProxyUsername;
+    private String keyManagerProxyPassword;
     private int authTokenRefreshPeriod;
     private String truststorePath;
     private String truststorePassword;
@@ -197,6 +200,30 @@ public class SymConfig {
 
     public void setProxyPassword(String proxyPassword) {
         this.proxyPassword = proxyPassword;
+    }
+    
+    public String getKeyManagerProxyURL() {
+        return keyManagerProxyURL;
+    }
+
+    public void setKeyManagerProxyURL(String keyManagerProxyURL) {
+        this.keyManagerProxyURL = keyManagerProxyURL;
+    }
+
+    public String getKeyManagerProxyUsername() {
+        return keyManagerProxyUsername;
+    }
+
+    public void setKeyManagerProxyUsername(String keyManagerProxyUsername) {
+        this.keyManagerProxyUsername = keyManagerProxyUsername;
+    }
+
+    public String getKeyManagerProxyPassword() {
+        return keyManagerProxyPassword;
+    }
+
+    public void setKeyManagerProxyPassword(String keyManagerProxyPassword) {
+        this.keyManagerProxyPassword = keyManagerProxyPassword;
     }
 
     public int getAuthTokenRefreshPeriod() {
