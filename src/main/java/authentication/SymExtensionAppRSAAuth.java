@@ -5,7 +5,9 @@ import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
 import model.PodCert;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.jose4j.jwt.JwtClaims;
@@ -24,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -37,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public final class SymExtensionAppRSAAuth extends APIClient {
+    private final SecureRandom secureRandom = new SecureRandom();
     private final Logger logger = LoggerFactory.getLogger(SymExtensionAppRSAAuth.class);
     private SymConfig config;
     private Client sessionAuthClient;
@@ -45,27 +49,27 @@ public final class SymExtensionAppRSAAuth extends APIClient {
 
     public SymExtensionAppRSAAuth(final SymConfig configuration) {
         this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
         if (config.getProxyURL() == null || config.getProxyURL().equals("")) {
             this.sessionAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if (config.getProxyUsername() != null && config.getProxyPassword() != null) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
+            if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD,config.getProxyPassword());
             }
             Client proxyClient = clientBuilder.withConfig(clientConfig).build();
             this.sessionAuthClient = proxyClient;
         }
     }
 
-    public SymExtensionAppRSAAuth(final SymConfig configuration,
-                               final ClientConfig sessionAuthClientConfig) {
-        this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
-        if (sessionAuthClientConfig != null) {
+    public SymExtensionAppRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
+        this.config = config;
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
+        if (sessionAuthClientConfig!=null){
             this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
         } else {
             this.sessionAuthClient = clientBuilder.build();
@@ -73,18 +77,19 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     }
 
     public AppAuthResponse appAuthenticate() {
-      PrivateKey privateKey = getPrivateKey();
+        PrivateKey privateKey = getPrivateKey();
         if (config != null) {
             logger.info("RSA extension app auth");
             jwt = JwtHelper.createSignedJwt(config.getAppId(), expiration, privateKey);
             Map<String, String> token = new HashMap<>();
-            token.put("token", jwt);
+            token.put("appToken", generateToken());
+            token.put("authToken", jwt);
             Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX +
+                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX +
                 config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
-                    .path(AuthEndpointConstants.RSASESSIONEXTAPPAUTH)
-                    .request(MediaType.APPLICATION_JSON)
-                    .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+                .path(AuthEndpointConstants.RSASESSIONEXTAPPAUTH)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(token, MediaType.APPLICATION_JSON));
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, null);
@@ -117,6 +122,12 @@ public final class SymExtensionAppRSAAuth extends APIClient {
             logger.error(e.getMessage());
         }
         return privateKey;
+    }
+
+    public String generateToken() {
+        byte[] randBytes = new byte[64];
+        secureRandom.nextBytes(randBytes);
+        return Hex.encodeHexString(randBytes);
     }
 
 }
