@@ -9,7 +9,7 @@ public class StreamInfo {
     private String origin;
     private Boolean active;
     private Long lastMessageDate;
-    private String streamType;
+    private StreamType streamType;
     private StreamAttributes streamAttributes;
     private RoomName roomAttributes;
 
@@ -53,11 +53,11 @@ public class StreamInfo {
         this.lastMessageDate = lastMessageDate;
     }
 
-    public String getStreamType() {
+    public StreamType getStreamType() {
         return streamType;
     }
 
-    public void setStreamType(String streamType) {
+    public void setStreamType(StreamType streamType) {
         this.streamType = streamType;
     }
 
