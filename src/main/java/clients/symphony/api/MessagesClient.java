@@ -73,6 +73,9 @@ public final class MessagesClient extends APIClient {
             messageContent = "<messageML>"
                 + message.getMessage() + "</messageML>";
         }
+        else {
+            messageContent = message.getMessage();
+        }
 
         FormDataMultiPart multiPart = new FormDataMultiPart();
 
@@ -147,6 +150,11 @@ public final class MessagesClient extends APIClient {
     public InboundMessage sendMessage(String streamId, OutboundMessage message)
             throws SymClientException {
         return sendMessage(streamId, message, true);
+    }
+    
+    public InboundMessage sendTaggedMessage(String streamId, OutboundMessage message)
+            throws SymClientException {
+        return sendMessage(streamId, message, false);
     }
 
     public List<InboundMessage> getMessagesFromStream(String streamId,
