@@ -29,13 +29,10 @@ public final class DatafeedClient extends  APIClient {
         this.config = client.getConfig();
     }
 
-
     public String createDatafeed() throws SymClientException {
-
-
         Response response = null;
-
         try {
+            logger.info("Creating new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
             response = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
                 + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.CREATEDATAFEED)
@@ -49,11 +46,13 @@ public final class DatafeedClient extends  APIClient {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
+                    logger.error("createDatafeed error ", ex);
                     return createDatafeed();
                 }
                 return null;
             } else {
                 StringId datafeedId = response.readEntity(StringId.class);
+                logger.info("Created new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
                 return datafeedId.getId();
             }
         } finally {
@@ -67,7 +66,7 @@ public final class DatafeedClient extends  APIClient {
             throws SymClientException {
         List<DatafeedEvent> datafeedEvents = null;
         Response response = null;
-
+        logger.debug("Reading datafeed {}", id);
         try {
             response = botClient.getAgentClient().target(
                 CommonConstants.HTTPSPREFIX
@@ -90,16 +89,11 @@ public final class DatafeedClient extends  APIClient {
                     datafeedEvents = response.readEntity(DatafeedEventsList.class);
                 }
             }
-
-
             return datafeedEvents;
         } finally {
             if (response != null) {
                 response.close();
             }
         }
-
     }
-
-
 }
