@@ -35,6 +35,8 @@ public class SymConfig {
     private String appPrivateKeyPath;
     private String appPrivateKeyName;
     private String appId;
+    private int datafeedEventsThreadpoolSize;
+    private int datafeedEventsErrorTimeout;
 
     public String getBotPrivateKeyPath() {
         return botPrivateKeyPath;
@@ -274,5 +276,21 @@ public class SymConfig {
 
     public void setAppId(String appId) {
         this.appId = appId;
+    }
+
+    public int getDatafeedEventsThreadpoolSize() {
+        return datafeedEventsThreadpoolSize;
+    }
+
+    public void setDatafeedEventsThreadpoolSize(int datafeedEventsThreadpoolSize) {
+        this.datafeedEventsThreadpoolSize = datafeedEventsThreadpoolSize;
+    }
+
+    public int getDatafeedEventsErrorTimeout() {
+        return datafeedEventsErrorTimeout;
+    }
+
+    public void setDatafeedEventsErrorTimeout(int datafeedEventsErrorTimeout) {
+        this.datafeedEventsErrorTimeout = datafeedEventsErrorTimeout;
     }
 }

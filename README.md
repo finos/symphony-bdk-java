@@ -32,7 +32,9 @@ Create a config.json file in your project which includes the following propertie
   "appCertPassword": "",
   "proxyURL": "",
   "proxyUsername": "",
-  "proxyPassword": ""
+  "proxyPassword": "",
+  "datafeedEventsThreadpoolSize": 5,
+  "datafeedEventsErrorTimeout": 30
 }
 ```
         

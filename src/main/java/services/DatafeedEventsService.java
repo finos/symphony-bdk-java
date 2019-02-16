@@ -31,9 +31,15 @@ public class DatafeedEventsService {
     private String datafeedId;
     private ExecutorService pool;
     private AtomicBoolean stop = new AtomicBoolean();
+    private final int THREADPOOL_SIZE;
+    private final int TIMEOUT_NO_OF_SECS;
 
     public DatafeedEventsService(SymBotClient client) {
         this.botClient = client;
+        this.THREADPOOL_SIZE =
+                client.getConfig().getDatafeedEventsThreadpoolSize() != 0 ? client.getConfig().getDatafeedEventsThreadpoolSize(): 5;
+        this.TIMEOUT_NO_OF_SECS =
+                client.getConfig().getDatafeedEventsErrorTimeout() != 0 ? client.getConfig().getDatafeedEventsErrorTimeout(): 30;
         roomListeners = new ArrayList<>();
         IMListeners = new ArrayList<>();
         connectionListeners = new ArrayList<>();
@@ -72,7 +78,7 @@ public class DatafeedEventsService {
         if( pool!=null) {
             pool.shutdown();
         }
-        pool = Executors.newFixedThreadPool(5);
+        pool = Executors.newFixedThreadPool(THREADPOOL_SIZE);
         CompletableFuture.supplyAsync(() -> {
             while(!stop.get()) {
                 CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {

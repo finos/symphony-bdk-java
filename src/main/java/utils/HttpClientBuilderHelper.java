@@ -1,6 +1,9 @@
 package utils;
 
 import configuration.SymConfig;
+import configuration.SymConfigLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.ClientBuilder;
 import java.io.FileInputStream;
@@ -13,44 +16,33 @@ import java.security.cert.CertificateException;
 
 public class HttpClientBuilderHelper {
 
+    private final static Logger logger = LoggerFactory.getLogger(HttpClientBuilderHelper.class);
+
     public static ClientBuilder getHttpClientBuilderWithTruststore (SymConfig config){
         KeyStore tks = null;
         try {
             tks = KeyStore.getInstance("JKS");
         } catch (KeyStoreException e) {
-            e.printStackTrace();
+            logger.error("getHttpClientBuilderWithTruststore", e);
         }
 
-        FileInputStream keyStoreIS = null;
-
-        FileInputStream trustStoreIS = null;
-        try {
-            if (config.getTruststorePath()!=null) {
-                trustStoreIS = new FileInputStream(config.getTruststorePath());
-                tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
-            }
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (trustStoreIS != null) {
-                try {
-                    trustStoreIS.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-        if(config.getTruststorePath()!=null){
-            clientBuilder.trustStore(tks);
+
+        if (config.getTruststorePath() != null) {
+            loadTrustStore(config, tks, clientBuilder);
         }
+
         return clientBuilder;
+    }
+
+    private static void loadTrustStore(SymConfig config, KeyStore tks, ClientBuilder clientBuilder) {
+        //load truststore
+        try (FileInputStream trustStoreIS = new FileInputStream(config.getTruststorePath())) {
+            tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
+            clientBuilder.trustStore(tks);
+        } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
+            logger.error("getHttpClientBuilderWithTruststore", e);
+        }
     }
 
     public static ClientBuilder getHttpClientBotBuilder (SymConfig config){
@@ -60,47 +52,18 @@ public class HttpClientBuilderHelper {
             cks = KeyStore.getInstance("PKCS12");
             tks = KeyStore.getInstance("JKS");
         } catch (KeyStoreException e) {
-            e.printStackTrace();
+            logger.error("getHttpClientBotBuilder", e);
         }
 
-        FileInputStream keyStoreIS = null;
-
-        FileInputStream trustStoreIS = null;
-        try {
-            keyStoreIS = new FileInputStream(config.getBotCertPath()+config.getBotCertName()+".p12");
+        try (FileInputStream keyStoreIS = new FileInputStream(config.getBotCertPath()+config.getBotCertName()+".p12");) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
-
-            if (config.getTruststorePath()!=null) {
-                trustStoreIS = new FileInputStream(config.getTruststorePath());
-                tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
-            }
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (keyStoreIS != null) {
-                try {
-                    keyStoreIS.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (trustStoreIS != null) {
-                try {
-                    keyStoreIS.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
+            logger.error("getHttpClientBotBuilder", e);
         }
+
         ClientBuilder clientBuilder = ClientBuilder.newBuilder().keyStore(cks, config.getBotCertPassword().toCharArray());
-        if(config.getTruststorePath()!=null){
-            clientBuilder.trustStore(tks);
+        if (config.getTruststorePath() != null) {
+            loadTrustStore(config, tks, clientBuilder);
         }
         return clientBuilder;
     }
@@ -112,47 +75,18 @@ public class HttpClientBuilderHelper {
             cks = KeyStore.getInstance("PKCS12");
             tks = KeyStore.getInstance("JKS");
         } catch (KeyStoreException e) {
-            e.printStackTrace();
+            logger.error("getHttpClientAppBuilder", e);
         }
 
-        FileInputStream keyStoreIS = null;
-
-        FileInputStream trustStoreIS = null;
-        try {
-            keyStoreIS = new FileInputStream(config.getAppCertPath()+config.getAppCertName()+".p12");
-            cks.load(keyStoreIS,config.getAppCertPassword().toCharArray());
-
-            if (config.getTruststorePath()!=null) {
-                trustStoreIS = new FileInputStream(config.getTruststorePath());
-                tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
-            }
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (keyStoreIS != null) {
-                try {
-                    keyStoreIS.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (trustStoreIS != null) {
-                try {
-                    keyStoreIS.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+        try (FileInputStream keyStoreIS = new FileInputStream(config.getAppCertPath()+config.getAppCertName()+".p12")) {
+            cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
+        } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
+            logger.error("getHttpClientBotBuilder", e);
         }
+
         ClientBuilder clientBuilder = ClientBuilder.newBuilder().keyStore(cks, config.getAppCertPassword().toCharArray());
         if(config.getTruststorePath()!=null){
-            clientBuilder.trustStore(tks);
+            loadTrustStore(config, tks, clientBuilder);
         }
         return clientBuilder;
     }
