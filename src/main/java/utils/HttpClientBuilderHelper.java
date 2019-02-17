@@ -43,13 +43,13 @@ public class HttpClientBuilderHelper {
             cks = KeyStore.getInstance("PKCS12");
             tks = KeyStore.getInstance("JKS");
         } catch (KeyStoreException e) {
-            logger.error("getHttpClientBotBuilder", e);
+            logger.error("Error creating keystore instance", e);
         }
 
         try (InputStream keyStoreIS = loadInputStream(config.getBotCertPath()+config.getBotCertName())) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
-            logger.error("getHttpClientBotBuilder", e);
+            logger.error("Error loading bot keystore file", e);
         }
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder().keyStore(cks, config.getBotCertPassword().toCharArray());
@@ -66,13 +66,13 @@ public class HttpClientBuilderHelper {
             cks = KeyStore.getInstance("PKCS12");
             tks = KeyStore.getInstance("JKS");
         } catch (KeyStoreException e) {
-            logger.error("getHttpClientAppBuilder", e);
+            logger.error("Error creating keystore instance", e);
         }
 
         try (InputStream keyStoreIS = loadInputStream(config.getAppCertPath()+config.getAppCertName())) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
-            logger.error("getHttpClientBotBuilder", e);
+            logger.error("Error loading app keystore file", e);
         }
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder().keyStore(cks, config.getAppCertPassword().toCharArray());
@@ -88,7 +88,7 @@ public class HttpClientBuilderHelper {
             tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
             clientBuilder.trustStore(tks);
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
-            logger.error("getHttpClientBuilderWithTruststore", e);
+            logger.error("Error loading truststore", e);
         }
     }
 
