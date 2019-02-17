@@ -9,6 +9,7 @@ import javax.ws.rs.client.ClientBuilder;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -35,16 +36,6 @@ public class HttpClientBuilderHelper {
         return clientBuilder;
     }
 
-    private static void loadTrustStore(SymConfig config, KeyStore tks, ClientBuilder clientBuilder) {
-        //load truststore
-        try (FileInputStream trustStoreIS = new FileInputStream(config.getTruststorePath())) {
-            tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
-            clientBuilder.trustStore(tks);
-        } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
-            logger.error("getHttpClientBuilderWithTruststore", e);
-        }
-    }
-
     public static ClientBuilder getHttpClientBotBuilder (SymConfig config){
         KeyStore cks = null;
         KeyStore tks = null;
@@ -55,7 +46,7 @@ public class HttpClientBuilderHelper {
             logger.error("getHttpClientBotBuilder", e);
         }
 
-        try (FileInputStream keyStoreIS = new FileInputStream(config.getBotCertPath()+config.getBotCertName())) {
+        try (InputStream keyStoreIS = loadInputStream(config.getBotCertPath()+config.getBotCertName())) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
             logger.error("getHttpClientBotBuilder", e);
@@ -78,7 +69,7 @@ public class HttpClientBuilderHelper {
             logger.error("getHttpClientAppBuilder", e);
         }
 
-        try (FileInputStream keyStoreIS = new FileInputStream(config.getAppCertPath()+config.getAppCertName())) {
+        try (InputStream keyStoreIS = loadInputStream(config.getAppCertPath()+config.getAppCertName())) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
             logger.error("getHttpClientBotBuilder", e);
@@ -89,5 +80,23 @@ public class HttpClientBuilderHelper {
             loadTrustStore(config, tks, clientBuilder);
         }
         return clientBuilder;
+    }
+
+    private static void loadTrustStore(SymConfig config, KeyStore tks, ClientBuilder clientBuilder) {
+        //load truststore
+        try (InputStream trustStoreIS = loadInputStream(config.getTruststorePath())) {
+            tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
+            clientBuilder.trustStore(tks);
+        } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
+            logger.error("getHttpClientBuilderWithTruststore", e);
+        }
+    }
+
+    private static InputStream loadInputStream(String fileName) throws FileNotFoundException{
+        if (fileName.startsWith("/")) {
+            return HttpClientBuilderHelper.class.getResourceAsStream(fileName);
+        } else {
+            return new FileInputStream(fileName);
+        }
     }
 }
