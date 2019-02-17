@@ -55,7 +55,7 @@ public class HttpClientBuilderHelper {
             logger.error("getHttpClientBotBuilder", e);
         }
 
-        try (FileInputStream keyStoreIS = new FileInputStream(config.getBotCertPath()+config.getBotCertName()+".p12");) {
+        try (FileInputStream keyStoreIS = new FileInputStream(config.getBotCertPath()+config.getBotCertName())) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
             logger.error("getHttpClientBotBuilder", e);
@@ -78,7 +78,7 @@ public class HttpClientBuilderHelper {
             logger.error("getHttpClientAppBuilder", e);
         }
 
-        try (FileInputStream keyStoreIS = new FileInputStream(config.getAppCertPath()+config.getAppCertName()+".p12")) {
+        try (FileInputStream keyStoreIS = new FileInputStream(config.getAppCertPath()+config.getAppCertName())) {
             cks.load(keyStoreIS,config.getBotCertPassword().toCharArray());
         } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
             logger.error("getHttpClientBotBuilder", e);
