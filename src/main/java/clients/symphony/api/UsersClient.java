@@ -259,4 +259,35 @@ public class UsersClient extends APIClient{
             }
         }
     }
+
+    public UserInfo getSessionUser(){
+               UserInfo info ;
+
+        Response response = null;
+
+        try {
+            response = botClient.getPodClient()
+                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                    .getPodPort())
+                .path(PodConstants.GETSESSIONUSER)
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .get();
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getSessionUser();
+                }
+                return null;
+            } else {
+                info = response.readEntity(UserInfo.class);
+            }
+            return info;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+    }
 }

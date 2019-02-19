@@ -57,12 +57,8 @@ public final class SymBotClient implements ISymClient {
         this.podClient = ClientBuilder.newClient(podClientConfig);
         this.agentClient = ClientBuilder.newClient(agentClientConfig);
         try {
-            botUserInfo = this.getUsersClient()
-                    .getUserFromEmail(config.getBotEmailAddress(),
-                            true);
-        } catch (NoContentException e) {
-            e.printStackTrace();
-        }  catch (SymClientException e) {
+            botUserInfo = this.getUsersClient().getSessionUser();
+        } catch (SymClientException e) {
             e.printStackTrace();
         }
         SymMessageParser.createInstance(this);
@@ -98,10 +94,7 @@ public final class SymBotClient implements ISymClient {
                     .withConfig(clientConfig).build();
         }
         try {
-            botUserInfo = this.getUsersClient()
-                    .getUserFromEmail(config.getBotEmailAddress(), true);
-        } catch (NoContentException e) {
-            e.printStackTrace();
+            botUserInfo = this.getUsersClient().getSessionUser();
         }  catch (SymClientException e) {
             e.printStackTrace();
         }
