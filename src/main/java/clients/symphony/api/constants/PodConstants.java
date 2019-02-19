@@ -51,4 +51,6 @@ public class PodConstants {
     public static final String ADMINCREATEUSER =  POD +"/v2/admin/user/create";
     public static final String ADMINUPDATEUSER = POD +"/v2/admin/user/{uid}/update";
     public static final String ADMINUPDATEAVATAR = POD + "/v1/admin/user/{uid}/avatar/update";
+    
+    public static final String GETSESSIONUSER = POD+"/v2/sessioninfo";
 }
