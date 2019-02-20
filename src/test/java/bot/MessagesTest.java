@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import util.BaseTest;
 
 import javax.ws.rs.core.NoContentException;
 
@@ -22,18 +23,12 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 
-public class MessagesTest {
+public class MessagesTest extends BaseTest {
 
-    private String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
-    private SymConfig config;
-    private SymBotAuth botAuth;
-    private SymBotClient botClient;
+    private static SymBotClient botClient;
 
-    @Before
-    public void oneTimeSetUp() {
-        SymConfigLoader configLoader = new SymConfigLoader();
-        config = configLoader.loadFromFile(configFilePath);
-        botAuth = new SymBotAuth(config);
+    @BeforeClass
+    public static void oneTimeSetUp() {
         botAuth.authenticate();
         botClient = SymBotClient.initBot(config, botAuth);
     }

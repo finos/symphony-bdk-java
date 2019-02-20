@@ -1,35 +1,26 @@
 package bot;
 
-import authentication.SymBotAuth;
 import clients.SymBotClient;
-import configuration.SymConfig;
-import configuration.SymConfigLoader;
 import exceptions.SymClientException;
-import model.User;
 import model.UserFilter;
 import model.UserInfo;
 import model.UserSearchResult;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import util.BaseTest;
 
 import javax.ws.rs.core.NoContentException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersTest {
+public class UsersTest extends BaseTest {
 
-    private String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
-    private SymConfig config;
-    private SymBotAuth botAuth;
-    private SymBotClient botClient;
-    private UserInfo user;
+    private static SymBotClient botClient;
+    private static UserInfo user;
 
-    @Before
-    public void oneTimeSetUp() {
-        SymConfigLoader configLoader = new SymConfigLoader();
-        config = configLoader.loadFromFile(configFilePath);
-        botAuth = new SymBotAuth(config);
+    @BeforeClass
+    public static void oneTimeSetUp() {
         botAuth.authenticate();
         botClient = SymBotClient.initBot(config, botAuth);
         try {
