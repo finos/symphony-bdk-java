@@ -101,10 +101,8 @@ public class DatafeedEventsService {
                         });
                 try {
                     future.get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.error("Error trying to read datafeed", e);
                 }
             }
             return null;
@@ -126,9 +124,9 @@ public class DatafeedEventsService {
     }
 
     private void handleError(Throwable e) {
-        logger.error(e.getMessage());
+        logger.error("HandlerError error", e);
         try {
-            TimeUnit.SECONDS.sleep(30);
+            TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
@@ -136,9 +134,9 @@ public class DatafeedEventsService {
             datafeedId = datafeedClient.createDatafeed();
         } catch (SymClientException e1) {
             try {
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
             } catch (InterruptedException ie) {
-                ie.printStackTrace();
+                logger.error("Error trying to handle error ", ie);
             }
             handleError(e);
         }
