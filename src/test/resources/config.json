@@ -1,0 +1,21 @@
+{
+  "sessionAuthHost": "develop-api.symphony.com",
+  "sessionAuthPort": 8444,
+  "keyAuthHost": "develop-api.symphony.com",
+  "keyAuthPort": 8444,
+  "podHost": "develop.symphony.com",
+  "podPort": 443,
+  "agentHost": "develop.symphony.com",
+  "agentPort": 443,
+  "botCertPath": "TODO provide",
+  "botCertName": "TODO provide",
+  "botCertPassword": "TODO provide",
+  "botEmailAddress": "TODO provide",
+  "appCertPath": "",
+  "appCertName": "",
+  "appCertPassword": "",
+  "authTokenRefreshPeriod": "30",
+  "truststorePath": "/server.truststore",
+  "truststorePassword": "changeit"
+}
+
