@@ -55,6 +55,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     public SymBotAuth(final SymConfig inputConfig,
                       final ClientConfig sessionAuthClientConfig,
                       final ClientConfig kmAuthClientConfig) {
+        logger.info("SymBotAuth with ClientConfig variables");
         this.config = inputConfig;
         ClientBuilder clientBuilder = HttpClientBuilderHelper
                 .getHttpClientBotBuilder(config);
@@ -74,7 +75,6 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
     }
 
-
     public void authenticate() {
         if (lastAuthTime == 0
                 | System.currentTimeMillis() - lastAuthTime
@@ -89,7 +89,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 authenticate();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with authentication", e);
             }
         }
     }
@@ -109,13 +109,12 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 try {
                     handleError(response, null);
                 } catch (Exception e) {
-                    logger.error("Unexpected error, "
-                            + "retry authentication in 30 seconds");
+                    logger.error("Unexpected error, retry authentication in 30 seconds");
                 }
                 try {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("Error with session authentication", e);
                 }
                 sessionAuthenticate();
             } else {
@@ -144,13 +143,12 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 try {
                     handleError(response, null);
                 } catch (Exception e) {
-                    logger.error("Unexpected error, "
-                            + "retry authentication in 30 seconds");
+                    logger.error("Unexpected error, retry authentication in 30 seconds", e);
                 }
                 try {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("Error with authentication", e);
                 }
                 kmAuthenticate();
             } else {
@@ -159,13 +157,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
             }
 
         } else {
-            try {
-                throw new NoConfigException(
+            throw new NoConfigException(
                         "Must provide a SymConfig object to authenticate");
-            } catch (NoConfigException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
-            }
         }
     }
 
@@ -186,6 +179,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     }
 
     public void logout() {
+        logger.info("Logging out");
         Response response = sessionAuthClient.target(
                 AuthEndpointConstants.HTTPSPREFIX
                 + config.getSessionAuthHost()
@@ -194,5 +188,14 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken", getSessionToken())
                 .post(null);
+
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, null);
+            } catch (Exception e) {
+                logger.error("Unexpected error, retry logout in 30 seconds", e);
+            }
+        }
     }
 }
