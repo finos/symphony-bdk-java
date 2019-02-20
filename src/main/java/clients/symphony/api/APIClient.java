@@ -17,7 +17,7 @@ public abstract class APIClient {
             throws SymClientException {
         if (response.getStatusInfo().getFamily()
                 == Response.Status.Family.SERVER_ERROR) {
-            logger.error(response.getStatusInfo().getReasonPhrase());
+            logger.error("REST error: error code {} reason{}", response.getStatusInfo().getStatusCode(), response.getStatusInfo().getReasonPhrase());
             throw new ServerErrorException(response.getStatusInfo()
                     .getReasonPhrase());
         } else {

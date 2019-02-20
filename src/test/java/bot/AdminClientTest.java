@@ -10,7 +10,9 @@ import model.*;
 import model.events.AdminStreamInfoList;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import util.BaseTest;
 
 import javax.ws.rs.core.NoContentException;
 import java.io.IOException;
@@ -18,21 +20,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class AdminClientTest {
+public class AdminClientTest extends BaseTest {
 
-    private SymBotClient botClient;
+    private static SymBotClient botClient;
     private Stream stream;
-    private Long userId1;
-    private Long userId2;
-    private List<Long> userList;
+    private static Long userId1;
+    private static Long userId2;
+    private static List<Long> userList;
     private String streamId= "1_vv_nyaIQ2OQniAKfkmgX___pu9TLmzdA";
 
-    @Before
-    public void oneTimeSetUp() {
-        String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/dev-config.json";
-        SymConfigLoader configLoader = new SymConfigLoader();
-        SymConfig config = configLoader.loadFromFile(configFilePath);
-        ISymAuth botAuth = new SymBotRSAAuth(config);
+    @BeforeClass
+    public static void oneTimeSetUp() {
         botAuth.authenticate();
         botClient = SymBotClient.initBot(config, botAuth);
         try {
