@@ -6,7 +6,7 @@ The Java client is built in an event handler architecture. If you are building a
     <dependency>
         <groupId>com.symphony.platformsolutions</groupId>
         <artifactId>symphony-api-client-java</artifactId>
-        <version>1.0.7</version>
+        <version>1.0.12</version>
     </dependency>
 ```
         
@@ -36,6 +36,39 @@ Create a config.json file in your project which includes the following propertie
   "datafeedEventsThreadpoolSize": 5,
   "datafeedEventsErrorTimeout": 30
 }
+```
+### Loading configuration
+To load the configuration
+
+```java
+URL url = getClass().getResource("config.json");
+SymConfigLoader configLoader = new SymConfigLoader();
+SymConfig config = configLoader.loadFromFile(url.getPath());
+```
+or
+```java
+InputStream configFileStream = getClass().getResourceAsStream("/config.json");
+SymConfigLoader configLoader = new SymConfigLoader();
+SymConfig config = configLoader.load(configFileStream);
+```
+
+## Authentication
+To authenticate against the pod and keymanager
+```java
+URL url = getClass().getResource("config.json");
+SymConfigLoader configLoader = new SymConfigLoader();
+SymConfig config = configLoader.loadFromFile(url.getPath());
+SymBotAuth botAuth = new SymBotAuth(config);
+botAuth.authenticate();
+```
+or
+```java
+ClientConfig sessionAuthClientConfig = new ClientConfig();
+......
+ClientConfig kmAuthClientConfig = new ClientConfig();
+......
+SymBotAuth botAuth = new SymBotAuth(config, sessionAuthClientConfig, kmAuthClientConfig);
+
 ```
         
 ## Example main class
