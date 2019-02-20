@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -52,7 +54,7 @@ public final class DatafeedClient extends  APIClient {
                 return null;
             } else {
                 StringId datafeedId = response.readEntity(StringId.class);
-                logger.info("Created new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
+                logger.info("Created new datafeed {} for bot {}", datafeedId, botClient.getBotUserInfo().getUsername());
                 return datafeedId.getId();
             }
         } finally {
@@ -68,19 +70,19 @@ public final class DatafeedClient extends  APIClient {
         Response response = null;
         logger.debug("Reading datafeed {}", id);
         try {
-            response = botClient.getAgentClient().target(
+            WebTarget webTarget = botClient.getAgentClient().target(
                 CommonConstants.HTTPSPREFIX
                     + config.getAgentHost()
-                    + ":" + config.getAgentPort())
-                .path(AgentConstants.READDATAFEED.replace("{id}", id))
+                    + ":" + config.getAgentPort());
+                response = webTarget.path(AgentConstants.READDATAFEED.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken",
                     botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken",
-                    botClient.getSymAuth().getKmToken())
-                .get();
+                    botClient.getSymAuth().getKmToken()).get();
             if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
+                logger.error("Datafeed read error for request " + webTarget.getUri());
                 handleError(response, botClient);
             } else {
                 if (response.getStatus() == CommonConstants.NOCONTENT) {
