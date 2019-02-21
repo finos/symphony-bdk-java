@@ -1,18 +1,21 @@
 package configuration;
 
 import org.junit.Test;
+import util.BaseTest;
+
+import java.io.InputStream;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class SymConfigLoaderTest {
 
-    String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/config.json";
-    SymConfigLoader configLoader = new SymConfigLoader();
-
     @Test
     public void loadConfig() {
-        SymConfig config = configLoader.loadFromFile(configFilePath);
+        InputStream configFileStream = BaseTest.class.getResourceAsStream("/config.json");
+        SymConfigLoader configLoader = new SymConfigLoader();
+        SymConfig config = configLoader.load(configFileStream);
         assertNotNull(config);
-        assertEquals("sup-api.symphony.com", config.getSessionAuthHost());
+        assertEquals("develop-api.symphony.com", config.getSessionAuthHost());
     }
 }
