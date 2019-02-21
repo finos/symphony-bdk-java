@@ -22,7 +22,6 @@ public class SymBotAuthTest {
 
     @Test
     public void authenticationTest(){
-        System.out.println("****** ALAN 2 ****");
         ISymAuth botAuth = new SymBotAuth(config);
         botAuth.authenticate();
         assertNotNull(botAuth.getSessionToken());
