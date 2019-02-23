@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
     private String sessionToken;
@@ -38,7 +40,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
-        if(config.getProxyURL()==null || config.getProxyURL().equals("")){
+        if(isEmpty(config.getProxyURL())){
             this.sessionAuthClient = client;
         }
         else {
@@ -69,6 +71,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     }
 
     public SymBotRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
+        logger.info("SymOBOAuth with ClientConfig variables");
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         if (sessionAuthClientConfig!=null){
@@ -90,10 +93,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         PrivateKey privateKey = null;
         try {
             privateKey = JwtHelper.parseRSAPrivateKey(new File(config.getBotPrivateKeyPath()+config.getBotPrivateKeyName()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+        } catch (IOException | GeneralSecurityException e) {
+            logger.error("Error trying to parse RSA private key", e);
         }
         if(lastAuthTime==0 | System.currentTimeMillis()-lastAuthTime>3000) {
             logger.info("Last auth time was {}", lastAuthTime);
@@ -105,10 +106,10 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         } else{
             try {
                 logger.info("Re-authenticated too fast. Wait 30 seconds to try again.");
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 authenticate();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with authentication", e);
             }
         }
 
@@ -125,7 +126,6 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(token,MediaType.APPLICATION_JSON));
 
-
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, null);
@@ -133,9 +133,9 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
                 logger.error("Unexpected error, retry authentication in 30 seconds");
             }
             try {
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with authentication", e);
             }
             sessionAuthenticate();
         }
@@ -161,9 +161,9 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
                 logger.error("Unexpected error, retry authentication in 30 seconds");
             }
             try {
-                TimeUnit.SECONDS.sleep(30);
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with authentication", e);
             }
             kmAuthenticate();
         }
@@ -189,11 +189,21 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     }
 
     public void logout() {
+        logger.info("Logging out");
         Client client = ClientBuilder.newClient();
         Response response = client.target(AuthEndpointConstants.HTTPSPREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
                 .path(AuthEndpointConstants.LOGOUTPATH)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken", getSessionToken())
                 .post(null);
+
+        if (response.getStatusInfo().getFamily()
+                != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, null);
+            } catch (Exception e) {
+                logger.error("Unexpected error, retry logout in 30 seconds", e);
+            }
+        }
     }
 }

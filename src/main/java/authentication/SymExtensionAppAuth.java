@@ -97,7 +97,7 @@ public final class SymExtensionAppAuth extends APIClient {
                 try {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("Error with authentication", e);
                 }
                 sessionAppAuthenticate(appToken);
             } else {
@@ -114,8 +114,7 @@ public final class SymExtensionAppAuth extends APIClient {
     }
 
     public AppAuthResponse sessionAppAuthenticate(final String appToken,
-                                                  final String podSessionAuthUrl
-    ) {
+                                                  final String podSessionAuthUrl) {
         logger.info("Session extension app auth");
         Map<String, String> input = new HashMap<>();
         input.put("appToken", appToken);
@@ -136,7 +135,7 @@ public final class SymExtensionAppAuth extends APIClient {
             try {
                 TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with authentication", e);
             }
             sessionAppAuthenticate(appToken, podSessionAuthUrl);
         } else {
@@ -167,7 +166,7 @@ public final class SymExtensionAppAuth extends APIClient {
             try {
                 TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with verify", e);
             }
             verifyJWT(jwt, podSessionAuthUrl);
         } else {
@@ -185,10 +184,8 @@ public final class SymExtensionAppAuth extends APIClient {
                 // validate and decode the jwt
                 JwtClaims jwtDecoded = jwtConsumer.processToClaims(jwt);
                 return jwtDecoded.getClaimValue("user");
-            } catch (GeneralSecurityException e) {
-                e.printStackTrace();
-            } catch (InvalidJwtException e) {
-                e.printStackTrace();
+            } catch (GeneralSecurityException | InvalidJwtException e) {
+                logger.error("Error with decoding jwt", e);
             }
         }
         return null;
