@@ -12,17 +12,24 @@ import exceptions.SymClientException;
 import model.InboundMessage;
 import model.MessageStatus;
 import model.OutboundMessage;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.NoContentException;
 
+import java.io.InputStream;
+
 import static org.junit.Assert.assertNotNull;
 
 public class SymOBOAuthTest {
+    SymConfig config;
 
-    String configFilePath = "/Users/manuela.caicedo/Documents/symphonyapiclient/src/main/resources/sup-config.json";
-    SymConfigLoader configLoader = new SymConfigLoader();
-    SymConfig config = configLoader.loadFromFile(configFilePath);
+    @Before
+    public void setUp() {
+        InputStream configFileStream = getClass().getResourceAsStream("/config.json");
+        SymConfigLoader configLoader = new SymConfigLoader();
+        config = configLoader.load(configFileStream);
+    }
 
     @Test
     public void authenticationTest(){
