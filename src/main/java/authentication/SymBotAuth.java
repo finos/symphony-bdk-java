@@ -16,6 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 public final class SymBotAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotAuth.class);
     private String sessionToken;
@@ -30,7 +32,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         ClientBuilder clientBuilder =
                 HttpClientBuilderHelper.getHttpClientBotBuilder(config);
         Client client = clientBuilder.build();
-        if (config.getProxyURL() == null || config.getProxyURL().equals("")) {
+        if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
             this.kmAuthClient = client;
         } else {

@@ -79,7 +79,7 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
             try {
                 TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("Error with authentication", e);
             }
             appAuth.sessionAppAuthenticate();
             sessionAuthenticate();
@@ -92,13 +92,8 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
 
     @Override
     public void kmAuthenticate() {
-        try {
-            throw new MethodNotSupportedException(
-                    "this method is not supported");
-        } catch (MethodNotSupportedException e) {
-            e.printStackTrace();
-        }
-        logger.warn("method is invalid");
+        logger.warn("method kmAuthenticate is invalid");
+        throw new RuntimeException( "this method is not supported");
     }
 
     @Override
@@ -113,25 +108,17 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
 
     @Override
     public String getKmToken() {
-        logger.warn("method is invalid");
-        return null;
+        logger.warn("method kmAuthenticate is invalid");
+        throw new RuntimeException( "this method kmAuthenticate is not supported");
     }
 
     @Override
     public void setKmToken(final String kmToken) {
-        try {
-            throw new MethodNotSupportedException(
-                    "this method is not supported");
-        } catch (MethodNotSupportedException e) {
-            e.printStackTrace();
-        }
-        logger.warn("method is invalid");
+        logger.warn("method setKmToken is invalid");
+        throw new RuntimeException( "this method setKmToken is not supported");
     }
 
     @Override
     public void logout() {
-
     }
-
-
 }

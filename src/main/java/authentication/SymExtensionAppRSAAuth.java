@@ -94,7 +94,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
                 try {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("Error with authentication", e);
                 }
                 appAuthenticate();
             } else {

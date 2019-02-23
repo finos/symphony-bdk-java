@@ -17,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 public final class SymOBOAuth extends APIClient {
     private final Logger logger = LoggerFactory
             .getLogger(SymOBOAuth.class);
@@ -25,12 +27,12 @@ public final class SymOBOAuth extends APIClient {
     private Client sessionAuthClient;
 
     public SymOBOAuth(final SymConfig configuration) {
+        logger.info("SymOBOAuth being constructed");
         this.config = configuration;
         ClientBuilder clientBuilder = HttpClientBuilderHelper
                 .getHttpClientAppBuilder(config);
         Client client = clientBuilder.build();
-        if (config.getProxyURL() == null
-                || config.getProxyURL().equals("")) {
+        if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
@@ -52,6 +54,7 @@ public final class SymOBOAuth extends APIClient {
 
     public SymOBOAuth(final SymConfig configuration,
                       final ClientConfig sessionAuthClientConfig) {
+        logger.info("SymOBOAuth being constructed with ClientConfig variable");
         this.config = configuration;
         ClientBuilder clientBuilder = HttpClientBuilderHelper
                 .getHttpClientAppBuilder(config);
@@ -98,7 +101,7 @@ public final class SymOBOAuth extends APIClient {
                 try {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    logger.error("Error with session app authentication", e);
                 }
                 sessionAppAuthenticate();
             } else {
@@ -107,13 +110,8 @@ public final class SymOBOAuth extends APIClient {
                 this.sessionToken = sessionTokenResponseContent.getToken();
             }
         } else {
-            try {
-                throw new NoConfigException(
-                        "Must provide a SymConfig object to authenticate");
-            } catch (NoConfigException e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
-            }
+            throw new NoConfigException(
+                    "Must provide a SymConfig object to authenticate");
         }
     }
 
