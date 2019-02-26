@@ -188,7 +188,7 @@ public final class AdminClient extends APIClient {
         }
     }
 
-    public UserInfo getUser(Long uid) throws NoContentException,
+    public AdminUserInfo getUser(Long uid) throws NoContentException,
             SymClientException {
         UserInfo info;
         Response response = null;
