@@ -28,9 +28,8 @@
         <connection>scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</connection>
         <developerConnection>scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</developerConnection>
         <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
-      <tag>symphony-api-client-java-1.0.12</tag>
-  </scm>
-
+        <tag>symphony-api-client-java-1.0.13</tag>
+    </scm>
 
     <properties>
         <jjwt.version>0.6.0</jjwt.version>
@@ -112,7 +111,6 @@
                 </configuration>
             </plugin>
         </plugins>
-
     </build>
 
     <dependencies>
@@ -225,5 +223,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
