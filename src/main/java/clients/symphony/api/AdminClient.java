@@ -188,9 +188,9 @@ public final class AdminClient extends APIClient {
         }
     }
 
-    public UserInfo getUser(Long uid) throws NoContentException,
+    public AdminUserInfo getUser(Long uid) throws NoContentException,
             SymClientException {
-        UserInfo info;
+        AdminUserInfo info;
         Response response = null;
 
         try {
@@ -214,9 +214,8 @@ public final class AdminClient extends APIClient {
             } else if (response.getStatus() == CommonConstants.NOCONTENT) {
                 throw new NoContentException("No user found.");
             } else {
-                info = response.readEntity(UserInfo.class);
+                info = response.readEntity(AdminUserInfo.class);
             }
-
             return info;
         } finally {
             if (response != null) {
