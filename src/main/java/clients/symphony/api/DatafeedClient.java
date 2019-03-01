@@ -54,7 +54,7 @@ public final class DatafeedClient extends  APIClient {
                 return null;
             } else {
                 StringId datafeedId = response.readEntity(StringId.class);
-                logger.info("Created new datafeed {} for bot {}", datafeedId, botClient.getBotUserInfo().getUsername());
+                logger.info("Created new datafeed {} for bot {}", datafeedId.getId(), botClient.getBotUserInfo().getUsername());
                 return datafeedId.getId();
             }
         } finally {

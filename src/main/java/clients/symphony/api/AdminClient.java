@@ -25,6 +25,8 @@ import model.SuppressionResult;
 import model.UserInfo;
 import model.events.AdminStreamInfoList;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +43,8 @@ import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 
 public final class AdminClient extends APIClient {
+
+    private final Logger logger = LoggerFactory.getLogger(AdminClient.class);
 
     private ISymClient botClient;
 
@@ -359,15 +363,10 @@ public final class AdminClient extends APIClient {
                 }
                 return null;
             } else if (response.getStatus() == CommonConstants.NOCONTENT) {
-                try {
-                    throw new NoContentException("No user found.");
-                } catch (NoContentException e) {
-                    e.printStackTrace();
-                }
+                throw new SymClientException("No user found for userid:= " + uid);
             } else {
                 avatar = response.readEntity(AvatarList.class);
             }
-
             return avatar;
         } finally {
             if (response != null) {
@@ -438,11 +437,7 @@ public final class AdminClient extends APIClient {
                 }
                 return null;
             } else if (response.getStatus() == CommonConstants.NOCONTENT) {
-                try {
-                    throw new NoContentException("No user found.");
-                } catch (NoContentException e) {
-                    e.printStackTrace();
-                }
+                throw new SymClientException("No user found for userid:= " + uid);
             } else {
                 Status status = response.readEntity(Status.class);
                 statusString = status.getStatus();
@@ -481,11 +476,7 @@ public final class AdminClient extends APIClient {
                     updateUserStatus(uid, status);
                 }
             } else if (response.getStatus() == CommonConstants.NOCONTENT) {
-                try {
-                    throw new NoContentException("No user found.");
-                } catch (NoContentException e) {
-                    e.printStackTrace();
-                }
+                throw new SymClientException("No user found for userid:= " + uid);
             }
         } finally {
             if (response != null) {
@@ -661,7 +652,4 @@ public final class AdminClient extends APIClient {
             }
         }
     }
-
-
-
 }

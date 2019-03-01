@@ -128,7 +128,7 @@ public class DatafeedEventsService {
         try {
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
         } catch (InterruptedException ie) {
-            ie.printStackTrace();
+            logger.error("Error trying to handle error ", ie);
         }
         try {
             datafeedId = datafeedClient.createDatafeed();

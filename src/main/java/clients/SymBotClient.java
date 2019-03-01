@@ -8,6 +8,8 @@ import model.UserInfo;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.DatafeedEventsService;
 import services.FirehoseService;
 import utils.HttpClientBuilderHelper;
@@ -17,7 +19,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.NoContentException;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 public final class SymBotClient implements ISymClient {
+
+    private final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
 
     private static SymBotClient botClient;
     private SymConfig config;
@@ -36,8 +42,6 @@ public final class SymBotClient implements ISymClient {
     private AdminClient adminClient;
     private FirehoseClient firehoseClient;
     private FirehoseService firehoseService;
-
-
 
     public static SymBotClient initBot(final SymConfig configuration,
                                        final ISymAuth symBotAuthImp) {
@@ -59,7 +63,7 @@ public final class SymBotClient implements ISymClient {
         try {
             botUserInfo = this.getUsersClient().getSessionUser();
         } catch (SymClientException e) {
-            e.printStackTrace();
+            logger.error("Error getting sessionUser ", e);
         }
         SymMessageParser.createInstance(this);
     }
@@ -68,8 +72,7 @@ public final class SymBotClient implements ISymClient {
         this.config = config;
         this.symBotAuth = symBotAuth;
 
-        if (config.getProxyURL() == null
-                || config.getProxyURL().equals("")) {
+        if (isEmpty(config.getProxyURL())) {
             this.podClient = HttpClientBuilderHelper
                     .getHttpClientBuilderWithTruststore(config).build();
             this.agentClient = HttpClientBuilderHelper
@@ -96,7 +99,7 @@ public final class SymBotClient implements ISymClient {
         try {
             botUserInfo = this.getUsersClient().getSessionUser();
         }  catch (SymClientException e) {
-            e.printStackTrace();
+            logger.error("Error getting sessionUser ", e);
         }
         SymMessageParser.createInstance(this);
     }
