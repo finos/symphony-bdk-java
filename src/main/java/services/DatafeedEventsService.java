@@ -107,9 +107,6 @@ public class DatafeedEventsService {
             }
             return null;
         },pool);
-
-
-
     }
 
     public void stopDatafeedService(){
@@ -125,23 +122,21 @@ public class DatafeedEventsService {
 
     private void handleError(Throwable e) {
         logger.error("HandlerError error", e);
+        sleep();
+        try {
+            datafeedId = datafeedClient.createDatafeed();
+        } catch (SymClientException e1) {
+            sleep();
+            handleError(e);
+        }
+    }
+
+    private void sleep() {
         try {
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
         } catch (InterruptedException ie) {
             logger.error("Error trying to handle error ", ie);
         }
-        try {
-            datafeedId = datafeedClient.createDatafeed();
-        } catch (SymClientException e1) {
-            try {
-                TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
-            } catch (InterruptedException ie) {
-                logger.error("Error trying to handle error ", ie);
-            }
-            handleError(e);
-        }
-
-
     }
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
