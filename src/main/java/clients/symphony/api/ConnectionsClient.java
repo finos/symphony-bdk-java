@@ -8,7 +8,9 @@ import exceptions.UnauthorizedException;
 import model.InboundConnectionRequest;
 import model.InboundConnectionRequestList;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -106,6 +108,9 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
+      Map<String, Long> userIdMap = new HashMap<>();
+      userIdMap.put("userId", userId);
+
       response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
@@ -113,9 +118,8 @@ public final class ConnectionsClient extends APIClient {
           .request(MediaType.APPLICATION_JSON)
           .header("sessionToken",
               botClient.getSymAuth().getSessionToken())
-          .post(Entity.entity(userId, MediaType.APPLICATION_JSON));
-      if (response.getStatusInfo().getFamily()
-          != Response.Status.Family.SUCCESSFUL) {
+          .post(Entity.entity(userIdMap, MediaType.APPLICATION_JSON));
+      if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
         try {
           handleError(response, botClient);
         } catch (UnauthorizedException ex) {
