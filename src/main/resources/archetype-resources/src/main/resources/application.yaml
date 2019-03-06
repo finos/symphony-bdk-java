@@ -1,0 +1,48 @@
+server:
+  port : 8080
+  connection-timeout: 20000
+  servlet:
+    display-name: Your project
+    context-path: /your context
+
+spring:
+  data:
+    mongodb:
+      database: "name of db"
+
+session_auth:
+  host: pod.symphony.com
+  port: 8444
+
+pod:
+  host: pod.symphony.com
+
+app-authentication:
+  enabled: true
+  api:
+    enabled: true
+    base-path: "/v1/application"
+  filter:
+    enabled: true
+    url-patterns:
+    - "/v1/*"
+    excluded-paths:
+    - "/v1/application/authenticate"
+    - "/v1/application/tokens/validate"
+    - "/v1/application/jwt/validate"
+  pod:
+    host: ${pod.host}
+    port: ${pod.port:443}
+  session_auth:
+    host: ${session_auth.host}
+    port: ${session_auth.port:443}
+
+resources: '${user.dir}/src/main/resources'
+certs: '${resources}/certs'
+bot-config: '${resources}/bot-config.json'
+
+logging:
+  file: '${resources}/logs/your-log.log'
+
+crypto:
+  password: 'AES256bits'

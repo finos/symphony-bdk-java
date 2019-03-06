@@ -1,0 +1,18 @@
+{
+  "sessionAuthHost": "pod.symphony.com",
+  "sessionAuthPort": 443,
+  "keyAuthHost": "pod.symphony.com",
+  "keyAuthPort": 443,
+  "podHost": "pod.symphony.com",
+  "podPort": 443,
+  "agentHost": "pod.symphony.com",
+  "agentPort": 443,
+  "botPrivateKeyPath": "./src/main/resources/certs/",
+  "botPrivateKeyName": "example_privatekey.pkcs8",
+  "botEmailAddress": "bot@bot.symphony.com",
+  "botUsername": "username of bot",
+  "appCertPath": "./src/main/resources/certs/",
+  "appCertName": "app certificate (.p12)",
+  "appCertPassword": "changeit",
+  "authTokenRefreshPeriod": "30"
+}
