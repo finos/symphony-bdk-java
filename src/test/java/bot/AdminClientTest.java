@@ -122,15 +122,17 @@ public class AdminClientTest extends BaseTest {
 
     }
 
-//    @Test
-//    public void listUsersTest(){
-//        try {
-//            List<AdminUserInfo> list = botClient.getAdminClient().listUsers(0, 50);
-//            Assert.assertTrue(list.size()==50);
-//        } catch (SymClientException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Test
+    public void listUsersTest(){
+        try {
+            List<AdminUserInfo> list = botClient.getAdminClient().listUsers(0, 50);
+            Assert.assertNotNull(list);
+            Assert.assertEquals(50, list.size());
+            Assert.assertTrue(list.get(0).getUserSystemInfo().getId() > 0);
+        } catch (SymClientException e) {
+            e.printStackTrace();
+        }
+    }
 
     //Works- excluded from tests
 //    @Test
