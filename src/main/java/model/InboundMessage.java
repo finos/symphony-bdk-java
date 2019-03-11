@@ -18,8 +18,6 @@ public class InboundMessage {
     private String diagnostic;
     private String userAgent;
     private String originalFormat;
-    private String messageText;
-
 
     public String getMessageId() {
         return messageId;
@@ -110,10 +108,9 @@ public class InboundMessage {
     }
 
     public String getMessageText() {
-        if(messageText==null){
-            messageText = SymMessageParser.getInstance().messageToText(message,data);
+        if (SymMessageParser.getInstance() != null) {
+            return SymMessageParser.getInstance().messageToText(message, data);
         }
-        return messageText;
+        return null;
     }
-
 }
