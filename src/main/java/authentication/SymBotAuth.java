@@ -15,7 +15,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
-
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotAuth extends APIClient implements ISymAuth {
@@ -26,11 +25,12 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     private Client sessionAuthClient;
     private Client kmAuthClient;
     private long lastAuthTime = 0;
+    private int authRetries = 0;
 
     public SymBotAuth(final SymConfig inputConfig) {
         this.config = inputConfig;
         ClientBuilder clientBuilder =
-                HttpClientBuilderHelper.getHttpClientBotBuilder(config);
+            HttpClientBuilderHelper.getHttpClientBotBuilder(config);
         Client client = clientBuilder.build();
         if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
@@ -38,17 +38,15 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig
-                    .property(ClientProperties.PROXY_URI, config.getProxyURL());
+                .property(ClientProperties.PROXY_URI, config.getProxyURL());
             if (config.getProxyUsername() != null
-                    && config.getProxyPassword() != null) {
+                && config.getProxyPassword() != null) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,
-                        config.getProxyUsername());
+                    config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                        config.getProxyPassword());
+                    config.getProxyPassword());
             }
-            Client proxyClient = clientBuilder.withConfig(clientConfig)
-                    .build();
-            this.sessionAuthClient = proxyClient;
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
         if (config.getKeyManagerProxyURL() == null || config.getKeyManagerProxyURL().equals("")) {
             this.kmAuthClient = client;
@@ -56,17 +54,15 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig
-                    .property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
+                .property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
             if (config.getKeyManagerProxyUsername() != null
-                    && config.getKeyManagerProxyPassword() != null) {
+                && config.getKeyManagerProxyPassword() != null) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,
-                        config.getKeyManagerProxyUsername());
+                    config.getKeyManagerProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                        config.getKeyManagerProxyPassword());
+                    config.getKeyManagerProxyPassword());
             }
-            Client proxyClient = clientBuilder.withConfig(clientConfig)
-                    .build();
-            this.kmAuthClient = proxyClient;
+            this.kmAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
     }
 
@@ -76,18 +72,18 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         logger.info("SymBotAuth with ClientConfig variables");
         this.config = inputConfig;
         ClientBuilder clientBuilder = HttpClientBuilderHelper
-                .getHttpClientBotBuilder(config);
+            .getHttpClientBotBuilder(config);
         if (sessionAuthClientConfig != null) {
             this.sessionAuthClient = clientBuilder
-                    .withConfig(sessionAuthClientConfig)
-                    .build();
+                .withConfig(sessionAuthClientConfig)
+                .build();
         } else {
             this.sessionAuthClient = clientBuilder.build();
         }
         if (kmAuthClient == null) {
             this.kmAuthClient = clientBuilder
-                    .withConfig(kmAuthClientConfig)
-                    .build();
+                .withConfig(kmAuthClientConfig)
+                .build();
         } else {
             this.kmAuthClient = clientBuilder.build();
         }
@@ -95,15 +91,15 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
 
     public void authenticate() {
         if (lastAuthTime == 0
-                | System.currentTimeMillis() - lastAuthTime
-                > AuthEndpointConstants.WAITIME) {
+            | System.currentTimeMillis() - lastAuthTime
+            > AuthEndpointConstants.WAITIME) {
             sessionAuthenticate();
             kmAuthenticate();
             lastAuthTime = System.currentTimeMillis();
         } else {
             try {
                 logger.info("Re-authenticated too fast. "
-                        + "Wait 30 seconds to try again.");
+                    + "Wait 30 seconds to try again.");
                 TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 authenticate();
             } catch (InterruptedException e) {
@@ -116,14 +112,14 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         if (config != null) {
             logger.info("Session auth");
             Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
-                    + config.getSessionAuthHost()
-                    + ":" + config.getSessionAuthPort())
-                    .path(AuthEndpointConstants.SESSIONAUTHPATH)
-                    .request(MediaType.APPLICATION_JSON)
-                    .post(null);
+                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                + config.getSessionAuthHost()
+                + ":" + config.getSessionAuthPort())
+                .path(AuthEndpointConstants.SESSIONAUTHPATH)
+                .request(MediaType.APPLICATION_JSON)
+                .post(null);
             if (response.getStatusInfo().getFamily()
-                    != Response.Status.Family.SUCCESSFUL) {
+                != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, null);
                 } catch (Exception e) {
@@ -134,15 +130,19 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 } catch (InterruptedException e) {
                     logger.error("Error with session authentication", e);
                 }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return;
+                }
                 sessionAuthenticate();
             } else {
                 Token sessionTokenResponseContent =
-                        response.readEntity(Token.class);
+                    response.readEntity(Token.class);
                 this.sessionToken = sessionTokenResponseContent.getToken();
             }
         } else {
             throw new NoConfigException(
-                    "Must provide a SymConfig object to authenticate");
+                "Must provide a SymConfig object to authenticate");
         }
     }
 
@@ -150,14 +150,14 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         logger.info("KM auth");
         if (config != null) {
             Response response
-                    = kmAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
-                    + config.getKeyAuthHost()
-                    + ":" + config.getKeyAuthPort())
-                    .path(AuthEndpointConstants.KEYAUTHPATH)
-                    .request(MediaType.APPLICATION_JSON)
-                    .post(null);
+                = kmAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                + config.getKeyAuthHost()
+                + ":" + config.getKeyAuthPort())
+                .path(AuthEndpointConstants.KEYAUTHPATH)
+                .request(MediaType.APPLICATION_JSON)
+                .post(null);
             if (response.getStatusInfo().getFamily()
-                    != Response.Status.Family.SUCCESSFUL) {
+                != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, null);
                 } catch (Exception e) {
@@ -168,6 +168,10 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 } catch (InterruptedException e) {
                     logger.error("Error with authentication", e);
                 }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return;
+                }
                 kmAuthenticate();
             } else {
                 Token kmTokenResponseContent = response.readEntity(Token.class);
@@ -176,7 +180,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
 
         } else {
             throw new NoConfigException(
-                        "Must provide a SymConfig object to authenticate");
+                "Must provide a SymConfig object to authenticate");
         }
     }
 
@@ -199,16 +203,16 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     public void logout() {
         logger.info("Logging out");
         Response response = sessionAuthClient.target(
-                AuthEndpointConstants.HTTPSPREFIX
+            AuthEndpointConstants.HTTPSPREFIX
                 + config.getSessionAuthHost()
                 + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.LOGOUTPATH)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", getSessionToken())
-                .post(null);
+            .path(AuthEndpointConstants.LOGOUTPATH)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", getSessionToken())
+            .post(null);
 
         if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            != Response.Status.Family.SUCCESSFUL) {
             try {
                 handleError(response, null);
             } catch (Exception e) {

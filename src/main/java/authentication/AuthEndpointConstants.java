@@ -1,7 +1,6 @@
 package authentication;
 
 public final class AuthEndpointConstants {
-
     public static final String SESSIONAUTHPATH = "/sessionauth/v1/authenticate";
     public static final String KEYAUTHPATH = "/keyauth/v1/authenticate";
     public static final String HTTPSPREFIX = "https://";
@@ -21,6 +20,7 @@ public final class AuthEndpointConstants {
     public static final String PODCERT = "/sessionauth/v1/app/pod/certificate";
     public static final int WAITIME = 3000;
     public static final int TIMEOUT = 30;
+    public static final int MAX_AUTH_RETRY = 5;
     public static final Long JWTEXP = 300000L;
 
     private AuthEndpointConstants() {

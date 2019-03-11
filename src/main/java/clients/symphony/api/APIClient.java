@@ -12,9 +12,7 @@ import javax.ws.rs.core.Response;
 public abstract class APIClient {
     private final Logger logger = LoggerFactory.getLogger(APIClient.class);
 
-    protected void handleError(Response response,
-                               ISymClient botClient)
-            throws SymClientException {
+    protected void handleError(Response response, ISymClient botClient) throws SymClientException {
         if (response.getStatusInfo().getFamily()
                 == Response.Status.Family.SERVER_ERROR) {
             logger.error("REST error: error code {} reason{}", response.getStatusInfo().getStatusCode(), response.getStatusInfo().getReasonPhrase());
@@ -36,7 +34,5 @@ public abstract class APIClient {
                 throw new ForbiddenException(error.getMessage());
             }
         }
-
-
     }
 }
