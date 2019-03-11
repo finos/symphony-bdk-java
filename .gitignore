@@ -25,3 +25,4 @@ target/*
 .idea/*
 .DS_Store
 settings.xml
+*.iml

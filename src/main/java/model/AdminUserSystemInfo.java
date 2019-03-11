@@ -6,19 +6,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class AdminUserSystemInfo {
 
-    private Long userId;
+    private Long id;
     private String status;
     private String createdBy;
     private Long createdDate;
     private Long lastUpdatedDate;
     private Long lastLoginDate;
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getStatus() {

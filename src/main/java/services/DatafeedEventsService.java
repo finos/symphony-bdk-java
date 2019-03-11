@@ -1,21 +1,15 @@
 package services;
 
-import authentication.SymBotAuth;
 import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
-import exceptions.APIClientErrorException;
 import exceptions.SymClientException;
-import exceptions.UnauthorizedException;
 import listeners.ConnectionListener;
 import listeners.IMListener;
 import listeners.RoomListener;
 import model.DatafeedEvent;
-import model.DatafeedEventsList;
 import model.events.MessageSent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.SymMessageParser;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -36,10 +30,10 @@ public class DatafeedEventsService {
 
     public DatafeedEventsService(SymBotClient client) {
         this.botClient = client;
-        this.THREADPOOL_SIZE =
-                client.getConfig().getDatafeedEventsThreadpoolSize() != 0 ? client.getConfig().getDatafeedEventsThreadpoolSize(): 5;
-        this.TIMEOUT_NO_OF_SECS =
-                client.getConfig().getDatafeedEventsErrorTimeout() != 0 ? client.getConfig().getDatafeedEventsErrorTimeout(): 30;
+        this.THREADPOOL_SIZE = client.getConfig().getDatafeedEventsThreadpoolSize() != 0
+            ? client.getConfig().getDatafeedEventsThreadpoolSize() : 5;
+        this.TIMEOUT_NO_OF_SECS = client.getConfig().getDatafeedEventsErrorTimeout() != 0
+            ? client.getConfig().getDatafeedEventsErrorTimeout() : 30;
         roomListeners = new ArrayList<>();
         IMListeners = new ArrayList<>();
         connectionListeners = new ArrayList<>();
@@ -50,55 +44,56 @@ public class DatafeedEventsService {
         stop.set(false);
     }
 
-    public void addRoomListener(RoomListener listener){
+    public void addRoomListener(RoomListener listener) {
         roomListeners.add(listener);
     }
 
-    public void removeRoomListener(RoomListener listener){
+    public void removeRoomListener(RoomListener listener) {
         roomListeners.remove(listener);
     }
 
-    public void addIMListener(IMListener listener){
+    public void addIMListener(IMListener listener) {
         IMListeners.add(listener);
     }
 
-    public void removeIMListener(IMListener listener){
+    public void removeIMListener(IMListener listener) {
         IMListeners.remove(listener);
     }
 
-    public void addConnectionsListener(ConnectionListener listener){
+    public void addConnectionsListener(ConnectionListener listener) {
         connectionListeners.add(listener);
     }
 
-    public void removeConnectionsListener(ConnectionListener listener){
+    public void removeConnectionsListener(ConnectionListener listener) {
         connectionListeners.remove(listener);
     }
 
-    public void readDatafeed(){
-        if( pool!=null) {
+    public void readDatafeed() {
+        if (pool != null) {
             pool.shutdown();
         }
         pool = Executors.newFixedThreadPool(THREADPOOL_SIZE);
         CompletableFuture.supplyAsync(() -> {
-            while(!stop.get()) {
-                CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
-                    try {
-                        return datafeedClient.readDatafeed(datafeedId);
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }, pool)
-                        .exceptionally((ex) -> {
-                            handleError(ex);
-                            return null;
-                        })
-                        .thenApply(events -> {
-                            if (events!=null || !events.isEmpty()) {
-                                handleEvents(events);
-                            }
+            while (!stop.get()) {
+                CompletableFuture<Object> future = CompletableFuture
+                    .supplyAsync(() -> {
+                        try {
+                            return datafeedClient.readDatafeed(datafeedId);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }, pool)
+                    .exceptionally((ex) -> {
+                        handleError(ex);
+                        return null;
+                    })
+                    .thenApply(events -> {
+                        if (events != null && !events.isEmpty()) {
+                            handleEvents(events);
+                        }
+                        return null;
+                    });
 
-                            return null;
-                        });
                 try {
                     future.get();
                 } catch (InterruptedException | ExecutionException e) {
@@ -106,15 +101,15 @@ public class DatafeedEventsService {
                 }
             }
             return null;
-        },pool);
+        }, pool);
     }
 
-    public void stopDatafeedService(){
-        if(!stop.get()) stop.set(true);
+    public void stopDatafeedService() {
+        if (!stop.get()) stop.set(true);
     }
 
-    public void restartDatafeedService(){
-        if(stop.get()) stop.set(false);
+    public void restartDatafeedService() {
+        if (stop.get()) stop.set(false);
         datafeedId = datafeedClient.createDatafeed();
 
         readDatafeed();
@@ -140,7 +135,7 @@ public class DatafeedEventsService {
     }
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
-        for (DatafeedEvent event: datafeedEvents) {
+        for (DatafeedEvent event : datafeedEvents) {
             if (!event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId())) {
                 switch (event.getType()) {
                     case "MESSAGESENT":
@@ -240,5 +235,4 @@ public class DatafeedEventsService {
             }
         }
     }
-
 }
