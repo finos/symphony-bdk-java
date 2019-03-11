@@ -1,15 +1,20 @@
 package utils;
 
 import clients.SymBotClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.messageml.MessageMLContext;
 import org.symphonyoss.symphony.messageml.exceptions.InvalidInputException;
 import org.symphonyoss.symphony.messageml.exceptions.ProcessingException;
+import services.DatafeedEventsService;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SymMessageParser {
+
+    private final Logger logger = LoggerFactory.getLogger(SymMessageParser.class);
 
     final static String regex = "(\\<div.*\\>)(.*)(\\<\\/div\\>)";
     final static Pattern pattern = Pattern.compile(regex);
@@ -24,12 +29,7 @@ public class SymMessageParser {
         if(instance!=null){
             return instance;
         } else {
-            try {
-                throw new Exception("SymMessageParser needs to be initialized at startup");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
+            throw new RuntimeException("SymMessageParser needs to be initialized at startup");
         }
     }
 
@@ -44,17 +44,12 @@ public class SymMessageParser {
 
     public String messageToText(String message, String entityJSON){
         MessageMLContext context = new MessageMLContext(/*IDataProvider*/ new DataProvider(botClient));
-
         /* Parse the message and entity data */
         try {
             context.parseMessageML(/*String*/ message, /*String*/ entityJSON, /*String*/ "2.0");
             return context.getText();
-        } catch (InvalidInputException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ProcessingException e) {
-            e.printStackTrace();
+        } catch (InvalidInputException | IOException | ProcessingException e) {
+            logger.error("Error trying to parse MessageMl");
         }
         return null;
     }

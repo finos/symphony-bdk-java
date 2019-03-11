@@ -123,7 +123,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 try {
                     handleError(response, null);
                 } catch (Exception e) {
-                    logger.error("Unexpected error, retry authentication in 30 seconds");
+                    logger.error("Unexpected error, retry authentication in 30 seconds", e);
                 }
                 try {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);

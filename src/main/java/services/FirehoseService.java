@@ -80,10 +80,8 @@ public class FirehoseService {
                         });
                 try {
                     future.get();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.error("Error trying to read firehose ", e);
                 }
             }
             return null;
@@ -109,7 +107,7 @@ public class FirehoseService {
         try {
             TimeUnit.SECONDS.sleep(30);
         } catch (InterruptedException ie) {
-            ie.printStackTrace();
+            logger.error("Error trying to sleep ", ie);
         }
         try {
             firehoseId = firehoseClient.createFirehose();
@@ -117,12 +115,10 @@ public class FirehoseService {
             try {
                 TimeUnit.SECONDS.sleep(30);
             } catch (InterruptedException ie) {
-                ie.printStackTrace();
+                logger.error("Error trying to sleep ", ie);
             }
             handleError(e);
         }
-
-
     }
 
     private void handleEvents(List<DatafeedEvent> firehoseEvents) {

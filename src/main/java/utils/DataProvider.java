@@ -3,6 +3,8 @@ package utils;
 import clients.SymBotClient;
 import exceptions.SymClientException;
 import model.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.messageml.exceptions.InvalidInputException;
 import org.symphonyoss.symphony.messageml.util.IDataProvider;
 import org.symphonyoss.symphony.messageml.util.IUserPresentation;
@@ -13,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class DataProvider implements IDataProvider {
+    private final Logger logger = LoggerFactory.getLogger(IDataProvider.class);
     private static final Set<String> STANDARD_URI_SCHEMES = new HashSet<>();
     private UserPresentation user;
     private SymBotClient botClient;
@@ -37,10 +40,9 @@ public class DataProvider implements IDataProvider {
         UserInfo userInfo = null;
         try {
             userInfo = botClient.getUsersClient().getUserFromId(uid, false);
-        } catch (SymClientException e) {
-            e.printStackTrace();
-        } catch (NoContentException e) {
-            e.printStackTrace();
+        } catch (SymClientException | NoContentException e) {
+            logger.error("Error with getUserPresentation", e);
+            throw new InvalidInputException("User info not found for " + uid);
         }
         return new UserPresentation(uid, userInfo.getDisplayName(),userInfo.getDisplayName());
     }
