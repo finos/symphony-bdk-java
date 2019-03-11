@@ -108,9 +108,6 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
-      Map<String, Long> userIdMap = new HashMap<>();
-      userIdMap.put("userId", userId);
-
       response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
@@ -118,7 +115,7 @@ public final class ConnectionsClient extends APIClient {
           .request(MediaType.APPLICATION_JSON)
           .header("sessionToken",
               botClient.getSymAuth().getSessionToken())
-          .post(Entity.entity(userIdMap, MediaType.APPLICATION_JSON));
+          .post(Entity.entity(userIdObject, MediaType.APPLICATION_JSON));
       if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
         try {
           handleError(response, botClient);
