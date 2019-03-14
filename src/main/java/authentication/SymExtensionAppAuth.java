@@ -37,20 +37,17 @@ public final class SymExtensionAppAuth extends APIClient {
 
     public SymExtensionAppAuth(final SymConfig configuration) {
         this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper
-                .getHttpClientAppBuilder(config);
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
         Client client = clientBuilder.build();
+
         if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
-            clientConfig.property(ClientProperties.PROXY_URI,
-                    config.getProxyURL());
+            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
             if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,
-                        config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                        config.getProxyPassword());
+                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
             }
             this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }

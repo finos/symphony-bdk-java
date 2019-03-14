@@ -1,7 +1,6 @@
 package configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.apache.commons.lang3.StringUtils;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -163,9 +162,7 @@ public class SymConfig {
     }
 
     public String getProxyURL() {
-        if (StringUtils.isEmpty(podProxyURL))
-            return Objects.toString(proxyURL, "").trim();
-        return Objects.toString(podProxyURL, "").trim();
+        return Objects.toString(proxyURL, "").trim();
     }
 
     public void setProxyURL(String proxyURL) {
@@ -173,9 +170,7 @@ public class SymConfig {
     }
 
     public String getProxyUsername() {
-        if (StringUtils.isEmpty(podProxyURL))
-            return Objects.toString(proxyUsername, "").trim();
-        return Objects.toString(podProxyUsername, "").trim();
+        return Objects.toString(proxyUsername, "").trim();
     }
 
     public void setProxyUsername(String proxyUsername) {
@@ -183,9 +178,7 @@ public class SymConfig {
     }
 
     public String getProxyPassword() {
-        if (StringUtils.isEmpty(podProxyURL))
-            return Objects.toString(proxyPassword, "").trim();
-        return Objects.toString(podProxyPassword, "").trim();
+        return Objects.toString(proxyPassword, "").trim();
     }
 
     public void setProxyPassword(String proxyPassword) {
@@ -193,7 +186,7 @@ public class SymConfig {
     }
 
     public String getPodProxyURL() {
-        return podProxyURL;
+        return Objects.toString(podProxyURL, "").trim();
     }
 
     public void setPodProxyURL(String podProxyURL) {
@@ -201,7 +194,7 @@ public class SymConfig {
     }
 
     public String getPodProxyUsername() {
-        return podProxyUsername;
+        return Objects.toString(podProxyUsername, "").trim();
     }
 
     public void setPodProxyUsername(String podProxyUsername) {
@@ -209,7 +202,7 @@ public class SymConfig {
     }
 
     public String getPodProxyPassword() {
-        return podProxyPassword;
+        return Objects.toString(podProxyPassword, "").trim();
     }
 
     public void setPodProxyPassword(String podProxyPassword) {
@@ -217,7 +210,7 @@ public class SymConfig {
     }
 
     public String getKeyManagerProxyURL() {
-        return keyManagerProxyURL;
+        return Objects.toString(keyManagerProxyURL, "").trim();
     }
 
     public void setKeyManagerProxyURL(String keyManagerProxyURL) {
