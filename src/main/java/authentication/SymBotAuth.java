@@ -4,7 +4,6 @@ import clients.symphony.api.APIClient;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.Token;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -27,39 +26,30 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     private long lastAuthTime = 0;
     private int authRetries = 0;
 
-    public SymBotAuth(final SymConfig inputConfig) {
-        this.config = inputConfig;
-        ClientBuilder clientBuilder =
-            HttpClientBuilderHelper.getHttpClientBotBuilder(config);
+    public SymBotAuth(SymConfig config) {
+        this.config = config;
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBotBuilder(config);
         Client client = clientBuilder.build();
         if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
-        } else {
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig
-                .property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,
-                    config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                    config.getProxyPassword());
-            }
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
-        }
-        if (config.getKeyManagerProxyURL() == null || config.getKeyManagerProxyURL().equals("")) {
             this.kmAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig
-                .property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
-            if (config.getKeyManagerProxyUsername() != null
-                && config.getKeyManagerProxyPassword() != null) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,
-                    config.getKeyManagerProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                    config.getKeyManagerProxyPassword());
+            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
+            }
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
+            this.kmAuthClient = clientBuilder.withConfig(clientConfig).build();
+        }
+
+        if (!isEmpty(config.getKeyManagerProxyURL())) {
+            ClientConfig clientConfig = new ClientConfig();
+            clientConfig.property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
+            if (config.getKeyManagerProxyUsername() != null && config.getKeyManagerProxyPassword() != null) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getKeyManagerProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getKeyManagerProxyPassword());
             }
             this.kmAuthClient = clientBuilder.withConfig(clientConfig).build();
         }

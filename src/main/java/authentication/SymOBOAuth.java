@@ -27,35 +27,28 @@ public final class SymOBOAuth extends APIClient {
     public SymOBOAuth(final SymConfig configuration) {
         logger.info("SymOBOAuth being constructed");
         this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper
-                .getHttpClientAppBuilder(config);
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
         Client client = clientBuilder.build();
         if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig.property(ClientProperties.PROXY_URI,
-                    config.getProxyURL());
+            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
             if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,
-                        config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                        config.getProxyPassword());
+                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
             }
             this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
     }
 
-    public SymOBOAuth(final SymConfig configuration,
-                      final ClientConfig sessionAuthClientConfig) {
+    public SymOBOAuth(final SymConfig configuration, final ClientConfig sessionAuthClientConfig) {
         logger.info("SymOBOAuth being constructed with ClientConfig variable");
         this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper
-                .getHttpClientAppBuilder(config);
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
         if (sessionAuthClientConfig != null) {
-            this.sessionAuthClient = clientBuilder
-                    .withConfig(sessionAuthClientConfig).build();
+            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
         } else {
             this.sessionAuthClient = clientBuilder.build();
         }

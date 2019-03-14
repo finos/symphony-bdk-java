@@ -19,9 +19,7 @@ import javax.ws.rs.client.ClientBuilder;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotClient implements ISymClient {
-
     private final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
-
     private static SymBotClient botClient;
     private SymConfig config;
     private ISymAuth symBotAuth;
@@ -69,29 +67,29 @@ public final class SymBotClient implements ISymClient {
         this.config = config;
         this.symBotAuth = symBotAuth;
 
-        if (isEmpty(config.getProxyURL())) {
-            this.podClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config).build();
-            this.agentClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config).build();
-        } else {
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig.property(ClientProperties.PROXY_URI,
-                    config.getProxyURL());
-            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,
-                        config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                        config.getProxyPassword());
-            }
-            this.agentClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config)
-                    .withConfig(clientConfig).build();
-            this.podClient =  HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config)
-                    .withConfig(clientConfig).build();
+        String proxyURL = !isEmpty(config.getPodProxyURL()) ?
+            config.getPodProxyURL() : config.getProxyURL();
+        String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
+            config.getPodProxyUsername() : config.getProxyUsername();
+        String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
+            config.getPodProxyPassword() : config.getProxyPassword();
+
+        ClientConfig proxyConfig = new ClientConfig();
+        proxyConfig.connectorProvider(new ApacheConnectorProvider());
+        proxyConfig.property(ClientProperties.PROXY_URI, proxyURL);
+        if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
+            proxyConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+            proxyConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
         }
+
+        this.agentClient = isEmpty(config.getProxyURL()) ?
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+
+        this.podClient = (isEmpty(config.getPodProxyURL()) && isEmpty(config.getProxyURL())) ?
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+
         try {
             botUserInfo = this.getUsersClient().getSessionUser();
         }  catch (SymClientException e) {

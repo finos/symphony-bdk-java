@@ -4,6 +4,7 @@ import authentication.ISymAuth;
 import authentication.SymOBOUserAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import utils.HttpClientBuilderHelper;
@@ -46,33 +47,32 @@ public final class SymOBOClient implements ISymClient {
                 .withConfig(agentClientConfig).build();
     }
 
-    public SymOBOClient(SymConfig config,
-                        SymOBOUserAuth symAuth) {
+    public SymOBOClient(SymConfig config, SymOBOUserAuth symAuth) {
         this.config = config;
         this.symAuth = symAuth;
 
+        String proxyURL = !isEmpty(config.getPodProxyURL()) ?
+            config.getPodProxyURL() : config.getProxyURL();
+        String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
+            config.getPodProxyUsername() : config.getProxyUsername();
+        String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
+            config.getPodProxyPassword() : config.getProxyPassword();
 
-        if (isEmpty(config.getProxyURL())) {
-            this.podClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config).build();
-            this.agentClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config).build();
-        } else {
-            this.agentClient = HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config).build();
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.property(ClientProperties.PROXY_URI,
-                    config.getProxyURL());
-            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,
-                        config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,
-                        config.getProxyPassword());
-            }
-            this.podClient =  HttpClientBuilderHelper
-                    .getHttpClientBuilderWithTruststore(config)
-                    .withConfig(clientConfig).build();
+        ClientConfig proxyConfig = new ClientConfig();
+        proxyConfig.connectorProvider(new ApacheConnectorProvider());
+        proxyConfig.property(ClientProperties.PROXY_URI, proxyURL);
+        if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
+            proxyConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+            proxyConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
         }
+
+        this.agentClient = isEmpty(config.getProxyURL()) ?
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+
+        this.podClient = (isEmpty(config.getPodProxyURL()) && isEmpty(config.getProxyURL())) ?
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
     }
 
     @Override
