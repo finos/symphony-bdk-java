@@ -46,7 +46,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if (config.getProxyUsername() != null && config.getProxyPassword() != null) {
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
             }
@@ -75,7 +75,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         } else {
             this.sessionAuthClient = clientBuilder.build();
         }
-        if (kmAuthClient == null) {
+        if (kmAuthClientConfig != null) {
             this.kmAuthClient = clientBuilder.withConfig(kmAuthClientConfig).build();
         } else {
             this.kmAuthClient = clientBuilder.build();

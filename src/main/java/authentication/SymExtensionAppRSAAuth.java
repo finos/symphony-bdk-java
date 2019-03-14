@@ -4,21 +4,19 @@ import clients.symphony.api.APIClient;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
-import model.PodCert;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
-
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -27,12 +25,7 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymExtensionAppRSAAuth extends APIClient {
     private final SecureRandom secureRandom = new SecureRandom();
@@ -40,31 +33,30 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     private SymConfig config;
     private Client sessionAuthClient;
     private String jwt;
-    private long expiration =  300000;
+    private long expiration = 300000;
 
     public SymExtensionAppRSAAuth(final SymConfig configuration) {
         this.config = configuration;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
-        if (config.getProxyURL() == null || config.getProxyURL().equals("")) {
+        if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if(config.getProxyUsername()!=null && config.getProxyPassword()!=null) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME,config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD,config.getProxyPassword());
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
             }
-            Client proxyClient = clientBuilder.withConfig(clientConfig).build();
-            this.sessionAuthClient = proxyClient;
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
     }
 
     public SymExtensionAppRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
-        if (sessionAuthClientConfig!=null){
+        if (sessionAuthClientConfig != null) {
             this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
         } else {
             this.sessionAuthClient = clientBuilder.build();

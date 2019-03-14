@@ -14,11 +14,8 @@ import services.DatafeedEventsService;
 import services.FirehoseService;
 import utils.HttpClientBuilderHelper;
 import utils.SymMessageParser;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.NoContentException;
-
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotClient implements ISymClient {
@@ -82,8 +79,7 @@ public final class SymBotClient implements ISymClient {
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI,
                     config.getProxyURL());
-            if (config.getProxyUsername() != null
-                    && config.getProxyPassword() != null) {
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,
                         config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,
