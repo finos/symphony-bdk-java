@@ -11,6 +11,7 @@ import model.events.MessageSent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -85,13 +86,13 @@ public class DatafeedEventsService {
                     }, pool)
                     .exceptionally((ex) -> {
                         handleError(ex);
-                        return null;
+                        return Collections.emptyList();
                     })
                     .thenApply(events -> {
                         if (events != null && !events.isEmpty()) {
                             handleEvents(events);
                         }
-                        return null;
+                        return Collections.emptyList();
                     });
 
                 try {
@@ -100,7 +101,7 @@ public class DatafeedEventsService {
                     logger.error("Error trying to read datafeed", e);
                 }
             }
-            return null;
+            return Collections.emptyList();
         }, pool);
     }
 
@@ -130,7 +131,7 @@ public class DatafeedEventsService {
         try {
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
         } catch (InterruptedException ie) {
-            logger.error("Error trying to handle error ", ie);
+            logger.error("Error trying to sleep ", ie);
         }
     }
 
