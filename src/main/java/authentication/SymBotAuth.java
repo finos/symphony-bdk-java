@@ -30,21 +30,29 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBotBuilder(config);
         Client client = clientBuilder.build();
-        if (isEmpty(config.getProxyURL())) {
+
+        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
             this.sessionAuthClient = client;
-            this.kmAuthClient = client;
         } else {
+            String proxyURL = !isEmpty(config.getPodProxyURL()) ?
+                config.getPodProxyURL() : config.getProxyURL();
+            String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
+                config.getPodProxyUsername() : config.getProxyUsername();
+            String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
+                config.getPodProxyPassword() : config.getProxyPassword();
+
             ClientConfig clientConfig = new ClientConfig();
-            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
+            clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
+            if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
             }
             this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
-            this.kmAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
 
-        if (!isEmpty(config.getKeyManagerProxyURL())) {
+        if (isEmpty(config.getKeyManagerProxyURL())) {
+            this.kmAuthClient = client;
+        } else {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
             if (config.getKeyManagerProxyUsername() != null && config.getKeyManagerProxyPassword() != null) {
