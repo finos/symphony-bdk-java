@@ -33,6 +33,7 @@ public final class DatafeedClient extends  APIClient {
 
     public String createDatafeed() throws SymClientException {
         Response response = null;
+        StringId datafeedId = null;
         try {
             logger.info("Creating new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
             response = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
@@ -43,20 +44,18 @@ public final class DatafeedClient extends  APIClient {
                     botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(null);
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
                     logger.error("createDatafeed error ", ex);
                     return createDatafeed();
                 }
-                return null;
             } else {
-                StringId datafeedId = response.readEntity(StringId.class);
+                datafeedId = response.readEntity(StringId.class);
                 logger.info("Created new datafeed {} for bot {}", datafeedId.getId(), botClient.getBotUserInfo().getUsername());
-                return datafeedId.getId();
             }
+            return datafeedId.getId();
         } finally {
             if (response != null) {
                 response.close();
