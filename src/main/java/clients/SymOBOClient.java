@@ -7,8 +7,8 @@ import configuration.SymConfig;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import utils.HttpClientBuilderHelper;
-
 import javax.ws.rs.client.Client;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymOBOClient implements ISymClient {
     private static SymOBOClient oboClient;
@@ -52,8 +52,7 @@ public final class SymOBOClient implements ISymClient {
         this.symAuth = symAuth;
 
 
-
-        if (config.getProxyURL() == null) {
+        if (isEmpty(config.getProxyURL())) {
             this.podClient = HttpClientBuilderHelper
                     .getHttpClientBuilderWithTruststore(config).build();
             this.agentClient = HttpClientBuilderHelper
@@ -64,8 +63,7 @@ public final class SymOBOClient implements ISymClient {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.property(ClientProperties.PROXY_URI,
                     config.getProxyURL());
-            if (config.getProxyUsername() != null
-                    && config.getProxyPassword() != null) {
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,
                         config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,

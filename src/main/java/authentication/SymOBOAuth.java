@@ -10,13 +10,11 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
-
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymOBOAuth extends APIClient {
@@ -39,16 +37,13 @@ public final class SymOBOAuth extends APIClient {
             clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI,
                     config.getProxyURL());
-            if (config.getProxyUsername() != null
-                    && config.getProxyPassword() != null) {
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,
                         config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,
                         config.getProxyPassword());
             }
-            Client proxyClient = clientBuilder
-                    .withConfig(clientConfig).build();
-            this.sessionAuthClient = proxyClient;
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
     }
 

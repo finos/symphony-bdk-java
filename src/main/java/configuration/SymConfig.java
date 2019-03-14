@@ -1,10 +1,11 @@
 package configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymConfig {
-
     private String sessionAuthHost;
     private int sessionAuthPort;
     private String keyAuthHost;
@@ -23,6 +24,9 @@ public class SymConfig {
     private String proxyURL;
     private String proxyUsername;
     private String proxyPassword;
+    private String podProxyURL;
+    private String podProxyUsername;
+    private String podProxyPassword;
     private String keyManagerProxyURL;
     private String keyManagerProxyUsername;
     private String keyManagerProxyPassword;
@@ -37,30 +41,6 @@ public class SymConfig {
     private String appId;
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
-
-    public String getBotPrivateKeyPath() {
-        return botPrivateKeyPath;
-    }
-
-    public void setBotPrivateKeyPath(String botPrivateKeyPath) {
-        this.botPrivateKeyPath = botPrivateKeyPath;
-    }
-
-    public String getBotPrivateKeyName() {
-        return botPrivateKeyName;
-    }
-
-    public void setBotPrivateKeyName(String botPrivateKeyName) {
-        this.botPrivateKeyName = botPrivateKeyName;
-    }
-
-    public String getBotUsername() {
-        return botUsername;
-    }
-
-    public void setBotUsername(String botUsername) {
-        this.botUsername = botUsername;
-    }
 
     public String getSessionAuthHost() {
         return sessionAuthHost;
@@ -183,7 +163,9 @@ public class SymConfig {
     }
 
     public String getProxyURL() {
-        return proxyURL;
+        if (StringUtils.isEmpty(podProxyURL))
+            return Objects.toString(proxyURL, "").trim();
+        return Objects.toString(podProxyURL, "").trim();
     }
 
     public void setProxyURL(String proxyURL) {
@@ -191,7 +173,9 @@ public class SymConfig {
     }
 
     public String getProxyUsername() {
-        return proxyUsername;
+        if (StringUtils.isEmpty(podProxyURL))
+            return Objects.toString(proxyUsername, "").trim();
+        return Objects.toString(podProxyUsername, "").trim();
     }
 
     public void setProxyUsername(String proxyUsername) {
@@ -199,13 +183,39 @@ public class SymConfig {
     }
 
     public String getProxyPassword() {
-        return proxyPassword;
+        if (StringUtils.isEmpty(podProxyURL))
+            return Objects.toString(proxyPassword, "").trim();
+        return Objects.toString(podProxyPassword, "").trim();
     }
 
     public void setProxyPassword(String proxyPassword) {
         this.proxyPassword = proxyPassword;
     }
-    
+
+    public String getPodProxyURL() {
+        return podProxyURL;
+    }
+
+    public void setPodProxyURL(String podProxyURL) {
+        this.podProxyURL = podProxyURL;
+    }
+
+    public String getPodProxyUsername() {
+        return podProxyUsername;
+    }
+
+    public void setPodProxyUsername(String podProxyUsername) {
+        this.podProxyUsername = podProxyUsername;
+    }
+
+    public String getPodProxyPassword() {
+        return podProxyPassword;
+    }
+
+    public void setPodProxyPassword(String podProxyPassword) {
+        this.podProxyPassword = podProxyPassword;
+    }
+
     public String getKeyManagerProxyURL() {
         return keyManagerProxyURL;
     }
@@ -252,6 +262,30 @@ public class SymConfig {
 
     public void setTruststorePassword(String truststorePassword) {
         this.truststorePassword = truststorePassword;
+    }
+
+    public String getBotUsername() {
+        return botUsername;
+    }
+
+    public void setBotUsername(String botUsername) {
+        this.botUsername = botUsername;
+    }
+
+    public String getBotPrivateKeyPath() {
+        return botPrivateKeyPath;
+    }
+
+    public void setBotPrivateKeyPath(String botPrivateKeyPath) {
+        this.botPrivateKeyPath = botPrivateKeyPath;
+    }
+
+    public String getBotPrivateKeyName() {
+        return botPrivateKeyName;
+    }
+
+    public void setBotPrivateKeyName(String botPrivateKeyName) {
+        this.botPrivateKeyName = botPrivateKeyName;
     }
 
     public String getAppPrivateKeyPath() {

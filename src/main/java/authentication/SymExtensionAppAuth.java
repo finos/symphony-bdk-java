@@ -21,15 +21,13 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymExtensionAppAuth extends APIClient {
     private final Logger logger = LoggerFactory
@@ -42,22 +40,19 @@ public final class SymExtensionAppAuth extends APIClient {
         ClientBuilder clientBuilder = HttpClientBuilderHelper
                 .getHttpClientAppBuilder(config);
         Client client = clientBuilder.build();
-        if (config.getProxyURL() == null
-                || config.getProxyURL().equals("")) {
+        if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
         } else {
             ClientConfig clientConfig = new ClientConfig();
             clientConfig.property(ClientProperties.PROXY_URI,
                     config.getProxyURL());
-            if (config.getProxyUsername()  !=  null
-                    && config.getProxyPassword()  !=  null) {
+            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME,
                         config.getProxyUsername());
                 clientConfig.property(ClientProperties.PROXY_PASSWORD,
                         config.getProxyPassword());
             }
-            Client proxyClient = clientBuilder.withConfig(clientConfig).build();
-            this.sessionAuthClient = proxyClient;
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
     }
 
@@ -139,9 +134,7 @@ public final class SymExtensionAppAuth extends APIClient {
             }
             sessionAppAuthenticate(appToken, podSessionAuthUrl);
         } else {
-            AppAuthResponse appAuthResponse =
-                    response.readEntity(AppAuthResponse.class);
-            return appAuthResponse;
+            return response.readEntity(AppAuthResponse.class);
         }
         return null;
     }
