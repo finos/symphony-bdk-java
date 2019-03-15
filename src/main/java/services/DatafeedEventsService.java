@@ -136,102 +136,92 @@ public class DatafeedEventsService {
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
         for (DatafeedEvent event : datafeedEvents) {
-            if (!event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId())) {
-                switch (event.getType()) {
-                    case "MESSAGESENT":
+            if (event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId()))
+                continue;
 
-                        MessageSent messageSent = event.getPayload().getMessageSent();
+            switch (event.getType()) {
+                case "MESSAGESENT":
+                    MessageSent messageSent = event.getPayload().getMessageSent();
 
-                        if (messageSent.getMessage().getStream().getStreamType().equals("ROOM")) {
-                            for (RoomListener listener : roomListeners) {
-                                listener.onRoomMessage(messageSent.getMessage());
-                            }
-                        } else {
-                            for (IMListener listener : IMListeners) {
-                                listener.onIMMessage(messageSent.getMessage());
-                            }
-                        }
-                        break;
-                    case "INSTANTMESSAGECREATED":
-
-                        for (IMListener listeners : IMListeners) {
-                            listeners.onIMCreated(event.getPayload().getInstantMessageCreated().getStream());
-                        }
-                        break;
-
-                    case "ROOMCREATED":
-
+                    if (messageSent.getMessage().getStream().getStreamType().equals("ROOM")) {
                         for (RoomListener listener : roomListeners) {
-                            listener.onRoomCreated(event.getPayload().getRoomCreated());
+                            listener.onRoomMessage(messageSent.getMessage());
                         }
-                        break;
-
-                    case "ROOMUPDATED":
-
-                        for (RoomListener listener : roomListeners) {
-                            listener.onRoomUpdated(event.getPayload().getRoomUpdated());
+                    } else {
+                        for (IMListener listener : IMListeners) {
+                            listener.onIMMessage(messageSent.getMessage());
                         }
-                        break;
+                    }
+                    break;
 
-                    case "ROOMDEACTIVATED":
+                case "INSTANTMESSAGECREATED":
+                    for (IMListener listeners : IMListeners) {
+                        listeners.onIMCreated(event.getPayload().getInstantMessageCreated().getStream());
+                    }
+                    break;
 
-                        for (RoomListener listener : roomListeners) {
-                            listener.onRoomDeactivated(event.getPayload().getRoomDeactivated());
-                        }
-                        break;
+                case "ROOMCREATED":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onRoomCreated(event.getPayload().getRoomCreated());
+                    }
+                    break;
 
-                    case "ROOMREACTIVATED":
+                case "ROOMUPDATED":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onRoomUpdated(event.getPayload().getRoomUpdated());
+                    }
+                    break;
 
-                        for (RoomListener listener : roomListeners) {
-                            listener.onRoomReactivated(event.getPayload().getRoomReactivated().getStream());
-                        }
-                        break;
+                case "ROOMDEACTIVATED":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onRoomDeactivated(event.getPayload().getRoomDeactivated());
+                    }
+                    break;
 
-                    case "USERJOINEDROOM":
+                case "ROOMREACTIVATED":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onRoomReactivated(event.getPayload().getRoomReactivated().getStream());
+                    }
+                    break;
 
-                        for (RoomListener listener : roomListeners) {
-                            listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom());
-                        }
-                        break;
+                case "USERJOINEDROOM":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom());
+                    }
+                    break;
 
-                    case "USERLEFTROOM":
+                case "USERLEFTROOM":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onUserLeftRoom(event.getPayload().getUserLeftRoom());
+                    }
+                    break;
 
-                        for (RoomListener listener : roomListeners) {
-                            listener.onUserLeftRoom(event.getPayload().getUserLeftRoom());
-                        }
-                        break;
+                case "ROOMMEMBERPROMOTEDTOOWNER":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner());
+                    }
+                    break;
 
-                    case "ROOMMEMBERPROMOTEDTOOWNER":
+                case "ROOMMEMBERDEMOTEDFROMOWNER":
+                    for (RoomListener listener : roomListeners) {
+                        listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner());
+                    }
+                    break;
 
-                        for (RoomListener listener : roomListeners) {
-                            listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner());
-                        }
-                        break;
+                case "CONNECTIONACCEPTED":
+                    for (ConnectionListener listener : connectionListeners) {
+                        listener.onConnectionAccepted(event.getPayload().getConnectionAccepted().getFromUser());
+                    }
+                    break;
 
-                    case "ROOMMEMBERDEMOTEDFROMOWNER":
+                case "CONNECTIONREQUESTED":
+                    for (ConnectionListener listener : connectionListeners) {
+                        listener.onConnectionRequested(event.getPayload().getConnectionRequested().getToUser());
+                    }
+                    break;
 
-                        for (RoomListener listener : roomListeners) {
-                            listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner());
-                        }
-                        break;
-
-                    case "CONNECTIONACCEPTED":
-
-                        for (ConnectionListener listener : connectionListeners) {
-                            listener.onConnectionAccepted(event.getPayload().getConnectionAccepted().getFromUser());
-                        }
-                        break;
-
-                    case "CONNECTIONREQUESTED":
-
-                        for (ConnectionListener listener : connectionListeners) {
-                            listener.onConnectionRequested(event.getPayload().getConnectionRequested().getToUser());
-                        }
-                        break;
-
-                    default:
-                        break;
-                }
+                default:
+                    break;
             }
         }
     }
