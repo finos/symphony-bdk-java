@@ -1,5 +1,6 @@
 package clients.symphony.api;
 
+import authentication.SymOBOUserRSAAuth;
 import clients.ISymClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
@@ -10,6 +11,7 @@ import model.SignalList;
 import model.SignalSubscriberList;
 import model.SignalSubscriptionResult;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -17,34 +19,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SignalsClient extends APIClient {
-
     private ISymClient botClient;
+    private boolean isKeyManTokenRequired;
 
     public SignalsClient(ISymClient client) {
         botClient = client;
+        isKeyManTokenRequired = !(botClient.getSymAuth() instanceof SymOBOUserRSAAuth);
     }
 
     public List<Signal> listSignals(int skip, int limit) throws SymClientException {
         List<Signal> result;
         WebTarget builder
             = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
-                .path(AgentConstants.LISTSIGNALS);
+            .path(AgentConstants.LISTSIGNALS);
 
-
-        if(skip>0){
+        if (skip > 0) {
             builder = builder.queryParam("skip", skip);
         }
-        if(limit>0){
+        if (limit > 0) {
             builder = builder.queryParam("limit", limit);
         }
 
         Response response = null;
-
         try {
-            response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-                .get();
+            Invocation.Builder subBuilder = builder.request(MediaType.APPLICATION_JSON)
+                .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            if (isKeyManTokenRequired) {
+                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            }
+            response = subBuilder.get();
 
             if (response.getStatus() == 204) {
                 result = new ArrayList<>();
@@ -64,22 +67,21 @@ public class SignalsClient extends APIClient {
                 response.close();
             }
         }
-
     }
 
     public Signal getSignal(String id) throws SymClientException {
-
         Response response = null;
-
         try {
-            response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
-                    .getAgentPort())
+            Invocation.Builder subBuilder = botClient.getAgentClient()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost()
+                    + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.GETSIGNAL.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-                .get();
+                .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            if (isKeyManTokenRequired) {
+                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            }
+            response = subBuilder.get();
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -99,16 +101,17 @@ public class SignalsClient extends APIClient {
 
     public Signal createSignal(Signal signal) throws SymClientException {
         Response response = null;
-
         try {
-            response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
-                    .getAgentPort())
+            Invocation.Builder subBuilder = botClient.getAgentClient()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost()
+                    + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.CREATESIGNAL)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-                .post(Entity.entity(signal, MediaType.APPLICATION_JSON));
+                .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            if (isKeyManTokenRequired) {
+                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            }
+            response = subBuilder.post(Entity.entity(signal, MediaType.APPLICATION_JSON));
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -128,14 +131,13 @@ public class SignalsClient extends APIClient {
 
     public Signal updateSignal(Signal signal) throws SymClientException {
         Response response = null;
-
         try {
             response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
-                    .getAgentPort())
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost()
+                    + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.UPDATESIGNAL.replace("{id}", signal.getId()))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(Entity.entity(signal, MediaType.APPLICATION_JSON));
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -155,16 +157,15 @@ public class SignalsClient extends APIClient {
         }
     }
 
-    public void deleteSignal (String id) throws SymClientException {
+    public void deleteSignal(String id) throws SymClientException {
         Response response = null;
-
         try {
             response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
-                    .getAgentPort())
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost()
+                    + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.DELETESIGNAL.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(null);
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -181,10 +182,8 @@ public class SignalsClient extends APIClient {
         }
     }
 
-    public SignalSubscriptionResult subscribeSignal (String id, boolean self, List<Long> uids, boolean pushed) throws SymClientException {
-
+    public SignalSubscriptionResult subscribeSignal(String id, boolean self, List<Long> uids, boolean pushed) throws SymClientException {
         Response response = null;
-
         try {
             if (self) {
                 response
@@ -194,7 +193,6 @@ public class SignalsClient extends APIClient {
                     .header("sessionToken", botClient.getSymAuth().getSessionToken())
                     .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                     .post(null);
-
             } else {
                 response
                     = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
@@ -220,13 +218,11 @@ public class SignalsClient extends APIClient {
         }
     }
 
-    public SignalSubscriptionResult unsubscribeSignal (String id, boolean self, List<Long> uids) throws SymClientException {
+    public SignalSubscriptionResult unsubscribeSignal(String id, boolean self, List<Long> uids) throws SymClientException {
         Response response = null;
-
         try {
             if (self) {
-                response
-                    = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                response = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                     .path(AgentConstants.UNSUBSCRIBESIGNAL.replace("{id}", id))
                     .request(MediaType.APPLICATION_JSON)
                     .header("sessionToken", botClient.getSymAuth().getSessionToken())
@@ -234,8 +230,7 @@ public class SignalsClient extends APIClient {
                     .post(null);
 
             } else {
-                response
-                    = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                response = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                     .path(AgentConstants.UNSUBSCRIBESIGNAL.replace("{id}", id))
                     .request(MediaType.APPLICATION_JSON)
                     .header("sessionToken", botClient.getSymAuth().getSessionToken())
@@ -260,14 +255,13 @@ public class SignalsClient extends APIClient {
     }
 
     public SignalSubscriberList getSignalSubscribers(String id, int skip, int limit) throws SymClientException {
-        WebTarget builder
-            = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
-                .path(AgentConstants.GETSUBSCRIBERS.replace("{id}", id));
+        WebTarget builder = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+            .path(AgentConstants.GETSUBSCRIBERS.replace("{id}", id));
 
-        if(skip>0){
+        if (skip > 0) {
             builder = builder.queryParam("skip", skip);
         }
-        if(limit>0){
+        if (limit > 0) {
             builder = builder.queryParam("limit", limit);
         }
 
@@ -275,7 +269,7 @@ public class SignalsClient extends APIClient {
 
         try {
             response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",botClient.getSymAuth().getSessionToken())
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .get();
 
@@ -295,6 +289,4 @@ public class SignalsClient extends APIClient {
             }
         }
     }
-
-
 }
