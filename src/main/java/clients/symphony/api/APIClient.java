@@ -6,7 +6,6 @@ import exceptions.*;
 import model.ClientError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.core.Response;
 
 public abstract class APIClient {
@@ -20,7 +19,7 @@ public abstract class APIClient {
                     .getReasonPhrase());
         } else {
             ClientError error = response.readEntity((ClientError.class));
-            if (response.getStatus() == CommonConstants.CLIENTERROR) {
+            if (response.getStatus() == CommonConstants.CLIENT_ERROR) {
                 logger.error("Client error occurred", error);
                 throw new APIClientErrorException(error.getMessage());
             } else if (response.getStatus() == CommonConstants.UNAUTHORIZED) {

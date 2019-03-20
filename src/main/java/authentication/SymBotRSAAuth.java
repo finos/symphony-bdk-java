@@ -93,8 +93,6 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
 
     @Override
     public void authenticate() {
-        long expiration = 300000;
-
         PrivateKey privateKey = null;
         try {
             privateKey = JwtHelper.parseRSAPrivateKey(new File(config.getBotPrivateKeyPath() + config.getBotPrivateKeyName()));
@@ -104,7 +102,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         if (lastAuthTime == 0 | System.currentTimeMillis() - lastAuthTime > 3000) {
             logger.info("Last auth time was {}", lastAuthTime);
             logger.info("Now is {}", System.currentTimeMillis());
-            jwt = JwtHelper.createSignedJwt(config.getBotUsername(), expiration, privateKey);
+            jwt = JwtHelper.createSignedJwt(config.getBotUsername(), AuthEndpointConstants.JWT_EXPIRY_MS, privateKey);
             sessionAuthenticate();
             kmAuthenticate();
             lastAuthTime = System.currentTimeMillis();
@@ -124,8 +122,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
         Response response
-            = this.sessionAuthClient.target(CommonConstants.HTTPSPREFIX + config.getPodHost() + ":" + config.getPodPort())
-            .path(AuthEndpointConstants.RSASESSIONAUTH)
+            = this.sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + config.getPodHost() + ":" + config.getPodPort())
+            .path(AuthEndpointConstants.SESSION_AUTH_PATH_RSA)
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(token, MediaType.APPLICATION_JSON));
 
@@ -155,8 +153,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
         Response response
-            = this.kmAuthClient.target(CommonConstants.HTTPSPREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort())
-            .path(AuthEndpointConstants.RSAKMAUTH)
+            = this.kmAuthClient.target(CommonConstants.HTTPS_PREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort())
+            .path(AuthEndpointConstants.KEY_AUTH_PATH_RSA)
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(token, MediaType.APPLICATION_JSON));
 
@@ -200,8 +198,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void logout() {
         logger.info("Logging out");
         Client client = ClientBuilder.newClient();
-        Response response = client.target(AuthEndpointConstants.HTTPSPREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
-            .path(AuthEndpointConstants.LOGOUTPATH)
+        Response response = client.target(CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
+            .path(AuthEndpointConstants.LOGOUT_PATH)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", getSessionToken())
             .post(null);

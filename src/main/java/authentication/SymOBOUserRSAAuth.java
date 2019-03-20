@@ -3,7 +3,7 @@ package authentication;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
-import model.SessionToken;
+import model.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.ws.rs.client.Client;
@@ -11,8 +11,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 
-public final class SymOBOUserAuth extends APIClient implements ISymAuth {
-    private final Logger logger = LoggerFactory.getLogger(SymOBOUserAuth.class);
+public final class SymOBOUserRSAAuth extends APIClient implements ISymAuth {
+    private final Logger logger = LoggerFactory.getLogger(SymOBOUserRSAAuth.class);
     private String sessionToken;
     private SymConfig config;
     private Client sessionAuthClient;
@@ -21,18 +21,18 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
     private ISymOBOAuth appAuth;
     private int authRetries = 0;
 
-    public SymOBOUserAuth(final SymConfig config,
-                          final Client sessionAuthClient,
-                          final Long uid, final ISymOBOAuth appAuth) {
+    public SymOBOUserRSAAuth(final SymConfig config,
+                             final Client sessionAuthClient,
+                             final Long uid, final ISymOBOAuth appAuth) {
         this.config = config;
         this.sessionAuthClient = sessionAuthClient;
         this.uid = uid;
         this.appAuth = appAuth;
     }
 
-    public SymOBOUserAuth(final SymConfig config,
-                          final Client sessionAuthClient,
-                          final String username, final ISymOBOAuth appAuth) {
+    public SymOBOUserRSAAuth(final SymConfig config,
+                             final Client sessionAuthClient,
+                             final String username, final ISymOBOAuth appAuth) {
         this.config = config;
         this.sessionAuthClient = sessionAuthClient;
         this.username = username;
@@ -52,7 +52,7 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
                 CommonConstants.HTTPS_PREFIX
                     + config.getSessionAuthHost()
                     + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.OBO_USER_ID_AUTH_PATH
+                .path(AuthEndpointConstants.OBO_USER_ID_AUTH_PATH_RSA
                     .replace("{uid}", Long.toString(uid)))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken", appAuth.getSessionToken())
@@ -62,7 +62,7 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
                 CommonConstants.HTTPS_PREFIX
                     + config.getSessionAuthHost()
                     + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.OBO_USER_NAME_AUTH_PATH
+                .path(AuthEndpointConstants.OBO_USER_NAME_AUTH_PATH_RSA
                     .replace("{username}", username))
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken", appAuth.getSessionToken())
@@ -88,9 +88,8 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
             appAuth.sessionAppAuthenticate();
             sessionAuthenticate();
         } else {
-            SessionToken session =
-                response.readEntity(SessionToken.class);
-            this.sessionToken = session.getSessionToken();
+            Token token = response.readEntity(Token.class);
+            this.sessionToken = token.getToken();
         }
     }
 

@@ -1,6 +1,7 @@
 package authentication;
 
 import clients.symphony.api.APIClient;
+import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
@@ -33,7 +34,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     private SymConfig config;
     private Client sessionAuthClient;
     private String jwt;
-    private long expiration = 300000;
+    private int authRetries = 0;
 
     public SymExtensionAppRSAAuth(final SymConfig configuration) {
         this.config = configuration;
@@ -67,14 +68,14 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         PrivateKey privateKey = getPrivateKey();
         if (config != null) {
             logger.info("RSA extension app auth");
-            jwt = JwtHelper.createSignedJwt(config.getAppId(), expiration, privateKey);
+            jwt = JwtHelper.createSignedJwt(config.getAppId(), AuthEndpointConstants.JWT_EXPIRY_MS, privateKey);
             Map<String, String> token = new HashMap<>();
             token.put("appToken", generateToken());
             token.put("authToken", jwt);
             Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX +
+                = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX +
                 config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.RSASESSIONEXTAPPAUTH)
+                .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH_RSA)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(token, MediaType.APPLICATION_JSON));
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -87,6 +88,10 @@ public final class SymExtensionAppRSAAuth extends APIClient {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
                     logger.error("Error with authentication", e);
+                }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return null;
                 }
                 appAuthenticate();
             } else {

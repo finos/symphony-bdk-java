@@ -12,8 +12,8 @@ public class SymConfigLoader {
 
     /**
      * This is actually an utility class which is not required to be initialized
-     * @param path
-     * @return
+     * @param path Path of the config file
+     * @return Symphony Configuration
      */
     public static SymConfig loadFromFile(String path){
         ObjectMapper mapper = new ObjectMapper();
@@ -28,7 +28,7 @@ public class SymConfigLoader {
 
     /**
      * This is actually an utility class which is not required to be initialized
-     * @param inputStream
+     * @param inputStream Input stream
      * @return Symphony Configuration
      */
     public static SymConfig load(InputStream inputStream) {

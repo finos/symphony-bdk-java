@@ -6,46 +6,26 @@ import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
-import model.AdminNewUser;
-import model.AdminStreamFilter;
-import model.AdminUserAttributes;
-import model.AdminUserInfo;
-import model.AdminUserInfoList;
-import model.ApplicationEntitlement;
-import model.ApplicationEntitlementList;
-import model.Avatar;
-import model.AvatarList;
-import model.FeatureEntitlement;
-import model.FeatureEntitlementList;
-import model.InboundImportMessageList;
-import model.OutboundImportMessageList;
-import model.Status;
-import model.StringId;
-import model.SuppressionResult;
-import model.UserInfo;
+import model.*;
 import model.events.AdminStreamInfoList;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
+import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NoContentException;
-import javax.ws.rs.core.Response;
-
 public final class AdminClient extends APIClient {
-
     private final Logger logger = LoggerFactory.getLogger(AdminClient.class);
-
     private ISymClient botClient;
 
     public AdminClient(ISymClient client) {
@@ -53,13 +33,13 @@ public final class AdminClient extends APIClient {
     }
 
     public InboundImportMessageList importMessages(
-            OutboundImportMessageList messageList)
-            throws SymClientException {
+        OutboundImportMessageList messageList)
+        throws SymClientException {
         Response response = null;
 
         try {
             response = botClient.getAgentClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getAgentHost()
                     + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.MESSAGEIMPORT)
@@ -87,12 +67,12 @@ public final class AdminClient extends APIClient {
     }
 
     public SuppressionResult suppressMessage(String id)
-            throws SymClientException {
+        throws SymClientException {
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.MESSAGESUPPRESS.replace("{id}", id))
@@ -120,14 +100,14 @@ public final class AdminClient extends APIClient {
 
     public AdminStreamInfoList listEnterpriseStreams(AdminStreamFilter filter,
                                                      int skip, int limit)
-            throws SymClientException {
+        throws SymClientException {
         AdminStreamInfoList result = null;
         WebTarget builder
-                = botClient.getPodClient().target(
-                        CommonConstants.HTTPSPREFIX
-                                + botClient.getConfig().getPodHost()
-                                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.ENTERPRISESTREAMS);
+            = botClient.getPodClient().target(
+            CommonConstants.HTTPS_PREFIX
+                + botClient.getConfig().getPodHost()
+                + ":" + botClient.getConfig().getPodPort())
+            .path(PodConstants.ENTERPRISESTREAMS);
 
 
         if (skip > 0) {
@@ -166,7 +146,7 @@ public final class AdminClient extends APIClient {
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADMINCREATEIM)
@@ -193,12 +173,12 @@ public final class AdminClient extends APIClient {
     }
 
     public AdminUserInfo getUser(Long uid) throws NoContentException,
-            SymClientException {
+        SymClientException {
         AdminUserInfo info;
         Response response = null;
 
         try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
                 + botClient.getConfig().getPodHost()
                 + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERADMIN.replace("{uid}",
@@ -215,7 +195,7 @@ public final class AdminClient extends APIClient {
                     return getUser(uid);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NOCONTENT) {
+            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
                 throw new NoContentException("No user found.");
             } else {
                 info = response.readEntity(AdminUserInfo.class);
@@ -228,55 +208,55 @@ public final class AdminClient extends APIClient {
         }
     }
 
-   public List<AdminUserInfo> listUsers(int skip, int limit) throws SymClientException {
-       AdminUserInfoList result = null;
-       WebTarget builder
-               = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX
+    public List<AdminUserInfo> listUsers(int skip, int limit) throws SymClientException {
+        AdminUserInfoList result = null;
+        WebTarget builder
+            = botClient.getPodClient()
+            .target(CommonConstants.HTTPS_PREFIX
                 + botClient.getConfig().getPodHost() + ":"
                 + botClient.getConfig().getPodPort())
-                .path(PodConstants.LISTUSERSADMIN);
+            .path(PodConstants.LISTUSERSADMIN);
 
 
-       if(skip>0){
-           builder = builder.queryParam("skip", skip);
-       }
-       if(limit>0){
-           builder = builder.queryParam("limit", limit);
-       }
-       Response response = null;
+        if (skip > 0) {
+            builder = builder.queryParam("skip", skip);
+        }
+        if (limit > 0) {
+            builder = builder.queryParam("limit", limit);
+        }
+        Response response = null;
 
-       try {
-           response = builder.request(MediaType.APPLICATION_JSON)
-               .header("sessionToken", botClient.getSymAuth().getSessionToken())
-               .get();
+        try {
+            response = builder.request(MediaType.APPLICATION_JSON)
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
+                .get();
 
-           if (response.getStatus() == 200) {
-               result = response.readEntity(AdminUserInfoList.class);
-           }
-           if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-               try {
-                   handleError(response, botClient);
-               } catch (UnauthorizedException ex) {
-                   return listUsers(skip, limit);
-               }
-               return null;
-           }
-           return result;
-       } finally {
-           if (response != null) {
-               response.close();
-           }
-       }
-   }
+            if (response.getStatus() == 200) {
+                result = response.readEntity(AdminUserInfoList.class);
+            }
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return listUsers(skip, limit);
+                }
+                return null;
+            }
+            return result;
+        } finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+    }
 
     public AdminUserInfo createUser(AdminNewUser newUser)
-            throws SymClientException {
+        throws SymClientException {
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADMINCREATEUSER)
@@ -304,12 +284,12 @@ public final class AdminClient extends APIClient {
 
     public AdminUserInfo updateUser(Long userId,
                                     AdminUserAttributes userAttributes)
-            throws SymClientException {
+        throws SymClientException {
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADMINUPDATEUSER.replace("{uid}",
@@ -338,13 +318,13 @@ public final class AdminClient extends APIClient {
     }
 
     public List<Avatar> getAvatar(Long uid)
-            throws SymClientException {
+        throws SymClientException {
         AvatarList avatar = null;
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETAVATARADMIN.replace("{uid}",
@@ -361,7 +341,7 @@ public final class AdminClient extends APIClient {
                     return getAvatar(uid);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NOCONTENT) {
+            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
                 throw new SymClientException("No user found for userid:= " + uid);
             } else {
                 avatar = response.readEntity(AvatarList.class);
@@ -375,7 +355,7 @@ public final class AdminClient extends APIClient {
     }
 
     public void updateAvatar(Long userId, String filePath)
-            throws IOException, SymClientException {
+        throws IOException, SymClientException {
         File f = new File(filePath);
         FileInputStream fis = new FileInputStream(f);
         byte[] byteArray = new byte[(int) f.length()];
@@ -387,7 +367,7 @@ public final class AdminClient extends APIClient {
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.ADMINUPDATEAVATAR
@@ -418,7 +398,7 @@ public final class AdminClient extends APIClient {
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERSTATUSADMIN.replace("{uid}",
@@ -435,7 +415,7 @@ public final class AdminClient extends APIClient {
                     return getUserStatus(uid);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NOCONTENT) {
+            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
                 throw new SymClientException("No user found for userid:= " + uid);
             } else {
                 Status status = response.readEntity(Status.class);
@@ -451,14 +431,14 @@ public final class AdminClient extends APIClient {
     }
 
     public void updateUserStatus(Long uid, String status)
-            throws SymClientException {
+        throws SymClientException {
         Status statusObj = new Status();
         statusObj.setStatus(status);
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.UPDATEUSERSTATUSADMIN.replace("{uid}",
@@ -474,7 +454,7 @@ public final class AdminClient extends APIClient {
                 } catch (UnauthorizedException ex) {
                     updateUserStatus(uid, status);
                 }
-            } else if (response.getStatus() == CommonConstants.NOCONTENT) {
+            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
                 throw new SymClientException("No user found for userid:= " + uid);
             }
         } finally {
@@ -489,7 +469,7 @@ public final class AdminClient extends APIClient {
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.PODFEATURESADMIN)
@@ -506,8 +486,8 @@ public final class AdminClient extends APIClient {
                 }
                 return null;
             }
-            List<String> features = response.readEntity(ArrayList.class);
-            return features;
+            return response.readEntity(new GenericType<List<String>>() {
+            });
         } finally {
             if (response != null) {
                 response.close();
@@ -516,13 +496,13 @@ public final class AdminClient extends APIClient {
     }
 
     public List<FeatureEntitlement> getUserFeatures(Long uid)
-            throws SymClientException {
+        throws SymClientException {
         List<FeatureEntitlement> featureEntitlements;
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERFEATURESADMIN
@@ -552,12 +532,12 @@ public final class AdminClient extends APIClient {
 
     public void updateUserFeatures(Long uid,
                                    List<FeatureEntitlement> entitlements)
-            throws SymClientException {
+        throws SymClientException {
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.UPDATEUSERFEATURESADMIN
@@ -582,13 +562,13 @@ public final class AdminClient extends APIClient {
     }
 
     public List<ApplicationEntitlement> getUserApplicationEntitlements(Long uid)
-            throws SymClientException {
+        throws SymClientException {
         List<ApplicationEntitlement> entitlements;
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.GETUSERAPPLICATIONSADMIN.replace("{uid}",
@@ -616,14 +596,14 @@ public final class AdminClient extends APIClient {
     }
 
     public List<ApplicationEntitlement> updateUserApplicationEntitlements(
-            Long uid, List<ApplicationEntitlement> entitlementsUpdate)
-            throws SymClientException {
+        Long uid, List<ApplicationEntitlement> entitlementsUpdate)
+        throws SymClientException {
         List<ApplicationEntitlement> entitlements;
         Response response = null;
 
         try {
             response = botClient.getPodClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getPodHost()
                     + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.UPDATEUSERAPPLICATIONSADMIN.replace("{uid}",

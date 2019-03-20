@@ -7,15 +7,11 @@ import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import model.InboundConnectionRequest;
 import model.InboundConnectionRequestList;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 public final class ConnectionsClient extends APIClient {
   private ISymClient botClient;
@@ -64,7 +60,7 @@ public final class ConnectionsClient extends APIClient {
       }
     }
     WebTarget builder
-        = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
         + botClient.getConfig().getPodHost()
         + ":" + botClient.getConfig().getPodPort())
         .path(PodConstants.GETCONNECTIONS);
@@ -108,7 +104,7 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
-      response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
           .path(PodConstants.ACCEPTCONNECTION)
@@ -140,7 +136,7 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
-      response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
           .path(PodConstants.REJECTCONNECTION)
@@ -173,7 +169,7 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
-      response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
           .path(PodConstants.SENDCONNECTIONREQUEST)
@@ -204,7 +200,7 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
-      response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
           .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}",
@@ -235,7 +231,7 @@ public final class ConnectionsClient extends APIClient {
     Response response = null;
 
     try {
-      response = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX
+        response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
           + botClient.getConfig().getPodHost()
           + ":" + botClient.getConfig().getPodPort())
           .path(PodConstants.REMOVECONNECTION.replace("{userId}",

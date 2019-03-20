@@ -6,12 +6,10 @@ import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import model.UserPresence;
-
-import java.util.List;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 public class PresenceClient extends APIClient{
 
@@ -25,7 +23,7 @@ public class PresenceClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.GETUSERPRESENCE.replace("{uid}", Long.toString(userId)))
                 .queryParam("local", local)
@@ -55,7 +53,7 @@ public class PresenceClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.SETPRESENCE)
                 .request(MediaType.APPLICATION_JSON)
@@ -82,7 +80,7 @@ public class PresenceClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.REGISTERPRESENCEINTEREST)
                 .request(MediaType.APPLICATION_JSON)

@@ -1,7 +1,6 @@
 package clients;
 
 import authentication.ISymAuth;
-import authentication.SymOBOUserAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
@@ -14,7 +13,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public final class SymOBOClient implements ISymClient {
     private static SymOBOClient oboClient;
     private SymConfig config;
-    private SymOBOUserAuth symAuth;
+    private ISymAuth symAuth;
     private MessagesClient messagesClient;
     private PresenceClient presenceClient;
     private StreamsClient streamsClient;
@@ -24,8 +23,7 @@ public final class SymOBOClient implements ISymClient {
     private Client podClient;
     private Client agentClient;
 
-    public static SymOBOClient initOBOClient(SymConfig config,
-                                             SymOBOUserAuth auth) {
+    public static SymOBOClient initOBOClient(SymConfig config, ISymAuth auth) {
         if (oboClient == null) {
             oboClient = new SymOBOClient(config, auth);
             return oboClient;
@@ -34,7 +32,7 @@ public final class SymOBOClient implements ISymClient {
     }
 
     private SymOBOClient(SymConfig config,
-                         SymOBOUserAuth symAuth,
+                         ISymAuth symAuth,
                          ClientConfig podClientConfig,
                          ClientConfig agentClientConfig) {
         this.config = config;
@@ -47,7 +45,7 @@ public final class SymOBOClient implements ISymClient {
                 .withConfig(agentClientConfig).build();
     }
 
-    public SymOBOClient(SymConfig config, SymOBOUserAuth symAuth) {
+    public SymOBOClient(SymConfig config, ISymAuth symAuth) {
         this.config = config;
         this.symAuth = symAuth;
 

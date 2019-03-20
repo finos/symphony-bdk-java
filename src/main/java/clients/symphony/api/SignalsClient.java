@@ -9,14 +9,12 @@ import model.Signal;
 import model.SignalList;
 import model.SignalSubscriberList;
 import model.SignalSubscriptionResult;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SignalsClient extends APIClient {
 
@@ -29,7 +27,7 @@ public class SignalsClient extends APIClient {
     public List<Signal> listSignals(int skip, int limit) throws SymClientException {
         List<Signal> result;
         WebTarget builder
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+            = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.LISTSIGNALS);
 
 
@@ -75,7 +73,7 @@ public class SignalsClient extends APIClient {
 
         try {
             response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
                     .getAgentPort())
                 .path(AgentConstants.GETSIGNAL.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
@@ -104,7 +102,7 @@ public class SignalsClient extends APIClient {
 
         try {
             response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
                     .getAgentPort())
                 .path(AgentConstants.CREATESIGNAL)
                 .request(MediaType.APPLICATION_JSON)
@@ -133,7 +131,7 @@ public class SignalsClient extends APIClient {
 
         try {
             response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
                     .getAgentPort())
                 .path(AgentConstants.UPDATESIGNAL.replace("{id}", signal.getId()))
                 .request(MediaType.APPLICATION_JSON)
@@ -162,7 +160,7 @@ public class SignalsClient extends APIClient {
 
         try {
             response = botClient.getAgentClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig()
                     .getAgentPort())
                 .path(AgentConstants.DELETESIGNAL.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
@@ -190,7 +188,7 @@ public class SignalsClient extends APIClient {
         try {
             if (self) {
                 response
-                    = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                    = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                     .path(AgentConstants.SUBSCRIBESIGNAL.replace("{id}", id))
                     .request(MediaType.APPLICATION_JSON)
                     .header("sessionToken", botClient.getSymAuth().getSessionToken())
@@ -199,7 +197,7 @@ public class SignalsClient extends APIClient {
 
             } else {
                 response
-                    = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                    = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                     .path(AgentConstants.SUBSCRIBESIGNAL.replace("{id}", id))
                     .queryParam("pushed", pushed)
                     .request(MediaType.APPLICATION_JSON)
@@ -228,7 +226,7 @@ public class SignalsClient extends APIClient {
         try {
             if (self) {
                 response
-                    = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                    = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                     .path(AgentConstants.UNSUBSCRIBESIGNAL.replace("{id}", id))
                     .request(MediaType.APPLICATION_JSON)
                     .header("sessionToken", botClient.getSymAuth().getSessionToken())
@@ -237,7 +235,7 @@ public class SignalsClient extends APIClient {
 
             } else {
                 response
-                    = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+                    = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                     .path(AgentConstants.UNSUBSCRIBESIGNAL.replace("{id}", id))
                     .request(MediaType.APPLICATION_JSON)
                     .header("sessionToken", botClient.getSymAuth().getSessionToken())
@@ -263,7 +261,7 @@ public class SignalsClient extends APIClient {
 
     public SignalSubscriberList getSignalSubscribers(String id, int skip, int limit) throws SymClientException {
         WebTarget builder
-                = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
+            = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.GETSUBSCRIBERS.replace("{id}", id));
 
         if(skip>0){

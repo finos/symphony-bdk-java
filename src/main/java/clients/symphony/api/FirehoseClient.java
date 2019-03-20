@@ -10,12 +10,10 @@ import model.DatafeedEventsList;
 import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FirehoseClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
@@ -32,7 +30,7 @@ public class FirehoseClient extends APIClient {
         Response response = null;
 
         try {
-            response = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
+            response = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
                 + botClient.getConfig().getAgentHost() + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.CREATEFIREHOSE)
                 .request(MediaType.APPLICATION_JSON)
@@ -66,7 +64,7 @@ public class FirehoseClient extends APIClient {
 
         try {
             response = botClient.getAgentClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + botClient.getConfig().getAgentHost()
                     + ":" + botClient.getConfig().getAgentPort())
                 .path(AgentConstants.READFIREHOSE.replace("{id}", id))
@@ -80,7 +78,7 @@ public class FirehoseClient extends APIClient {
                 != Response.Status.Family.SUCCESSFUL) {
                 handleError(response, botClient);
             } else {
-                if (response.getStatus() == CommonConstants.NOCONTENT) {
+                if (response.getStatus() == CommonConstants.NO_CONTENT) {
                     firehoseEvents = new ArrayList<>();
                 } else {
                     firehoseEvents = response.readEntity(DatafeedEventsList.class);

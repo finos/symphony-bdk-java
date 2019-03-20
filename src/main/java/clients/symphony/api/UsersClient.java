@@ -9,17 +9,15 @@ import model.UserFilter;
 import model.UserInfo;
 import model.UserInfoList;
 import model.UserSearchResult;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UsersClient extends APIClient{
 
@@ -36,7 +34,7 @@ public class UsersClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.GETUSERV2)
                 .queryParam("username", username)
@@ -71,7 +69,7 @@ public class UsersClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.GETUSERSV3)
                 .queryParam("email", email)
@@ -108,7 +106,7 @@ public class UsersClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.GETUSERSV3)
                 .queryParam("uid", id)
@@ -178,7 +176,7 @@ public class UsersClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.GETUSERSV3)
                 .queryParam(emailBased? "email" :"uid", lookUpListString.toString())
@@ -214,7 +212,7 @@ public class UsersClient extends APIClient{
 
         UserSearchResult result = null;
         WebTarget builder
-                = botClient.getPodClient().target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
+            = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
                 .path(PodConstants.SEARCHUSERS);
 
 
@@ -267,7 +265,7 @@ public class UsersClient extends APIClient{
 
         try {
             response = botClient.getPodClient()
-                .target(CommonConstants.HTTPSPREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
                     .getPodPort())
                 .path(PodConstants.GETSESSIONUSER)
                 .request(MediaType.APPLICATION_JSON)

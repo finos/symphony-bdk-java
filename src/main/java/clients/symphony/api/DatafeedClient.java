@@ -12,14 +12,11 @@ import model.DatafeedEventsList;
 import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class DatafeedClient extends  APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
@@ -36,7 +33,7 @@ public final class DatafeedClient extends  APIClient {
         StringId datafeedId = null;
         try {
             logger.info("Creating new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
-            response = botClient.getAgentClient().target(CommonConstants.HTTPSPREFIX
+            response = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
                 + config.getAgentHost() + ":" + config.getAgentPort())
                 .path(AgentConstants.CREATEDATAFEED)
                 .request(MediaType.APPLICATION_JSON)
@@ -70,7 +67,7 @@ public final class DatafeedClient extends  APIClient {
         logger.debug("Reading datafeed {}", id);
         try {
             WebTarget webTarget = botClient.getAgentClient().target(
-                CommonConstants.HTTPSPREFIX
+                CommonConstants.HTTPS_PREFIX
                     + config.getAgentHost()
                     + ":" + config.getAgentPort());
                 response = webTarget.path(AgentConstants.READDATAFEED.replace("{id}", id))
@@ -84,7 +81,7 @@ public final class DatafeedClient extends  APIClient {
                 logger.error("Datafeed read error for request " + webTarget.getUri());
                 handleError(response, botClient);
             } else {
-                if (response.getStatus() == CommonConstants.NOCONTENT) {
+                if (response.getStatus() == CommonConstants.NO_CONTENT) {
                     datafeedEvents = new ArrayList<>();
                 } else {
                     datafeedEvents = response.readEntity(DatafeedEventsList.class);

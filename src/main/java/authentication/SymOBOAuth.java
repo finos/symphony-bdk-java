@@ -1,6 +1,7 @@
 package authentication;
 
 import clients.symphony.api.APIClient;
+import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.Token;
@@ -17,12 +18,13 @@ import javax.ws.rs.core.Response;
 import java.util.concurrent.TimeUnit;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public final class SymOBOAuth extends APIClient {
+public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
     private final Logger logger = LoggerFactory
             .getLogger(SymOBOAuth.class);
     private String sessionToken;
     private SymConfig config;
     private Client sessionAuthClient;
+    private int authRetries = 0;
 
     public SymOBOAuth(final SymConfig configuration) {
         logger.info("SymOBOAuth being constructed");
@@ -72,10 +74,10 @@ public final class SymOBOAuth extends APIClient {
         if (config != null) {
             logger.info("Session app auth");
             Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX
                     + config.getSessionAuthHost()
                     + ":" + config.getSessionAuthPort())
-                    .path(AuthEndpointConstants.SESSIONAPPAUTH)
+                .path(AuthEndpointConstants.SESSION_APP_AUTH_PATH)
                     .request(MediaType.APPLICATION_JSON)
                     .post(null);
             if (response.getStatusInfo().getFamily()
@@ -90,6 +92,10 @@ public final class SymOBOAuth extends APIClient {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
                     logger.error("Error with session app authentication", e);
+                }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return;
                 }
                 sessionAppAuthenticate();
             } else {
@@ -110,6 +116,4 @@ public final class SymOBOAuth extends APIClient {
     public void setSessionToken(final String sessionToken) {
         this.sessionToken = sessionToken;
     }
-
-
 }

@@ -1,6 +1,7 @@
 package authentication;
 
 import clients.symphony.api.APIClient;
+import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.Token;
@@ -89,7 +90,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     public void authenticate() {
         if (lastAuthTime == 0
             | System.currentTimeMillis() - lastAuthTime
-            > AuthEndpointConstants.WAITIME) {
+            > AuthEndpointConstants.WAIT_TIME) {
             sessionAuthenticate();
             kmAuthenticate();
             lastAuthTime = System.currentTimeMillis();
@@ -109,10 +110,10 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         if (config != null) {
             logger.info("Session auth");
             Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX
                 + config.getSessionAuthHost()
                 + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.SESSIONAUTHPATH)
+                .path(AuthEndpointConstants.SESSION_AUTH_PATH)
                 .request(MediaType.APPLICATION_JSON)
                 .post(null);
             if (response.getStatusInfo().getFamily()
@@ -147,10 +148,10 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         logger.info("KM auth");
         if (config != null) {
             Response response
-                = kmAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                = kmAuthClient.target(CommonConstants.HTTPS_PREFIX
                 + config.getKeyAuthHost()
                 + ":" + config.getKeyAuthPort())
-                .path(AuthEndpointConstants.KEYAUTHPATH)
+                .path(AuthEndpointConstants.KEY_AUTH_PATH)
                 .request(MediaType.APPLICATION_JSON)
                 .post(null);
             if (response.getStatusInfo().getFamily()
@@ -200,10 +201,10 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     public void logout() {
         logger.info("Logging out");
         Response response = sessionAuthClient.target(
-            AuthEndpointConstants.HTTPSPREFIX
+            CommonConstants.HTTPS_PREFIX
                 + config.getSessionAuthHost()
                 + ":" + config.getSessionAuthPort())
-            .path(AuthEndpointConstants.LOGOUTPATH)
+            .path(AuthEndpointConstants.LOGOUT_PATH)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", getSessionToken())
             .post(null);

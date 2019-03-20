@@ -1,6 +1,7 @@
 package authentication;
 
 import clients.symphony.api.APIClient;
+import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
@@ -34,6 +35,7 @@ public final class SymExtensionAppAuth extends APIClient {
             .getLogger(SymExtensionAppAuth.class);
     private SymConfig config;
     private Client sessionAuthClient;
+    private int authRetries = 0;
 
     public SymExtensionAppAuth(final SymConfig configuration) {
         this.config = configuration;
@@ -72,10 +74,10 @@ public final class SymExtensionAppAuth extends APIClient {
             Map<String, String> input = new HashMap<>();
             input.put("appToken", appToken);
             Response response
-                    = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+                = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX
                     + config.getSessionAuthHost() + ":"
                     + config.getSessionAuthPort())
-                    .path(AuthEndpointConstants.SESSIONEXTAPPAUTH)
+                .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(input, MediaType.APPLICATION_JSON));
             if (response.getStatusInfo().getFamily()
@@ -90,6 +92,10 @@ public final class SymExtensionAppAuth extends APIClient {
                     TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
                 } catch (InterruptedException e) {
                     logger.error("Error with authentication", e);
+                }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return null;
                 }
                 sessionAppAuthenticate(appToken);
             } else {
@@ -111,9 +117,9 @@ public final class SymExtensionAppAuth extends APIClient {
         Map<String, String> input = new HashMap<>();
         input.put("appToken", appToken);
         Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX
+            = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX
                 + podSessionAuthUrl)
-                .path(AuthEndpointConstants.SESSIONEXTAPPAUTH)
+            .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
                 .request(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(input, MediaType.APPLICATION_JSON));
         if (response.getStatusInfo().getFamily()
@@ -129,6 +135,10 @@ public final class SymExtensionAppAuth extends APIClient {
             } catch (InterruptedException e) {
                 logger.error("Error with authentication", e);
             }
+            if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                logger.error("Max retries reached. Giving up on auth.");
+                return null;
+            }
             sessionAppAuthenticate(appToken, podSessionAuthUrl);
         } else {
             return response.readEntity(AppAuthResponse.class);
@@ -142,8 +152,8 @@ public final class SymExtensionAppAuth extends APIClient {
             authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
         }
         Response response
-                = sessionAuthClient.target(AuthEndpointConstants.HTTPSPREFIX + authUrl)
-                .path(AuthEndpointConstants.PODCERT)
+            = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
+            .path(AuthEndpointConstants.POD_CERT_PATH)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
         if (response.getStatusInfo().getFamily()
