@@ -2,6 +2,8 @@ package services;
 
 import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
+import configuration.SymConfig;
+import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import listeners.ConnectionListener;
 import listeners.IMListener;
@@ -10,6 +12,7 @@ import model.DatafeedEvent;
 import model.events.MessageSent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import javax.ws.rs.ProcessingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +26,7 @@ public class DatafeedEventsService {
     private List<RoomListener> roomListeners;
     private List<IMListener> IMListeners;
     private List<ConnectionListener> connectionListeners;
-    private String datafeedId;
+    private String datafeedId = null;
     private ExecutorService pool;
     private AtomicBoolean stop = new AtomicBoolean();
     private final int THREADPOOL_SIZE;
@@ -39,8 +42,14 @@ public class DatafeedEventsService {
         IMListeners = new ArrayList<>();
         connectionListeners = new ArrayList<>();
         datafeedClient = this.botClient.getDatafeedClient();
-        datafeedId = datafeedClient.createDatafeed();
 
+        while (datafeedId == null) {
+            try {
+                datafeedId = datafeedClient.createDatafeed();
+            } catch (ProcessingException e) {
+                handleError(e);
+            }
+        }
         readDatafeed();
         stop.set(false);
     }
@@ -118,8 +127,13 @@ public class DatafeedEventsService {
 
     private void handleError(Throwable e) {
         logger.error("HandlerError error", e);
+        logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
         sleep();
         try {
+            SymConfig config = botClient.getConfig();
+            if (config instanceof SymLoadBalancedConfig) {
+                ((SymLoadBalancedConfig) config).rotateAgent();
+            }
             datafeedId = datafeedClient.createDatafeed();
         } catch (SymClientException e1) {
             sleep();

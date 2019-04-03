@@ -1,10 +1,10 @@
 package clients.symphony.api;
 
-
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
+import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import model.DatafeedEvent;
@@ -18,7 +18,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class DatafeedClient extends  APIClient {
+public final class DatafeedClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
     private SymConfig config;
@@ -70,16 +70,17 @@ public final class DatafeedClient extends  APIClient {
                 CommonConstants.HTTPS_PREFIX
                     + config.getAgentHost()
                     + ":" + config.getAgentPort());
-                response = webTarget.path(AgentConstants.READDATAFEED.replace("{id}", id))
+            response = webTarget
+                .path(AgentConstants.READDATAFEED.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken",
-                    botClient.getSymAuth().getKmToken()).get();
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
+                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+                .get();
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 logger.error("Datafeed read error for request " + webTarget.getUri());
                 handleError(response, botClient);
+            } else if (response.getStatusInfo().getFamily() == Response.Status.Family.CLIENT_ERROR) {
+                ((SymLoadBalancedConfig) config).rotateAgent();
             } else {
                 if (response.getStatus() == CommonConstants.NO_CONTENT) {
                     datafeedEvents = new ArrayList<>();
