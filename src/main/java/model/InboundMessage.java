@@ -2,7 +2,6 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import utils.SymMessageParser;
-
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -108,9 +107,21 @@ public class InboundMessage {
     }
 
     public String getMessageText() {
-        if (SymMessageParser.getInstance() != null) {
-            return SymMessageParser.getInstance().messageToText(message, data);
+        if (SymMessageParser.getInstance() == null) {
+            return null;
         }
-        return null;
+        return SymMessageParser.getInstance().messageToText(message, data);
+    }
+
+    public List<String> getHashtags() {
+        return SymMessageParser.getHashtags(this);
+    }
+
+    public List<String> getCashtags() {
+        return SymMessageParser.getCashtags(this);
+    }
+
+    public List<Long> getMentions() {
+        return SymMessageParser.getMentions(this);
     }
 }
