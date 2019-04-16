@@ -40,10 +40,10 @@ can exclude the bot certificate section, all extension app sections and all opti
     "botCertPassword": "bot-cert-password",
     
     // For extension apps only
-    "appId": "",
+    "appId": "app-id",
     // For extension apps using RSA authentication
-    "appPrivateKeyPath": "",
-    "appPrivateKeyName": "",
+    "appPrivateKeyPath": "/path/to/rsa-private-key/",
+    "appPrivateKeyName": "app-private-key.pkcs8",
     // For extension apps using certificate authentication
     "appCertPath": "/path/to/app-cert/",
     "appCertName": "app-cert.p12",
