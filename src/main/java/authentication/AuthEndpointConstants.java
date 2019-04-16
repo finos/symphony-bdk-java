@@ -19,8 +19,10 @@ public final class AuthEndpointConstants {
     public static final String OBO_USER_NAME_AUTH_PATH = "/sessionauth/v1/app/username/{username}/authenticate";
     public static final String OBO_USER_NAME_AUTH_PATH_RSA = "/login/pubkey/app/username/{username}/authenticate";
 
-    public static final String POD_CERT_PATH = "pod/v1/podcert";
+    public static final String POD_CERT_PATH = "/sessionauth/v1/app/pod/certificate";
     public static final String LOGOUT_PATH = "/sessionauth/v1/logout";
+
+    public static final String POD_CERT_RSA_PATH = "pod/v1/podcert";
 
     public static final int WAIT_TIME = 3000;
     public static final int TIMEOUT = 30;

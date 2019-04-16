@@ -147,7 +147,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         String authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
         Response response
             = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
-            .path(AuthEndpointConstants.POD_CERT_PATH)
+            .path(AuthEndpointConstants.POD_CERT_RSA_PATH)
             .request(MediaType.APPLICATION_JSON)
             .get();
         if (response.getStatusInfo().getFamily()
