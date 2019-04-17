@@ -74,7 +74,10 @@ can exclude the bot certificate section, all extension app sections and all opti
     
     // Optional: To modify the default datafeed handling properties
     "datafeedEventsThreadpoolSize": 5,
-    "datafeedEventsErrorTimeout": 30
+    "datafeedEventsErrorTimeout": 30,
+    
+    // Optional: Request filter to verify JWT
+    "authenticationFilterUrlPattern": "/v1/",
 }
 ```
 
@@ -114,6 +117,12 @@ ClientConfig kmAuthClientConfig = new ClientConfig();
 ...
 SymBotAuth botAuth = new SymBotAuth(config, sessionAuthClientConfig, kmAuthClientConfig);
 botAuth.authenticate();
+```
+        
+## Request Filter
+Provides a filter component to validate requests based on their JWT. To enable this feature, it's required that you instantiate the AuthenticationFilter (see example below) and a URL pattern which the filter will be applied to.
+```
+AuthenticationFilter filter = new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
 ```
 
 ## Example main class
