@@ -6,11 +6,24 @@ import org.apache.commons.io.FileUtils;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.slf4j.LoggerFactory;
+
 import java.io.CharArrayReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Security;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
@@ -79,6 +92,26 @@ public class JwtHelper {
             } catch (IOException e) {
                 throw new GeneralSecurityException("Invalid PKCS#1 private key.");
             }
+        }
+    }
+
+    public static Object validateJwt(String jwt, String certificate){
+        // Get the public key from the cert
+        PublicKey publicKey;
+        try {
+            X509Certificate x509Certificate =
+                CertificateUtils.parseX509Certificate(certificate);
+            publicKey = x509Certificate.getPublicKey();
+            JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+                .setVerificationKey(publicKey)
+                .setSkipAllValidators()
+                .build();
+            // validate and decode the jwt
+            JwtClaims jwtDecoded = jwtConsumer.processToClaims(jwt);
+            return jwtDecoded.getClaimValue("user");
+        } catch (GeneralSecurityException | InvalidJwtException e) {
+            LoggerFactory.getLogger(JwtHelper.class).error("Error with decoding jwt", e);
+            return null;
         }
     }
 }

@@ -1,10 +1,16 @@
 package authentication;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static utils.JwtHelper.validateJwt;
+
+import authentication.extensionapp.InMemoryTokensRepository;
+import authentication.extensionapp.TokensRepository;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
+import model.PodCert;
 import org.apache.commons.codec.binary.Hex;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -13,11 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -26,7 +28,12 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public final class SymExtensionAppRSAAuth extends APIClient {
     private final SecureRandom secureRandom = new SecureRandom();
@@ -35,10 +42,13 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     private Client sessionAuthClient;
     private String jwt;
     private int authRetries = 0;
+    private TokensRepository tokensRepository;
+    private String podCertificate;
 
     public SymExtensionAppRSAAuth(final SymConfig configuration) {
         this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
+        ClientBuilder clientBuilder =
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
         if (isEmpty(config.getProxyURL())) {
             this.sessionAuthClient = client;
@@ -52,23 +62,28 @@ public final class SymExtensionAppRSAAuth extends APIClient {
             }
             this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
+        this.tokensRepository = new InMemoryTokensRepository();
     }
 
-    public SymExtensionAppRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
+    public SymExtensionAppRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig,
+        TokensRepository tokensRepository) {
         this.config = config;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
+        ClientBuilder clientBuilder =
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         if (sessionAuthClientConfig != null) {
             this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
         } else {
             this.sessionAuthClient = clientBuilder.build();
         }
+        this.tokensRepository = tokensRepository;
     }
 
     public AppAuthResponse appAuthenticate() {
         PrivateKey privateKey = getPrivateKey();
         if (config != null) {
             logger.info("RSA extension app auth");
-            jwt = JwtHelper.createSignedJwt(config.getAppId(), AuthEndpointConstants.JWT_EXPIRY_MS, privateKey);
+            jwt = JwtHelper.createSignedJwt(config.getAppId(), AuthEndpointConstants.JWT_EXPIRY_MS,
+                privateKey);
             Map<String, String> token = new HashMap<>();
             token.put("appToken", generateToken());
             token.put("authToken", jwt);
@@ -96,7 +111,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
                 appAuthenticate();
             } else {
                 AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
-                return appAuthResponse;
+                return tokensRepository.save(appAuthResponse);
             }
         } else {
             throw new NoConfigException("Must provide a SymConfig object to authenticate");
@@ -116,10 +131,44 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         return privateKey;
     }
 
-    public String generateToken() {
+    private String generateToken() {
         byte[] randBytes = new byte[64];
         secureRandom.nextBytes(randBytes);
         return Hex.encodeHexString(randBytes);
     }
 
+    public Boolean validateTokens(String appToken, String symphonyToken) {
+        return tokensRepository.get(appToken)
+            .filter(token -> token.getSymphonyToken().equals(symphonyToken))
+            .isPresent();
+    }
+
+    public Object verifyJWT(final String jwt) {
+        String authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        Response response
+            = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
+            .path(AuthEndpointConstants.POD_CERT_RSA_PATH)
+            .request(MediaType.APPLICATION_JSON)
+            .get();
+        if (response.getStatusInfo().getFamily()
+            != Response.Status.Family.SUCCESSFUL) {
+            try {
+                handleError(response, null);
+            } catch (Exception e) {
+                logger.error("Unexpected error, retry authentication in 30 seconds");
+            }
+            try {
+                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+            } catch (InterruptedException e) {
+                logger.error("Error with verify", e);
+            }
+            verifyJWT(jwt);
+        } else {
+            if (podCertificate == null) {
+                podCertificate = response.readEntity(PodCert.class).getCertificate();
+            }
+            return validateJwt(jwt, podCertificate);
+        }
+        return null;
+    }
 }
