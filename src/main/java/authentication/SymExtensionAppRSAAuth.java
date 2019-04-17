@@ -11,6 +11,7 @@ import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.AppAuthResponse;
 import model.PodCert;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -20,11 +21,16 @@ import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +50,10 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     private int authRetries = 0;
     private TokensRepository tokensRepository;
     private String podCertificate;
+
+    public PublicKey getPodPublicKey() throws CertificateException {
+        return readPublicKey();
+    }
 
     public SymExtensionAppRSAAuth(final SymConfig configuration) {
         this.config = configuration;
@@ -170,5 +180,14 @@ public final class SymExtensionAppRSAAuth extends APIClient {
             return validateJwt(jwt, podCertificate);
         }
         return null;
+    }
+
+    private PublicKey readPublicKey() throws CertificateException {
+            String encoded = podCertificate.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "");
+            byte[] decoded = Base64.decodeBase64(encoded);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            X509Certificate
+              x509Certificate = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(decoded));
+            return x509Certificate.getPublicKey();
     }
 }

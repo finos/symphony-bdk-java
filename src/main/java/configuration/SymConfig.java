@@ -40,6 +40,7 @@ public class SymConfig {
     private String appId;
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
+    private String authenticationFilterUrlPattern;
 
     public String getSessionAuthHost() {
         return sessionAuthHost;
@@ -320,4 +321,13 @@ public class SymConfig {
     public void setDatafeedEventsErrorTimeout(int datafeedEventsErrorTimeout) {
         this.datafeedEventsErrorTimeout = datafeedEventsErrorTimeout;
     }
+
+    public String getAuthenticationFilterUrlPattern() {
+        return authenticationFilterUrlPattern;
+    }
+
+    public void setAuthenticationFilterUrlPattern(String authenticationFilterUrlPattern) {
+        this.authenticationFilterUrlPattern = authenticationFilterUrlPattern;
+    }
+
 }
