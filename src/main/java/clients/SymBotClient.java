@@ -2,7 +2,9 @@ package clients;
 
 import authentication.ISymAuth;
 import clients.symphony.api.*;
+import configuration.LoadBalancingMethod;
 import configuration.SymConfig;
+import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import model.UserInfo;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
@@ -38,29 +40,49 @@ public final class SymBotClient implements ISymClient {
     private FirehoseClient firehoseClient;
     private FirehoseService firehoseService;
 
-    public static SymBotClient initBot(final SymConfig configuration,
-                                       final ISymAuth symBotAuthImp) {
+    public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
         if (botClient == null) {
-            botClient = new SymBotClient(configuration, symBotAuthImp);
+            botClient = new SymBotClient(config, botAuth);
             return botClient;
         }
         return botClient;
     }
 
-    private SymBotClient(final SymConfig configuration,
-                         final ISymAuth symBotAuthImp,
-                         final ClientConfig podClientConfig,
-                         final ClientConfig agentClientConfig) {
-        this.config = configuration;
-        this.symBotAuth = symBotAuthImp;
-        this.podClient = ClientBuilder.newClient(podClientConfig);
-        this.agentClient = ClientBuilder.newClient(agentClientConfig);
-        try {
-            botUserInfo = this.getUsersClient().getSessionUser();
-        } catch (SymClientException e) {
-            logger.error("Error getting sessionUser ", e);
+    public static SymBotClient initBot(SymConfig config,
+                                       ISymAuth botAuth,
+                                       SymLoadBalancedConfig lbConfig) {
+        if (botClient == null) {
+            lbConfig.cloneAttributes(config);
+            botClient = new SymBotClient(lbConfig, botAuth);
+            return botClient;
         }
-        SymMessageParser.createInstance(this);
+        return botClient;
+    }
+
+    public static SymBotClient initBot(SymConfig config,
+                                       ISymAuth botAuth,
+                                       ClientConfig podClientConfig,
+                                       ClientConfig agentClientConfig) {
+        if (botClient == null) {
+            botClient = new SymBotClient(
+                config, botAuth, podClientConfig, agentClientConfig
+            );
+            return botClient;
+        }
+        return botClient;
+    }
+
+    public static SymBotClient initBot(SymConfig config,
+                                       ISymAuth botAuth,
+                                       ClientConfig podClientConfig,
+                                       ClientConfig agentClientConfig,
+                                       SymLoadBalancedConfig lbConfig) {
+        if (botClient == null) {
+            lbConfig.cloneAttributes(config);
+            botClient = new SymBotClient(config, botAuth, podClientConfig, agentClientConfig);
+            return botClient;
+        }
+        return botClient;
     }
 
     private SymBotClient(SymConfig config, ISymAuth symBotAuth) {
@@ -77,6 +99,7 @@ public final class SymBotClient implements ISymClient {
         ClientConfig proxyConfig = new ClientConfig();
         proxyConfig.connectorProvider(new ApacheConnectorProvider());
         proxyConfig.property(ClientProperties.PROXY_URI, proxyURL);
+
         if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
             proxyConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
             proxyConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
@@ -95,20 +118,39 @@ public final class SymBotClient implements ISymClient {
         }  catch (SymClientException e) {
             logger.error("Error getting sessionUser ", e);
         }
+
         SymMessageParser.createInstance(this);
+
+        reportIfLoadBalanced(config);
     }
 
-    public static SymBotClient initBot(SymConfig config, ISymAuth botAuth,
-                                       ClientConfig podClientConfig,
-                                       ClientConfig agentClientConfig) {
-        if (botClient == null) {
-            botClient = new SymBotClient(config, botAuth,
-                    podClientConfig, agentClientConfig);
-            return botClient;
+    private SymBotClient(SymConfig config, ISymAuth symBotAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
+        this.config = config;
+        this.symBotAuth = symBotAuth;
+        this.podClient = ClientBuilder.newClient(podClientConfig);
+        this.agentClient = ClientBuilder.newClient(agentClientConfig);
+
+        try {
+            botUserInfo = this.getUsersClient().getSessionUser();
+        } catch (SymClientException e) {
+            logger.error("Error getting sessionUser ", e);
         }
-        return botClient;
+
+        SymMessageParser.createInstance(this);
+
+        reportIfLoadBalanced(config);
     }
 
+    private void reportIfLoadBalanced(SymConfig config) {
+        if (config instanceof SymLoadBalancedConfig) {
+            SymLoadBalancedConfig lbConfig = (SymLoadBalancedConfig) config;
+            LoadBalancingMethod method = lbConfig.getLoadBalancing().getMethod();
+            logger.info("Using load-balanced configuration with method: {}", method);
+            if (lbConfig.getLoadBalancing().getMethod() != LoadBalancingMethod.external) {
+                logger.info("Agent server list: {}", String.join(", ", lbConfig.getAgentServers()));
+            }
+        }
+    }
 
     public UserInfo getBotUserInfo() {
         return botUserInfo;

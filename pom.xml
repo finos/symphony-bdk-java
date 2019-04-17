@@ -28,7 +28,7 @@
         <connection>scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</connection>
         <developerConnection>scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</developerConnection>
         <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
-        <tag>symphony-api-client-java-1.0.21-SNAPSHOT</tag>
+        <tag>symphony-api-client-java-1.0.22</tag>
     </scm>
 
     <properties>

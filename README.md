@@ -6,7 +6,7 @@ The Java client is built in an event handler architecture. If you are building a
     <dependency>
         <groupId>com.symphony.platformsolutions</groupId>
         <artifactId>symphony-api-client-java</artifactId>
-        <version>1.0.21</version>
+        <version>1.0.22</version>
     </dependency>
 ```
 
@@ -81,50 +81,51 @@ can exclude the bot certificate section, all extension app sections and all opti
 ### Loading configuration
 To load the configuration
 
-```
+```java
 URL url = getClass().getResource("config.json");
-SymConfigLoader configLoader = new SymConfigLoader();
-SymConfig config = configLoader.loadFromFile(url.getPath());
+SymConfig config = SymConfigLoader.loadFromFile(url.getPath());
 ```
 or
-```
+```java
 InputStream configFileStream = getClass().getResourceAsStream("/config.json");
-SymConfigLoader configLoader = new SymConfigLoader();
-SymConfig config = configLoader.load(configFileStream);
+SymConfig config = SymConfigLoader.load(configFileStream);
 ```
 
 ## Authentication
 To authenticate against the pod and key manager
-```
-URL url = getClass().getResource("config.json");
-SymConfigLoader configLoader = new SymConfigLoader();
-SymConfig config = configLoader.loadFromFile(url.getPath());
+
+For certificate-based authentication:
+```java
 SymBotAuth botAuth = new SymBotAuth(config);
 botAuth.authenticate();
 ```
-or
+
+For RSA-based authentication:
+```java
+SymBotRSAAuth botAuth = new SymBotRSAAuth(config);
+botAuth.authenticate();
 ```
+
+For custom session and key-manager configurations:
+```java
 ClientConfig sessionAuthClientConfig = new ClientConfig();
-......
+...
 ClientConfig kmAuthClientConfig = new ClientConfig();
-......
+...
 SymBotAuth botAuth = new SymBotAuth(config, sessionAuthClientConfig, kmAuthClientConfig);
-
+botAuth.authenticate();
 ```
-        
-## Example main class
 
+## Example main class
 ```java
 public class BotExample {
-
     public static void main(String [] args) {
-        BotExample app = new BotExample();
+        new BotExample();
     }
     
     public BotExample() {
         URL url = getClass().getResource("config.json");
-        SymConfigLoader configLoader = new SymConfigLoader();
-        SymConfig config = configLoader.loadFromFile(url.getPath());
+        SymConfig config = SymConfigLoader.loadFromFile(url.getPath());
         SymBotAuth botAuth = new SymBotAuth(config);
         botAuth.authenticate();
         SymBotClient botClient = SymBotClient.initBot(config, botAuth);
@@ -138,10 +139,8 @@ public class BotExample {
 ```    
     
 ## Example RoomListener implementation
-
 ```java
 public class RoomListenerTestImpl implements RoomListener {
-
     private SymBotClient botClient;
 
     public RoomListenerTestImpl(SymBotClient botClient) {
@@ -160,34 +159,22 @@ public class RoomListenerTestImpl implements RoomListener {
     }
 
     @Override
-    public void onRoomCreated(RoomCreated roomCreated) {
-
-    }
+    public void onRoomCreated(RoomCreated roomCreated) {}
 
     @Override
-    public void onRoomDeactivated(RoomDeactivated roomDeactivated) {
-
-    }
+    public void onRoomDeactivated(RoomDeactivated roomDeactivated) {}
 
     @Override
-    public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwner roomMemberDemotedFromOwner) {
-
-    }
+    public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwner roomMemberDemotedFromOwner) {}
 
     @Override
-    public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwner roomMemberPromotedToOwner) {
-
-    }
+    public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwner roomMemberPromotedToOwner) {}
 
     @Override
-    public void onRoomReactivated(Stream stream) {
-
-    }
+    public void onRoomReactivated(Stream stream) {}
 
     @Override
-    public void onRoomUpdated(RoomUpdated roomUpdated) {
-
-    }
+    public void onRoomUpdated(RoomUpdated roomUpdated) {}
 
     @Override
     public void onUserJoinedRoom(UserJoinedRoom userJoinedRoom) {
@@ -201,8 +188,53 @@ public class RoomListenerTestImpl implements RoomListener {
     }
 
     @Override
-    public void onUserLeftRoom(UserLeftRoom userLeftRoom) {
-
-    }
+    public void onUserLeftRoom(UserLeftRoom userLeftRoom) {}
 }
+```
+
+## Advanced Configuration for Load Balancing
+Create an additional configuration file to support load balancing.
+There are 3 supported types:
+* Round-Robin
+* Random
+* External
+
+Round-robin and random load balancing are managed by this library based on the servers provided in the agentServers array.
+
+External load-balancing is managed by an external DNS, cloud provider or hardware-based solution. List only one load balancer frontend hostname in the agentServers array (subsequent server entries for the external method are ignored). Note that this method requires all underlying agent servers to implement an additional `host.name` switch with the current server's FQDN in their `startup.sh` script.
+
+```bash
+exec java $JAVA_OPTS -Dhost.name=sym-agent-01.my-company.com
+``` 
+
+There is also support for sticky sessions, which should be true for any bot that requires the datafeed loop. Using non-sticky load-balanced configuration with a datafeed loop will result in unexpected results.
+```json5
+{
+    "loadBalancing": {
+        "method": "random", // or roundrobin or external
+        "stickySessions": true
+    },
+    "agentServers": [
+        "sym-agent-01.my-company.com",
+        "sym-agent-02.my-company.com",
+        "sym-agent-03.my-company.com"
+    ]
+}
+```
+
+### Loading advanced configuration
+To load the configuration
+
+```java
+URL lbUrl = getClass().getResource("lb-config.json");
+SymLoadBalancedConfig lbConfig = SymConfigLoader.loadLoadBalancerFromFile(lbUrl.getPath());
+...
+SymBotClient botClient = SymBotClient.initBot(config, botAuth, lbConfig);
+```
+or
+```java
+InputStream lbConfigStream = getClass().getResourceAsStream("/lb-config.json");
+SymLoadBalancedConfig lbConfig = SymConfigLoader.loadLoadBalancer(lbConfigStream);
+...
+SymBotClient botClient = SymBotClient.initBot(config, botAuth, lbConfig);
 ```
