@@ -34,7 +34,6 @@ public class AuthenticationFilter implements Filter {
   private static final String UNAUTHORIZED_JWT_MESSAGE = "Unauthorized JWT";
   private static final String INTERNAL_SERVER_ERROR_MESSAGE =
     "Unexpected error, please contact the system administrator";
-  private static final String USER_FIELDNAME = "user";
   private static final String USER_ID_FIELDNAME = "sub";
   private static final String ANY_FOLLOWING_CHARACTER_PATTERN = ".*";
 

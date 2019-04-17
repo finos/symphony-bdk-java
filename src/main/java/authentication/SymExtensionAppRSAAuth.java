@@ -51,10 +51,6 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     private TokensRepository tokensRepository;
     private String podCertificate;
 
-    public PublicKey getPodPublicKey() throws CertificateException {
-        return readPublicKey();
-    }
-
     public SymExtensionAppRSAAuth(final SymConfig configuration) {
         this.config = configuration;
         ClientBuilder clientBuilder =
@@ -182,12 +178,12 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         return null;
     }
 
-    private PublicKey readPublicKey() throws CertificateException {
-            String encoded = podCertificate.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "");
-            byte[] decoded = Base64.decodeBase64(encoded);
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-            X509Certificate
-              x509Certificate = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(decoded));
-            return x509Certificate.getPublicKey();
+    public PublicKey getPodPublicKey() throws CertificateException {
+        String encoded = podCertificate.replace("-----BEGIN CERTIFICATE-----", "").replace("-----END CERTIFICATE-----", "");
+        byte[] decoded = Base64.decodeBase64(encoded);
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        X509Certificate
+          x509Certificate = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(decoded));
+        return x509Certificate.getPublicKey();
     }
 }

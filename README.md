@@ -122,7 +122,7 @@ botAuth.authenticate();
 ## Request Filter
 Provides a filter component to validate requests based on their JWT. To enable this feature, it's required that you instantiate the AuthenticationFilter (see example below) and a URL pattern which the filter will be applied to.
 ```
-AuthenticationFilter =  new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
+AuthenticationFilter filter = new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
 ```
 
 ## Example main class
