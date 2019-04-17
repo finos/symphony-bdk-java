@@ -55,6 +55,8 @@ public class SymConfigLoader {
      * Load custom configuration from a file path
      *
      * @param path Path of the config file
+     * @param <T> Class type of config
+     * @param clazz Class type of config
      * @return Custom Configuration
      */
     public static <T> T loadFromFile(String path, Class<T> clazz) {
@@ -70,6 +72,8 @@ public class SymConfigLoader {
      * Load custom configuration from an input stream
      *
      * @param inputStream Input stream
+     * @param <T> Class type of config
+     * @param clazz Class type of config
      * @return Custom Configuration
      */
     public static <T> T load(InputStream inputStream, Class<T> clazz) {
