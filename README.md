@@ -3,11 +3,11 @@ The Java client is built in an event handler architecture. If you are building a
 
 ### Install using maven
 ```xml
-    <dependency>
-        <groupId>com.symphony.platformsolutions</groupId>
-        <artifactId>symphony-api-client-java</artifactId>
-        <version>1.0.22</version>
-    </dependency>
+<dependency>
+    <groupId>com.symphony.platformsolutions</groupId>
+    <artifactId>symphony-api-client-java</artifactId>
+    <version>1.0.23</version>
+</dependency>
 ```
 
 ## Configuration
@@ -66,17 +66,14 @@ can exclude the bot certificate section, all extension app sections and all opti
     "keyManagerProxyPassword": "proxy-password",
     
     // Optional: If the SSL connection to any endpoint uses private or self-signed certificates
-    "truststorePath": "/path/to/truststore/",
-    "truststorePassword": "truststore.pks",
-    
-    // Optional: To modify the default authentication token refresh period
-    "authTokenRefreshPeriod": 30,
+    "truststorePath": "/path/to/store/truststore.pks",
+    "truststorePassword": "changeit",
     
     // Optional: To modify the default datafeed handling properties
     "datafeedEventsThreadpoolSize": 5,
     "datafeedEventsErrorTimeout": 30,
     
-    // Optional: Request filter to verify JWT
+    // Optional: Request filter pattern to verify JWT
     "authenticationFilterUrlPattern": "/v1/",
 }
 ```
