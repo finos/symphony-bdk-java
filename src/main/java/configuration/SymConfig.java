@@ -329,5 +329,4 @@ public class SymConfig {
     public void setAuthenticationFilterUrlPattern(String authenticationFilterUrlPattern) {
         this.authenticationFilterUrlPattern = authenticationFilterUrlPattern;
     }
-
 }

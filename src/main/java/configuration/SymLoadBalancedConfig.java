@@ -154,5 +154,6 @@ public class SymLoadBalancedConfig extends SymConfig {
         this.setAppId(config.getAppId());
         this.setDatafeedEventsThreadpoolSize(config.getDatafeedEventsThreadpoolSize());
         this.setDatafeedEventsErrorTimeout(config.getDatafeedEventsErrorTimeout());
+        this.setAuthenticationFilterUrlPattern(config.getAuthenticationFilterUrlPattern());
     }
 }
