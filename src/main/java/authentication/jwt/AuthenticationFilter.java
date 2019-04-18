@@ -85,6 +85,7 @@ public class AuthenticationFilter implements Filter {
         request.setAttribute(USER_INFO_PROPERTY, jwtPayload);
 
         filterChain.doFilter(request, servletResponse);
+        return;
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
         response.setStatus(500);
