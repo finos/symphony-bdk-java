@@ -59,7 +59,7 @@ public class AuthenticationFilter implements Filter {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-    if (Pattern.compile(getFilteredPattern()).matcher(request.getServletPath()).matches()) {
+    if (matchesFilteredPattern(request.getServletPath())) {
       String jwt =
         request.getHeader(AUTHORIZATION_HEADER)
           .substring(AUTHORIZATION_HEADER_BEARER_PREFIX.length());
@@ -100,8 +100,10 @@ public class AuthenticationFilter implements Filter {
     LoggerFactory.getLogger(AuthenticationFilter.class).info(FILTER_DESTROY);
   }
 
-  private String getFilteredPattern() {
-    return String.format("%s%s%s", ANY_STRING_PATTERN,
-      symConfig.getAuthenticationFilterUrlPattern(), ANY_STRING_PATTERN);
+  private Boolean matchesFilteredPattern(String servletPath) {
+    return Pattern.compile(
+      ANY_STRING_PATTERN + symConfig.getAuthenticationFilterUrlPattern() + ANY_STRING_PATTERN)
+      .matcher(servletPath)
+      .matches();
   }
 }
