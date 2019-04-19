@@ -35,7 +35,7 @@ public class AuthenticationFilter implements Filter {
   private static final String INTERNAL_SERVER_ERROR_MESSAGE =
     "Unexpected error, please contact the system administrator";
   private static final String USER_ID_FIELDNAME = "sub";
-  private static final String ANY_FOLLOWING_CHARACTER_PATTERN = ".*";
+  private static final String ANY_STRING_PATTERN = ".*";
 
   private SymExtensionAppRSAAuth rsaAuth;
   private SymConfig symConfig;
@@ -59,10 +59,7 @@ public class AuthenticationFilter implements Filter {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-    if (Pattern.compile(
-      symConfig.getAuthenticationFilterUrlPattern() + ANY_FOLLOWING_CHARACTER_PATTERN)
-      .matcher(request.getServletPath())
-      .matches()) {
+    if (matchesFilteredPattern(request.getServletPath())) {
       String jwt =
         request.getHeader(AUTHORIZATION_HEADER)
           .substring(AUTHORIZATION_HEADER_BEARER_PREFIX.length());
@@ -83,12 +80,12 @@ public class AuthenticationFilter implements Filter {
       }
 
       try {
-        new JwtPayload();
         JwtPayload jwtPayload = new JwtPayload();
         jwtPayload.setUserId(String.valueOf(jws.getBody().get(USER_ID_FIELDNAME)));
         request.setAttribute(USER_INFO_PROPERTY, jwtPayload);
 
         filterChain.doFilter(request, servletResponse);
+        return;
       } catch (Exception e) {
         LOGGER.error(e.getMessage(), e);
         response.setStatus(500);
@@ -102,5 +99,12 @@ public class AuthenticationFilter implements Filter {
   @Override
   public void destroy() {
     LoggerFactory.getLogger(AuthenticationFilter.class).info(FILTER_DESTROY);
+  }
+
+  private Boolean matchesFilteredPattern(String servletPath) {
+    return Pattern.compile(
+      ANY_STRING_PATTERN + symConfig.getAuthenticationFilterUrlPattern() + ANY_STRING_PATTERN)
+      .matcher(servletPath)
+      .matches();
   }
 }
