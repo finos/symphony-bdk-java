@@ -33,11 +33,12 @@ public class DatafeedEventsService {
     private final int TIMEOUT_NO_OF_SECS;
 
     public DatafeedEventsService(SymBotClient client) {
+        int poolSize = client.getConfig().getDatafeedEventsThreadpoolSize();
+        int timeout = client.getConfig().getDatafeedEventsErrorTimeout();
+
         this.botClient = client;
-        this.THREADPOOL_SIZE = client.getConfig().getDatafeedEventsThreadpoolSize() != 0
-            ? client.getConfig().getDatafeedEventsThreadpoolSize() : 5;
-        this.TIMEOUT_NO_OF_SECS = client.getConfig().getDatafeedEventsErrorTimeout() != 0
-            ? client.getConfig().getDatafeedEventsErrorTimeout() : 30;
+        this.THREADPOOL_SIZE = (poolSize != 0) ? poolSize : 5;
+        this.TIMEOUT_NO_OF_SECS = (timeout != 0) ? timeout : 30;
         roomListeners = new ArrayList<>();
         IMListeners = new ArrayList<>();
         connectionListeners = new ArrayList<>();

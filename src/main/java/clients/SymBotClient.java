@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.DatafeedEventsService;
 import services.FirehoseService;
+import services.FirehoseV2Service;
 import utils.HttpClientBuilderHelper;
 import utils.SymMessageParser;
 import javax.ws.rs.client.Client;
@@ -39,6 +40,8 @@ public final class SymBotClient implements ISymClient {
     private AdminClient adminClient;
     private FirehoseClient firehoseClient;
     private FirehoseService firehoseService;
+    private FirehoseV2Client firehoseV2Client;
+    private FirehoseV2Service firehoseV2Service;
 
     public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
         if (botClient == null) {
@@ -174,8 +177,21 @@ public final class SymBotClient implements ISymClient {
         if (this.firehoseService == null) {
             this.firehoseService = new FirehoseService(this);
         }
-
         return this.firehoseService;
+    }
+
+    public FirehoseV2Client getFirehoseV2Client() {
+        if (firehoseV2Client == null) {
+            firehoseV2Client = new FirehoseV2Client(this);
+        }
+        return firehoseV2Client;
+    }
+
+    public FirehoseV2Service getFirehoseV2Service() {
+        if (this.firehoseV2Service == null) {
+            this.firehoseV2Service = new FirehoseV2Service(this);
+        }
+        return this.firehoseV2Service;
     }
 
     public SymConfig getConfig() {
