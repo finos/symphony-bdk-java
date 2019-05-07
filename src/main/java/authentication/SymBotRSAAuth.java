@@ -44,21 +44,9 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
             this.sessionAuthClient = client;
         } else {
-            String proxyURL = !isEmpty(config.getPodProxyURL()) ?
-                config.getPodProxyURL() : config.getProxyURL();
-            String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
-                config.getPodProxyUsername() : config.getProxyUsername();
-            String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
-                config.getPodProxyPassword() : config.getProxyPassword();
-
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
-            if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
-            }
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
+            this.sessionAuthClient = clientBuilder
+                .withConfig(HttpClientBuilderHelper.getClientConfig(config))
+                .build();
         }
 
         if (isEmpty(config.getKeyManagerProxyURL())) {
