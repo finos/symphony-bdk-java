@@ -1,21 +1,21 @@
 package authentication;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import java.util.concurrent.TimeUnit;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
 import model.Token;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.concurrent.TimeUnit;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotAuth.class);
@@ -35,20 +35,9 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
             this.sessionAuthClient = client;
         } else {
-            String proxyURL = !isEmpty(config.getPodProxyURL()) ?
-                config.getPodProxyURL() : config.getProxyURL();
-            String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
-                config.getPodProxyUsername() : config.getProxyUsername();
-            String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
-                config.getPodProxyPassword() : config.getProxyPassword();
-
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
-            if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
-            }
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
+          this.sessionAuthClient = clientBuilder
+              .withConfig(HttpClientBuilderHelper.getClientConfig(config))
+              .build();
         }
 
         if (isEmpty(config.getKeyManagerProxyURL())) {
@@ -87,7 +76,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
     }
 
-    public void authenticate() {
+    @Override
+	public void authenticate() {
         if (lastAuthTime == 0
             | System.currentTimeMillis() - lastAuthTime
             > AuthEndpointConstants.WAIT_TIME) {
@@ -106,7 +96,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
     }
 
-    public void sessionAuthenticate() {
+    @Override
+	public void sessionAuthenticate() {
         if (config != null) {
             logger.info("Session auth");
             Response response
@@ -144,7 +135,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
     }
 
-    public void kmAuthenticate() {
+    @Override
+	public void kmAuthenticate() {
         logger.info("KM auth");
         if (config != null) {
             Response response
@@ -182,23 +174,28 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
     }
 
-    public String getSessionToken() {
+    @Override
+	public String getSessionToken() {
         return sessionToken;
     }
 
-    public void setSessionToken(final String sessionTokenInput) {
+    @Override
+	public void setSessionToken(final String sessionTokenInput) {
         this.sessionToken = sessionTokenInput;
     }
 
-    public String getKmToken() {
+    @Override
+	public String getKmToken() {
         return kmToken;
     }
 
-    public void setKmToken(final String kmTokenInput) {
+    @Override
+	public void setKmToken(final String kmTokenInput) {
         this.kmToken = kmTokenInput;
     }
 
-    public void logout() {
+    @Override
+	public void logout() {
         logger.info("Logging out");
         Response response = sessionAuthClient.target(
             CommonConstants.HTTPS_PREFIX
