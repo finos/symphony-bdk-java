@@ -1,14 +1,26 @@
 package utils;
 
-import configuration.SymConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.ws.rs.client.ClientBuilder;
-import java.io.*;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+
+import javax.ws.rs.client.ClientBuilder;
+
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import configuration.SymConfig;
 
 public class HttpClientBuilderHelper {
     private final static Logger logger = LoggerFactory.getLogger(HttpClientBuilderHelper.class);
@@ -59,6 +71,28 @@ public class HttpClientBuilderHelper {
             loadTrustStore(config, jksStore, clientBuilder);
         }
         return clientBuilder;
+    }
+
+    public static ClientConfig getClientConfig(SymConfig config) {
+      String proxyURL = !isEmpty(config.getPodProxyURL()) ?
+          config.getPodProxyURL() : config.getProxyURL();
+      String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
+          config.getPodProxyUsername() : config.getProxyUsername();
+      String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
+          config.getPodProxyPassword() : config.getProxyPassword();
+
+      ClientConfig clientConfig = new ClientConfig();
+      clientConfig.connectorProvider(new ApacheConnectorProvider());
+
+      if (!isEmpty(proxyURL)) {
+          clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
+          if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
+            clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+            clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
+          }
+      }
+
+      return clientConfig;
     }
 
     private static void loadTrustStore(SymConfig config, KeyStore tks, ClientBuilder clientBuilder) {

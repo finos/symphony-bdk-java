@@ -56,17 +56,12 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         ClientBuilder clientBuilder =
             HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
-        if (isEmpty(config.getProxyURL())) {
+        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
             this.sessionAuthClient = client;
         } else {
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
-            }
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
+            this.sessionAuthClient = clientBuilder
+                .withConfig(HttpClientBuilderHelper.getClientConfig(config))
+                .build();
         }
         this.tokensRepository = new InMemoryTokensRepository();
     }
