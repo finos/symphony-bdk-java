@@ -135,7 +135,7 @@ public final class MessagesClient extends APIClient {
     }
 
     public List<InboundMessage> getMessagesFromStream(String streamId,
-                                                      int since, int skip,
+                                                      long since, int skip,
                                                       int limit)
         throws SymClientException {
         List<InboundMessage> result = null;
