@@ -41,6 +41,7 @@ public class SymConfig {
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
     private String authenticationFilterUrlPattern;
+    private Boolean showFirehoseErrors;
 
     public String getSessionAuthHost() {
         return sessionAuthHost;
@@ -328,5 +329,14 @@ public class SymConfig {
 
     public void setAuthenticationFilterUrlPattern(String authenticationFilterUrlPattern) {
         this.authenticationFilterUrlPattern = authenticationFilterUrlPattern;
+    }
+
+    public Boolean getShowFirehoseErrors() {
+        return showFirehoseErrors;
+    }
+
+    public SymConfig setShowFirehoseErrors(Boolean showFirehoseErrors) {
+        this.showFirehoseErrors = showFirehoseErrors;
+        return this;
     }
 }
