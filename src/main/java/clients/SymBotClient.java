@@ -39,6 +39,7 @@ public final class SymBotClient implements ISymClient {
     private AdminClient adminClient;
     private FirehoseClient firehoseClient;
     private FirehoseService firehoseService;
+    private HealthcheckClient healthcheckClient;
 
     public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
         if (botClient == null) {
@@ -241,6 +242,13 @@ public final class SymBotClient implements ISymClient {
             adminClient = new AdminClient(this);
         }
         return adminClient;
+    }
+
+    public HealthcheckClient getHealthcheckClient() {
+        if (healthcheckClient == null) {
+            healthcheckClient = new HealthcheckClient(this);
+        }
+        return healthcheckClient;
     }
 
     public void clearBotClient() {
