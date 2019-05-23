@@ -13,9 +13,7 @@ import model.AppAuthResponse;
 import model.PodCert;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
@@ -64,6 +62,8 @@ public final class SymExtensionAppRSAAuth extends APIClient {
                 .build();
         }
         this.tokensRepository = new InMemoryTokensRepository();
+
+        setupPodCertificate();
     }
 
     public SymExtensionAppRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig,
@@ -77,6 +77,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
             this.sessionAuthClient = clientBuilder.build();
         }
         this.tokensRepository = tokensRepository;
+        setupPodCertificate();
     }
 
     public AppAuthResponse appAuthenticate() {
@@ -145,32 +146,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     }
 
     public Object verifyJWT(final String jwt) {
-        String authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
-        Response response
-            = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
-            .path(AuthEndpointConstants.POD_CERT_RSA_PATH)
-            .request(MediaType.APPLICATION_JSON)
-            .get();
-        if (response.getStatusInfo().getFamily()
-            != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, retry authentication in 30 seconds");
-            }
-            try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-            } catch (InterruptedException e) {
-                logger.error("Error with verify", e);
-            }
-            verifyJWT(jwt);
-        } else {
-            if (podCertificate == null) {
-                podCertificate = response.readEntity(PodCert.class).getCertificate();
-            }
-            return validateJwt(jwt, podCertificate);
-        }
-        return null;
+        return validateJwt(jwt, podCertificate);
     }
 
     public PublicKey getPodPublicKey() throws CertificateException {
@@ -180,5 +156,28 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         X509Certificate
           x509Certificate = (X509Certificate)cf.generateCertificate(new ByteArrayInputStream(decoded));
         return x509Certificate.getPublicKey();
+    }
+
+    private void setupPodCertificate(){
+      String authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+      Response response
+        = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
+        .path(AuthEndpointConstants.POD_CERT_RSA_PATH)
+        .request(MediaType.APPLICATION_JSON)
+        .get();
+      if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+        try {
+          handleError(response, null);
+        } catch (Exception e) {
+          logger.error("Unexpected error, retry authentication in 30 seconds");
+        }
+        try {
+          TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+        } catch (InterruptedException e) {
+          logger.error("Error with verify", e);
+        }
+      } else {
+        podCertificate = response.readEntity(PodCert.class).getCertificate();
+      }
     }
 }
