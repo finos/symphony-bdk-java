@@ -1,0 +1,19 @@
+{
+  "sessionAuthHost": "localhost",
+  "sessionAuthPort": 7443,
+  "keyAuthHost": "localhost",
+  "keyAuthPort": 7443,
+  "podHost": "localhost",
+  "podPort": 7443,
+  "agentHost": "localhost",
+  "agentPort": 7443,
+  "appId": "testapp",
+  "appPrivateKeyPath": "src/test/resources/",
+  "appPrivateKeyName": "testprivatekey.pkcs8",
+  "botPrivateKeyPath": "src/test/resources/",
+  "botPrivateKeyName": "testprivatekey.pkcs8",
+  "botUsername": "testbot",
+  "authTokenRefreshPeriod": "30",
+  "truststorePath": "src/test/resources/testkeystore.jks",
+  "truststorePassword": "123456"
+}
