@@ -335,8 +335,7 @@ public class SymConfig {
         return showFirehoseErrors;
     }
 
-    public SymConfig setShowFirehoseErrors(Boolean showFirehoseErrors) {
+    public void setShowFirehoseErrors(Boolean showFirehoseErrors) {
         this.showFirehoseErrors = showFirehoseErrors;
-        return this;
     }
 }
