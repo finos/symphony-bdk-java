@@ -1,5 +1,7 @@
 package authentication;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
@@ -11,19 +13,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
@@ -83,8 +87,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void authenticate() {
         PrivateKey privateKey = null;
         try {
-            privateKey = JwtHelper.parseRSAPrivateKey(new File(config.getBotPrivateKeyPath() + config.getBotPrivateKeyName()));
-        } catch (IOException | GeneralSecurityException e) {
+            privateKey = JwtHelper.parseRSAPrivateKey(this.getRSAPrivateKeyFile(this.config));
+        } catch (IOException | GeneralSecurityException | URISyntaxException e) {
             logger.error("Error trying to parse RSA private key", e);
         }
         if (lastAuthTime == 0 | System.currentTimeMillis() - lastAuthTime > 3000) {
@@ -103,6 +107,16 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
                 logger.error("Error with authentication", e);
             }
         }
+    }
+
+    protected File getRSAPrivateKeyFile(final SymConfig config) throws URISyntaxException {
+        final String dirPath = config.getBotPrivateKeyPath();
+        final String keyName = config.getBotPrivateKeyName();
+        final String path = dirPath + (dirPath.endsWith(File.separator) ? "" : File.separator) + keyName;
+        if(path.startsWith("classpath:")) {
+            return new File(this.getClass().getResource(path.replace("classpath:", "")).toURI());
+        }
+        return new File(path);
     }
 
     @Override

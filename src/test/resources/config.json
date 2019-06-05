@@ -11,6 +11,8 @@
   "botCertName": "TODO provide",
   "botCertPassword": "TODO provide",
   "botEmailAddress": "TODO provide",
+  "botPrivateKeyPath": "classpath:/",
+  "botPrivateKeyName": "privatekey-test.pem",
   "appCertPath": "",
   "appCertName": "",
   "appCertPassword": "",
