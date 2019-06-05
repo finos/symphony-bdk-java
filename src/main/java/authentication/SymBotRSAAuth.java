@@ -15,7 +15,10 @@ import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -88,7 +91,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         PrivateKey privateKey = null;
         try {
             privateKey = JwtHelper.parseRSAPrivateKey(this.getRSAPrivateKeyFile(this.config));
-        } catch (IOException | GeneralSecurityException | URISyntaxException e) {
+        } catch (IOException | GeneralSecurityException e) {
             logger.error("Error trying to parse RSA private key", e);
         }
         if (lastAuthTime == 0 | System.currentTimeMillis() - lastAuthTime > 3000) {
@@ -109,14 +112,14 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         }
     }
 
-    protected File getRSAPrivateKeyFile(final SymConfig config) throws URISyntaxException {
+    protected InputStream getRSAPrivateKeyFile(final SymConfig config) throws FileNotFoundException {
         final String dirPath = config.getBotPrivateKeyPath();
         final String keyName = config.getBotPrivateKeyName();
         final String path = dirPath + (dirPath.endsWith(File.separator) ? "" : File.separator) + keyName;
         if(path.startsWith("classpath:")) {
-            return new File(this.getClass().getResource(path.replace("classpath:", "")).toURI());
+            return this.getClass().getResourceAsStream(path.replace("classpath:", ""));
         }
-        return new File(path);
+        return new FileInputStream(path);
     }
 
     @Override

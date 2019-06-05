@@ -3,6 +3,7 @@ package utils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.CharArrayReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.Key;
@@ -56,6 +58,10 @@ public class JwtHelper {
 
     public static PrivateKey parseRSAPrivateKey(final File pemPrivateKeyFile) throws IOException, GeneralSecurityException {
         return parseRSAPrivateKey(FileUtils.readFileToString(pemPrivateKeyFile, Charset.defaultCharset()));
+    }
+
+    public static PrivateKey parseRSAPrivateKey(final InputStream pemPrivateKeyFile) throws IOException, GeneralSecurityException {
+        return parseRSAPrivateKey(IOUtils.toString(pemPrivateKeyFile, Charset.defaultCharset()));
     }
 
     /**
