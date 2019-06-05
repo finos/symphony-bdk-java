@@ -9,6 +9,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 
 public class SymBotRSAAuthTest {
@@ -29,10 +31,9 @@ public class SymBotRSAAuthTest {
     }
 
     @Test
-    public void shouldGetRSAPrivateKeyFileSuccessfully() throws URISyntaxException {
+    public void shouldGetRSAPrivateKeyFileSuccessfully() throws FileNotFoundException {
         final SymBotRSAAuth botAuth = new SymBotRSAAuth(config);
-        final File rsaPrivateKeyFile = botAuth.getRSAPrivateKeyFile(this.config);
+        final InputStream rsaPrivateKeyFile = botAuth.getRSAPrivateKeyFile(this.config);
         assertNotNull(rsaPrivateKeyFile);
-        assertTrue(rsaPrivateKeyFile.exists());
     }
 }
