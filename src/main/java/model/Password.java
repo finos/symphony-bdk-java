@@ -2,19 +2,10 @@ package model;
 
 public class Password {
 
-    private String description;
     private String hSalt;
     private String hPassword;
     private String khSalt;
     private String khPassword;
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public String gethSalt() {
         return hSalt;
