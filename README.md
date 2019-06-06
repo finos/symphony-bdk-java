@@ -6,7 +6,7 @@ The Java client is built in an event handler architecture. If you are building a
 <dependency>
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-api-client-java</artifactId>
-    <version>1.0.25</version>
+    <version>1.0.27</version>
 </dependency>
 ```
 
@@ -207,7 +207,9 @@ There are 3 supported types:
 
 Round-robin and random load balancing are managed by this library based on the servers provided in the agentServers array.
 
-External load-balancing is managed by an external DNS, cloud provider or hardware-based solution. List only one load balancer frontend hostname in the agentServers array (subsequent server entries for the external method are ignored). Note that this method requires all underlying agent servers to implement an additional `host.name` switch with the current server's FQDN in their `startup.sh` script.
+External load-balancing is managed by an external DNS, cloud provider or hardware-based solution. List only one load balancer frontend hostname in the agentServers array (subsequent server entries for the external method are ignored).
+
+**Note:** that this method requires all underlying agent servers to implement an additional `host.name` switch with the current server's FQDN in their `startup.sh` script.
 
 ```bash
 exec java $JAVA_OPTS -Dhost.name=sym-agent-01.my-company.com
