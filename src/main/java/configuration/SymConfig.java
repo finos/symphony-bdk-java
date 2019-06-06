@@ -1,7 +1,7 @@
 package configuration;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymConfig {
@@ -41,7 +41,7 @@ public class SymConfig {
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
     private String authenticationFilterUrlPattern;
-    private Boolean showFirehoseErrors;
+    private boolean showFirehoseErrors;
 
     public String getSessionAuthHost() {
         return sessionAuthHost;
@@ -331,11 +331,11 @@ public class SymConfig {
         this.authenticationFilterUrlPattern = authenticationFilterUrlPattern;
     }
 
-    public Boolean getShowFirehoseErrors() {
+    public boolean getShowFirehoseErrors() {
         return showFirehoseErrors;
     }
 
-    public void setShowFirehoseErrors(Boolean showFirehoseErrors) {
+    public void setShowFirehoseErrors(boolean showFirehoseErrors) {
         this.showFirehoseErrors = showFirehoseErrors;
     }
 }
