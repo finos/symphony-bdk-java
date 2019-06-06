@@ -12,7 +12,7 @@ public class PodConstants {
     public static final String UPDATEROOMINFO = POD + "/v3/room/{id}/update";
     public static final String GETSTREAMINFO = POD + "/v2/streams/{id}/info";
     public static final String GETROOMMEMBERS = POD + "/v2/room/{id}/membership/list";
-    public static final String SETACTIVE = POD + "/v1/admin/room/{id}/setActive";
+    public static final String SETACTIVE = POD + "/v1/room/{id}/setActive";
     public static final String PROMOTEOWNER = POD + "/v1/room/{id}/membership/promoteOwner";
     public static final String DEMOTEOWNER = POD + "/v1/room/{id}/membership/demoteOwner";
     public static final String ACCEPTCONNECTION = POD + "/v1/connection/accept";
