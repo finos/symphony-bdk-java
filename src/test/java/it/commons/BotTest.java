@@ -13,7 +13,7 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
 
 public class BotTest extends ServerTest {
-  protected static SymBotClient symBotClient;
+  protected SymBotClient symBotClient;
 
   @Before
   public void initSymBot() {

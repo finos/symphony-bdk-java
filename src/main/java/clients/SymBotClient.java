@@ -1,24 +1,33 @@
 package clients;
 
-import authentication.ISymAuth;
-import clients.symphony.api.*;
-import configuration.LoadBalancingMethod;
-import configuration.SymConfig;
-import configuration.SymLoadBalancedConfig;
-import exceptions.SymClientException;
-import model.UserInfo;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import authentication.ISymAuth;
+import clients.symphony.api.AdminClient;
+import clients.symphony.api.ConnectionsClient;
+import clients.symphony.api.DatafeedClient;
+import clients.symphony.api.FirehoseClient;
+import clients.symphony.api.HealthcheckClient;
+import clients.symphony.api.MessagesClient;
+import clients.symphony.api.PresenceClient;
+import clients.symphony.api.SignalsClient;
+import clients.symphony.api.StreamsClient;
+import clients.symphony.api.UsersClient;
+import configuration.LoadBalancingMethod;
+import configuration.SymConfig;
+import configuration.SymLoadBalancedConfig;
+import exceptions.SymClientException;
+import model.UserInfo;
 import services.DatafeedEventsService;
 import services.FirehoseService;
 import utils.HttpClientBuilderHelper;
 import utils.SymMessageParser;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotClient implements ISymClient {
     private final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
@@ -251,7 +260,7 @@ public final class SymBotClient implements ISymClient {
         return healthcheckClient;
     }
 
-    public void clearBotClient() {
+    public static void clearBotClient() {
         botClient = null;
     }
 
