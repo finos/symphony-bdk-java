@@ -1,8 +1,5 @@
 package authentication;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static utils.JwtHelper.validateJwt;
-
 import authentication.extensionapp.InMemoryTokensRepository;
 import authentication.extensionapp.TokensRepository;
 import clients.symphony.api.APIClient;
@@ -19,6 +16,11 @@ import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -33,33 +35,52 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static utils.JwtHelper.validateJwt;
 
 public final class SymExtensionAppRSAAuth extends APIClient {
     private final SecureRandom secureRandom = new SecureRandom();
     private final Logger logger = LoggerFactory.getLogger(SymExtensionAppRSAAuth.class);
+
     private SymConfig config;
     private Client sessionAuthClient;
     private String jwt;
     private int authRetries = 0;
     private TokensRepository tokensRepository;
     private String podCertificate;
+    private PrivateKey appPrivateKey;
 
-    public SymExtensionAppRSAAuth(final SymConfig configuration) {
-        this.config = configuration;
-        ClientBuilder clientBuilder =
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
+    /**
+     * Create an instance initialized with provided configuration.
+     *
+     * @param config the Symphony configuration
+     */
+    public SymExtensionAppRSAAuth(final SymConfig config) {
+        this(config, null);
+    }
+
+    /**
+     * Create an instance initialized with provided configuration and app RSA private key. The parts of the configuration
+     * related to app RSA private key will be ignored, e.g. {@link SymConfig#getAppPrivateKeyPath()} and
+     * {@link SymConfig#getAppPrivateKeyName()}. If given private key is null, then the initialization will only use the
+     * configuration, see {@link SymExtensionAppRSAAuth#SymExtensionAppRSAAuth(SymConfig)}.
+     *
+     * @param config        the Symphony configuration
+     * @param appPrivateKey the RSA private key
+     */
+    public SymExtensionAppRSAAuth(final SymConfig config, PrivateKey appPrivateKey) {
+        this.config = config;
+        this.appPrivateKey = appPrivateKey;
+
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(this.config);
         Client client = clientBuilder.build();
-        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
+
+        if (isEmpty(this.config.getProxyURL()) && isEmpty(this.config.getPodProxyURL())) {
             this.sessionAuthClient = client;
         } else {
             this.sessionAuthClient = clientBuilder
-                .withConfig(HttpClientBuilderHelper.getClientConfig(config))
-                .build();
+                    .withConfig(HttpClientBuilderHelper.getClientConfig(this.config))
+                    .build();
         }
         this.tokensRepository = new InMemoryTokensRepository();
 
@@ -81,11 +102,10 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     }
 
     public AppAuthResponse appAuthenticate() {
-        PrivateKey privateKey = getPrivateKey();
+        PrivateKey appPrivateKey = getAppPrivateKey();
         if (config != null) {
             logger.info("RSA extension app auth");
-            jwt = JwtHelper.createSignedJwt(config.getAppId(), AuthEndpointConstants.JWT_EXPIRY_MS,
-                privateKey);
+            jwt = JwtHelper.createSignedJwt(config.getAppId(), AuthEndpointConstants.JWT_EXPIRY_MS, appPrivateKey);
             Map<String, String> token = new HashMap<>();
             token.put("appToken", generateToken());
             token.put("authToken", jwt);
@@ -122,15 +142,17 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         return null;
     }
 
-    private PrivateKey getPrivateKey() {
-        PrivateKey privateKey = null;
-        try {
-            privateKey = JwtHelper.parseRSAPrivateKey(
-                new File(config.getAppPrivateKeyPath() + config.getAppPrivateKeyName()));
-        } catch (IOException | GeneralSecurityException e) {
-            logger.error(e.getMessage());
+    private PrivateKey getAppPrivateKey() {
+        if (appPrivateKey == null) {
+            try {
+                String privateKeyFilePath = config.getAppPrivateKeyPath() + config.getAppPrivateKeyName();
+                appPrivateKey = JwtHelper.parseRSAPrivateKey(new File(privateKeyFilePath));
+            } catch (IOException | GeneralSecurityException e) {
+                logger.error("Failed to obtain app RSA private key. An exception occurred parsing app RSA file", e);
+            }
         }
-        return privateKey;
+
+        return appPrivateKey;
     }
 
     private String generateToken() {
