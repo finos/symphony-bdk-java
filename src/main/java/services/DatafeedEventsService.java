@@ -151,7 +151,7 @@ public class DatafeedEventsService {
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
         for (DatafeedEvent event : datafeedEvents) {
-            if (event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId()))
+            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId()))
                 continue;
 
             switch (event.getType()) {
@@ -225,13 +225,13 @@ public class DatafeedEventsService {
 
                 case "CONNECTIONACCEPTED":
                     for (ConnectionListener listener : connectionListeners) {
-                        listener.onConnectionAccepted(event.getPayload().getConnectionAccepted().getFromUser());
+                        listener.onConnectionAccepted(event.getInitiator().getUser());
                     }
                     break;
 
                 case "CONNECTIONREQUESTED":
                     for (ConnectionListener listener : connectionListeners) {
-                        listener.onConnectionRequested(event.getPayload().getConnectionRequested().getToUser());
+                        listener.onConnectionRequested(event.getInitiator().getUser());
                     }
                     break;
 
