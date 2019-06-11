@@ -88,6 +88,9 @@ public class UsersClient extends APIClient{
                 throw new NoContentException("No user found.");
             } else {
                 UserInfoList infoList = response.readEntity(UserInfoList.class);
+                if (infoList.getUsers().isEmpty()) {
+                    throw new NoContentException("No user found.");
+                }
                 info = infoList.getUsers().get(0);
             }
 
