@@ -49,7 +49,7 @@ public class SymMessageParser {
         MessageMLContext context = new MessageMLContext(new DataProvider(botClient));
         try {
             context.parseMessageML(message, entityJSON, "2.0");
-            return context.getText();
+            return context.getText(true);
         } catch (InvalidInputException | IOException | ProcessingException e) {
             logger.error("Error trying to parse MessageMl");
         }
