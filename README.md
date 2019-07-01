@@ -67,4 +67,4 @@ To get the compiled template in `MessageML` format, use the functions:
 
 The complete list of message data object properties can be seen in the there:
 
-* [Message context examples](https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java/template-examples.md)
+* [Message context examples](https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java/blob/master/templates-examples.md)
