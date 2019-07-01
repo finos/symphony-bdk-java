@@ -1,0 +1,16 @@
+<div>
+  <card data-accent-color="tempo-bg-color--green"
+    data-icon-src="https://is3-ssl.mzstatic.com/image/thumb/Purple123/v4/e9/f5/7e/e9f57ed3-458c-22a0-1117-e53cc34f3a45/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/246x0w.jpg">
+    {{#if message.title}}
+    <header>
+      <b>{{message.title}}</b>
+    </header>
+    {{/if}}
+    {{#if message.content}}
+
+    <body>
+      {{message.content}}
+    </body>
+    {{/if}}
+  </card>
+</div>

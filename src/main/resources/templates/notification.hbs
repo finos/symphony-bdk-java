@@ -1,0 +1,69 @@
+<div>
+  <card data-accent-color="tempo-bg-color--blue"
+    data-icon-src="https://is3-ssl.mzstatic.com/image/thumb/Purple123/v4/e9/f5/7e/e9f57ed3-458c-22a0-1117-e53cc34f3a45/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/246x0w.jpg">
+    <header>
+      {{#if message.title}}
+      <h2>{{message.title}}</h2>
+      <hr />
+      {{/if}}
+
+      <div>
+        {{#if message.content}}
+        <span class="tempo-text-color--normal">{{message.content}}</span>
+        {{/if}}
+      </div>
+
+      <div class="labelBackground badge">
+        {{#if message.comment}}
+        <div>
+          <span class="tempo-text-color--secondary">Comments:</span>
+          <br />
+          <span class="tempo-text-color--normal">{{message.comment.body}}</span>
+          <br />
+        </div>
+        {{/if}}
+
+        <div>
+          {{#if message.description}}
+          <span class="tempo-text-color--secondary">Description:</span>
+          <span class="tempo-text-color--normal">{{message.description}}</span>
+          {{/if}}
+
+          {{#if message.assignee}}
+          <br />
+          <span class="tempo-text-color--secondary">Assignee:</span>
+          <span class="tempo-text-color--normal">{{message.assignee.displayName}}</span>
+          {{/if}}
+        </div>
+
+        {{#if message.showStatusBar}}
+        <hr />
+        <div>
+          {{#if message.type}}
+          <span class="tempo-text-color--secondary">Type:</span>
+          <span class="tempo-text-color--normal" style="margin-right:24px">{{message.type.name}}</span>
+          {{/if}}
+
+          {{#if message.priority}}
+          <span class="tempo-text-color--secondary">Priority:</span>
+          <span class="tempo-text-color--normal" style="margin-right:24px">{{message.priority.name}}</span>
+          {{/if}}
+
+          {{#if message.status}}
+          <span class="tempo-text-color--secondary">Status:</span>
+          <span class="tempo-bg-color--green tempo-text-color--white tempo-token"
+            style="margin-right:24px">{{message.status.name}}</span>
+          {{/if}}
+
+          {{#if message.labels}}
+          <span class="tempo-text-color--secondary">Labels:</span>
+          {{#each message.labels}}
+          <span class="hashTag" style="margin-right:24px">{{this.text}}</span>
+          {{/each}}
+          {{/if}}
+        </div>
+        {{/if}}
+      </div>
+    </header>
+  </card>
+</div>
