@@ -7,12 +7,14 @@
   "podPort": 443,
   "agentHost": "pod.symphony.com",
   "agentPort": 443,
+  "appPrivateKeyPath": "./src/main/resources/certs/",
+  "appPrivateKeyName": "bot_privatekey.pkcs8",
+  "appId": "app_id",
   "botPrivateKeyPath": "./src/main/resources/certs/",
-  "botPrivateKeyName": "example_privatekey.pkcs8",
-  "botEmailAddress": "bot@bot.symphony.com",
-  "botUsername": "username of bot",
-  "appCertPath": "./src/main/resources/certs/",
-  "appCertName": "app certificate (.p12)",
-  "appCertPassword": "changeit",
-  "authTokenRefreshPeriod": "30"
+  "botPrivateKeyName": "bot_privatekey.pkcs8",
+  "botEmailAddress": "bot@email.com",
+  "botUsername": "bot_user",
+  "authenticationFilterUrlPattern": "/v1/",
+  "authTokenRefreshPeriod": "30",
+  "showFirehoseErrors": false
 }

@@ -1,4 +1,4 @@
-package ${package}.bot.bootstrap;
+package ${package}.bot.config;
 
 import com.bol.crypt.CryptVault;
 import com.bol.secure.CachedEncryptionEventListener;
@@ -12,7 +12,7 @@ import java.util.Base64;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "crypto")
-public class EncryptConfig {
+public class CryptoParameters {
 
   private String password;
 

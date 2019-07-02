@@ -1,8 +1,12 @@
 package ${package}.api.config;
 
+import ${package}.api.filter.XSSFilter;
+
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -16,6 +20,7 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Configuration
@@ -47,12 +52,34 @@ public class ApiConfig implements WebMvcConfigurer {
     return bean;
   }
 
-  @Override
-  public void addCorsMappings(CorsRegistry registry) {
-    registry.addMapping("/**")
-        .allowedOrigins("*")
-        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-        .allowCredentials(true);
+  @Bean
+  @ConditionalOnProperty(prefix = "cors", name = "allowed-origin")
+  public FilterRegistrationBean<CorsFilter> corsFilter(Environment env) {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
+    config.addAllowedOrigin(env.getProperty("cors.allowed-origin"));
+    config.addAllowedHeader("*");
+    config.setAllowedMethods(
+        Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration(
+        env.getProperty("cors.url-mapping"), config);
+
+    FilterRegistrationBean<CorsFilter> bean =
+        new FilterRegistrationBean<>(new CorsFilter(source));
+    bean.setOrder(Integer.MIN_VALUE);
+
+    return bean;
+  }
+
+  @Bean
+  public FilterRegistrationBean<XSSFilter> xssFilter() {
+    FilterRegistrationBean<XSSFilter> registrationBean = new FilterRegistrationBean<>();
+    registrationBean.setFilter(new XSSFilter());
+    registrationBean.addUrlPatterns("/**");
+
+    return registrationBean;
   }
 
   @Override
