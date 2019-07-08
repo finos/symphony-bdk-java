@@ -1,36 +1,32 @@
 package clients;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import authentication.ISymAuth;
+import authentication.SymBotAuth;
+import authentication.SymBotRSAAuth;
+import clients.symphony.api.*;
+import configuration.LoadBalancingMethod;
+import configuration.SymConfig;
+import configuration.SymConfigLoader;
+import configuration.SymLoadBalancedConfig;
+import exceptions.NoConfigException;
+import exceptions.SymClientException;
+import model.UserInfo;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import authentication.ISymAuth;
-import clients.symphony.api.AdminClient;
-import clients.symphony.api.ConnectionsClient;
-import clients.symphony.api.DatafeedClient;
-import clients.symphony.api.FirehoseClient;
-import clients.symphony.api.HealthcheckClient;
-import clients.symphony.api.MessagesClient;
-import clients.symphony.api.PresenceClient;
-import clients.symphony.api.SignalsClient;
-import clients.symphony.api.StreamsClient;
-import clients.symphony.api.UsersClient;
-import configuration.LoadBalancingMethod;
-import configuration.SymConfig;
-import configuration.SymLoadBalancedConfig;
-import exceptions.SymClientException;
-import model.UserInfo;
 import services.DatafeedEventsService;
 import services.FirehoseService;
 import utils.HttpClientBuilderHelper;
 import utils.SymMessageParser;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotClient implements ISymClient {
-    private final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
     private static SymBotClient botClient;
     private SymConfig config;
     private ISymAuth symBotAuth;
@@ -49,6 +45,68 @@ public final class SymBotClient implements ISymClient {
     private FirehoseClient firehoseClient;
     private FirehoseService firehoseService;
     private HealthcheckClient healthcheckClient;
+
+    public static SymBotClient initBotRsa(String configPath) throws NoConfigException {
+        return initBotRsa(configPath, SymConfig.class);
+    }
+
+    public static <T extends SymConfig> SymBotClient initBotRsa(String configPath, Class<T> clazz) throws NoConfigException {
+        return initBot(configPath, clazz, true);
+    }
+
+    public static SymBotClient initBot(String configPath) throws NoConfigException {
+        return initBot(configPath, SymConfig.class);
+    }
+
+    public static <T extends SymConfig> SymBotClient initBot(String configPath, Class<T> clazz) throws NoConfigException {
+        return initBot(configPath, clazz, false);
+    }
+
+    private static <T extends SymConfig> SymBotClient initBot(String configPath, Class<T> clazz, boolean isRsa)
+        throws NoConfigException {
+        if (botClient == null) {
+            T config = SymConfigLoader.loadConfig(configPath, clazz);
+            ISymAuth botAuth = isRsa ? new SymBotRSAAuth(config) : new SymBotAuth(config);
+            botAuth.authenticate();
+            botClient = new SymBotClient(config, botAuth);
+        }
+        return botClient;
+    }
+
+    public static SymBotClient initBotLoadBalancedRsa(String configPath, String lbConfigPath) throws NoConfigException {
+        return initBotLoadBalancedRsa(configPath, lbConfigPath, SymConfig.class);
+    }
+
+    public static <T extends SymConfig> SymBotClient initBotLoadBalancedRsa(
+        String configPath, String lbConfigPath, Class<T> clazz
+    ) throws NoConfigException {
+        return initBotLoadBalanced(configPath, lbConfigPath, clazz, true);
+    }
+
+    public static SymBotClient initBotLoadBalanced(String configPath, String lbConfigPath) throws NoConfigException {
+        return initBotLoadBalanced(configPath, lbConfigPath, SymConfig.class);
+    }
+
+    public static <T extends SymConfig> SymBotClient initBotLoadBalanced(
+        String configPath, String lbConfigPath, Class<T> clazz
+    ) throws NoConfigException {
+        return initBotLoadBalanced(configPath, lbConfigPath, clazz, false);
+    }
+
+    private static <T extends SymConfig> SymBotClient initBotLoadBalanced(
+        String configPath, String lbConfigPath, Class<T> clazz, boolean isRsa
+    ) throws NoConfigException {
+        if (botClient == null) {
+            T config = SymConfigLoader.loadConfig(configPath, clazz);
+            SymLoadBalancedConfig lbConfig = SymConfigLoader.loadConfig(lbConfigPath, SymLoadBalancedConfig.class);
+            ISymAuth botAuth = isRsa ? new SymBotRSAAuth(config) : new SymBotAuth(config);
+            botAuth.authenticate();
+
+            lbConfig.cloneAttributes(config);
+            botClient = new SymBotClient(lbConfig, botAuth);
+        }
+        return botClient;
+    }
 
     public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
         if (botClient == null) {
@@ -99,12 +157,9 @@ public final class SymBotClient implements ISymClient {
         this.config = config;
         this.symBotAuth = symBotAuth;
 
-        String proxyURL = !isEmpty(config.getPodProxyURL()) ?
-            config.getPodProxyURL() : config.getProxyURL();
-        String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
-            config.getPodProxyUsername() : config.getProxyUsername();
-        String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
-            config.getPodProxyPassword() : config.getProxyPassword();
+        String proxyURL = defaultIfEmpty(config.getPodProxyURL(), config.getProxyURL());
+        String proxyUser = defaultIfEmpty(config.getPodProxyUsername(), config.getProxyUsername());
+        String proxyPass = defaultIfEmpty(config.getPodProxyPassword(), config.getProxyPassword());
 
         ClientConfig proxyConfig = new ClientConfig();
         proxyConfig.connectorProvider(new ApacheConnectorProvider());
@@ -190,6 +245,10 @@ public final class SymBotClient implements ISymClient {
 
     public SymConfig getConfig() {
         return config;
+    }
+
+    public <T extends SymConfig> T getConfig(Class<T> clazz) {
+        return clazz.cast(config);
     }
 
     public ISymAuth getSymAuth() {
@@ -284,5 +343,4 @@ public final class SymBotClient implements ISymClient {
     public void setAgentClient(Client agentClient) {
         this.agentClient = agentClient;
     }
-
 }

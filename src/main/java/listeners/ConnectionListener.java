@@ -1,11 +1,8 @@
 package listeners;
 
 import model.User;
-import model.events.ConnectionRequested;
 
-public interface ConnectionListener {
-
+public interface ConnectionListener extends DatafeedListener {
     void onConnectionAccepted(User user);
-
     void onConnectionRequested(User user);
 }

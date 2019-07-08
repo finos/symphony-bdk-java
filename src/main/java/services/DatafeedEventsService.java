@@ -6,6 +6,7 @@ import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import listeners.ConnectionListener;
+import listeners.DatafeedListener;
 import listeners.IMListener;
 import listeners.RoomListener;
 import model.DatafeedEvent;
@@ -24,7 +25,7 @@ public class DatafeedEventsService {
     private SymBotClient botClient;
     private DatafeedClient datafeedClient;
     private List<RoomListener> roomListeners;
-    private List<IMListener> IMListeners;
+    private List<IMListener> imListeners;
     private List<ConnectionListener> connectionListeners;
     private String datafeedId = null;
     private ExecutorService pool;
@@ -39,7 +40,7 @@ public class DatafeedEventsService {
         this.TIMEOUT_NO_OF_SECS = client.getConfig().getDatafeedEventsErrorTimeout() != 0
             ? client.getConfig().getDatafeedEventsErrorTimeout() : 30;
         roomListeners = new ArrayList<>();
-        IMListeners = new ArrayList<>();
+        imListeners = new ArrayList<>();
         connectionListeners = new ArrayList<>();
         datafeedClient = this.botClient.getDatafeedClient();
 
@@ -54,6 +55,18 @@ public class DatafeedEventsService {
         stop.set(false);
     }
 
+    public void addListeners(DatafeedListener... listeners) {
+        for (DatafeedListener listener : listeners) {
+            if (listener instanceof RoomListener) {
+                roomListeners.add((RoomListener) listener);
+            } else if (listener instanceof IMListener) {
+                imListeners.add((IMListener) listener);
+            } else if (listener instanceof ConnectionListener) {
+                connectionListeners.add((ConnectionListener) listener);
+            }
+        }
+    }
+
     public void addRoomListener(RoomListener listener) {
         roomListeners.add(listener);
     }
@@ -63,11 +76,11 @@ public class DatafeedEventsService {
     }
 
     public void addIMListener(IMListener listener) {
-        IMListeners.add(listener);
+        imListeners.add(listener);
     }
 
     public void removeIMListener(IMListener listener) {
-        IMListeners.remove(listener);
+        imListeners.remove(listener);
     }
 
     public void addConnectionsListener(ConnectionListener listener) {
@@ -163,14 +176,14 @@ public class DatafeedEventsService {
                             listener.onRoomMessage(messageSent.getMessage());
                         }
                     } else {
-                        for (IMListener listener : IMListeners) {
+                        for (IMListener listener : imListeners) {
                             listener.onIMMessage(messageSent.getMessage());
                         }
                     }
                     break;
 
                 case "INSTANTMESSAGECREATED":
-                    for (IMListener listeners : IMListeners) {
+                    for (IMListener listeners : imListeners) {
                         listeners.onIMCreated(event.getPayload().getInstantMessageCreated().getStream());
                     }
                     break;

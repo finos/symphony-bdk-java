@@ -1,14 +1,33 @@
-# symphony-api-client-java
-The Java client is built in an event handler architecture. If you are building a bot that listens to conversations, you will only have to implement an interface of a listener with the functions to handle all events that will come through the Data Feed. 
+# Symphony API Client for Java
+This client library facilitates connectivity to a Symphony pod and simplifies the creation of bots and
+extension applications using the REST API. It provides the necessary API bindings, centralised configuration,
+authentication, data feed / firehose event loops, message parsing and agent server load balancing.
 
-### Install using maven
+## Installation
+### Maven
 ```xml
 <dependency>
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-api-client-java</artifactId>
-    <version>1.0.32</version>
+    <version>[1.0.0,)</version>
 </dependency>
 ```
+
+### Gradle
+```groovy
+compile: 'com.symphony.platformsolutions:symphony-api-client-java:1.0.+'
+```
+
+## Installation via Bot Generator
+To generate example projects that use this library, please use the [generator-symphony](https://github.com/SymphonyPlatformSolutions/generator-symphony) command line interface.
+```bash
+$ npm i -g yo generator-symphony
+$ yo symphony
+```
+The generator creates projects demonstrating bot and application workflows using features such as:
+* Spring Boot
+* Camunda BPM
+* Apache NLP
 
 ## Configuration
 Create a config.json file in your project which includes the following properties.
@@ -78,51 +97,59 @@ can exclude the bot certificate section, all extension app sections and all opti
 }
 ```
 
-### Loading configuration
-To load the configuration
-
+## Getting Started
+### Automatic bootstrap
 ```java
-URL url = getClass().getResource("config.json");
-SymConfig config = SymConfigLoader.loadFromFile(url.getPath());
+// Load configuration, authenticate and get bot client
+// Uses file in working directory if exists, else uses resource in classpath
+SymBotClient botClient = SymBotClient.initBotRsa("config.json"); // RSA-based auth or
+SymBotClient botClient = SymBotClient.initBot("config.json");    // Cert-based auth
+
+// Link datafeed listeners 
+botClient.getDatafeedEventsService().addListeners(
+    new IMListenerImpl(botClient),
+    new RoomListenerImpl(botClient)
+);
 ```
-or
-```java
-InputStream configFileStream = getClass().getResourceAsStream("/config.json");
-SymConfig config = SymConfigLoader.load(configFileStream);
-```
 
-## Authentication
-To authenticate against the pod and key manager
-
-For certificate-based authentication:
+### Alternative: Manually load configuration and authentication
 ```java
-SymBotAuth botAuth = new SymBotAuth(config);
+// Load configuration
+// Uses file in working directory if exists, else uses resource in classpath
+SymConfig config = SymConfigLoader.loadConfig("config.json");
+
+// Authenticate
+ISymAuth botAuth = new SymBotRSAAuth(config); // RSA-based auth or
+ISymAuth botAuth = new SymBotAuth(config);    // Cert-based auth
 botAuth.authenticate();
+
+// Get bot client
+SymBotClient botClient = SymBotClient.initBot(config, botAuth);
+
+// Link datafeed listeners
+botClient.getDatafeedEventsService().addListeners(
+    new IMListenerImpl(botClient),
+    new RoomListenerImpl(botClient)
+);
 ```
 
-For RSA-based authentication:
-```java
-SymBotRSAAuth botAuth = new SymBotRSAAuth(config);
-botAuth.authenticate();
-```
-
-For custom session and key-manager configurations:
+### Optional: Custom session and key-manager configurations
 ```java
 ClientConfig sessionAuthClientConfig = new ClientConfig();
-...
 ClientConfig kmAuthClientConfig = new ClientConfig();
-...
-SymBotAuth botAuth = new SymBotAuth(config, sessionAuthClientConfig, kmAuthClientConfig);
+ISymAuth botAuth = new SymBotRSAAuth(config, sessionAuthClientConfig, kmAuthClientConfig); // RSA-based or
+ISymAuth botAuth = new SymBotAuth(config, sessionAuthClientConfig, kmAuthClientConfig);    // Certificate-based
 botAuth.authenticate();
 ```
         
-## Request Filter
+### Optional: Request filter
 Provides a filter component to validate requests based on their JWT. To enable this feature, it's required that you instantiate the AuthenticationFilter (see example below) and a URL pattern which the filter will be applied to.
-```
-AuthenticationFilter filter = new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
+```java
+AuthenticationFilter filter = new AuthenticationFilter(symExtensionAppRSAAuth, config);
 ```
 
-## Example main class
+## Example Project
+### Main Class
 ```java
 public class BotExample {
     public static void main(String [] args) {
@@ -130,70 +157,65 @@ public class BotExample {
     }
     
     public BotExample() {
-        URL url = getClass().getResource("config.json");
-        SymConfig config = SymConfigLoader.loadFromFile(url.getPath());
-        SymBotAuth botAuth = new SymBotAuth(config);
-        botAuth.authenticate();
-        SymBotClient botClient = SymBotClient.initBot(config, botAuth);
-        DatafeedEventsService datafeedEventsService = botClient.getDatafeedEventsService();
-        RoomListener roomListenerTest = new RoomListenerTestImpl(botClient);
-        datafeedEventsService.addRoomListener(roomListenerTest);
-        IMListener imListener = new IMListenerImpl(botClient);
-        datafeedEventsService.addIMListener(imListener);
+        SymBotClient botClient = SymBotClient.initBotRsa("config.json");
+        
+        botClient.getDatafeedEventsService().addListeners(
+            new IMListenerImpl(botClient),
+            new RoomListenerImpl(botClient)
+        );
     }
 }
-```    
-    
-## Example RoomListener implementation
+```
+
+### IMListener Implementation
 ```java
-public class RoomListenerTestImpl implements RoomListener {
+public class IMListenerImpl implements IMListener {
     private SymBotClient botClient;
 
-    public RoomListenerTestImpl(SymBotClient botClient) {
+    public IMListenerImpl(SymBotClient botClient) {
         this.botClient = botClient;
     }
 
-    @Override
+    public void onIMMessage(InboundMessage message) {
+        String streamId = message.getStream().getStreamId();
+        String firstName = message.getUser().getFirstName();
+        String messageOut = String.format("Hi %s!", firstName);
+        this.botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
+    }
+
+    public void onIMCreated(Stream stream) {}
+}
+```
+    
+### RoomListener Implementation
+```java
+public class RoomListenerImpl implements RoomListener {
+    private SymBotClient botClient;
+
+    public RoomListenerImpl(SymBotClient botClient) {
+        this.botClient = botClient;
+    }
+
     public void onRoomMessage(InboundMessage message) {
-        OutboundMessage messageOut = new OutboundMessage();
-        messageOut.setMessage("<messageML>Hi "+message.getUser().getFirstName()+"!</messageML>");
-        try {
-            this.botClient.getMessagesClient().sendMessage(message.getStream().getStreamId(), messageOut);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String streamId = message.getStream().getStreamId();
+        String firstName = message.getUser().getFirstName();
+        String messageOut = String.format("Hello %s!", firstName);
+        this.botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
     }
 
-    @Override
-    public void onRoomCreated(RoomCreated roomCreated) {}
-
-    @Override
-    public void onRoomDeactivated(RoomDeactivated roomDeactivated) {}
-
-    @Override
-    public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwner roomMemberDemotedFromOwner) {}
-
-    @Override
-    public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwner roomMemberPromotedToOwner) {}
-
-    @Override
-    public void onRoomReactivated(Stream stream) {}
-
-    @Override
-    public void onRoomUpdated(RoomUpdated roomUpdated) {}
-
-    @Override
     public void onUserJoinedRoom(UserJoinedRoom userJoinedRoom) {
-        OutboundMessage messageOut = new OutboundMessage();
-        messageOut.setMessage("<messageML>Welcome "+userJoinedRoom.getAffectedUser().getFirstName()+"!</messageML>");
-        try {
-            this.botClient.getMessagesClient().sendMessage(userJoinedRoom.getStream().getStreamId(), messageOut);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String streamId = userJoinedRoom.getStream().getStreamId();
+        String firstName = userJoinedRoom.getAffectedUser().getFirstName();
+        String messageOut = String.format("Welcome %s!", firstName);
+        this.botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
     }
 
-    @Override
+    public void onRoomCreated(RoomCreated roomCreated) {}
+    public void onRoomDeactivated(RoomDeactivated roomDeactivated) {}
+    public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwner roomMemberDemotedFromOwner) {}
+    public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwner roomMemberPromotedToOwner) {}
+    public void onRoomReactivated(Stream stream) {}
+    public void onRoomUpdated(RoomUpdated roomUpdated) {}
     public void onUserLeftRoom(UserLeftRoom userLeftRoom) {}
 }
 ```
@@ -231,18 +253,26 @@ There is also support for sticky sessions, which should be true for any bot that
 ```
 
 ### Loading advanced configuration
-To load the configuration
-
+#### Automatic bootstrap
 ```java
-URL lbUrl = getClass().getResource("lb-config.json");
-SymLoadBalancedConfig lbConfig = SymConfigLoader.loadLoadBalancerFromFile(lbUrl.getPath());
-...
-SymBotClient botClient = SymBotClient.initBot(config, botAuth, lbConfig);
+// Load configuration, authenticate and get bot client
+// Uses files in working directory if they exist, else uses resources in classpath
+SymBotClient botClient = SymBotClient.initBotLoadBalancedRsa("config.json", "lb-config.json"); // RSA-based auth or
+SymBotClient botClient = SymBotClient.initBotLoadBalanced("config.json", "lb-config.json");    // Cert-based auth
 ```
-or
+
+#### Alternative: Manually load configuration and authentication
 ```java
-InputStream lbConfigStream = getClass().getResourceAsStream("/lb-config.json");
-SymLoadBalancedConfig lbConfig = SymConfigLoader.loadLoadBalancer(lbConfigStream);
-...
+// Load configuration
+// Uses files in working directory if they exist, else uses resources in classpath
+SymConfig config = SymConfigLoader.loadConfig("config.json");
+SymLoadBalancedConfig lbConfig = SymConfigLoader.loadLoadBalancerConfig("lb-config.json");
+
+// Authenticate
+ISymAuth botAuth = new SymBotRSAAuth(config); // RSA-based auth or
+ISymAuth botAuth = new SymBotAuth(config);    // Cert-based auth
+botAuth.authenticate();
+
+// Get bot client
 SymBotClient botClient = SymBotClient.initBot(config, botAuth, lbConfig);
 ```
