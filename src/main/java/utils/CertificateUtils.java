@@ -1,24 +1,19 @@
 package utils;
 
 import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 
 public class CertificateUtils {
+  private static final String X509_PADDING_REGEX = "[\\r\\n]?-{5}(BEGIN|END) CERTIFICATE-{5}[\\r\\n]?";
 
-  public static X509Certificate parseX509Certificate(final String certificateString)
-      throws GeneralSecurityException {
-    try {
-      CertificateFactory f = CertificateFactory.getInstance("X.509");
-      byte[] bytes = certificateString.getBytes("UTF-8");
-      ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-      X509Certificate certificate = (X509Certificate) f.generateCertificate(stream);
-      return certificate;
-    } catch (UnsupportedEncodingException e) {
-      throw new GeneralSecurityException(e);
-    }
+  public static X509Certificate parseX509Certificate(String certString) throws CertificateException {
+      certString = certString.replaceAll(X509_PADDING_REGEX, "").replaceAll("\n", "");
+    CertificateFactory f = CertificateFactory.getInstance("X.509");
+    byte[] bytes = Base64.getDecoder().decode(certString);
+    ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
+    return (X509Certificate) f.generateCertificate(stream);
   }
-
 }

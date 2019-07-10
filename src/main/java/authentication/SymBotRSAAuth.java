@@ -1,7 +1,5 @@
 package authentication;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
@@ -13,24 +11,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.*;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
@@ -51,9 +43,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
             this.sessionAuthClient = client;
         } else {
-            this.sessionAuthClient = clientBuilder
-                .withConfig(HttpClientBuilderHelper.getClientConfig(config))
-                .build();
+            ClientConfig sessionAuthClientConfig = HttpClientBuilderHelper.getClientConfig(config);
+            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
         }
 
         if (isEmpty(config.getKeyManagerProxyURL())) {
@@ -71,7 +62,6 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     }
 
     public SymBotRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
-        logger.info("SymOBOAuth with ClientConfig variables");
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         if (sessionAuthClientConfig != null) {
@@ -116,7 +106,7 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         final String dirPath = config.getBotPrivateKeyPath();
         final String keyName = config.getBotPrivateKeyName();
         final String path = dirPath + (dirPath.endsWith(File.separator) ? "" : File.separator) + keyName;
-        if(path.startsWith("classpath:")) {
+        if (path.startsWith("classpath:")) {
             return this.getClass().getResourceAsStream(path.replace("classpath:", ""));
         }
         return new FileInputStream(path);
