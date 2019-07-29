@@ -46,4 +46,9 @@ public class PodConstants {
     public static final String ADMINUPDATEUSER = POD + "/v2/admin/user/{uid}/update";
     public static final String ADMINUPDATEAVATAR = POD + "/v1/admin/user/{uid}/avatar/update";
     public static final String GETSESSIONUSER = POD + "/v2/sessioninfo";
+    public static final String LISTIBGROUPS = POD + "/v1/admin/group/list";
+    public static final String LISTIBGROUPMEMBERS = POD + "/v1/admin/group/{gid}/membership/list";
+    public static final String ADDIBGROUPMEMBERS = POD + "/v1/admin/group/{gid}/membership/add";
+    public static final String REMOVEIBGROUPMEMBERS = POD + "/v1/admin/group/{gid}/membership/remove";
+    public static final String LISTPOLICIES = POD + "/v1/admin/policy/list";
 }
