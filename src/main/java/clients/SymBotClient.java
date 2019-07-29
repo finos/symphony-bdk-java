@@ -45,6 +45,7 @@ public final class SymBotClient implements ISymClient {
     private FirehoseClient firehoseClient;
     private FirehoseService firehoseService;
     private HealthcheckClient healthcheckClient;
+    private InformationBarriersClient informationBarriersClient;
 
     public static SymBotClient initBotRsa(String configPath) throws NoConfigException {
         return initBotRsa(configPath, SymConfig.class);
@@ -317,6 +318,13 @@ public final class SymBotClient implements ISymClient {
             healthcheckClient = new HealthcheckClient(this);
         }
         return healthcheckClient;
+    }
+
+    public InformationBarriersClient getInformationBarriersClient() {
+        if (informationBarriersClient == null) {
+            informationBarriersClient = new InformationBarriersClient(this);
+        }
+        return informationBarriersClient;
     }
 
     public static void clearBotClient() {
