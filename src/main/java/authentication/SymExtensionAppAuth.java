@@ -20,7 +20,6 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static utils.JwtHelper.validateJwt;
 
 public final class SymExtensionAppAuth extends APIClient {
@@ -37,13 +36,11 @@ public final class SymExtensionAppAuth extends APIClient {
     public SymExtensionAppAuth(SymConfig config) {
         this.config = config;
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
-        Client client = clientBuilder.build();
+        this.sessionAuthClient = clientBuilder.build();
 
-        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
-            this.sessionAuthClient = client;
-        } else {
-            ClientConfig sessionAuthClientConfig = HttpClientBuilderHelper.getClientConfig(config);
-            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+        ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
+        if (clientConfig != null) {
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
     }
 

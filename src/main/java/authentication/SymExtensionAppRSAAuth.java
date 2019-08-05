@@ -31,7 +31,6 @@ import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static utils.JwtHelper.validateJwt;
 
 public final class SymExtensionAppRSAAuth extends APIClient {
@@ -67,12 +66,11 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         this.appPrivateKey = appPrivateKey;
 
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
+        this.sessionAuthClient = clientBuilder.build();
 
-        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
-            this.sessionAuthClient = clientBuilder.build();
-        } else {
-            ClientConfig sessionAuthClientConfig = HttpClientBuilderHelper.getClientConfig(config);
-            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+        ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
+        if (clientConfig != null) {
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
 
         this.tokensRepository = new InMemoryTokensRepository();

@@ -4,9 +4,7 @@ import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import model.Token;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
@@ -22,7 +20,6 @@ import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
@@ -40,24 +37,17 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config);
         Client client = clientBuilder.build();
 
-        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
-            this.sessionAuthClient = client;
-        } else {
-            ClientConfig sessionAuthClientConfig = HttpClientBuilderHelper.getClientConfig(config);
-            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+        this.sessionAuthClient = client;
+        this.kmAuthClient = client;
+
+        ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
+        if (clientConfig != null) {
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
 
-        if (isEmpty(config.getKeyManagerProxyURL())) {
-            this.kmAuthClient = client;
-        } else {
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig.property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
-            if (config.getKeyManagerProxyUsername() != null && config.getKeyManagerProxyUsername() != null) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getKeyManagerProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getKeyManagerProxyPassword());
-            }
-            this.kmAuthClient = clientBuilder.withConfig(clientConfig).build();
+        ClientConfig kmClientConfig = HttpClientBuilderHelper.getKMClientConfig(config);
+        if (kmClientConfig != null) {
+            this.kmAuthClient = clientBuilder.withConfig(kmClientConfig).build();
         }
     }
 
@@ -174,22 +164,27 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         }
     }
 
+    @Override
     public String getSessionToken() {
         return sessionToken;
     }
 
+    @Override
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
     }
 
+    @Override
     public String getKmToken() {
         return kmToken;
     }
 
+    @Override
     public void setKmToken(String kmToken) {
         this.kmToken = kmToken;
     }
 
+    @Override
     public void logout() {
         logger.info("Logging out");
         Client client = ClientBuilder.newClient();

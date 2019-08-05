@@ -11,9 +11,7 @@ import configuration.SymLoadBalancedConfig;
 import exceptions.NoConfigException;
 import exceptions.SymClientException;
 import model.UserInfo;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.DatafeedEventsService;
@@ -158,26 +156,16 @@ public final class SymBotClient implements ISymClient {
         this.config = config;
         this.symBotAuth = symBotAuth;
 
-        String proxyURL = defaultIfEmpty(config.getPodProxyURL(), config.getProxyURL());
-        String proxyUser = defaultIfEmpty(config.getPodProxyUsername(), config.getProxyUsername());
-        String proxyPass = defaultIfEmpty(config.getPodProxyPassword(), config.getProxyPassword());
+        ClientConfig agentConfig = HttpClientBuilderHelper.getAgentClientConfig(config);
+        ClientConfig podConfig = HttpClientBuilderHelper.getPodClientConfig(config);
 
-        ClientConfig proxyConfig = new ClientConfig();
-        proxyConfig.connectorProvider(new ApacheConnectorProvider());
-        proxyConfig.property(ClientProperties.PROXY_URI, proxyURL);
-
-        if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
-            proxyConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
-            proxyConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
-        }
-
-        this.agentClient = isEmpty(config.getProxyURL()) ?
+        this.agentClient = (agentConfig == null) ?
             HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
-        this.podClient = (isEmpty(config.getPodProxyURL()) && isEmpty(config.getProxyURL())) ?
+        this.podClient = (podConfig == null) ?
             HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
 
         try {
             botUserInfo = this.getUsersClient().getSessionUser();

@@ -3,12 +3,9 @@ package clients;
 import authentication.ISymAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import utils.HttpClientBuilderHelper;
 import javax.ws.rs.client.Client;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymOBOClient implements ISymClient {
     private static SymOBOClient oboClient;
@@ -49,28 +46,16 @@ public final class SymOBOClient implements ISymClient {
         this.config = config;
         this.symAuth = symAuth;
 
-        String proxyURL = !isEmpty(config.getPodProxyURL()) ?
-            config.getPodProxyURL() : config.getProxyURL();
-        String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
-            config.getPodProxyUsername() : config.getProxyUsername();
-        String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
-            config.getPodProxyPassword() : config.getProxyPassword();
+        ClientConfig agentConfig = HttpClientBuilderHelper.getAgentClientConfig(config);
+        ClientConfig podConfig = HttpClientBuilderHelper.getPodClientConfig(config);
 
-        ClientConfig proxyConfig = new ClientConfig();
-        proxyConfig.connectorProvider(new ApacheConnectorProvider());
-        proxyConfig.property(ClientProperties.PROXY_URI, proxyURL);
-        if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
-            proxyConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
-            proxyConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
-        }
-
-        this.agentClient = isEmpty(config.getProxyURL()) ?
+        this.agentClient = (agentConfig == null) ?
             HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
-        this.podClient = (isEmpty(config.getPodProxyURL()) && isEmpty(config.getProxyURL())) ?
+        this.podClient = (podConfig == null) ?
             HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(proxyConfig).build();
+            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
     }
 
     @Override
@@ -83,6 +68,7 @@ public final class SymOBOClient implements ISymClient {
         return symAuth;
     }
 
+    @Override
     public MessagesClient getMessagesClient() {
         if (messagesClient == null) {
             messagesClient = new MessagesClient(this);
@@ -90,6 +76,7 @@ public final class SymOBOClient implements ISymClient {
         return messagesClient;
     }
 
+    @Override
     public PresenceClient getPresenceClient() {
         if (presenceClient == null) {
             presenceClient = new PresenceClient(this);
@@ -97,6 +84,7 @@ public final class SymOBOClient implements ISymClient {
         return presenceClient;
     }
 
+    @Override
     public StreamsClient getStreamsClient() {
         if (streamsClient == null) {
             streamsClient = new StreamsClient(this);
@@ -104,6 +92,7 @@ public final class SymOBOClient implements ISymClient {
         return streamsClient;
     }
 
+    @Override
     public UsersClient getUsersClient() {
         if (usersClient == null) {
             usersClient = new UsersClient(this);
@@ -111,6 +100,7 @@ public final class SymOBOClient implements ISymClient {
         return usersClient;
     }
 
+    @Override
     public ConnectionsClient getConnectionsClient() {
         if (connectionsClient == null) {
             connectionsClient = new ConnectionsClient(this);
@@ -118,6 +108,7 @@ public final class SymOBOClient implements ISymClient {
         return connectionsClient;
     }
 
+    @Override
     public SignalsClient getSignalsClient() {
         if (signalsClient == null) {
             signalsClient = new SignalsClient(this);
