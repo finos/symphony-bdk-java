@@ -1,13 +1,11 @@
 package authentication;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import clients.symphony.api.APIClient;
@@ -32,24 +30,17 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientBotBuilder(config);
         Client client = clientBuilder.build();
 
-        if (isEmpty(config.getProxyURL()) && isEmpty(config.getPodProxyURL())) {
-            this.sessionAuthClient = client;
-        } else {
-          this.sessionAuthClient = clientBuilder
-              .withConfig(HttpClientBuilderHelper.getClientConfig(config))
-              .build();
+        this.sessionAuthClient = client;
+        this.kmAuthClient = client;
+
+        ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
+        if (clientConfig != null) {
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         }
 
-        if (isEmpty(config.getKeyManagerProxyURL())) {
-            this.kmAuthClient = client;
-        } else {
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.property(ClientProperties.PROXY_URI, config.getKeyManagerProxyURL());
-            if (config.getKeyManagerProxyUsername() != null && config.getKeyManagerProxyPassword() != null) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getKeyManagerProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getKeyManagerProxyPassword());
-            }
-            this.kmAuthClient = clientBuilder.withConfig(clientConfig).build();
+        ClientConfig kmClientConfig = HttpClientBuilderHelper.getKMClientConfig(config);
+        if (kmClientConfig != null) {
+            this.kmAuthClient = clientBuilder.withConfig(kmClientConfig).build();
         }
     }
 

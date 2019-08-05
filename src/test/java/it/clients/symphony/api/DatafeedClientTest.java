@@ -97,4 +97,13 @@ public class DatafeedClientTest extends BotTest {
     assertEquals("CszQa6uPAA9V", events.get(0).getMessageId());
   }
 
+  @Test(expected = javax.ws.rs.ProcessingException.class)
+  public void readDatafeedConnectionTimeout() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse().withStatus(200).withFixedDelay(10000)));
+
+    datafeedClient.readDatafeed("1");
+  }
+
 }

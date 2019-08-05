@@ -73,7 +73,7 @@ public class HttpClientBuilderHelper {
         return clientBuilder;
     }
 
-    public static ClientConfig getClientConfig(SymConfig config) {
+    public static ClientConfig getPodClientConfig(SymConfig config) {
       String proxyURL = !isEmpty(config.getPodProxyURL()) ?
           config.getPodProxyURL() : config.getProxyURL();
       String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
@@ -81,14 +81,45 @@ public class HttpClientBuilderHelper {
       String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
           config.getPodProxyPassword() : config.getProxyPassword();
 
-      ClientConfig clientConfig = new ClientConfig();
-      clientConfig.connectorProvider(new ApacheConnectorProvider());
+      return getClientConfig(config, proxyURL, proxyUser, proxyPass);
+    }
 
-      if (!isEmpty(proxyURL)) {
-          clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
-          if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
-            clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
-            clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
+    public static ClientConfig getAgentClientConfig(SymConfig config) {
+      String proxyURL = config.getProxyURL();
+      String proxyUser = config.getProxyUsername();
+      String proxyPass = config.getProxyPassword();
+
+      return getClientConfig(config, proxyURL, proxyUser, proxyPass);
+    }
+
+    public static ClientConfig getKMClientConfig(SymConfig config) {
+      String kmProxyURL = config.getKeyManagerProxyURL();
+      String kmProxyUser = config.getKeyManagerProxyUsername();
+      String kmProxyPass = config.getKeyManagerProxyPassword();
+
+      return getClientConfig(config, kmProxyURL, kmProxyUser, kmProxyPass);
+    }
+
+    private static ClientConfig getClientConfig(SymConfig config,
+        String proxyURL, String proxyUser, String proxyPass) {
+      int connectionTimeout = config.getConnectionTimeout();
+
+      ClientConfig clientConfig = null;
+      if (!isEmpty(proxyURL) || connectionTimeout > 0) {
+          clientConfig = new ClientConfig();
+          clientConfig.connectorProvider(new ApacheConnectorProvider());
+
+          if (!isEmpty(proxyURL)) {
+              clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
+              if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
+                  clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+                  clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
+              }
+          }
+
+          if (connectionTimeout > 0) {
+              clientConfig.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
+              clientConfig.property(ClientProperties.READ_TIMEOUT, connectionTimeout);
           }
       }
 

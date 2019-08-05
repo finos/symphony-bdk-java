@@ -42,6 +42,7 @@ public class SymConfig {
     private int datafeedEventsErrorTimeout;
     private String authenticationFilterUrlPattern;
     private boolean showFirehoseErrors;
+    private int connectionTimeout;
 
     public String getSessionAuthHost() {
         return sessionAuthHost;
@@ -338,4 +339,13 @@ public class SymConfig {
     public void setShowFirehoseErrors(boolean showFirehoseErrors) {
         this.showFirehoseErrors = showFirehoseErrors;
     }
+
+    public int getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public void setConnectionTimeout(int connectionTimeout) {
+        this.connectionTimeout = connectionTimeout;
+    }
+
 }
