@@ -1,26 +1,18 @@
 package utils;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-
-import javax.ws.rs.client.ClientBuilder;
-
+import configuration.SymConfig;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import configuration.SymConfig;
+import javax.ws.rs.client.ClientBuilder;
+import java.io.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class HttpClientBuilderHelper {
     private final static Logger logger = LoggerFactory.getLogger(HttpClientBuilderHelper.class);
@@ -74,56 +66,52 @@ public class HttpClientBuilderHelper {
     }
 
     public static ClientConfig getPodClientConfig(SymConfig config) {
-      String proxyURL = !isEmpty(config.getPodProxyURL()) ?
-          config.getPodProxyURL() : config.getProxyURL();
-      String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
-          config.getPodProxyUsername() : config.getProxyUsername();
-      String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
-          config.getPodProxyPassword() : config.getProxyPassword();
+        String proxyURL = !isEmpty(config.getPodProxyURL()) ?
+            config.getPodProxyURL() : config.getProxyURL();
+        String proxyUser = !isEmpty(config.getPodProxyUsername()) ?
+            config.getPodProxyUsername() : config.getProxyUsername();
+        String proxyPass = !isEmpty(config.getPodProxyPassword()) ?
+            config.getPodProxyPassword() : config.getProxyPassword();
 
-      return getClientConfig(config, proxyURL, proxyUser, proxyPass);
+        return getClientConfig(config, proxyURL, proxyUser, proxyPass);
     }
 
     public static ClientConfig getAgentClientConfig(SymConfig config) {
-      String proxyURL = config.getProxyURL();
-      String proxyUser = config.getProxyUsername();
-      String proxyPass = config.getProxyPassword();
+        String proxyURL = config.getProxyURL();
+        String proxyUser = config.getProxyUsername();
+        String proxyPass = config.getProxyPassword();
 
-      return getClientConfig(config, proxyURL, proxyUser, proxyPass);
+        return getClientConfig(config, proxyURL, proxyUser, proxyPass);
     }
 
     public static ClientConfig getKMClientConfig(SymConfig config) {
-      String kmProxyURL = config.getKeyManagerProxyURL();
-      String kmProxyUser = config.getKeyManagerProxyUsername();
-      String kmProxyPass = config.getKeyManagerProxyPassword();
+        String kmProxyURL = config.getKeyManagerProxyURL();
+        String kmProxyUser = config.getKeyManagerProxyUsername();
+        String kmProxyPass = config.getKeyManagerProxyPassword();
 
-      return getClientConfig(config, kmProxyURL, kmProxyUser, kmProxyPass);
+        return getClientConfig(config, kmProxyURL, kmProxyUser, kmProxyPass);
     }
 
-    private static ClientConfig getClientConfig(SymConfig config,
-        String proxyURL, String proxyUser, String proxyPass) {
-      int connectionTimeout = config.getConnectionTimeout();
+    private static ClientConfig getClientConfig(
+        SymConfig config, String proxyURL, String proxyUser, String proxyPass
+    ) {
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.connectorProvider(new ApacheConnectorProvider());
 
-      ClientConfig clientConfig = null;
-      if (!isEmpty(proxyURL) || connectionTimeout > 0) {
-          clientConfig = new ClientConfig();
-          clientConfig.connectorProvider(new ApacheConnectorProvider());
+        if (config.getConnectionTimeout() > 0) {
+            clientConfig.property(ClientProperties.CONNECT_TIMEOUT, config.getConnectionTimeout());
+            clientConfig.property(ClientProperties.READ_TIMEOUT, config.getConnectionTimeout());
+        }
 
-          if (!isEmpty(proxyURL)) {
-              clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
-              if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
-                  clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
-                  clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
-              }
-          }
+        if (!isEmpty(proxyURL)) {
+            clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
+            if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
+                clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+                clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
+            }
+        }
 
-          if (connectionTimeout > 0) {
-              clientConfig.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
-              clientConfig.property(ClientProperties.READ_TIMEOUT, connectionTimeout);
-          }
-      }
-
-      return clientConfig;
+        return clientConfig;
     }
 
     private static void loadTrustStore(SymConfig config, KeyStore tks, ClientBuilder clientBuilder) {
