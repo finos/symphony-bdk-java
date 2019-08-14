@@ -98,10 +98,9 @@ public class HttpClientBuilderHelper {
         ClientConfig clientConfig = new ClientConfig();
         clientConfig.connectorProvider(new ApacheConnectorProvider());
 
-        if (config.getConnectionTimeout() > 0) {
-            clientConfig.property(ClientProperties.CONNECT_TIMEOUT, config.getConnectionTimeout());
-            clientConfig.property(ClientProperties.READ_TIMEOUT, config.getConnectionTimeout());
-        }
+        int timeout = config.getConnectionTimeout() > 0 ? config.getConnectionTimeout() : 35000;
+        clientConfig.property(ClientProperties.CONNECT_TIMEOUT, timeout);
+        clientConfig.property(ClientProperties.READ_TIMEOUT, timeout);
 
         if (!isEmpty(proxyURL)) {
             clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
