@@ -5,10 +5,7 @@ import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
-import listeners.ConnectionListener;
-import listeners.DatafeedListener;
-import listeners.IMListener;
-import listeners.RoomListener;
+import listeners.*;
 import model.DatafeedEvent;
 import model.events.MessageSent;
 import org.slf4j.Logger;
@@ -27,6 +24,7 @@ public class DatafeedEventsService {
     private List<RoomListener> roomListeners;
     private List<IMListener> imListeners;
     private List<ConnectionListener> connectionListeners;
+    private List<ElementsListener> elementsListeners;
     private String datafeedId = null;
     private ExecutorService pool;
     private AtomicBoolean stop = new AtomicBoolean();
@@ -34,15 +32,18 @@ public class DatafeedEventsService {
     private final int TIMEOUT_NO_OF_SECS;
 
     public DatafeedEventsService(SymBotClient client) {
+        this.roomListeners = new ArrayList<>();
+        this.imListeners = new ArrayList<>();
+        this.connectionListeners = new ArrayList<>();
+        this.elementsListeners = new ArrayList<>();
+
         this.botClient = client;
-        this.THREADPOOL_SIZE = client.getConfig().getDatafeedEventsThreadpoolSize() != 0
-            ? client.getConfig().getDatafeedEventsThreadpoolSize() : 5;
-        this.TIMEOUT_NO_OF_SECS = client.getConfig().getDatafeedEventsErrorTimeout() != 0
-            ? client.getConfig().getDatafeedEventsErrorTimeout() : 30;
-        roomListeners = new ArrayList<>();
-        imListeners = new ArrayList<>();
-        connectionListeners = new ArrayList<>();
-        datafeedClient = this.botClient.getDatafeedClient();
+        this.datafeedClient = this.botClient.getDatafeedClient();
+
+        int threadPoolSize = client.getConfig().getDatafeedEventsThreadpoolSize();
+        this.THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
+        int errorTimeout = client.getConfig().getDatafeedEventsErrorTimeout();
+        this.TIMEOUT_NO_OF_SECS = errorTimeout > 0 ? errorTimeout : 30;
 
         while (datafeedId == null) {
             try {
@@ -58,11 +59,27 @@ public class DatafeedEventsService {
     public void addListeners(DatafeedListener... listeners) {
         for (DatafeedListener listener : listeners) {
             if (listener instanceof RoomListener) {
-                roomListeners.add((RoomListener) listener);
+                addRoomListener((RoomListener) listener);
             } else if (listener instanceof IMListener) {
-                imListeners.add((IMListener) listener);
+                addIMListener((IMListener) listener);
             } else if (listener instanceof ConnectionListener) {
-                connectionListeners.add((ConnectionListener) listener);
+                addConnectionsListener((ConnectionListener) listener);
+            } else if (listener instanceof ElementsListener) {
+                addElementsListener((ElementsListener) listener);
+            }
+        }
+    }
+
+    public void removeListeners(DatafeedListener... listeners) {
+        for (DatafeedListener listener : listeners) {
+            if (listener instanceof RoomListener) {
+                removeRoomListener((RoomListener) listener);
+            } else if (listener instanceof IMListener) {
+                removeIMListener((IMListener) listener);
+            } else if (listener instanceof ConnectionListener) {
+                removeConnectionsListener((ConnectionListener) listener);
+            } else if (listener instanceof ElementsListener) {
+                removeElementsListener((ElementsListener) listener);
             }
         }
     }
@@ -89,6 +106,14 @@ public class DatafeedEventsService {
 
     public void removeConnectionsListener(ConnectionListener listener) {
         connectionListeners.remove(listener);
+    }
+
+    public void addElementsListener(ElementsListener listener) {
+        elementsListeners.add(listener);
+    }
+
+    public void removeElementsListener(ElementsListener listener) {
+        elementsListeners.remove(listener);
     }
 
     public void readDatafeed() {
@@ -245,6 +270,15 @@ public class DatafeedEventsService {
                 case "CONNECTIONREQUESTED":
                     for (ConnectionListener listener : connectionListeners) {
                         listener.onConnectionRequested(event.getInitiator().getUser());
+                    }
+                    break;
+
+                case "SYMPHONYELEMENTSACTION":
+                    for (ElementsListener listener : elementsListeners) {
+                        listener.onElementsAction(
+                            event.getInitiator().getUser(),
+                            event.getPayload().getSymphonyElementsAction()
+                        );
                     }
                     break;
 

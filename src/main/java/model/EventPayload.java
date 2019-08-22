@@ -5,47 +5,21 @@ import model.events.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EventPayload {
-
     private MessageSent messageSent;
-
-
     private SharedPost sharedPost;
-
-
     private IMCreated instantMessageCreated;
-
-
     private RoomCreated roomCreated;
-
-
     private RoomUpdated roomUpdated;
-
-
     private RoomDeactivated roomDeactivated;
-
-
     private RoomReactivated roomReactivated;
-
-
     private UserJoinedRoom userJoinedRoom;
-
-
     private UserLeftRoom userLeftRoom;
-
-
     private RoomMemberPromotedToOwner roomMemberPromotedToOwner;
-
-
     private RoomMemberDemotedFromOwner roomMemberDemotedFromOwner;
-
-
     private ConnectionRequested connectionRequested;
-
-
     private ConnectionAccepted connectionAccepted;
-
-
     private MessageSuppressed messageSuppressed;
+    private SymphonyElementsAction symphonyElementsAction;
 
     public MessageSent getMessageSent() {
         return messageSent;
@@ -157,5 +131,13 @@ public class EventPayload {
 
     public void setMessageSuppressed(MessageSuppressed messageSuppressed) {
         this.messageSuppressed = messageSuppressed;
+    }
+
+    public SymphonyElementsAction getSymphonyElementsAction() {
+        return symphonyElementsAction;
+    }
+
+    public void setSymphonyElementsAction(SymphonyElementsAction symphonyElementsAction) {
+        this.symphonyElementsAction = symphonyElementsAction;
     }
 }
