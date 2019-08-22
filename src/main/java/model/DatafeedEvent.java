@@ -4,20 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DatafeedEvent {
-
-
     private String id;
-
     private String messageId;
-
     private Long timestamp;
-
     private String type;
-
     private Initiator initiator;
-
     private String diagnostic;
-
     private EventPayload payload;
 
     public String getId() {

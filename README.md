@@ -1,4 +1,7 @@
 # Symphony API Client for Java
+
+[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java.svg?style=shield)](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java) [![Maven Central](https://img.shields.io/maven-central/v/com.symphony.platformsolutions/symphony-api-client-java)](https://mvnrepository.com/artifact/com.symphony.platformsolutions/symphony-api-client-java) [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT) [![Email](https://img.shields.io/static/v1?label=contact&message=email&color=darkgoldenrod)](mailto:platformsolutions@symphony.com?subject=Java%20SDK)
+
 This client library facilitates connectivity to a Symphony pod and simplifies the creation of bots and
 extension applications using the REST API. It provides the necessary API bindings, centralised configuration,
 authentication, data feed / firehose event loops, message parsing and agent server load balancing.
@@ -151,18 +154,24 @@ AuthenticationFilter filter = new AuthenticationFilter(symExtensionAppRSAAuth, c
 ## Example Project
 ### Main Class
 ```java
-public class BotExample {
+public class MyBot {
+    private static SymBotClient botClient;
+
     public static void main(String [] args) {
-        new BotExample();
+        new MyBot();
     }
     
-    public BotExample() {
-        SymBotClient botClient = SymBotClient.initBotRsa("config.json");
-        
+    public MyBot() {
+        botClient = SymBotClient.initBotRsa("config.json");
         botClient.getDatafeedEventsService().addListeners(
-            new IMListenerImpl(botClient),
-            new RoomListenerImpl(botClient)
+            new IMListenerImpl(),
+            new RoomListenerImpl(),
+            new ElementsListenerImpl()
         );
+    }
+
+    public static SymBotClient getBotClient() {
+        return botClient;
     }
 }
 ```
@@ -170,44 +179,38 @@ public class BotExample {
 ### IMListener Implementation
 ```java
 public class IMListenerImpl implements IMListener {
-    private SymBotClient botClient;
-
-    public IMListenerImpl(SymBotClient botClient) {
-        this.botClient = botClient;
-    }
-
     public void onIMMessage(InboundMessage message) {
+        SymBotClient bot = MyBot.getBotClient();
         String streamId = message.getStream().getStreamId();
-        String firstName = message.getUser().getFirstName();
-        String messageOut = String.format("Hi %s!", firstName);
-        this.botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
+        String messageOut = String.format("Hello %s!", message.getUser().getDisplayName());
+        bot.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
     }
 
     public void onIMCreated(Stream stream) {}
 }
 ```
-    
+
 ### RoomListener Implementation
 ```java
 public class RoomListenerImpl implements RoomListener {
-    private SymBotClient botClient;
+    private SymBotClient bot;
 
-    public RoomListenerImpl(SymBotClient botClient) {
-        this.botClient = botClient;
+    public RoomListenerImpl() {
+        this.bot = MyBot.getBotClient();
     }
 
     public void onRoomMessage(InboundMessage message) {
         String streamId = message.getStream().getStreamId();
         String firstName = message.getUser().getFirstName();
         String messageOut = String.format("Hello %s!", firstName);
-        this.botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
+        this.bot.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
     }
 
     public void onUserJoinedRoom(UserJoinedRoom userJoinedRoom) {
         String streamId = userJoinedRoom.getStream().getStreamId();
         String firstName = userJoinedRoom.getAffectedUser().getFirstName();
         String messageOut = String.format("Welcome %s!", firstName);
-        this.botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
+        this.bot.getMessagesClient().sendMessage(streamId, new OutboundMessage(messageOut));
     }
 
     public void onRoomCreated(RoomCreated roomCreated) {}
@@ -218,6 +221,48 @@ public class RoomListenerImpl implements RoomListener {
     public void onRoomUpdated(RoomUpdated roomUpdated) {}
     public void onUserLeftRoom(UserLeftRoom userLeftRoom) {}
 }
+```
+
+### ElementsListener Implementation
+```java
+public class ElementsListenerImpl implements ElementsListener {
+    public void onElementsAction(User initiator, SymphonyElementsAction action) {
+        SymBotClient bot = MyBot.getBotClient();
+        Map<String, Object> formValues = action.getFormValues();
+        String input = (String) formValues.get("input-name");
+
+        String messageOut = String.format("Hi %s! You entered: %s", initiator.getFirstName(), input);
+        bot.getMessagesClient().sendMessage(action.getStreamId(), new OutboundMessage(messageOut));
+    }
+}
+```
+
+### Symphony Elements FormBuilder
+```java
+String formML = FormBuilder.builder("sec-finder-form")
+    .addHeader(6, "Security Reference")
+    .addTextField("secCode", "", "Enter a code..", true, false, 1, 15)
+    .addHeader(6, "Assigned To:")
+    .addPersonSelector("assignedTo", "Assign to..", false)
+    .addHeader(6, "Trade Status:")
+    .addRadioButton("status", "Pending", "pending", true)
+    .addRadioButton("status", "Confirmed", "confirmed", false)
+    .addRadioButton("status", "Settled", "settled", false)
+    .addHeader(6, "Desk:")
+    .addDropdownMenu("assetClass", false, Arrays.asList(
+        new DropdownMenuOption("eq", "Equities", true),
+        new DropdownMenuOption("fi", "Credit", false),
+        new DropdownMenuOption("fx", "FX", false),
+        new DropdownMenuOption("rates", "Rates", false)
+    ))
+    .addCheckBox("deliverable", "Non-Deliverable?", "nd", false)
+    .addHeader(6, "Remarks:")
+    .addTextArea("remarks", "", "Enter your remarks..", false)
+    .addButton("confirm", "Confirm", FormButtonType.ACTION)
+    .addButton("reset", "Reset", FormButtonType.RESET)
+    .formatElement();
+
+botClient.getMessagesClient().sendMessage(streamId, new OutboundMessage(formML));
 ```
 
 ## Advanced Configuration for Load Balancing
