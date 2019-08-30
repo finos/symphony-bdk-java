@@ -1,4 +1,4 @@
-# sms-sdk-renderer
+# sms-sdk-renderer-java
 
 Java SDK renders symphony messages using precompiled Handlebars templates.
 
@@ -67,4 +67,95 @@ To get the compiled template in `MessageML` format, use the functions:
 
 The complete list of message data object properties can be seen in the there:
 
-* [Message context examples](https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java/blob/master/templates-examples.md)
+### Message Context Examples
+
+SIMPLE
+```
+{
+  title: 'Simple Title',
+  content: 'This is a simple message'
+};
+```
+ALERT
+```
+{
+  title: 'Alert Title',
+  content: 'This is a danger alert'
+};
+```
+INFORMATION
+```
+{
+  title: 'Informaiton Title',
+  content: 'This is a information message',
+  description: 'Information message description'
+};
+```
+NOTIFICATION
+```
+{
+  title: 'My Title',
+  
+  // OPTIONAL - used to render alert syle notification
+  alert: true,
+  
+  // Content can be a smiple text or an object
+  // Object is rendered in </card>
+  content: 'My content',
+  content: {
+    header: 'Content header',
+    body: 'Content body'
+  },
+  
+  description: 'My description',
+  comment: {
+    body: 'My comments'
+  },
+  assignee: {
+    displayName: 'John Smith'
+  },
+  showStatusBar: true,
+  type: {
+    name: 'message type'
+  },
+  priority: {
+    name: 'message priority'
+  },
+  status: {
+    name: 'message status'
+  },
+  labels: [
+    {
+      text: 'label1'
+    },
+    {
+      text: 'label2'
+    }
+  ]
+};
+```
+LIST
+```
+{
+  title: 'Phones List',
+  
+  // Content can be a list of strings
+  content: [
+    "iPhone", "Samsung Galaxy", "Google Pixel 3"
+  ]
+  // or a list of objects, header is rendered in bold
+  content: [
+    {
+        header: "iPhone",
+        body: " is an Apple device"
+  ]
+};
+```
+TABLE
+```
+[
+  { "Manufacturer": "Apple", "Phone": "iPhone", "Operating System": "iOS" },
+  { "Manufacturer": "Samsung", "Phone": "Galaxy", "Operating System": "Android" },
+  { "Manufacturer": "Google", "Phone": "Google Pixel 3", "Operating System": "Android" }
+];
+```

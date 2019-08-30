@@ -1,6 +1,11 @@
 <div>
-  <card data-accent-color="tempo-bg-color--blue"
-    data-icon-src="https://is3-ssl.mzstatic.com/image/thumb/Purple123/v4/e9/f5/7e/e9f57ed3-458c-22a0-1117-e53cc34f3a45/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/246x0w.jpg">
+{{#if message.alert}}
+    <card data-accent-color="tempo-bg-color--red"
+        data-icon-src="https://is3-ssl.mzstatic.com/image/thumb/Purple123/v4/e9/f5/7e/e9f57ed3-458c-22a0-1117-e53cc34f3a45/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/246x0w.jpg">
+{{else}}
+    <card data-accent-color="tempo-bg-color--blue"
+        data-icon-src="https://is3-ssl.mzstatic.com/image/thumb/Purple123/v4/e9/f5/7e/e9f57ed3-458c-22a0-1117-e53cc34f3a45/AppIcon-0-1x_U007emarketing-0-0-GLES2_U002c0-512MB-sRGB-0-0-0-85-220-0-0-0-6.png/246x0w.jpg">
+{{/if}}
     <header>
       {{#if message.title}}
       <h2>{{message.title}}</h2>
@@ -9,7 +14,18 @@
 
       <div>
         {{#if message.content}}
-        <span class="tempo-text-color--normal">{{message.content}}</span>
+            {{#if message.content.header}}
+            <card data-accent-color="tempo-bg-color--background">
+                <header>
+                    {{message.content.header}}
+                </header>
+                <body>
+                {{message.content.body}}
+                </body>
+            </card>
+            {{else}}
+                <span class="tempo-text-color--normal">{{message.content}}</span>
+            {{/if}}
         {{/if}}
       </div>
 
@@ -51,8 +67,14 @@
 
           {{#if message.status}}
           <span class="tempo-text-color--secondary">Status:</span>
-          <span class="tempo-bg-color--green tempo-text-color--white tempo-token"
-            style="margin-right:24px">{{message.status.name}}</span>
+              {{#if message.alert}}
+                <span class="tempo-bg-color--red tempo-text-color--white tempo-token" style="margin-right:24px">
+              {{else}}
+                <span class="tempo-bg-color--green tempo-text-color--white tempo-token" style="margin-right:24px">
+              {{/if}}
+
+              {{message.status.name}}
+                </span>
           {{/if}}
 
           {{#if message.labels}}

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Template;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,13 @@ public final class SmsRenderer {
     }
 
     public static String renderInBot(JSONObject messageContext, SmsTypes smsType) {
+        JSONObject wrappedContext = new JSONObject();
+        wrappedContext.put("message", messageContext);
+
+        return render(wrappedContext.toString(), smsType);
+    }
+
+    public static String renderInBot(JSONArray messageContext, SmsTypes smsType) {
         JSONObject wrappedContext = new JSONObject();
         wrappedContext.put("message", messageContext);
 

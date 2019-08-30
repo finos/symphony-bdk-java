@@ -9,7 +9,11 @@
       <ul>
         {{#each message.content}}
         <li>
-          {{this}}
+          {{#if this.header}}
+          <b>{{this.header}}</b>{{this.body}}
+          {{else}}
+              {{this}}
+          {{/if}}
         </li>
         {{/each}}
       </ul>
