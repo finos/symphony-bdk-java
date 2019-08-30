@@ -18,15 +18,11 @@ import com.github.jknack.handlebars.io.TemplateLoader;
 import com.github.jknack.handlebars.io.TemplateSource;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This class loads the handlebar templates
  */
 public final class HandlebarsTemplateLoader {
-    private final Logger logger = LoggerFactory.getLogger(HandlebarsTemplateLoader.class);
-
     private Handlebars handlebars;
 
     public HandlebarsTemplateLoader() {

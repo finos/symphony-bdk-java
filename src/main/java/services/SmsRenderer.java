@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Template;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+@Slf4j
 public final class SmsRenderer {
-    private static final Logger logger = LoggerFactory.getLogger(SmsRenderer.class);
-
     public static String renderInBot(String messageContext, SmsTypes smsType) {
         String wrappedContext = "{\"message\":" + messageContext + "}";
 
@@ -45,7 +43,7 @@ public final class SmsRenderer {
 
             return template.apply(templateContext);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
         return null;
     }
