@@ -1,7 +1,6 @@
 package utils;
 
 import configuration.SymConfig;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -96,11 +95,11 @@ public class HttpClientBuilderHelper {
         SymConfig config, String proxyURL, String proxyUser, String proxyPass
     ) {
         ClientConfig clientConfig = new ClientConfig();
-        clientConfig.connectorProvider(new ApacheConnectorProvider());
-
-        int timeout = config.getConnectionTimeout() > 0 ? config.getConnectionTimeout() : 35000;
-        clientConfig.property(ClientProperties.CONNECT_TIMEOUT, timeout);
-        clientConfig.property(ClientProperties.READ_TIMEOUT, timeout);
+        if (config.getConnectionTimeout() == 0) {
+            config.setConnectionTimeout(35000);
+        }
+        clientConfig.property(ClientProperties.CONNECT_TIMEOUT, config.getConnectionTimeout());
+        clientConfig.property(ClientProperties.READ_TIMEOUT, config.getConnectionTimeout());
 
         if (!isEmpty(proxyURL)) {
             clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
