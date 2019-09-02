@@ -164,7 +164,12 @@ public class DatafeedEventsService {
     }
 
     private void handleError(Throwable e) {
-        logger.error("HandlerError error", e);
+        if (e.getMessage().endsWith("SocketTimeoutException: Read timed out")) {
+            int connectionTimeoutSeconds = botClient.getConfig().getConnectionTimeout() / 1000;
+            logger.info("Connection timed out after {} seconds", connectionTimeoutSeconds);
+        } else {
+            logger.error("HandlerError error", e);
+        }
         logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
         sleep();
         try {
