@@ -29,6 +29,23 @@ public class FormBuilder {
             .build();
     }
 
+    public FormBuilder addLineBreak() {
+        messageML.append(TagBuilder.builder("br").buildSelfClosing());
+        return this;
+    }
+
+    public FormBuilder addLineBreaks(int quantity) {
+        for (int i = 0; i < quantity; i++) {
+            messageML.append(TagBuilder.builder("br").buildSelfClosing());
+        }
+        return this;
+    }
+
+    public FormBuilder addDiv(String contents) {
+        messageML.append(TagBuilder.builder("div").setContents(contents).build());
+        return this;
+    }
+
     public FormBuilder addHeader(int size, String text) {
         if (size < 1 || size > 6) {
             size = 6;
