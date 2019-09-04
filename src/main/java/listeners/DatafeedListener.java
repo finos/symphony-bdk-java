@@ -1,3 +1,8 @@
 package listeners;
 
-public interface DatafeedListener {}
+public interface DatafeedListener {
+
+    default boolean ignoreSelf(){
+        return true;
+    }
+}

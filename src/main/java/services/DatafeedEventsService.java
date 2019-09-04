@@ -194,96 +194,110 @@ public class DatafeedEventsService {
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
         for (DatafeedEvent event : datafeedEvents) {
-            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId()))
+            if (event == null)
                 continue;
 
             switch (event.getType()) {
                 case "MESSAGESENT":
                     MessageSent messageSent = event.getPayload().getMessageSent();
-
+                    
                     if (messageSent.getMessage().getStream().getStreamType().equals("ROOM")) {
                         for (RoomListener listener : roomListeners) {
-                            listener.onRoomMessage(messageSent.getMessage());
+                            if(shouldHandleEvent(event, listener))
+                                listener.onRoomMessage(messageSent.getMessage());
                         }
                     } else {
                         for (IMListener listener : imListeners) {
-                            listener.onIMMessage(messageSent.getMessage());
+                            if(shouldHandleEvent(event, listener))
+                                listener.onIMMessage(messageSent.getMessage());
                         }
                     }
                     break;
 
                 case "INSTANTMESSAGECREATED":
-                    for (IMListener listeners : imListeners) {
-                        listeners.onIMCreated(event.getPayload().getInstantMessageCreated().getStream());
+                    for (IMListener listener : imListeners) {
+                        if(shouldHandleEvent(event, listener))
+                            listener.onIMCreated(event.getPayload().getInstantMessageCreated().getStream());
                     }
                     break;
 
                 case "ROOMCREATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomCreated(event.getPayload().getRoomCreated());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onRoomCreated(event.getPayload().getRoomCreated());
                     }
                     break;
 
                 case "ROOMUPDATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomUpdated(event.getPayload().getRoomUpdated());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onRoomUpdated(event.getPayload().getRoomUpdated());
                     }
                     break;
 
                 case "ROOMDEACTIVATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomDeactivated(event.getPayload().getRoomDeactivated());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onRoomDeactivated(event.getPayload().getRoomDeactivated());
                     }
                     break;
 
                 case "ROOMREACTIVATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomReactivated(event.getPayload().getRoomReactivated().getStream());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onRoomReactivated(event.getPayload().getRoomReactivated().getStream());
                     }
                     break;
 
                 case "USERJOINEDROOM":
                     for (RoomListener listener : roomListeners) {
-                        listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom());
                     }
                     break;
 
                 case "USERLEFTROOM":
                     for (RoomListener listener : roomListeners) {
-                        listener.onUserLeftRoom(event.getPayload().getUserLeftRoom());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onUserLeftRoom(event.getPayload().getUserLeftRoom());
                     }
                     break;
 
                 case "ROOMMEMBERPROMOTEDTOOWNER":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner());
                     }
                     break;
 
                 case "ROOMMEMBERDEMOTEDFROMOWNER":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner());
                     }
                     break;
 
                 case "CONNECTIONACCEPTED":
                     for (ConnectionListener listener : connectionListeners) {
-                        listener.onConnectionAccepted(event.getInitiator().getUser());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onConnectionAccepted(event.getInitiator().getUser());
                     }
                     break;
 
                 case "CONNECTIONREQUESTED":
                     for (ConnectionListener listener : connectionListeners) {
-                        listener.onConnectionRequested(event.getInitiator().getUser());
+                        if(shouldHandleEvent(event, listener))
+                            listener.onConnectionRequested(event.getInitiator().getUser());
                     }
                     break;
 
                 case "SYMPHONYELEMENTSACTION":
                     for (ElementsListener listener : elementsListeners) {
-                        listener.onElementsAction(
-                            event.getInitiator().getUser(),
-                            event.getPayload().getSymphonyElementsAction()
-                        );
+                        if(shouldHandleEvent(event, listener))
+                            listener.onElementsAction(
+                                event.getInitiator().getUser(),
+                                event.getPayload().getSymphonyElementsAction()
+                            );
                     }
                     break;
 
@@ -291,5 +305,9 @@ public class DatafeedEventsService {
                     break;
             }
         }
+    }
+    
+    private boolean shouldHandleEvent(DatafeedEvent event, DatafeedListener listener){
+        return (!listener.ignoreSelf() || !event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId()));
     }
 }
