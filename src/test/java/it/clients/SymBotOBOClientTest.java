@@ -1,10 +1,10 @@
 package it.clients;
 
-import static org.junit.Assert.assertNotNull;
-import org.junit.Test;
 import authentication.SymBotRSAAuth;
 import clients.SymOBOClient;
 import it.commons.BaseTest;
+import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
 
 public class SymBotOBOClientTest extends BaseTest {
   @Test

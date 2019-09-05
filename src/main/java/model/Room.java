@@ -3,12 +3,11 @@ package model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Room {
-
     private String name;
     private String description;
     private Boolean membersCanInvite;
@@ -20,8 +19,6 @@ public class Room {
     private Boolean viewHistory;
     private Boolean multiLateralRoom;
     private List<Keyword> keywords;
-
-
 
     public String getName() {
         return name;
@@ -60,8 +57,8 @@ public class Room {
         return isPublic;
     }
 
-    public void setPublic(Boolean aPublic) {
-        isPublic = aPublic;
+    public void setPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
     }
 
     public Boolean getReadOnly() {

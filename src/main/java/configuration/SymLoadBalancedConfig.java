@@ -3,15 +3,15 @@ package configuration;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import model.FqdnHost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymLoadBalancedConfig extends SymConfig {
@@ -66,6 +66,8 @@ public class SymLoadBalancedConfig extends SymConfig {
                 }
                 logger.info("Actual agent host: {}", actualAgentHost);
                 return actualAgentHost;
+
+            default:
         }
         return super.getAgentHost();
     }
@@ -87,6 +89,7 @@ public class SymLoadBalancedConfig extends SymConfig {
                 actualAgentHost = getActualAgentHost();
                 newAgent = actualAgentHost;
                 break;
+            default:
         }
         logger.info("Agent rotated to: {}", newAgent);
     }

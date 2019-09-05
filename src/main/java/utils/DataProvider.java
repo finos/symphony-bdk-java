@@ -2,17 +2,16 @@ package utils;
 
 import clients.SymBotClient;
 import exceptions.SymClientException;
+import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
+import javax.ws.rs.core.NoContentException;
 import model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.messageml.exceptions.InvalidInputException;
 import org.symphonyoss.symphony.messageml.util.IDataProvider;
 import org.symphonyoss.symphony.messageml.util.IUserPresentation;
-
-import javax.ws.rs.core.NoContentException;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 
 public class DataProvider implements IDataProvider {
     private final Logger logger = LoggerFactory.getLogger(IDataProvider.class);

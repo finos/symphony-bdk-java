@@ -1,9 +1,7 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.ArrayList;
-@JsonIgnoreProperties(ignoreUnknown = true)
 
-public class InboundConnectionRequestList extends ArrayList<InboundConnectionRequest> {
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class InboundConnectionRequestList extends ArrayList<InboundConnectionRequest> {}

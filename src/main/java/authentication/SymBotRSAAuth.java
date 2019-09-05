@@ -3,23 +3,23 @@ package authentication;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
-import model.Token;
-import org.glassfish.jersey.client.ClientConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import utils.HttpClientBuilderHelper;
-import utils.JwtHelper;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import model.Token;
+import org.glassfish.jersey.client.ClientConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import utils.HttpClientBuilderHelper;
+import utils.JwtHelper;
 
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
@@ -106,8 +106,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void sessionAuthenticate() {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
-        Response response
-            = this.sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + config.getPodHost() + ":" + config.getPodPort())
+        String podTarget = CommonConstants.HTTPS_PREFIX + config.getPodHost() + ":" + config.getPodPort();
+        Response response = this.sessionAuthClient.target(podTarget)
             .path(AuthEndpointConstants.SESSION_AUTH_PATH_RSA)
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(token, MediaType.APPLICATION_JSON));
@@ -137,8 +137,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void kmAuthenticate() {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
-        Response response
-            = this.kmAuthClient.target(CommonConstants.HTTPS_PREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort())
+        String keyAuthTarget = CommonConstants.HTTPS_PREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort();
+        Response response = this.kmAuthClient.target(keyAuthTarget)
             .path(AuthEndpointConstants.KEY_AUTH_PATH_RSA)
             .request(MediaType.APPLICATION_JSON)
             .post(Entity.entity(token, MediaType.APPLICATION_JSON));
@@ -188,7 +188,9 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void logout() {
         logger.info("Logging out");
         Client client = ClientBuilder.newClient();
-        Response response = client.target(CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort())
+        String sessionAuthTarget = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost()
+            + ":" + config.getSessionAuthPort();
+        Response response = client.target(sessionAuthTarget)
             .path(AuthEndpointConstants.LOGOUT_PATH)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", getSessionToken())

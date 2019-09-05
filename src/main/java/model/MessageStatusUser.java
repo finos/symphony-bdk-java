@@ -1,12 +1,10 @@
 package model;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MessageStatusUser {
-
-    private String  userId;
+    private String userId;
     private String firstName;
     private String lastName;
     private String email;

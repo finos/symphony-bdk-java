@@ -1,26 +1,25 @@
 package model;
 
 public class Password {
-
-    private String hSalt;
-    private String hPassword;
+    private String hhSalt;
+    private String hhPassword;
     private String khSalt;
     private String khPassword;
 
     public String gethSalt() {
-        return hSalt;
+        return hhSalt;
     }
 
-    public void sethSalt(String hSalt) {
-        this.hSalt = hSalt;
+    public void sethSalt(String hhSalt) {
+        this.hhSalt = hhSalt;
     }
 
     public String gethPassword() {
-        return hPassword;
+        return hhPassword;
     }
 
-    public void sethPassword(String hPassword) {
-        this.hPassword = hPassword;
+    public void sethPassword(String hhPassword) {
+        this.hhPassword = hhPassword;
     }
 
     public String getKhSalt() {

@@ -3,13 +3,13 @@ package authentication;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
-import model.Token;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.concurrent.TimeUnit;
+import model.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SymOBOUserRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymOBOUserRSAAuth.class);

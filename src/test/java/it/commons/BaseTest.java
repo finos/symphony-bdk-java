@@ -1,11 +1,11 @@
 package it.commons;
 
-import java.io.InputStream;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import clients.SymBotClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
+import java.io.InputStream;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class BaseTest {
   protected static SymConfig config;

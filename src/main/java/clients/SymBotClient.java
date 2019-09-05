@@ -10,6 +10,8 @@ import configuration.SymConfigLoader;
 import configuration.SymLoadBalancedConfig;
 import exceptions.NoConfigException;
 import exceptions.SymClientException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -18,10 +20,6 @@ import services.DatafeedEventsService;
 import services.FirehoseService;
 import utils.HttpClientBuilderHelper;
 import utils.SymMessageParser;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class SymBotClient implements ISymClient {
     private static final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
@@ -72,6 +70,49 @@ public final class SymBotClient implements ISymClient {
         return botClient;
     }
 
+    public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
+        if (botClient == null) {
+            botClient = new SymBotClient(config, botAuth);
+            return botClient;
+        }
+        return botClient;
+    }
+
+    public static SymBotClient initBot(SymConfig config, ISymAuth botAuth, SymLoadBalancedConfig lbConfig) {
+        if (botClient == null) {
+            lbConfig.cloneAttributes(config);
+            botClient = new SymBotClient(lbConfig, botAuth);
+            return botClient;
+        }
+        return botClient;
+    }
+
+    public static SymBotClient initBot(SymConfig config,
+                                       ISymAuth botAuth,
+                                       ClientConfig podClientConfig,
+                                       ClientConfig agentClientConfig) {
+        if (botClient == null) {
+            botClient = new SymBotClient(
+                config, botAuth, podClientConfig, agentClientConfig
+            );
+            return botClient;
+        }
+        return botClient;
+    }
+
+    public static SymBotClient initBot(SymConfig config,
+                                       ISymAuth botAuth,
+                                       ClientConfig podClientConfig,
+                                       ClientConfig agentClientConfig,
+                                       SymLoadBalancedConfig lbConfig) {
+        if (botClient == null) {
+            lbConfig.cloneAttributes(config);
+            botClient = new SymBotClient(config, botAuth, podClientConfig, agentClientConfig);
+            return botClient;
+        }
+        return botClient;
+    }
+
     public static SymBotClient initBotLoadBalancedRsa(String configPath, String lbConfigPath) throws NoConfigException {
         return initBotLoadBalancedRsa(configPath, lbConfigPath, SymConfig.class);
     }
@@ -103,51 +144,6 @@ public final class SymBotClient implements ISymClient {
 
             lbConfig.cloneAttributes(config);
             botClient = new SymBotClient(lbConfig, botAuth);
-        }
-        return botClient;
-    }
-
-    public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
-        if (botClient == null) {
-            botClient = new SymBotClient(config, botAuth);
-            return botClient;
-        }
-        return botClient;
-    }
-
-    public static SymBotClient initBot(SymConfig config,
-                                       ISymAuth botAuth,
-                                       SymLoadBalancedConfig lbConfig) {
-        if (botClient == null) {
-            lbConfig.cloneAttributes(config);
-            botClient = new SymBotClient(lbConfig, botAuth);
-            return botClient;
-        }
-        return botClient;
-    }
-
-    public static SymBotClient initBot(SymConfig config,
-                                       ISymAuth botAuth,
-                                       ClientConfig podClientConfig,
-                                       ClientConfig agentClientConfig) {
-        if (botClient == null) {
-            botClient = new SymBotClient(
-                config, botAuth, podClientConfig, agentClientConfig
-            );
-            return botClient;
-        }
-        return botClient;
-    }
-
-    public static SymBotClient initBot(SymConfig config,
-                                       ISymAuth botAuth,
-                                       ClientConfig podClientConfig,
-                                       ClientConfig agentClientConfig,
-                                       SymLoadBalancedConfig lbConfig) {
-        if (botClient == null) {
-            lbConfig.cloneAttributes(config);
-            botClient = new SymBotClient(config, botAuth, podClientConfig, agentClientConfig);
-            return botClient;
         }
         return botClient;
     }

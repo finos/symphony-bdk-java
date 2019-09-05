@@ -1,10 +1,8 @@
 package model.events;
 
+import java.util.List;
 import model.AdminStreamFilter;
 import model.AdminStreamInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class AdminStreamInfoList {
 

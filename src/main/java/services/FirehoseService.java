@@ -3,16 +3,15 @@ package services;
 import clients.SymBotClient;
 import clients.symphony.api.FirehoseClient;
 import exceptions.SymClientException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import listeners.FirehoseListener;
 import model.DatafeedEvent;
 import model.events.MessageSent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FirehoseService {
     private final Logger logger = LoggerFactory.getLogger(FirehoseService.class);
@@ -43,23 +42,21 @@ public class FirehoseService {
         stop.set(false);
     }
 
-    public void addListener(FirehoseListener listener){
+    public void addListener(FirehoseListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(FirehoseListener listener){
+    public void removeListener(FirehoseListener listener) {
         listeners.remove(listener);
     }
 
-
-
-    public void readFirehose(){
-        if( pool!=null) {
+    public void readFirehose() {
+        if (pool != null) {
             pool.shutdown();
         }
         pool = Executors.newFixedThreadPool(5);
         CompletableFuture.supplyAsync(() -> {
-            while(!stop.get()) {
+            while (!stop.get()) {
                 CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
                     try {
                         return firehoseClient.readFirehose(firehoseId);
@@ -67,17 +64,17 @@ public class FirehoseService {
                         throw new RuntimeException(e);
                     }
                 }, pool)
-                        .exceptionally((ex) -> {
-                            handleError(ex);
-                            return null;
-                        })
-                        .thenApply(events -> {
-                            if (events!=null || !events.isEmpty()) {
-                                handleEvents(events);
-                            }
+                    .exceptionally((ex) -> {
+                        handleError(ex);
+                        return null;
+                    })
+                    .thenApply(events -> {
+                        if (events != null || !events.isEmpty()) {
+                            handleEvents(events);
+                        }
 
-                            return null;
-                        });
+                        return null;
+                    });
                 try {
                     future.get();
                 } catch (InterruptedException | ExecutionException e) {
@@ -85,18 +82,19 @@ public class FirehoseService {
                 }
             }
             return null;
-        },pool);
-
-
-
+        }, pool);
     }
 
-    public void stopDatafeedService(){
-        if(!stop.get()) stop.set(true);
+    public void stopDatafeedService() {
+        if (!stop.get()) {
+            stop.set(true);
+        }
     }
 
-    public void restartDatafeedService(){
-        if(stop.get()) stop.set(false);
+    public void restartDatafeedService() {
+        if (stop.get()) {
+            stop.set(false);
+        }
         firehoseId = firehoseClient.createFirehose();
 
         readFirehose();
@@ -122,7 +120,7 @@ public class FirehoseService {
     }
 
     private void handleEvents(List<DatafeedEvent> firehoseEvents) {
-        for (DatafeedEvent event: firehoseEvents) {
+        for (DatafeedEvent event : firehoseEvents) {
             if (!event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId())) {
                 switch (event.getType()) {
                     case "MESSAGESENT":

@@ -10,7 +10,6 @@ public class Attachment {
     private Long size;
     private ImageInfo image;
 
-
     public String getId() {
         return id;
     }

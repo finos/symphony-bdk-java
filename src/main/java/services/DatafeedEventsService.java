@@ -5,17 +5,17 @@ import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
-import listeners.*;
-import model.DatafeedEvent;
-import model.events.MessageSent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.ws.rs.ProcessingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.ws.rs.ProcessingException;
+import listeners.*;
+import model.DatafeedEvent;
+import model.events.MessageSent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatafeedEventsService {
     private final Logger logger = LoggerFactory.getLogger(DatafeedEventsService.class);
@@ -28,8 +28,8 @@ public class DatafeedEventsService {
     private String datafeedId = null;
     private ExecutorService pool;
     private AtomicBoolean stop = new AtomicBoolean();
-    private final int THREADPOOL_SIZE;
-    private final int TIMEOUT_NO_OF_SECS;
+    private static int THREADPOOL_SIZE;
+    private static int TIMEOUT_NO_OF_SECS;
 
     public DatafeedEventsService(SymBotClient client) {
         this.roomListeners = new ArrayList<>();
@@ -41,9 +41,9 @@ public class DatafeedEventsService {
         this.datafeedClient = this.botClient.getDatafeedClient();
 
         int threadPoolSize = client.getConfig().getDatafeedEventsThreadpoolSize();
-        this.THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
+        THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
         int errorTimeout = client.getConfig().getDatafeedEventsErrorTimeout();
-        this.TIMEOUT_NO_OF_SECS = errorTimeout > 0 ? errorTimeout : 30;
+        TIMEOUT_NO_OF_SECS = errorTimeout > 0 ? errorTimeout : 30;
 
         while (datafeedId == null) {
             try {
@@ -153,11 +153,15 @@ public class DatafeedEventsService {
     }
 
     public void stopDatafeedService() {
-        if (!stop.get()) stop.set(true);
+        if (!stop.get()) {
+            stop.set(true);
+        }
     }
 
     public void restartDatafeedService() {
-        if (stop.get()) stop.set(false);
+        if (stop.get()) {
+            stop.set(false);
+        }
         datafeedId = datafeedClient.createDatafeed();
 
         readDatafeed();
@@ -194,8 +198,9 @@ public class DatafeedEventsService {
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
         for (DatafeedEvent event : datafeedEvents) {
-            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId()))
+            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId())) {
                 continue;
+            }
 
             switch (event.getType()) {
                 case "MESSAGESENT":

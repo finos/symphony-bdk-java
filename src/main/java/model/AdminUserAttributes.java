@@ -1,10 +1,9 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.List;
-@JsonIgnoreProperties(ignoreUnknown = true)
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AdminUserAttributes {
     private String emailAddress;
     private String firstName;

@@ -7,16 +7,16 @@ import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
 import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class DatafeedClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
@@ -50,7 +50,8 @@ public final class DatafeedClient extends APIClient {
                 }
             } else {
                 datafeedId = response.readEntity(StringId.class);
-                logger.info("Created new datafeed {} for bot {}", datafeedId.getId(), botClient.getBotUserInfo().getUsername());
+                logger.info("Created new datafeed {} for bot {}", datafeedId.getId(),
+                    botClient.getBotUserInfo().getUsername());
             }
             return datafeedId.getId();
         } finally {

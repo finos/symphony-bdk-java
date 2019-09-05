@@ -1,15 +1,15 @@
 package clients.symphony.api.constants;
 
 public enum QueryParameterNames {
-  SHOW_FIREHOSE_ERRORS("showFirehoseErrors");
+    SHOW_FIREHOSE_ERRORS("showFirehoseErrors");
 
-  private String name;
+    private String name;
 
-  QueryParameterNames(String name){
-    this.name = name;
-  }
+    QueryParameterNames(String name) {
+        this.name = name;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 }

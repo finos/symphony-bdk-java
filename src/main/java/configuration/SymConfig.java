@@ -1,7 +1,7 @@
 package configuration;
 
-import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymConfig {

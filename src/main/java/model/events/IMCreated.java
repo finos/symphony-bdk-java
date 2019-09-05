@@ -2,8 +2,8 @@ package model.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import model.Stream;
-@JsonIgnoreProperties(ignoreUnknown = true)
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IMCreated {
     private Stream stream;
 

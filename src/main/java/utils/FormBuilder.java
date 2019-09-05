@@ -1,13 +1,13 @@
 package utils;
 
-import model.DropdownMenuOption;
-import model.FormButtonType;
-import model.TableSelectPosition;
-import model.TableSelectType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import model.DropdownMenuOption;
+import model.FormButtonType;
+import model.TableSelectPosition;
+import model.TableSelectType;
 
 public class FormBuilder {
     private String formId;

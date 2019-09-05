@@ -5,15 +5,15 @@ import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
-import model.InformationBarrierGroup;
-import model.InformationBarrierGroupStatus;
-import model.Policy;
+import java.util.List;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import model.InformationBarrierGroup;
+import model.InformationBarrierGroupStatus;
+import model.Policy;
 
 public class InformationBarriersClient extends APIClient {
     private ISymClient botClient;
