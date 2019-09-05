@@ -1,14 +1,9 @@
 package it.clients.symphony.api;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import clients.symphony.api.AdminClient;
+import clients.symphony.api.constants.AgentConstants;
+import clients.symphony.api.constants.PodConstants;
+import it.commons.BotTest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,24 +12,12 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
+import model.*;
+import model.events.AdminStreamInfoList;
 import org.junit.Before;
 import org.junit.Test;
-import clients.symphony.api.AdminClient;
-import clients.symphony.api.constants.AgentConstants;
-import clients.symphony.api.constants.PodConstants;
-import it.commons.BotTest;
-import model.AdminNewUser;
-import model.AdminStreamFilter;
-import model.AdminUserAttributes;
-import model.AdminUserInfo;
-import model.ApplicationEntitlement;
-import model.Avatar;
-import model.FeatureEntitlement;
-import model.InboundImportMessageList;
-import model.OutboundImportMessage;
-import model.OutboundImportMessageList;
-import model.SuppressionResult;
-import model.events.AdminStreamInfoList;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.*;
 
 public class AdminClientTest extends BotTest {
   private AdminClient adminClient;

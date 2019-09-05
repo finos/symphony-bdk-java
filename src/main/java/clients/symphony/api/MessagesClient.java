@@ -7,9 +7,8 @@ import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
-import model.*;
-import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.*;
+import java.io.File;
+import java.util.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -17,8 +16,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
-import java.io.File;
-import java.util.*;
+import model.*;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.media.multipart.*;
 
 public final class MessagesClient extends APIClient {
     private ISymClient botClient;
@@ -29,9 +29,7 @@ public final class MessagesClient extends APIClient {
         isKeyManTokenRequired = !(botClient.getSymAuth() instanceof SymOBOUserRSAAuth);
     }
 
-    private InboundMessage sendMessage(String streamId,
-                                       OutboundMessage message,
-                                       boolean appendTags)
+    private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags)
         throws SymClientException {
         Client httpClient = botClient.getAgentClient();
         httpClient.register(MultiPartFeature.class);
@@ -112,6 +110,10 @@ public final class MessagesClient extends APIClient {
         }
     }
 
+    public InboundMessage sendMessage(String streamId, OutboundMessage message) throws SymClientException {
+        return sendMessage(streamId, message, true);
+    }
+
     public InboundMessage forwardMessage(String streamId,
                                          InboundMessage message)
         throws SymClientException {
@@ -122,11 +124,6 @@ public final class MessagesClient extends APIClient {
 
         return sendMessage(streamId, outboundMessage, false);
 
-    }
-
-    public InboundMessage sendMessage(String streamId, OutboundMessage message)
-        throws SymClientException {
-        return sendMessage(streamId, message, true);
     }
 
     public InboundMessage sendTaggedMessage(String streamId, OutboundMessage message)
@@ -331,31 +328,6 @@ public final class MessagesClient extends APIClient {
             }
         }
     }
-
-
-    //Included in release 1.52
-//    public List<String> getSupportedAttachmentTypes(){
-//        Response response
-//                = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
-// + botClient.getConfig().getPodHost() + ":" + botClient.getConfig().getPodPort())
-//                .path(PodConstants.GETATTACHMENTTYPES)
-//                .request(MediaType.APPLICATION_JSON)
-//                .header("sessionToken",botClient.getSymAuth().getSessionToken())
-//                .get();
-//        if (response.getStatusInfo().getFamily()
-// != Response.Status.Family.SUCCESSFUL) {
-//            try {
-//                handleError(response, botClient);
-//            } catch (UnauthorizedException ex){
-//                return getSupportedAttachmentTypes();
-//            } catch (SymClientException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        } else {
-//            return response.readEntity(StringList.class);
-//        }
-//    }
 
     public InboundShare shareContent(String streamId,
                                      OutboundShare shareContent)

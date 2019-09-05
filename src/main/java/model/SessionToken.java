@@ -1,10 +1,7 @@
 package model;
 
-public class SessionToken{
+public class SessionToken {
     private String sessionToken;
-
-    public SessionToken() {
-    }
 
     public String getSessionToken() {
         return sessionToken;

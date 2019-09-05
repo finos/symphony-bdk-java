@@ -16,7 +16,7 @@ public interface FirehoseListener {
     void onUserJoinedRoom(UserJoinedRoom userJoinedRoom);
     void onUserLeftRoom(UserLeftRoom userLeftRoom);
     void onIMMessage(InboundMessage message);
-    void onIMCreated (Stream stream);
+    void onIMCreated(Stream stream);
     void onConnectionAccepted(User user);
     void onConnectionRequested(User user);
 }

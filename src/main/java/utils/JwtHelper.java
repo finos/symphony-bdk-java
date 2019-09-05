@@ -3,16 +3,6 @@ package utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import model.UserInfo;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.slf4j.LoggerFactory;
-import sun.security.util.DerInputStream;
-import sun.security.util.DerValue;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,10 +15,22 @@ import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.Base64;
 import java.util.Date;
 import java.util.regex.Pattern;
+import model.UserInfo;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.jose4j.jwt.JwtClaims;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.slf4j.LoggerFactory;
+import sun.security.util.DerInputStream;
+import sun.security.util.DerValue;
 
 public class JwtHelper {
-    private static final Pattern PKCS_1_REGEX = Pattern.compile("-{5}BEGIN RSA PRIVATE KEY-{5}.*-{5}END RSA PRIVATE KEY-{5}", Pattern.DOTALL);
-    private static final Pattern PKCS_8_REGEX = Pattern.compile("-{5}BEGIN PRIVATE KEY-{5}.*-{5}END PRIVATE KEY-{5}", Pattern.DOTALL);
+    private static final String PKCS_1_REGEX_STRING = "-{5}BEGIN RSA PRIVATE KEY-{5}.*-{5}END RSA PRIVATE KEY-{5}";
+    private static final String PKCS_8_REGEX_STRING = "-{5}BEGIN PRIVATE KEY-{5}.*-{5}END PRIVATE KEY-{5}";
+    private static final Pattern PKCS_1_REGEX = Pattern.compile(PKCS_1_REGEX_STRING, Pattern.DOTALL);
+    private static final Pattern PKCS_8_REGEX = Pattern.compile(PKCS_8_REGEX_STRING, Pattern.DOTALL);
     private static final String PKCS_PADDING_REGEX = "[\\r\\n]?-{5}(BEGIN|END) (RSA )?PRIVATE KEY-{5}[\\r\\n]?";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -53,7 +55,8 @@ public class JwtHelper {
         return parseRSAPrivateKey(FileUtils.readFileToString(pemPrivateKeyFile, Charset.defaultCharset()));
     }
 
-    public static PrivateKey parseRSAPrivateKey(final InputStream pemPrivateKeyFile) throws IOException, GeneralSecurityException {
+    public static PrivateKey parseRSAPrivateKey(final InputStream pemPrivateKeyFile)
+        throws IOException, GeneralSecurityException {
         return parseRSAPrivateKey(IOUtils.toString(pemPrivateKeyFile, Charset.defaultCharset()));
     }
 

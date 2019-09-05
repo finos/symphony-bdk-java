@@ -1,6 +1,6 @@
 package model;
-public class AppAuthResponse {
 
+public class AppAuthResponse {
     private String appToken;
     private String symphonyToken;
     private String appId;

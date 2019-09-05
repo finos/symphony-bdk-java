@@ -1,18 +1,18 @@
 package authentication;
 
+import clients.symphony.api.APIClient;
+import clients.symphony.api.constants.CommonConstants;
+import configuration.SymConfig;
+import exceptions.NoConfigException;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import model.Token;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import clients.symphony.api.APIClient;
-import clients.symphony.api.constants.CommonConstants;
-import configuration.SymConfig;
-import exceptions.NoConfigException;
-import model.Token;
 import utils.HttpClientBuilderHelper;
 
 public final class SymBotAuth extends APIClient implements ISymAuth {
@@ -68,7 +68,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-	public void authenticate() {
+    public void authenticate() {
         if (lastAuthTime == 0
             | System.currentTimeMillis() - lastAuthTime
             > AuthEndpointConstants.WAIT_TIME) {
@@ -88,7 +88,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-	public void sessionAuthenticate() {
+    public void sessionAuthenticate() {
         if (config != null) {
             logger.info("Session auth");
             Response response
@@ -127,7 +127,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-	public void kmAuthenticate() {
+    public void kmAuthenticate() {
         logger.info("KM auth");
         if (config != null) {
             Response response
@@ -166,27 +166,27 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-	public String getSessionToken() {
+    public String getSessionToken() {
         return sessionToken;
     }
 
     @Override
-	public void setSessionToken(final String sessionTokenInput) {
+    public void setSessionToken(final String sessionTokenInput) {
         this.sessionToken = sessionTokenInput;
     }
 
     @Override
-	public String getKmToken() {
+    public String getKmToken() {
         return kmToken;
     }
 
     @Override
-	public void setKmToken(final String kmTokenInput) {
+    public void setKmToken(final String kmTokenInput) {
         this.kmToken = kmTokenInput;
     }
 
     @Override
-	public void logout() {
+    public void logout() {
         logger.info("Logging out");
         Response response = sessionAuthClient.target(
             CommonConstants.HTTPS_PREFIX

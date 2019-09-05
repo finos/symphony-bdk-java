@@ -6,23 +6,23 @@ import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
-import model.*;
-import model.events.AdminStreamInfoList;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NoContentException;
-import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
+import javax.ws.rs.core.Response;
+import model.*;
+import model.events.AdminStreamInfoList;
+import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class AdminClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(AdminClient.class);
@@ -108,7 +108,6 @@ public final class AdminClient extends APIClient {
                 + botClient.getConfig().getPodHost()
                 + ":" + botClient.getConfig().getPodPort())
             .path(PodConstants.ENTERPRISESTREAMS);
-
 
         if (skip > 0) {
             builder = builder.queryParam("skip", skip);
@@ -216,7 +215,6 @@ public final class AdminClient extends APIClient {
                 + botClient.getConfig().getPodHost() + ":"
                 + botClient.getConfig().getPodPort())
             .path(PodConstants.LISTUSERSADMIN);
-
 
         if (skip > 0) {
             builder = builder.queryParam("skip", skip);

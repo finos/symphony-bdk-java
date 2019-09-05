@@ -1,21 +1,17 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class RoomSearchQuery {
-
-   private String query;
-   private List<String> labels;
-   private Boolean active;
-
+    private String query;
+    private List<String> labels;
+    private Boolean active;
     @JsonProperty("private")
-   private Boolean isPrivate;
-
-   private NumericId creator;
-   private NumericId owner;
-   private NumericId member;
+    private Boolean isPrivate;
+    private NumericId creator;
+    private NumericId owner;
+    private NumericId member;
 
     public String getQuery() {
         return query;
@@ -45,8 +41,8 @@ public class RoomSearchQuery {
         return isPrivate;
     }
 
-    public void setPrivate(Boolean aPrivate) {
-        isPrivate = aPrivate;
+    public void setPrivate(Boolean isPrivate) {
+        this.isPrivate = isPrivate;
     }
 
     public NumericId getCreator() {

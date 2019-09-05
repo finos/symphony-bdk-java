@@ -3,9 +3,9 @@ package clients;
 import authentication.ISymAuth;
 import clients.symphony.api.*;
 import configuration.SymConfig;
+import javax.ws.rs.client.Client;
 import org.glassfish.jersey.client.ClientConfig;
 import utils.HttpClientBuilderHelper;
-import javax.ws.rs.client.Client;
 
 public final class SymOBOClient implements ISymClient {
     private static SymOBOClient oboClient;

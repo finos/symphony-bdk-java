@@ -5,16 +5,16 @@ import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
-import model.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import model.*;
 
 public class StreamsClient extends APIClient {
     private ISymClient botClient;
@@ -243,7 +243,8 @@ public class StreamsClient extends APIClient {
         }
     }
 
-    public RoomSearchResult searchRooms(RoomSearchQuery query, int skip, int limit) throws SymClientException, NoContentException {
+    public RoomSearchResult searchRooms(RoomSearchQuery query, int skip, int limit)
+        throws SymClientException, NoContentException {
         RoomSearchResult result;
         WebTarget builder = botClient.getPodClient().target(podBaseUri)
             .path(PodConstants.SEARCHROOMS);
@@ -279,7 +280,8 @@ public class StreamsClient extends APIClient {
         }
     }
 
-    public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams) throws SymClientException {
+    public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams)
+        throws SymClientException {
         List<Map> inputStreamTypes = new ArrayList<>();
         if (streamTypes != null) {
             for (String type : streamTypes) {

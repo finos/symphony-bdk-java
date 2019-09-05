@@ -3,9 +3,7 @@ package model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class StreamListItem {
-
     private String id;
     private Boolean crossPod;
     private Boolean active;
@@ -61,7 +59,7 @@ public class StreamListItem {
         this.roomAttributes = roomAttributes;
     }
 
-    public String getType(){
+    public String getType() {
         return streamType.getType();
     }
 }

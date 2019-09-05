@@ -1,12 +1,9 @@
 package authentication.extensionapp;
 
+import java.util.Optional;
 import model.AppAuthResponse;
 
-import java.util.Optional;
-
 public interface TokensRepository {
-
-  AppAuthResponse save(AppAuthResponse appAuthResponse);
-
-  Optional<AppAuthResponse> get(String appToken);
+    AppAuthResponse save(AppAuthResponse appAuthResponse);
+    Optional<AppAuthResponse> get(String appToken);
 }

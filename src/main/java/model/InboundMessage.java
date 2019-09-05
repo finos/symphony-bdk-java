@@ -1,8 +1,8 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import utils.SymMessageParser;
 import java.util.List;
+import utils.SymMessageParser;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InboundMessage {

@@ -3,8 +3,8 @@ package model.events;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import model.Stream;
 import model.User;
-@JsonIgnoreProperties(ignoreUnknown = true)
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoomMemberDemotedFromOwner {
     private Stream stream;
     private User affectedUser;

@@ -1,16 +1,12 @@
 package it.commons;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import org.junit.Before;
 import authentication.SymBotRSAAuth;
 import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import org.junit.Before;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class BotTest extends ServerTest {
   protected SymBotClient symBotClient;

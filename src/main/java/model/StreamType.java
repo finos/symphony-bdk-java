@@ -7,10 +7,10 @@ public class StreamType {
     private StreamTypes type;
 
     public StreamTypes getType() {
-      return type;
+        return type;
     }
 
     public void setType(StreamTypes type) {
-      this.type = type;
+        this.type = type;
     }
 }

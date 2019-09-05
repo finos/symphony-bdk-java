@@ -5,15 +5,15 @@ import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
 import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
 
 public class FirehoseClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);

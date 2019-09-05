@@ -1,20 +1,20 @@
 package utils;
 
 import configuration.SymConfig;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.ws.rs.client.ClientBuilder;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import javax.ws.rs.client.ClientBuilder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class HttpClientBuilderHelper {
-    private final static Logger logger = LoggerFactory.getLogger(HttpClientBuilderHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientBuilderHelper.class);
 
     public static ClientBuilder getHttpClientBuilderWithTruststore(SymConfig config) {
         KeyStore jksStore = getJksKeystore();

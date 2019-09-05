@@ -1,9 +1,9 @@
 package it.commons;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import org.junit.After;
 import org.junit.Rule;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 public class ServerTest extends BaseTest {
   @Rule
