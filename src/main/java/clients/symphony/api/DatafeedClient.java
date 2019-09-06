@@ -22,10 +22,12 @@ public final class DatafeedClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
     private SymConfig config;
+    private static String agentTarget;
 
     public DatafeedClient(SymBotClient client) {
         this.botClient = client;
         this.config = client.getConfig();
+        agentTarget = CommonConstants.HTTPS_PREFIX + config.getAgentHost() + ":" + config.getAgentPort();
     }
 
     public String createDatafeed() throws SymClientException {
@@ -33,12 +35,10 @@ public final class DatafeedClient extends APIClient {
         StringId datafeedId = null;
         try {
             logger.info("Creating new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
-            response = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
-                + config.getAgentHost() + ":" + config.getAgentPort())
+            response = botClient.getAgentClient().target(agentTarget)
                 .path(AgentConstants.CREATEDATAFEED)
                 .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
+                .header("sessionToken", botClient.getSymAuth().getSessionToken())
                 .header("keyManagerToken", botClient.getSymAuth().getKmToken())
                 .post(null);
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -61,16 +61,12 @@ public final class DatafeedClient extends APIClient {
         }
     }
 
-    public List<DatafeedEvent> readDatafeed(String id)
-            throws SymClientException {
+    public List<DatafeedEvent> readDatafeed(String id) throws SymClientException {
         List<DatafeedEvent> datafeedEvents = null;
         Response response = null;
         logger.debug("Reading datafeed {}", id);
         try {
-            WebTarget webTarget = botClient.getAgentClient().target(
-                CommonConstants.HTTPS_PREFIX
-                    + config.getAgentHost()
-                    + ":" + config.getAgentPort());
+            WebTarget webTarget = botClient.getAgentClient().target(agentTarget);
             response = webTarget
                 .path(AgentConstants.READDATAFEED.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)

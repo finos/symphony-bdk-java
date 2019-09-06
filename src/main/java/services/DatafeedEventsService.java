@@ -42,18 +42,23 @@ public class DatafeedEventsService {
 
         int threadPoolSize = client.getConfig().getDatafeedEventsThreadpoolSize();
         THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
-        int errorTimeout = client.getConfig().getDatafeedEventsErrorTimeout();
-        TIMEOUT_NO_OF_SECS = errorTimeout > 0 ? errorTimeout : 30;
+        resetTimeout();
 
         while (datafeedId == null) {
             try {
                 datafeedId = datafeedClient.createDatafeed();
+                resetTimeout();
             } catch (ProcessingException e) {
                 handleError(e);
             }
         }
         readDatafeed();
         stop.set(false);
+    }
+
+    private void resetTimeout() {
+        int errorTimeout = this.botClient.getConfig().getDatafeedEventsErrorTimeout();
+        TIMEOUT_NO_OF_SECS = errorTimeout > 0 ? errorTimeout : 30;
     }
 
     public void addListeners(DatafeedListener... listeners) {
@@ -126,7 +131,9 @@ public class DatafeedEventsService {
                 CompletableFuture<Object> future = CompletableFuture
                     .supplyAsync(() -> {
                         try {
-                            return datafeedClient.readDatafeed(datafeedId);
+                            List<DatafeedEvent> events = datafeedClient.readDatafeed(datafeedId);
+                            resetTimeout();
+                            return events;
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -170,7 +177,11 @@ public class DatafeedEventsService {
     private void handleError(Throwable e) {
         if (e.getMessage().endsWith("SocketTimeoutException: Read timed out")) {
             int connectionTimeoutSeconds = botClient.getConfig().getConnectionTimeout() / 1000;
-            logger.info("Connection timed out after {} seconds", connectionTimeoutSeconds);
+            logger.error("Connection timed out after {} seconds", connectionTimeoutSeconds);
+        } else if (e.getMessage().endsWith("Origin Error")) {
+            logger.error("Pod is unavailable");
+        } else if (e.getMessage().contains("Could not find a datafeed with the id")) {
+            logger.error(e.getMessage());
         } else {
             logger.error("HandlerError error", e);
         }
@@ -182,6 +193,7 @@ public class DatafeedEventsService {
                 ((SymLoadBalancedConfig) config).rotateAgent();
             }
             datafeedId = datafeedClient.createDatafeed();
+            resetTimeout();
         } catch (SymClientException e1) {
             sleep();
             handleError(e);
@@ -191,6 +203,7 @@ public class DatafeedEventsService {
     private void sleep() {
         try {
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
+            TIMEOUT_NO_OF_SECS *= 2;
         } catch (InterruptedException ie) {
             logger.error("Error trying to sleep ", ie);
         }
