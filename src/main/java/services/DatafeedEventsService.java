@@ -175,13 +175,14 @@ public class DatafeedEventsService {
     }
 
     private void handleError(Throwable e) {
-        if (e.getMessage().endsWith("SocketTimeoutException: Read timed out")) {
+        String errMsg = e.getMessage();
+        if (errMsg.endsWith("SocketTimeoutException: Read timed out")) {
             int connectionTimeoutSeconds = botClient.getConfig().getConnectionTimeout() / 1000;
             logger.error("Connection timed out after {} seconds", connectionTimeoutSeconds);
-        } else if (e.getMessage().endsWith("Origin Error")) {
+        } else if (errMsg.endsWith("Origin Error") || errMsg.endsWith("Service Unavailable") || errMsg.endsWith("Bad Gateway")) {
             logger.error("Pod is unavailable");
-        } else if (e.getMessage().contains("Could not find a datafeed with the id")) {
-            logger.error(e.getMessage());
+        } else if (errMsg.contains("Could not find a datafeed with the")) {
+            logger.error(errMsg);
         } else {
             logger.error("HandlerError error", e);
         }

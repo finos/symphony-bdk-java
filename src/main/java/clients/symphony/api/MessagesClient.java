@@ -18,7 +18,10 @@ import javax.ws.rs.core.NoContentException;
 import javax.ws.rs.core.Response;
 import model.*;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.media.multipart.*;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
+import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 
 public final class MessagesClient extends APIClient {
     private ISymClient botClient;
@@ -31,21 +34,15 @@ public final class MessagesClient extends APIClient {
 
     private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags)
         throws SymClientException {
-        Client httpClient = botClient.getAgentClient();
-        httpClient.register(MultiPartFeature.class);
-        httpClient.register(JacksonFeature.class);
+        Client httpClient = botClient.getAgentClient()
+            .register(MultiPartFeature.class)
+            .register(JacksonFeature.class);
 
-
-        WebTarget target = httpClient.target(
-            CommonConstants.HTTPS_PREFIX + botClient.getConfig()
-                .getAgentHost()
-                + ":" + botClient.getConfig().getAgentPort())
-            .path(AgentConstants.CREATEMESSAGE
-                .replace("{sid}", streamId));
+        WebTarget target = httpClient.target(botClient.getConfig().getAgentUrl())
+            .path(AgentConstants.CREATEMESSAGE.replace("{sid}", streamId));
 
         Invocation.Builder invocationBuilder = target.request().accept("application/json");
-        invocationBuilder = invocationBuilder.header("sessionToken",
-            botClient.getSymAuth().getSessionToken());
+        invocationBuilder = invocationBuilder.header("sessionToken", botClient.getSymAuth().getSessionToken());
         if (isKeyManTokenRequired) {
             invocationBuilder = invocationBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         }
@@ -56,44 +53,23 @@ public final class MessagesClient extends APIClient {
             messageContent = message.getMessage();
         }
 
-        FormDataMultiPart multiPart = new FormDataMultiPart();
+        FormDataMultiPart multiPart = new FormDataMultiPart().field("message", messageContent);
 
-        FormDataContentDisposition contentDispMessage =
-            FormDataContentDisposition.name("message").build();
-        multiPart.bodyPart(new FormDataBodyPart(contentDispMessage,
-            messageContent));
         if (message.getData() != null) {
-            FormDataContentDisposition contentDispData =
-                FormDataContentDisposition.name("data").build();
-            multiPart.bodyPart(new FormDataBodyPart(contentDispData,
-                message.getData()));
+            multiPart = multiPart.field("data", message.getData());
         }
-        if (message.getAttachment() != null
-            && message.getAttachment().length > 0) {
+        if (message.getAttachment() != null && message.getAttachment().length > 0) {
             for (File file : message.getAttachment()) {
-                FormDataContentDisposition contentDisp =
-                    FormDataContentDisposition.name("attachment")
-                        .fileName(file.getName()).size(file.length())
-                        .build();
-                multiPart.bodyPart(new FormDataBodyPart(contentDisp,
-                    file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                multiPart = (FormDataMultiPart) multiPart.bodyPart(new FileDataBodyPart("attachment", file));
             }
         }
-        Entity entity = Entity.entity(multiPart,
-            MultiPartMediaTypes.createFormData());
+        Entity entity = Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
 
-        Response response = null;
-
-        try {
-            response = invocationBuilder.post(entity);
-
-            if (response.getStatus()
-                == Response.Status.NO_CONTENT.getStatusCode()) {
+        try (Response response = invocationBuilder.post(entity)) {
+            if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
                 return null;
             }
-
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -103,10 +79,6 @@ public final class MessagesClient extends APIClient {
             } else {
                 return response.readEntity(InboundMessage.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
@@ -114,36 +86,25 @@ public final class MessagesClient extends APIClient {
         return sendMessage(streamId, message, true);
     }
 
-    public InboundMessage forwardMessage(String streamId,
-                                         InboundMessage message)
-        throws SymClientException {
+    public InboundMessage forwardMessage(String streamId, InboundMessage message) throws SymClientException {
         OutboundMessage outboundMessage = new OutboundMessage();
         outboundMessage.setMessage(message.getMessage());
         outboundMessage.setData(message.getData());
-        //outboundMessage.setAttachment(message.getAttachments());
 
         return sendMessage(streamId, outboundMessage, false);
-
     }
 
-    public InboundMessage sendTaggedMessage(String streamId, OutboundMessage message)
-        throws SymClientException {
+    public InboundMessage sendTaggedMessage(String streamId, OutboundMessage message) throws SymClientException {
         return sendMessage(streamId, message, false);
     }
 
-    public List<InboundMessage> getMessagesFromStream(String streamId,
-                                                      long since, int skip,
-                                                      int limit)
+    public List<InboundMessage> getMessagesFromStream(String streamId, long since, int skip, int limit)
         throws SymClientException {
-        List<InboundMessage> result = null;
-        WebTarget builder
-            = botClient.getAgentClient().target(
-            CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getAgentHost()
-                + ":" + botClient.getConfig().getAgentPort())
+
+        WebTarget builder = botClient.getAgentClient()
+            .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.GETMESSAGES.replace("{sid}", streamId))
             .queryParam("since", since);
-
 
         if (skip > 0) {
             builder = builder.queryParam("skip", skip);
@@ -152,16 +113,15 @@ public final class MessagesClient extends APIClient {
             builder = builder.queryParam("limit", limit);
         }
 
-        Response response = null;
+        Invocation.Builder subBuilder = builder
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+        if (isKeyManTokenRequired) {
+            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+        }
 
-        try {
-            Invocation.Builder subBuilder = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken());
-            if (isKeyManTokenRequired) {
-                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
-            }
-            response = subBuilder.get();
-
+        List<InboundMessage> result;
+        try (Response response = subBuilder.get()) {
             if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
                 try {
@@ -175,38 +135,25 @@ public final class MessagesClient extends APIClient {
             } else {
                 result = response.readEntity(InboundMessageList.class);
             }
-
             return result;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
-    public byte[] getAttachment(String streamId, String attachmentId,
-                                String messageId) throws SymClientException {
+    public byte[] getAttachment(String streamId, String attachmentId, String messageId) throws SymClientException {
+        Invocation.Builder subBuilder = botClient.getAgentClient()
+            .target(botClient.getConfig().getAgentUrl())
+            .path(AgentConstants.GETATTACHMENT.replace("{sid}", streamId))
+            .queryParam("fileId", attachmentId)
+            .queryParam("messageId", messageId)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        Response response = null;
+        if (isKeyManTokenRequired) {
+            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+        }
 
-        try {
-            Invocation.Builder subBuilder = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getAgentHost()
-                + ":" + botClient.getConfig().getAgentPort())
-                .path(AgentConstants.GETATTACHMENT
-                    .replace("{sid}", streamId))
-                .queryParam("fileId", attachmentId)
-                .queryParam("messageId", messageId)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken());
-            if (isKeyManTokenRequired) {
-                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
-            }
-            response = subBuilder.get();
-
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        try (Response response = subBuilder.get()) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -214,48 +161,38 @@ public final class MessagesClient extends APIClient {
                 }
                 return null;
             } else {
-                return Base64.getDecoder()
-                    .decode(response.readEntity(String.class));
-            }
-        } finally {
-            if (response != null) {
-                response.close();
+                return Base64.getDecoder().decode(response.readEntity(String.class));
             }
         }
     }
 
-    public List<FileAttachment> getMessageAttachments(InboundMessage message)
-        throws SymClientException {
+    public List<FileAttachment> getMessageAttachments(InboundMessage message) throws SymClientException {
         List<FileAttachment> result = new ArrayList<>();
+
         if (message.getAttachments() != null) {
             for (Attachment attachment : message.getAttachments()) {
                 FileAttachment fileAttachment = new FileAttachment();
                 fileAttachment.setFileName(attachment.getName());
                 fileAttachment.setSize(attachment.getSize());
-                fileAttachment.setFileContent(getAttachment(message.getStream().getStreamId(),
-                    attachment.getId(), message.getMessageId()));
+                fileAttachment.setFileContent(
+                    getAttachment(message.getStream().getStreamId(),
+                    attachment.getId(), message.getMessageId())
+                );
                 result.add(fileAttachment);
             }
         }
         return result;
     }
 
-    public MessageStatus getMessageStatus(String messageId)
-        throws SymClientException {
-        Response response = null;
+    public MessageStatus getMessageStatus(String messageId) throws SymClientException {
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.GETMESSAGESTATUS.replace("{mid}", messageId))
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getPodHost()
-                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.GETMESSAGESTATUS
-                    .replace("{mid}", messageId))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .get();
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        try (Response response = builder.get()) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -264,26 +201,15 @@ public final class MessagesClient extends APIClient {
                 return null;
             }
             return response.readEntity(MessageStatus.class);
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
 
     }
 
-    public InboundMessageList messageSearch(Map<String, String> query,
-                                            int skip, int limit,
-                                            boolean orderAscending)
+    public InboundMessageList messageSearch(Map<String, String> query, int skip, int limit, boolean orderAscending)
         throws SymClientException, NoContentException {
-
-        InboundMessageList result = null;
-        WebTarget builder
-            = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
-            + botClient.getConfig().getAgentHost()
-            + ":" + botClient.getConfig().getAgentPort())
+        WebTarget builder = botClient.getAgentClient()
+            .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.SEARCHMESSAGES);
-
 
         if (skip > 0) {
             builder = builder.queryParam("skip", skip);
@@ -296,19 +222,14 @@ public final class MessagesClient extends APIClient {
             builder = builder.queryParam("sortDir", "ASC");
         }
 
-        Response response = null;
+        Invocation.Builder subBuilder = builder.request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+        if (isKeyManTokenRequired) {
+            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+        }
 
-        try {
-            Invocation.Builder subBuilder = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken());
-            if (isKeyManTokenRequired) {
-                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
-            }
-            response = subBuilder.post(Entity.entity(query, MediaType.APPLICATION_JSON));
-
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        try (Response response = subBuilder.post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -318,38 +239,27 @@ public final class MessagesClient extends APIClient {
             } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
                 throw new NoContentException("No messages found");
             } else {
-                result = response.readEntity(InboundMessageList.class);
-            }
-
-            return result;
-        } finally {
-            if (response != null) {
-                response.close();
+                return response.readEntity(InboundMessageList.class);
             }
         }
     }
 
-    public InboundShare shareContent(String streamId,
-                                     OutboundShare shareContent)
-        throws SymClientException {
+    public InboundShare shareContent(String streamId, OutboundShare shareContent) throws SymClientException {
         Map<String, Object> map = new HashMap<>();
         map.put("content", shareContent);
 
-        Response response = null;
+        Invocation.Builder subBuilder = botClient.getAgentClient()
+            .target(botClient.getConfig().getAgentUrl())
+            .path(AgentConstants.SHARE.replace("{sid}", streamId))
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            Invocation.Builder subBuilder = botClient.getAgentClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getAgentHost()
-                + ":" + botClient.getConfig().getAgentPort())
-                .path(AgentConstants.SHARE.replace("{sid}", streamId))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken());
-            if (isKeyManTokenRequired) {
-                subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
-            }
-            response = subBuilder.post(Entity.entity(map, MediaType.APPLICATION_JSON));
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        if (isKeyManTokenRequired) {
+            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+        }
+
+        try (Response response = subBuilder.post(Entity.entity(map, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -358,11 +268,6 @@ public final class MessagesClient extends APIClient {
                 return null;
             }
             return response.readEntity(InboundShare.class);
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
-
 }

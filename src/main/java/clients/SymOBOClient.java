@@ -135,6 +135,4 @@ public final class SymOBOClient implements ISymClient {
     public void setAgentClient(Client agentClient) {
         this.agentClient = agentClient;
     }
-
-
 }

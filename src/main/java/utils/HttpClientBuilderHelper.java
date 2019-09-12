@@ -7,6 +7,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import javax.ws.rs.client.ClientBuilder;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -102,6 +103,7 @@ public class HttpClientBuilderHelper {
         clientConfig.property(ClientProperties.READ_TIMEOUT, config.getConnectionTimeout());
 
         if (!isEmpty(proxyURL)) {
+            clientConfig.connectorProvider(new ApacheConnectorProvider());
             clientConfig.property(ClientProperties.PROXY_URI, proxyURL);
             if (!isEmpty(proxyUser) && !isEmpty(proxyPass)) {
                 clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);

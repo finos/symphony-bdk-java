@@ -1,5 +1,6 @@
 package configuration;
 
+import clients.symphony.api.constants.CommonConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Objects;
 
@@ -348,4 +349,13 @@ public class SymConfig {
         this.connectionTimeout = connectionTimeout;
     }
 
+    public String getAgentUrl() {
+        String port = (agentPort == 443) ? "" : ":" + agentPort;
+        return CommonConstants.HTTPS_PREFIX + agentHost + port;
+    }
+
+    public String getPodUrl() {
+        String port = (podPort == 443) ? "" : ":" + podPort;
+        return CommonConstants.HTTPS_PREFIX + podHost + port;
+    }
 }

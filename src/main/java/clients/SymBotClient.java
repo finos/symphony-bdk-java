@@ -11,7 +11,6 @@ import configuration.SymLoadBalancedConfig;
 import exceptions.NoConfigException;
 import exceptions.SymClientException;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
@@ -67,6 +66,7 @@ public final class SymBotClient implements ISymClient {
             botAuth.authenticate();
             botClient = new SymBotClient(config, botAuth);
         }
+
         return botClient;
     }
 
@@ -152,16 +152,11 @@ public final class SymBotClient implements ISymClient {
         this.config = config;
         this.symBotAuth = symBotAuth;
 
-        ClientConfig agentConfig = HttpClientBuilderHelper.getAgentClientConfig(config);
         ClientConfig podConfig = HttpClientBuilderHelper.getPodClientConfig(config);
+        ClientConfig agentConfig = HttpClientBuilderHelper.getAgentClientConfig(config);
 
-        this.agentClient = (agentConfig == null) ?
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
-
-        this.podClient = (podConfig == null) ?
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).build() :
-            HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
+        this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
+        this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
         try {
             botUserInfo = this.getUsersClient().getSessionUser();
@@ -177,8 +172,10 @@ public final class SymBotClient implements ISymClient {
     private SymBotClient(SymConfig config, ISymAuth symBotAuth, ClientConfig podClientConfig, ClientConfig agentClientConfig) {
         this.config = config;
         this.symBotAuth = symBotAuth;
-        this.podClient = ClientBuilder.newClient(podClientConfig);
-        this.agentClient = ClientBuilder.newClient(agentClientConfig);
+        this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config)
+            .withConfig(podClientConfig).build();
+        this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config)
+            .withConfig(agentClientConfig).build();
 
         try {
             botUserInfo = this.getUsersClient().getSessionUser();
