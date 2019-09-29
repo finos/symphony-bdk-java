@@ -1,54 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.7.RELEASE</version>
-		<relativePath/>
+		<version>2.1.8.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+	<groupId>com.symphony.ms</groupId>
+	<artifactId>songwriter</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>songwriter</name>
+	<description>Symphony Songwriter framework</description>
 
-    <groupId>com.symphony.ms</groupId>
-    <artifactId>symphony.songwriter</artifactId>
-    <version>1.0.0</version>
-    <packaging>jar</packaging>
-
-    <name>songwriter</name>
-    <description>Symphony Songwriter framework</description>
-
-    <properties>
+	<properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <springfox.version>2.9.2</springfox.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- TODO Check if possible to leave sonar configs here -->
-        <!-- Sonar Analysis -->
-        <!-- <sonar.host.url>https://sonarqube-dev.symphonymarket.solutions</sonar.host.url>
-        <sonar.projectKey>sms-dev-tool-pagerduty-bot</sonar.projectKey>
-        <sonar.projectName>Symphony Market Solutions PagerDuty</sonar.projectName>
-        <sonar.login>TOKEN</sonar.login>
-        <sonar.sources>./src/main/java</sonar.sources>
-        <sonar.tests>./src/test</sonar.tests>
-        <sonar.links.ci>
-            https://circleci.com/gh/SymphonyPlatformSolutions/sms-dev-tool-pagerduty-bot
-        </sonar.links.ci>-->
-    </properties>
+	</properties>
 
-    <dependencies>
-		<!-- Spring Boot -->    
+	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>    
-        <dependency>        
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
@@ -57,17 +36,42 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-freemarker</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>        
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+        <!-- Symphony -->
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-api-client-java</artifactId>
+            <version>1.0.39</version>
         </dependency>
 
-		<!-- Swagger -->
+        <!-- Swagger -->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
@@ -79,43 +83,15 @@
             <version>${springfox.version}</version>
         </dependency>
 
-        <!-- Symphony -->
-        <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
-            <artifactId>symphony-api-client-java</artifactId>
-            <version>1.0.39</version>
-        </dependency>
+	</dependencies>
 
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.8</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- TODO: check if necessary -->
-        <!--encrypt-->
-        <!-- <dependency>
-            <groupId>com.bol</groupId>
-            <artifactId>spring-data-mongodb-encrypt</artifactId>
-            <version>2.1.1</version>
-        </dependency>-->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 
-        <!--esapi-->
-        <dependency>
-            <groupId>org.owasp.esapi</groupId>
-            <artifactId>esapi</artifactId>
-            <version>2.1.0.1</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 </project>
