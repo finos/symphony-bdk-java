@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty name="logfile" source="logging.file"></springProperty>
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>
+                %date %level [%thread] %logger%replace( {%mdc}){' \{\}', ''}: %message%n%exception
+            </Pattern>
+        </encoder>
+    </appender>
+    <appender name="File" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logfile}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${logfile}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>1MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+        <append>true</append>
+        <encoder>
+            <Pattern>
+                %date %level [%thread] %logger%replace( {%mdc}){' \{\}', ''}: %message%n%exception
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <!-- LOG everything at INFO level -->
+    <root level="${logging.level.ROOT}">
+        <appender-ref ref="Console"/>
+        <appender-ref ref="File"/>
+    </root>
+
+    <logger name="com.symphony.ms.songwriter" additivity="false">
+        <appender-ref ref="Console"/>
+    </logger>
+    <logger name="com.symphony.ms.songwriter" additivity="false">
+        <appender-ref ref="File"/>
+    </logger>
+
+</configuration>

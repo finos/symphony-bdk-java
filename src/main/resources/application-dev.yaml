@@ -1,0 +1,46 @@
+server:
+  port: 8080
+  connection-timeout: 20000
+  servlet:
+    display-name: Songwriter
+    context-path: "/songwriter"
+
+spring:
+  task:
+    execution:
+      pool:
+        core-size: 8
+        max-size: 10
+        queue-capacity: 1000
+  data:
+    mongodb:
+      database: "confluence"
+      host: ds231360.mlab.com
+      port: 31360
+      username: confluence
+      password: confluence7995
+
+resources: src/main/resources
+certs: ${resources}/certs
+bot-config: ${resources}/bot-config.json
+
+logging:
+  file: ${resources}/logs/songwriter.log
+  level:
+    ROOT: INFO
+
+crypto:
+  password: 'DkccUmwnh4SZAQZFhpaZq9UntasU2Bvd+hMG7A8UzD8='
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+cors:
+  allowed-origin: "*"
+  url-mapping: "/**"
+
+restclient:
+  timeout: 35000
+

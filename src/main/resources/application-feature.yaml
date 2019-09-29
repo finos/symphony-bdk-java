@@ -1,0 +1,5 @@
+features:
+  commandFeedback: enabled
+  transactionIdOnError: enabled
+  eventUnexpectedErrorMessage: "Something went wrong, please contact your Symphony administrator"
+  linkRoomBaseUrl: "http://localhost:8080/songwriter"

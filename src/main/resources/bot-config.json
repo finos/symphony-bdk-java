@@ -1,0 +1,21 @@
+{
+  "sessionAuthHost": "psdev.symphony.com",
+  "sessionAuthPort": 443,
+  "keyAuthHost": "psdev.symphony.com",
+  "keyAuthPort": 443,
+  "podHost": "psdev.symphony.com",
+  "podPort": 443,
+  "agentHost": "psdev.symphony.com",
+  "agentPort": 443,
+  "appId": "ozzybot",
+  "appPrivateKeyPath": "src/main/resources/certs/",
+  "appPrivateKeyName": "songwriter_privatekey.pkcs8",
+  "botPrivateKeyPath": "src/main/resources/certs/",
+  "botPrivateKeyName": "songwriter_privatekey.pkcs8",
+  "botEmailAddress": "ozzy@symphony.com",
+  "botUsername": "ozzybot",
+  "authTokenRefreshPeriod": "30",
+  "authenticationFilterUrlPattern": "/v1/",
+  "showFirehoseErrors": false,
+  "connectionTimeout": 45000
+}

@@ -1,0 +1,21 @@
+package com.symphony.ms.songwriter.internal.lib.webapi.appauth;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class AppToken {
+  private String appId;
+  private String appToken;
+  private String authToken;
+  private String symphonyToken;
+
+  public AppToken(String appId, String appToken, String symphonyToken) {
+    this.appId = appId;
+    this.appToken = appToken;
+    this.symphonyToken = symphonyToken;
+  }
+}
