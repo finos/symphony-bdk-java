@@ -1,9 +1,11 @@
 package authentication;
 
+import exceptions.AuthenticationException;
+
 public interface ISymAuth {
-    void authenticate();
-    void sessionAuthenticate();
-    void kmAuthenticate();
+    void authenticate() throws AuthenticationException;
+    void sessionAuthenticate() throws AuthenticationException;
+    void kmAuthenticate() throws AuthenticationException;
     String getSessionToken();
     void setSessionToken(String sessionToken);
     String getKmToken();

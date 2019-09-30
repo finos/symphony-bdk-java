@@ -26,7 +26,11 @@ public abstract class APIClient {
             } else if (response.getStatus() == CommonConstants.UNAUTHORIZED) {
                 logger.error("User unauthorized, refreshing tokens");
                 if (botClient != null) {
-                    botClient.getSymAuth().authenticate();
+                    try {
+                        botClient.getSymAuth().authenticate();
+                    } catch (AuthenticationException e) {
+                        throw new SymClientException("Authentication Exception");
+                    }
                 }
                 throw new UnauthorizedException(error.getMessage());
             } else if (response.getStatus() == CommonConstants.FORBIDDEN) {

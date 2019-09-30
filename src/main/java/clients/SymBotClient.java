@@ -8,8 +8,7 @@ import configuration.LoadBalancingMethod;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
 import configuration.SymLoadBalancedConfig;
-import exceptions.NoConfigException;
-import exceptions.SymClientException;
+import exceptions.AuthenticationException;
 import javax.ws.rs.client.Client;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
@@ -42,32 +41,35 @@ public final class SymBotClient implements ISymClient {
     private HealthcheckClient healthcheckClient;
     private InformationBarriersClient informationBarriersClient;
 
-    public static SymBotClient initBotRsa(String configPath) throws NoConfigException {
+    public static SymBotClient initBotRsa(String configPath) throws Exception {
         return initBotRsa(configPath, SymConfig.class);
     }
 
-    public static <T extends SymConfig> SymBotClient initBotRsa(String configPath, Class<T> clazz) throws NoConfigException {
+    public static <T extends SymConfig> SymBotClient initBotRsa(String configPath, Class<T> clazz) throws Exception {
         return initBot(configPath, clazz, true);
     }
 
-    public static SymBotClient initBot(String configPath) throws NoConfigException {
+    public static SymBotClient initBot(String configPath) throws Exception {
         return initBot(configPath, SymConfig.class);
     }
 
-    public static <T extends SymConfig> SymBotClient initBot(String configPath, Class<T> clazz) throws NoConfigException {
+    public static <T extends SymConfig> SymBotClient initBot(String configPath, Class<T> clazz) throws Exception {
         return initBot(configPath, clazz, false);
     }
 
-    private static <T extends SymConfig> SymBotClient initBot(String configPath, Class<T> clazz, boolean isRsa)
-        throws NoConfigException {
-        if (botClient == null) {
-            T config = SymConfigLoader.loadConfig(configPath, clazz);
-            ISymAuth botAuth = isRsa ? new SymBotRSAAuth(config) : new SymBotAuth(config);
-            botAuth.authenticate();
-            botClient = new SymBotClient(config, botAuth);
+    private static <T extends SymConfig> SymBotClient initBot(String configPath, Class<T> clazz, boolean isRsa) throws Exception {
+        if (botClient != null) {
+            return botClient;
         }
+        T config = SymConfigLoader.loadConfig(configPath, clazz);
+        ISymAuth botAuth = isRsa ? new SymBotRSAAuth(config) : new SymBotAuth(config);
 
-        return botClient;
+        try {
+            botAuth.authenticate();
+        } catch (AuthenticationException e) {
+            throw e.getRootException();
+        }
+        return new SymBotClient(config, botAuth);
     }
 
     public static SymBotClient initBot(SymConfig config, ISymAuth botAuth) {
@@ -113,34 +115,38 @@ public final class SymBotClient implements ISymClient {
         return botClient;
     }
 
-    public static SymBotClient initBotLoadBalancedRsa(String configPath, String lbConfigPath) throws NoConfigException {
+    public static SymBotClient initBotLoadBalancedRsa(String configPath, String lbConfigPath) throws Exception {
         return initBotLoadBalancedRsa(configPath, lbConfigPath, SymConfig.class);
     }
 
     public static <T extends SymConfig> SymBotClient initBotLoadBalancedRsa(
         String configPath, String lbConfigPath, Class<T> clazz
-    ) throws NoConfigException {
+    ) throws Exception {
         return initBotLoadBalanced(configPath, lbConfigPath, clazz, true);
     }
 
-    public static SymBotClient initBotLoadBalanced(String configPath, String lbConfigPath) throws NoConfigException {
+    public static SymBotClient initBotLoadBalanced(String configPath, String lbConfigPath) throws Exception {
         return initBotLoadBalanced(configPath, lbConfigPath, SymConfig.class);
     }
 
     public static <T extends SymConfig> SymBotClient initBotLoadBalanced(
         String configPath, String lbConfigPath, Class<T> clazz
-    ) throws NoConfigException {
+    ) throws Exception {
         return initBotLoadBalanced(configPath, lbConfigPath, clazz, false);
     }
 
     private static <T extends SymConfig> SymBotClient initBotLoadBalanced(
         String configPath, String lbConfigPath, Class<T> clazz, boolean isRsa
-    ) throws NoConfigException {
+    ) throws Exception {
         if (botClient == null) {
             T config = SymConfigLoader.loadConfig(configPath, clazz);
             SymLoadBalancedConfig lbConfig = SymConfigLoader.loadConfig(lbConfigPath, SymLoadBalancedConfig.class);
             ISymAuth botAuth = isRsa ? new SymBotRSAAuth(config) : new SymBotAuth(config);
-            botAuth.authenticate();
+            try {
+                botAuth.authenticate();
+            } catch (AuthenticationException e) {
+                throw e.getRootException();
+            }
 
             lbConfig.cloneAttributes(config);
             botClient = new SymBotClient(lbConfig, botAuth);
@@ -158,11 +164,7 @@ public final class SymBotClient implements ISymClient {
         this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
-        try {
-            botUserInfo = this.getUsersClient().getSessionUser();
-        }  catch (SymClientException e) {
-            logger.error("Error getting sessionUser ", e);
-        }
+        botUserInfo = this.getUsersClient().getSessionUser();
 
         SymMessageParser.createInstance(this);
 
@@ -177,11 +179,7 @@ public final class SymBotClient implements ISymClient {
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config)
             .withConfig(agentClientConfig).build();
 
-        try {
-            botUserInfo = this.getUsersClient().getSessionUser();
-        } catch (SymClientException e) {
-            logger.error("Error getting sessionUser ", e);
-        }
+        botUserInfo = this.getUsersClient().getSessionUser();
 
         SymMessageParser.createInstance(this);
 
