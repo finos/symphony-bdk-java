@@ -83,6 +83,20 @@ public class FormBuilder {
         return this;
     }
 
+    public FormBuilder addTextField(String name, String display, String placeholder, boolean required) {
+        TagBuilder textFieldMLBuilder = TagBuilder.builder("text-field")
+            .addField("name", name)
+            .addField("placeholder", placeholder)
+            .addField("required", required);
+
+        if (display != null) {
+            messageML.append(textFieldMLBuilder.setContents(display).build());
+        } else {
+            messageML.append(textFieldMLBuilder.buildSelfClosing());
+        }
+        return this;
+    }
+
     public FormBuilder addTextArea(String name, String display, String placeholder, boolean required) {
         String textAreaML = TagBuilder.builder("textarea")
             .addField("name", name)
