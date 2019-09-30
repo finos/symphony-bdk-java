@@ -3,12 +3,13 @@ package authentication;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
+import exceptions.AuthenticationException;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -23,8 +24,8 @@ import utils.JwtHelper;
 
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
     private final Logger logger = LoggerFactory.getLogger(SymBotRSAAuth.class);
-    private String sessionToken;
-    private String kmToken;
+    private String sessionToken = null;
+    private String kmToken = null;
     private SymConfig config;
     private Client sessionAuthClient;
     private Client kmAuthClient;
@@ -41,14 +42,10 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
         this.kmAuthClient = client;
 
         ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
-        if (clientConfig != null) {
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
-        }
-
         ClientConfig kmClientConfig = HttpClientBuilderHelper.getKMClientConfig(config);
-        if (kmClientConfig != null) {
-            this.kmAuthClient = clientBuilder.withConfig(kmClientConfig).build();
-        }
+
+        this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
+        this.kmAuthClient = clientBuilder.withConfig(kmClientConfig).build();
     }
 
     public SymBotRSAAuth(SymConfig config, ClientConfig sessionAuthClientConfig, ClientConfig kmAuthClientConfig) {
@@ -67,19 +64,62 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-    public void authenticate() {
+    public void authenticate() throws AuthenticationException {
         PrivateKey privateKey = null;
         try {
             privateKey = JwtHelper.parseRSAPrivateKey(this.getRSAPrivateKeyFile(this.config));
         } catch (IOException | GeneralSecurityException e) {
             logger.error("Error trying to parse RSA private key", e);
         }
-        if (lastAuthTime == 0 | System.currentTimeMillis() - lastAuthTime > 3000) {
+        if (lastAuthTime == 0 || System.currentTimeMillis() - lastAuthTime > AuthEndpointConstants.WAIT_TIME) {
             logger.info("Last auth time was {}", lastAuthTime);
             logger.info("Now is {}", System.currentTimeMillis());
             jwt = JwtHelper.createSignedJwt(config.getBotUsername(), AuthEndpointConstants.JWT_EXPIRY_MS, privateKey);
-            sessionAuthenticate();
-            kmAuthenticate();
+
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Future<AuthenticationException> sessionAuthFuture = executor.submit(() -> {
+                try {
+                    sessionAuthenticate();
+                    return null;
+                } catch (AuthenticationException e) {
+                    return e;
+                }
+            });
+            Future<AuthenticationException> kmAuthFuture = executor.submit(() -> {
+                try {
+                    kmAuthenticate();
+                    return null;
+                } catch (AuthenticationException e) {
+                    return e;
+                }
+            });
+            executor.shutdown();
+
+            try {
+                int connectionTimeout = config.getConnectionTimeout();
+                if (connectionTimeout == 0) {
+                    connectionTimeout = 35000;
+                }
+                executor.awaitTermination(connectionTimeout, TimeUnit.MILLISECONDS);
+                executor.shutdownNow();
+                if (!executor.isTerminated()) {
+                    throw new AuthenticationException(new Exception("Timeout"));
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Termination Interrupted");
+            }
+
+            try {
+                if (sessionAuthFuture.get() != null) {
+                    throw sessionAuthFuture.get();
+                }
+                if (kmAuthFuture.get() != null) {
+                    throw kmAuthFuture.get();
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Interrupted Exception");
+            }
+
             lastAuthTime = System.currentTimeMillis();
         } else {
             try {
@@ -103,14 +143,19 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-    public void sessionAuthenticate() {
+    public void sessionAuthenticate() throws AuthenticationException {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
         String podTarget = CommonConstants.HTTPS_PREFIX + config.getPodHost() + ":" + config.getPodPort();
-        Response response = this.sessionAuthClient.target(podTarget)
-            .path(AuthEndpointConstants.SESSION_AUTH_PATH_RSA)
-            .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+        Response response;
+        try {
+            response = this.sessionAuthClient.target(podTarget)
+                .path(AuthEndpointConstants.SESSION_AUTH_PATH_RSA)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+        } catch (Exception e) {
+            throw new AuthenticationException(e);
+        }
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {
@@ -134,14 +179,19 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     }
 
     @Override
-    public void kmAuthenticate() {
+    public void kmAuthenticate() throws AuthenticationException {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
         String keyAuthTarget = CommonConstants.HTTPS_PREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort();
-        Response response = this.kmAuthClient.target(keyAuthTarget)
-            .path(AuthEndpointConstants.KEY_AUTH_PATH_RSA)
-            .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+        Response response;
+        try {
+            response = this.kmAuthClient.target(keyAuthTarget)
+                .path(AuthEndpointConstants.KEY_AUTH_PATH_RSA)
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+        } catch (Exception e) {
+            throw new AuthenticationException(e);
+        }
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             try {

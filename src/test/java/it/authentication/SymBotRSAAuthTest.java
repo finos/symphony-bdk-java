@@ -3,13 +3,13 @@ package it.authentication;
 import authentication.AuthEndpointConstants;
 import authentication.ISymAuth;
 import authentication.SymBotRSAAuth;
+import exceptions.AuthenticationException;
 import it.commons.ServerTest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class SymBotRSAAuthTest extends ServerTest {
   @Test
@@ -29,11 +29,16 @@ public class SymBotRSAAuthTest extends ServerTest {
             .withBody("{ \"token\": \"0100e4feOiJSUzUxMiJ97oqGf729d1866f\", \"name\": \"keyManagerToken\" }")));
 
     ISymAuth symBotRSAAuth = new SymBotRSAAuth(config);
-    symBotRSAAuth.authenticate();
 
-    assertNotNull(symBotRSAAuth.getSessionToken());
-    assertEquals("eyJhbGciOiJSUzUxMiJ97oqG1Kd28l1FpQ", symBotRSAAuth.getSessionToken());
-    assertNotNull(symBotRSAAuth.getKmToken());
-    assertEquals("0100e4feOiJSUzUxMiJ97oqGf729d1866f", symBotRSAAuth.getKmToken());
+      try {
+          symBotRSAAuth.authenticate();
+
+          assertNotNull(symBotRSAAuth.getSessionToken());
+          assertEquals("eyJhbGciOiJSUzUxMiJ97oqG1Kd28l1FpQ", symBotRSAAuth.getSessionToken());
+          assertNotNull(symBotRSAAuth.getKmToken());
+          assertEquals("0100e4feOiJSUzUxMiJ97oqGf729d1866f", symBotRSAAuth.getKmToken());
+      } catch (AuthenticationException e) {
+          fail();
+      }
   }
 }

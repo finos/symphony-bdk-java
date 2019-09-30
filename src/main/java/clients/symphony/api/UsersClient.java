@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
@@ -257,21 +258,19 @@ public class UsersClient extends APIClient {
 
     public UserInfo getSessionUser() {
         UserInfo info;
+        String podTarget = CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost()
+            + ":" + botClient.getConfig().getPodPort();
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(podTarget)
+            .path(PodConstants.GETSESSIONUSER)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        Response response = null;
-
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.GETSESSIONUSER)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .get();
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
-                } catch (UnauthorizedException ex) {
+                } catch (SymClientException ex) {
                     return getSessionUser();
                 }
                 return null;
@@ -279,10 +278,6 @@ public class UsersClient extends APIClient {
                 info = response.readEntity(UserInfo.class);
             }
             return info;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 }
