@@ -3,6 +3,7 @@ package com.symphony.ms.songwriter.internal.message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.songwriter.internal.lib.templating.TemplateService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
@@ -12,6 +13,7 @@ import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 @Service
 public class MessageServiceImpl implements MessageService {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
+  private static final String ENTITY_TAG = "<div class='entity' data-entity-id='%s'>%s</div>";
 
   private SymphonyService symphonyService;
   private TemplateService templateService;
@@ -29,6 +31,7 @@ public class MessageServiceImpl implements MessageService {
     String symMessage = getSymphonyMessage(message);
     String symJsonData = null;
     if (message.isEnrichedMessage()) {
+      symMessage = entitify(message.getEntityName(), symMessage);
       symJsonData = getEnricherData(message);
     }
 
@@ -64,6 +67,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     return renderedString;
+  }
+
+  private String entitify(String entityName, String content) {
+    return String.format(ENTITY_TAG, entityName, content);
   }
 
 }
