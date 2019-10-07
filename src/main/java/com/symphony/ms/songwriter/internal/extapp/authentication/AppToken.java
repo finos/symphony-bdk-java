@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.appauth;
+package com.symphony.ms.songwriter.internal.extapp.authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;

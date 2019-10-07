@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.accesscontrol;
+package com.symphony.ms.songwriter.internal.webapi.accesscontrol;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

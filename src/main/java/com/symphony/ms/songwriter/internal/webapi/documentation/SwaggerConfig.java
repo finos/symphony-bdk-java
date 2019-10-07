@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.documentation;
+package com.symphony.ms.songwriter.internal.webapi.documentation;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

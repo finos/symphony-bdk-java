@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.applog;
+package com.symphony.ms.songwriter.internal.extapp.logging;
 
 import java.util.Optional;
 import org.slf4j.Logger;

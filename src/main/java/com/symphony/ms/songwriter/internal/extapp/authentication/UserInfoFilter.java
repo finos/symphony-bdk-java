@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.appauth;
+package com.symphony.ms.songwriter.internal.extapp.authentication;
 
 import java.io.IOException;
 import javax.servlet.Filter;

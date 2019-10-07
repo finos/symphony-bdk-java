@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.logging;
+package com.symphony.ms.songwriter.internal.webapi.logging;
 
 import java.util.UUID;
 import javax.servlet.ServletRequestEvent;

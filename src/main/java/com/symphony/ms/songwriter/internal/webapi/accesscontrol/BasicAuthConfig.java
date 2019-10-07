@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.lib.webapi.accesscontrol;
+package com.symphony.ms.songwriter.internal.webapi.accesscontrol;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
