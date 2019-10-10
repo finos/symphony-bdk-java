@@ -186,8 +186,9 @@ public class DatafeedEventsService {
         } else {
             logger.error("HandlerError error", e);
         }
-        logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
+
         sleep();
+
         try {
             SymConfig config = botClient.getConfig();
             if (config instanceof SymLoadBalancedConfig) {
@@ -203,6 +204,7 @@ public class DatafeedEventsService {
 
     private void sleep() {
         try {
+            logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
             TIMEOUT_NO_OF_SECS *= 2;
         } catch (InterruptedException ie) {
