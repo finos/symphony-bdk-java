@@ -8,7 +8,7 @@ public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
 
   @Override
   public void handle(UserJoinedRoomEvent event, SymphonyMessage response) {
-    response.setMessage("HANDLE USER JOINED EVENT " + event.getUserDisplayName());
+    response.setMessage("Hey, " + event.getUserDisplayName() + ". It is good to have you here!");
   }
 
 }

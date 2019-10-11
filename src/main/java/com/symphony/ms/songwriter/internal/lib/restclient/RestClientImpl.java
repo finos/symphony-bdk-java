@@ -3,7 +3,6 @@ package com.symphony.ms.songwriter.internal.lib.restclient;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -25,68 +24,73 @@ public class RestClientImpl implements RestClient {
   }
 
   @Override
-  public <T> RestResponse<T> getRequest(String url) {
-    return doRequest(url, HttpMethod.GET, null);
+  public <T> RestResponse<T> getRequest(String url, Class<T> clazz) {
+    return doRequest(url, HttpMethod.GET, null, clazz);
   }
 
   @Override
-  public <T> RestResponse<T> getRequest(String url, Map<String, String> headers) {
-    return doRequest(url, HttpMethod.GET, headers);
+  public <T> RestResponse<T> getRequest(String url,
+      Map<String, String> headers, Class<T> clazz) {
+    return doRequest(url, HttpMethod.GET, headers, clazz);
   }
 
   @Override
-  public <T, U> RestResponse<T> postRequest(String url, U body) {
-    return doRequestWithBody(url, HttpMethod.POST, null, body);
+  public <T, U> RestResponse<T> postRequest(String url, U body,
+      Class<T> clazz) {
+    return doRequestWithBody(url, HttpMethod.POST, null, body, clazz);
   }
 
   @Override
-  public <T, U> RestResponse<T> postRequest(String url, U body, Map<String, String> headers) {
-    return doRequestWithBody(url, HttpMethod.POST, headers, body);
+  public <T, U> RestResponse<T> postRequest(String url, U body,
+      Map<String, String> headers, Class<T> clazz) {
+    return doRequestWithBody(url, HttpMethod.POST, headers, body, clazz);
   }
 
   @Override
-  public <T, U> RestResponse<T> putRequest(String url, U body) {
-    return doRequestWithBody(url, HttpMethod.PUT, null, body);
+  public <T, U> RestResponse<T> putRequest(String url, U body,
+      Class<T> clazz) {
+    return doRequestWithBody(url, HttpMethod.PUT, null, body, clazz);
   }
 
   @Override
-  public <T, U> RestResponse<T> putRequest(String url, U body, Map<String, String> headers) {
-    return doRequestWithBody(url, HttpMethod.PUT, headers, body);
+  public <T, U> RestResponse<T> putRequest(String url, U body,
+      Map<String, String> headers, Class<T> clazz) {
+    return doRequestWithBody(url, HttpMethod.PUT, headers, body, clazz);
   }
 
   @Override
-  public <T> RestResponse<T> deleteRequest(String url) {
-    return doRequest(url, HttpMethod.DELETE, null);
+  public <T> RestResponse<T> deleteRequest(String url, Class<T> clazz) {
+    return doRequest(url, HttpMethod.DELETE, null, clazz);
   }
 
   @Override
-  public <T> RestResponse<T> deleteRequest(String url, Map<String, String> headers) {
-    return doRequest(url, HttpMethod.DELETE, headers);
+  public <T> RestResponse<T> deleteRequest(String url,
+      Map<String, String> headers, Class<T> clazz) {
+    return doRequest(url, HttpMethod.DELETE, headers, clazz);
   }
 
   private <T> RestResponse<T> doRequest(String url, HttpMethod httpMethod,
-     Map<String, String> headers) {
+     Map<String, String> headers, Class<T> clazz) {
     HttpEntity<?> httpEntity = new HttpEntity<>(convertHeaders(headers));
 
-    return internalDoRequest(url, httpMethod, httpEntity);
+    return internalDoRequest(url, httpMethod, httpEntity, clazz);
   }
 
   private <T, U> RestResponse<T> doRequestWithBody(String url,
-      HttpMethod httpMethod, Map<String, String> headers, U body) {
+      HttpMethod httpMethod, Map<String, String> headers, U body, Class<T> clazz) {
     HttpEntity<?> httpEntity = new HttpEntity<>(body, convertHeaders(headers));
 
-    return internalDoRequest(url, httpMethod, httpEntity);
+    return internalDoRequest(url, httpMethod, httpEntity, clazz);
   }
 
   // TODO: add circuit breaker support here
   private <T> RestResponse<T> internalDoRequest(String url, HttpMethod httpMethod,
-      HttpEntity<?> httpEntity) {
+      HttpEntity<?> httpEntity, Class<T> clazz) {
     LOGGER.debug("Performing request {} {}", httpMethod, url);
 
     RestResponse<T> response = null;
     try {
-      ResponseEntity<T> re = restTemplate.exchange(url, httpMethod, httpEntity,
-          new ParameterizedTypeReference<T>() {});
+      ResponseEntity<T> re = restTemplate.exchange(url, httpMethod, httpEntity, clazz);
 
       T body = re.hasBody() ? re.getBody() : null;
       response = new RestResponse<>(body,

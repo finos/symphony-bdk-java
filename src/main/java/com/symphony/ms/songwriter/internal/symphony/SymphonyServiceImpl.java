@@ -110,7 +110,7 @@ public class SymphonyServiceImpl implements SymphonyService {
   private boolean checkPodStatus() {
     boolean isPodUp = false;
     try {
-      restClient.getRequest(getPodHealthUrl());
+      restClient.getRequest(getPodHealthUrl(), String.class);
       isPodUp = true;
     } catch (Exception e) {
       LOGGER.error("Error getting pod health status", e);

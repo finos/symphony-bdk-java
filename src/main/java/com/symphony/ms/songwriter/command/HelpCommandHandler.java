@@ -17,7 +17,7 @@ public class HelpCommandHandler extends CommandHandler {
 
   @Override
   public void handle(MessageEvent command, SymphonyMessage response) {
-    response.setMessage("HANDLING HELP COMMAND");
+    response.setMessage("Hi, how can I help you today?");
   }
 
 }

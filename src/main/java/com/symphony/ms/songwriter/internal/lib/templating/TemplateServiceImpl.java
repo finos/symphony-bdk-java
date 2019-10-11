@@ -33,7 +33,7 @@ public class TemplateServiceImpl implements TemplateService {
   @Override
   public String processTemplateFile(String templateFile, Object data) {
     try {
-      Template template = freemarkerConfig.getTemplate(templateFile, "UTF-8");
+      Template template = freemarkerConfig.getTemplate(templateFile);
       StringWriter sw = new StringWriter();
       template.process(jsonMapper.objectToMap(data), sw);
 

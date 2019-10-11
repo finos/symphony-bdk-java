@@ -17,7 +17,7 @@ public class DefaultBotMentionHandler extends DefaultCommandHandler {
 
   @Override
   public void handle(MessageEvent command, SymphonyMessage response) {
-    response.setMessage("HANDLING DEFAULT COMMAND");
+    response.setMessage("Sorry, I could not understand");
   }
 
 }

@@ -13,7 +13,7 @@ public class ConnectivityController {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConnectivityController.class);
 
   @GetMapping
-  public ResponseEntity<?> getConnectivity() {
+  public ResponseEntity<String> getConnectivity() {
     LOGGER.trace("Connectivity check");
     return ResponseEntity.ok().build();
   }
