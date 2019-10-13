@@ -33,6 +33,9 @@ crypto:
   password: 'DkccUmwnh4SZAQZFhpaZq9UntasU2Bvd+hMG7A8UzD8='
 
 management:
+  endpoints:
+    web:
+      base-path: /monitor
   endpoint:
     health:
       show-details: always

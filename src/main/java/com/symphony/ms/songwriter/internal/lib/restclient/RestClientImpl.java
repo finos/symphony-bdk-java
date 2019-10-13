@@ -96,7 +96,7 @@ public class RestClientImpl implements RestClient {
       response = new RestResponse<>(body,
           re.getHeaders().toSingleValueMap(), re.getStatusCodeValue());
     } catch (HttpClientErrorException | HttpServerErrorException reqEx) {
-      LOGGER.error("Error executing request {} {}\n{}", httpMethod, url, reqEx);
+      LOGGER.debug("Unsuccessful response executing request {} {}\n", httpMethod, url, reqEx);
       response = new RestResponse<>(
           reqEx.getResponseHeaders().toSingleValueMap(),
           reqEx.getRawStatusCode());
