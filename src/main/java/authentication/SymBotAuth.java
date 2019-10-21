@@ -4,7 +4,7 @@ import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.AuthenticationException;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
@@ -32,16 +32,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
 
         this.sessionAuthClient = client;
         this.kmAuthClient = client;
-
-        ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
-        if (clientConfig != null) {
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
-        }
-
-        ClientConfig kmClientConfig = HttpClientBuilderHelper.getKMClientConfig(config);
-        if (kmClientConfig != null) {
-            this.kmAuthClient = clientBuilder.withConfig(kmClientConfig).build();
-        }
+        this.sessionAuthClient = clientBuilder.withConfig(HttpClientBuilderHelper.getPodClientConfig(config)).build();
+        this.kmAuthClient = clientBuilder.withConfig(HttpClientBuilderHelper.getKMClientConfig(config)).build();
     }
 
     public SymBotAuth(final SymConfig inputConfig,
@@ -70,49 +62,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     @Override
     public void authenticate() throws AuthenticationException {
         if (lastAuthTime == 0 || System.currentTimeMillis() - lastAuthTime > AuthEndpointConstants.WAIT_TIME) {
-            ExecutorService executor = Executors.newFixedThreadPool(2);
-            Future<AuthenticationException> sessionAuthFuture = executor.submit(() -> {
-                try {
-                    sessionAuthenticate();
-                    return null;
-                } catch (AuthenticationException e) {
-                    return e;
-                }
-            });
-            Future<AuthenticationException> kmAuthFuture = executor.submit(() -> {
-                try {
-                    kmAuthenticate();
-                    return null;
-                } catch (AuthenticationException e) {
-                    return e;
-                }
-            });
-            executor.shutdown();
-
-            try {
-                int connectionTimeout = config.getConnectionTimeout();
-                if (connectionTimeout == 0) {
-                    connectionTimeout = 35000;
-                }
-                executor.awaitTermination(connectionTimeout, TimeUnit.MILLISECONDS);
-                executor.shutdownNow();
-                if (!executor.isTerminated()) {
-                    throw new AuthenticationException(new Exception("Timeout"));
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Termination Interrupted");
-            }
-
-            try {
-                if (sessionAuthFuture.get() != null) {
-                    throw sessionAuthFuture.get();
-                }
-                if (kmAuthFuture.get() != null) {
-                    throw kmAuthFuture.get();
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                logger.error("Interrupted Exception");
-            }
+            sessionAuthenticate();
+            kmAuthenticate();
 
             lastAuthTime = System.currentTimeMillis();
         } else {
