@@ -3,7 +3,7 @@ package com.symphony.ms.songwriter.internal.command;
 import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
+import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.feature.FeatureManager;
 import com.symphony.ms.songwriter.internal.message.MessageService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
@@ -35,7 +35,7 @@ public abstract class CommandHandler {
     return symphonyService.getBotDisplayName();
   }
 
-  public void onCommand(MessageEvent command) {
+  public void onCommand(BotCommand command) {
     LOGGER.debug("Received command {}", command.getMessage());
 
     final SymphonyMessage commandResponse = new SymphonyMessage();
@@ -58,7 +58,7 @@ public abstract class CommandHandler {
   // TODO: create a command matcher builder
   protected abstract Predicate<String> getCommandMatcher();
 
-  public abstract void handle(MessageEvent command, final SymphonyMessage commandResponse);
+  public abstract void handle(BotCommand command, final SymphonyMessage commandResponse);
 
   public void setCommandDispatcher(CommandDispatcher commandDispatcher) {
     this.commandDispatcher = commandDispatcher;
@@ -79,4 +79,5 @@ public abstract class CommandHandler {
   public void setSymphonyService(SymphonyService symphonyService) {
     this.symphonyService = symphonyService;
   }
+
 }

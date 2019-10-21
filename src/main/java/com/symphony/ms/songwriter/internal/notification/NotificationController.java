@@ -40,7 +40,7 @@ public class NotificationController {
       NotificationRequest notificationRequest = new NotificationRequest(
           headers, notification, identifier);
       final SymphonyMessage notificationMessage = new SymphonyMessage();
-      
+
       boolean result = interceptorChain.execute(
           notificationRequest, notificationMessage);
 

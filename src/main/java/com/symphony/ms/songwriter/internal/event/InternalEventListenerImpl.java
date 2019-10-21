@@ -31,50 +31,50 @@ public class InternalEventListenerImpl implements InternalEventListener {
 
   @Override
   public void onRoomMessage(MessageEvent message) {
-    LOGGER.info("Received message in room {}", message.getStreamId());
+    LOGGER.debug("Received message in room {}", message.getStreamId());
     commandFilter.filter(message);
   }
 
   @Override
   public void onIMMessage(MessageEvent message) {
-    LOGGER.info("Received message in IM {}", message.getStreamId());
+    LOGGER.debug("Received message in IM {}", message.getStreamId());
     commandFilter.filter(message);
   }
 
   @Override
   public void onRoomCreated(RoomCreatedEvent event) {
-    LOGGER.info("Room {} has been created", event.getStreamId());
+    LOGGER.debug("Room {} has been created", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onRoomReactivated(RoomReactivatedEvent event) {
-    LOGGER.info("Room {} has been reactivated", event.getStreamId());
+    LOGGER.debug("Room {} has been reactivated", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onRoomDeactivated(RoomDeactivatedEvent event) {
-    LOGGER.info("Room {} has been deactivated", event.getStreamId());
+    LOGGER.debug("Room {} has been deactivated", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onRoomUpdated(RoomUpdatedEvent event) {
-    LOGGER.info("Room {} has been updated", event.getStreamId());
+    LOGGER.debug("Room {} has been updated", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onIMCreated(IMCreatedEvent event) {
-    LOGGER.info("IM {} has been created", event.getStreamId());
+    LOGGER.debug("IM {} has been created", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onRoomMemberDemotedFromOwner(
       RoomMemberDemotedFromOwnerEvent event) {
-    LOGGER.info("Room member {} has been demoted from owner in room {}",
+    LOGGER.debug("Room member {} has been demoted from owner in room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
@@ -82,21 +82,21 @@ public class InternalEventListenerImpl implements InternalEventListener {
   @Override
   public void onRoomMemberPromotedToOwner(
       RoomMemberPromotedToOwnerEvent event) {
-    LOGGER.info("Room member {} has been promoted to owner in room {}",
+    LOGGER.debug("Room member {} has been promoted to owner in room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onUserJoinedRoom(UserJoinedRoomEvent event) {
-    LOGGER.info("User {} joined room {}",
+    LOGGER.debug("User {} joined room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
   @Override
   public void onUserLeftRoom(UserLeftRoomEvent event) {
-    LOGGER.info("User {} left room {}",
+    LOGGER.debug("User {} left room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }

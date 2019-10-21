@@ -3,7 +3,7 @@ package com.symphony.ms.songwriter.command;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import com.symphony.ms.songwriter.internal.command.CommandHandler;
-import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
+import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
 public class HelpCommandHandler extends CommandHandler {
@@ -16,7 +16,7 @@ public class HelpCommandHandler extends CommandHandler {
   }
 
   @Override
-  public void handle(MessageEvent command, SymphonyMessage response) {
+  public void handle(BotCommand command, SymphonyMessage response) {
     response.setMessage("Hi, how can I help you today?");
   }
 

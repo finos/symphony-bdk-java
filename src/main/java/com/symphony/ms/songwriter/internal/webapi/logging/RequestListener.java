@@ -3,13 +3,13 @@ package com.symphony.ms.songwriter.internal.webapi.logging;
 import java.util.UUID;
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
-import javax.servlet.annotation.WebListener;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
 
-@WebListener
+@Component
 public class RequestListener implements ServletRequestListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(RequestListener.class);
 

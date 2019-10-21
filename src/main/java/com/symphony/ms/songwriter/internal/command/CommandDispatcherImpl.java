@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
+import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 
 @Service
 public class CommandDispatcherImpl implements CommandDispatcher {
@@ -22,7 +22,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
 
   @Override
   @Async
-  public void push(String channel, MessageEvent command) {
+  public void push(String channel, BotCommand command) {
     LOGGER.debug("Looking for command handler for {}", channel);
     CommandHandler handler = commandHandlers.get(channel);
     if (handler != null) {

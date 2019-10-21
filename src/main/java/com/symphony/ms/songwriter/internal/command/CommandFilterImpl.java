@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
 
 @Service
@@ -48,7 +49,8 @@ public class CommandFilterImpl implements CommandFilter {
     }
 
     command.ifPresent(cmd ->
-      commandDispatcher.push(cmd, messageEvent));
+      commandDispatcher.push(cmd, new BotCommand(
+          cmd, messageEvent, commandDispatcher)));
   }
 
   private Optional<String> defaultFilter(String message) {
