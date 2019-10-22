@@ -4,6 +4,9 @@ import authentication.ISymAuth;
 import authentication.SymBotAuth;
 import authentication.SymBotRSAAuth;
 import clients.symphony.api.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import configuration.LoadBalancingMethod;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
@@ -11,6 +14,7 @@ import configuration.SymLoadBalancedConfig;
 import exceptions.AuthenticationException;
 import javax.ws.rs.client.Client;
 import model.UserInfo;
+import org.apache.commons.codec.binary.Base64;
 import org.glassfish.jersey.client.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,7 +168,7 @@ public final class SymBotClient implements ISymClient {
         this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
-        botUserInfo = this.getUsersClient().getSessionUser();
+        this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
 
         SymMessageParser.createInstance(this);
 
@@ -179,11 +183,27 @@ public final class SymBotClient implements ISymClient {
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config)
             .withConfig(agentClientConfig).build();
 
-        botUserInfo = this.getUsersClient().getSessionUser();
+        this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
 
         SymMessageParser.createInstance(this);
 
         reportIfLoadBalanced(config);
+    }
+
+    private UserInfo parseUserFromSessionToken(String sessionToken) {
+        try {
+            String userToken = sessionToken.split("\\.")[1];
+            String decodedUserToken = new String(Base64.decodeBase64(userToken.getBytes()));
+            JsonNode jsonNode = (new ObjectMapper()).readTree(decodedUserToken);
+            UserInfo user = new UserInfo();
+            user.setUsername(jsonNode.path("sub").asText());
+            user.setId(jsonNode.path("userId").asLong());
+            logger.info("Authenticated as {} ({})", user.getUsername(), user.getId());
+            return user;
+        } catch (JsonProcessingException e) {
+            logger.error("Unable to parse user info");
+            return null;
+        }
     }
 
     private void reportIfLoadBalanced(SymConfig config) {
