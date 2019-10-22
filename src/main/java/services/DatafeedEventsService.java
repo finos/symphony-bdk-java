@@ -5,6 +5,11 @@ import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +48,18 @@ public class DatafeedEventsService {
         int threadPoolSize = client.getConfig().getDatafeedEventsThreadpoolSize();
         THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
         resetTimeout();
+
+        try {
+            File file = new File("." + File.separator + "datafeed.id");
+            if (file.isDirectory()) {
+                file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
+            }
+            Path datafeedIdPath = Paths.get(file.getPath());
+            datafeedId = Files.readAllLines(datafeedIdPath).get(0);
+            logger.info("Using previous datafeed id: {}", datafeedId);
+        } catch (IOException e) {
+            logger.info("No previous datafeed id file");
+        }
 
         while (datafeedId == null) {
             try {

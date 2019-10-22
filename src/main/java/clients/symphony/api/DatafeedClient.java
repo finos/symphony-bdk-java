@@ -7,6 +7,9 @@ import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.WebTarget;
@@ -52,12 +55,26 @@ public final class DatafeedClient extends APIClient {
                 datafeedId = response.readEntity(StringId.class);
                 logger.info("Created new datafeed {} for bot {}", datafeedId.getId(),
                     botClient.getBotUserInfo().getUsername());
+                writeDatafeedIdToDisk(datafeedId.getId());
             }
             return datafeedId.getId();
         } finally {
             if (response != null) {
                 response.close();
             }
+        }
+    }
+
+    private void writeDatafeedIdToDisk(String datafeedId) {
+        File file = new File("." + File.separator + "datafeed.id");
+        if (file.isDirectory()) {
+            file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
+        }
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write(datafeedId);
+            fw.flush();
+        } catch (IOException ex) {
+            logger.error(ex.getMessage());
         }
     }
 
