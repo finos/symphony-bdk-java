@@ -2,6 +2,7 @@ package services;
 
 import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
+import configuration.LoadBalancingMethod;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
@@ -55,7 +56,20 @@ public class DatafeedEventsService {
                 file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
             }
             Path datafeedIdPath = Paths.get(file.getPath());
-            datafeedId = Files.readAllLines(datafeedIdPath).get(0);
+            String[] persistedDatafeed = Files.readAllLines(datafeedIdPath).get(0).split("@");
+            datafeedId = persistedDatafeed[0];
+
+            if (client.getConfig() instanceof SymLoadBalancedConfig) {
+                SymLoadBalancedConfig lbConfig = (SymLoadBalancedConfig) client.getConfig();
+                String[] agentHostPort = persistedDatafeed[1].split(":");
+                if (lbConfig.getLoadBalancing().getMethod() == LoadBalancingMethod.external) {
+                    lbConfig.setActualAgentHost(agentHostPort[0]);
+                } else {
+                    int previousIndex = lbConfig.getAgentServers().indexOf(agentHostPort[0]);
+                    lbConfig.setCurrentAgentIndex(previousIndex);
+                }
+            }
+
             logger.info("Using previous datafeed id: {}", datafeedId);
         } catch (IOException e) {
             logger.info("No previous datafeed id file");

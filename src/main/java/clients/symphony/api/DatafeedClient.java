@@ -25,20 +25,22 @@ public final class DatafeedClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
     private SymBotClient botClient;
     private SymConfig config;
-    private static String agentTarget;
 
     public DatafeedClient(SymBotClient client) {
         this.botClient = client;
         this.config = client.getConfig();
-        agentTarget = CommonConstants.HTTPS_PREFIX + config.getAgentHost() + ":" + config.getAgentPort();
+    }
+
+    private String getAgentTarget() {
+        return CommonConstants.HTTPS_PREFIX + config.getAgentHost() + ":" + config.getAgentPort();
     }
 
     public String createDatafeed() throws SymClientException {
         Response response = null;
         StringId datafeedId = null;
         try {
-            logger.info("Creating new datafeed for bot {} .....", botClient.getBotUserInfo().getUsername());
-            response = botClient.getAgentClient().target(agentTarget)
+            logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
+            response = botClient.getAgentClient().target(getAgentTarget())
                 .path(AgentConstants.CREATEDATAFEED)
                 .request(MediaType.APPLICATION_JSON)
                 .header("sessionToken", botClient.getSymAuth().getSessionToken())
@@ -55,7 +57,8 @@ public final class DatafeedClient extends APIClient {
                 datafeedId = response.readEntity(StringId.class);
                 logger.info("Created new datafeed {} for bot {}", datafeedId.getId(),
                     botClient.getBotUserInfo().getUsername());
-                writeDatafeedIdToDisk(datafeedId.getId());
+
+                writeDatafeedIdToDisk(botClient.getConfig(), datafeedId.getId());
             }
             return datafeedId.getId();
         } finally {
@@ -65,13 +68,15 @@ public final class DatafeedClient extends APIClient {
         }
     }
 
-    private void writeDatafeedIdToDisk(String datafeedId) {
+    private void writeDatafeedIdToDisk(SymConfig config, String datafeedId) {
+        String agentHostPort = config.getAgentHost() + ":" + config.getAgentPort();
+
         File file = new File("." + File.separator + "datafeed.id");
         if (file.isDirectory()) {
             file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
         }
         try (FileWriter fw = new FileWriter(file)) {
-            fw.write(datafeedId);
+            fw.write(datafeedId + "@" + agentHostPort);
             fw.flush();
         } catch (IOException ex) {
             logger.error(ex.getMessage());
@@ -83,7 +88,7 @@ public final class DatafeedClient extends APIClient {
         Response response = null;
         logger.debug("Reading datafeed {}", id);
         try {
-            WebTarget webTarget = botClient.getAgentClient().target(agentTarget);
+            WebTarget webTarget = botClient.getAgentClient().target(getAgentTarget());
             response = webTarget
                 .path(AgentConstants.READDATAFEED.replace("{id}", id))
                 .request(MediaType.APPLICATION_JSON)

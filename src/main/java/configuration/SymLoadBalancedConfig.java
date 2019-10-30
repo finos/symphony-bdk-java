@@ -99,6 +99,14 @@ public class SymLoadBalancedConfig extends SymConfig {
         return super.getAgentPort();
     }
 
+    public void setCurrentAgentIndex(int currentAgentIndex) {
+        this.currentAgentIndex = currentAgentIndex;
+    }
+
+    public void setActualAgentHost(String actualAgentHost) {
+        this.actualAgentHost = actualAgentHost;
+    }
+
     private String getActualAgentHost() {
         String externalAgentHost = (agentServers != null && agentServers.size() > 0) ?
             agentServers.get(0) : getAgentHost();
