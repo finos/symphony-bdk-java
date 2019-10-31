@@ -15,35 +15,58 @@ public class BotCommand {
 
   private CommandDispatcher dispatcher;
   private String channel;
-  private MessageEvent event;
+  private String message;
+  private String userId;
+  private String userDisplayName;
+  private String streamId;
   private String originalTransactionId;
 
   public BotCommand(String channel, MessageEvent event,
       CommandDispatcher dispatcher) {
     this.channel = channel;
-    this.event = event;
     this.dispatcher = dispatcher;
+    this.message = event.getMessage();
+    this.userId = event.getUserId();
+    this.userDisplayName = event.getUserDisplayName();
+    this.streamId = event.getStreamId();
     originalTransactionId = MDC.get("transactionId");
   }
 
+  public BotCommand(String channel, CommandDispatcher dispatcher) {
+    this.channel = channel;
+    this.dispatcher = dispatcher;
+  }
+
   public String getMessage() {
-    return event.getMessage();
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
 
   public String getUserId() {
-    return event.getUserId();
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
   }
 
   public String getUserDisplayName() {
-    return event.getUserDisplayName();
+    return userDisplayName;
+  }
+
+  public void setUserDisplayName(String userDisplayName) {
+    this.userDisplayName = userDisplayName;
   }
 
   public String getStreamId() {
-    return event.getStreamId();
+    return streamId;
   }
 
-  public String getInitialTransactionId() {
-    return originalTransactionId;
+  public void setStreamId(String streamId) {
+    this.streamId = streamId;
   }
 
   public void retry() {
@@ -55,7 +78,7 @@ public class BotCommand {
   private void setMDCContext() {
     MDC.put(STREAM_ID, this.getStreamId());
     MDC.put(USER_ID, this.getUserId());
-    MDC.put(ORIGINAL_TX_ID, this.getInitialTransactionId());
+    MDC.put(ORIGINAL_TX_ID, originalTransactionId);
   }
 
 }

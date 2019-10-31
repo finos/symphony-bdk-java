@@ -44,6 +44,13 @@ cors:
   allowed-origin: "*"
   url-mapping: "/**"
 
+xss:
+  url-mapping: "/**"
+
+request-origin:
+  origin-header: "x-origin-token"
+  url-mapping: "/notification"
+
 restclient:
   timeout: 35000
 
