@@ -26,7 +26,6 @@ public class InterceptorBeanFactoryProcessor extends BaseBeanFactoryPostProcesso
           .rootBeanDefinition(beanDefinition.getBeanClassName())
           .setInitMethodName("register")
           .addPropertyReference("interceptorChain", "interceptorChainImpl")
-          .addPropertyReference("baseWebhookService", "baseWebhookServiceImpl")
           .getBeanDefinition();
 
       beanDefinitionRegistry.registerBeanDefinition(

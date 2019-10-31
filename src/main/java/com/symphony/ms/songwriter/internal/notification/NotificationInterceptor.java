@@ -4,14 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 import com.symphony.ms.songwriter.internal.notification.model.NotificationRequest;
-import com.symphony.ms.songwriter.internal.webhook.BaseWebhookService;
 
 public abstract class NotificationInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(NotificationInterceptor.class);
 
   protected InterceptorChain interceptorChain;
-
-  protected BaseWebhookService baseWebhookService;
 
   public void register() {
     interceptorChain.register(this);
@@ -34,10 +31,6 @@ public abstract class NotificationInterceptor {
 
   public void setInterceptorChain(InterceptorChain interceptorChain) {
     this.interceptorChain = interceptorChain;
-  }
-
-  public void setBaseWebhookService(BaseWebhookService baseWebhookService) {
-    this.baseWebhookService = baseWebhookService;
   }
 
 }

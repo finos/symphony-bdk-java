@@ -13,9 +13,8 @@ public class MyNotificationInterceptor extends NotificationInterceptor {
   public boolean process(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage) {
 
-    // Webhook service not implemented yet - currently identifier == streamId
-    String streamId = baseWebhookService.getStreamIdFromIdentifier(
-        notificationRequest.getIdentifier());
+    // For simplicity of this sample code identifier == streamId
+    String streamId = notificationRequest.getIdentifier();
 
     if (streamId != null) {
       notificationRequest.setStreamId(streamId);
