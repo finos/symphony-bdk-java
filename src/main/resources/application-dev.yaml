@@ -14,7 +14,7 @@ spring:
         queue-capacity: 1000
 
 resources: src/main/resources
-certs: ${resources}/certs
+certs: certs
 bot-config: ${resources}/bot-config.json
 
 logging:
