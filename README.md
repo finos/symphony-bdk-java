@@ -52,51 +52,71 @@ Sample commands are shipped with the framework as a way to assist developers to 
 All the sample commands require mentioning the bot (e.g. @MyBot), although you can specify any other pattern when creating your own commands.
 
 **Hello command**
+
 Simple hello world command.
 
 &#9679; John Doe
+
 @MyBot hello
 
 &#9679; MyBot
+
 Hello, **John Doe**
 
+
 **Help command**
+
 Static help message.
 
 &#9679; John Doe
+
 @MyBot help
 
 &#9679; MyBot
+
 Hi, how can I help you today?
 
+
 **Link room command**
+
 Returns a URL that you can use to receive notifications from external system into the given Symphony room. To test it, submit a HTTP POST request to the returned URL.
 
 &#9679; John Doe
+
 @MyBot link room
 
 &#9679; MyBot
+
 http://localhost:8080/myproject/notification/GhaWqOo6jRsHv5adBv4q73___pK2eM94dA
 
+
 **Quote command**
+
 Relies on the RestClient library offered by the framework to request quotes for foreigner currencies on a external system.
 
 &#9679; John Doe
+
 @MyBot /quote BRL
 
 &#9679; MyBot
+
 USD-BRL X-RATE
 
 **3.99**<sub>BRL</sub>
 
+
 **Login command**
+
 Returns the HTTP header required to perform authenticated requests to external systems. Sample code includes two implementations of the AuthenticationProvider interface representing Basic and OAuth v2 authentication.
 
 &#9679; John Doe
+
 @MyBot login
 
 &#9679; MyBot
+
 **User authenticated**. Please add the following HTTP header to your requests:
+
 ```
 Authorization: Basic am9obi5kb2VAc3ltcGhvbnkuY29tOnN0cm9uZ3Bhc3M=
 ```
