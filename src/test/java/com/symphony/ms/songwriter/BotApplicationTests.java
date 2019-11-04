@@ -21,7 +21,7 @@ import model.events.UserJoinedRoom;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SongwriterApplicationTests {
+public class BotApplicationTests {
 
   @Autowired
   private CommandFilter filter;
