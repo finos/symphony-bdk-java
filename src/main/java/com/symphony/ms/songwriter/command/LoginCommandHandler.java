@@ -14,7 +14,7 @@ public class LoginCommandHandler extends AuthenticatedCommandHandler {
   @Override
   protected Predicate<String> getCommandMatcher() {
     return Pattern
-        .compile("^@"+ getBotName() + " login$")
+        .compile("^@"+ getBotName() + " /login$")
         .asPredicate();
   }
 

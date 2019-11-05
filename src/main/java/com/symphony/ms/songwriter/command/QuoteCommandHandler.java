@@ -42,7 +42,7 @@ public class QuoteCommandHandler extends CommandHandler {
           QuoteResponse test = response.getBody();
           InternalQuote iQuote = new InternalQuote(test.getQuote());
           commandResponse.setEnrichedTemplateFile("quote-result.ftl", iQuote,
-              "com.symphony.ms.devtools.currencyQuote", iQuote, "1.0");
+              "com.symphony.ms.currencyQuote", iQuote, "1.0");
         }
       }
     } else {

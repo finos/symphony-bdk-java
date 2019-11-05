@@ -21,7 +21,7 @@ public class MyNotificationInterceptor extends NotificationInterceptor {
       notificationMessage.setMessage(notificationRequest.getPayload());
       notificationMessage.setEnrichedMessage(
           "<b>Notification received:</b><br />" + notificationRequest.getPayload(), // Default message when extension app not present
-          "MyEntity", // Root node in the payload received in extension app
+          "com.symphony.ms.notification", // Root node in the payload received in extension app
           notificationRequest.getPayload(), // payload received in extension app
           "1.0"); // version
       return true; // true if notification interception chain should continue

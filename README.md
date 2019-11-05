@@ -57,7 +57,7 @@ Simple hello world command.
 
 &#9679; John Doe
 
-@MyBot hello
+@MyBot /hello
 
 &#9679; MyBot
 
@@ -70,25 +70,42 @@ Static help message.
 
 &#9679; John Doe
 
-@MyBot help
+@MyBot /help
 
 &#9679; MyBot
 
-Hi, how can I help you today?
 
+Bot Commands
+- @MyBot /hello - simple hello command
+- @MyBot /hello - simple hello command
+- @MyBot /help - displays the list of commands
+- @MyBot /create notification - generates details on how to receive notification in this room
+- @MyBot /login - returns the HTTP authorization header required to talk to external system
+- @MyBot /quote BRL - returns quote for the specified currency (e.g. BRL)
 
-**Link room command**
+**Create notification command**
 
-Returns a URL that you can use to receive notifications from external system into the given Symphony room. To test it, submit a HTTP POST request to the returned URL.
+Returns instructions that you can use to receive notifications from external systems into the given Symphony room. To test it, submit a HTTP POST request to the returned URL.
 
 &#9679; John Doe
 
-@MyBot link room
+@MyBot /create notification
 
 &#9679; MyBot
 
-http://localhost:8080/myproject/notification/GhaWqOo6jRsHv5adBv4q73___pK2eM94dA
+| Method | Request URL |
+|--|--|
+| POST | http://localhost:8080/myproject/notification/GhaWqOo6jRsHv5adBv4q73___pK2eM94dA |
+<br/>
 
+| Header name | Header value |
+|--|--|
+| Accept | application/json |
+| Content-type | application/json |
+<br/>
+
+**Payload**
+Click to expand the sample payload
 
 **Quote command**
 
@@ -111,7 +128,7 @@ Returns the HTTP header required to perform authenticated requests to external s
 
 &#9679; John Doe
 
-@MyBot login
+@MyBot /login
 
 &#9679; MyBot
 
