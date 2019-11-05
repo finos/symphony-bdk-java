@@ -12,4 +12,5 @@ public interface JsonMapper {
 
   Map<String, Object> objectToMap(Object data);
 
+  <T> T toObject(String jsonString, Class<T> clazz);
 }

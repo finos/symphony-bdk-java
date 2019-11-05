@@ -1,5 +1,6 @@
 package com.symphony.ms.songwriter.internal.lib.jsonmapper;
 
+import java.io.IOException;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,4 +49,12 @@ public class JsonMapperImpl implements JsonMapper {
     return objectMapper.convertValue(data, Map.class);
   }
 
+  @Override
+  public <T> T toObject(String jsonString, Class<T> clazz) {
+    try {
+      return objectMapper.readValue(jsonString, clazz);
+    } catch (IOException e) {
+      throw new JsonMapperException();
+    }
+  }
 }
