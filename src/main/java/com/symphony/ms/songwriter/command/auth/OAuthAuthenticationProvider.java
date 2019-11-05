@@ -16,7 +16,7 @@ public class OAuthAuthenticationProvider implements AuthenticationProvider {
 
   private static final String AUTHORIZE_URL = "https://OAUTH-SERVER.URL.COM/oauth2/default/v1/authorize";
   private static final String TOKEN_URL = "https://OAUTH-SERVER.URL.COM/oauth2/default/v1/token";
-  private static final String REDIRECT_URI = "https://localhost:8080/songwriter/oauth";
+  private static final String REDIRECT_URI = "https://localhost:8080/myproject/oauth";
   private static final String CLIENT_ID = "CLIENT-ID";
   private static final String CLIENT_SECRET = "CLIENT-SECRET";
   private static final String RESPONSE_TYPE = "code";

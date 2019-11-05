@@ -29,7 +29,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 
   private ApiInfo metaData() {
     return new ApiInfoBuilder()
-            .title("Symphony Songwriter")
+            .title("Symphony Bot Framework")
             .description("REST API documentation")
             .build();
   }
