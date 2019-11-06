@@ -1,10 +1,11 @@
-# Symphony Bot Framework
+# Symphony Bot Application
 
-This framework streamlines the bot and extension app creation process by abstracting away many of the complexities and required boilerplates. Through simple and intuitive extension points, developers can inject their own logic to handle bot commands, Symphony events, notifications coming from external systems and more.
+This application is managing all bot interactions from handling bot commands to receiving notifications from external
+systems and push them as symphony messages.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will allow you to set up your bot application.
 
 ### Prerequisites
 * JDK 1.8
@@ -13,12 +14,15 @@ These instructions will get you a copy of the project up and running on your loc
 * Extension app setup in Symphony Admin portal (optional)
 
 ### Setting the service account
-In order to register a sevice account (or Extension app) in Symphony Admin portal a RSA key pair is required. The bot application uses the private key while Symphony needs to know the public one. Once you have configured that (instructions not covered here), place the private key into /certs directory at the top level of the project structure.
+In order to register a sevice account in Symphony Admin Console, a RSA key pair is required. The bot application uses
+the private key while Symphony needs to know the public one.
 
-In addition to the RSA keys, make sure the property botUsername (and appId) in src/main/resources/bot-config.json file matches the value configured in Symphony Admin portal.
+In addition to the RSA keys, make sure the property botUsername (and appId) in src/main/resources/bot-config.json
+file matches the value configured in Symphony Admin Console.
 
 ### POD configuration
-In src/main/resources/bot-config.json you will find configuration properties where you can specify the details of your POD. Fill out the following properties to make the framework to point to your POD.
+In src/main/resources/bot-config.json you will find configuration properties where you can specify the details of your 
+POD. Fill out the following properties to make the application to point to your POD.
 
 * sessionAuthHost
 * sessionAuthPort
@@ -30,13 +34,13 @@ In src/main/resources/bot-config.json you will find configuration properties whe
 * agentPort
 
 ### Running locally
-The framework is built using the Spring Boot Framework and uses Maven to manage the dependencies.
+The Application is built using the Spring Boot Application and uses Maven to manage the dependencies.
 
 1st Step - Install all of the project's dependencies
 ```
 mvn clean install
 ```
-2st Step - Run the framework using Maven and Spring Boot
+2st Step - Run the application using Maven and Spring Boot
 ```
 mvn clean spring-boot:run
 ```
@@ -47,7 +51,8 @@ mvn clean spring-boot:run -Dspring-boot.run.jvmArguments="-Xdebug -Xrunjdwp:tran
 Bind the IDE of your choice the the specified port (e.g. 5005).
 
 ### Testing commands
-Sample commands are shipped with the framework as a way to assist developers to understand the mechanics of the framework. If framework is properly configured to point to your POD, create an IM or chat room with the bot (search it by the display name you configured in Symphony Admin portal).
+Sample commands are shipped with the application as a way to assist developers to understand the mechanics of the application.
+If application is properly configured to point to your POD, create an IM or chat room with the bot (search it by the display name you configured in Symphony Admin portal).
 
 All the sample commands require mentioning the bot (e.g. @MyBot), although you can specify any other pattern when creating your own commands.
 
@@ -109,7 +114,7 @@ Click to expand the sample payload
 
 **Quote command**
 
-Relies on the RestClient library offered by the framework to request quotes for foreigner currencies on a external system.
+Relies on the RestClient library offered by the application to request quotes for foreigner currencies on a external system.
 
 &#9679; John Doe
 
