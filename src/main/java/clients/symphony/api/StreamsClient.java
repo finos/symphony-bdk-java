@@ -1,7 +1,6 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
@@ -10,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
@@ -18,12 +18,9 @@ import model.*;
 
 public class StreamsClient extends APIClient {
     private ISymClient botClient;
-    private String podBaseUri;
 
     public StreamsClient(ISymClient client) {
         botClient = client;
-        podBaseUri = CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost()
-            + ":" + botClient.getConfig().getPodPort();
     }
 
     public String getUserIMStreamId(Long userId) throws SymClientException {
@@ -33,12 +30,13 @@ public class StreamsClient extends APIClient {
     }
 
     public String getUserListIM(List<Long> userIdList) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETIM)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(userIdList, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
+        try (Response response = builder.post(Entity.entity(userIdList, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -52,12 +50,13 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo createRoom(Room room) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.CREATEROOM)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(room, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
+        try (Response response = builder.post(Entity.entity(room, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -73,11 +72,13 @@ public class StreamsClient extends APIClient {
     public void addMemberToRoom(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADDMEMBER.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -91,11 +92,13 @@ public class StreamsClient extends APIClient {
     public void removeMemberFromRoom(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.REMOVEMEMBER.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -107,11 +110,13 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo getRoomInfo(String streamId) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETROOMINFO.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .get()) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -125,11 +130,13 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo updateRoom(String streamId, Room room) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.UPDATEROOMINFO.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(room, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(Entity.entity(room, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -138,18 +145,19 @@ public class StreamsClient extends APIClient {
                 }
                 return null;
             } else {
-                RoomInfo roomInfo = response.readEntity(RoomInfo.class);
-                return roomInfo;
+                return response.readEntity(RoomInfo.class);
             }
         }
     }
 
     public StreamInfo getStreamInfo(String streamId) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETSTREAMINFO.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .get()) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -164,11 +172,13 @@ public class StreamsClient extends APIClient {
     }
 
     public List<RoomMember> getRoomMembers(String streamId) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETROOMMEMBERS.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .get()) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -191,12 +201,14 @@ public class StreamsClient extends APIClient {
     }
 
     private void setActiveRoom(String streamId, boolean active) throws SymClientException {
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.SETACTIVE.replace("{id}", streamId))
             .queryParam("active", active)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(null)) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -210,11 +222,13 @@ public class StreamsClient extends APIClient {
     public void promoteUserToOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.PROMOTEOWNER.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -228,11 +242,13 @@ public class StreamsClient extends APIClient {
     public void demoteUserFromOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.DEMOTEOWNER.replace("{id}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -245,24 +261,24 @@ public class StreamsClient extends APIClient {
 
     public RoomSearchResult searchRooms(RoomSearchQuery query, int skip, int limit)
         throws SymClientException, NoContentException {
-        RoomSearchResult result;
-        WebTarget builder = botClient.getPodClient().target(podBaseUri)
+        WebTarget webTarget = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.SEARCHROOMS);
 
         if (skip > 0) {
-            builder = builder.queryParam("skip", skip);
+            webTarget = webTarget.queryParam("skip", skip);
         }
         if (limit > 0) {
-            builder = builder.queryParam("limit", limit);
+            webTarget = webTarget.queryParam("limit", limit);
         }
         if (query.getLabels() == null) {
             query.setLabels(new ArrayList<>());
         }
 
-        try (Response response = builder.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
+        Invocation.Builder builder =  webTarget.request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
+        try (Response response = builder.post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -273,10 +289,8 @@ public class StreamsClient extends APIClient {
             } else if (response.getStatus() == 204) {
                 throw new NoContentException("No messages found");
             } else {
-                result = response.readEntity(RoomSearchResult.class);
+                return response.readEntity(RoomSearchResult.class);
             }
-
-            return result;
         }
     }
 
@@ -294,12 +308,13 @@ public class StreamsClient extends APIClient {
         input.put("streamTypes", inputStreamTypes);
         input.put("includeInactiveStreams", includeInactiveStreams);
 
-        try (Response response = botClient.getPodClient().target(podBaseUri)
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTUSERSTREAMS)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
+        try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -308,7 +323,6 @@ public class StreamsClient extends APIClient {
                 }
                 return null;
             }
-
             return response.readEntity(StreamInfoList.class);
         }
     }

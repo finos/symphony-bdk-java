@@ -28,19 +28,16 @@ public class UsersClient extends APIClient {
     }
 
     public UserInfo getUserFromUsername(String username) throws SymClientException, NoContentException {
-        UserInfo info;
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
+                .getPodPort())
+            .path(PodConstants.GETUSERV2)
+            .queryParam("username", username)
+            .queryParam("local", true)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.GETUSERV2)
-                .queryParam("username", username)
-                .queryParam("local", true)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .get();
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -51,31 +48,21 @@ public class UsersClient extends APIClient {
             } else if (response.getStatus() == 204) {
                 throw new NoContentException("No user found.");
             } else {
-                info = response.readEntity(UserInfo.class);
-            }
-            return info;
-        } finally {
-            if (response != null) {
-                response.close();
+                return response.readEntity(UserInfo.class);
             }
         }
     }
 
     public UserInfo getUserFromEmail(String email, Boolean local) throws SymClientException, NoContentException {
-        UserInfo info;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.GETUSERSV3)
+            .queryParam("email", email)
+            .queryParam("local", local)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        Response response = null;
-
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.GETUSERSV3)
-                .queryParam("email", email)
-                .queryParam("local", local)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .get();
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -90,32 +77,21 @@ public class UsersClient extends APIClient {
                 if (infoList.getUsers().isEmpty()) {
                     throw new NoContentException("No user found.");
                 }
-                info = infoList.getUsers().get(0);
-            }
-
-            return info;
-        } finally {
-            if (response != null) {
-                response.close();
+                return infoList.getUsers().get(0);
             }
         }
     }
 
     public UserInfo getUserFromId(Long id, Boolean local) throws SymClientException, NoContentException {
-        UserInfo info;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.GETUSERSV3)
+            .queryParam("uid", id)
+            .queryParam("local", local)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        Response response = null;
-
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.GETUSERSV3)
-                .queryParam("uid", id)
-                .queryParam("local", local)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .get();
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -127,13 +103,7 @@ public class UsersClient extends APIClient {
                 throw new NoContentException("No user found.");
             } else {
                 UserInfoList infoList = response.readEntity(UserInfoList.class);
-                info = infoList.getUsers().get(0);
-            }
-
-            return info;
-        } finally {
-            if (response != null) {
-                response.close();
+                return infoList.getUsers().get(0);
             }
         }
     }
@@ -148,12 +118,12 @@ public class UsersClient extends APIClient {
         return getUsersV3(emailList, null, local);
     }
 
-
     public List<UserInfo> getUsersV3(List<String> emailList, List<Long> idList, Boolean local)
         throws SymClientException, NoContentException {
         List<UserInfo> infoList = new ArrayList<>();
         boolean emailBased = false;
         StringBuilder lookUpListString = new StringBuilder();
+
         if (emailList != null) {
             if (emailList.isEmpty()) {
                 throw new NoContentException("No user sent for lookup");
@@ -175,19 +145,15 @@ public class UsersClient extends APIClient {
             throw new NoContentException("No user sent for lookup");
         }
 
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.GETUSERSV3)
+            .queryParam(emailBased ? "email" : "uid", lookUpListString.toString())
+            .queryParam("local", local)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.GETUSERSV3)
-                .queryParam(emailBased ? "email" : "uid", lookUpListString.toString())
-                .queryParam("local", local)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .get();
-
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -203,40 +169,30 @@ public class UsersClient extends APIClient {
             }
 
             return infoList;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public UserSearchResult searchUsers(String query, boolean local, int skip, int limit, UserFilter filter)
         throws SymClientException, NoContentException {
-        String podTarget = CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost()
-            + ":" + botClient.getConfig().getPodPort();
-        WebTarget builder = botClient.getPodClient().target(podTarget)
-            .path(PodConstants.SEARCHUSERS);
+        WebTarget webTarget = botClient.getPodClient().target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.SEARCHUSERS)
+            .queryParam("local", local);
 
         if (skip > 0) {
-            builder = builder.queryParam("skip", skip);
+            webTarget = webTarget.queryParam("skip", skip);
         }
         if (limit > 0) {
-            builder = builder.queryParam("limit", limit);
+            webTarget = webTarget.queryParam("limit", limit);
         }
-        if (local) {
-            builder = builder.queryParam("local", local);
-        }
+
         Map<String, Object> body = new HashMap<>();
         body.put("query", query);
         body.put("filters", filter);
 
-        Response response = null;
+        Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(body, MediaType.APPLICATION_JSON));
-
+        try (Response response = builder.post(Entity.entity(body, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -249,19 +205,14 @@ public class UsersClient extends APIClient {
             } else {
                 return response.readEntity(UserSearchResult.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public UserInfo getSessionUser() {
         UserInfo info;
-        String podTarget = CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost()
-            + ":" + botClient.getConfig().getPodPort();
+
         Invocation.Builder builder = botClient.getPodClient()
-            .target(podTarget)
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETSESSIONUSER)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());

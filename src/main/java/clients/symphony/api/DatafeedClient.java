@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,39 +32,33 @@ public final class DatafeedClient extends APIClient {
         this.config = client.getConfig();
     }
 
-    private String getAgentTarget() {
-        return CommonConstants.HTTPS_PREFIX + config.getAgentHost() + ":" + config.getAgentPort();
-    }
-
     public String createDatafeed() throws SymClientException {
-        Response response = null;
-        StringId datafeedId = null;
-        try {
-            logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
-            response = botClient.getAgentClient().target(getAgentTarget())
-                .path(AgentConstants.CREATEDATAFEED)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-                .post(null);
+        Invocation.Builder builder = botClient.getAgentClient()
+            .target(config.getAgentUrl())
+            .path(AgentConstants.CREATEDATAFEED)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+
+        logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
+
+        try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
+                    return createDatafeed();
                 } catch (UnauthorizedException ex) {
                     logger.error("createDatafeed error ", ex);
-                    return createDatafeed();
+                    return null;
                 }
             } else {
-                datafeedId = response.readEntity(StringId.class);
+                StringId datafeedId = response.readEntity(StringId.class);
                 logger.info("Created new datafeed {} for bot {}", datafeedId.getId(),
                     botClient.getBotUserInfo().getUsername());
 
                 writeDatafeedIdToDisk(botClient.getConfig(), datafeedId.getId());
-            }
-            return datafeedId.getId();
-        } finally {
-            if (response != null) {
-                response.close();
+
+                return datafeedId.getId();
             }
         }
     }
@@ -84,19 +79,19 @@ public final class DatafeedClient extends APIClient {
     }
 
     public List<DatafeedEvent> readDatafeed(String id) throws SymClientException {
+        WebTarget webTarget = botClient.getAgentClient().target(config.getAgentUrl());
+        Invocation.Builder builder = webTarget
+            .path(AgentConstants.READDATAFEED.replace("{id}", id))
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+
         List<DatafeedEvent> datafeedEvents = null;
-        Response response = null;
+
         logger.debug("Reading datafeed {}", id);
-        try {
-            WebTarget webTarget = botClient.getAgentClient().target(getAgentTarget());
-            response = webTarget
-                .path(AgentConstants.READDATAFEED.replace("{id}", id))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-                .get();
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-                logger.error("Datafeed read error for request " + webTarget.getUri());
+                logger.error("Datafeed read error for request: {}", webTarget.getUri());
                 handleError(response, botClient);
             } else if (response.getStatusInfo().getFamily() == Response.Status.Family.CLIENT_ERROR) {
                 ((SymLoadBalancedConfig) config).rotateAgent();
@@ -108,10 +103,6 @@ public final class DatafeedClient extends APIClient {
                 }
             }
             return datafeedEvents;
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 }

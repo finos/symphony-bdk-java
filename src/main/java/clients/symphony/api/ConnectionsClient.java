@@ -1,12 +1,13 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -48,39 +49,28 @@ public final class ConnectionsClient extends APIClient {
     public List<InboundConnectionRequest> getConnections(String status,
                                                          List<Long> userIds)
         throws SymClientException {
-        boolean userList = false;
-        StringBuilder userIdList = new StringBuilder();
-        if (userIds != null) {
-            if (!userIds.isEmpty()) {
-                userList = true;
-                userIdList.append(userIds.get(0));
-                for (int i = 1; i < userIds.size(); i++) {
-                    userIdList.append("," + userIds.get(i));
-                }
-            }
+        String userIdString = null;
+        if (userIds != null && !userIds.isEmpty()) {
+            userIdString = userIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
         }
-        WebTarget builder
-            = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-            + botClient.getConfig().getPodHost()
-            + ":" + botClient.getConfig().getPodPort())
+
+        WebTarget webTarget = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETCONNECTIONS);
 
         if (status != null) {
-            builder = builder.queryParam("status", status);
+            webTarget = webTarget.queryParam("status", status);
         }
-        if (userList) {
-            builder = builder.queryParam("userIds", userIdList.toString());
+        if (userIdString != null) {
+            webTarget = webTarget.queryParam("userIds", userIdString);
         }
+        Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        Response response = null;
-
-        try {
-            response = builder.request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .get();
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        try (Response response = builder.get()) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -90,28 +80,20 @@ public final class ConnectionsClient extends APIClient {
             } else {
                 return response.readEntity(InboundConnectionRequestList.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public InboundConnectionRequest acceptConnectionRequest(Long userId)
         throws SymClientException {
-        UserId userIdObject = new UserId();
-        userIdObject.setUserId(userId);
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.ACCEPTCONNECTION)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getPodHost()
-                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.ACCEPTCONNECTION)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(userIdObject, MediaType.APPLICATION_JSON));
+        Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
+
+        try (Response response = builder.post(entity)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -122,28 +104,20 @@ public final class ConnectionsClient extends APIClient {
             } else {
                 return response.readEntity(InboundConnectionRequest.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public InboundConnectionRequest rejectConnectionRequest(Long userId)
         throws SymClientException {
-        UserId userIdObject = new UserId();
-        userIdObject.setUserId(userId);
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.REJECTCONNECTION)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getPodHost()
-                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.REJECTCONNECTION)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(userIdObject, MediaType.APPLICATION_JSON));
+        Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
+
+        try (Response response = builder.post(entity)) {
             if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
                 try {
@@ -155,30 +129,21 @@ public final class ConnectionsClient extends APIClient {
             } else {
                 return response.readEntity(InboundConnectionRequest.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public InboundConnectionRequest sendConnectionRequest(Long userId)
         throws SymClientException {
-        UserId userIdObject = new UserId();
-        userIdObject.setUserId(userId);
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.SENDCONNECTIONREQUEST)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getPodHost()
-                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.SENDCONNECTIONREQUEST)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(userIdObject, MediaType.APPLICATION_JSON));
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
+
+        try (Response response = builder.post(entity)) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -188,29 +153,19 @@ public final class ConnectionsClient extends APIClient {
             } else {
                 return response.readEntity(InboundConnectionRequest.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public InboundConnectionRequest getConnectionRequestStatus(Long userId)
         throws SymClientException {
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)))
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getPodHost()
-                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}",
-                    Long.toString(userId)))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .get();
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+        try (Response response = builder.get()) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -220,26 +175,17 @@ public final class ConnectionsClient extends APIClient {
             } else {
                 return response.readEntity(InboundConnectionRequest.class);
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public void removeConnection(Long userId) throws SymClientException {
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)))
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient().target(CommonConstants.HTTPS_PREFIX
-                + botClient.getConfig().getPodHost()
-                + ":" + botClient.getConfig().getPodPort())
-                .path(PodConstants.REMOVECONNECTION.replace("{userId}",
-                    Long.toString(userId)))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken",
-                    botClient.getSymAuth().getSessionToken())
-                .post(null);
+        try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
                 try {
@@ -248,15 +194,17 @@ public final class ConnectionsClient extends APIClient {
                     removeConnection(userId);
                 }
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     private class UserId {
         private Long userId;
+
+        public UserId() {}
+
+        public UserId(Long userId) {
+            this.userId = userId;
+        }
 
         public Long getUserId() {
             return userId;
@@ -266,5 +214,4 @@ public final class ConnectionsClient extends APIClient {
             this.userId = userId;
         }
     }
-
 }

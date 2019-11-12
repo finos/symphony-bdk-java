@@ -1,35 +1,33 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import java.util.List;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import model.Presence;
 import model.UserPresence;
 
 public class PresenceClient extends APIClient {
-    ISymClient botClient;
+    private ISymClient botClient;
 
     public PresenceClient(ISymClient client) {
         botClient = client;
     }
 
     public UserPresence getUserPresence(Long userId, boolean local) throws SymClientException {
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.GETUSERPRESENCE.replace("{uid}", Long.toString(userId)))
+            .queryParam("local", local)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.GETUSERPRESENCE.replace("{uid}", Long.toString(userId)))
-                .queryParam("local", local)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .get();
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -39,26 +37,23 @@ public class PresenceClient extends APIClient {
                 return null;
             }
             return response.readEntity(UserPresence.class);
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
-    public UserPresence setPresence(String status) throws SymClientException {
-        Category category = new Category();
-        category.setCategory(status);
-        Response response = null;
+    public UserPresence setPresence(Presence status) throws SymClientException {
+        return setPresence(status.toString());
+    }
 
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.SETPRESENCE)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(category, MediaType.APPLICATION_JSON));
+    public UserPresence setPresence(String status) throws SymClientException {
+        Entity entity = Entity.entity(new Category(status), MediaType.APPLICATION_JSON);
+
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.SETPRESENCE)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        try (Response response = builder.post(entity)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -68,24 +63,17 @@ public class PresenceClient extends APIClient {
                 return null;
             }
             return response.readEntity(UserPresence.class);
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     public void registerInterestExtUser(List<Long> userIds) throws SymClientException {
-        Response response = null;
+        Invocation.Builder builder = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
+            .path(PodConstants.REGISTERPRESENCEINTEREST)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
-        try {
-            response = botClient.getPodClient()
-                .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                    .getPodPort())
-                .path(PodConstants.REGISTERPRESENCEINTEREST)
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", botClient.getSymAuth().getSessionToken())
-                .post(Entity.entity(userIds, MediaType.APPLICATION_JSON));
+        try (Response response = builder.post(Entity.entity(userIds, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -93,15 +81,17 @@ public class PresenceClient extends APIClient {
                     registerInterestExtUser(userIds);
                 }
             }
-        } finally {
-            if (response != null) {
-                response.close();
-            }
         }
     }
 
     private class Category {
         private String category;
+
+        public Category() {}
+
+        public Category(String category) {
+            this.category = category;
+        }
 
         public String getCategory() {
             return category;

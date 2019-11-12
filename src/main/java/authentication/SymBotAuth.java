@@ -7,6 +7,7 @@ import exceptions.AuthenticationException;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.Token;
@@ -178,21 +179,19 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     @Override
     public void logout() {
         logger.info("Logging out");
-        Response response = sessionAuthClient.target(
-            CommonConstants.HTTPS_PREFIX
-                + config.getSessionAuthHost()
-                + ":" + config.getSessionAuthPort())
+        String target = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        Invocation.Builder builder = sessionAuthClient.target(target)
             .path(AuthEndpointConstants.LOGOUT_PATH)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", getSessionToken())
-            .post(null);
+            .header("sessionToken", getSessionToken());
 
-        if (response.getStatusInfo().getFamily()
-            != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, retry logout in 30 seconds", e);
+        try (Response response = builder.post(null)) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, null);
+                } catch (Exception e) {
+                    logger.error("Unexpected error, retry logout in 30 seconds", e);
+                }
             }
         }
     }
