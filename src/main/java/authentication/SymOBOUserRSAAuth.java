@@ -5,6 +5,7 @@ import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.Token;
@@ -46,50 +47,39 @@ public final class SymOBOUserRSAAuth extends APIClient implements ISymAuth {
 
     @Override
     public void sessionAuthenticate() {
-        Response response = null;
-        if (uid != null) {
-            response = sessionAuthClient.target(
-                CommonConstants.HTTPS_PREFIX
-                    + config.getSessionAuthHost()
-                    + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.OBO_USER_ID_AUTH_PATH_RSA
-                    .replace("{uid}", Long.toString(uid)))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", appAuth.getSessionToken())
-                .post(null);
-        } else {
-            response = sessionAuthClient.target(
-                CommonConstants.HTTPS_PREFIX
-                    + config.getSessionAuthHost()
-                    + ":" + config.getSessionAuthPort())
-                .path(AuthEndpointConstants.OBO_USER_NAME_AUTH_PATH_RSA
-                    .replace("{username}", username))
-                .request(MediaType.APPLICATION_JSON)
-                .header("sessionToken", appAuth.getSessionToken())
-                .post(null);
-        }
-        if (response.getStatusInfo().getFamily()
-            != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, "
-                    + "retry authentication in 30 seconds");
+        String target = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        String path = (uid != null) ?
+            AuthEndpointConstants.OBO_USER_ID_AUTH_PATH_RSA.replace("{uid}", Long.toString(uid)) :
+            AuthEndpointConstants.OBO_USER_NAME_AUTH_PATH_RSA.replace("{username}", username);
+
+        Invocation.Builder builder = sessionAuthClient.target(target)
+            .path(path)
+            .request(MediaType.APPLICATION_JSON)
+            .header("sessionToken", appAuth.getSessionToken());
+
+        try (Response response = builder.post(null)) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, null);
+                } catch (Exception e) {
+                    logger.error("Unexpected error, "
+                        + "retry authentication in 30 seconds");
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                } catch (InterruptedException e) {
+                    logger.error("Error with authentication", e);
+                }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return;
+                }
+                appAuth.sessionAppAuthenticate();
+                sessionAuthenticate();
+            } else {
+                Token token = response.readEntity(Token.class);
+                this.sessionToken = token.getToken();
             }
-            try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-            } catch (InterruptedException e) {
-                logger.error("Error with authentication", e);
-            }
-            if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
-                logger.error("Max retries reached. Giving up on auth.");
-                return;
-            }
-            appAuth.sessionAppAuthenticate();
-            sessionAuthenticate();
-        } else {
-            Token token = response.readEntity(Token.class);
-            this.sessionToken = token.getToken();
         }
     }
 

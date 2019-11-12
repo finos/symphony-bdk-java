@@ -1,5 +1,8 @@
 package it.clients.symphony.api;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import clients.symphony.api.SignalsClient;
 import clients.symphony.api.constants.AgentConstants;
 import it.commons.BotTest;
@@ -11,9 +14,6 @@ import model.SignalSubscriberList;
 import model.SignalSubscriptionResult;
 import org.junit.Before;
 import org.junit.Test;
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class SignalsClientTest extends BotTest {
   private SignalsClient signalsClient;
@@ -159,7 +159,7 @@ public class SignalsClientTest extends BotTest {
 
   @Test
   public void subscribeSignalSuccess() {
-    stubFor(post(urlEqualTo(AgentConstants.SUBSCRIBESIGNAL.replace("{id}", "1")))
+    stubFor(post(urlEqualTo(AgentConstants.SUBSCRIBESIGNAL.replace("{id}", "1") + "?pushed=false"))
         .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
         .willReturn(aResponse()
             .withStatus(200)

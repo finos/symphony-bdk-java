@@ -1,7 +1,6 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
-import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
@@ -17,19 +16,14 @@ import model.Policy;
 
 public class InformationBarriersClient extends APIClient {
     private ISymClient botClient;
-    private static String podTarget;
 
     public InformationBarriersClient(ISymClient client) {
         botClient = client;
-        podTarget = CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost();
-        if (botClient.getConfig().getPodPort() != 443) {
-            podTarget += ":" + botClient.getConfig().getPodPort();
-        }
     }
 
     public List<InformationBarrierGroup> listGroups() throws SymClientException {
         Invocation.Builder builder = botClient.getPodClient()
-            .target(podTarget)
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTIBGROUPS)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
@@ -50,7 +44,7 @@ public class InformationBarriersClient extends APIClient {
 
     public List<Long> listGroupMembers(String groupId) throws SymClientException {
         Invocation.Builder builder = botClient.getPodClient()
-            .target(podTarget)
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTIBGROUPMEMBERS.replace("{gid}", groupId))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
@@ -71,7 +65,7 @@ public class InformationBarriersClient extends APIClient {
 
     public InformationBarrierGroupStatus addGroupMembers(String groupId, List<Long> members) throws SymClientException {
         Invocation.Builder builder = botClient.getPodClient()
-            .target(podTarget)
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADDIBGROUPMEMBERS.replace("{gid}", groupId))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
@@ -92,7 +86,7 @@ public class InformationBarriersClient extends APIClient {
 
     public InformationBarrierGroupStatus removeGroupMembers(String groupId, List<Long> members) throws SymClientException {
         Invocation.Builder builder = botClient.getPodClient()
-            .target(podTarget)
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.REMOVEIBGROUPMEMBERS.replace("{gid}", groupId))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
@@ -113,7 +107,7 @@ public class InformationBarriersClient extends APIClient {
 
     public List<Policy> listPolicies() throws SymClientException {
         Invocation.Builder builder = botClient.getPodClient()
-            .target(podTarget)
+            .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTPOLICIES)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());

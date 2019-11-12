@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.AppAuthResponse;
@@ -75,15 +76,16 @@ public final class SymExtensionAppAuth extends APIClient {
             urlTarget += ":" + config.getSessionAuthPort();
         }
 
-        Response response = sessionAuthClient.target(urlTarget)
+        Invocation.Builder builder = sessionAuthClient.target(urlTarget)
             .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
-            .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(input, MediaType.APPLICATION_JSON));
+            .request(MediaType.APPLICATION_JSON);
 
-        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-            return response.readEntity(AppAuthResponse.class);
-        } else {
-            return handleSessionAppAuthFailure(response, appToken, null);
+        try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                return response.readEntity(AppAuthResponse.class);
+            } else {
+                return handleSessionAppAuthFailure(response, appToken, null);
+            }
         }
     }
 
@@ -96,15 +98,16 @@ public final class SymExtensionAppAuth extends APIClient {
         Map<String, String> input = new HashMap<>();
         input.put("appToken", appToken);
 
-        Response response = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + podSessionAuthUrl)
+        String target = CommonConstants.HTTPS_PREFIX + podSessionAuthUrl;
+        Invocation.Builder builder = sessionAuthClient.target(target)
             .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
-            .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(input, MediaType.APPLICATION_JSON));
-
-        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-            return response.readEntity(AppAuthResponse.class);
-        } else {
-            return handleSessionAppAuthFailure(response, appToken, podSessionAuthUrl);
+            .request(MediaType.APPLICATION_JSON);
+        try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                return response.readEntity(AppAuthResponse.class);
+            } else {
+                return handleSessionAppAuthFailure(response, appToken, podSessionAuthUrl);
+            }
         }
     }
 

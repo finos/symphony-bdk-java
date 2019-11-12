@@ -8,8 +8,8 @@ import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -22,10 +22,13 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class MessagesClient extends APIClient {
     private ISymClient botClient;
     private boolean isKeyManTokenRequired;
+    private final Logger logger = LoggerFactory.getLogger(MessagesClient.class);
 
     public MessagesClient(ISymClient client) {
         botClient = client;
@@ -34,18 +37,19 @@ public final class MessagesClient extends APIClient {
 
     private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags)
         throws SymClientException {
-        Client httpClient = botClient.getAgentClient()
+        WebTarget webTarget = botClient.getAgentClient()
             .register(MultiPartFeature.class)
-            .register(JacksonFeature.class);
-
-        WebTarget target = httpClient.target(botClient.getConfig().getAgentUrl())
+            .register(JacksonFeature.class)
+            .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.CREATEMESSAGE.replace("{sid}", streamId));
 
-        Invocation.Builder invocationBuilder = target.request().accept("application/json");
-        invocationBuilder = invocationBuilder.header("sessionToken", botClient.getSymAuth().getSessionToken());
+        Invocation.Builder builder = webTarget.request().accept("application/json");
+        builder = builder.header("sessionToken", botClient.getSymAuth().getSessionToken());
+
         if (isKeyManTokenRequired) {
-            invocationBuilder = invocationBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         }
+
         String messageContent;
         if (appendTags) {
             messageContent = String.format("<messageML>%s</messageML>", message.getMessage());
@@ -65,7 +69,7 @@ public final class MessagesClient extends APIClient {
         }
         Entity entity = Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
 
-        try (Response response = invocationBuilder.post(entity)) {
+        try (Response response = builder.post(entity)) {
             if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
                 return null;
             }
@@ -78,6 +82,12 @@ public final class MessagesClient extends APIClient {
                 return null;
             } else {
                 return response.readEntity(InboundMessage.class);
+            }
+        } finally {
+            try {
+                multiPart.close();
+            } catch (IOException e) {
+                logger.error("Error closing multipart", e);
             }
         }
     }
@@ -101,27 +111,28 @@ public final class MessagesClient extends APIClient {
     public List<InboundMessage> getMessagesFromStream(String streamId, long since, int skip, int limit)
         throws SymClientException {
 
-        WebTarget builder = botClient.getAgentClient()
+        WebTarget webTarget = botClient.getAgentClient()
             .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.GETMESSAGES.replace("{sid}", streamId))
             .queryParam("since", since);
 
         if (skip > 0) {
-            builder = builder.queryParam("skip", skip);
+            webTarget = webTarget.queryParam("skip", skip);
         }
         if (limit > 0) {
-            builder = builder.queryParam("limit", limit);
+            webTarget = webTarget.queryParam("limit", limit);
         }
 
-        Invocation.Builder subBuilder = builder
+        Invocation.Builder builder = webTarget
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
         if (isKeyManTokenRequired) {
-            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         }
 
         List<InboundMessage> result;
-        try (Response response = subBuilder.get()) {
+        try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily()
                 != Response.Status.Family.SUCCESSFUL) {
                 try {
@@ -207,28 +218,30 @@ public final class MessagesClient extends APIClient {
 
     public InboundMessageList messageSearch(Map<String, String> query, int skip, int limit, boolean orderAscending)
         throws SymClientException, NoContentException {
-        WebTarget builder = botClient.getAgentClient()
+        WebTarget webTarget = botClient.getAgentClient()
             .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.SEARCHMESSAGES);
 
         if (skip > 0) {
-            builder = builder.queryParam("skip", skip);
+            webTarget = webTarget.queryParam("skip", skip);
         }
         if (limit > 0) {
-            builder = builder.queryParam("limit", limit);
+            webTarget = webTarget.queryParam("limit", limit);
         }
         //default is DESC
         if (orderAscending) {
-            builder = builder.queryParam("sortDir", "ASC");
+            webTarget = webTarget.queryParam("sortDir", "ASC");
         }
 
-        Invocation.Builder subBuilder = builder.request(MediaType.APPLICATION_JSON)
+        Invocation.Builder builder = webTarget
+            .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
         if (isKeyManTokenRequired) {
-            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         }
 
-        try (Response response = subBuilder.post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
+        try (Response response = builder.post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
@@ -248,17 +261,17 @@ public final class MessagesClient extends APIClient {
         Map<String, Object> map = new HashMap<>();
         map.put("content", shareContent);
 
-        Invocation.Builder subBuilder = botClient.getAgentClient()
+        Invocation.Builder builder = botClient.getAgentClient()
             .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.SHARE.replace("{sid}", streamId))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         if (isKeyManTokenRequired) {
-            subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         }
 
-        try (Response response = subBuilder.post(Entity.entity(map, MediaType.APPLICATION_JSON))) {
+        try (Response response = builder.post(Entity.entity(map, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);

@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.AppAuthResponse;
@@ -106,17 +107,17 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         if (config.getSessionAuthPort() != 443) {
             urlTarget += ":" + config.getSessionAuthPort();
         }
-
-        Response response = sessionAuthClient.target(urlTarget)
+        Invocation.Builder builder = sessionAuthClient.target(urlTarget)
             .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH_RSA)
-            .request(MediaType.APPLICATION_JSON)
-            .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+            .request(MediaType.APPLICATION_JSON);
 
-        if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-            AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
-            return tokensRepository.save(appAuthResponse);
-        } else {
-            return handleSessionAppAuthFailure(response);
+        try (Response response = builder.post(Entity.entity(token, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
+                return tokensRepository.save(appAuthResponse);
+            } else {
+                return handleSessionAppAuthFailure(response);
+            }
         }
     }
 

@@ -358,4 +358,14 @@ public class SymConfig {
         String port = (podPort == 443) ? "" : ":" + podPort;
         return CommonConstants.HTTPS_PREFIX + podHost + port;
     }
+
+    public String getKeyAuthUrl() {
+        String port = (keyAuthPort == 443) ? "" : ":" + keyAuthPort;
+        return CommonConstants.HTTPS_PREFIX + keyAuthHost + port;
+    }
+
+    public String getSessionAuthUrl() {
+        String port = (sessionAuthPort == 443) ? "" : ":" + sessionAuthPort;
+        return CommonConstants.HTTPS_PREFIX + sessionAuthHost + port;
+    }
 }

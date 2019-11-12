@@ -1,9 +1,11 @@
 package authentication;
 
+import clients.ISymClient;
 import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.AuthenticationException;
+import exceptions.SymClientException;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -13,6 +15,7 @@ import java.util.concurrent.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.Token;
@@ -146,71 +149,74 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void sessionAuthenticate() throws AuthenticationException {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
-        String podTarget = CommonConstants.HTTPS_PREFIX + config.getPodHost() + ":" + config.getPodPort();
-        Response response;
-        try {
-            response = this.sessionAuthClient.target(podTarget)
-                .path(AuthEndpointConstants.SESSION_AUTH_PATH_RSA)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+
+        Invocation.Builder builder = this.sessionAuthClient
+            .target(config.getPodUrl())
+            .path(AuthEndpointConstants.SESSION_AUTH_PATH_RSA)
+            .request(MediaType.APPLICATION_JSON);
+
+        try (Response response = builder.post(Entity.entity(token, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, null);
+                } catch (Exception e) {
+                    logger.error("Unexpected error, retry authentication in 30 seconds");
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                } catch (InterruptedException e) {
+                    logger.error("Error with authentication", e);
+                }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return;
+                }
+                sessionAuthenticate();
+            } else {
+                sessionToken = response.readEntity(Token.class).getToken();
+            }
         } catch (Exception e) {
             throw new AuthenticationException(e);
         }
+    }
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, retry authentication in 30 seconds");
-            }
-            try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-            } catch (InterruptedException e) {
-                logger.error("Error with authentication", e);
-            }
-            if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
-                logger.error("Max retries reached. Giving up on auth.");
-                return;
-            }
-            sessionAuthenticate();
-        } else {
-            sessionToken = response.readEntity(Token.class).getToken();
-        }
+    @Override
+    protected void handleError(Response response, ISymClient botClient) throws SymClientException {
+        super.handleError(response, botClient);
     }
 
     @Override
     public void kmAuthenticate() throws AuthenticationException {
         Map<String, String> token = new HashMap<>();
         token.put("token", jwt);
-        String keyAuthTarget = CommonConstants.HTTPS_PREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort();
-        Response response;
-        try {
-            response = this.kmAuthClient.target(keyAuthTarget)
-                .path(AuthEndpointConstants.KEY_AUTH_PATH_RSA)
-                .request(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(token, MediaType.APPLICATION_JSON));
+
+        Invocation.Builder builder = this.kmAuthClient
+            .target(config.getKeyAuthUrl())
+            .path(AuthEndpointConstants.KEY_AUTH_PATH_RSA)
+            .request(MediaType.APPLICATION_JSON);
+
+        try (Response response = builder.post(Entity.entity(token, MediaType.APPLICATION_JSON))) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, null);
+                } catch (Exception e) {
+                    logger.error("Unexpected error, retry authentication in 30 seconds");
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                } catch (InterruptedException e) {
+                    logger.error("Error with authentication", e);
+                }
+                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                    logger.error("Max retries reached. Giving up on auth.");
+                    return;
+                }
+                kmAuthenticate();
+            } else {
+                kmToken = response.readEntity(Token.class).getToken();
+            }
         } catch (Exception e) {
             throw new AuthenticationException(e);
-        }
-
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, retry authentication in 30 seconds");
-            }
-            try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-            } catch (InterruptedException e) {
-                logger.error("Error with authentication", e);
-            }
-            if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
-                logger.error("Max retries reached. Giving up on auth.");
-                return;
-            }
-            kmAuthenticate();
-        } else {
-            kmToken = response.readEntity(Token.class).getToken();
         }
     }
 
@@ -238,20 +244,19 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
     public void logout() {
         logger.info("Logging out");
         Client client = ClientBuilder.newClient();
-        String sessionAuthTarget = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost()
-            + ":" + config.getSessionAuthPort();
-        Response response = client.target(sessionAuthTarget)
+        String target = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        Invocation.Builder builder = client.target(target)
             .path(AuthEndpointConstants.LOGOUT_PATH)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", getSessionToken())
-            .post(null);
+            .header("sessionToken", getSessionToken());
 
-        if (response.getStatusInfo().getFamily()
-            != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, retry logout in 30 seconds", e);
+        try (Response response = builder.post(null)) {
+            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+                try {
+                    handleError(response, null);
+                } catch (Exception e) {
+                    logger.error("Unexpected error, retry logout in 30 seconds", e);
+                }
             }
         }
     }
