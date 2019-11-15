@@ -3,11 +3,14 @@ package com.symphony.ms.songwriter.internal.symphony;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import com.symphony.ms.songwriter.internal.lib.restclient.RestClient;
 import com.symphony.ms.songwriter.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.songwriter.internal.symphony.model.HealthCheckInfo;
+
 import authentication.SymExtensionAppRSAAuth;
 import clients.SymBotClient;
+import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
 import model.AppAuthResponse;
@@ -45,6 +48,13 @@ public class SymphonyServiceImpl implements SymphonyService {
   public void registerRoomListener(RoomListener roomListener) {
     LOGGER.info("Adding Room listener");
     symBotClient.getDatafeedEventsService().addRoomListener(roomListener);
+  }
+
+  @Override
+  public void registerElementsListener(ElementsListener elementsListener) {
+    LOGGER.info("Adding Elements listener");
+    symBotClient.getDatafeedEventsService().addElementsListener(
+        elementsListener);
   }
 
   @Override

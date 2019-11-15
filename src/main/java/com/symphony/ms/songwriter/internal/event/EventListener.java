@@ -46,6 +46,7 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
 
     this.symphonyService.registerIMListener(this);
     this.symphonyService.registerRoomListener(this);
+    this.symphonyService.registerElementsListener(this);
   }
 
   @Override
