@@ -8,6 +8,7 @@ import com.symphony.ms.songwriter.internal.event.model.RoomMemberDemotedFromOwne
 import com.symphony.ms.songwriter.internal.event.model.RoomMemberPromotedToOwnerEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomReactivatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomUpdatedEvent;
+import com.symphony.ms.songwriter.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserLeftRoomEvent;
 
@@ -34,5 +35,7 @@ public interface InternalEventListener {
   void onUserJoinedRoom(UserJoinedRoomEvent event);
 
   void onUserLeftRoom(UserLeftRoomEvent event);
+
+  void onElementsAction(SymphonyElementsEvent event);
 
 }

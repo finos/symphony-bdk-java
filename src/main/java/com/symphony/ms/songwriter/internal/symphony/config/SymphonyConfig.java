@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import authentication.SymBotRSAAuth;
 import authentication.SymExtensionAppRSAAuth;
 import authentication.jwt.AuthenticationFilter;
@@ -12,6 +13,7 @@ import clients.SymBotClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
 import configuration.SymLoadBalancedConfig;
+import exceptions.AuthenticationException;
 
 @Configuration
 public class SymphonyConfig {
@@ -55,7 +57,7 @@ public class SymphonyConfig {
    * @return {@link SymBotRSAAuth}
    */
   @Bean
-  public SymBotRSAAuth symBotRSAAuth(SymConfig symConfig) {
+  public SymBotRSAAuth symBotRSAAuth(SymConfig symConfig) throws AuthenticationException {
     LOGGER.info("Authenticating user...");
     SymBotRSAAuth botAuth = new SymBotRSAAuth(symConfig);
     botAuth.authenticate();

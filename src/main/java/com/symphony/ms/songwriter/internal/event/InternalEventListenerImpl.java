@@ -3,6 +3,7 @@ package com.symphony.ms.songwriter.internal.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import com.symphony.ms.songwriter.internal.command.CommandFilter;
 import com.symphony.ms.songwriter.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
@@ -12,6 +13,7 @@ import com.symphony.ms.songwriter.internal.event.model.RoomMemberDemotedFromOwne
 import com.symphony.ms.songwriter.internal.event.model.RoomMemberPromotedToOwnerEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomReactivatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomUpdatedEvent;
+import com.symphony.ms.songwriter.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserLeftRoomEvent;
 
@@ -99,6 +101,13 @@ public class InternalEventListenerImpl implements InternalEventListener {
     LOGGER.debug("User {} left room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
+  }
+
+  @Override
+  public void onElementsAction(SymphonyElementsEvent event) {
+    LOGGER.debug("User {} triggered elements form {} in room {}",
+        event.getUserId(), event.getFormId(), event.getStreamId());
+    eventDispatcher.push(event.getFormId(), event);
   }
 
 }

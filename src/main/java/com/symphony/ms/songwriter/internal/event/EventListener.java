@@ -3,6 +3,7 @@ package com.symphony.ms.songwriter.internal.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import com.symphony.ms.songwriter.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomCreatedEvent;
@@ -11,23 +12,28 @@ import com.symphony.ms.songwriter.internal.event.model.RoomMemberDemotedFromOwne
 import com.symphony.ms.songwriter.internal.event.model.RoomMemberPromotedToOwnerEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomReactivatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomUpdatedEvent;
+import com.symphony.ms.songwriter.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserLeftRoomEvent;
 import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
+
+import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
 import model.InboundMessage;
 import model.Stream;
+import model.User;
 import model.events.RoomCreated;
 import model.events.RoomDeactivated;
 import model.events.RoomMemberDemotedFromOwner;
 import model.events.RoomMemberPromotedToOwner;
 import model.events.RoomUpdated;
+import model.events.SymphonyElementsAction;
 import model.events.UserJoinedRoom;
 import model.events.UserLeftRoom;
 
 @Service
-public class EventListener implements IMListener, RoomListener {
+public class EventListener implements IMListener, RoomListener, ElementsListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventListener.class);
 
   private SymphonyService symphonyService;
@@ -123,6 +129,13 @@ public class EventListener implements IMListener, RoomListener {
     LOGGER.debug("onUserLeftRoom");
     internalEventListener.onUserLeftRoom(
         new UserLeftRoomEvent(userLeftRoomEvent));
+  }
+
+  @Override
+  public void onElementsAction(User initiator, SymphonyElementsAction action) {
+    LOGGER.debug("onElementsAction");
+    internalEventListener.onElementsAction(
+        new SymphonyElementsEvent(initiator, action));
   }
 
 }

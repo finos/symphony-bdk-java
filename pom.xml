@@ -65,7 +65,7 @@
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-api-client-java</artifactId>
-            <version>1.0.39</version>
+            <version>1.0.44</version>
         </dependency>
 
         <!-- Swagger -->

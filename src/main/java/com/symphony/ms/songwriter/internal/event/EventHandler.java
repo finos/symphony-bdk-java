@@ -3,15 +3,16 @@ package com.symphony.ms.songwriter.internal.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
+
 import com.symphony.ms.songwriter.internal.event.model.BaseEvent;
 import com.symphony.ms.songwriter.internal.feature.FeatureManager;
 import com.symphony.ms.songwriter.internal.message.MessageService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
-public abstract class EventHandler<E extends BaseEvent> {
+public abstract class EventHandler<E extends BaseEvent> implements BaseEventHandler<E> {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
 
-  private EventDispatcher eventDispatcher;
+  protected EventDispatcher eventDispatcher;
 
   private MessageService messageService;
 
@@ -22,6 +23,7 @@ public abstract class EventHandler<E extends BaseEvent> {
     eventDispatcher.register(type.getSuperType().getGeneric(0).toString(), this);
   }
 
+  @Override
   public void onEvent(E event) {
     LOGGER.debug("Received event for stream: {}", event.getStreamId());
 
@@ -36,10 +38,6 @@ public abstract class EventHandler<E extends BaseEvent> {
 
     } catch (Exception e) {
       LOGGER.error("Error processing event {}", e);
-      if (featureManager.unexpectedErrorResponse() != null) {
-        messageService.sendMessage(event.getStreamId(),
-            new SymphonyMessage(featureManager.unexpectedErrorResponse()));
-      }
     }
   }
 

@@ -1,15 +1,17 @@
 package com.symphony.ms.songwriter.internal.command;
 
 import java.util.function.Predicate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.feature.FeatureManager;
 import com.symphony.ms.songwriter.internal.message.MessageService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 
-public abstract class CommandHandler {
+public abstract class CommandHandler implements BaseCommandHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
   protected CommandDispatcher commandDispatcher;
@@ -35,6 +37,7 @@ public abstract class CommandHandler {
     return symphonyService.getBotDisplayName();
   }
 
+  @Override
   public void onCommand(BotCommand command) {
     LOGGER.debug("Received command {}", command.getMessage());
 
@@ -58,7 +61,8 @@ public abstract class CommandHandler {
   // TODO: create a command matcher builder
   protected abstract Predicate<String> getCommandMatcher();
 
-  public abstract void handle(BotCommand command, final SymphonyMessage commandResponse);
+  public abstract void handle(BotCommand command,
+      final SymphonyMessage commandResponse);
 
   public void setCommandDispatcher(CommandDispatcher commandDispatcher) {
     this.commandDispatcher = commandDispatcher;
