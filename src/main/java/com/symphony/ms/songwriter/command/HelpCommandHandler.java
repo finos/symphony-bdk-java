@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
 import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
@@ -27,7 +26,6 @@ public class HelpCommandHandler extends CommandHandler {
         botMention + " /create notification - generates details on how to receive notification in this room",
         botMention + " /login - returns the HTTP authorization header required to talk to external system",
         botMention + " /quote BRL - returns quote for the specified currency (e.g. BRL)",
-        botMention + " /register security - displays the security registration form",
         botMention + " /register quote - displays the currency quote registration form"};
 
     String helpMessage = "<p style='margin-bottom:6px;'>Bot Commands</p><ul>";
