@@ -4,6 +4,7 @@ public class AuthenticationException extends Exception {
     private Exception rootException;
 
     public AuthenticationException(Exception rootException) {
+        super(rootException);
         this.rootException = rootException;
     }
 
