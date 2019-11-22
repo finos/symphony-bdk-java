@@ -11,6 +11,13 @@ import org.springframework.stereotype.Component;
 import com.symphony.ms.songwriter.internal.notification.NotificationInterceptor;
 import com.symphony.ms.songwriter.internal.scan.BaseBeanFactoryPostProcessor;
 
+/**
+ * Automatically scans for {@link NotificationInterceptor}, instantiates them,
+ * injects all dependencies and registers to Spring bean registry.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 public class InterceptorBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(InterceptorBeanFactoryProcessor.class);

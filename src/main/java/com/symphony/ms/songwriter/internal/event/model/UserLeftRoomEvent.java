@@ -4,6 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.events.UserLeftRoom;
 
+/**
+ * Symphony User left room event
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 public class UserLeftRoomEvent extends BaseEvent {

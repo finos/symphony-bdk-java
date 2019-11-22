@@ -3,7 +3,6 @@ package com.symphony.ms.songwriter.internal.message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.songwriter.internal.lib.templating.TemplateService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
@@ -26,6 +25,9 @@ public class MessageServiceImpl implements MessageService {
     this.jsonMapper = jsonMapper;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(String streamId, SymphonyMessage message) {
     String symMessage = getSymphonyMessage(message);

@@ -5,6 +5,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import org.owasp.esapi.ESAPI;
 
+/**
+ * Malicious patterns to be stripped off by {@link XSSFilter}
+ *
+ * @author Marcus Secato
+ *
+ */
 public class XSSRequestWrapper extends HttpServletRequestWrapper {
   private static Pattern[] patterns = new Pattern[] {
       // Script fragments

@@ -13,6 +13,13 @@ import com.symphony.ms.songwriter.internal.feature.FeatureManager;
 import com.symphony.ms.songwriter.internal.message.MessageService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Logging aspect that adds transaction ID, stream ID and user ID (when
+ * applicable) to the log context.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 @Aspect
 public class EventHandlerAspect {

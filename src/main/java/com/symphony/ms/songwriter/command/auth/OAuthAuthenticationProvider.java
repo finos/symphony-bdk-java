@@ -12,6 +12,12 @@ import com.symphony.ms.songwriter.internal.lib.restclient.RestClientConnectionEx
 import com.symphony.ms.songwriter.internal.lib.restclient.model.RestResponse;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Sample code. Implementation of {@link AuthenticationProvider} to offer OAuth
+ * authentication. NOTICE: it is required to change oauth properties with valid
+ * ones that match what has been configured in a OAuth server.
+ *
+ */
 public class OAuthAuthenticationProvider implements AuthenticationProvider {
 
   private static final String AUTHORIZE_URL = "https://OAUTH-SERVER.URL.COM/oauth2/default/v1/authorize";

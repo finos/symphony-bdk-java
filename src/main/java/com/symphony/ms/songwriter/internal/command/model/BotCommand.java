@@ -6,6 +6,12 @@ import org.slf4j.MDC;
 import com.symphony.ms.songwriter.internal.command.CommandDispatcher;
 import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
 
+/**
+ * Holds the bot command details
+ *
+ * @author Marcus Secato
+ *
+ */
 public class BotCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(BotCommand.class);
 

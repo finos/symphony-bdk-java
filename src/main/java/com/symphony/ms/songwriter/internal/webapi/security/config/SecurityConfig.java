@@ -12,6 +12,12 @@ import org.springframework.web.filter.CorsFilter;
 import com.symphony.ms.songwriter.internal.webapi.security.RequestOriginFilter;
 import com.symphony.ms.songwriter.internal.webapi.security.XSSFilter;
 
+/**
+ * Security filters configuration
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class SecurityConfig {
 

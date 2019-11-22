@@ -11,6 +11,13 @@ import org.springframework.context.annotation.Configuration;
 import com.symphony.ms.songwriter.internal.command.AuthenticationProvider;
 import com.symphony.ms.songwriter.internal.scan.BaseBeanFactoryPostProcessor;
 
+/**
+ * Automatically scans for {@link AuthenticationProvider}, instantiates them
+ * and registers to Spring bean registry.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class AuthProviderBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthProviderBeanFactoryProcessor.class);

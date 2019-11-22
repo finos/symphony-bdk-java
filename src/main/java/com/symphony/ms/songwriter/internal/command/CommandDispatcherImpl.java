@@ -2,12 +2,10 @@ package com.symphony.ms.songwriter.internal.command;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 
 @Service
@@ -16,12 +14,18 @@ public class CommandDispatcherImpl implements CommandDispatcher {
 
   private Map<String, BaseCommandHandler> commandHandlers = new HashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void register(String channel, BaseCommandHandler handler) {
     LOGGER.info("Registering command handler: {}", channel);
     commandHandlers.put(channel, handler);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Async
   public void push(String channel, BotCommand command) {

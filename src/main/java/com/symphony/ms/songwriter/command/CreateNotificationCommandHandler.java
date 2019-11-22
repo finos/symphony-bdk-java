@@ -9,6 +9,11 @@ import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Sample code for a CommandHandler that generates instructions on how to
+ * receive notifications from external systems.
+ *
+ */
 public class CreateNotificationCommandHandler extends CommandHandler {
 
   private static final String NOTIFICATION_PATH = "/notification";
@@ -23,13 +28,16 @@ public class CreateNotificationCommandHandler extends CommandHandler {
         .asPredicate();
   }
 
+  /**
+   * Invoked when command matches
+   */
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse) {
-    String linkToRoom = featureManager.getLinkRoomBaseUrl()
+    String notificationUrl = featureManager.getNotificationBaseUrl()
         + servletContext + NOTIFICATION_PATH + "/" + command.getStreamId();
 
     Map<String, String> data = new HashMap<>();
-    data.put("notification_url", linkToRoom);
+    data.put("notification_url", notificationUrl);
 
     commandResponse.setTemplateFile("create-notification.ftl", data);
   }

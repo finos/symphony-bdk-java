@@ -17,26 +17,38 @@ public class CommandFilterImpl implements CommandFilter {
   private CommandDispatcher commandDispatcher;
 
   private Map<String, Predicate<String>> commandFilters = new HashMap<>();
+
   private String defaultCommandName;
+
   private Predicate<String> defaultCommandFilter;
 
   public CommandFilterImpl(CommandDispatcher commandDispatcher) {
     this.commandDispatcher = commandDispatcher;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void addFilter(String commandName, Predicate<String> filter) {
     LOGGER.info("Registering filter for command: {}", commandName);
     commandFilters.put(commandName, filter);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void setDefaultFilter(String commandName, Predicate<String> defaultFilter) {
+  public void setDefaultFilter(String commandName,
+      Predicate<String> defaultFilter) {
     LOGGER.info("Registering default filter: {}", commandName);
     defaultCommandName = commandName;
     defaultCommandFilter = defaultFilter;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void filter(MessageEvent messageEvent) {
     LOGGER.debug("Filtering message");

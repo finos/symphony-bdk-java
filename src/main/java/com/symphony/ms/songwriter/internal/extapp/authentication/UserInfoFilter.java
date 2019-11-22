@@ -14,6 +14,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import authentication.jwt.JwtPayload;
 
+/**
+ * Filter to pull user details from JWT payload making them easily accessible
+ * for downstream request handlers.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 @Order(2)
 public class UserInfoFilter implements Filter {

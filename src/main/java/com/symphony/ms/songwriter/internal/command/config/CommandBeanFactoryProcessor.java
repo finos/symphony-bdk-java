@@ -15,6 +15,13 @@ import com.symphony.ms.songwriter.internal.command.AuthenticatedCommandHandler;
 import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.scan.BaseBeanFactoryPostProcessor;
 
+/**
+ * Automatically scans for {@link CommandHandler}, instantiates them, injects
+ * all dependencies and registers to Spring bean registry.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class CommandBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(CommandBeanFactoryProcessor.class);

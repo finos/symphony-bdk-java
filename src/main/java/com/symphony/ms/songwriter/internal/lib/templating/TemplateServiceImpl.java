@@ -15,6 +15,12 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
+/**
+ * Freemarker-based implementation of the {@link TemplateService}
+ *
+ * @author Marcus Secato
+ *
+ */
 public class TemplateServiceImpl implements TemplateService {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
@@ -30,6 +36,9 @@ public class TemplateServiceImpl implements TemplateService {
     this.jsonMapper = jsonMapper;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String processTemplateFile(String templateFile, Object data) {
     try {
@@ -47,6 +56,9 @@ public class TemplateServiceImpl implements TemplateService {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String processTemplateString(String templateString, Object data) {
     try {

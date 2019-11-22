@@ -12,6 +12,13 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.stereotype.Component;
 
+/**
+ * Enables protecting endpoints through basic authentication or/and IP
+ * whitelisting.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 @EnableWebSecurity
 public class BasicAuthConfig extends WebSecurityConfigurerAdapter {
@@ -27,7 +34,8 @@ public class BasicAuthConfig extends WebSecurityConfigurerAdapter {
   }
 
   /**
-   * Method to inject basic authentication on Spring Security
+   * Injects basic authentication on Spring Security
+   *
    * @param auth builder of Spring Security
    */
   @Override
@@ -36,7 +44,8 @@ public class BasicAuthConfig extends WebSecurityConfigurerAdapter {
   }
 
   /**
-   * Method to ignore any other request that is not configured
+   * Ignores any other request that is not configured
+   *
    * @param web Configurer of Spring Security
    */
   @Override
@@ -45,8 +54,9 @@ public class BasicAuthConfig extends WebSecurityConfigurerAdapter {
   }
 
   /**
-   * Method to verify if exists any king of authentication (basic or ip whitelist)
-   * and inject into spring security the authentication
+   * Verifies if exists any kind of authentication (basic or ip whitelist) and
+   * inject it into spring security.
+   *
    * @param http Configurer of Spring Security
    */
   @Override
@@ -65,7 +75,9 @@ public class BasicAuthConfig extends WebSecurityConfigurerAdapter {
       if (authProps.isBasicAuth()) {
         expression.and().httpBasic();
       }
-      expression.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+      expression.and()
+          .sessionManagement()
+          .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     } else {
       LOGGER.info("No Auth info!");
       http.csrf().disable()
@@ -76,19 +88,25 @@ public class BasicAuthConfig extends WebSecurityConfigurerAdapter {
   }
 
   /**
-   * Method to build access string on spring security format
-   * @return string containing all the ip whitelist and authenticated if there is basic
+   * Builds access string on spring security format
+   *
+   * @return string containing all the ip whitelist and basic authentication
+   *         (if applicable)
    */
   private String buildAccess() {
     String access = "";
     if (authProps.isIpWhitelist()) {
       LOGGER.info("Authentication by IP Whitelist!");
       access = authProps.getIpWhitelist().stream().reduce(null, (acc, ip) ->
-          acc == null ? "hasIpAddress('" + ip + "')" : acc + " or hasIpAddress('" + ip + "')");
+          acc == null ?
+              "hasIpAddress('" + ip + "')" :
+              acc + " or hasIpAddress('" + ip + "')");
     }
     if (authProps.isBasicAuth()) {
       LOGGER.info("Authentication by Basic!");
-      access += access.isEmpty() ? "isAuthenticated()" : " or isAuthenticated()";
+      access += access.isEmpty() ?
+          "isAuthenticated()" :
+          " or isAuthenticated()";
     }
     return access;
   }

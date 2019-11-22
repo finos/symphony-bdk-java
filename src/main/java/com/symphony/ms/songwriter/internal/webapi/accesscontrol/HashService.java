@@ -5,10 +5,18 @@ import java.security.NoSuchAlgorithmException;
 import javax.xml.bind.DatatypeConverter;
 import org.springframework.stereotype.Service;
 
+/**
+ * Utility hashing service
+ *
+ * @author Marcus Secato
+ *
+ */
 @Service
 public class HashService {
+
   /**
-   * Method to check if given token is equal the encrypt hash
+   * Checks if given token is equal the hash
+   *
    * @param token clear text hashedPassword to be hashed
    */
   public boolean checkToken(String token, String hash) {
@@ -16,13 +24,15 @@ public class HashService {
   }
 
   /**
-   * Method to generate a hash to be used as token between monitoring endpoints and yaml
+   * Generates a hash to be used as token
+   *
    * @return a hash
    * @throws NoSuchAlgorithmException when the instance of SHA-512 can't be get
    */
   public String generateHash(String token, String salt) throws NoSuchAlgorithmException {
     MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
     messageDigest.update(token.concat(salt).getBytes());
+
     return DatatypeConverter.printHexBinary(messageDigest.digest());
   }
 

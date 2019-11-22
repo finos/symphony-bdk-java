@@ -3,6 +3,12 @@ package com.symphony.ms.songwriter.internal.lib.restclient;
 import java.util.Map;
 import com.symphony.ms.songwriter.internal.lib.restclient.model.RestResponse;
 
+/**
+ * Interface which abstracts the underlying REST client library
+ *
+ * @author Marcus Secato
+ *
+ */
 public interface RestClient {
 
   /**

@@ -8,6 +8,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Jackson-based implementation of the {@link JsonMapper}
+ *
+ * @author Marcus Secato
+ *
+ */
 public class JsonMapperImpl implements JsonMapper {
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonMapperImpl.class);
 
@@ -17,6 +23,9 @@ public class JsonMapperImpl implements JsonMapper {
     this.objectMapper = objectMapper;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toJsonString(Object entity) {
     try {
@@ -27,8 +36,12 @@ public class JsonMapperImpl implements JsonMapper {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String toEnricherString(String entityName, Object entity, String version) {
+  public String toEnricherString(String entityName, Object entity,
+      String version) {
     ObjectNode parent = objectMapper.createObjectNode();
     ObjectNode description = new ObjectMapper().createObjectNode();
     description.put("type", entityName);
@@ -39,16 +52,17 @@ public class JsonMapperImpl implements JsonMapper {
     return parent.toString();
   }
 
-  @Override
-  public Object fromJsonString(String jsonString) {
-    return null;
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Map<String, Object> objectToMap(Object data) {
     return objectMapper.convertValue(data, Map.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> T toObject(String jsonString, Class<T> clazz) {
     try {

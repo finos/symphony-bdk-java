@@ -7,6 +7,12 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
+/**
+ * Spring-based component scanning utility class
+ *
+ * @author Marcus Secato
+ *
+ */
 public abstract class BaseBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
   private static final String BASE_PACKAGE_SCAN = "com.symphony.ms.songwriter";

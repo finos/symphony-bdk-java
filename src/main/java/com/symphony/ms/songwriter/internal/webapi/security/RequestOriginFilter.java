@@ -11,6 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Filters requests based on custom HTTP header that tells requests origin. It
+ * can be used to confirm whether requests are coming from known sources.
+ *
+ * @author Marcus Secato
+ *
+ */
 public class RequestOriginFilter implements Filter {
   private static final Logger LOGGER = LoggerFactory.getLogger(RequestOriginFilter.class);
 
@@ -26,7 +33,8 @@ public class RequestOriginFilter implements Filter {
   }
 
   @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+  public void doFilter(ServletRequest servletRequest,
+      ServletResponse servletResponse,
       FilterChain filterChain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
     String reqOriginHeader = httpRequest.getHeader(originHeader);

@@ -4,6 +4,13 @@ import java.util.Map;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The RestClient response
+ *
+ * @author Marcus Secato
+ *
+ * @param <T>
+ */
 @Data
 @NoArgsConstructor
 public class RestResponse<T> {

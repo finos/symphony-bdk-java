@@ -15,6 +15,14 @@ import com.symphony.ms.songwriter.internal.message.MessageService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 import com.symphony.ms.songwriter.internal.notification.model.NotificationRequest;
 
+/**
+ * Notification controller
+ * Exposes an endpoint through which external systems can send messages to the
+ * bot application.
+ *
+ * @author Marcus Secato
+ *
+ */
 @RestController
 @RequestMapping("/notification")
 public class NotificationController {

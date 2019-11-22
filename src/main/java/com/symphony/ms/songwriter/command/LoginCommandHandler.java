@@ -8,6 +8,11 @@ import com.symphony.ms.songwriter.internal.command.model.AuthenticationContext;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Sample code to demonstrate how to use {@link AuthenticatedCommandHandler}
+ * along with an AuthenticationProvider that implements basic authentication.
+ *
+ */
 @CommandAuthenticationProvider(name="BasicAuthenticationProvider")
 public class LoginCommandHandler extends AuthenticatedCommandHandler {
 
@@ -18,6 +23,9 @@ public class LoginCommandHandler extends AuthenticatedCommandHandler {
         .asPredicate();
   }
 
+  /**
+   * Invoked when command matches
+   */
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse,
       AuthenticationContext authenticationContext) {

@@ -5,6 +5,13 @@ import java.util.Map;
 import org.slf4j.MDC;
 import org.springframework.core.task.TaskDecorator;
 
+/**
+ * Decorator used to copy log context between threads when commands and events
+ * are dispatched.
+ *
+ * @author Marcus Secato
+ *
+ */
 public class MDCTaskDecorator implements TaskDecorator {
 
   @Override

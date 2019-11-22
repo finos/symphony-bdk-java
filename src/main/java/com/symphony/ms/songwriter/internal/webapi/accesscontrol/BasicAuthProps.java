@@ -7,6 +7,12 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Holds basic authentication and IP whitelisting details
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 @Component

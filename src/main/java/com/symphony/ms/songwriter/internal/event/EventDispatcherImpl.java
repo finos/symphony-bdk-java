@@ -2,12 +2,10 @@ package com.symphony.ms.songwriter.internal.event;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
 import com.symphony.ms.songwriter.internal.event.model.BaseEvent;
 
 @Service
@@ -16,12 +14,19 @@ public class EventDispatcherImpl implements EventDispatcher {
 
   private Map<String, BaseEventHandler> eventHandlers = new HashMap<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public <E extends BaseEvent> void register(String channel, BaseEventHandler<E> handler) {
+  public <E extends BaseEvent> void register(String channel,
+      BaseEventHandler<E> handler) {
     LOGGER.info("Registering handler for event: {}", channel);
     eventHandlers.put(channel, handler);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   @Async
   public <E extends BaseEvent> void push(String channel, E event) {

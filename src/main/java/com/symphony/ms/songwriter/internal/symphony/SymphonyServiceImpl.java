@@ -3,11 +3,9 @@ package com.symphony.ms.songwriter.internal.symphony;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.symphony.ms.songwriter.internal.lib.restclient.RestClient;
 import com.symphony.ms.songwriter.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.songwriter.internal.symphony.model.HealthCheckInfo;
-
 import authentication.SymExtensionAppRSAAuth;
 import clients.SymBotClient;
 import listeners.ElementsListener;
@@ -24,7 +22,6 @@ public class SymphonyServiceImpl implements SymphonyService {
 
   private static final String HEALTH_POD_ENDPOINT = "pod/v1/podcert";
 
-  // TODO: add protection to all calls to Symphony SDK that may raise exception
   private SymBotClient symBotClient;
 
   private SymExtensionAppRSAAuth symExtensionAppRSAAuth;
@@ -38,18 +35,27 @@ public class SymphonyServiceImpl implements SymphonyService {
     this.restClient = restClient;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerIMListener(IMListener imListener) {
     LOGGER.info("Adding IM listener");
     symBotClient.getDatafeedEventsService().addIMListener(imListener);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerRoomListener(RoomListener roomListener) {
     LOGGER.info("Adding Room listener");
     symBotClient.getDatafeedEventsService().addRoomListener(roomListener);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void registerElementsListener(ElementsListener elementsListener) {
     LOGGER.info("Adding Elements listener");
@@ -57,21 +63,33 @@ public class SymphonyServiceImpl implements SymphonyService {
         elementsListener);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Long getBotUserId() {
     return symBotClient.getBotUserInfo().getId();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getBotDisplayName() {
     return symBotClient.getBotUserInfo().getDisplayName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public HealthCheckInfo healthCheck() {
     return new HealthCheckInfo(checkAgentStatus(), checkPodStatus());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void sendMessage(String streamId, String message, String jsonData) {
     OutboundMessage outMessage = null;
@@ -84,6 +102,9 @@ public class SymphonyServiceImpl implements SymphonyService {
     internalSendMessage(streamId, outMessage);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public AuthenticateResponse appAuthenticate(String appId) {
     try {
@@ -96,11 +117,17 @@ public class SymphonyServiceImpl implements SymphonyService {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean validateTokens(String appToken, String symphonyToken) {
     return symExtensionAppRSAAuth.validateTokens(appToken, symphonyToken);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Long verifyJWT(String jwt) {
     UserInfo userInfo = symExtensionAppRSAAuth.verifyJWT(jwt);

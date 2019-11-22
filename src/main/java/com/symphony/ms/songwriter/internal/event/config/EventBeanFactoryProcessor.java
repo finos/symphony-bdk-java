@@ -11,6 +11,13 @@ import org.springframework.stereotype.Component;
 import com.symphony.ms.songwriter.internal.event.EventHandler;
 import com.symphony.ms.songwriter.internal.scan.BaseBeanFactoryPostProcessor;
 
+/**
+ * Automatically scans for {@link EventHandler}, instantiates them, injects
+ * all dependencies and registers to Spring bean registry.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 public class EventBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventBeanFactoryProcessor.class);

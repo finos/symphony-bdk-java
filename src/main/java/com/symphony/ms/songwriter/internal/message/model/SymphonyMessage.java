@@ -3,6 +3,12 @@ package com.symphony.ms.songwriter.internal.message.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * A message to be sent to Symphony
+ *
+ * @author Marcus Secato
+ *
+ */
 @Getter
 @NoArgsConstructor
 public class SymphonyMessage {
@@ -14,10 +20,6 @@ public class SymphonyMessage {
   private String entityName;
   private Object entity;
   private String version;
-
-  /*public static MessageBuilder builder() {
-   // https://javatechnicalwealth.com/blog/cascading-lambdas-and-builder-pattern-in-java-when-1-1-3-but-not-4/
-  }*/
 
   public SymphonyMessage(String message) {
     this.message = message;

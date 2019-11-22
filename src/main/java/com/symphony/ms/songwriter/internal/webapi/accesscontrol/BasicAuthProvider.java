@@ -12,6 +12,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+/**
+ * Simple file-based basic authentication service
+ *
+ * @author Marcus Secato
+ *
+ */
 @Service
 public class BasicAuthProvider implements AuthenticationProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(BasicAuthProvider.class);
@@ -26,7 +32,8 @@ public class BasicAuthProvider implements AuthenticationProvider {
   }
 
   /**
-   * Method to check if the Basic Authentication is correct
+   * Checks if the Basic Authentication credentials are correct
+   *
    * @param auth name and hashedPassword to be hashed
    */
   @Override
