@@ -52,7 +52,9 @@ public class NotificationController {
       boolean result = interceptorChain.execute(
           notificationRequest, notificationMessage);
 
-      if (result && notificationMessage.hasContent()) {
+      if (result
+          && notificationMessage.hasContent()
+          && notificationRequest.getStreamId() != null) {
         LOGGER.debug("Sending notification for stream {}",
             notificationRequest.getStreamId());
         messageService.sendMessage(
