@@ -10,6 +10,11 @@ import com.symphony.ms.songwriter.internal.lib.restclient.RestClient;
 import com.symphony.ms.songwriter.internal.lib.restclient.model.RestResponse;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Sample code. CommandHandler that uses {@link RestClient} to consume external
+ * API to get currency quotes.
+ *
+ */
 public class QuoteCommandHandler extends CommandHandler {
 
   private static final String QUOTE_URL = "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=%s&apikey=C7G0Q2QOJ80OECGM";
@@ -28,6 +33,9 @@ public class QuoteCommandHandler extends CommandHandler {
         .asPredicate();
   }
 
+  /**
+   * Invoked when command matches
+   */
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse) {
     String[] commandSplit = command.getMessage().split(" " + QUOTE_COMMAND + " ");

@@ -9,6 +9,13 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+/**
+ * Logging listener that adds transaction ID to the log context upon request
+ * initialization.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 public class RequestListener implements ServletRequestListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(RequestListener.class);

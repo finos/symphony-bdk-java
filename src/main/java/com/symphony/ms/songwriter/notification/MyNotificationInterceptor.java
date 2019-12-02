@@ -8,6 +8,12 @@ import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 import com.symphony.ms.songwriter.internal.notification.NotificationInterceptor;
 import com.symphony.ms.songwriter.internal.notification.model.NotificationRequest;
 
+/**
+ * Sample code. Demonstrates how to extend {@link NotificationInterceptor} to
+ * process incoming requests. Refer to the CreateNotificationCommandHandler
+ * sample code to see how to generate incoming requests.
+ *
+ */
 public class MyNotificationInterceptor extends NotificationInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(MyNotificationInterceptor.class);
 
@@ -17,6 +23,9 @@ public class MyNotificationInterceptor extends NotificationInterceptor {
     this.jsonMapper = jsonMapper;
   }
 
+  /**
+   * Invoked by InterceptorChain on incoming requests
+   */
   @Override
   public boolean process(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage) {

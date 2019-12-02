@@ -7,6 +7,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import model.HealthcheckResponse;
 
+/**
+ * Symphony health check response
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 public class HealthCheckInfo {

@@ -4,6 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.events.RoomMemberDemotedFromOwner;
 
+/**
+ * Symphony Room member demoted event
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 public class RoomMemberDemotedFromOwnerEvent extends BaseEvent {

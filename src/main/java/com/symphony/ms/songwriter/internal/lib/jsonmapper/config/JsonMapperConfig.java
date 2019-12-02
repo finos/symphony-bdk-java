@@ -13,6 +13,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapperImpl;
 
+/**
+ * Creates and configures an instance of the Jackson-based implementation of
+ * the {@link JsonMapper} if no other implementation is provided.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class JsonMapperConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonMapperConfig.class);

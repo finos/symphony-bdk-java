@@ -3,7 +3,6 @@ package com.symphony.ms.songwriter.internal.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.symphony.ms.songwriter.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
 import com.symphony.ms.songwriter.internal.event.model.RoomCreatedEvent;
@@ -16,7 +15,6 @@ import com.symphony.ms.songwriter.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.songwriter.internal.event.model.UserLeftRoomEvent;
 import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
-
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
@@ -32,11 +30,20 @@ import model.events.SymphonyElementsAction;
 import model.events.UserJoinedRoom;
 import model.events.UserLeftRoom;
 
+/**
+ * The Symphony listener
+ * Listens to messages, events and Symphony elements actions. It also
+ * standardizes events to internal representation.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Service
 public class EventListener implements IMListener, RoomListener, ElementsListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventListener.class);
 
   private SymphonyService symphonyService;
+
   private InternalEventListener internalEventListener;
 
   public EventListener(SymphonyService symphonyService,

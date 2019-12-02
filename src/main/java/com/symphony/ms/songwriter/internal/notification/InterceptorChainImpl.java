@@ -14,17 +14,26 @@ public class InterceptorChainImpl implements InterceptorChain {
 
   private List<NotificationInterceptor> interceptorList = new LinkedList<>();
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void register(NotificationInterceptor notificationInterceptor) {
     interceptorList.add(notificationInterceptor);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void register(int index,
       NotificationInterceptor notificationInterceptor) {
     interceptorList.add(index, notificationInterceptor);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean execute(NotificationRequest notificationRequest,
       final SymphonyMessage notificationMessage) {

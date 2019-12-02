@@ -12,6 +12,14 @@ import com.symphony.ms.songwriter.internal.symphony.AppAuthenticateException;
 import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 import com.symphony.ms.songwriter.internal.symphony.model.AuthenticateResponse;
 
+/**
+ * Extension App authentication controller
+ * Exposes endpoints through which an extension app could authenticate itself
+ * to Symphony.
+ *
+ * @author Marcus Secato
+ *
+ */
 @RestController
 @RequestMapping(value = "/application")
 public class AppAuthController {

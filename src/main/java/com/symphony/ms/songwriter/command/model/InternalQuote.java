@@ -3,6 +3,10 @@ package com.symphony.ms.songwriter.command.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Sample code. Internal quote model used in QuoteCommandHandler.
+ *
+ */
 @Data
 @NoArgsConstructor
 public class InternalQuote {

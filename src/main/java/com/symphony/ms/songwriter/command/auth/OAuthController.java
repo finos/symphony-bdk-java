@@ -6,6 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Sample code. Implementation of an endpoint for the OAuth protocol.
+ *
+ */
 @RestController
 @RequestMapping("/oauth")
 public class OAuthController {

@@ -4,6 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.Stream;
 
+/**
+ * Symphony Room reactivated event
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 public class RoomReactivatedEvent extends BaseEvent {

@@ -4,6 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
 
+/**
+ * Notification request
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 public class NotificationRequest {
 
@@ -20,6 +26,14 @@ public class NotificationRequest {
     this.identifier = identifier;
     this.streamId = identifier;
     this.attributes = new HashMap<>();
+  }
+
+  public void setAttribute(String attributeName, Object attributeValue) {
+    attributes.put(attributeName, attributeValue);
+  }
+
+  public Object getAttribute(String attributeName) {
+    return attributes.get(attributeName);
   }
 
 }

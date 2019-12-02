@@ -1,12 +1,17 @@
 package com.symphony.ms.songwriter.internal.event.model;
 
 import java.util.Map;
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.User;
 import model.events.SymphonyElementsAction;
 
+/**
+ * Symphony elements event
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 public class SymphonyElementsEvent extends BaseEvent {

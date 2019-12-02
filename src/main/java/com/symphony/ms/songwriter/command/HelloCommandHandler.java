@@ -8,6 +8,10 @@ import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Sample code. Simple hello message.
+ *
+ */
 public class HelloCommandHandler extends CommandHandler {
 
   @Override
@@ -17,6 +21,9 @@ public class HelloCommandHandler extends CommandHandler {
         .asPredicate();
   }
 
+  /**
+   * Invoked when command matches
+   */
   @Override
   public void handle(BotCommand command, SymphonyMessage response) {
     Map<String, String> variables = new HashMap<>();

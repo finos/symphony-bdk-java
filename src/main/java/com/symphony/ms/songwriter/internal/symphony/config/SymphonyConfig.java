@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import authentication.SymBotRSAAuth;
 import authentication.SymExtensionAppRSAAuth;
 import authentication.jwt.AuthenticationFilter;
@@ -15,6 +14,12 @@ import configuration.SymConfigLoader;
 import configuration.SymLoadBalancedConfig;
 import exceptions.AuthenticationException;
 
+/**
+ * Initializes all Symphony components required by bots and extension apps
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class SymphonyConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyConfig.class);
@@ -40,24 +45,29 @@ public class SymphonyConfig {
   /**
    * Bean that loads the configurations of lb-config.json file and set it in a
    * SymLoadBalancedConfig instance
+   *
    * @return {@link SymLoadBalancedConfig}
    */
   @Bean
   public SymLoadBalancedConfig symLbConfig() {
     if (symphonyProps.getLbConfig() != null) {
-      LOGGER.info("Loading load balancer configuration from {} ", symphonyProps.getLbConfig());
-      return SymConfigLoader.loadLoadBalancerFromFile(symphonyProps.getLbConfig());
+      LOGGER.info("Loading load balancer configuration from {} ",
+          symphonyProps.getLbConfig());
+      return SymConfigLoader.loadLoadBalancerFromFile(
+          symphonyProps.getLbConfig());
     }
     return new SymLoadBalancedConfig();
   }
 
   /**
    * Bean that authenticates the bot into a POD using the certificates
+   *
    * @param symConfig configuration from bot-config.json
    * @return {@link SymBotRSAAuth}
    */
   @Bean
-  public SymBotRSAAuth symBotRSAAuth(SymConfig symConfig) throws AuthenticationException {
+  public SymBotRSAAuth symBotRSAAuth(SymConfig symConfig)
+      throws AuthenticationException {
     LOGGER.info("Authenticating user...");
     SymBotRSAAuth botAuth = new SymBotRSAAuth(symConfig);
     botAuth.authenticate();
@@ -66,6 +76,7 @@ public class SymphonyConfig {
 
   /**
    * Bean that creates a bot client to access datafeed
+   *
    * @param symConfig configuration from bot-config.json
    * @param symBotAuth bean of authentication
    * @return {@link SymBotClient}
@@ -82,6 +93,7 @@ public class SymphonyConfig {
 
   /**
    * Bean that authenticates the extension app into a POD using the RSA keys
+   *
    * @param symConfig configuration from bot-config.json
    * @return {@link SymExtensionAppRSAAuth}
    */
@@ -92,7 +104,8 @@ public class SymphonyConfig {
   }
 
   /**
-   * Adding a request filter to intercept and validate authorization header
+   * Adds a request filter to intercept and validate authorization header
+   *
    * @param symExtensionAppRSAAuth - extension app data
    * @param symConfig - configuration from bot-config.json
    * @return {@link AuthenticationFilter}
@@ -100,7 +113,8 @@ public class SymphonyConfig {
   @Bean
   public FilterRegistrationBean<AuthenticationFilter> addAuthenticationFilter(
       SymExtensionAppRSAAuth symExtensionAppRSAAuth, SymConfig symConfig) {
-    FilterRegistrationBean<AuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
+    FilterRegistrationBean<AuthenticationFilter> registrationBean =
+        new FilterRegistrationBean<>();
     AuthenticationFilter authenticationFilter =
         new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
     registrationBean.setFilter(authenticationFilter);

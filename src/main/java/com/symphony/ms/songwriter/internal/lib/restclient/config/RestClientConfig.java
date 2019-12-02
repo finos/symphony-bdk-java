@@ -17,6 +17,13 @@ import com.symphony.ms.songwriter.internal.lib.restclient.RestClientImpl;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 
+/**
+ * Creates and configures an instance of the RestTemplate-based implementation
+ * of the {@link RestClient} if no other implementation is provided.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class RestClientConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(RestClientConfig.class);

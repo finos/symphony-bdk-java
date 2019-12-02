@@ -24,6 +24,12 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
+/**
+ * Spring RestTemplate-based implementation of the {@link RestClient}
+ *
+ * @author Marcus Secato
+ *
+ */
 public class RestClientImpl implements RestClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(RestClientImpl.class);
 
@@ -47,46 +53,70 @@ public class RestClientImpl implements RestClient {
     bhRegistry = BulkheadRegistry.of(bhConfig);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> RestResponse<T> getRequest(String url, Class<T> clazz) {
     return doRequest(url, HttpMethod.GET, null, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> RestResponse<T> getRequest(String url,
       Map<String, String> headers, Class<T> clazz) {
     return doRequest(url, HttpMethod.GET, headers, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T, U> RestResponse<T> postRequest(String url, U body,
       Class<T> clazz) {
     return doRequestWithBody(url, HttpMethod.POST, null, body, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T, U> RestResponse<T> postRequest(String url, U body,
       Map<String, String> headers, Class<T> clazz) {
     return doRequestWithBody(url, HttpMethod.POST, headers, body, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T, U> RestResponse<T> putRequest(String url, U body,
       Class<T> clazz) {
     return doRequestWithBody(url, HttpMethod.PUT, null, body, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T, U> RestResponse<T> putRequest(String url, U body,
       Map<String, String> headers, Class<T> clazz) {
     return doRequestWithBody(url, HttpMethod.PUT, headers, body, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> RestResponse<T> deleteRequest(String url, Class<T> clazz) {
     return doRequest(url, HttpMethod.DELETE, null, clazz);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public <T> RestResponse<T> deleteRequest(String url,
       Map<String, String> headers, Class<T> clazz) {
@@ -107,6 +137,10 @@ public class RestClientImpl implements RestClient {
     return applyResourceControl(url, httpMethod, httpEntity, clazz);
   }
 
+  /**
+   * Applies circuit-breaker and bulkhead controls to improve resources usage
+   * when communicating with external systems.
+   */
   private <T> RestResponse<T> applyResourceControl(String url,
       HttpMethod httpMethod, HttpEntity<?> httpEntity, Class<T> clazz) {
 

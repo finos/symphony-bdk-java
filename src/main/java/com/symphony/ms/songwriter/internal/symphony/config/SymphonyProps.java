@@ -5,6 +5,12 @@ import org.springframework.stereotype.Component;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Loads Symphony-related configurations from properties files
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 @Component

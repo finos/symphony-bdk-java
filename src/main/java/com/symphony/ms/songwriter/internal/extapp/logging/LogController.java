@@ -10,6 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Exposes an endpoint through which extension applications could send logs to
+ * be persisted along with server-side logs.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Controller
 @RequestMapping(value = "/v1/log")
 public class LogController {

@@ -11,6 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Cross-site scripting filter
+ *
+ * @author Marcus Secato
+ *
+ */
 public class XSSFilter implements Filter {
   private static final Logger LOGGER = LoggerFactory.getLogger(XSSFilter.class);
 

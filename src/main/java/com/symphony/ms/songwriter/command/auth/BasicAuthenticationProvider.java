@@ -6,6 +6,11 @@ import com.symphony.ms.songwriter.internal.command.model.AuthenticationContext;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+/**
+ * Sample code. Implementation of {@link AuthenticationProvider} to offer basic
+ * authentication.
+ *
+ */
 public class BasicAuthenticationProvider implements AuthenticationProvider {
 
   private String username = "john.doe@symphony.com";

@@ -12,6 +12,13 @@ import com.symphony.ms.songwriter.internal.lib.templating.TemplateService;
 import com.symphony.ms.songwriter.internal.lib.templating.TemplateServiceImpl;
 import freemarker.template.TemplateException;
 
+/**
+ * Creates and configures an instance of the Freemarker-based implementation
+ * of the {@link TemplateService} if no other implementation is provided.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Configuration
 public class TemplateServiceConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateServiceConfig.class);

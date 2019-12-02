@@ -5,6 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Extension app authentication response
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -3,7 +3,6 @@ package com.symphony.ms.songwriter.internal.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.symphony.ms.songwriter.internal.command.CommandFilter;
 import com.symphony.ms.songwriter.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.songwriter.internal.event.model.MessageEvent;
@@ -31,48 +30,72 @@ public class InternalEventListenerImpl implements InternalEventListener {
     this.eventDispatcher = eventDispatcher;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomMessage(MessageEvent message) {
     LOGGER.debug("Received message in room {}", message.getStreamId());
     commandFilter.filter(message);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onIMMessage(MessageEvent message) {
     LOGGER.debug("Received message in IM {}", message.getStreamId());
     commandFilter.filter(message);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomCreated(RoomCreatedEvent event) {
     LOGGER.debug("Room {} has been created", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomReactivated(RoomReactivatedEvent event) {
     LOGGER.debug("Room {} has been reactivated", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomDeactivated(RoomDeactivatedEvent event) {
     LOGGER.debug("Room {} has been deactivated", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomUpdated(RoomUpdatedEvent event) {
     LOGGER.debug("Room {} has been updated", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onIMCreated(IMCreatedEvent event) {
     LOGGER.debug("IM {} has been created", event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomMemberDemotedFromOwner(
       RoomMemberDemotedFromOwnerEvent event) {
@@ -81,6 +104,9 @@ public class InternalEventListenerImpl implements InternalEventListener {
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onRoomMemberPromotedToOwner(
       RoomMemberPromotedToOwnerEvent event) {
@@ -89,6 +115,9 @@ public class InternalEventListenerImpl implements InternalEventListener {
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onUserJoinedRoom(UserJoinedRoomEvent event) {
     LOGGER.debug("User {} joined room {}",
@@ -96,6 +125,9 @@ public class InternalEventListenerImpl implements InternalEventListener {
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onUserLeftRoom(UserLeftRoomEvent event) {
     LOGGER.debug("User {} left room {}",
@@ -103,6 +135,9 @@ public class InternalEventListenerImpl implements InternalEventListener {
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void onElementsAction(SymphonyElementsEvent event) {
     LOGGER.debug("User {} triggered elements form {} in room {}",

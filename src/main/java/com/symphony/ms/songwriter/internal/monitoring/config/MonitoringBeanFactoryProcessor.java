@@ -11,6 +11,13 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 import com.symphony.ms.songwriter.internal.scan.BaseBeanFactoryPostProcessor;
 
+/**
+ * Automatically scans for {@link HealthIndicator}, instantiates them and
+ * registers to Spring bean registry.
+ *
+ * @author Marcus Secato
+ *
+ */
 @Component
 public class MonitoringBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(MonitoringBeanFactoryProcessor.class);

@@ -4,6 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.InboundMessage;
 
+/**
+ * Symphony message event
+ *
+ * @author Marcus Secato
+ *
+ */
 @Data
 @NoArgsConstructor
 public class MessageEvent extends BaseEvent {

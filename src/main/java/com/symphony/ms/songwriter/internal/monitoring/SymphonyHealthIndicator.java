@@ -7,6 +7,12 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 import com.symphony.ms.songwriter.internal.symphony.model.HealthCheckInfo;
 
+/**
+ * Retrieves health details for Symphony components (e.g. POD, agent)
+ *
+ * @author Marcus Secato
+ *
+ */
 public class SymphonyHealthIndicator implements HealthIndicator {
   private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyHealthIndicator.class);
 
@@ -26,7 +32,8 @@ public class SymphonyHealthIndicator implements HealthIndicator {
       healthBuilder = Health.down();
     }
 
-    return healthBuilder.withDetail("Symphony", symphonyHealthResponse).build();
+    return healthBuilder.withDetail("Symphony",
+        symphonyHealthResponse).build();
   }
 
 }
