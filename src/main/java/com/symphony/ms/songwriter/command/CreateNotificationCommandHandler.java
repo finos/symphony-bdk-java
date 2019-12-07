@@ -1,13 +1,15 @@
 package com.symphony.ms.songwriter.command;
 
+import com.symphony.ms.songwriter.internal.command.CommandHandler;
+import com.symphony.ms.songwriter.internal.command.model.BotCommand;
+import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import org.springframework.beans.factory.annotation.Value;
-import com.symphony.ms.songwriter.internal.command.CommandHandler;
-import com.symphony.ms.songwriter.internal.command.model.BotCommand;
-import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
 /**
  * Sample code for a CommandHandler that generates instructions on how to
@@ -39,7 +41,7 @@ public class CreateNotificationCommandHandler extends CommandHandler {
     Map<String, String> data = new HashMap<>();
     data.put("notification_url", notificationUrl);
 
-    commandResponse.setTemplateFile("create-notification.ftl", data);
+    commandResponse.setTemplateFile("create-notification", data);
   }
 
 }

@@ -1,12 +1,13 @@
 package com.symphony.ms.songwriter.internal.lib.jsonmapper;
 
-import java.io.IOException;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Jackson-based implementation of the {@link JsonMapper}
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  */
 public class JsonMapperImpl implements JsonMapper {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonMapperImpl.class);
 
   private ObjectMapper objectMapper;

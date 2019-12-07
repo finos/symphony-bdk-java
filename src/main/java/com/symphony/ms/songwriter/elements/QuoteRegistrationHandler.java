@@ -1,18 +1,18 @@
 package com.symphony.ms.songwriter.elements;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.elements.ElementsHandler;
 import com.symphony.ms.songwriter.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
 /**
- * Sample code. Implementation of {@link ElementsHandler} which renders a
- * Symphony elements form and handles its submission.
- *
+ * Sample code. Implementation of {@link ElementsHandler} which renders a Symphony elements form and
+ * handles its submission.
  */
 public class QuoteRegistrationHandler extends ElementsHandler {
   private static final String FORM_ID = "quo-register-form";
@@ -40,7 +40,7 @@ public class QuoteRegistrationHandler extends ElementsHandler {
       SymphonyMessage elementsResponse) {
     Map<String, String> data = new HashMap<>();
     data.put("form_id", FORM_ID);
-    elementsResponse.setTemplateFile("quote-registration.ftl", data);
+    elementsResponse.setTemplateFile("quote-registration", data);
   }
 
   /**
