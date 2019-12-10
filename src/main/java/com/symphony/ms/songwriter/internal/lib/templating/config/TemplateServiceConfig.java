@@ -4,8 +4,6 @@ import com.symphony.ms.songwriter.internal.lib.templating.TemplateService;
 import com.symphony.ms.songwriter.internal.lib.templating.TemplateServiceImpl;
 
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.github.jknack.handlebars.io.TemplateLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -28,10 +26,8 @@ public class TemplateServiceConfig {
   @ConditionalOnMissingBean
   public TemplateService getHandleBarsConfiguration() {
     LOGGER.info("Initializing Template Engine");
-    TemplateLoader symphonyTemplateLoader = HandlebarsTemplateLoader.getLoader();
-    TemplateLoader internalTemplateLoader = new ClassPathTemplateLoader("/templates", ".hbs");
-    return new TemplateServiceImpl(
-        new Handlebars().with(internalTemplateLoader, symphonyTemplateLoader));
+    Handlebars handlebars = new HandlebarsTemplateLoader().getHandlebars();
+    return new TemplateServiceImpl(handlebars);
   }
 
 }
