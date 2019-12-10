@@ -34,12 +34,12 @@ public final class SmsRenderer {
 
     private static String render(String wrappedContext, SmsTypes smsType) {
         try {
-            HandlebarsTemplateLoader handlebarsTemplateLoader = new HandlebarsTemplateLoader();
+            HandlebarsTemplateLoader templateLoader = new HandlebarsTemplateLoader();
 
             JsonNode jsonNode = new ObjectMapper().readValue(wrappedContext, JsonNode.class);
 
-            Template template = handlebarsTemplateLoader.getTemplate(smsType.getName());
-            Context templateContext = handlebarsTemplateLoader.getContext(jsonNode);
+            Template template = templateLoader.getTemplate( smsType.getName() );
+            Context templateContext = templateLoader.getContext(jsonNode);
 
             return template.apply(templateContext);
         } catch (IOException e) {
