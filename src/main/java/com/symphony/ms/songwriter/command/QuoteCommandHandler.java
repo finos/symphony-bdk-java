@@ -21,7 +21,7 @@ public class QuoteCommandHandler extends CommandHandler {
   private static final String QUOTE_URL =
       "https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD"
           + "&to_currency=%s&apikey=C7G0Q2QOJ80OECGM";
-  private static final String QUOTE_COMMAND = "\\/quote";
+  private static final String QUOTE_COMMAND = "/quote";
 
   private RestClient restClient;
 

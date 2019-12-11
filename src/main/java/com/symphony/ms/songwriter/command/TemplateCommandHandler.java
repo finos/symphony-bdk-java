@@ -3,10 +3,10 @@ package com.symphony.ms.songwriter.command;
 import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
-import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapperImpl;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
+import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import services.SmsRenderer;
 
 import java.util.Map;
@@ -15,25 +15,31 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Sample code. CommandHandler that uses Symphony Renderer templates.
+ */
 public class TemplateCommandHandler extends CommandHandler {
 
   private JsonMapper jsonMapper;
+  private Pattern templateCommandPattern;
 
-  public TemplateCommandHandler() {
-    jsonMapper = new JsonMapperImpl(new ObjectMapper());
+  public TemplateCommandHandler(JsonMapper jsonMapper, SymphonyService symphonyService) {
+    this.jsonMapper = jsonMapper;
+    this.symphonyService = symphonyService;
+    this.templateCommandPattern =
+        Pattern.compile("^@" + getBotName() + "\\s/template(\\s+(([^\\s]+)(\\s+([\\s\\S]+)?)?)?)?");
   }
 
   @Override
   protected Predicate<String> getCommandMatcher() {
-    return Pattern.compile("^@" + getBotName() + " /template").asPredicate();
+    return templateCommandPattern.asPredicate();
   }
 
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse) {
     Optional<SmsRenderer.SmsTypes> templateType = getTemplateType(command.getMessage());
     if (templateType.isPresent()) {
-      Optional<Map<String, Object>> commandParameter =
-          getCommandParameter(command.getMessage(), templateType.get());
+      Optional<Map<String, Object>> commandParameter = getCommandParameter(command.getMessage());
       if (commandParameter.isPresent()) {
         renderTemplate(templateType.get(), commandParameter.get(), commandResponse);
       } else {
@@ -45,13 +51,15 @@ public class TemplateCommandHandler extends CommandHandler {
   }
 
   private Optional<SmsRenderer.SmsTypes> getTemplateType(String commandMessage) {
-    Matcher matcher = Pattern.compile("(?<=@" + getBotName() + "\\s/template\\s)[^\\s]+")
-        .matcher(commandMessage);
+    Matcher matcher = templateCommandPattern.matcher(commandMessage);
     try {
       if (!matcher.find()) {
         return Optional.empty();
       }
-      String typeName = commandMessage.substring(matcher.start(), matcher.end());
+      String typeName = matcher.group(3);
+      if (StringUtils.isBlank(typeName)) {
+        return Optional.empty();
+      }
       SmsRenderer.SmsTypes type = SmsRenderer.SmsTypes.valueOf(typeName.toUpperCase());
       return Optional.of(type);
     } catch (IllegalArgumentException e) {
@@ -59,14 +67,13 @@ public class TemplateCommandHandler extends CommandHandler {
     }
   }
 
-  private Optional<Map<String, Object>> getCommandParameter(String commandMessage,
-      SmsRenderer.SmsTypes templateType) {
-    Matcher matcher = Pattern.compile(
-        "(?<=" + getBotName() + "\\s\\/template\\s" + templateType.getName() + "\\s)[^\\s].*")
-        .matcher(commandMessage);
+  private Optional<Map<String, Object>> getCommandParameter(String commandMessage) {
+    Matcher matcher = templateCommandPattern.matcher(commandMessage);
     if (matcher.find()) {
-      String commandParameter = commandMessage.substring(matcher.start());
-      return Optional.of(wrapData(commandParameter));
+      String commandParameter = matcher.group(5);
+      if (StringUtils.isNotBlank(commandParameter)) {
+        return Optional.of(wrapData(commandParameter));
+      }
     }
     return Optional.empty();
   }
