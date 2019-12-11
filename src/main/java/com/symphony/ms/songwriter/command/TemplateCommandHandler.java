@@ -4,7 +4,6 @@ import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
-import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 
 import org.apache.commons.lang.StringUtils;
 import services.SmsRenderer;
@@ -23,16 +22,13 @@ public class TemplateCommandHandler extends CommandHandler {
   private JsonMapper jsonMapper;
   private Pattern templateCommandPattern;
 
-  public TemplateCommandHandler(JsonMapper jsonMapper, SymphonyService symphonyService) {
+  public TemplateCommandHandler(JsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
-    this.symphonyService = symphonyService;
-    this.templateCommandPattern =
-        Pattern.compile("^@" + getBotName() + "\\s/template(\\s+(([^\\s]+)(\\s+([\\s\\S]+)?)?)?)?");
   }
 
   @Override
   protected Predicate<String> getCommandMatcher() {
-    return templateCommandPattern.asPredicate();
+    return getTemplateCommandPattern().asPredicate();
   }
 
   @Override
@@ -51,12 +47,12 @@ public class TemplateCommandHandler extends CommandHandler {
   }
 
   private Optional<SmsRenderer.SmsTypes> getTemplateType(String commandMessage) {
-    Matcher matcher = templateCommandPattern.matcher(commandMessage);
+    Matcher matcher = getTemplateCommandPattern().matcher(commandMessage);
     try {
       if (!matcher.find()) {
         return Optional.empty();
       }
-      String typeName = matcher.group(3);
+      String typeName = matcher.group(1);
       if (StringUtils.isBlank(typeName)) {
         return Optional.empty();
       }
@@ -68,9 +64,9 @@ public class TemplateCommandHandler extends CommandHandler {
   }
 
   private Optional<Map<String, Object>> getCommandParameter(String commandMessage) {
-    Matcher matcher = templateCommandPattern.matcher(commandMessage);
+    Matcher matcher = getTemplateCommandPattern().matcher(commandMessage);
     if (matcher.find()) {
-      String commandParameter = matcher.group(5);
+      String commandParameter = matcher.group(2);
       if (StringUtils.isNotBlank(commandParameter)) {
         return Optional.of(wrapData(commandParameter));
       }
@@ -82,10 +78,17 @@ public class TemplateCommandHandler extends CommandHandler {
     return jsonMapper.toObject("{\"message\": " + data + "}", Map.class);
   }
 
-  public void renderTemplate(SmsRenderer.SmsTypes templateType,
+  private void renderTemplate(SmsRenderer.SmsTypes templateType,
       Map<String, Object> commandParameter, SymphonyMessage commandResponse) {
     commandResponse.setTemplateFile(templateType.getName(), commandParameter);
+  }
 
+  private Pattern getTemplateCommandPattern() {
+    if (templateCommandPattern == null) {
+      templateCommandPattern = Pattern.compile(
+          "^@" + getBotName() + "\\s/template(?:\\s+(?:([^\\s]+)(?:\\s+([\\s\\S]+)?)?)?)?");
+    }
+    return templateCommandPattern;
   }
 
 }
