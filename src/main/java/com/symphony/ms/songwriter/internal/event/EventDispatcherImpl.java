@@ -28,7 +28,7 @@ public class EventDispatcherImpl implements EventDispatcher {
    * {@inheritDoc}
    */
   @Override
-  @Async
+  @Async("botTaskExecutor")
   public <E extends BaseEvent> void push(String channel, E event) {
     LOGGER.debug("Looking for handler for event: {}", channel);
     BaseEventHandler<E> handler = eventHandlers.get(channel);
