@@ -1,4 +1,4 @@
-package com.symphony.ms.songwriter.internal.event.config;
+package com.symphony.ms.songwriter.internal.commons;
 
 import java.util.HashMap;
 import java.util.Map;

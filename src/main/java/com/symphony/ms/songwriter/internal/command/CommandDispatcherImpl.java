@@ -27,7 +27,7 @@ public class CommandDispatcherImpl implements CommandDispatcher {
    * {@inheritDoc}
    */
   @Override
-  @Async
+  @Async("botTaskExecutor")
   public void push(String channel, BotCommand command) {
     LOGGER.debug("Looking for command handler for {}", channel);
     BaseCommandHandler handler = commandHandlers.get(channel);
