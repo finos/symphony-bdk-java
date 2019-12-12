@@ -1,39 +1,33 @@
 package com.symphony.ms.songwriter.internal.lib.templating.config;
 
-import java.io.IOException;
+import com.symphony.ms.songwriter.internal.lib.templating.TemplateService;
+import com.symphony.ms.songwriter.internal.lib.templating.TemplateServiceImpl;
+
+import com.github.jknack.handlebars.Handlebars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
-import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
-import com.symphony.ms.songwriter.internal.lib.templating.TemplateService;
-import com.symphony.ms.songwriter.internal.lib.templating.TemplateServiceImpl;
-import freemarker.template.TemplateException;
+import services.HandlebarsTemplateLoader;
 
 /**
- * Creates and configures an instance of the Freemarker-based implementation
- * of the {@link TemplateService} if no other implementation is provided.
+ * Creates and configures an instance of the Freemarker-based implementation of the {@link
+ * TemplateService} if no other implementation is provided.
  *
  * @author Marcus Secato
- *
  */
 @Configuration
 public class TemplateServiceConfig {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(TemplateServiceConfig.class);
 
-  @Bean(name="templateServiceImpl")
-  //@ConditionalOnProperty(value = "templateengine.disabled", havingValue="false", matchIfMissing=true)
+  @Bean(name = "templateServiceImpl")
   @ConditionalOnMissingBean
-  public TemplateService getFreeMarkerConfiguration(JsonMapper mapper) throws TemplateException, IOException {
+  public TemplateService getHandleBarsConfiguration() {
     LOGGER.info("Initializing Template Engine");
-    FreeMarkerConfigurationFactoryBean bean = new FreeMarkerConfigurationFactoryBean();
-    bean.setTemplateLoaderPath("classpath:/templates/");
-    bean.setDefaultEncoding("UTF-8");
-    bean.afterPropertiesSet();
-
-    return new TemplateServiceImpl(bean.getObject(), mapper);
+    Handlebars handlebars = new HandlebarsTemplateLoader().getHandlebars();
+    return new TemplateServiceImpl(handlebars);
   }
 
 }

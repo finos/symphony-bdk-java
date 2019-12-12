@@ -2,6 +2,7 @@ package com.symphony.ms.songwriter.internal.symphony;
 
 import com.symphony.ms.songwriter.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.songwriter.internal.symphony.model.HealthCheckInfo;
+
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
@@ -23,13 +24,14 @@ public interface SymphonyService {
 
   /**
    * Registers a listener for Symphony room events
-   * @param imListener
+   *
+   * @param roomListener
    */
   void registerRoomListener(RoomListener roomListener);
 
   /**
    * Registers a listener for Symphony Elements events
-   * @param imListener
+   * @param elementsListener
    */
   void registerElementsListener(ElementsListener elementsListener);
 

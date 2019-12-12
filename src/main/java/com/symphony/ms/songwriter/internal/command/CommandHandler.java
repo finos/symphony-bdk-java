@@ -1,21 +1,21 @@
 package com.symphony.ms.songwriter.internal.command;
 
-import java.util.function.Predicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.feature.FeatureManager;
 import com.symphony.ms.songwriter.internal.message.MessageService;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 import com.symphony.ms.songwriter.internal.symphony.SymphonyService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.function.Predicate;
+
 /**
- * Base class for bot command handling. Provides mechanisms to automatically
- * register child classes to {@link CommandDispatcher} and
- * {@link CommandFilter}.
+ * Base class for bot command handling. Provides mechanisms to automatically register child classes
+ * to {@link CommandDispatcher} and {@link CommandFilter}.
  *
  * @author Marcus Secato
- *
  */
 public abstract class CommandHandler implements BaseCommandHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
@@ -28,7 +28,7 @@ public abstract class CommandHandler implements BaseCommandHandler {
 
   protected FeatureManager featureManager;
 
-  private SymphonyService symphonyService;
+  protected SymphonyService symphonyService;
 
   /**
    * Registers the CommandHandler to {@link CommandDispatcher} and
