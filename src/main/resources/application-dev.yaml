@@ -2,8 +2,8 @@ server:
   port: 8080
   connection-timeout: 20000
   servlet:
-    display-name: Songwriter
-    context-path: "/songwriter"
+    display-name: BotApp
+    context-path: "/botapp"
 
 concurrency:
   pools:
@@ -23,10 +23,10 @@ certs: certs
 bot-config: ${resources}/bot-config.json
 
 logging:
-  file: ${resources}/logs/songwriter.log
+  file: ${resources}/logs/bot-app.log
   level:
     ROOT: INFO
-    com.symphony.ms.songwriter.internal: DEBUG
+    com.symphony.ms.bot.sdk.internal: DEBUG
 
 crypto:
   password: 'DkccUmwnh4SZAQZFhpaZq9UntasU2Bvd+hMG7A8UzD8='

@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.symphony.ms</groupId>
-    <artifactId>songwriter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>sms-bot-sdk</artifactId>
+    <version>1.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
