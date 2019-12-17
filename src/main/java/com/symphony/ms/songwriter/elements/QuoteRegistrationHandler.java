@@ -1,5 +1,9 @@
 package com.symphony.ms.songwriter.elements;
 
+import static com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder.beginsAndEndsWith;
+import static com.symphony.ms.songwriter.internal.command.matcher.EscapedCharacter.whiteSpace;
+
+import com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.elements.ElementsHandler;
 import com.symphony.ms.songwriter.internal.event.model.SymphonyElementsEvent;
@@ -8,7 +12,6 @@ import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Sample code. Implementation of {@link ElementsHandler} which renders a Symphony elements form and
@@ -22,9 +25,15 @@ public class QuoteRegistrationHandler extends ElementsHandler {
    */
   @Override
   protected Predicate<String> getCommandMatcher() {
-    return Pattern
-        .compile("^@"+ getBotName() + " /register quote$")
-        .asPredicate();
+    return beginsAndEndsWith(
+        new CommandMatcherBuilder()
+            .followedBy("@")
+            .followedBy(getBotName())
+            .followedBy(whiteSpace())
+            .followedBy("/register")
+            .followedBy(whiteSpace())
+            .followedBy("quote")
+    ).predicate();
   }
 
   @Override

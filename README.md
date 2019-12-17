@@ -92,6 +92,7 @@ Displays static help message with all available commands
 >- @MyBot /login - returns the HTTP authorization header required to talk to external system
 >- @MyBot /quote BRL - returns quote for the specified currency (e.g. BRL)
 >- @MyBot /register quote - displays the currency quote registration form
+>- @MyBot /template alert {\"title\": \"Title\", \"content\": \"Content\"} - displays a customized alert
 
 
 ### Hello command
@@ -159,6 +160,37 @@ Relies on the RestClient library offered by the application to request quotes fo
 >>USD-BRL X-RATE
 >>
 >>**3.99**<sub>BRL</sub>
+
+
+### Template command
+
+Renders messages using Symphony standardized templates. The supported templates are:
+* simple
+* alert
+* information
+* notification
+* list
+* table
+
+>&#9679; **John Doe**
+>
+>@MyBot /template simple {"title": "Title", "content": "Content"}
+
+![simple](readme/template_simple.png)
+
+>&#9679; **John Doe**
+>
+>@MyBot /template alert {"title": "Title", "content": "Content"}
+
+![alert](readme/template_alert.png)
+
+>&#9679; **John Doe**
+>
+>@MyBot /template information {"title": "Title", "content": "Content", "description": "Description"}
+
+![alert](readme/template_information.png)
+
+For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java
 
 
 ### Register quote command

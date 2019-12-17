@@ -11,14 +11,13 @@ import java.util.regex.Pattern;
 
 /**
  * Sample code. Simple hello message.
- *
  */
 public class HelloCommandHandler extends CommandHandler {
 
   @Override
   protected Predicate<String> getCommandMatcher() {
     return Pattern
-        .compile("^@"+ getBotName() + " /hello$")
+        .compile("^@" + getBotName() + " /hello$")
         .asPredicate();
   }
 

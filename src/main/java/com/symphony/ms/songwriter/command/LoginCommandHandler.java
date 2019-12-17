@@ -1,25 +1,25 @@
 package com.symphony.ms.songwriter.command;
 
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import com.symphony.ms.songwriter.internal.command.AuthenticatedCommandHandler;
 import com.symphony.ms.songwriter.internal.command.config.CommandAuthenticationProvider;
 import com.symphony.ms.songwriter.internal.command.model.AuthenticationContext;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.message.model.SymphonyMessage;
 
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
 /**
- * Sample code to demonstrate how to use {@link AuthenticatedCommandHandler}
- * along with an AuthenticationProvider that implements basic authentication.
- *
+ * Sample code to demonstrate how to use {@link AuthenticatedCommandHandler} along with an
+ * AuthenticationProvider that implements basic authentication.
  */
-@CommandAuthenticationProvider(name="BasicAuthenticationProvider")
+@CommandAuthenticationProvider(name = "BasicAuthenticationProvider")
 public class LoginCommandHandler extends AuthenticatedCommandHandler {
 
   @Override
   protected Predicate<String> getCommandMatcher() {
     return Pattern
-        .compile("^@"+ getBotName() + " /login$")
+        .compile("^@" + getBotName() + " /login$")
         .asPredicate();
   }
 

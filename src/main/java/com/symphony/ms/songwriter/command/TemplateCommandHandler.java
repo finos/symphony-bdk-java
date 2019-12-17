@@ -1,5 +1,16 @@
 package com.symphony.ms.songwriter.command;
 
+import static com.symphony.ms.songwriter.internal.command.matcher.CharacterMatcher.any;
+import static com.symphony.ms.songwriter.internal.command.matcher.CharacterMatcher.characterSet;
+import static com.symphony.ms.songwriter.internal.command.matcher.CharacterMatcher.negatedSet;
+import static com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder.beginsWith;
+import static com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder.group;
+import static com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder.nonCapturingGroup;
+import static com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder.oneOrMore;
+import static com.symphony.ms.songwriter.internal.command.matcher.CommandMatcherBuilder.optional;
+import static com.symphony.ms.songwriter.internal.command.matcher.EscapedCharacter.character;
+import static com.symphony.ms.songwriter.internal.command.matcher.EscapedCharacter.whiteSpace;
+
 import com.symphony.ms.songwriter.internal.command.CommandHandler;
 import com.symphony.ms.songwriter.internal.command.model.BotCommand;
 import com.symphony.ms.songwriter.internal.lib.jsonmapper.JsonMapper;
@@ -85,10 +96,48 @@ public class TemplateCommandHandler extends CommandHandler {
 
   private Pattern getTemplateCommandPattern() {
     if (templateCommandPattern == null) {
-      templateCommandPattern = Pattern.compile(
-          "^@" + getBotName() + "\\s/template(?:\\s+(?:([^\\s]+)(?:\\s+([\\s\\S]+)?)?)?)?");
+      templateCommandPattern = buildTemplateCommandPattern();
     }
     return templateCommandPattern;
+  }
+
+  private Pattern buildTemplateCommandPattern() {
+    characterSet(character('a'));
+    return beginsWith("@")
+        .followedBy(getBotName())
+        .followedBy(whiteSpace())
+        .followedBy("/template")
+        .followedBy(
+            optional(
+                nonCapturingGroup(
+                    oneOrMore(whiteSpace()
+                    ).followedBy(
+                        optional(
+                            nonCapturingGroup(
+                                group(
+                                    oneOrMore(
+                                        negatedSet(whiteSpace())
+                                    )
+                                ).followedBy(
+                                    optional(
+                                        nonCapturingGroup(
+                                            oneOrMore(whiteSpace()
+                                            ).followedBy(
+                                                optional(
+                                                    group(
+                                                        oneOrMore(any())
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        ).pattern();
   }
 
 }

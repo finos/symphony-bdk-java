@@ -12,21 +12,20 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
- * Sample code for a CommandHandler that generates instructions on how to
- * receive notifications from external systems.
- *
+ * Sample code for a CommandHandler that generates instructions on how to receive notifications from
+ * external systems.
  */
 public class CreateNotificationCommandHandler extends CommandHandler {
 
   private static final String NOTIFICATION_PATH = "/notification";
 
-  @Value( "${server.servlet.context-path}" )
+  @Value("${server.servlet.context-path}")
   private String servletContext;
 
   @Override
   protected Predicate<String> getCommandMatcher() {
     return Pattern
-        .compile("^@"+ getBotName() + " /create notification$")
+        .compile("^@" + getBotName() + " /create notification$")
         .asPredicate();
   }
 
