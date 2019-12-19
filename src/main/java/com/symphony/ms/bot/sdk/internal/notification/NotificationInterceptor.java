@@ -1,17 +1,16 @@
 package com.symphony.ms.bot.sdk.internal.notification;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Base class for intercepting and processing incoming requests from external
- * sources. Provides mechanisms to automatically register child classes to
- * {@link InterceptorChain}.
+ * Base class for intercepting and processing incoming requests from external sources. Provides
+ * mechanisms to automatically register child classes to {@link InterceptorChain}.
  *
  * @author Marcus Secato
- *
  */
 public abstract class NotificationInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(NotificationInterceptor.class);
@@ -22,7 +21,15 @@ public abstract class NotificationInterceptor {
    * Registers the NotificationInterceptor to {@link InterceptorChain}
    */
   public void register() {
+    init();
     interceptorChain.register(this);
+  }
+
+  /**
+   * Initializes the NotificationInterceptor dependencies. This method can be overridden by the
+   * child classes if the developers want to implement initialization logic.
+   */
+  protected void init() {
   }
 
   /**
@@ -30,8 +37,7 @@ public abstract class NotificationInterceptor {
    *
    * @param notificationRequest
    * @param notificationMessage
-   * @return true if request processing should proceed, false if request should
-   *         be discarded
+   * @return true if request processing should proceed, false if request should be discarded
    */
   public boolean intercept(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage) {
@@ -51,8 +57,7 @@ public abstract class NotificationInterceptor {
    *
    * @param notificationRequest
    * @param notificationMessage
-   * @return true if request processing should proceed, false if request should
-   *         be discarded
+   * @return true if request processing should proceed, false if request should be discarded
    */
   public abstract boolean process(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage);

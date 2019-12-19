@@ -1,12 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.function.Predicate;
 
 /**
@@ -29,11 +31,11 @@ public abstract class CommandHandler implements BaseCommandHandler {
   protected SymphonyService symphonyService;
 
   /**
-   * Registers the CommandHandler to {@link CommandDispatcher} and
-   * {@link CommandFilter} so that it can listen to and handle commands.
-   *
+   * Registers the CommandHandler to {@link CommandDispatcher} and {@link CommandFilter} so that it
+   * can listen to and handle commands.
    */
   public void register() {
+    init();
     commandDispatcher.register(getCommandName(), this);
     commandFilter.addFilter(getCommandName(), getCommandMatcher());
   }
@@ -44,6 +46,13 @@ public abstract class CommandHandler implements BaseCommandHandler {
 
   protected String getBotName() {
     return symphonyService.getBotDisplayName();
+  }
+
+  /**
+   * Initializes the CommandHandler dependencies. This method can be overridden by the child classes
+   * if the developers want to implement initialization logic.
+   */
+  protected void init() {
   }
 
   /**
@@ -70,10 +79,8 @@ public abstract class CommandHandler implements BaseCommandHandler {
     }
   }
 
-  // TODO: create a command matcher builder
   /**
-   * Returns the pattern used by {@link CommandFilter} to filter out bot
-   * commands.
+   * Returns the pattern used by {@link CommandFilter} to filter out bot commands.
    *
    * @return the matcher object
    */
@@ -85,8 +92,7 @@ public abstract class CommandHandler implements BaseCommandHandler {
    * @param command
    * @param commandResponse the response to be sent to Symphony chat
    */
-  public abstract void handle(BotCommand command,
-      final SymphonyMessage commandResponse);
+  public abstract void handle(BotCommand command, final SymphonyMessage commandResponse);
 
   public void setCommandDispatcher(CommandDispatcher commandDispatcher) {
     this.commandDispatcher = commandDispatcher;

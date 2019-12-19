@@ -1,12 +1,13 @@
 package com.symphony.ms.bot.sdk.internal.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.ResolvableType;
 import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.ResolvableType;
 
 /**
  * Base class for Symphony events handling. Provides mechanisms to
@@ -30,9 +31,17 @@ public abstract class EventHandler<E extends BaseEvent> implements BaseEventHand
    *
    */
   public void register() {
+    init();
     ResolvableType type = ResolvableType.forRawClass(this.getClass());
     eventDispatcher.register(
         type.getSuperType().getGeneric(0).toString(), this);
+  }
+
+  /**
+   * Initializes the ElementsHandler dependencies. This method can be overridden by the child
+   * classes if the developers want to implement initialization logic.
+   */
+  protected void init() {
   }
 
   /**

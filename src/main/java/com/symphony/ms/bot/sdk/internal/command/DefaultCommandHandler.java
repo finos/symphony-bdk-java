@@ -13,6 +13,7 @@ public abstract class DefaultCommandHandler extends CommandHandler {
    */
   @Override
   public void register() {
+    init();
     commandDispatcher.register(getCommandName(), this);
     commandFilter.setDefaultFilter(getCommandName(), getCommandMatcher());
   }

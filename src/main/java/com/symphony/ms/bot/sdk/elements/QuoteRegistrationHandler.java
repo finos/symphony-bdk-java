@@ -1,15 +1,14 @@
 package com.symphony.ms.bot.sdk.elements;
 
-import static com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBuilder.beginsAndEndsWith;
-import static com.symphony.ms.bot.sdk.internal.command.matcher.EscapedCharacter.whiteSpace;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Predicate;
-import com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBuilder;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.elements.ElementsHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Sample code. Implementation of {@link ElementsHandler} which renders a Symphony elements form and
@@ -23,15 +22,9 @@ public class QuoteRegistrationHandler extends ElementsHandler {
    */
   @Override
   protected Predicate<String> getCommandMatcher() {
-    return beginsAndEndsWith(
-        new CommandMatcherBuilder()
-            .followedBy("@")
-            .followedBy(getBotName())
-            .followedBy(whiteSpace())
-            .followedBy("/register")
-            .followedBy(whiteSpace())
-            .followedBy("quote")
-    ).predicate();
+    return Pattern
+        .compile("^@" + getBotName() + " /register quote$")
+        .asPredicate();
   }
 
   @Override

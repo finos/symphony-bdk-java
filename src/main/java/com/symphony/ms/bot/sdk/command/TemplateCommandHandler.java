@@ -1,11 +1,5 @@
 package com.symphony.ms.bot.sdk.command;
 
-import org.apache.commons.lang.StringUtils;
-import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import services.SmsRenderer;
 import static com.symphony.ms.bot.sdk.internal.command.matcher.CharacterMatcher.any;
 import static com.symphony.ms.bot.sdk.internal.command.matcher.CharacterMatcher.characterSet;
 import static com.symphony.ms.bot.sdk.internal.command.matcher.CharacterMatcher.negatedSet;
@@ -16,6 +10,15 @@ import static com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBui
 import static com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBuilder.optional;
 import static com.symphony.ms.bot.sdk.internal.command.matcher.EscapedCharacter.character;
 import static com.symphony.ms.bot.sdk.internal.command.matcher.EscapedCharacter.whiteSpace;
+
+import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
+import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import org.apache.commons.lang.StringUtils;
+import services.SmsRenderer;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -35,8 +38,13 @@ public class TemplateCommandHandler extends CommandHandler {
   }
 
   @Override
+  public void init() {
+    templateCommandPattern = buildTemplateCommandPattern();
+  }
+
+  @Override
   protected Predicate<String> getCommandMatcher() {
-    return getTemplateCommandPattern().asPredicate();
+    return templateCommandPattern.asPredicate();
   }
 
   @Override
@@ -52,50 +60,6 @@ public class TemplateCommandHandler extends CommandHandler {
     } else {
       commandResponse.setMessage("Please, specify the name of a valid template");
     }
-  }
-
-  private Optional<SmsRenderer.SmsTypes> getTemplateType(String commandMessage) {
-    Matcher matcher = getTemplateCommandPattern().matcher(commandMessage);
-    try {
-      if (!matcher.find()) {
-        return Optional.empty();
-      }
-      String typeName = matcher.group(1);
-      if (StringUtils.isBlank(typeName)) {
-        return Optional.empty();
-      }
-      SmsRenderer.SmsTypes type = SmsRenderer.SmsTypes.valueOf(typeName.toUpperCase());
-      return Optional.of(type);
-    } catch (IllegalArgumentException e) {
-      return Optional.empty();
-    }
-  }
-
-  private Optional<Map<String, Object>> getCommandParameter(String commandMessage) {
-    Matcher matcher = getTemplateCommandPattern().matcher(commandMessage);
-    if (matcher.find()) {
-      String commandParameter = matcher.group(2);
-      if (StringUtils.isNotBlank(commandParameter)) {
-        return Optional.of(wrapData(commandParameter));
-      }
-    }
-    return Optional.empty();
-  }
-
-  private Map<String, Object> wrapData(String data) {
-    return jsonMapper.toObject("{\"message\": " + data + "}", Map.class);
-  }
-
-  private void renderTemplate(SmsRenderer.SmsTypes templateType,
-      Map<String, Object> commandParameter, SymphonyMessage commandResponse) {
-    commandResponse.setTemplateFile(templateType.getName(), commandParameter);
-  }
-
-  private Pattern getTemplateCommandPattern() {
-    if (templateCommandPattern == null) {
-      templateCommandPattern = buildTemplateCommandPattern();
-    }
-    return templateCommandPattern;
   }
 
   private Pattern buildTemplateCommandPattern() {
@@ -135,6 +99,43 @@ public class TemplateCommandHandler extends CommandHandler {
                 )
             )
         ).pattern();
+  }
+
+  private Optional<SmsRenderer.SmsTypes> getTemplateType(String commandMessage) {
+    Matcher matcher = templateCommandPattern.matcher(commandMessage);
+    try {
+      if (!matcher.find()) {
+        return Optional.empty();
+      }
+      String typeName = matcher.group(1);
+      if (StringUtils.isBlank(typeName)) {
+        return Optional.empty();
+      }
+      SmsRenderer.SmsTypes type = SmsRenderer.SmsTypes.valueOf(typeName.toUpperCase());
+      return Optional.of(type);
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
+  }
+
+  private Optional<Map<String, Object>> getCommandParameter(String commandMessage) {
+    Matcher matcher = templateCommandPattern.matcher(commandMessage);
+    if (matcher.find()) {
+      String commandParameter = matcher.group(2);
+      if (StringUtils.isNotBlank(commandParameter)) {
+        return Optional.of(wrapData(commandParameter));
+      }
+    }
+    return Optional.empty();
+  }
+
+  private Map<String, Object> wrapData(String data) {
+    return jsonMapper.toObject("{\"message\": " + data + "}", Map.class);
+  }
+
+  private void renderTemplate(SmsRenderer.SmsTypes templateType,
+      Map<String, Object> commandParameter, SymphonyMessage commandResponse) {
+    commandResponse.setTemplateFile(templateType.getName(), commandParameter);
   }
 
 }

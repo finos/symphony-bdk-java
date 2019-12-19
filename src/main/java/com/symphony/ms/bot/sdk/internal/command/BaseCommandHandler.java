@@ -13,7 +13,7 @@ public interface BaseCommandHandler {
   /**
    * Callback for when a command is received
    *
-   * @param command
+   * @param command the received command.
    */
   void onCommand(BotCommand command);
 }

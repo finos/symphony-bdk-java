@@ -1,8 +1,5 @@
 package com.symphony.ms.bot.sdk.internal.elements;
 
-import java.util.function.Predicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.BaseCommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
@@ -15,15 +12,19 @@ import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.function.Predicate;
+
 /**
  * Symphony Elements Handler
- *
- * Offers all necessary support to handle Symphony elements, from the command
- * to display the Symphony elements in a chat room to the callback triggered
- * when the Symphony elements form is submitted.
+ * <p>
+ * Offers all necessary support to handle Symphony elements, from the command to display the
+ * Symphony elements in a chat room to the callback triggered when the Symphony elements form is
+ * submitted.
  *
  * @author Marcus Secato
- *
  */
 public abstract class ElementsHandler implements
     BaseCommandHandler, BaseEventHandler<SymphonyElementsEvent> {
@@ -42,13 +43,21 @@ public abstract class ElementsHandler implements
   private SymphonyService symphonyService;
 
   /**
-   * Registers the ElementsHandler to {@link CommandFilter},
-   * {@link CommandDispatcher} and {@link EventDispatcher}.
+   * Registers the ElementsHandler to {@link CommandFilter}, {@link CommandDispatcher} and {@link
+   * EventDispatcher}.
    */
   public void register() {
+    init();
     commandDispatcher.register(getCommandName(), this);
     commandFilter.addFilter(getCommandName(), getCommandMatcher());
     eventDispatcher.register(getElementsFormId(), this);
+  }
+
+  /**
+   * Initializes the EventHandler dependencies. This method can be overridden by the child classes
+   * if the developers want to implement initialization logic.
+   */
+  protected void init() {
   }
 
   /**
@@ -110,16 +119,14 @@ public abstract class ElementsHandler implements
   }
 
   /**
-   * Returns the pattern used by {@link CommandFilter} to filter out bot
-   * commands.
+   * Returns the pattern used by {@link CommandFilter} to filter out bot commands.
    *
    * @return the matcher object
    */
   protected abstract Predicate<String> getCommandMatcher();
 
   /**
-   * Specifies which Symphony elements form this handler should listen events
-   * for.
+   * Specifies which Symphony elements form this handler should listen events for.
    *
    * @return the Symphony elements formId
    */

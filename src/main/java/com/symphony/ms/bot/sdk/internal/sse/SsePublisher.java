@@ -1,15 +1,15 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
- * Base class for Server-sent events publishers. Provides mechanisms to
- * automatically register child classes to {@link SsePublisherRouter}.
+ * Base class for Server-sent events publishers. Provides mechanisms to automatically register child
+ * classes to {@link SsePublisherRouter}.
  *
  * @author Marcus Secato
- *
  */
 public abstract class SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(SsePublisher.class);
@@ -17,16 +17,23 @@ public abstract class SsePublisher {
   private SsePublisherRouter ssePublisherRouter;
 
   /**
-   * Registers the SsePublisher to the {@link SsePublisherRouter} to be
-   * notified when new {@link SseSubscriber} requests arrive.
+   * Registers the SsePublisher to the {@link SsePublisherRouter} to be notified when new {@link
+   * SseSubscriber} requests arrive.
    */
   public void register() {
+    init();
     this.ssePublisherRouter.register(this);
   }
 
   /**
-   * Binds the specified {@link SseSubscriber} to this instance of
-   * SsePublisher.
+   * Initializes the SsePublisher dependencies. This method can be overridden by the child classes
+   * if the developers want to implement initialization logic.
+   */
+  protected void init() {
+  }
+
+  /**
+   * Binds the specified {@link SseSubscriber} to this instance of SsePublisher.
    *
    * @param subscriber
    */
@@ -43,9 +50,8 @@ public abstract class SsePublisher {
   }
 
   /**
-   * Lists the streams that this instance of SsePublisher handles. Client
-   * applications must specify the streams they want to subscribe to in the
-   * request path.
+   * Lists the streams that this instance of SsePublisher handles. Client applications must specify
+   * the streams they want to subscribe to in the request path.
    *
    * @return list of stream names
    */
@@ -53,6 +59,7 @@ public abstract class SsePublisher {
 
   /**
    * Starts streaming events to the specified {@link SseSubscriber}
+   *
    * @param subscriber
    */
   public abstract void stream(SseSubscriber subscriber);
