@@ -32,3 +32,4 @@
 ### Logs ###
 *.log
 *.gz
+/target/
