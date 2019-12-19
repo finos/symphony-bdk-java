@@ -1,8 +1,5 @@
 package com.symphony.ms.bot.sdk.internal.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
 import com.symphony.ms.bot.sdk.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
@@ -15,6 +12,10 @@ import com.symphony.ms.bot.sdk.internal.event.model.RoomUpdatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserLeftRoomEvent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class InternalEventListenerImpl implements InternalEventListener {
@@ -97,8 +98,7 @@ public class InternalEventListenerImpl implements InternalEventListener {
    * {@inheritDoc}
    */
   @Override
-  public void onRoomMemberDemotedFromOwner(
-      RoomMemberDemotedFromOwnerEvent event) {
+  public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwnerEvent event) {
     LOGGER.debug("Room member {} has been demoted from owner in room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
@@ -108,8 +108,7 @@ public class InternalEventListenerImpl implements InternalEventListener {
    * {@inheritDoc}
    */
   @Override
-  public void onRoomMemberPromotedToOwner(
-      RoomMemberPromotedToOwnerEvent event) {
+  public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwnerEvent event) {
     LOGGER.debug("Room member {} has been promoted to owner in room {}",
         event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
@@ -120,8 +119,7 @@ public class InternalEventListenerImpl implements InternalEventListener {
    */
   @Override
   public void onUserJoinedRoom(UserJoinedRoomEvent event) {
-    LOGGER.debug("User {} joined room {}",
-        event.getUserId(), event.getStreamId());
+    LOGGER.debug("User {} joined room {}", event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 
@@ -130,8 +128,7 @@ public class InternalEventListenerImpl implements InternalEventListener {
    */
   @Override
   public void onUserLeftRoom(UserLeftRoomEvent event) {
-    LOGGER.debug("User {} left room {}",
-        event.getUserId(), event.getStreamId());
+    LOGGER.debug("User {} left room {}", event.getUserId(), event.getStreamId());
     eventDispatcher.push(event.getClass().getCanonicalName(), event);
   }
 

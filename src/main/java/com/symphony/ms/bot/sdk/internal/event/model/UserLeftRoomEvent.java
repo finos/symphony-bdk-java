@@ -8,20 +8,19 @@ import model.events.UserLeftRoom;
  * Symphony User left room event
  *
  * @author Marcus Secato
- *
  */
 @Data
 @NoArgsConstructor
 public class UserLeftRoomEvent extends BaseEvent {
 
-  private String userDisplayName;
-  private String roomName;
+  private StreamDetails stream;
+  private UserDetails user;
 
   public UserLeftRoomEvent(UserLeftRoom event) {
     this.streamId = event.getStream().getStreamId();
     this.userId = event.getAffectedUser().getUserId().toString();
-    this.userDisplayName = event.getAffectedUser().getDisplayName();
-    this.roomName = event.getStream().getRoomName();
+    this.stream = new StreamDetails(event.getStream());
+    this.user = new UserDetails(event.getAffectedUser());
   }
 
 }

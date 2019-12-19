@@ -1,8 +1,5 @@
 package com.symphony.ms.bot.sdk.internal.event;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.RoomCreatedEvent;
@@ -15,6 +12,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserLeftRoomEvent;
 import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
@@ -29,14 +27,15 @@ import model.events.RoomUpdated;
 import model.events.SymphonyElementsAction;
 import model.events.UserJoinedRoom;
 import model.events.UserLeftRoom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
- * The Symphony listener
- * Listens to messages, events and Symphony elements actions. It also
+ * The Symphony listener Listens to messages, events and Symphony elements actions. It also
  * standardizes events to internal representation.
  *
  * @author Marcus Secato
- *
  */
 @Service
 public class EventListener implements IMListener, RoomListener, ElementsListener {
@@ -46,8 +45,8 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
 
   private InternalEventListener internalEventListener;
 
-  public EventListener(SymphonyService symphonyService,
-      InternalEventListenerImpl internalEventListener) {
+  public EventListener(
+      SymphonyService symphonyService, InternalEventListenerImpl internalEventListener) {
     this.symphonyService = symphonyService;
     this.internalEventListener = internalEventListener;
 
@@ -79,8 +78,7 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
   @Override
   public void onRoomCreated(RoomCreated roomCreatedEvent) {
     LOGGER.debug("onRoomCreated");
-    internalEventListener.onRoomCreated(
-        new RoomCreatedEvent(roomCreatedEvent));
+    internalEventListener.onRoomCreated(new RoomCreatedEvent(roomCreatedEvent));
   }
 
   @Override
@@ -92,15 +90,13 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
   @Override
   public void onRoomDeactivated(RoomDeactivated roomDeactivatedEvent) {
     LOGGER.debug("onRoomDeactivated");
-    internalEventListener.onRoomDeactivated(
-        new RoomDeactivatedEvent(roomDeactivatedEvent));
+    internalEventListener.onRoomDeactivated(new RoomDeactivatedEvent(roomDeactivatedEvent));
   }
 
   @Override
   public void onRoomUpdated(RoomUpdated roomUpdatedEvent) {
     LOGGER.debug("onRoomUpdated");
-    internalEventListener.onRoomUpdated(
-        new RoomUpdatedEvent(roomUpdatedEvent));
+    internalEventListener.onRoomUpdated(new RoomUpdatedEvent(roomUpdatedEvent));
   }
 
   @Override
@@ -128,22 +124,19 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
   @Override
   public void onUserJoinedRoom(UserJoinedRoom userJoinedRoomEvent) {
     LOGGER.debug("onUserJoinedRoom");
-    internalEventListener.onUserJoinedRoom(
-        new UserJoinedRoomEvent(userJoinedRoomEvent));
+    internalEventListener.onUserJoinedRoom(new UserJoinedRoomEvent(userJoinedRoomEvent));
   }
 
   @Override
   public void onUserLeftRoom(UserLeftRoom userLeftRoomEvent) {
     LOGGER.debug("onUserLeftRoom");
-    internalEventListener.onUserLeftRoom(
-        new UserLeftRoomEvent(userLeftRoomEvent));
+    internalEventListener.onUserLeftRoom(new UserLeftRoomEvent(userLeftRoomEvent));
   }
 
   @Override
   public void onElementsAction(User initiator, SymphonyElementsAction action) {
     LOGGER.debug("onElementsAction");
-    internalEventListener.onElementsAction(
-        new SymphonyElementsEvent(initiator, action));
+    internalEventListener.onElementsAction(new SymphonyElementsEvent(initiator, action));
   }
 
 }

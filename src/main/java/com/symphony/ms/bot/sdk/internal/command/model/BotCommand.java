@@ -1,16 +1,16 @@
 package com.symphony.ms.bot.sdk.internal.command.model;
 
+import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
-import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 
 /**
  * Holds the bot command details
  *
  * @author Marcus Secato
- *
  */
 public class BotCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(BotCommand.class);
@@ -33,7 +33,7 @@ public class BotCommand {
     this.dispatcher = dispatcher;
     this.message = event.getMessage();
     this.userId = event.getUserId();
-    this.userDisplayName = event.getUserDisplayName();
+    this.userDisplayName = event.getUser().getDisplayName();
     this.streamId = event.getStreamId();
     originalTransactionId = MDC.get("transactionId");
   }

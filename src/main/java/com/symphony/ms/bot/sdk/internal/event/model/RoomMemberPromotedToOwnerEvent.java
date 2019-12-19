@@ -8,15 +8,19 @@ import model.events.RoomMemberPromotedToOwner;
  * Symphony Room member promoted event
  *
  * @author Marcus Secato
- *
  */
 @Data
 @NoArgsConstructor
 public class RoomMemberPromotedToOwnerEvent extends BaseEvent {
 
+  private StreamDetails stream;
+  private UserDetails user;
+
   public RoomMemberPromotedToOwnerEvent(RoomMemberPromotedToOwner event) {
     this.streamId = event.getStream().getStreamId();
     this.userId = event.getAffectedUser().getUserId().toString();
+    this.stream = new StreamDetails(event.getStream());
+    this.user = new UserDetails(event.getAffectedUser());
   }
 
 }
