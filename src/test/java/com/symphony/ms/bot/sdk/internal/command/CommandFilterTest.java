@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.event.model.UserDetails;
 
 @ExtendWith(MockitoExtension.class)
 public class CommandFilterTest {
@@ -52,7 +53,9 @@ public class CommandFilterTest {
   @Test
   public void filterWithMatcherSuccessMatchTest() {
     MessageEvent messageEvent = mock(MessageEvent.class);
+    UserDetails user = mock(UserDetails.class);
     when(messageEvent.getMessage()).thenReturn("@BotName /test");
+    when(messageEvent.getUser()).thenReturn(user);
 
     commandFilter.addFilter("testCommand", Pattern
         .compile("^@BotName /test$")
@@ -65,7 +68,9 @@ public class CommandFilterTest {
   @Test
   public void filterDefaultMatcherTest() {
     MessageEvent messageEvent = mock(MessageEvent.class);
+    UserDetails user = mock(UserDetails.class);
     when(messageEvent.getMessage()).thenReturn("@BotName /wrong command");
+    when(messageEvent.getUser()).thenReturn(user);
 
     commandFilter.setDefaultFilter("defaultCommand", Pattern
         .compile("^@BotName")
