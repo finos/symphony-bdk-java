@@ -3,6 +3,46 @@
 This application is managing all bot interactions from handling bot commands to receiving notifications from external
 systems and push them as symphony messages.
 
+
+## Summary
+
+* [Getting Started](#Getting-Started)
+  * [Prerequisites](#Prerequisites)
+  * [Setting the service account](#Setting-the-service-account)
+  * [POD configuration](#POD-configuration)
+  * [Running locally](#Running-locally)
+  * [Verify your setup](#Verify-your-setup)
+* [Testing commands](#Testing-commands)
+  * [Help command](#Help-command)
+  * [Hello command](#Hello-command)
+  * [Create notification command](#Create-notification-command)
+  * [Login command](#Login-command)
+  * [Quote command](#Quote-command)
+  * [Template command](#Template-command)
+  * [Register quote command](#Register-quote-command)
+  * [Default response](#Default-response)
+* [Testing notifications](#Testing-notifications)
+* [Adding bot commands](#Adding-bot-commands)
+  * [Command initialization](#Command-initialization)
+  * [Default responses](#Default-responses)
+  * [Authenticating to external system](#Authenticating-to-external-system)
+    * [AuthenticationProvider](#AuthenticationProvider)
+    * [AuthenticatedCommandHandler](#AuthenticatedCommandHandler)
+  * [Command Matcher](#Command-Matcher)
+* [Handling Symphony events](#Handling-Symphony-events)
+  * [Available Symphony events](#Available-Symphony-events)
+* [Working with Symphony Elements](#Working-with-Symphony-Elements)
+  * [ElementsActionHandler](#ElementsActionHandler)
+* [Receiving notifications](#Receiving-notifications)
+  * [Processing incoming requests](#Processing-incoming-requests)
+  * [Controlling interceptors order](#Controlling-interceptors-order)
+  * [Forwarding notifications to rooms](#Forwarding-notifications-to-rooms)
+* [Extension app integration](#Extension-app-integration) TODO
+  * [Extension app authentication](#Extension-app-authentication) TODO
+  * [Logging extension app](#Logging-extension-app) TODO
+  * [Server-sent events](#Server-sent-events) TODO
+
+
 ## Getting Started
 
 These instructions will allow you to set up your bot application.
@@ -29,15 +69,26 @@ file matches the value configured in Symphony Admin Console.
 In src/main/resources/bot-config.json you will find configuration properties where you can specify the details of your 
 POD. Fill out the following properties to make the application to point to your POD.
 
-* sessionAuthHost
-* sessionAuthPort
-* keyAuthHost
-* keyAuthPort
-* podHost
-* podPort
-* agentHost
-* agentPort
-
+|            Property            |                Description                |
+|--------------------------------|-------------------------------------------|
+| sessionAuthHost                | The session authorization host URL        |
+| sessionAuthPort                | The session authorization host port       |
+| keyAuthHost                    | The key manager authorization host URL    |
+| keyAuthPort                    | The key manager authorization host port   |
+| podHost                        | The Pod host URL                          |
+| podPort                        | The Pod host port                         |
+| agentHost                      | The Agent host URL                        |
+| agentPort                      | The Agent host port                       |
+| appId                          | The extension app identification          |
+| appPrivateKeyPath              | The extension app private key path        |
+| appPrivateKeyName              | The extension app private key file        |
+| botPrivateKeyPath              | The bot private key path                  |
+| botPrivateKeyName              | The bot private key file                  |
+| botUsername                    | The bot username                          |
+| authTokenRefreshPeriod         | The authentication token refresh period   |
+| authenticationFilterUrlPattern | The authentication filter URL pattern     |
+| showFirehoseErrors             | Showing Firehose errors flag              |
+| connectionTimeout              | The connection timeout                    |
 
 ### Running locally
 
@@ -74,6 +125,7 @@ Sample commands are shipped with the application as a way to assist developers t
 If application is properly configured to point to your POD, create an IM or chat room with the bot (search it by the display name you configured in Symphony Admin portal).
 
 All the sample commands require mentioning the bot (e.g. @MyBot), although you can specify any other pattern when creating your own commands.
+
 
 ### Help command
 
@@ -190,7 +242,7 @@ Renders messages using Symphony standardized templates. The supported templates 
 
 ![alert](readme/template_information.png)
 
-For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java
+For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Using Symphony standardized templates](#Using-Symphony-standardized-templates) session.
 
 
 ### Register quote command
@@ -227,6 +279,7 @@ To test it follow the instructions of the create notification command. Once the 
 {"alert": false,"title": "Something Interesting occurred!","content": {"header": "This is an example of a notification, expand to see more","body": "The SDK comes with ready-to-use message templates that you can use to render messages with your own data. You can add you own templates using the extension application."},"showStatusBar": true,"comment": {"body": "so interesting!"},"description": "this is a brief description","assignee": {"displayName": "John Doe"},"type": {"name": "sample"},"status": {"name": "Awesome"},"priority": {"name": "normal"},"labels": [{"text": "Example"},{"text": "SDK"},{"text": "MS"}]}
 ```
 
+
 ## Adding bot commands
 
 Easily add commands to your bot by extending the ```CommandHandler``` class (or its subclasses ```AuthenticatedCommandHandler```, ```DefaultCommandHandler``` more on them later).
@@ -255,6 +308,21 @@ To extend ```CommandHandler``` implement the following methods:
   
 ```
 
+
+### Command initialization
+
+To add initialization logic into a ```CommandHandler``` implementation, override the following method:
+
+* **void init()**: Initialize the instance dependencies.
+
+```java
+    @Override
+      public void init() {
+        // Developer initialization logic
+      }
+```
+
+
 ### Default responses
 
 Typically bots reply to invalid commands with a default friendly message. Extend the ```DefaultCommandHandler``` class to add that behavior to your bots.
@@ -277,6 +345,7 @@ Use simple regular expressions to make sure the message was targeted to the bot.
   }
 
 ```
+
 
 ### Authenticating to external system
 
@@ -337,6 +406,58 @@ public class LoginCommandHandler extends AuthenticatedCommandHandler {
 ```
 
 
+### Command Matcher
+
+In order to avoid writing complex regular expression when specifying the command pattern, the developer can also use ```CommandMatcherBuilder```.
+
+For example, the following pattern...
+
+```java
+  Pattern
+    .compile("^@BotName\\s/template(?:\\s+(?:([^\\s]+)(?:\\s+([\\s\\S]+)?)?)?)?")
+    .asPredicate();
+```
+would be built this way with ```CommandMatcherBuilder```:
+
+```java
+  beginsWith("@")
+    .followedBy("BotName")
+    .followedBy(whiteSpace())
+    .followedBy("/template")
+    .followedBy(
+      optional(
+        nonCapturingGroup(
+          oneOrMore(whiteSpace()
+          ).followedBy(
+            optional(
+              nonCapturingGroup(
+                group(
+                  oneOrMore(
+                    negatedSet(whiteSpace())
+                    )
+                ).followedBy(
+                  optional(
+                    nonCapturingGroup(
+                      oneOrMore(whiteSpace()
+                      ).followedBy(
+                        optional(
+                          group(
+                            oneOrMore(any())
+                          )
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ).pattern();
+```
+
+
 ## Handling Symphony events
 
 Bots may need to react to events happening on Symphony rooms they are part of (e.g. sending a greeting message to users who join the room).
@@ -359,6 +480,7 @@ public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
   }
 
 ```
+
 
 ### Available Symphony events
 
@@ -418,6 +540,7 @@ To extend ```ElementsHandler``` you need to implement the following methods:
 
 ```
 
+
 ### ElementsActionHandler
 
 For scenarios where the Symphony Elements form is not generated through a command targeted to your bot (e.g. a user interacting with an extension app, a notification from external system) but you need to handle the interactions with that form, extend the ```ElementsActionHandler``` class rather than ```ElementsHandler```. 
@@ -434,6 +557,7 @@ Receiving notifications from external systems directly into Symphony chats is an
 3. Sending notification contents to Symphony rooms
 
 4. Protecting the ```/notification``` endpoint
+
 
 ### Processing incoming requests
 
@@ -465,9 +589,11 @@ To create your own ```NotificationInterceptor``` you simply need to implement th
 
 ```
 
+
 ### Controlling interceptors order
 
 If you need to specify multiple request interceptors and want to control their execution order, extend the ```OrderedNotificationInterceptor``` rather than ```NotificationInterceptor``` and implement the ```getOrder()``` method.
+
  
 ### Forwarding notifications to rooms
 
@@ -495,6 +621,42 @@ The ```SymphonyMessage``` object holds the details for a message to be sent to S
 Currently Symphony Bot application is shipped with Freemarker template engine and automatically handles the template content preparation for you.
 
 
+### Using Symphony standardized templates
+
+The template file methods of ```SymphonyMessage``` (```setTemplateFile``` and ```setEnrichedTemplateFile```) can also be used to render predefined templates. For that, it is necessary to specify a native template wildcards from Symphony standardized templates.
+
+Example:
+
+```java
+public class TemplateSampleHandler extends CommandHandler {
+
+  @Override
+  protected Predicate<String> getCommandMatcher() {
+    ...
+  }
+
+  @Override
+  public void handle(BotCommand command, SymphonyMessage commandResponse) {
+    Map<String, Object> commandParameter =
+        jsonMapper.toObject("{\"message\": {\"title\": \"Title\", \"content\": \"Content\"}}", Map.class);
+    commandResponse.setTemplateFile(SmsRenderer.SmsTypes.ALERT.getName(), commandParameter);
+  }
+
+}
+```
+
+Currently, Symphony supports the following templates:
+
+* Simple
+* Alert
+* Information
+* Notification
+* List
+* Table
+
+For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Template command](#Template-command) session.
+
+
 ## Extending health metrics
 
 The Symphony Bot application monitoring system is based on Spring Actuators. By default, it exposes the following health metrics:
@@ -505,28 +667,28 @@ The Symphony Bot application monitoring system is based on Spring Actuators. By 
 
 ```javascript
 {
-    "status":"UP",
-    "details":{
-        "diskSpace":{
-            "status":"UP",
-            "details":{
-                "total":267985612800,
-                "free":110891438080,
-                "threshold":10485760
+    "status";:"UP",
+    "details";:{
+        "diskSpace";:{
+            "status";:"UP",
+            "details";:{
+                "total";:267985612800,
+                "free";:110891438080,
+                "threshold";:10485760
             }            
         },
-        "symphony":{
-            "status":"UP",
-            "details":{
-                "Symphony":{
-                    "agentConnection":"UP",
-                    "podConnection":"UP",
-                    "agentToPodConnection":"UP",
-                    "agentToKMConnection":"UP",
-                    "podVersion":"1.55.3",
-                    "agentVersion":"2.55.9",
-                    "agentToPodConnectionError":"N/A",
-                    "agentToKMConnectionError":"N/A"
+        "symphony";:{
+            "status";:"UP",
+            "details";:{
+                "Symphony";:{
+                    "agentConnection";:"UP",
+                    "podConnection";:"UP",
+                    "agentToPodConnection";:"UP",
+                    "agentToKMConnection";:"UP",
+                    "podVersion";:"1.55.3",
+                    "agentVersion";:"2.55.9",
+                    "agentToPodConnectionError";:"N/A",
+                    "agentToKMConnectionError";:"N/A"
                 }
                 
             }
@@ -537,7 +699,7 @@ The Symphony Bot application monitoring system is based on Spring Actuators. By 
 
 There are many other built-in metrics in Spring Actuator. Please refer to their documentation for enabling those metrics. 
 
-To create your own custom metric you need to implement the Spring Actuator ```HealthIndicator``` interface and use ```Health``` builder to convey your status. Your metrics are automatically integrated with the system ones in the monitoring endpoint: http(s)://&gt;hostname&lt;:&gt;port&lt;/&gt;application_context&lt;/monitor/health.
+To create your own custom metric you need to implement the Spring Actuator ```HealthIndicator``` interface and use ```Health``` builder to convey your status. Your metrics are automatically integrated with the system ones in the monitoring endpoint: http(s)://&lt;hostname&gt;:&lt;port&gt;/&lt;application_context&gt;/monitor/health.
 
 ```java
 public class InternetConnectivityHealthIndicator implements HealthIndicator {
@@ -559,6 +721,24 @@ public class InternetConnectivityHealthIndicator implements HealthIndicator {
   }
 
 }
-
 ```
-   
+
+
+## Extension app integration
+
+TODO: Add some text here
+
+
+### Extension app authentication
+
+TODO: Add some text here
+
+
+### Logging extension app
+
+TODO: Add some text here
+
+
+### Server-sent events
+
+TODO: Add some text here
