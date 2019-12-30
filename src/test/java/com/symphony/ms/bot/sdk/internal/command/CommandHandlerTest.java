@@ -1,7 +1,6 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -49,11 +48,16 @@ public class CommandHandlerTest {
 
     private BiConsumer<BotCommand, SymphonyMessage> internalHandle;
 
+    private Predicate<String> commandMatcher;
+
     @Override
     protected Predicate<String> getCommandMatcher() {
-      return Pattern
-          .compile("^@BotName /test$")
-          .asPredicate();
+      if (commandMatcher == null) {
+        commandMatcher = Pattern
+            .compile("^@BotName /test$")
+            .asPredicate();
+      }
+      return commandMatcher;
     }
     @Override
     public void handle(BotCommand command, SymphonyMessage commandResponse) {
@@ -72,8 +76,12 @@ public class CommandHandlerTest {
   public void registerTest() {
     commandHandler.register();
 
-    verify(commandDispatcher, times(1)).register(any(String.class), any(CommandHandler.class));
-    verify(commandFilter, times(1)).addFilter(anyString(), any());
+    verify(commandDispatcher, times(1))
+      .register(commandHandler.getClass().getCanonicalName(), commandHandler);
+    verify(commandFilter, times(1))
+      .addFilter(
+          commandHandler.getClass().getCanonicalName(),
+          commandHandler.getCommandMatcher());
   }
 
   @Test
@@ -94,7 +102,7 @@ public class CommandHandlerTest {
 
     commandHandler.onCommand(command);
 
-    verify(command, atLeastOnce()).getMessage();
+    verify(command, times(2)).getMessage();
   }
 
   @Test
