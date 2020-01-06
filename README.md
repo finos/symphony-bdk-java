@@ -495,6 +495,41 @@ public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
 * **RoomMemberPromotedToOwnerEvent**: fired when a room member is promoted to room owner
 
 
+### Permission for bots in public rooms 
+
+Symphony Bot Application offers an easy way to control whether your bots are allowed to be added to public rooms or not.
+
+By default, bots built with the Symphony Bot Application are able to join public rooms. To change that behavior, the developer just need to set the ```isPublicRoomAllowed``` in application-feature.yaml file.
+
+It is also possible to configure a custom message the bot would send before quitting the room, through the following configurations:
+
+| Property                                 | Description                                                                  |
+|------------------------------------------|------------------------------------------------------------------------------|
+| features.isPublicRoomAllowed             | Enablement to allow having bot in public rooms                               |
+| features.publicRoomNotAllowedMessage     | The message displayed after the bot removal                                  |
+| features.publicRoomNotAllowedTemplate    | The file name of the template of the message displayed after the bot removal |
+| features.publicRoomNotAllowedTemplateMap | The template parameters of the message displayed after the bot removal       |
+
+The developer can set a message to be displayed before the bot removal, by setting  ```publicRoomNotAllowedMessage```, like the example below:
+
+ ```yaml
+features:
+  isPublicRoomAllowed: false
+  publicRoomNotAllowedMessage: Sorry, I cannot be added to public rooms
+```
+
+or, can use templates to generate structured messages, by setting ```publicRoomNotAllowedTemplate``` and ```publicRoomNotAllowedTemplateMap```, like the following example:
+
+ ```yaml
+features:
+  isPublicRoomAllowed: false
+  publicRoomNotAllowedTemplate: alert
+  publicRoomNotAllowedTemplateMap:
+    message:
+      title: Bot not allowed in public rooms
+      content: Sorry, I cannot be added to public rooms
+```
+
 ## Working with Symphony Elements
 
 Symphony Elements allow bots to send messages containing interactive forms with text fields, dropdown menus, person selectors, buttons and more.

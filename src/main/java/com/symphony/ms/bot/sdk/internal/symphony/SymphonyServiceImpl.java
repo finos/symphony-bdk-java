@@ -1,11 +1,9 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
+
 import authentication.SymExtensionAppRSAAuth;
 import clients.SymBotClient;
 import listeners.ElementsListener;
@@ -14,19 +12,23 @@ import listeners.RoomListener;
 import model.AppAuthResponse;
 import model.HealthcheckResponse;
 import model.OutboundMessage;
+import model.RoomInfo;
 import model.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class SymphonyServiceImpl implements SymphonyService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyServiceImpl.class);
-
   private static final String HEALTH_POD_ENDPOINT = "pod/v1/podcert";
 
   private SymBotClient symBotClient;
-
   private SymExtensionAppRSAAuth symExtensionAppRSAAuth;
-
   private RestClient restClient;
+  private String userDisplayName;
 
   public SymphonyServiceImpl(SymBotClient symBotClient,
       SymExtensionAppRSAAuth symExtensionAppRSAAuth, RestClient restClient) {
@@ -76,7 +78,10 @@ public class SymphonyServiceImpl implements SymphonyService {
    */
   @Override
   public String getBotDisplayName() {
-    return symBotClient.getBotUserInfo().getDisplayName();
+    return Optional.ofNullable(userDisplayName).orElseGet(() -> {
+      userDisplayName = symBotClient.getBotUserInfo().getDisplayName();
+      return userDisplayName;
+    });
   }
 
   /**
@@ -135,6 +140,16 @@ public class SymphonyServiceImpl implements SymphonyService {
       return userInfo.getId();
     }
     throw new AppAuthenticateException();
+  }
+
+  @Override
+  public void removeMemberFromRoom(String streamId, Long userId) {
+    symBotClient.getStreamsClient().removeMemberFromRoom(streamId, userId);
+  }
+
+  @Override
+  public RoomInfo getRoomInfo(String streamId) {
+    return symBotClient.getStreamsClient().getRoomInfo(streamId);
   }
 
   private String getPodHealthUrl() {

@@ -2,21 +2,22 @@ package com.symphony.ms.bot.sdk.internal.symphony;
 
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
+
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
+import model.RoomInfo;
 
 /**
- * Exposes simple Symphony-specific services abstracting any complexities to
- * talk to Symphony APIs.
+ * Exposes simple Symphony-specific services abstracting any complexities to talk to Symphony APIs.
  *
  * @author Marcus Secato
- *
  */
 public interface SymphonyService {
 
   /**
    * Registers a listener for Symphony IM events
+   *
    * @param imListener
    */
   void registerIMListener(IMListener imListener);
@@ -30,6 +31,7 @@ public interface SymphonyService {
 
   /**
    * Registers a listener for Symphony Elements events
+   *
    * @param elementsListener
    */
   void registerElementsListener(ElementsListener elementsListener);
@@ -84,5 +86,21 @@ public interface SymphonyService {
    * @return userId
    */
   Long verifyJWT(String jwt);
+
+  /**
+   * Removes a member from room
+   *
+   * @param streamId
+   * @param userId
+   */
+  void removeMemberFromRoom(String streamId, Long userId);
+
+  /**
+   * Gets room information
+   *
+   * @param streamId
+   * @return the room information
+   */
+  RoomInfo getRoomInfo(String streamId);
 
 }
