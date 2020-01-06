@@ -15,13 +15,6 @@ public abstract class OrderedNotificationInterceptor extends NotificationInterce
   }
 
   /**
-   * Initializes the OrderedNotificationInterceptor dependencies. This method can be overridden by
-   * the child classes if the developers want to implement initialization logic.
-   */
-  protected void init() {
-  }
-
-  /**
    * Specify the notification interceptor order in {@link InterceptorChain}
    *
    * @return
