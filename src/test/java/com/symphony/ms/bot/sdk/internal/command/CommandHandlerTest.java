@@ -1,6 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -103,6 +104,20 @@ public class CommandHandlerTest {
     commandHandler.onCommand(command);
 
     verify(command, times(2)).getMessage();
+  }
+
+  @Test
+  public void onCommandGetBotNameTest() {
+    commandHandler.setInternalHandle(
+        (cmd, msg) -> commandHandler.getBotName());
+    CommandHandler spyCommandHandler = spy(commandHandler);
+    BotCommand command = mock(BotCommand.class);
+
+    spyCommandHandler.onCommand(command);
+
+    verify(symphonyService, times(1)).getBotDisplayName();
+    verify(messageService, never())
+      .sendMessage(anyString(), any(SymphonyMessage.class));
   }
 
   @Test

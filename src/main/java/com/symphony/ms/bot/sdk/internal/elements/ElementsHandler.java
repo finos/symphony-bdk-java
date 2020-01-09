@@ -1,5 +1,8 @@
 package com.symphony.ms.bot.sdk.internal.elements;
 
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.BaseCommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
@@ -11,11 +14,6 @@ import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.function.Predicate;
 
 /**
  * Symphony Elements Handler
@@ -110,7 +108,7 @@ public abstract class ElementsHandler implements
     }
   }
 
-  private String getCommandName() {
+  protected String getCommandName() {
     return this.getClass().getCanonicalName();
   }
 

@@ -1,0 +1,68 @@
+package com.symphony.ms.bot.sdk.internal.elements;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import com.symphony.ms.bot.sdk.internal.event.EventDispatcher;
+import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.message.MessageService;
+import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+@ExtendWith(MockitoExtension.class)
+public class ElementsActionHandlerTest {
+
+  @Mock
+  private EventDispatcher eventDispatcher;
+
+  @Mock
+  private MessageService messageService;
+
+  @Mock
+  private FeatureManager featureManager;
+
+  @InjectMocks
+  private TestElementsActionHandler elementsHandler;
+
+  static class TestElementsActionHandler extends ElementsActionHandler {
+    @Override
+    protected String getElementsFormId() {
+      return "test-form-id";
+    }
+
+    @Override
+    public void handle(SymphonyElementsEvent event, SymphonyMessage eventResponse) {
+    }
+  }
+
+  @Test
+  public void registerTest() {
+    ElementsActionHandler spyElementsHandler = spy(elementsHandler);
+
+    spyElementsHandler.register();
+
+    verify(spyElementsHandler, times(1)).getElementsFormId();
+    verify(eventDispatcher, times(1))
+      .register("test-form-id", spyElementsHandler);
+  }
+
+  @Test
+  public void onEventTest() {
+    ElementsActionHandler spyElementsHandler = spy(elementsHandler);
+    SymphonyElementsEvent event = mock(SymphonyElementsEvent.class);
+
+    spyElementsHandler.onEvent(event);
+
+    verify(spyElementsHandler, times(1))
+      .handle(eq(event), any(SymphonyMessage.class));
+  }
+
+}
