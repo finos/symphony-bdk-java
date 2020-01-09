@@ -2,11 +2,19 @@ package com.symphony.ms.bot.sdk.internal.symphony;
 
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoom;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomMember;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchQuery;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchResult;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
 
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
-import model.RoomInfo;
+
+import java.util.List;
+
+import javax.ws.rs.core.NoContentException;
 
 /**
  * Exposes simple Symphony-specific services abstracting any complexities to talk to Symphony APIs.
@@ -88,6 +96,38 @@ public interface SymphonyService {
   Long verifyJWT(String jwt);
 
   /**
+   * Gets the id of an IM stream of a user with the bot
+   *
+   * @param userId
+   * @return the IM stream id
+   */
+  String getUserIMStreamId(Long userId);
+
+  /**
+   * Gets the id of an IM stream of a list of user
+   *
+   * @param userIds
+   * @return the IM stream id
+   */
+  String getUserListIM(List<Long> userIds);
+
+  /**
+   * Creates a room
+   *
+   * @param symphonyRoom
+   * @return the created room
+   */
+  SymphonyRoom createRoom(SymphonyRoom symphonyRoom);
+
+  /**
+   * Adds member to room
+   *
+   * @param stringId
+   * @param userId
+   */
+  void addMemberToRoom(String stringId, Long userId);
+
+  /**
    * Removes a member from room
    *
    * @param streamId
@@ -101,6 +141,88 @@ public interface SymphonyService {
    * @param streamId
    * @return the room information
    */
-  RoomInfo getRoomInfo(String streamId);
+  SymphonyRoom getRoomInfo(String streamId);
+
+  /**
+   * Updates room
+   *
+   * @param streamId
+   * @param symphonyRoom
+   * @return the updated room
+   */
+  SymphonyRoom updateRoom(String streamId, SymphonyRoom symphonyRoom);
+
+  /**
+   * Gets stream information
+   *
+   * @param streamId
+   * @return the stream info
+   */
+  SymphonyStream getStreamInfo(String streamId);
+
+  /**
+   * Gets room members
+   *
+   * @param streamId
+   * @return the room members
+   */
+  List<SymphonyRoomMember> getRoomMembers(String streamId);
+
+  /**
+   * Activates a room
+   *
+   * @param streamId
+   */
+  void activateRoom(String streamId);
+
+  /**
+   * Deactivates a room
+   *
+   * @param streamId
+   */
+  void deactivateRoom(String streamId);
+
+  /**
+   * Promotes a user to owner
+   *
+   * @param streamId
+   * @param userId
+   */
+  void promoteUserToOwner(String streamId, Long userId);
+
+  /**
+   * Demotes a owner user
+   *
+   * @param streamId
+   * @param userId
+   */
+  void demoteUserFromOwner(String streamId, Long userId);
+
+  /**
+   * Searches for room
+   *
+   * @param symphonySearchQuery
+   * @return the searched room
+   * @throws NoContentException
+   */
+  SymphonyRoomSearchResult searchRooms(SymphonyRoomSearchQuery symphonySearchQuery)
+      throws NoContentException;
+
+  /**
+   * Gets user streams
+   *
+   * @param streamTypes
+   * @param includeInactiveStreams
+   * @return
+   */
+  List<SymphonyStream> getUserStreams(List<StreamType> streamTypes, boolean includeInactiveStreams);
+
+
+  /**
+   * Gets user wall stream
+   *
+   * @return the user wall stream
+   */
+  SymphonyStream getUserWallStream();
 
 }

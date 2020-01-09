@@ -1,5 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.event.model;
 
+import com.symphony.ms.bot.sdk.internal.symphony.StreamType;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.User;
@@ -16,14 +18,15 @@ import java.util.Map;
 @NoArgsConstructor
 public class SymphonyElementsEvent extends BaseEvent {
 
-  private StreamDetails.StreamType streamType;
+  private StreamType streamType;
   private String formId;
   private Map<String, Object> formValues;
   private UserDetails user;
 
   public SymphonyElementsEvent(User initiator, SymphonyElementsAction action) {
     this.streamId = action.getStreamId();
-    this.streamType = StreamDetails.StreamType.value(action.getStreamType());
+    this.streamType = action.getStreamType() != null ? StreamType.value(action.getStreamType())
+        : StreamType.UNKNOWN;
     this.formId = action.getFormId();
     this.formValues = action.getFormValues();
     this.user = new UserDetails(initiator);

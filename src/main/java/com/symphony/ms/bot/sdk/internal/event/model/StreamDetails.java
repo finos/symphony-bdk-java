@@ -1,5 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.event.model;
 
+import com.symphony.ms.bot.sdk.internal.symphony.StreamType;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import model.Stream;
@@ -30,23 +32,6 @@ public class StreamDetails {
         : stream.getMembers().stream().map(UserDetails::new).collect(Collectors.toList());
     this.external = stream.getExternal();
     this.crossPod = stream.getCrossPod();
-  }
-
-  public enum StreamType {
-    ROOM, IM, MIM, UNKNOWN;
-
-    public static StreamType value(String name) {
-      switch (name.toUpperCase()) {
-        case "ROOM":
-          return ROOM;
-        case "IM":
-          return IM;
-        case "MIM":
-          return MIM;
-        default:
-          return UNKNOWN;
-      }
-    }
   }
 
 }

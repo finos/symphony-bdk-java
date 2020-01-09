@@ -6,6 +6,7 @@ import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class BotJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
   }
 
   private boolean isPublicRoom(UserJoinedRoomEvent event) {
-    return symphonyService.getRoomInfo(event.getStreamId()).getRoomAttributes().getPublic();
+    return symphonyService.getRoomInfo(event.getStreamId()).getPublicRoom();
   }
 
   private void sendPublicRoomNotAllowedMessage(String streamId) {

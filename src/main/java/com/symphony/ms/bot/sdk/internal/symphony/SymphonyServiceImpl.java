@@ -3,6 +3,11 @@ package com.symphony.ms.bot.sdk.internal.symphony;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoom;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomMember;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchQuery;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchResult;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
 
 import authentication.SymExtensionAppRSAAuth;
 import clients.SymBotClient;
@@ -11,14 +16,20 @@ import listeners.IMListener;
 import listeners.RoomListener;
 import model.AppAuthResponse;
 import model.HealthcheckResponse;
+import model.Keyword;
 import model.OutboundMessage;
-import model.RoomInfo;
+import model.Room;
+import model.RoomSearchQuery;
 import model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.NoContentException;
 
 @Service
 public class SymphonyServiceImpl implements SymphonyService {
@@ -143,13 +154,100 @@ public class SymphonyServiceImpl implements SymphonyService {
   }
 
   @Override
+  public String getUserIMStreamId(Long userId) {
+    return symBotClient.getStreamsClient().getUserIMStreamId(userId);
+  }
+
+  @Override
+  public String getUserListIM(List<Long> userIds) {
+    return symBotClient.getStreamsClient().getUserListIM(userIds);
+  }
+
+  @Override
+  public SymphonyRoom createRoom(SymphonyRoom symphonyRoom) {
+    return new SymphonyRoom(symBotClient.getStreamsClient().createRoom(toRoom(symphonyRoom)));
+  }
+
+  @Override
+  public void addMemberToRoom(String stringId, Long userId) {
+
+  }
+
+  @Override
   public void removeMemberFromRoom(String streamId, Long userId) {
     symBotClient.getStreamsClient().removeMemberFromRoom(streamId, userId);
   }
 
   @Override
-  public RoomInfo getRoomInfo(String streamId) {
-    return symBotClient.getStreamsClient().getRoomInfo(streamId);
+  public SymphonyRoom getRoomInfo(String streamId) {
+    return new SymphonyRoom(symBotClient.getStreamsClient().getRoomInfo(streamId));
+  }
+
+  @Override
+  public SymphonyRoom updateRoom(String streamId, SymphonyRoom symphonyRoom) {
+    return new SymphonyRoom(
+        symBotClient.getStreamsClient().updateRoom(streamId, toRoom(symphonyRoom)));
+  }
+
+  @Override
+  public SymphonyStream getStreamInfo(String streamId) {
+    return new SymphonyStream(symBotClient.getStreamsClient().getStreamInfo(streamId));
+  }
+
+  @Override
+  public List<SymphonyRoomMember> getRoomMembers(String streamId) {
+    return symBotClient.getStreamsClient()
+        .getRoomMembers(streamId)
+        .stream()
+        .map(SymphonyRoomMember::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void activateRoom(String streamId) {
+    symBotClient.getStreamsClient().activateRoom(streamId);
+  }
+
+  @Override
+  public void deactivateRoom(String streamId) {
+    symBotClient.getStreamsClient().deactivateRoom(streamId);
+  }
+
+  @Override
+  public void promoteUserToOwner(String streamId, Long userId) {
+    symBotClient.getStreamsClient().promoteUserToOwner(streamId, userId);
+  }
+
+  @Override
+  public void demoteUserFromOwner(String streamId, Long userId) {
+    symBotClient.getStreamsClient().demoteUserFromOwner(streamId, userId);
+  }
+
+  @Override
+  public SymphonyRoomSearchResult searchRooms(SymphonyRoomSearchQuery symphonySearchQuery)
+      throws NoContentException {
+    return new SymphonyRoomSearchResult(symBotClient.getStreamsClient()
+        .searchRooms(toRoomSearchQuery(symphonySearchQuery), symphonySearchQuery.getSkip(),
+            symphonySearchQuery.getLimit()));
+  }
+
+  @Override
+  public List<SymphonyStream> getUserStreams(List<StreamType> streamTypes,
+      boolean includeInactiveStreams) {
+    List<String> streamTypeNames = streamTypes != null ? streamTypes
+        .stream()
+        .map(StreamType::toString)
+        .collect(Collectors.toList()) : null;
+    return symBotClient.getStreamsClient().getUserStreams(streamTypeNames, includeInactiveStreams)
+        .stream()
+        .map(SymphonyStream::new)
+        .collect(Collectors.toList());
+
+  }
+
+  @Override
+  public SymphonyStream getUserWallStream() {
+    return new SymphonyStream(symBotClient.getStreamsClient().getUserWallStream());
   }
 
   private String getPodHealthUrl() {
@@ -188,6 +286,39 @@ public class SymphonyServiceImpl implements SymphonyService {
       LOGGER.error("Error sending message to stream: {}\n{}", streamId, e);
       throw new SendMessageException();
     }
+  }
+
+  private Room toRoom(SymphonyRoom symphonyRoom) {
+    Room room = new Room();
+    room.setViewHistory(symphonyRoom.getViewHistory());
+    room.setCopyProtected(symphonyRoom.getCopyProtected());
+    room.setCrossPod(symphonyRoom.getCrossPod());
+    room.setDescription(symphonyRoom.getDescription());
+    room.setDiscoverable(symphonyRoom.getDiscoverable());
+    room.setKeywords(symphonyRoom.getKeywords().entrySet().stream().map(entry -> {
+      Keyword keyword = new Keyword();
+      keyword.setKey(entry.getKey());
+      keyword.setValue(entry.getValue());
+      return keyword;
+    }).collect(
+        Collectors.toList()));
+    room.setMembersCanInvite(symphonyRoom.getMembersCanInvite());
+    room.setMultiLateralRoom(symphonyRoom.getMultiLateralRoom());
+    room.setName(symphonyRoom.getName());
+    room.setPublic(symphonyRoom.getPublicRoom());
+    room.setReadOnly(symphonyRoom.getReadOnly());
+    return room;
+  }
+
+  private RoomSearchQuery toRoomSearchQuery(SymphonyRoomSearchQuery symphonyRoomSearchQuery) {
+    RoomSearchQuery roomSearchQuery = new RoomSearchQuery();
+    roomSearchQuery.setActive(symphonyRoomSearchQuery.getActive());
+    roomSearchQuery.setCreator(symphonyRoomSearchQuery.getCreator());
+    roomSearchQuery.setLabels(symphonyRoomSearchQuery.getLabels());
+    roomSearchQuery.setMember(symphonyRoomSearchQuery.getMember());
+    roomSearchQuery.setOwner(symphonyRoomSearchQuery.getOwner());
+    roomSearchQuery.setPrivate(symphonyRoomSearchQuery.getPrivateRoom());
+    return roomSearchQuery;
   }
 
 }

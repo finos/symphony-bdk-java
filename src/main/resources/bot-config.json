@@ -14,7 +14,7 @@
   "botPrivateKeyName": "bot_privatekey.pkcs8",
   "botUsername": "ozzybot",
   "authTokenRefreshPeriod": "30",
-  "authenticationFilterUrlPattern": "/v1/",
+  "authenticationFilterUrlPattern": "/secure/",
   "showFirehoseErrors": false,
   "connectionTimeout": 45000
 }
