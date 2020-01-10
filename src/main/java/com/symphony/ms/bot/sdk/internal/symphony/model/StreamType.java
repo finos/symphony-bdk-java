@@ -1,4 +1,4 @@
-package com.symphony.ms.bot.sdk.internal.symphony;
+package com.symphony.ms.bot.sdk.internal.symphony.model;
 
 /**
  * Symphony stream types

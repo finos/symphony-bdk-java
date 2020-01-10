@@ -1,7 +1,5 @@
 package com.symphony.ms.bot.sdk.internal.symphony.model;
 
-import com.symphony.ms.bot.sdk.internal.symphony.StreamType;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

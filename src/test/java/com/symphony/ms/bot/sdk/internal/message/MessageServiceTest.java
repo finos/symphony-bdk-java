@@ -9,16 +9,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
+import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
+import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SendMessageException;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
-import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SendMessageException;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceTest {

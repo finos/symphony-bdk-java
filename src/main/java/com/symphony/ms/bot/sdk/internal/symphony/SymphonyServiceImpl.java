@@ -1,13 +1,19 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.AppAuthenticateException;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SendMessageException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
+import com.symphony.ms.bot.sdk.internal.symphony.model.StreamType;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoom;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomMember;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchQuery;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchResult;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUserFilter;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUserSearchResult;
 
 import authentication.SymExtensionAppRSAAuth;
 import clients.SymBotClient;
@@ -20,6 +26,7 @@ import model.Keyword;
 import model.OutboundMessage;
 import model.Room;
 import model.RoomSearchQuery;
+import model.UserFilter;
 import model.UserInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -257,6 +264,64 @@ public class SymphonyServiceImpl implements SymphonyService {
         + (hostUrl.endsWith("/") ? hostUrl : hostUrl + "/") + HEALTH_POD_ENDPOINT;
   }
 
+  @Override
+  public SymphonyUser getUserFromUsername(String username) throws NoContentException {
+    return new SymphonyUser(symBotClient.getUsersClient().getUserFromUsername(username));
+  }
+
+  @Override
+  public SymphonyUser getUserFromEmail(String email, Boolean local) throws NoContentException {
+    return new SymphonyUser(symBotClient.getUsersClient().getUserFromEmail(email, local));
+  }
+
+  @Override
+  public SymphonyUser getUserFromId(Long userId, Boolean local) throws NoContentException {
+    return new SymphonyUser(symBotClient.getUsersClient().getUserFromId(userId, local));
+  }
+
+  @Override
+  public List<SymphonyUser> getUsersFromIdList(List<Long> userIds, Boolean local)
+      throws NoContentException {
+    return symBotClient.getUsersClient()
+        .getUsersFromIdList(userIds, local)
+        .stream()
+        .map(SymphonyUser::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<SymphonyUser> getUsersFromEmailList(List<String> emails, Boolean local)
+      throws NoContentException {
+    return symBotClient.getUsersClient()
+        .getUsersFromEmailList(emails, local)
+        .stream()
+        .map(SymphonyUser::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<SymphonyUser> getUsersV3(List<String> emails, List<Long> userIds, Boolean local)
+      throws NoContentException {
+    return symBotClient.getUsersClient()
+        .getUsersV3(emails, userIds, local)
+        .stream()
+        .map(SymphonyUser::new)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public SymphonyUserSearchResult searchUsers(SymphonyUserFilter userFilter)
+      throws NoContentException {
+    return new SymphonyUserSearchResult(symBotClient.getUsersClient()
+        .searchUsers(userFilter.getQuery(), userFilter.isLocal(), userFilter.getSkip(),
+            userFilter.getLimit(), toUserFilter(userFilter)));
+  }
+
+  @Override
+  public SymphonyUser getSessionUser() {
+    return new SymphonyUser(symBotClient.getUsersClient().getSessionUser());
+  }
+
   private boolean checkPodStatus() {
     boolean isPodUp = false;
     try {
@@ -319,6 +384,14 @@ public class SymphonyServiceImpl implements SymphonyService {
     roomSearchQuery.setOwner(symphonyRoomSearchQuery.getOwner());
     roomSearchQuery.setPrivate(symphonyRoomSearchQuery.getPrivateRoom());
     return roomSearchQuery;
+  }
+
+  private UserFilter toUserFilter(SymphonyUserFilter symphonyUserFilter) {
+    UserFilter userFilter = new UserFilter();
+    userFilter.setCompany(symphonyUserFilter.getCompany());
+    userFilter.setLocation(symphonyUserFilter.getLocation());
+    userFilter.setTitle(symphonyUserFilter.getTitle());
+    return userFilter;
   }
 
 }

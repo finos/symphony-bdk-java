@@ -1,13 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.message;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SendMessageException;
 import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SendMessageException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MessageServiceImpl implements MessageService {

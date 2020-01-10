@@ -1,6 +1,6 @@
 package com.symphony.ms.bot.sdk.internal.event.model;
 
-import com.symphony.ms.bot.sdk.internal.symphony.StreamType;
+import com.symphony.ms.bot.sdk.internal.symphony.model.StreamType;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

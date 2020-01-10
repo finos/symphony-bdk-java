@@ -2,11 +2,15 @@ package com.symphony.ms.bot.sdk.internal.symphony;
 
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
+import com.symphony.ms.bot.sdk.internal.symphony.model.StreamType;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoom;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomMember;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchQuery;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyRoomSearchResult;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUserFilter;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUserSearchResult;
 
 import listeners.ElementsListener;
 import listeners.IMListener;
@@ -217,7 +221,6 @@ public interface SymphonyService {
    */
   List<SymphonyStream> getUserStreams(List<StreamType> streamTypes, boolean includeInactiveStreams);
 
-
   /**
    * Gets user wall stream
    *
@@ -225,4 +228,83 @@ public interface SymphonyService {
    */
   SymphonyStream getUserWallStream();
 
+  /**
+   * Gets user given an username
+   *
+   * @param username
+   * @return the user
+   * @throws NoContentException
+   */
+  SymphonyUser getUserFromUsername(String username) throws NoContentException;
+
+  /**
+   * Gets user given an email
+   *
+   * @param email
+   * @param local
+   * @return the user
+   * @throws NoContentException
+   */
+  SymphonyUser getUserFromEmail(String email, Boolean local) throws NoContentException;
+
+  /**
+   * Gets user given an user userId
+   *
+   * @param userId
+   * @param local
+   * @return the user
+   * @throws NoContentException
+   */
+  SymphonyUser getUserFromId(Long userId, Boolean local) throws NoContentException;
+
+  /**
+   * Gets users given some user ids
+   *
+   * @param userIds
+   * @param local
+   * @return the users
+   * @throws NoContentException
+   */
+  List<SymphonyUser> getUsersFromIdList(List<Long> userIds, Boolean local)
+      throws NoContentException;
+
+  /**
+   * Gets users given some emails
+   *
+   * @param emails
+   * @param local
+   * @return the users
+   * @throws NoContentException
+   */
+  List<SymphonyUser> getUsersFromEmailList(List<String> emails, Boolean local)
+      throws NoContentException;
+
+  /**
+   * Gets users given some emails and userIds
+   *
+   * @param emails
+   * @param userIds
+   * @param local
+   * @return the users
+   * @throws NoContentException
+   */
+  List<SymphonyUser> getUsersV3(List<String> emails, List<Long> userIds, Boolean local)
+      throws NoContentException;
+
+  /**
+   * Searcher for user given an filter
+   *
+   * @param userFilter
+   * @return the user search result
+   * @throws NoContentException
+   */
+  SymphonyUserSearchResult searchUsers(SymphonyUserFilter userFilter)
+      throws NoContentException;
+
+  /**
+   * Gets the bot
+   *
+   * @return the bot
+   */
+  SymphonyUser getSessionUser();
 }

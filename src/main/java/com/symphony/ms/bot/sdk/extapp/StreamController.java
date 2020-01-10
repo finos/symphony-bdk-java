@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Sample code. Implementation of an extension app endpoint for streams
+ * Sample code. Implementation of an extension app endpoint for stream
  *
  * @author Gabriel Berberian
  */

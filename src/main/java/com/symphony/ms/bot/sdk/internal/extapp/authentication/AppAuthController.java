@@ -1,5 +1,9 @@
 package com.symphony.ms.bot.sdk.internal.extapp.authentication;
 
+import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.AppAuthenticateException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -8,9 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.symphony.ms.bot.sdk.internal.symphony.AppAuthenticateException;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 
 /**
  * Extension App authentication controller
