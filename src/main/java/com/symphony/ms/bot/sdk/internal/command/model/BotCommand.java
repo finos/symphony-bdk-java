@@ -27,8 +27,7 @@ public class BotCommand {
   private String streamId;
   private String originalTransactionId;
 
-  public BotCommand(String channel, MessageEvent event,
-      CommandDispatcher dispatcher) {
+  public BotCommand(String channel, MessageEvent event, CommandDispatcher dispatcher) {
     this.channel = channel;
     this.dispatcher = dispatcher;
     this.message = event.getMessage();

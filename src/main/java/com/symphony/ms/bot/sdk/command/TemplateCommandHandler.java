@@ -53,7 +53,7 @@ public class TemplateCommandHandler extends CommandHandler {
     if (templateType.isPresent()) {
       Optional<Map<String, Object>> commandParameter = getCommandParameter(command.getMessage());
       if (commandParameter.isPresent()) {
-        renderTemplate(templateType.get(), commandParameter.get(), commandResponse);
+        setTemplateFile(templateType.get(), commandParameter.get(), commandResponse);
       } else {
         commandResponse.setMessage("Please, provide a valid parameter to the specified template");
       }
@@ -133,7 +133,7 @@ public class TemplateCommandHandler extends CommandHandler {
     return jsonMapper.toObject("{\"message\": " + data + "}", Map.class);
   }
 
-  private void renderTemplate(SmsRenderer.SmsTypes templateType,
+  private void setTemplateFile(SmsRenderer.SmsTypes templateType,
       Map<String, Object> commandParameter, SymphonyMessage commandResponse) {
     commandResponse.setTemplateFile(templateType.getName(), commandParameter);
   }
