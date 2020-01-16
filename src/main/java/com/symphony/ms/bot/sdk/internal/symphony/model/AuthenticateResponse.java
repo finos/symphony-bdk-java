@@ -18,5 +18,4 @@ import lombok.NoArgsConstructor;
 public class AuthenticateResponse {
   private String appId;
   private String appToken;
-  private String symphonyToken;
 }

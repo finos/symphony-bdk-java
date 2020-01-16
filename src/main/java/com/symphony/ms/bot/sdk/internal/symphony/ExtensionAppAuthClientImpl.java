@@ -26,8 +26,7 @@ public class ExtensionAppAuthClientImpl implements ExtensionAppAuthClient {
   public AuthenticateResponse appAuthenticate(String appId) {
     try {
       AppAuthResponse appAuthToken = symExtensionAppRSAAuth.appAuthenticate();
-      return new AuthenticateResponse(appId, appAuthToken.getAppToken(),
-          appAuthToken.getSymphonyToken());
+      return new AuthenticateResponse(appId, appAuthToken.getAppToken());
     } catch (Exception e) {
       LOGGER.error("Error authentication extension app: {}\n{}", appId, e);
       throw new AppAuthenticateException();
