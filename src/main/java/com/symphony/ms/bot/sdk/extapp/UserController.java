@@ -1,14 +1,13 @@
 package com.symphony.ms.bot.sdk.extapp;
 
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.ws.rs.core.NoContentException;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 
 /**
  * Sample code. Implementation of an extension app endpoint for user
@@ -19,10 +18,10 @@ import javax.ws.rs.core.NoContentException;
 @RequestMapping("/secure/user")
 public class UserController {
 
-  private final SymphonyService symphonyService;
+  private final UsersClient usersClient;
 
-  public UserController(SymphonyService symphonyService) {
-    this.symphonyService = symphonyService;
+  public UserController(UsersClient usersClient) {
+    this.usersClient = usersClient;
   }
 
   /**
@@ -32,20 +31,22 @@ public class UserController {
    * @param userId
    * @param local
    * @return the user
-   * @throws NoContentException
    */
   @GetMapping
   public ResponseEntity getUserFromId(@RequestParam(required = false) String username,
-      @RequestParam(required = false) Long userId, @RequestParam(required = false) Boolean local)
-      throws NoContentException {
-    if (username != null && !username.isEmpty()) {
-      return ResponseEntity.ok(symphonyService.getUserFromUsername(username));
-    } else if (userId != null && local != null) {
-      return ResponseEntity.ok(symphonyService.getUserFromId(userId, local));
+      @RequestParam(required = false) Long userId, @RequestParam(required = false) Boolean local) {
+    try {
+      if (username != null && !username.isEmpty()) {
+        return ResponseEntity.ok(usersClient.getUserFromUsername(username));
+      } else if (userId != null && local != null) {
+        return ResponseEntity.ok(usersClient.getUserFromId(userId, local));
+      }
+      return ResponseEntity.badRequest()
+          .header("Content-Type", "application/json")
+          .body("{\"message\": \"missing parameters\"}");
+    } catch (SymphonyClientException sce) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-    return ResponseEntity.badRequest()
-        .header("Content-Type", "application/json")
-        .body("{\"message\": \"missing parameters\"}");
   }
 
 }

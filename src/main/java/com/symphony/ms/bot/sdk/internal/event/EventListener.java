@@ -1,5 +1,8 @@
 package com.symphony.ms.bot.sdk.internal.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.RoomCreatedEvent;
@@ -11,8 +14,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.RoomUpdatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserLeftRoomEvent;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-
+import com.symphony.ms.bot.sdk.internal.symphony.DatafeedClient;
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
@@ -27,9 +29,6 @@ import model.events.RoomUpdated;
 import model.events.SymphonyElementsAction;
 import model.events.UserJoinedRoom;
 import model.events.UserLeftRoom;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * The Symphony listener Listens to messages, events and Symphony elements actions. It also
@@ -41,18 +40,18 @@ import org.springframework.stereotype.Service;
 public class EventListener implements IMListener, RoomListener, ElementsListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventListener.class);
 
-  private SymphonyService symphonyService;
+  private DatafeedClient datafeedClient;
 
   private InternalEventListener internalEventListener;
 
   public EventListener(
-      SymphonyService symphonyService, InternalEventListenerImpl internalEventListener) {
-    this.symphonyService = symphonyService;
+      DatafeedClient datafeedClient, InternalEventListenerImpl internalEventListener) {
+    this.datafeedClient = datafeedClient;
     this.internalEventListener = internalEventListener;
 
-    this.symphonyService.registerIMListener(this);
-    this.symphonyService.registerRoomListener(this);
-    this.symphonyService.registerElementsListener(this);
+    this.datafeedClient.registerIMListener(this);
+    this.datafeedClient.registerRoomListener(this);
+    this.datafeedClient.registerElementsListener(this);
   }
 
   @Override

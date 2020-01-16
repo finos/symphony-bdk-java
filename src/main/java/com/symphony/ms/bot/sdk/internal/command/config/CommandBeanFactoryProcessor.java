@@ -40,7 +40,7 @@ public class CommandBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
           .addPropertyReference("commandFilter", "commandFilterImpl")
           .addPropertyReference("messageService", "messageServiceImpl")
           .addPropertyReference("featureManager", "featureManager")
-          .addPropertyReference("symphonyService", "symphonyServiceImpl");
+          .addPropertyReference("usersClient", "usersClientImpl");
 
       // Inject AuthenticationProvider to AuthenticatedCommandHandler
       AnnotationMetadata beanMetadata = getBeanMetadata(beanDefinition);

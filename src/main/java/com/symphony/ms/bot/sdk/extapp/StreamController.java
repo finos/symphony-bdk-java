@@ -1,13 +1,14 @@
 package com.symphony.ms.bot.sdk.extapp;
 
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
-
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
 
 /**
  * Sample code. Implementation of an extension app endpoint for stream
@@ -18,10 +19,10 @@ import java.util.List;
 @RequestMapping("/secure/stream")
 public class StreamController {
 
-  private final SymphonyService symphonyService;
+  private final StreamsClient streamsClient;
 
-  public StreamController(SymphonyService symphonyService) {
-    this.symphonyService = symphonyService;
+  public StreamController(StreamsClient streamsClient) {
+    this.streamsClient = streamsClient;
   }
 
   /**
@@ -30,8 +31,12 @@ public class StreamController {
    * @return the bot streams
    */
   @GetMapping
-  public List<SymphonyStream> getUserStreams() {
-    return symphonyService.getUserStreams(null, true);
+  public ResponseEntity<List<SymphonyStream>> getUserStreams() {
+    try {
+      return ResponseEntity.ok(streamsClient.getUserStreams(null, true));
+    } catch (SymphonyClientException sce) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
 }

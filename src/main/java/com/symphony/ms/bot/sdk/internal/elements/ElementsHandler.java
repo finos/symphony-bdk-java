@@ -13,7 +13,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 
 /**
  * Symphony Elements Handler
@@ -38,7 +38,7 @@ public abstract class ElementsHandler implements
 
   private FeatureManager featureManager;
 
-  private SymphonyService symphonyService;
+  private UsersClient usersClient;
 
   /**
    * Registers the ElementsHandler to {@link CommandFilter}, {@link CommandDispatcher} and {@link
@@ -113,7 +113,7 @@ public abstract class ElementsHandler implements
   }
 
   protected String getBotName() {
-    return symphonyService.getBotDisplayName();
+    return usersClient.getBotDisplayName();
   }
 
   /**
@@ -168,8 +168,8 @@ public abstract class ElementsHandler implements
     this.featureManager = featureManager;
   }
 
-  public void setSymphonyService(SymphonyService symphonyService) {
-    this.symphonyService = symphonyService;
+  public void setUsersClient(UsersClient usersClient) {
+    this.usersClient = usersClient;
   }
 
 }

@@ -22,7 +22,7 @@ import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 
 @ExtendWith(MockitoExtension.class)
 public class CommandHandlerTest {
@@ -40,7 +40,7 @@ public class CommandHandlerTest {
   private FeatureManager featureManager;
 
   @Mock
-  private SymphonyService symphonyService;
+  private UsersClient usersClient;
 
   @InjectMocks
   private TestCommandHandler commandHandler;
@@ -115,7 +115,7 @@ public class CommandHandlerTest {
 
     spyCommandHandler.onCommand(command);
 
-    verify(symphonyService, times(1)).getBotDisplayName();
+    verify(usersClient, times(1)).getBotDisplayName();
     verify(messageService, never())
       .sendMessage(anyString(), any(SymphonyMessage.class));
   }

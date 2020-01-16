@@ -1,15 +1,13 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.function.Predicate;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 
 /**
  * Base class for bot command handling. Provides mechanisms to automatically register child classes
@@ -28,7 +26,7 @@ public abstract class CommandHandler implements BaseCommandHandler {
 
   protected FeatureManager featureManager;
 
-  protected SymphonyService symphonyService;
+  protected UsersClient usersClient;
 
   /**
    * Registers the CommandHandler to {@link CommandDispatcher} and {@link CommandFilter} so that it
@@ -45,7 +43,7 @@ public abstract class CommandHandler implements BaseCommandHandler {
   }
 
   protected String getBotName() {
-    return symphonyService.getBotDisplayName();
+    return usersClient.getBotDisplayName();
   }
 
   /**
@@ -110,8 +108,8 @@ public abstract class CommandHandler implements BaseCommandHandler {
     this.featureManager = featureManager;
   }
 
-  public void setSymphonyService(SymphonyService symphonyService) {
-    this.symphonyService = symphonyService;
+  public void setUsersClient(UsersClient usersClient) {
+    this.usersClient = usersClient;
   }
 
 }

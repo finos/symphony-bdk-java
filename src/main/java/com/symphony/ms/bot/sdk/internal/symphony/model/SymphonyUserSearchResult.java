@@ -1,14 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.symphony.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import model.UserSearchResult;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import model.UserSearchResult;
 
 /**
  * Symphony user search result
@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
  * @author Gabriel Berberian
  */
 @Data
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SymphonyUserSearchResult {

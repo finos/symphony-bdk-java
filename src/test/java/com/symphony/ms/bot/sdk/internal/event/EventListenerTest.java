@@ -22,7 +22,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.RoomUpdatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserLeftRoomEvent;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.DatafeedClient;
 import model.InboundMessage;
 import model.RoomProperties;
 import model.Stream;
@@ -40,7 +40,7 @@ import model.events.UserLeftRoom;
 public class EventListenerTest {
 
   @Mock
-  private SymphonyService symphonyService;
+  private DatafeedClient datafeedClient;
 
   @Mock
   private InternalEventListenerImpl internalEventListener;

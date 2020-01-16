@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
  *
  */
 @RestController
-// TODO: add /v1/ in path to enforce authentication
+// TODO: add /secure/ in path to enforce authentication
 @RequestMapping("/events")
 public class SseController {
   private static final Logger LOGGER = LoggerFactory.getLogger(SseController.class);

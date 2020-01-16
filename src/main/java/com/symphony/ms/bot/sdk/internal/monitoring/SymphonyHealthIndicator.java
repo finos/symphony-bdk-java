@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.HealthcheckClient;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
 
 /**
@@ -16,16 +16,16 @@ import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
 public class SymphonyHealthIndicator implements HealthIndicator {
   private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyHealthIndicator.class);
 
-  private SymphonyService symphonyService;
+  private HealthcheckClient healthcheckClient;
 
-  public SymphonyHealthIndicator(SymphonyService symphonyService) {
-    this.symphonyService = symphonyService;
+  public SymphonyHealthIndicator(HealthcheckClient healthcheckClient) {
+    this.healthcheckClient = healthcheckClient;
   }
 
   @Override
   public Health health() {
     LOGGER.debug("Performing health check for Symphony components");
-    HealthCheckInfo symphonyHealthResponse = symphonyService.healthCheck();
+    HealthCheckInfo symphonyHealthResponse = healthcheckClient.healthCheck();
 
     Health.Builder healthBuilder = Health.up();
     if (!symphonyHealthResponse.checkOverallStatus()) {

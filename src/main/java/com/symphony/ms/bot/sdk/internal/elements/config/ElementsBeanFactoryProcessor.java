@@ -36,7 +36,7 @@ public class ElementsBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
           .addPropertyReference("commandFilter", "commandFilterImpl")
           .addPropertyReference("messageService", "messageServiceImpl")
           .addPropertyReference("featureManager", "featureManager")
-          .addPropertyReference("symphonyService", "symphonyServiceImpl")
+          .addPropertyReference("usersClient", "usersClientImpl")
           .addPropertyReference("eventDispatcher", "eventDispatcherImpl")
           .getBeanDefinition();
 

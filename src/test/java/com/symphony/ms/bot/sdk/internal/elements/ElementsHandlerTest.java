@@ -26,7 +26,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 
 @ExtendWith(MockitoExtension.class)
 public class ElementsHandlerTest {
@@ -47,7 +47,7 @@ public class ElementsHandlerTest {
   private FeatureManager featureManager;
 
   @Mock
-  private SymphonyService symphonyService;
+  private UsersClient usersClient;
 
   @InjectMocks
   private TestElementsHandler elementsHandler;
@@ -147,7 +147,7 @@ public class ElementsHandlerTest {
 
     spyElementsHandler.onCommand(command);
 
-    verify(symphonyService, times(1)).getBotDisplayName();
+    verify(usersClient, times(1)).getBotDisplayName();
     verify(messageService, never())
       .sendMessage(anyString(), any(SymphonyMessage.class));
   }

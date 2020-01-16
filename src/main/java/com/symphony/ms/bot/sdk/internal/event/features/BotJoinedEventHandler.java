@@ -1,14 +1,15 @@
 package com.symphony.ms.bot.sdk.internal.event.features;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.event.EventHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 
 /**
  * Implementation of {@link EventHandler} to check if the user joining the room is the configured
@@ -17,37 +18,44 @@ import org.slf4j.LoggerFactory;
 public class BotJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
   private static final Logger LOGGER = LoggerFactory.getLogger(BotJoinedEventHandler.class);
 
-  private final SymphonyService symphonyService;
+  private final StreamsClient streamsClient;
+  private final UsersClient usersClient;
   private final FeatureManager featureManager;
   private final MessageService messageService;
 
-  public BotJoinedEventHandler(SymphonyService symphonyService, FeatureManager featureManager,
-      MessageService messageService) {
-    this.symphonyService = symphonyService;
+  public BotJoinedEventHandler(StreamsClient streamsClient, UsersClient usersClient,
+      FeatureManager featureManager, MessageService messageService) {
+    this.streamsClient = streamsClient;
+    this.usersClient = usersClient;
     this.featureManager = featureManager;
     this.messageService = messageService;
   }
 
   @Override
   public void handle(UserJoinedRoomEvent event, SymphonyMessage eventResponse) {
-    if (userIsAppBot(event)) {
-      if (isPublicRoomNotAllowed() && isPublicRoom(event)) {
-        sendPublicRoomNotAllowedMessage(event.getStreamId());
-        removeBotFromRoom(event);
+    if (userIsAppBot(event) && isPublicRoomNotAllowed()) {
+      try {
+        if (isPublicRoom(event)) {
+          sendPublicRoomNotAllowedMessage(event.getStreamId());
+          removeBotFromRoom(event);
+        }
+      } catch (SymphonyClientException sce) {
+        LOGGER.error("Failed to process bot in public room", sce);
       }
     }
   }
 
   private boolean userIsAppBot(UserJoinedRoomEvent event) {
-    return event.getUser().getDisplayName().equals(symphonyService.getBotDisplayName());
+    return event.getUser().getDisplayName().equals(usersClient.getBotDisplayName());
   }
 
   private boolean isPublicRoomNotAllowed() {
     return !featureManager.isPublicRoomAllowed();
   }
 
-  private boolean isPublicRoom(UserJoinedRoomEvent event) {
-    return symphonyService.getRoomInfo(event.getStreamId()).getPublicRoom();
+  private boolean isPublicRoom(UserJoinedRoomEvent event) throws SymphonyClientException {
+    LOGGER.debug("Checking if room is public");
+    return streamsClient.getRoomInfo(event.getStreamId()).getPublicRoom();
   }
 
   private void sendPublicRoomNotAllowedMessage(String streamId) {
@@ -72,10 +80,10 @@ public class BotJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
             !featureManager.getPublicRoomNotAllowedMessage().isEmpty();
   }
 
-  private void removeBotFromRoom(UserJoinedRoomEvent event) {
+  private void removeBotFromRoom(UserJoinedRoomEvent event) throws SymphonyClientException {
     LOGGER.debug("Removing bot from room (streamId={}). Bot in public room not allowed.",
             event.getStreamId());
-    symphonyService.removeMemberFromRoom(event.getStreamId(), new Long(event.getUserId()));
+    streamsClient.removeMemberFromRoom(event.getStreamId(), new Long(event.getUserId()));
   }
 
 }

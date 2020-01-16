@@ -1,27 +1,26 @@
 package com.symphony.ms.bot.sdk.internal.message;
 
-import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
-import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-import com.symphony.ms.bot.sdk.internal.symphony.exception.SendMessageException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
+import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
+import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 
 @Service
 public class MessageServiceImpl implements MessageService {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
   private static final String ENTITY_TAG = "<div class='entity' data-entity-id='%s'>%s</div>";
 
-  private SymphonyService symphonyService;
+  private MessageClient messageClient;
   private TemplateService templateService;
   private JsonMapper jsonMapper;
 
-  public MessageServiceImpl(SymphonyService symphonyService,
+  public MessageServiceImpl(MessageClient messageClient,
       TemplateService templateService, JsonMapper jsonMapper) {
-    this.symphonyService = symphonyService;
+    this.messageClient = messageClient;
     this.templateService = templateService;
     this.jsonMapper = jsonMapper;
   }
@@ -39,9 +38,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     try {
-      symphonyService.sendMessage(streamId, symMessage, symJsonData);
-    } catch (SendMessageException sme) {
-      LOGGER.error("Could not send message to Symphony");
+      messageClient.sendMessage(streamId, symMessage, symJsonData);
+    } catch (SymphonyClientException sce) {
+      LOGGER.error("Could not send message to Symphony", sce);
     }
   }
 

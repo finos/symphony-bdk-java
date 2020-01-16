@@ -1,9 +1,5 @@
 package com.symphony.ms.bot.sdk.internal.extapp.authentication;
 
-import com.symphony.ms.bot.sdk.internal.symphony.SymphonyService;
-import com.symphony.ms.bot.sdk.internal.symphony.exception.AppAuthenticateException;
-import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,6 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.symphony.ms.bot.sdk.internal.symphony.ExtensionAppAuthClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.AppAuthenticateException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 
 /**
  * Extension App authentication controller
@@ -26,10 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AppAuthController {
   private static final Logger LOGGER = LoggerFactory.getLogger(AppAuthController.class);
 
-  private SymphonyService symphonyService;
+  private ExtensionAppAuthClient extAppAuthClient;
 
-  public AppAuthController(SymphonyService symphonyService) {
-    this.symphonyService = symphonyService;
+  public AppAuthController(ExtensionAppAuthClient extAppAuthClient) {
+    this.extAppAuthClient = extAppAuthClient;
   }
 
   @PostMapping("authenticate")
@@ -41,7 +40,7 @@ public class AppAuthController {
 
     try {
       AuthenticateResponse authenticateResponse =
-          symphonyService.appAuthenticate(appInfo.getAppId());
+          extAppAuthClient.appAuthenticate(appInfo.getAppId());
       return ResponseEntity.ok(authenticateResponse);
     } catch (AppAuthenticateException aae) {
       LOGGER.error("Error initializing extension app authentication flow");
@@ -52,7 +51,7 @@ public class AppAuthController {
   @PostMapping("tokens/validate")
   public ResponseEntity validateTokens(@RequestBody AppToken appToken) {
     LOGGER.debug("App auth step 2: Validating tokens");
-    if (symphonyService.validateTokens(
+    if (extAppAuthClient.validateTokens(
         appToken.getAppToken(), appToken.getSymphonyToken())) {
       return ResponseEntity.ok().build();
     }
@@ -65,7 +64,7 @@ public class AppAuthController {
     LOGGER.debug("App auth step 3: Validating JWT");
     try {
       return ResponseEntity.ok(
-          symphonyService.verifyJWT(jwtInfo.getJwt()));
+          extAppAuthClient.verifyJWT(jwtInfo.getJwt()));
     } catch (AppAuthenticateException aae) {
       LOGGER.error("Error validating JWT");
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
