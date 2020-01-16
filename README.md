@@ -57,7 +57,7 @@ These instructions will allow you to set up your bot application.
 
 ### Setting the service account
 
-In order to register a sevice account in Symphony Admin Console, a RSA key pair is required. The bot application uses
+In order to register a service account in Symphony Admin Console, a RSA key pair is required. The bot application uses
 the private key while Symphony needs to know the public one.
 
 In addition to the RSA keys, make sure the property botUsername (and appId) in src/main/resources/bot-config.json
@@ -228,19 +228,19 @@ Renders messages using Symphony standardized templates. The supported templates 
 >
 >@MyBot /template simple {"title": "Title", "content": "Content"}
 
-![simple](readme/template_simple.png)
+![simple template](readme/template_simple.png)
 
 >&#9679; **John Doe**
 >
 >@MyBot /template alert {"title": "Title", "content": "Content"}
 
-![alert](readme/template_alert.png)
+![alert template](readme/template_alert.png)
 
 >&#9679; **John Doe**
 >
 >@MyBot /template information {"title": "Title", "content": "Content", "description": "Description"}
 
-![alert](readme/template_information.png)
+![information template](readme/template_information.png)
 
 For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Using Symphony standardized templates](#Using-Symphony-standardized-templates) session.
 
@@ -248,6 +248,15 @@ For more information about the standardized templates, take a look on https://gi
 ### Register quote command
 
 Explores the Symphony Elements visual components to display a form for quote registration in Symphony chat.
+
+>&#9679; **John Doe**
+>
+>@MyBot /register quote
+
+>&#9679; **MyBot**
+>
+
+![symphony elements form](readme/quote_registration_form.png)
 
 
 ### Default response
@@ -462,7 +471,7 @@ would be built this way with ```CommandMatcherBuilder```:
 
 Bots may need to react to events happening on Symphony rooms they are part of (e.g. sending a greeting message to users who join the room).
 
-Similarly to commands, Symphony Bot application offers straightforward mechanisms for your bots to be notified when something happens on Symphony chats. By extending the ```EventHandler``` class you are registering your bot to react to a specific Symphony event.
+Similarly to commands, Symphony Bot application offers straightforward mechanisms for your bots to be notified when something happens on Symphony chats. By extending the ```EventHandler``` class you register your bot to react to a specific Symphony event.
 
 To extend ```EventHandler``` you need to: 
 
@@ -481,6 +490,8 @@ public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
 
 ```
 
+**Notice:** Different ```EventHandler``` child classes can handle the same event. All of them will have their ```handle```method called. There is no way to set the calling order. 
+  
 
 ### Available Symphony events
 
@@ -547,33 +558,73 @@ To extend ```ElementsHandler``` you need to implement the following methods:
 * **void handleAction(SymphonyElementsEvent event, SymphonyMessage elementsResponse)**: where you handle interactions with the Elements form. This method is automatically called when users submit the Elements form. The ```SymphonyElementsEvent``` holds details about the action performed on the form (e.g. form payload, action name, etc). Use the ```SymphonyMessage``` object to format a response according to the Elements form action.
 
 ```java
+  private static final String FORM_ID = "quo-register-form";
+  private static final String FROM_CURRENCY = "fromCurrency";
+  private static final String TO_CURRENCY = "toCurrency";
+  private static final String AMOUNT = "amount";
+  private static final String ASSIGNED_TO = "assignedTo";
+
   @Override
   protected Predicate<String> getCommandMatcher() {
     return Pattern
-        .compile("^@"+ getBotName() + " /register quote$")
+        .compile("^@" + getBotName() + " /register quote$")
         .asPredicate();
   }
 
   @Override
   protected String getElementsFormId() {
-    return "quo-register-form";
+    return FORM_ID;
   }
 
   @Override
   public void displayElements(BotCommand command,
       SymphonyMessage elementsResponse) {
     Map<String, String> data = new HashMap<>();
-    data.put("form_id", "quo-register-form");
-    elementsResponse.setTemplateFile("quote-registration.ftl", data);
+    data.put("form_id", getElementsFormId());
+    elementsResponse.setTemplateFile("quote-registration", data);
   }
 
   @Override
   public void handleAction(SymphonyElementsEvent event,
       SymphonyMessage elementsResponse) {
-    elementsResponse.setMessage("Quote registered successfully");
+    Map<String, Object> formValues = event.getFormValues();
+    
+    Map<String, Object> data = new HashMap<String, Object>();
+    data.put(FROM_CURRENCY, formValues.get(FROM_CURRENCY));
+    data.put(TO_CURRENCY, formValues.get(TO_CURRENCY));
+    data.put(AMOUNT, formValues.get(AMOUNT));
+    data.put(ASSIGNED_TO, event.getUser().getDisplayName());
+
+    elementsResponse.setTemplateMessage(
+        "Quote FX {{fromCurrency}}-{{toCurrency}} {{amount}} sent to dealer {{assignedTo}}", data);
   }
 
 ```
+
+Sample [Handlebars](https://github.com/jknack/handlebars.java)-based template for the quote registration form:
+```xml
+<form id="{{form_id}}">
+  <h3>Quote Registration</h3>
+  <h6>From currency</h6>
+  <text-field minlength="3" maxlength="3" masked="false" name="fromCurrency" required="true"></text-field>
+  <h6>To currency</h6>
+  <text-field minlength="3" maxlength="3" masked="false" name="toCurrency" required="true"></text-field>
+  <h6>Amount</h6>
+  <text-field minlength="1" maxlength="9" masked="false" name="amount" required="true"></text-field>
+  <h6>Assigned To:</h6>
+  <person-selector name="assignedTo" placeholder="Assign to.." required="false" />
+  <h6>Quote Status:</h6>
+  <radio name="status" checked="true" value="pending">Pending</radio>
+  <radio name="status" checked="false" value="confirmed">Confirmed</radio>
+  <radio name="status" checked="false" value="settled">Settled</radio>
+  <h6>Remarks:</h6>
+  <textarea name="remarks" placeholder="Enter your remarks.." required="false"></textarea>
+  <button name="confirm" type="action">Confirm</button>
+  <button name="reset" type="reset">Reset</button>
+</form>
+```
+
+**Notice:** The ```event.getFormValues()``` returns a map with the values of all input fields in the Symphony Elements form. The key names of that map match the HTML ```name``` property of the input elements in Elements form. 
 
 
 ### ElementsActionHandler
