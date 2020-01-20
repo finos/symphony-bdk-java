@@ -1,19 +1,22 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.ws.rs.core.NoContentException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUserFilter;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUserSearchResult;
+
 import clients.SymBotClient;
 import model.UserFilter;
 import model.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.core.NoContentException;
 
 @Service
 public class UsersClientImpl implements UsersClient {
@@ -23,8 +26,8 @@ public class UsersClientImpl implements UsersClient {
   private clients.symphony.api.UsersClient usersClient;
 
   public UsersClientImpl(SymBotClient symBotClient) {
-    this.botUserInfo = symBotClient.getBotUserInfo();
     this.usersClient = symBotClient.getUsersClient();
+    this.botUserInfo = usersClient.getSessionUser();
   }
 
   /**

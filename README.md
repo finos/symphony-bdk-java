@@ -20,6 +20,7 @@ systems and push them as symphony messages.
   * [Quote command](#Quote-command)
   * [Template command](#Template-command)
   * [Register quote command](#Register-quote-command)
+  * [Attachment command](#Attachment-command)
   * [Default response](#Default-response)
 * [Testing notifications](#Testing-notifications)
 * [Adding bot commands](#Adding-bot-commands)
@@ -228,19 +229,25 @@ Renders messages using Symphony standardized templates. The supported templates 
 >
 >@MyBot /template simple {"title": "Title", "content": "Content"}
 
-![simple template](readme/template_simple.png)
+>&#9679; **MyBot**
+>
+>![simple template](readme/template_simple.png)
 
 >&#9679; **John Doe**
 >
 >@MyBot /template alert {"title": "Title", "content": "Content"}
 
-![alert template](readme/template_alert.png)
+>&#9679; **MyBot**
+>
+>![alert template](readme/template_alert.png)
 
 >&#9679; **John Doe**
 >
 >@MyBot /template information {"title": "Title", "content": "Content", "description": "Description"}
 
-![information template](readme/template_information.png)
+>&#9679; **MyBot**
+>
+>![information template](readme/template_information.png)
 
 For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Using Symphony standardized templates](#Using-Symphony-standardized-templates) session.
 
@@ -255,8 +262,24 @@ Explores the Symphony Elements visual components to display a form for quote reg
 
 >&#9679; **MyBot**
 >
+>![symphony elements form](readme/quote_registration_form.png)
 
-![symphony elements form](readme/quote_registration_form.png)
+
+### Attachment command
+
+Highlight the attachments of a message. Sample code explores download message attachments feature.
+
+>&#9679; **John Doe**
+>
+>@MyBot /attachment
+>
+>>attachment1.png (6.47 kB)
+>>
+>>attachment1.png (12.47 kB)
+
+>&#9679; **MyBot**
+>
+>![attachment](readme/attachment.png)
 
 
 ### Default response
@@ -753,28 +776,28 @@ The Symphony Bot application monitoring system is based on Spring Actuators. By 
 
 ```javascript
 {
-    "status";:"UP",
-    "details";:{
-        "diskSpace";:{
-            "status";:"UP",
-            "details";:{
-                "total";:267985612800,
-                "free";:110891438080,
-                "threshold";:10485760
+    "status":"UP",
+    "details":{
+        "diskSpace":{
+            "status":"UP",
+            "details":{
+                "total":267985612800,
+                "free":110891438080,
+                "threshold":10485760
             }            
         },
-        "symphony";:{
-            "status";:"UP",
-            "details";:{
-                "Symphony";:{
-                    "agentConnection";:"UP",
-                    "podConnection";:"UP",
-                    "agentToPodConnection";:"UP",
-                    "agentToKMConnection";:"UP",
-                    "podVersion";:"1.55.3",
-                    "agentVersion";:"2.55.9",
-                    "agentToPodConnectionError";:"N/A",
-                    "agentToKMConnectionError";:"N/A"
+        "symphony":{
+            "status":"UP",
+            "details":{
+                "Symphony":{
+                    "agentConnection":"UP",
+                    "podConnection":"UP",
+                    "agentToPodConnection":"UP",
+                    "agentToKMConnection":"UP",
+                    "podVersion":"1.55.3",
+                    "agentVersion":"2.55.9",
+                    "agentToPodConnectionError":"N/A",
+                    "agentToKMConnectionError":"N/A"
                 }
                 
             }

@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 /**
  * Sample code for CommandHandler that highlights the attachments of a Symphony message
  */
-public class FileCommandHandler extends CommandHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileCommandHandler.class);
+public class AttachmentCommandHandler extends CommandHandler {
+  private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentCommandHandler.class);
 
   private final MessageClient messageClient;
 
-  public FileCommandHandler(MessageClient messageClient) {
+  public AttachmentCommandHandler(MessageClient messageClient) {
     this.messageClient = messageClient;
   }
 

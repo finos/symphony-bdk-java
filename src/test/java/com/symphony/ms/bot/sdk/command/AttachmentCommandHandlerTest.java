@@ -25,13 +25,13 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @ExtendWith(MockitoExtension.class)
-public class FileCommandHandlerTest {
+public class AttachmentCommandHandlerTest {
 
   @Mock
   private MessageClient messageClient;
 
   @InjectMocks
-  private FileCommandHandler fileCommandHandler;
+  private AttachmentCommandHandler attachmentCommandHandler;
 
   @Test
   public void shouldSetNoAttachment() {
@@ -41,7 +41,7 @@ public class FileCommandHandlerTest {
     when(command.getMessageEvent()).thenReturn(messageEvent);
     SymphonyMessage commandResponse = new SymphonyMessage();
 
-    fileCommandHandler.handle(command, commandResponse);
+    attachmentCommandHandler.handle(command, commandResponse);
 
     assertNotNull(commandResponse);
     assertEquals("<mention uid=\"userId\"/> message has no attachment",
@@ -60,7 +60,7 @@ public class FileCommandHandlerTest {
     when(messageClient.downloadMessageAttachments(any(MessageEvent.class)))
         .thenReturn(Collections.singletonList(mock(MessageAttachmentFile.class)));
 
-    fileCommandHandler.handle(command, commandResponse);
+    attachmentCommandHandler.handle(command, commandResponse);
 
     assertNotNull(commandResponse);
     assertEquals("<mention uid=\"userId\"/> message has 1 attachment(s):",
@@ -86,7 +86,7 @@ public class FileCommandHandlerTest {
             mock(MessageAttachmentFile.class),
             mock(MessageAttachmentFile.class)));
 
-    fileCommandHandler.handle(command, commandResponse);
+    attachmentCommandHandler.handle(command, commandResponse);
 
     assertNotNull(commandResponse);
     assertEquals("<mention uid=\"userId\"/> message has 3 attachment(s):",
