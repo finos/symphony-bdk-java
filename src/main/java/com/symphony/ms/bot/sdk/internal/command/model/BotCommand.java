@@ -2,7 +2,10 @@ package com.symphony.ms.bot.sdk.internal.command.model;
 
 import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.event.model.StreamDetails;
+import com.symphony.ms.bot.sdk.internal.event.model.UserDetails;
 
+import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -12,6 +15,7 @@ import org.slf4j.MDC;
  *
  * @author Marcus Secato
  */
+@Data
 public class BotCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(BotCommand.class);
 
@@ -21,19 +25,13 @@ public class BotCommand {
 
   private CommandDispatcher dispatcher;
   private String channel;
-  private String message;
-  private String userId;
-  private String userDisplayName;
-  private String streamId;
+  private MessageEvent messageEvent;
   private String originalTransactionId;
 
   public BotCommand(String channel, MessageEvent event, CommandDispatcher dispatcher) {
     this.channel = channel;
     this.dispatcher = dispatcher;
-    this.message = event.getMessage();
-    this.userId = event.getUserId();
-    this.userDisplayName = event.getUser().getDisplayName();
-    this.streamId = event.getStreamId();
+    this.messageEvent = event;
     originalTransactionId = MDC.get("transactionId");
   }
 
@@ -42,36 +40,12 @@ public class BotCommand {
     this.dispatcher = dispatcher;
   }
 
-  public String getMessage() {
-    return message;
+  public UserDetails getUser() {
+    return messageEvent.getUser();
   }
 
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public String getUserId() {
-    return userId;
-  }
-
-  public void setUserId(String userId) {
-    this.userId = userId;
-  }
-
-  public String getUserDisplayName() {
-    return userDisplayName;
-  }
-
-  public void setUserDisplayName(String userDisplayName) {
-    this.userDisplayName = userDisplayName;
-  }
-
-  public String getStreamId() {
-    return streamId;
-  }
-
-  public void setStreamId(String streamId) {
-    this.streamId = streamId;
+  public StreamDetails getStream() {
+    return messageEvent.getStream();
   }
 
   public void retry() {
@@ -81,8 +55,8 @@ public class BotCommand {
   }
 
   private void setMDCContext() {
-    MDC.put(STREAM_ID, this.getStreamId());
-    MDC.put(USER_ID, this.getUserId());
+    MDC.put(STREAM_ID, messageEvent.getStreamId());
+    MDC.put(USER_ID, messageEvent.getUserId());
     MDC.put(ORIGINAL_TX_ID, originalTransactionId);
   }
 

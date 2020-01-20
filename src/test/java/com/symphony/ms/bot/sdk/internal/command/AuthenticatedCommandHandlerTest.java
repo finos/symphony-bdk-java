@@ -6,19 +6,23 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+
+import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.message.MessageService;
+import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticatedCommandHandlerTest {
@@ -62,7 +66,9 @@ public class AuthenticatedCommandHandlerTest {
   public void handleAuthContextNullTest() {
     BotCommand command = mock(BotCommand.class);
     SymphonyMessage response = mock(SymphonyMessage.class);
-    when(command.getUserId()).thenReturn("1234");
+    MessageEvent message = mock(MessageEvent.class);
+    when(message.getUserId()).thenReturn("1234");
+    when(command.getMessageEvent()).thenReturn(message);
     when(authenticationProvider.getAuthenticationContext(anyString())).thenReturn(null);
 
     commandHandler.handle(command, response);
@@ -76,7 +82,9 @@ public class AuthenticatedCommandHandlerTest {
     BotCommand command = mock(BotCommand.class);
     SymphonyMessage response = mock(SymphonyMessage.class);
     AuthenticationContext context = mock(AuthenticationContext.class);
-    when(command.getUserId()).thenReturn("1234");
+    MessageEvent message = mock(MessageEvent.class);
+    when(message.getUserId()).thenReturn("1234");
+    when(command.getMessageEvent()).thenReturn(message);
     when(authenticationProvider.getAuthenticationContext(anyString())).thenReturn(context);
     when(context.isAuthenticated()).thenReturn(false);
 
@@ -92,7 +100,9 @@ public class AuthenticatedCommandHandlerTest {
     BotCommand command = mock(BotCommand.class);
     SymphonyMessage response = mock(SymphonyMessage.class);
     AuthenticationContext context = mock(AuthenticationContext.class);
-    when(command.getUserId()).thenReturn("1234");
+    MessageEvent message = mock(MessageEvent.class);
+    when(message.getUserId()).thenReturn("1234");
+    when(command.getMessageEvent()).thenReturn(message);
     when(authenticationProvider.getAuthenticationContext(anyString())).thenReturn(context);
     when(context.isAuthenticated()).thenReturn(true);
 

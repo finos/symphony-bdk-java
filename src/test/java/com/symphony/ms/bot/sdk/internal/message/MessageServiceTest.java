@@ -9,16 +9,22 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceTest {
@@ -42,7 +48,7 @@ public class MessageServiceTest {
     when(message.hasTemplate()).thenReturn(false);
     when(message.isEnrichedMessage()).thenReturn(false);
     doThrow(new SymphonyClientException(new Exception()))
-      .when(messageClient).sendMessage(any(), any(), any());
+        .when(messageClient).sendMessage(any(), any(), any());
 
     messageService.sendMessage("1234", message);
   }
@@ -56,8 +62,8 @@ public class MessageServiceTest {
 
     messageService.sendMessage("1234", message);
 
-    verify(messageClient, times(1)).sendMessage(
-        eq("1234"), eq("some message"), eq(null));
+    verify(messageClient, times(1))
+        .sendMessage(eq("1234"), eq("some message"), eq(null));
   }
 
   @Test
@@ -68,7 +74,7 @@ public class MessageServiceTest {
     when(message.isEnrichedMessage()).thenReturn(true);
     when(message.getEntityName()).thenReturn("entity.name");
     doReturn("payload data")
-      .when(jsonMapper).toEnricherString(anyString(), any(), any());
+        .when(jsonMapper).toEnricherString(anyString(), any(), any());
 
     messageService.sendMessage("1234", message);
 
@@ -84,7 +90,7 @@ public class MessageServiceTest {
     when(message.hasTemplate()).thenReturn(true);
     when(message.usesTemplateFile()).thenReturn(false);
     doReturn("some template message")
-      .when(templateService).processTemplateString(any(), any());
+        .when(templateService).processTemplateString(any(), any());
     when(message.isEnrichedMessage()).thenReturn(false);
 
     messageService.sendMessage("1234", message);
@@ -99,11 +105,11 @@ public class MessageServiceTest {
     when(message.hasTemplate()).thenReturn(true);
     when(message.usesTemplateFile()).thenReturn(false);
     doReturn("some template message")
-      .when(templateService).processTemplateString(any(), any());
+        .when(templateService).processTemplateString(any(), any());
     when(message.isEnrichedMessage()).thenReturn(true);
     when(message.getEntityName()).thenReturn("entity.name");
     doReturn("payload data")
-      .when(jsonMapper).toEnricherString(anyString(), any(), any());
+        .when(jsonMapper).toEnricherString(anyString(), any(), any());
 
     messageService.sendMessage("1234", message);
 
@@ -119,7 +125,7 @@ public class MessageServiceTest {
     when(message.hasTemplate()).thenReturn(true);
     when(message.usesTemplateFile()).thenReturn(true);
     doReturn("some template file")
-      .when(templateService).processTemplateFile(any(), any());
+        .when(templateService).processTemplateFile(any(), any());
     when(message.isEnrichedMessage()).thenReturn(false);
 
     messageService.sendMessage("1234", message);
@@ -134,11 +140,11 @@ public class MessageServiceTest {
     when(message.hasTemplate()).thenReturn(true);
     when(message.usesTemplateFile()).thenReturn(true);
     doReturn("some template file")
-      .when(templateService).processTemplateFile(any(), any());
+        .when(templateService).processTemplateFile(any(), any());
     when(message.isEnrichedMessage()).thenReturn(true);
     when(message.getEntityName()).thenReturn("entity.name");
     doReturn("payload data")
-      .when(jsonMapper).toEnricherString(anyString(), any(), any());
+        .when(jsonMapper).toEnricherString(anyString(), any(), any());
 
     messageService.sendMessage("1234", message);
 
@@ -146,6 +152,17 @@ public class MessageServiceTest {
         eq("1234"),
         eq("<div class='entity' data-entity-id='entity.name'>some template file</div>"),
         eq("payload data"));
+  }
+
+  @Test
+  public void shouldStoreAndDeleteAttachments() throws SymphonyClientException {
+    SymphonyMessage message = new SymphonyMessage();
+    message.setAttachments(Collections.singletonList(mock(MessageAttachmentFile.class)));
+    message.setMessage("message");
+
+    messageService.sendMessage("streamId", message);
+
+    verify(messageClient, times(1)).sendMessage(anyString(), anyString(), any(), any(List.class));
   }
 
 }

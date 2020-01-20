@@ -3,7 +3,6 @@ package com.symphony.ms.bot.sdk.internal.feature;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -30,11 +29,11 @@ public class FeatureManager {
   private String transactionIdOnError;
   private String eventUnexpectedErrorMessage;
   private String notificationBaseUrl;
-  @Value("${features.isPublicRoomAllowed: true}")
   private boolean isPublicRoomAllowed;
   private String publicRoomNotAllowedMessage;
   private String publicRoomNotAllowedTemplate;
   private Map publicRoomNotAllowedTemplateMap;
+  private String storePath;
 
   /**
    * Whether bot is allowed to send a response in Symphony chat upon completing handling a command

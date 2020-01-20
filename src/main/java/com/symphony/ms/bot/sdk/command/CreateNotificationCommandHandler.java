@@ -1,9 +1,11 @@
 package com.symphony.ms.bot.sdk.command;
 
-import org.springframework.beans.factory.annotation.Value;
 import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -33,7 +35,7 @@ public class CreateNotificationCommandHandler extends CommandHandler {
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse) {
     String notificationUrl = featureManager.getNotificationBaseUrl()
-        + servletContext + NOTIFICATION_PATH + "/" + command.getStreamId();
+        + servletContext + NOTIFICATION_PATH + "/" + command.getMessageEvent().getStreamId();
 
     Map<String, String> data = new HashMap<>();
     data.put("notification_url", notificationUrl);

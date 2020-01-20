@@ -1,25 +1,26 @@
 package com.symphony.ms.bot.sdk.internal.message;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
 import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 @Service
 public class MessageServiceImpl implements MessageService {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
   private static final String ENTITY_TAG = "<div class='entity' data-entity-id='%s'>%s</div>";
 
-  private MessageClient messageClient;
-  private TemplateService templateService;
-  private JsonMapper jsonMapper;
+  private final MessageClient messageClient;
+  private final TemplateService templateService;
+  private final JsonMapper jsonMapper;
 
-  public MessageServiceImpl(MessageClient messageClient,
-      TemplateService templateService, JsonMapper jsonMapper) {
+  public MessageServiceImpl(MessageClient messageClient, TemplateService templateService,
+      JsonMapper jsonMapper) {
     this.messageClient = messageClient;
     this.templateService = templateService;
     this.jsonMapper = jsonMapper;
@@ -36,9 +37,12 @@ public class MessageServiceImpl implements MessageService {
       symMessage = entitify(message.getEntityName(), symMessage);
       symJsonData = getEnricherData(message);
     }
-
     try {
-      messageClient.sendMessage(streamId, symMessage, symJsonData);
+      if (message.getAttachments() == null || message.getAttachments().isEmpty()) {
+        messageClient.sendMessage(streamId, symMessage, symJsonData);
+      } else {
+        messageClient.sendMessage(streamId, symMessage, symJsonData, message.getAttachments());
+      }
     } catch (SymphonyClientException sce) {
       LOGGER.error("Could not send message to Symphony", sce);
     }

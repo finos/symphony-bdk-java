@@ -1,10 +1,11 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extends {@link CommandHandler} to simplify handling commands that require
@@ -30,7 +31,7 @@ public abstract class AuthenticatedCommandHandler extends CommandHandler {
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse) {
     AuthenticationContext authContext = authenticationProvider
-        .getAuthenticationContext(command.getUserId());
+        .getAuthenticationContext(command.getMessageEvent().getUserId());
 
     if (authContext != null && authContext.isAuthenticated()) {
       LOGGER.debug("User authenticated");

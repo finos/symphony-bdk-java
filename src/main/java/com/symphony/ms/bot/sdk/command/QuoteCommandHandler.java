@@ -1,8 +1,5 @@
 package com.symphony.ms.bot.sdk.command;
 
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import com.symphony.ms.bot.sdk.command.model.InternalQuote;
 import com.symphony.ms.bot.sdk.command.model.QuoteResponse;
 import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
@@ -10,6 +7,10 @@ import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.model.RestResponse;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Sample code. CommandHandler that uses {@link RestClient} to consume external API to get currency
@@ -40,7 +41,7 @@ public class QuoteCommandHandler extends CommandHandler {
    */
   @Override
   public void handle(BotCommand command, SymphonyMessage commandResponse) {
-    Optional<String> currency = getCommandCurrency(command.getMessage());
+    Optional<String> currency = getCommandCurrency(command.getMessageEvent().getMessage());
     if (currency.isPresent()) {
       RestResponse<QuoteResponse> response = requestQuote(currency.get());
       if (response.getStatus() == 200) {

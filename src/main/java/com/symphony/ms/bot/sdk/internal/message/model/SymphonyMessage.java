@@ -1,7 +1,12 @@
 package com.symphony.ms.bot.sdk.internal.message.model;
 
+import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
 
 /**
  * A message to be sent to Symphony
@@ -20,6 +25,7 @@ public class SymphonyMessage {
   private String entityName;
   private Object entity;
   private String version;
+  @Setter private List<MessageAttachmentFile> attachments;
 
   public SymphonyMessage(String message) {
     this.message = message;
@@ -68,7 +74,8 @@ public class SymphonyMessage {
   public boolean hasContent() {
     return message != null
         || templateString != null
-        || templateFile != null;
+        || templateFile != null
+        || attachments != null;
   }
 
   public boolean hasTemplate() {

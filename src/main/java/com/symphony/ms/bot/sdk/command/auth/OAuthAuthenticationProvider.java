@@ -1,9 +1,5 @@
 package com.symphony.ms.bot.sdk.command.auth;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import com.symphony.ms.bot.sdk.internal.command.AuthenticationProvider;
 import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
@@ -12,15 +8,21 @@ import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClientConnectionExcep
 import com.symphony.ms.bot.sdk.internal.lib.restclient.model.RestResponse;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Sample code. Implementation of {@link AuthenticationProvider} to offer OAuth
- * authentication. NOTICE: it is required to change oauth properties with valid
- * ones that match what has been configured in a OAuth server.
- *
+ * Sample code. Implementation of {@link AuthenticationProvider} to offer OAuth authentication.
+ * NOTICE: it is required to change oauth properties with valid ones that match what has been
+ * configured in a OAuth server.
  */
 public class OAuthAuthenticationProvider implements AuthenticationProvider {
 
-  private static final String AUTHORIZE_URL = "https://OAUTH-SERVER.URL.COM/oauth2/default/v1/authorize";
+  private static final String AUTHORIZE_URL =
+      "https://OAUTH-SERVER.URL.COM/oauth2/default/v1/authorize";
   private static final String TOKEN_URL = "https://OAUTH-SERVER.URL.COM/oauth2/default/v1/token";
   private static final String REDIRECT_URI = "https://localhost:8080/myproject/oauth";
   private static final String CLIENT_ID = "CLIENT-ID";
@@ -50,11 +52,11 @@ public class OAuthAuthenticationProvider implements AuthenticationProvider {
   @Override
   public void handleUnauthenticated(BotCommand command, SymphonyMessage commandResponse) {
     // Cache command to retry it once user gets authenticated
-    commandCache.put(command.getUserId(), command);
+    commandCache.put(command.getMessageEvent().getUserId(), command);
 
-    commandResponse.setMessage("Hi <b>" + command.getUserDisplayName()
-    + "</b>.  You still don't have linked your account.<br/><br/>"
-    + getLinkAccountUrl(command.getUserId()));
+    commandResponse.setMessage("Hi <b>" + command.getUser().getDisplayName()
+        + "</b>.  You still don't have linked your account.<br/><br/>"
+        + getLinkAccountUrl(command.getMessageEvent().getUserId()));
   }
 
   public void authorizeCode(String code, String userId) {

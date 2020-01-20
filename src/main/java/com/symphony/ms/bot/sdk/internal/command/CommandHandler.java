@@ -1,13 +1,15 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
-import java.util.function.Predicate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.message.MessageService;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.function.Predicate;
 
 /**
  * Base class for bot command handling. Provides mechanisms to automatically register child classes
@@ -58,20 +60,20 @@ public abstract class CommandHandler implements BaseCommandHandler {
    */
   @Override
   public void onCommand(BotCommand command) {
-    LOGGER.debug("Received command {}", command.getMessage());
+    LOGGER.debug("Received command {}", command.getMessageEvent());
 
     final SymphonyMessage commandResponse = new SymphonyMessage();
     try {
       handle(command, commandResponse);
       if (commandResponse.hasContent()
           && featureManager.isCommandFeedbackEnabled()) {
-        messageService.sendMessage(command.getStreamId(), commandResponse);
+        messageService.sendMessage(command.getMessageEvent().getStreamId(), commandResponse);
       }
 
     } catch (Exception e) {
       LOGGER.error("Error processing command {}\n{}", getCommandName(), e);
       if (featureManager.unexpectedErrorResponse() != null) {
-        messageService.sendMessage(command.getStreamId(),
+        messageService.sendMessage(command.getMessageEvent().getStreamId(),
             new SymphonyMessage(featureManager.unexpectedErrorResponse()));
       }
     }
