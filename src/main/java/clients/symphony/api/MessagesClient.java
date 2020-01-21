@@ -4,6 +4,7 @@ import authentication.SymOBOUserRSAAuth;
 import clients.ISymClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.PodConstants;
+import exceptions.DataLossPreventionException;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import java.io.File;
@@ -23,6 +24,7 @@ import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static clients.symphony.api.constants.CommonConstants.DLP_BLOCKED;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
@@ -73,8 +75,9 @@ public final class MessagesClient extends APIClient {
         try (Response response = builder.post(entity)) {
             if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 return null;
-            }
-            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
+            } else if (response.getStatus() == DLP_BLOCKED) {
+                throw new DataLossPreventionException("Message has been blocked by Data Loss Prevention policy");
+            } else if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
