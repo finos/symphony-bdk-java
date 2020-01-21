@@ -3,7 +3,6 @@ package clients.symphony.api;
 import authentication.SymOBOUserRSAAuth;
 import clients.ISymClient;
 import clients.symphony.api.constants.AgentConstants;
-import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
@@ -24,6 +23,8 @@ import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
 import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 public final class MessagesClient extends APIClient {
     private ISymClient botClient;
@@ -70,10 +71,10 @@ public final class MessagesClient extends APIClient {
         Entity entity = Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
 
         try (Response response = builder.post(entity)) {
-            if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
+            if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 return null;
             }
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -133,8 +134,7 @@ public final class MessagesClient extends APIClient {
 
         List<InboundMessage> result;
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -164,7 +164,7 @@ public final class MessagesClient extends APIClient {
         }
 
         try (Response response = subBuilder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -203,7 +203,7 @@ public final class MessagesClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -242,14 +242,14 @@ public final class MessagesClient extends APIClient {
         }
 
         try (Response response = builder.post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
                     return messageSearch(query, skip, limit, orderAscending);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
+            } else if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 throw new NoContentException("No messages found");
             } else {
                 return response.readEntity(InboundMessageList.class);
@@ -272,7 +272,7 @@ public final class MessagesClient extends APIClient {
         }
 
         try (Response response = builder.post(Entity.entity(map, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
