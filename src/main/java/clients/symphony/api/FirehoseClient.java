@@ -2,7 +2,6 @@ package clients.symphony.api;
 
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
-import clients.symphony.api.constants.CommonConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import java.util.ArrayList;
@@ -13,6 +12,8 @@ import javax.ws.rs.core.Response;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
 import model.StringId;
+import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 public class FirehoseClient extends APIClient {
     private SymBotClient botClient;
@@ -30,7 +31,7 @@ public class FirehoseClient extends APIClient {
             .header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
         try (Response response = builder.post(null)) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -54,10 +55,10 @@ public class FirehoseClient extends APIClient {
         List<DatafeedEvent> firehoseEvents = null;
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 handleError(response, botClient);
             } else {
-                if (response.getStatus() == CommonConstants.NO_CONTENT) {
+                if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                     firehoseEvents = new ArrayList<>();
                 } else {
                     firehoseEvents = response.readEntity(DatafeedEventsList.class);

@@ -2,7 +2,6 @@ package clients.symphony.api;
 
 import clients.SymBotClient;
 import clients.symphony.api.constants.AgentConstants;
-import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
@@ -21,6 +20,9 @@ import model.DatafeedEventsList;
 import model.StringId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static javax.ws.rs.core.Response.Status.Family.CLIENT_ERROR;
+import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 public final class DatafeedClient extends APIClient {
     private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
@@ -43,7 +45,7 @@ public final class DatafeedClient extends APIClient {
         logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
 
         try (Response response = builder.post(null)) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                     return createDatafeed();
@@ -90,13 +92,13 @@ public final class DatafeedClient extends APIClient {
 
         logger.debug("Reading datafeed {}", id);
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 logger.error("Datafeed read error for request: {}", webTarget.getUri());
                 handleError(response, botClient);
-            } else if (response.getStatusInfo().getFamily() == Response.Status.Family.CLIENT_ERROR) {
+            } else if (response.getStatusInfo().getFamily() == CLIENT_ERROR) {
                 ((SymLoadBalancedConfig) config).rotateAgent();
             } else {
-                if (response.getStatus() == CommonConstants.NO_CONTENT) {
+                if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                     datafeedEvents = new ArrayList<>();
                 } else {
                     datafeedEvents = response.readEntity(DatafeedEventsList.class);

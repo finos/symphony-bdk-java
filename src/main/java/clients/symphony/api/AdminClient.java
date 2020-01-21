@@ -2,7 +2,6 @@ package clients.symphony.api;
 
 import clients.ISymClient;
 import clients.symphony.api.constants.AgentConstants;
-import clients.symphony.api.constants.CommonConstants;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
@@ -22,6 +21,8 @@ import javax.ws.rs.core.Response;
 import model.*;
 import model.events.AdminStreamInfoList;
 import org.apache.commons.codec.binary.Base64;
+import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
 public final class AdminClient extends APIClient {
     private ISymClient botClient;
@@ -40,8 +41,7 @@ public final class AdminClient extends APIClient {
             .header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
         try (Response response = builder.post(Entity.entity(messageList, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -62,7 +62,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(null)) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -75,8 +75,7 @@ public final class AdminClient extends APIClient {
         }
     }
 
-    public AdminStreamInfoList listEnterpriseStreams(AdminStreamFilter filter,
-                                                     int skip, int limit)
+    public AdminStreamInfoList listEnterpriseStreams(AdminStreamFilter filter, int skip, int limit)
         throws SymClientException {
         WebTarget webTarget = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
@@ -93,8 +92,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(filter, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -114,8 +112,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(userIdList, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -135,14 +132,14 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
                     return getUser(uid);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
+            } else if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 throw new NoContentException("No user found.");
             } else {
                 return response.readEntity(AdminUserInfo.class);
@@ -169,7 +166,7 @@ public final class AdminClient extends APIClient {
             if (response.getStatus() == 200) {
                 return response.readEntity(AdminUserInfoList.class);
             }
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -188,8 +185,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(newUser, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -210,8 +206,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(userAttributes, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily()
-                != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -231,14 +226,14 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
                     return getAvatar(uid);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
+            } else if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 throw new SymClientException("No user found for userid:= " + uid);
             } else {
                 return response.readEntity(AvatarList.class);
@@ -265,7 +260,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -283,14 +278,14 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
                     return getUserStatus(uid);
                 }
                 return null;
-            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
+            } else if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 throw new SymClientException("No user found for userid:= " + uid);
             } else {
                 Status status = response.readEntity(Status.class);
@@ -313,13 +308,13 @@ public final class AdminClient extends APIClient {
         Entity entity = Entity.entity(new Status(status), MediaType.APPLICATION_JSON);
 
         try (Response response = builder.post(entity)) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
                     updateUserStatus(uid, status);
                 }
-            } else if (response.getStatus() == CommonConstants.NO_CONTENT) {
+            } else if (response.getStatus() == NO_CONTENT.getStatusCode()) {
                 throw new SymClientException("No user found for userId: " + uid);
             }
         }
@@ -333,7 +328,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -353,7 +348,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -374,7 +369,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(entitlements, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -393,7 +388,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
@@ -415,7 +410,7 @@ public final class AdminClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(entitlementsUpdate, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
                 } catch (UnauthorizedException ex) {
