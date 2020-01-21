@@ -7,9 +7,13 @@ import clients.symphony.api.constants.PodConstants;
 import exceptions.DataLossPreventionException;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -21,7 +25,7 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
-import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static clients.symphony.api.constants.CommonConstants.DLP_BLOCKED;
@@ -36,6 +40,14 @@ public final class MessagesClient extends APIClient {
     public MessagesClient(ISymClient client) {
         botClient = client;
         isKeyManTokenRequired = !(botClient.getSymAuth() instanceof SymOBOUserRSAAuth);
+    }
+
+    private ContentAttachment convertFileToContent(File file) {
+        try {
+            return new ContentAttachment(file.getName(), Files.readAllBytes(file.toPath()));
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read file: " + file.getPath());
+        }
     }
 
     private InboundMessage sendMessage(String streamId, OutboundMessage message, boolean appendTags)
@@ -65,12 +77,22 @@ public final class MessagesClient extends APIClient {
         if (message.getData() != null) {
             multiPart = multiPart.field("data", message.getData());
         }
-        if (message.getAttachment() != null && message.getAttachment().length > 0) {
-            for (File file : message.getAttachment()) {
-                multiPart = (FormDataMultiPart) multiPart.bodyPart(new FileDataBodyPart("attachment", file));
+
+        if (message.hasAttachment()) {
+            List<ContentAttachment> attachments = message.getContentAttachment();
+            if (attachments == null) {
+                attachments = Arrays.stream(message.getAttachment())
+                    .map(this::convertFileToContent)
+                    .collect(Collectors.toList());
+            }
+            for (ContentAttachment attachment: attachments) {
+                InputStream inputStream = new ByteArrayInputStream(attachment.getData());
+                StreamDataBodyPart streamPart = new StreamDataBodyPart("attachment", inputStream, attachment.getFileName());
+                multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
             }
         }
-        Entity entity = Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
+
+        Entity<FormDataMultiPart> entity = Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
 
         try (Response response = builder.post(entity)) {
             if (response.getStatus() == NO_CONTENT.getStatusCode()) {
