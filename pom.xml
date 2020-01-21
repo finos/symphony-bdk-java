@@ -4,7 +4,7 @@
 
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-api-client-java</artifactId>
-    <version>1.0.48-SNAPSHOT</version>
+    <version>1.0.49-SNAPSHOT</version>
     <name>Symphony API Client</name>
     <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
     <description>Symphony API Client provided by Symphony Platform Solutions team</description>
@@ -34,10 +34,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jjwt.version>0.9.1</jjwt.version>
-        <commons-codec.version>1.13</commons-codec.version>
+        <commons-codec.version>1.14</commons-codec.version>
         <commons-io.version>2.6</commons-io.version>
-        <jersey.version>2.29.1</jersey.version>
-        <slf4j.version>1.7.29</slf4j.version>
+        <jersey.version>2.30</jersey.version>
+        <slf4j.version>1.7.30</slf4j.version>
     </properties>
 
     <build>
@@ -147,7 +147,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.1</version>
+            <version>2.10.2</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -162,7 +162,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -193,7 +193,7 @@
         <dependency>
             <groupId>org.symphonyoss.symphony</groupId>
             <artifactId>messageml</artifactId>
-            <version>0.9.46</version>
+            <version>0.9.47</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
