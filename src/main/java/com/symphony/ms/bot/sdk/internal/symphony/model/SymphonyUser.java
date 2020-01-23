@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SymphonyUser {
 
-  private Long id;
+  private Long userId;
   private String emailAddress;
   private String firstName;
   private String lastName;
@@ -35,7 +35,7 @@ public class SymphonyUser {
   private List<UserAvatar> avatars;
 
   public SymphonyUser(UserInfo userInfo) {
-    this.id = userInfo.getId();
+    this.userId = userInfo.getId();
     this.emailAddress = userInfo.getEmailAddress();
     this.firstName = userInfo.getFirstName();
     this.lastName = userInfo.getLastName();

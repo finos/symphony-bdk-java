@@ -15,12 +15,12 @@ import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientExcepti
  * @author Gabriel Berberian
  */
 @RestController
-@RequestMapping("/secure/user")
-public class UserController {
+@RequestMapping("/secure/users")
+public class UsersController {
 
   private final UsersClient usersClient;
 
-  public UserController(UsersClient usersClient) {
+  public UsersController(UsersClient usersClient) {
     this.usersClient = usersClient;
   }
 

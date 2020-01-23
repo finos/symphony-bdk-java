@@ -35,7 +35,6 @@ public class MyNotificationInterceptor extends NotificationInterceptor {
 
     if (streamId != null) {
       notificationRequest.setStreamId(streamId);
-      notificationMessage.setMessage(notificationRequest.getPayload());
       Map<String, String> data = jsonMapper.toObject(notificationRequest.getPayload(), Map.class);
       notificationMessage.setEnrichedMessage(
           "<b>Notification received:</b><br />" + notificationRequest.getPayload(), // Default message when extension app not present

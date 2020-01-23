@@ -16,12 +16,12 @@ import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
  * @author Gabriel Berberian
  */
 @RestController
-@RequestMapping("/secure/stream")
-public class StreamController {
+@RequestMapping("/secure/streams")
+public class StreamsController {
 
   private final StreamsClient streamsClient;
 
-  public StreamController(StreamsClient streamsClient) {
+  public StreamsController(StreamsClient streamsClient) {
     this.streamsClient = streamsClient;
   }
 

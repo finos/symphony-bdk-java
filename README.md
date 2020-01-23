@@ -6,42 +6,50 @@ systems and push them as symphony messages.
 
 ## Summary
 
-* [Getting Started](#Getting-Started)
-  * [Prerequisites](#Prerequisites)
-  * [Setting the service account](#Setting-the-service-account)
-  * [POD configuration](#POD-configuration)
-  * [Running locally](#Running-locally)
-  * [Verify your setup](#Verify-your-setup)
-* [Testing commands](#Testing-commands)
-  * [Help command](#Help-command)
-  * [Hello command](#Hello-command)
-  * [Create notification command](#Create-notification-command)
-  * [Login command](#Login-command)
-  * [Quote command](#Quote-command)
-  * [Template command](#Template-command)
-  * [Register quote command](#Register-quote-command)
-  * [Attachment command](#Attachment-command)
-  * [Default response](#Default-response)
-* [Testing notifications](#Testing-notifications)
-* [Adding bot commands](#Adding-bot-commands)
-  * [Command initialization](#Command-initialization)
-  * [Default responses](#Default-responses)
-  * [Authenticating to external system](#Authenticating-to-external-system)
-    * [AuthenticationProvider](#AuthenticationProvider)
-    * [AuthenticatedCommandHandler](#AuthenticatedCommandHandler)
-  * [Command Matcher](#Command-Matcher)
-* [Handling Symphony events](#Handling-Symphony-events)
-  * [Available Symphony events](#Available-Symphony-events)
-* [Working with Symphony Elements](#Working-with-Symphony-Elements)
-  * [ElementsActionHandler](#ElementsActionHandler)
-* [Receiving notifications](#Receiving-notifications)
-  * [Processing incoming requests](#Processing-incoming-requests)
-  * [Controlling interceptors order](#Controlling-interceptors-order)
-  * [Forwarding notifications to rooms](#Forwarding-notifications-to-rooms)
-* [Extension app integration](#Extension-app-integration) TODO
-  * [Extension app authentication](#Extension-app-authentication) TODO
-  * [Logging extension app](#Logging-extension-app) TODO
-  * [Server-sent events](#Server-sent-events) TODO
+* [Getting Started](#getting-started)
+  * [Prerequisites](#prerequisites)
+  * [Setting the service account](#setting-the-service-account)
+  * [POD configuration](#pod-configuration)
+  * [Running locally](#running-locally)
+  * [Verify your setup](#verify-your-setup)
+* [Testing commands](#testing-commands)
+  * [Help command](#help-command)
+  * [Hello command](#hello-command)
+  * [Create notification command](#create-notification-command)
+  * [Login command](#login-command)
+  * [Quote command](#quote-command)
+  * [Template command](#template-command)
+  * [Register quote command](#register-quote-command)
+  * [Attachment command](#attachment-command)
+  * [Default response](#default-response)
+* [Testing notifications](#testing-notifications)
+* [Adding bot commands](#adding-bot-commands)
+  * [Command initialization](#command-initialization)
+  * [Default responses](#default-responses)
+  * [Authenticating to external system](#authenticating-to-external-system)
+    * [AuthenticationProvider](#authenticationprovider)
+    * [AuthenticatedCommandHandler](#authenticatedcommandhandler)
+  * [Command Matcher](#command-matcher)
+* [Handling Symphony events](#handling-symphony-events)
+  * [Available Symphony events](#available-symphony-events)
+* [Working with Symphony Elements](#working-with-symphony-elements)
+  * [ElementsActionHandler](#elementsactionhandler)
+* [Receiving notifications](#receiving-notifications)
+  * [Processing incoming requests](#processing-incoming-requests)
+  * [Controlling interceptors order](#controlling-interceptors-order)
+  * [Forwarding notifications to rooms](#forwarding-notifications-to-rooms)
+* [Real-Time events](#real-time-events)
+* [Extension applications](#extension-applications)
+  * [Extension app authentication](#extension-app-authentication)
+  * [Exposing new endpoints](#exposing-new-endpoints)
+  * [Protecting endpoints](#protecting-endpoints)
+  * [Symphony clients](#symphony-clients)
+  * [Serving the extension app](#serving-the-extension-app)
+  * [Testing your app](#testing-your-app)
+    * [Streams details endpoint](#streams-details-endpoint)
+    * [Users details endpoint](#users-details-endpoint)
+    * [Extension app log endpoint](#extension-app-log-endpoint)
+    * [Static content](#static-content)
 
 
 ## Getting Started
@@ -112,12 +120,49 @@ Bind the IDE of your choice the the specified port (e.g. 5005).
 
 ### Verify your setup
 
-Once the application is up and running, you can check if all the setup works properly by navigating to the health check endpoint: http://localhost:8080/your-application-context/monitor/health.
+Once the application is up and running, you can check if all the setup works properly by navigating to the health check endpoint: http(s)://&lt;hostname&gt;:&lt;port&gt;/&lt;application_context&gt;/monitor/health.
 
 It should return something like:
 
-```
-{"status":"UP","details":{"diskSpace":{"status":"UP","details":{"total":267985612800,"free":110894546944,"threshold":10485760}},"symphony":{"status":"UP","details":{"Symphony":{"agentConnection":"UP","podConnection":"UP","agentToPodConnection":"UP","agentToKMConnection":"UP","podVersion":"1.55.3","agentVersion":"2.55.9","agentToPodConnectionError":"N/A","agentToKMConnectionError":"N/A"}}},"internetConnectivity":{"status":"UP","details":{"connectivity":"UP"}}}}
+```javascript
+{
+    "status":"UP",
+    "details":{
+        "diskSpace":{
+            "status":"UP",
+            "details":{
+                "total":267985612800,
+                "free":110894546944,
+                "threshold":10485760
+            }
+            
+        },
+        "symphony":{
+            "status":"UP",
+            "details":{
+                "Symphony":{
+                    "agentConnection":"UP",
+                    "podConnection":"UP",
+                    "agentToPodConnection":"UP",
+                    "agentToKMConnection":"UP",
+                    "podVersion":"1.55.3",
+                    "agentVersion":"2.55.9",
+                    "agentToPodConnectionError":"N/A",
+                    "agentToKMConnectionError":"N/A"
+                }
+                
+            }
+            
+        },
+        "internetConnectivity":{
+            "status":"UP",
+            "details":{
+                "connectivity":"UP"
+            }            
+        }       
+    }    
+}
+
 ```
 
  
@@ -139,13 +184,13 @@ Displays static help message with all available commands
 >&#9679; **MyBot**
 >
 >Bot Commands
->- @MyBot /hello - simple hello command
->- @MyBot /help - displays the list of commands
->- @MyBot /create notification - generates details on how to receive notification in this room
->- @MyBot /login - returns the HTTP authorization header required to talk to external system
->- @MyBot /quote BRL - returns quote for the specified currency (e.g. BRL)
->- @MyBot /register quote - displays the currency quote registration form
->- @MyBot /template alert {\"title\": \"Title\", \"content\": \"Content\"} - displays a customized alert
+>- **@MyBot** /hello - simple hello command
+>- **@MyBot** /help - displays the list of commands
+>- **@MyBot** /create notification - generates details on how to receive notification in this room
+>- **@MyBot** /login - returns the HTTP authorization header required to talk to external system
+>- **@MyBot** /quote BRL - returns quote for the specified currency (e.g. BRL)
+>- **@MyBot** /register quote - displays the currency quote registration form
+>- **@MyBot** /template alert {\"title\": \"Title\", \"content\": \"Content\"} - displays a customized alert
 
 
 ### Hello command
@@ -217,7 +262,7 @@ Relies on the RestClient library offered by the application to request quotes fo
 
 ### Template command
 
-Renders messages using Symphony standardized templates. The supported templates are:
+Renders messages using Symphony standard templates. Supported values by this sample command are:
 * simple
 * alert
 * information
@@ -249,7 +294,7 @@ Renders messages using Symphony standardized templates. The supported templates 
 >
 >![information template](readme/template_information.png)
 
-For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Using Symphony standardized templates](#Using-Symphony-standardized-templates) session.
+For more information about Symphony standard templates, refer to [Using Symphony standard templates](#Using-Symphony-standard-templates) section.
 
 
 ### Register quote command
@@ -267,7 +312,7 @@ Explores the Symphony Elements visual components to display a form for quote reg
 
 ### Attachment command
 
-Highlight the attachments of a message. Sample code explores download message attachments feature.
+Highlights message attachments manipulation. Sample code explores downloading attachments content.
 
 >&#9679; **John Doe**
 >
@@ -279,7 +324,7 @@ Highlight the attachments of a message. Sample code explores download message at
 
 >&#9679; **MyBot**
 >
->![attachment](readme/attachment.png)
+>![attachment](readme/attachment.png) {:height="60%" width="60%"}
 
 
 ### Default response
@@ -307,7 +352,7 @@ To test it follow the instructions of the create notification command. Once the 
 >
 >**Notification received:**
 
-```
+```javascript
 {"alert": false,"title": "Something Interesting occurred!","content": {"header": "This is an example of a notification, expand to see more","body": "The SDK comes with ready-to-use message templates that you can use to render messages with your own data. You can add you own templates using the extension application."},"showStatusBar": true,"comment": {"body": "so interesting!"},"description": "this is a brief description","assignee": {"displayName": "John Doe"},"type": {"name": "sample"},"status": {"name": "Awesome"},"priority": {"name": "normal"},"labels": [{"text": "Example"},{"text": "SDK"},{"text": "MS"}]}
 ```
 
@@ -343,14 +388,14 @@ To extend ```CommandHandler``` implement the following methods:
 
 ### Command initialization
 
-To add initialization logic into a ```CommandHandler``` implementation, override the following method:
+To initialize your own logic prior to ```CommandHandler``` bootstrap, override the following method:
 
-* **void init()**: Initialize the instance dependencies.
+* **void init()**: Initializes the instance dependencies.
 
 ```java
     @Override
       public void init() {
-        // Developer initialization logic
+        // Initialization logic
       }
 ```
 
@@ -387,7 +432,7 @@ Symphony Bot application provides mechanisms to support you on that. Through its
 
 * separation of concerns: isolate the authentication logic from command business logic
 * code reuse: single authentication method, multiple commands
-* rapidly replace the authentication method: ```AuthenticationProvider``` changes, commands remain
+* rapidly replace the authentication method: ```AuthenticationProvider``` implementation changes, commands remain
 
 ```java
   @Override
@@ -424,7 +469,7 @@ The ```AuthenticationProvider``` interface defines two methods:
 
 #### AuthenticatedCommandHandler
 
-The ```AuthenticatedCommandHandler``` is a specialization of ```CommandHandler``` which interacts with ```AuthenticationProvider``` to retrieve an ```AuthenticationContext``` before invoking the ```handle``` method. All the authentication process is abstracted from the command handler.
+The ```AuthenticatedCommandHandler``` is a specialization of ```CommandHandler``` which interacts with ```AuthenticationProvider``` to retrieve an ```AuthenticationContext``` before invoking the ```handle``` method. All the authentication process is abstracted away from the command handler.
 
 If the Symphony user issuing the command is still not authenticated to the external system,  ```AuthenticatedCommandHandler``` will defer to the ```handleUnauthenticated``` method in ```AuthenticationProvider``` and the ```handle``` method will not be invoked.
 
@@ -442,7 +487,7 @@ public class LoginCommandHandler extends AuthenticatedCommandHandler {
 
 In order to avoid writing complex regular expression when specifying the command pattern, the developer can also use ```CommandMatcherBuilder```.
 
-For example, the following pattern...
+For example, the following pattern:
 
 ```java
   Pattern
@@ -539,12 +584,12 @@ It is also possible to configure a custom message the bot would send before quit
 
 | Property                                 | Description                                                                  |
 |------------------------------------------|------------------------------------------------------------------------------|
-| features.isPublicRoomAllowed             | Enablement to allow having bot in public rooms                               |
-| features.publicRoomNotAllowedMessage     | The message displayed after the bot removal                                  |
-| features.publicRoomNotAllowedTemplate    | The file name of the template of the message displayed after the bot removal |
-| features.publicRoomNotAllowedTemplateMap | The template parameters of the message displayed after the bot removal       |
+| features.isPublicRoomAllowed             | Whether bot is allowed in public rooms                                       |
+| features.publicRoomNotAllowedMessage     | Message displayed before the bot leaves the room                             |
+| features.publicRoomNotAllowedTemplate    | Template file with the message displayed before the bot leaves the room      |
+| features.publicRoomNotAllowedTemplateMap | Template parameters of the message displayed before the bot leaves the room  |
 
-The developer can set a message to be displayed before the bot removal, by setting  ```publicRoomNotAllowedMessage```, like the example below:
+Developers can specify simple static message to be displayed before the bot leaves the room, by setting  ```publicRoomNotAllowedMessage```, like the example below:
 
  ```yaml
 features:
@@ -552,7 +597,7 @@ features:
   publicRoomNotAllowedMessage: Sorry, I cannot be added to public rooms
 ```
 
-or, can use templates to generate structured messages, by setting ```publicRoomNotAllowedTemplate``` and ```publicRoomNotAllowedTemplateMap```, like the following example:
+or, they can use templates to generate structured messages, by setting ```publicRoomNotAllowedTemplate``` and ```publicRoomNotAllowedTemplateMap```, like the following example:
 
  ```yaml
 features:
@@ -568,7 +613,7 @@ features:
 
 Symphony Elements allow bots to send messages containing interactive forms with text fields, dropdown menus, person selectors, buttons and more.
 
-Symphony Bot application fully supports Elements. By extending the ```ElementsHandler``` class you get all you need to handle Symphony Elements, from the command to display the Elements in a chat room to the callback triggered when the Symphony Elements form is submitted. All in one single class.
+Symphony Bot application fully supports Elements. By extending the ```ElementsHandler``` class you get all you need to handle Symphony Elements, from the command to display the Elements form in a chat room to the callback triggered when the Symphony Elements form is submitted. All in one single class.
 
 To extend ```ElementsHandler``` you need to implement the following methods:
 
@@ -647,12 +692,14 @@ Sample [Handlebars](https://github.com/jknack/handlebars.java)-based template fo
 </form>
 ```
 
-**Notice:** The ```event.getFormValues()``` returns a map with the values of all input fields in the Symphony Elements form. The key names of that map match the HTML ```name``` property of the input elements in Elements form. 
+**Notice:** The ```event.getFormValues()``` returns a map with the values of all input fields in the Symphony Elements form. The key names of that map match the HTML ```name``` property of the input elements in Elements form. Also, the ```id``` property of the form must match the value returned by ```getElementsFormId```.  
 
 
 ### ElementsActionHandler
 
 For scenarios where the Symphony Elements form is not generated through a command targeted to your bot (e.g. a user interacting with an extension app, a notification from external system) but you need to handle the interactions with that form, extend the ```ElementsActionHandler``` class rather than ```ElementsHandler```. 
+
+```ElementsActionHandler``` is actually an ```EventHandler``` and therefore is simpler and easier to extend than ```ElementsHandler```. It just requires implementing the ```getElementsFormId``` and ```handle``` methods.
 
 
 ## Receiving notifications
@@ -687,7 +734,6 @@ To create your own ```NotificationInterceptor``` you simply need to implement th
 
     if (streamId != null) {
       notificationRequest.setStreamId(streamId);
-      notificationMessage.setMessage(notificationRequest.getPayload());
       notificationMessage.setMessage(
           "<b>Notification received:</b><br />" + notificationRequest.getPayload());
       return true; // true if notification interception chain should continue
@@ -709,7 +755,19 @@ If you need to specify multiple request interceptors and want to control their e
 The notification support offered by the application suggests using an extra path parameter (that is, ```/notification/<some_value>```) to identify which room a particular notification should be sent to. That extra parameter is internally called as 'identifier' and can be retrieved from the ```NotificationRequest``` object.
 
 By default the application assumes the 'identifier' is the stream ID of the room. If for your scenario 'identifier' means something else or you have a completely different mechanism to identify the room, you must set the stream ID in ```NotificationRequest``` manually.  
-     
+
+
+### Protecting notifications endpoint
+
+Notification endpoint is public by default. Nevertheless Symphony Bot application has a built-in IP whitelisting mechanism that could be easily set up to allow only specific IP addresses or IP ranges to have access that endpoint.
+
+You can enable and configure that mechanism by adding the following in application-dev.yaml file:
+
+```yaml
+access-control:
+  ipWhitelist: <comma-separated IP list>
+  urlMapping: "/notification"
+```
 
 ## Formatting bot messages
 
@@ -727,12 +785,14 @@ The ```SymphonyMessage``` object holds the details for a message to be sent to S
 
 * **void setEnrichedTemplateFile(String templateFile, Object templateData, String entityName, Object entity, String version)**: similar to ```setTemplateFile``` but offers data to for an extension app to create enriched messages replacing what has been specified as ```templateFile```. If no extension app is registered, the interpolated content of ```templateFile``` gets displayed.
   
-Currently Symphony Bot application is shipped with Freemarker template engine and automatically handles the template content preparation for you.
+Symphony Bot application is shipped with [Handlebars](https://github.com/jknack/handlebars.java) template engine and automatically handles the template processing for you.
 
 
-### Using Symphony standardized templates
+### Using Symphony standard templates
 
-The template file methods of ```SymphonyMessage``` (```setTemplateFile``` and ```setEnrichedTemplateFile```) can also be used to render predefined templates. For that, it is necessary to specify a native template wildcards from Symphony standardized templates.
+Symphony Bot application integrates seamlessly with [SmsRenderer](https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java) tool to offer predefined message templates.
+
+The file based methods in ```SymphonyMessage``` (```setTemplateFile``` and ```setEnrichedTemplateFile```) can be used to render such templates. For that, you just need to specify the predefined template from ```SmsRenderer.SmsTypes``` enum.
 
 Example:
 
@@ -754,16 +814,16 @@ public class TemplateSampleHandler extends CommandHandler {
 }
 ```
 
-Currently, Symphony supports the following templates:
+Currently, Symphony Bot application offers the following templates:
 
-* Simple
-* Alert
-* Information
-* Notification
-* List
-* Table
+* ALERT
+* INFORMATION
+* LIST
+* NOTIFICATION
+* SIMPLE
+* TABLE
 
-For more information about the standardized templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Template command](#Template-command) session.
+For more information about the Symphony standard templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Template command](#template-command) section.
 
 
 ## Extending health metrics
@@ -832,22 +892,214 @@ public class InternetConnectivityHealthIndicator implements HealthIndicator {
 }
 ```
 
+## Real-Time events
+TODO
 
-## Extension app integration
 
-TODO: Add some text here
+## Extension applications
+
+In addition to all support for bots development, Symphony Bot application also comes with great tools to streamline the Symphony-extension apps integration process.
 
 
 ### Extension app authentication
 
-TODO: Add some text here
+The extension app authentication process spawns three steps which aim to establish a bidirectional trust between an application and Symphony.
+
+Symphony Bot application removes all the complexity related to the authentication process by exposing the following endpoints through which an application can authenticate itself:
+
+| Method | Endpoint | Description | Request | Response
+|---|---|---|---|---|
+| POST | /application/**authenticate** | Initiates the authentication process. Extension app sends its application ID, retrieved from Symphony Client APIs, which must match the same ID configured in Symphony Admin portal. An application token is returned to the extension app. |  `{"appId": "myAppId"}` | `{"appId": "myAppId", "appToken": "bde...e"}` |
+| POST | /application/**tokens/validate** |  Validates the application and Symphony tokens generated in previous step. Extension app provides the Symphony token, obtained through Symphony Client APIs. | `{"appToken":"05b...c",` `"symphonyToken":"0...6",` `"appId":"myAppId"}` | 200 OK if tokens valid, 401 Unauthorized otherwise |
+| POST | /application/**jwt/validate** | Validates a signed JWT holding user details  |  `{"jwt":"ey...g"}` | the user ID |
+
+Extension apps must rely on those three enpoints in the order they are described to get authenticated to Symphony. If any of those steps fails, the authentication fails and extension app will not be launched (i.e. not displayed on the left-nav menu).
 
 
-### Logging extension app
+### Exposing new endpoints
 
-TODO: Add some text here
+The web support in Symphony Bot application is based on SpringMVC framework. So exposing endpoints for your extension apps requires:
+
+* Annotating your classes with ```@Controller``` or ```@RestController```
+* Mapping your routes using ```@RequestMapping```, ```@GetMapping```, ```@PostMapping```, etc
+
+```java
+@RestController
+@RequestMapping("/secure/myendpoint")
+public class MyController {
+
+  @GetMapping
+  public ResponseEntity getSomeData() {
+    // ... logic to retrieve data
+    return ResponseEntity.ok(new Object());
+  }
+
+  @PostMapping
+  public ResponseEntity setSomeData(@RequestBody String data) {
+    // ... logic to set data
+    return ResponseEntity.ok();
+  }
+}
+
+```
+
+### Protecting endpoints
+
+When exposing endpoints for extension apps you will likely need to restrict access to them.
+
+Symphony Bot application offers a simple way for you to protect endpoints so that only your applications would have access to them. All endpoints exposed under ```/secure/``` path are automatically protected.
+
+To access them, Symphony Bot application requires requests to have the HTTP authorization header set with a valid JWT: 
+
+```Authorization: Bearer eyJ...ybxRg```
+
+It is possible to configure a different value for the secure path. In ```bot-config.json``` change the following property:
+
+```jvascript
+  "authenticationFilterUrlPattern": "/secure/",
+```
+
+Be sure to reflect your change to all of your controllers.
 
 
-### Server-sent events
+### Symphony clients
 
-TODO: Add some text here
+Typically extension apps deliver features that involve retrieving/persisting data from/to Symphony. Symphony Bot application provides the building blocks for such features, the Symphony clients.
+
+The following clients available are:
+
+* ```MessageClient```: offers ways to send messages to Symphony rooms
+* ```StreamsClient```: retrieves streams and rooms details and manages rooms
+* ```UsersClient```: retrieves user details
+
+```java
+  private final StreamsClient streamsClient;
+
+  public StreamsController(StreamsClient streamsClient) {
+    this.streamsClient = streamsClient;
+  }
+
+  @GetMapping
+  public ResponseEntity<List<SymphonyStream>> getUserStreams() {
+    try {
+      return ResponseEntity.ok(streamsClient.getUserStreams(null, true));
+    } catch (SymphonyClientException sce) {
+      // ... handling communication failure with Symphony
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+```
+
+**Notice:** For any communication issue with Symphony a ```SymphonyClientException``` is raised. Handle that exception properly to improve user experience.
+
+
+### Serving the extension app
+
+Static assets of an extension app (e.g. javascript, css, images, html) can be served either in a separated host or along with the bundle you generate for your Symphony Bot application.
+
+If you plan to have a different server for you web UI, make sure CORS is properly configured. In ```application-dev.yaml``` add the following properties:
+
+```yaml
+cors:
+  allowed-origin: "<web UI domain>"
+  url-mapping: "/**"
+
+```
+
+To distribute the extension app as part of your Symphony Bot application, place all of you static assets under: ```<symphony bot application base path>/src/main/resources/public``` and build your application. In this case, all of your assets will be under ```/app/``` path. Example,  my_image.png file placed under ```public``` directory would be accessible in the following URL:
+
+```http://<hostname>:<port>/<application_context>/app/my_image.png```
+
+**Notice:** When registering your extension apps in Symphony Admin portal, make sure you take the ```/app/``` into account when setting the load URL.
+
+
+### Testing your app
+
+Symphony Bot application ships with few endpoints to assist developers on understanding how to leverage Symphony Bot application to create their own extension apps. All endpoints are protected and require extension app to be authenticated.
+
+Please refer to following sub-sections for more details.
+
+
+#### Streams details endpoint
+
+| Method | URL | Description
+|---|---|---|
+| GET | /secure/streams | Returns a list of streams the bot is part of
+
+**Response**
+
+```javascript
+[
+  {
+    "active": true,
+    "crossPod": true,
+    "members": [
+      7215545078229
+    ],
+    "roomName": " my room name",
+    "streamId": "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA",
+    "streamType": "ROOM"
+  }
+]
+```
+
+
+#### Users details endpoint
+
+| Method | URL | Description
+|---|---|---|
+| GET | /secure/users | Returns user details by username or user ID. Set either ```username``` or ```userId``` request parameter.
+
+**Response**
+
+```javascript
+{
+  "userId": 15942919536460,
+  "emailAddress": "test_1@symphony.com",
+  "firstName": "test_1",
+  "lastName": "test",
+  "displayName": "test_1 test",
+  "title": "Technical Writer",
+  "company": "pod232",
+  "username": "test_1",
+  "location": "location",
+  "avatars": [
+    {
+      "size": "original",
+      "url": "../avatars/static/150/default.png"
+    }
+  ]
+}
+
+```
+
+
+#### Extension app log endpoint
+
+| Method | URL | Description
+|---|---|---|
+| POST| /secure/log | Persists extension apps logs along with server-side logs. Set ```level``` request parameter to change log level
+
+**Request**
+
+```javascript
+{
+  "message": "a log message from frontend"
+}
+```
+
+
+#### Static content
+
+Under ```<symphony bot application base path>/src/main/resources/public``` you will find a sample Symphony logo (logo.svg).
+ 
+Try accessing it from:
+* browser (full path URL): ```http:<hostname>:<port>/<application_context>/app/logo.svg```
+* your extension app code (relative path): ```./logo.svg```
+
+
+## Application configuration
+
+
+## Features configuration

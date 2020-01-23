@@ -1,4 +1,4 @@
-package com.symphony.ms.bot.sdk.internal.webapi.documentation;
+package com.symphony.ms.bot.sdk.internal.webapi.assets;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Endpoints documentation service
+ * Static assets config
  *
  * @author Marcus Secato
  *
@@ -22,7 +22,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 @EnableWebMvc
-public class SwaggerConfig implements WebMvcConfigurer {
+public class AssetsConfig implements WebMvcConfigurer {
 
   @Bean
   public Docket api() {
@@ -52,8 +52,6 @@ public class SwaggerConfig implements WebMvcConfigurer {
     registry.addResourceHandler("/app/**")
         .addResourceLocations("classpath:/public/");
 
-    registry.addResourceHandler("/assets/**")
-        .addResourceLocations("classpath:/assets/");
   }
 
 }

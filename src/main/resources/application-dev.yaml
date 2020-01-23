@@ -17,7 +17,7 @@ concurrency:
       max-size: 100
       queue-capacity: 1000
       thread-name-prefix: sse-thread-pool
-      
+
 resources: src/main/resources
 certs: certs
 bot-config: ${resources}/bot-config.json
@@ -27,9 +27,6 @@ logging:
   level:
     ROOT: INFO
     com.symphony.ms.bot.sdk.internal: DEBUG
-
-crypto:
-  password: 'DkccUmwnh4SZAQZFhpaZq9UntasU2Bvd+hMG7A8UzD8='
 
 management:
   endpoints:

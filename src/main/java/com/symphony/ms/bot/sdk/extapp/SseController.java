@@ -1,4 +1,4 @@
-package com.symphony.ms.bot.sdk.internal.sse;
+package com.symphony.ms.bot.sdk.extapp;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
+import com.symphony.ms.bot.sdk.internal.sse.SsePublisherRouter;
+import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
 
 /**
  * Server-sent Event Controller
@@ -24,8 +27,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
  *
  */
 @RestController
-// TODO: add /secure/ in path to enforce authentication
-@RequestMapping("/events")
+@RequestMapping("/secure/events")
 public class SseController {
   private static final Logger LOGGER = LoggerFactory.getLogger(SseController.class);
 

@@ -1,4 +1,4 @@
-package com.symphony.ms.bot.sdk.internal.extapp.logging;
+package com.symphony.ms.bot.sdk.extapp;
 
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  *
  */
 @Controller
-@RequestMapping(value = "/v1/log")
+@RequestMapping(value = "/secure/log")
 public class LogController {
   private static final Logger LOGGER = LoggerFactory.getLogger(LogController.class);
 
