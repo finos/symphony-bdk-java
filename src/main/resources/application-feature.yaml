@@ -10,4 +10,3 @@ features:
     message:
       title: Bot not allowed in public rooms
       content: Sorry, I cannot be added to public rooms
-  storePath: /tmp/symphony
