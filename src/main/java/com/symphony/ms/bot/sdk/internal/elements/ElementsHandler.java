@@ -40,7 +40,7 @@ public abstract class ElementsHandler implements
 
   private FeatureManager featureManager;
 
-  private UsersClient usersClient;
+  protected UsersClient usersClient;
 
   /**
    * Registers the ElementsHandler to {@link CommandFilter}, {@link CommandDispatcher} and {@link

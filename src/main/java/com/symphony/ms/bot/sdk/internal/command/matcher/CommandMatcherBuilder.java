@@ -1,7 +1,9 @@
 package com.symphony.ms.bot.sdk.internal.command.matcher;
 
-import org.springframework.util.StringUtils;
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
+
+import org.springframework.util.StringUtils;
+
 import java.util.Arrays;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -361,7 +363,18 @@ public class CommandMatcherBuilder implements Regex {
    * @return the command matcher builder with the optional pattern applied to the regex.
    */
   public static CommandMatcherBuilder optional(Regex regex) {
-    return new CommandMatcherBuilder(regex.regex() + "?");
+    return new CommandMatcherBuilder("(" + regex.regex() + ")?");
+  }
+
+  /**
+   * Instantiates a command matcher builder with the optional pattern applied to a character
+   * matcher.
+   *
+   * @param characterMatcher the character matcher.
+   * @return the command matcher builder with the optional pattern applied to the character matcher.
+   */
+  public static CommandMatcherBuilder optional(CharacterMatcher characterMatcher) {
+    return new CommandMatcherBuilder(characterMatcher.regex() + "?");
   }
 
   /**

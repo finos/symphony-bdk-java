@@ -1,13 +1,14 @@
 package com.symphony.ms.bot.sdk.elements;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.elements.ElementsHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Sample code. Implementation of {@link ElementsHandler} which renders a Symphony elements form and
@@ -39,8 +40,7 @@ public class QuoteRegistrationHandler extends ElementsHandler {
    * Invoked when command matches
    */
   @Override
-  public void displayElements(BotCommand command,
-      SymphonyMessage elementsResponse) {
+  public void displayElements(BotCommand command, SymphonyMessage elementsResponse) {
     Map<String, String> data = new HashMap<>();
     data.put("form_id", getElementsFormId());
     elementsResponse.setTemplateFile("quote-registration", data);
@@ -50,8 +50,7 @@ public class QuoteRegistrationHandler extends ElementsHandler {
    * Invoked when elements form is submitted
    */
   @Override
-  public void handleAction(SymphonyElementsEvent event,
-      SymphonyMessage elementsResponse) {
+  public void handleAction(SymphonyElementsEvent event, SymphonyMessage elementsResponse) {
     Map<String, Object> formValues = event.getFormValues();
 
     Map<String, Object> data = new HashMap<String, Object>();
