@@ -22,6 +22,6 @@ public class SseEvent {
 
   private Object data;
 
-  private Integer retry;
+  private Long retry;
 
 }

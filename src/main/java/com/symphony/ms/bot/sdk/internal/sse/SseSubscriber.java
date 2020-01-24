@@ -51,7 +51,12 @@ public class SseSubscriber {
    * Informs client application that server is done publishing events
    */
   public void onComplete() {
-    sseEmitter.complete();
+    try {
+      sseEmitter.complete();
+    } catch (Exception e) {
+      LOGGER.debug("Tried to signalize streaming complete but connection"
+          + " closed");
+    }
   }
 
   /**
@@ -59,7 +64,12 @@ public class SseSubscriber {
    * @param ex the error
    */
   public void onError(Throwable ex) {
-    sseEmitter.completeWithError(ex);
+    try {
+      sseEmitter.completeWithError(ex);
+    } catch (Exception e) {
+      LOGGER.debug("Tried to signalize streaming complete with error but"
+          + " connection closed");
+    }
   }
 
 }

@@ -20,7 +20,7 @@ public class HelpCommandHandler extends CommandHandler {
       "/login - returns the HTTP authorization header required to talk to external system",
       "/quote BRL - returns quote for the specified currency (e.g. BRL)",
       "/register quote - displays the currency quote registration form",
-      "/template alert {\"title\": \"Title\", \"content\": \"Content\"} - displays a customized alert"
+      "/template alert - renders predefined templates (e.g. alert, notification) based on your inputs"
   };
 
   @Override

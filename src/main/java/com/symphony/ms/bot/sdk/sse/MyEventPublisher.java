@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.sse.SsePublishEventException;
 import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
 import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
@@ -18,6 +19,8 @@ import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
 public class MyEventPublisher extends SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(MyEventPublisher.class);
 
+  private static final long WAIT_INTERVAL = 1000L;
+
   @Override
   public List<String> getStreams() {
     return Stream.of("stream1", "stream2")
@@ -26,21 +29,30 @@ public class MyEventPublisher extends SsePublisher {
 
   @Override
   public void stream(SseSubscriber subscriber) {
-    try {
-      for (int i = 0; true; i++) {
-        SseEvent event = SseEvent.builder()
-            .name("test_event")
-            .data("SSE Test Event - " + LocalTime.now().toString())
-            .id(String.valueOf(i))
-            .retry(10000)
-            .build();
-        LOGGER.debug("sending event with id {}", event.getId());
+    for (int i = 0; true; i++) {
+      SseEvent event = SseEvent.builder()
+          .name("test_event")
+          .data("SSE Test Event - " + LocalTime.now().toString())
+          .id(String.valueOf(i))
+          .retry(WAIT_INTERVAL)
+          .build();
+      LOGGER.debug("sending event with id {}", event.getId());
+
+      try {
         subscriber.onEvent(event);
-        Thread.sleep(1000);
+      } catch (SsePublishEventException spee) {
+        LOGGER.warn("Failed to deliver event with ID: " + event.getId());
       }
-    } catch (Exception e) {
-      LOGGER.info("Connection closed");
-      subscriber.onError(e);
+
+      waitForEvents(WAIT_INTERVAL);
+    }
+  }
+
+  private void waitForEvents(long milliseconds) {
+    try {
+      Thread.sleep(milliseconds);
+    } catch (InterruptedException ie) {
+      LOGGER.debug("Error waiting for next events");
     }
   }
 

@@ -1,5 +1,7 @@
 # Symphony Bot Application
 
+[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk.svg?style=svg)](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk) [![Java](https://img.shields.io/badge/JDK-1.8-blue.svg)](https://www.oracle.com/technetwork/java/javase/documentation/index.html) [![Maven](https://img.shields.io/badge/MAVEN-3.0.5+-blue.svg)](https://maven.apache.org/guides/index.html)
+
 This application is managing all bot interactions from handling bot commands to receiving notifications from external
 systems and push them as symphony messages.
 
@@ -38,7 +40,6 @@ systems and push them as symphony messages.
   * [Processing incoming requests](#processing-incoming-requests)
   * [Controlling interceptors order](#controlling-interceptors-order)
   * [Forwarding notifications to rooms](#forwarding-notifications-to-rooms)
-* [Real-Time events](#real-time-events)
 * [Extension applications](#extension-applications)
   * [Extension app authentication](#extension-app-authentication)
   * [Exposing new endpoints](#exposing-new-endpoints)
@@ -50,6 +51,11 @@ systems and push them as symphony messages.
     * [Users details endpoint](#users-details-endpoint)
     * [Extension app log endpoint](#extension-app-log-endpoint)
     * [Static content](#static-content)
+* [Real-Time events](#real-time-events)
+  * [Generating events](#generating-events)
+  * [Subscribing to event streams](#subscribing-to-event-streams)
+  * [Event stream mapping](#event-stream-mapping)
+  * [Filtering events](#filtering-events)
 
 
 ## Getting Started
@@ -190,7 +196,7 @@ Displays static help message with all available commands
 >- **@MyBot** /login - returns the HTTP authorization header required to talk to external system
 >- **@MyBot** /quote BRL - returns quote for the specified currency (e.g. BRL)
 >- **@MyBot** /register quote - displays the currency quote registration form
->- **@MyBot** /template alert {\"title\": \"Title\", \"content\": \"Content\"} - displays a customized alert
+>- **@MyBot** /template alert - renders predefined templates (e.g. alert, notification) based on your inputs
 
 
 ### Hello command
@@ -892,9 +898,6 @@ public class InternetConnectivityHealthIndicator implements HealthIndicator {
 }
 ```
 
-## Real-Time events
-TODO
-
 
 ## Extension applications
 
@@ -1079,7 +1082,7 @@ Please refer to following sub-sections for more details.
 
 | Method | URL | Description
 |---|---|---|
-| POST| /secure/log | Persists extension apps logs along with server-side logs. Set ```level``` request parameter to change log level
+| POST | /secure/log | Persists extension apps logs along with server-side logs. Set ```level``` request parameter to change log level
 
 **Request**
 
@@ -1097,6 +1100,121 @@ Under ```<symphony bot application base path>/src/main/resources/public``` you w
 Try accessing it from:
 * browser (full path URL): ```http:<hostname>:<port>/<application_context>/app/logo.svg```
 * your extension app code (relative path): ```./logo.svg```
+
+
+## Real-Time events
+
+With Symphony Bot application your extension apps can quickly leverage real-time events. Based on the Server-Sent Event (SSE) technology, Symphony Bot application delivers real-time events support through the following components: 
+
+* ```SseController``` which exposes the endpoint through which extension applications subscribe for real-time events 
+* ```SsePublisher```, a base class to create real-time event generators
+* ```SseSubscriber```, an abstraction of clients subscribing for events   
+
+
+### Generating events
+
+```SsePublisher``` child classes represent event generators. To extend ```SsePublisher``` implement the following methods:
+
+* **List&lt;String&gt; getStreams()**: returns a list of event stream names that this particular publisher is responsible for. Clients must specify the streams they want to listen events to in their requests.
+
+* **void stream(SseSubscriber subscriber)**: where you add your business logic to generate events. This method is automatically called when clients request events for any stream handled by this particular publisher. Use the ```SseSubscriber``` object to retrieve details of the clients subscribing for events and to send them your events.   
+
+```java
+  private static final long WAIT_INTERVAL = 1000L;
+
+  @Override
+  public List<String> getStreams() {
+    return Stream.of("stream1", "stream2")
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public void stream(SseSubscriber subscriber) {
+    for (int i = 0; true; i++) {
+      SseEvent event = SseEvent.builder()
+          .name("test_event")
+          .data("SSE Test Event - " + LocalTime.now().toString())
+          .id(String.valueOf(i))
+          .retry(WAIT_INTERVAL)
+          .build();
+      LOGGER.debug("sending event with id {}", event.getId());
+
+      try {
+        subscriber.onEvent(event);
+      } catch (SsePublishEventException spee) {
+        LOGGER.warn("Failed to deliver event with ID: " + event.getId());
+      }
+
+      waitForEvents(WAIT_INTERVAL);
+    }
+  }
+```
+
+
+### Subscribing to event streams
+
+| Method | URL | Description
+|---|---|---|
+| GET | /secure/events/&lt;comma separated stream names&gt; | Subscribe to the specified event streams. Use query params to filter events.   
+
+**Client sample**
+
+```javascript
+
+// Listening to stock price updates
+const evtSource = new EventSource("http://localhost:8080/botapp/secure/events/stockprice");
+
+```
+
+
+### Event stream mapping
+
+If you have multiple ```SsePublisher``` generating events of different nature (e.g. stock prices and currencies exchange rates), you can name the event streams so that subscribers are properly served by the corresponding publishers.
+
+Symphony Bot application automatically maps clients requests to the corresponding publishers based on the stream names present in the request path (e.g. /stockprice, /x-rate). Stream names in client requests must match the ones registered by publishers through ```getStreams()``` method.
+
+**Client sample**
+
+```javascript
+
+// Listening to stock price updates only
+const evtSource = new EventSource("http://localhost:8080/botapp/secure/events/stockprice");
+
+// Listening to stock price and x-rate updates
+const evtSource2 = new EventSource("http://localhost:8080/botapp/secure/events/stockprice,x-rate");
+
+
+```
+
+### Filtering events
+
+Real-time events may be filtered based on some criteria. All query parameters in a subscription request are handled by Symphony Bot application as filtering criteria and forwarded to publishers through ```SseSubscriber``` object.
+
+
+```javascript
+
+// Listening to Tesla stock price updates
+const evtSource = new EventSource("http://localhost:8080/botapp/secure/events/stockprice?name=TSLA");
+
+```
+
+The publisher then checks if there are any specified filters:
+
+```java
+  @Override
+  public void stream(SseSubscriber subscriber) {
+    
+    ...
+    
+    Map<String, String> filter = subscriber.getFilters();
+    if (price.getStockName().equals(filter.get("name")) {
+      // generate SSE event
+    }
+    
+    ...
+  }
+
+```
 
 
 ## Application configuration
