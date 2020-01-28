@@ -56,6 +56,8 @@ systems and push them as symphony messages.
   * [Subscribing to event streams](#subscribing-to-event-streams)
   * [Event stream mapping](#event-stream-mapping)
   * [Filtering events](#filtering-events)
+* [Advanced settings](#advanced-settings)
+
 
 
 ## Getting Started
@@ -101,9 +103,7 @@ POD. Fill out the following properties to make the application to point to your 
 | botPrivateKeyName              | The bot private key file                  |
 | botUsername                    | The bot username                          |
 | authTokenRefreshPeriod         | The authentication token refresh period   |
-| authenticationFilterUrlPattern | The authentication filter URL pattern     |
 | showFirehoseErrors             | Showing Firehose errors flag              |
-| connectionTimeout              | The connection timeout                    |
 
 ### Running locally
 
@@ -969,7 +969,7 @@ Be sure to reflect your change to all of your controllers.
 
 Typically extension apps deliver features that involve retrieving/persisting data from/to Symphony. Symphony Bot application provides the building blocks for such features, the Symphony clients.
 
-The following clients available are:
+The following clients are available:
 
 * ```MessageClient```: offers ways to send messages to Symphony rooms
 * ```StreamsClient```: retrieves streams and rooms details and manages rooms
@@ -1217,7 +1217,42 @@ The publisher then checks if there are any specified filters:
 ```
 
 
-## Application configuration
+## Advanced settings
 
-
-## Features configuration
+|                 Property                 |                                          Description                                         |    Configuration file    |
+|------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------|
+| truststorePath                           | The truststore path                                                                          | bot-config.json          |
+| truststorePassword                       | The truststore password                                                                      | bot-config.json          |
+| podProxyURL                              | The pod proxy URL                                                                            | bot-config.json          |
+| podProxyUsername                         | The pod proxy username                                                                       | bot-config.json          |
+| podProxyPassword                         | The pod proxy password                                                                       | bot-config.json          |
+| proxyURL                                 | The agent and pod proxy URL                                                                  | bot-config.json          |
+| proxyUsername                            | The agent and pod proxy username                                                             | bot-config.json          |
+| proxyPassword                            | The agent and pod proxy password                                                             | bot-config.json          |
+| keyManagerProxyURL                       | The key manager proxy URL                                                                    | bot-config.json          |
+| keyManagerProxyUsername                  | The key manager proxy username                                                               | bot-config.json          |
+| keyManagerProxyPassword                  | The key manager proxy password                                                               | bot-config.json          |
+| access-control.name                      | The name used for                                                                            | application-dev.yaml     |
+| access-control.hashedPassword            |                                                                                              | application-dev.yaml     |
+| access-control.salt                      |                                                                                              | application-dev.yaml     |
+| access-control.ipWhitelist               | The IP whitelist set                                                                         | application-dev.yaml     |
+| access-control.urlMapping                |                                                                                              | application-dev.yaml     |
+| concurrency.pools.bot.coreSize           | The bot concurrency pools coreSize                                                           | application-dev.yaml     |
+| concurrency.pools.bot.maxSize            | The bot concurrency pools max size                                                           | application-dev.yaml     |
+| concurrency.pools.bot.queueCapacity      | The bot concurrency pools queue capacity                                                     | application-dev.yaml     |
+| concurrency.pools.bot.threadNamePrefix   | The bot concurrency pools <br>thread name prefix                                             | application-dev.yaml     |
+| concurrency.pools.sse.coreSize           | The SSE concurrency pools coreSize                                                           | application-dev.yaml     |
+| concurrency.pools.sse.maxSize            | The SSE concurrency pools max size                                                           | application-dev.yaml     |
+| concurrency.pools.sse.queueCapacity      | The SSE concurrency pools queue capacity                                                     | application-dev.yaml     |
+| concurrency.pools.sse.threadNamePrefix   | The SSE concurrency pools thread name prefix                                                 | application-dev.yaml     |
+| restclient.proxy.address                 | The rest client proxy address                                                                | application-dev.yaml     |
+| restclient.proxy.port                    | The rest client port                                                                         | application-dev.yaml     |
+| restclient.timeout                       | The rest client timeout                                                                      | application-dev.yaml     |
+| features.commandFeedback                 | The command feedback enablement                                                              | application-feature.yaml |
+| features.transactionIdOnError            | The transaction id on error enablement                                                       | application-feature.yaml |
+| features.eventUnexpectedErrorMessage     | The message for unexpected errors on events                                                  | application-feature.yaml |
+| features.notificationBaseUrl             | The notification base URL                                                                    | application-feature.yaml |
+| features.isPublicRoomAllowed             | The enablement for allowing bot addition to public rooms                                     | application-feature.yaml |
+| features.publicRoomNotAllowedMessage     | The message when adding bots to public rooms is not allowed                                  | application-feature.yaml |
+| features.publicRoomNotAllowedTemplate    | The template to be used when adding bots to public rooms is not allowed                      | application-feature.yaml |
+| features.publicRoomNotAllowedTemplateMap | The parameter of the template to be used <br>when adding bots to public rooms is not allowed | application-feature.yaml |
