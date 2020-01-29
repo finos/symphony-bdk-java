@@ -34,12 +34,17 @@ systems and push them as symphony messages.
   * [Command Matcher](#command-matcher)
 * [Handling Symphony events](#handling-symphony-events)
   * [Available Symphony events](#available-symphony-events)
+  * [Permission for bots in public rooms](#permission-for-bots-in-public-rooms)
 * [Working with Symphony Elements](#working-with-symphony-elements)
   * [ElementsActionHandler](#elementsactionhandler)
 * [Receiving notifications](#receiving-notifications)
   * [Processing incoming requests](#processing-incoming-requests)
   * [Controlling interceptors order](#controlling-interceptors-order)
   * [Forwarding notifications to rooms](#forwarding-notifications-to-rooms)
+  * [Protecting notifications endpoint](#protecting-notifications-endpoint)
+* [Sending messages](#sending-messages)
+  * [Using Symphony standard templates](#using-symphony-standard-templates)
+* [Extending health metrics](#extending-health-metrics)  
 * [Extension applications](#extension-applications)
   * [Extension app authentication](#extension-app-authentication)
   * [Exposing new endpoints](#exposing-new-endpoints)
@@ -783,7 +788,7 @@ access-control:
   urlMapping: "/notification"
 ```
 
-## Formatting bot messages
+## Sending messages
 
 The ```SymphonyMessage``` object holds the details for a message to be sent to Symphony. It offers the following different ways to specify the message content:
 
