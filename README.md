@@ -57,7 +57,15 @@ systems and push them as symphony messages.
   * [Event stream mapping](#event-stream-mapping)
   * [Filtering events](#filtering-events)
 * [Advanced settings](#advanced-settings)
-
+  * [Custom truststore](#custom-truststore)
+  * [Proxy support](#proxy-support)
+  * [Logging](#logging)
+  * [Access control](#access-control)
+  * [CORS](#cors)
+  * [Cross-site scripting](#cross-site-scripting)
+  * [Request origin header](#request-origin-header)
+  * [Rate limit](#rate-limit)
+  * [Settings reference](#settings-reference)
 
 
 ## Getting Started
@@ -1219,6 +1227,154 @@ The publisher then checks if there are any specified filters:
 
 ## Advanced settings
 
+### Custom truststore
+If SSL connection to any endpoint uses private or self-signed certificates, add the following properties to the ```bot-config.json``` to tell the application which truststore to use:
+
+```javascript
+"truststorePath": "/path/to/truststore/",
+"truststorePassword": "truststore password",
+
+```
+
+### Proxy support
+
+In case connection to Symphony components (e.g. POD, agent, key manager) requires going through proxies, the following properties can be set in ```bot-config.json```:
+
+```javascript
+// If only POD access requires proxy. Username/password only required
+// if proxy uses basic authentication
+"podProxyURL": "proxy url", 
+"podProxyUsername": "username",
+"podProxyPassword": "password",
+
+// If access to both POD and agent requires proxy
+"proxyURL": "proxy url", 
+"proxyUsername": "username",
+"proxyPassword": "password",
+
+// If access to key manager requires proxy
+"keyManagerProxyURL": "proxy url",
+"keyManagerProxyUsername": "username",
+"keyManagerProxyPassword: "password",
+
+```
+
+For connections to external systems using the REST client shipped with Symphony Bot application define the following properties in ```application-dev.yaml```:
+
+```yaml
+restclient:
+  proxy:
+    address: "proxy hostname"
+    port: "proxy port"
+
+```
+
+
+### Logging
+
+To change log file name and/or location, or to change log level for different packages, set the following properties in ```application-dev.yaml```.
+
+```yaml
+logging:
+  file: /home/myuser/sms-bot-sdk/logs/bot-app.log
+  level:
+    ROOT: INFO
+    com.symphony.ms.bot.sdk.internal: DEBUG
+
+```
+
+### Access control
+
+To protect endpoints using basic authentication and/or IP whitelist, specify the following in ```application-dev.yaml```:
+
+```yaml
+access-control:
+  name: myusername
+  hashedPassword: 5e88489...21d1542d8
+  salt: 11111
+  ipWhitelist: 192.168.0.155, 192.168.2.178
+  urlMapping: /monitor
+
+```
+
+**Notice:** The basic authentication protection is pretty simple allowing only one username/password to be specified.
+
+
+### CORS
+
+If extension app is running in different host, rely on the CORS support to make Symphony Bot application to accept requests coming from the extension app. In ```application-dev.yaml``` add:
+
+```yaml
+cors:
+  allowed-origin: myextensionapp.com
+  url-mapping: /**
+
+```
+
+
+### Cross-site scripting
+
+Protect endpoint from XSS attacks by setting the following properties in ```application-dev.yaml```:
+
+```yaml
+xss:
+  url-mapping: /secure/*
+
+```
+
+
+### Request origin header
+
+It is also possible to protect endpoints based on shared secrets. This is particularly useful when your application needs to receive notifications from external systems and therefore needs to expose a publicly available endpoint.
+
+Both the external system and your application could share a secret through some secure channel. On every notification sent, the external system would add that secret in a HTTP header and Symphony Bot application would automatically reject requests without it.
+
+In ```application-dev.yaml``` add the following:
+
+```yaml
+request-origin:
+  origin-header: x-origin-token
+  url-mapping: /notification
+
+```
+
+
+### Rate limit
+
+It is possible to limit access to your application using the Symphony Bot application's throttling mechanism. You need to specify the limit and one of the throttling mode:
+
+* ORIGIN: limits request rate based on origin IP address    
+* ENDPOINT: limits request rate per endpoints exposed by your application (default if not specified)
+
+**Notice:** When application is running behind load balancers or firewalls, the calling IP address may be rewritten. Usually such network components keep the original IP address in HTTP headers. Symphony Bot application looks for the following headers when throttling in ORIGIN mode:
+
+* X-Forwarded-For
+* Proxy-Client-IP
+* WL-Proxy-Client-IP
+* HTTP_X_FORWARDED_FOR
+* HTTP_X_FORWARDED
+* HTTP_X_CLUSTER_CLIENT_IP
+* HTTP_CLIENT_IP
+* HTTP_FORWARDED_FOR
+* HTTP_FORWARDED
+* HTTP_VIA
+* REMOTE_ADDR
+
+Example: specify that the same IP address can issue at most 200 concurrent requests per second
+
+```yaml
+throttling:
+  limit: 200
+  mode: ORIGIN
+  timeout: 10000
+
+```
+
+The timeout property is used to define the maximum amount of time a request waits in throttling mechanism before it is processed. If that time exceeds, a HTTP 408 error is returned to the caller.
+
+
+### Settings reference
+
 |                 Property                 |                                          Description                                         |    Configuration file    |
 |------------------------------------------|----------------------------------------------------------------------------------------------|--------------------------|
 | truststorePath                           | The truststore path                                                                          | bot-config.json          |
@@ -1232,22 +1388,35 @@ The publisher then checks if there are any specified filters:
 | keyManagerProxyURL                       | The key manager proxy URL                                                                    | bot-config.json          |
 | keyManagerProxyUsername                  | The key manager proxy username                                                               | bot-config.json          |
 | keyManagerProxyPassword                  | The key manager proxy password                                                               | bot-config.json          |
-| access-control.name                      | The name used for                                                                            | application-dev.yaml     |
-| access-control.hashedPassword            |                                                                                              | application-dev.yaml     |
-| access-control.salt                      |                                                                                              | application-dev.yaml     |
+| server.port                              | Port to be used by application (e.g. 8080)                                                   | application-dev.yaml     |
+| server.servlet.context-path              | Application context path (e.g. /botapp)                                                      | application-dev.yaml     |
+| certs                                    | Path to the directory containing bot private key                                             | application-dev.yaml     |
+| logging.file                             | The log file path (including file name)                                                      | application-dev.yaml     |
+| logging.level.&lt;package&gt;            | The log level for the given package (e.g. DEBUG, INFO, WARN, ERROR)                          | application-dev.yaml     |
+| access-control.name                      | The username for basic authentication                                                        | application-dev.yaml     |
+| access-control.hashedPassword            | The salted hashed password for basic authentication                                          | application-dev.yaml     |
+| access-control.salt                      | Salt used when hashing password                                                              | application-dev.yaml     |
 | access-control.ipWhitelist               | The IP whitelist set                                                                         | application-dev.yaml     |
-| access-control.urlMapping                |                                                                                              | application-dev.yaml     |
+| access-control.urlMapping                | The endpoints protected by either basic authentication or IP whitelist                       | application-dev.yaml     |
 | concurrency.pools.bot.coreSize           | The bot concurrency pools coreSize                                                           | application-dev.yaml     |
 | concurrency.pools.bot.maxSize            | The bot concurrency pools max size                                                           | application-dev.yaml     |
 | concurrency.pools.bot.queueCapacity      | The bot concurrency pools queue capacity                                                     | application-dev.yaml     |
-| concurrency.pools.bot.threadNamePrefix   | The bot concurrency pools <br>thread name prefix                                             | application-dev.yaml     |
+| concurrency.pools.bot.threadNamePrefix   | The bot concurrency pools thread name prefix                                                 | application-dev.yaml     |
 | concurrency.pools.sse.coreSize           | The SSE concurrency pools coreSize                                                           | application-dev.yaml     |
 | concurrency.pools.sse.maxSize            | The SSE concurrency pools max size                                                           | application-dev.yaml     |
 | concurrency.pools.sse.queueCapacity      | The SSE concurrency pools queue capacity                                                     | application-dev.yaml     |
 | concurrency.pools.sse.threadNamePrefix   | The SSE concurrency pools thread name prefix                                                 | application-dev.yaml     |
+| cors.allowed-origin                      | The allowed origin domain                                                                    | application-dev.yaml     |
+| cors.url-mapping                         | The endpoints which CORS support should be applied to                                        | application-dev.yaml     |
+| xss.url-mapping                          | The endpoints which cross-site scripting protection should be applied to                     | application-dev.yaml     |
+| request-origin.origin-header             | The HTTP header used to convey the request origin secret                                     | application-dev.yaml     |
+| request-origin.url-mapping               | The endpoints for which origin header should be verified                                     | application-dev.yaml     |
 | restclient.proxy.address                 | The rest client proxy address                                                                | application-dev.yaml     |
 | restclient.proxy.port                    | The rest client port                                                                         | application-dev.yaml     |
 | restclient.timeout                       | The rest client timeout                                                                      | application-dev.yaml     |
+| throttling.limit                         | Limits the number of requests per second                                                     | application-dev.yaml     |
+| throttling.mode                          | Throttling modes: ORIGIN - throttle based on IP or ENDPOINT - throttle based on target endpoint. If not specified, default to ENDPOINT | application-dev.yaml     |
+| throttling.timeout                       | Maximum amount of time a request waits before a HTTP 408 is returned to client               | application-dev.yaml     |
 | features.commandFeedback                 | The command feedback enablement                                                              | application-feature.yaml |
 | features.transactionIdOnError            | The transaction id on error enablement                                                       | application-feature.yaml |
 | features.eventUnexpectedErrorMessage     | The message for unexpected errors on events                                                  | application-feature.yaml |
@@ -1255,4 +1424,6 @@ The publisher then checks if there are any specified filters:
 | features.isPublicRoomAllowed             | The enablement for allowing bot addition to public rooms                                     | application-feature.yaml |
 | features.publicRoomNotAllowedMessage     | The message when adding bots to public rooms is not allowed                                  | application-feature.yaml |
 | features.publicRoomNotAllowedTemplate    | The template to be used when adding bots to public rooms is not allowed                      | application-feature.yaml |
-| features.publicRoomNotAllowedTemplateMap | The parameter of the template to be used <br>when adding bots to public rooms is not allowed | application-feature.yaml |
+| features.publicRoomNotAllowedTemplateMap | The parameter of the template to be used when adding bots to public rooms is not allowed     | application-feature.yaml |
+
+
