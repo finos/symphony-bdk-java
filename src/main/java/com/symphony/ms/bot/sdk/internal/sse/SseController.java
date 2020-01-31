@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
 
 /**
- * Server-sent Event Controller
- * Endpoint that offers all support required for client applications to receive
- * automatic updates from server.
+ * Server-sent Event Controller Endpoint that offers all support required for client applications to
+ * receive automatic updates from server.
  *
  * @author msecato
  *
@@ -58,7 +58,6 @@ public class SseController {
    * @param lastEventId ID of last event client application received
    * @param userId ID of the user subscribing to the specified streams
    * @param response
-   *
    * @return the {@link SseEmitter} representing the SSE connection
    */
   public SseEmitter subscribeSse(@PathVariable List<String> streams,
@@ -68,13 +67,8 @@ public class SseController {
       HttpServletResponse response) {
 
     SseEmitter emitter = new SseEmitter();
-    SseSubscriber subscriber = SseSubscriber.builder()
-        .sseEmitter(emitter)
-        .streams(streams)
-        .userId(userId)
-        .filters(filterCriteria)
-        .lastEventId(lastEventId)
-        .build();
+    SseSubscriber subscriber =
+        new SseSubscriber(emitter, userId, filterCriteria, streams, lastEventId);
 
     List<SsePublisher> pubs = ssePublisherRouter.findPublishers(subscriber);
     if (pubs.isEmpty()) {

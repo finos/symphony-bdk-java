@@ -1,20 +1,20 @@
 package com.symphony.ms.bot.sdk.sse;
 
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.sse.SsePublishEventException;
 import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
 import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
- * Sample code. Simple SsePublisher which sends events every second to client
- * application.
- *
+ * Sample code. Simple SsePublisher which sends events every second to client application.
  */
 public class MyEventPublisher extends SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(MyEventPublisher.class);
@@ -42,6 +42,7 @@ public class MyEventPublisher extends SsePublisher {
         subscriber.onEvent(event);
       } catch (SsePublishEventException spee) {
         LOGGER.warn("Failed to deliver event with ID: " + event.getId());
+        break;
       }
 
       waitForEvents(WAIT_INTERVAL);
