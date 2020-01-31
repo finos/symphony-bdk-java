@@ -1,40 +1,54 @@
-package com.symphony.ms.bot.sdk.extapp;
+package com.symphony.ms.bot.sdk.internal.sse;
 
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
-import com.symphony.ms.bot.sdk.internal.sse.SsePublisherRouter;
-import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
+import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
 
 /**
  * Server-sent Event Controller
  * Endpoint that offers all support required for client applications to receive
  * automatic updates from server.
  *
- * @author Marcus Secato
+ * @author msecato
  *
  */
 @RestController
-@RequestMapping("/secure/events")
 public class SseController {
   private static final Logger LOGGER = LoggerFactory.getLogger(SseController.class);
 
-  private SsePublisherRouter ssePublisherRouter;
+  private static final String SSE_PATH = "events/{streams}";
 
-  public SseController(SsePublisherRouter ssePublisherRouter) {
+  @Autowired
+  @Qualifier("requestMappingHandlerMapping")
+  private RequestMappingHandlerMapping handlerMapping;
+
+  private SsePublisherRouter ssePublisherRouter;
+  private String authPath;
+
+  public SseController(SsePublisherRouter ssePublisherRouter, ConfigClient configClient) {
     this.ssePublisherRouter = ssePublisherRouter;
+    authPath = configClient.getExtAppAuthPath();
+  }
+
+  @PostConstruct
+  public void init() throws NoSuchMethodException {
+    registerRoute(authPath.concat(SSE_PATH));
   }
 
   /**
@@ -47,7 +61,6 @@ public class SseController {
    *
    * @return the {@link SseEmitter} representing the SSE connection
    */
-  @GetMapping(value = "/{streams}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public SseEmitter subscribeSse(@PathVariable List<String> streams,
       @RequestParam Map<String, String> filterCriteria,
       @RequestHeader(name = "Last-Event-ID", required = false) String lastEventId,
@@ -74,6 +87,19 @@ public class SseController {
     pubs.stream().forEach(pub -> ssePublisherRouter.bind(subscriber, pub));
 
     return emitter;
+  }
+
+  private void registerRoute(String route) throws NoSuchMethodException {
+    handlerMapping.registerMapping(RequestMappingInfo.paths(route)
+        .methods(RequestMethod.GET)
+        .produces(MediaType.TEXT_EVENT_STREAM_VALUE).build(),
+        this,
+        SseController.class.getDeclaredMethod("subscribeSse",
+            List.class,
+            Map.class,
+            String.class,
+            String.class,
+            HttpServletResponse.class));
   }
 
 }

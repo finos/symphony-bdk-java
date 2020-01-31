@@ -57,6 +57,7 @@ systems and push them as symphony messages.
     * [Users details endpoint](#users-details-endpoint)
     * [Extension app log endpoint](#extension-app-log-endpoint)
     * [Static content](#static-content)
+  * [Automatic endpoint documentation](#automatic-endpoint-documentation)
 * [Real-Time events](#real-time-events)
   * [Generating events](#generating-events)
   * [Subscribing to event streams](#subscribing-to-event-streams)
@@ -732,7 +733,7 @@ For scenarios where the Symphony Elements form is not generated through a comman
 
 Receiving notifications from external systems directly into Symphony chats is another common use case for bots and Symphony Bot SDK delivers all the support you need by:
 
-1. Exposing the ```/notification``` endpoint through which external systems can send their events: https://&lt;hostname&gt;:&lt;port&gt;/&lt;application_context&gt;/notification
+1. Exposing the ```/notification``` endpoint through which external systems can send their events: http(s)://&lt;hostname&gt;:&lt;port&gt;/&lt;application_context&gt;/notification
 
 2. Offering mechanisms for you to register your own logic to process incoming notification requests through the ```NotificationInterceptor``` class, including discarding requests when applicable 
    
@@ -1032,7 +1033,7 @@ cors:
 
 To distribute the extension app as part of your Symphony Bot SDK based application, place all of you static assets under: ```<symphony bot application base path>/src/main/resources/public``` and build your application. In this case, all of your assets will be under ```/app/``` path. Example,  my_image.png file placed under ```public``` directory would be accessible in the following URL:
 
-```http://<hostname>:<port>/<application_context>/app/my_image.png```
+```http(s)://<hostname>:<port>/<application_context>/app/my_image.png```
 
 **Notice:** When registering your extension apps in Symphony Admin portal, make sure you take the ```/app/``` into account when setting the load URL.
 
@@ -1107,9 +1108,8 @@ Please refer to following sub-sections for more details.
 **Request**
 
 ```javascript
-{
-  "message": "a log message from frontend"
-}
+"a log message from frontend"
+
 ```
 
 
@@ -1118,8 +1118,18 @@ Please refer to following sub-sections for more details.
 Under ```<symphony bot application base path>/src/main/resources/public``` you will find a sample Symphony logo (logo.svg).
  
 Try accessing it from:
-* browser (full path URL): ```http:<hostname>:<port>/<application_context>/app/logo.svg```
+* browser (full path URL): ```http(s)://<hostname>:<port>/<application_context>/app/logo.svg```
 * your extension app code (relative path): ```./logo.svg```
+
+
+### Automatic endpoint documentation
+
+Symphony Bot SDK is shipped with [Swagger](https://swagger.io/tools/open-source/getting-started/) already configured. Documentation for all existing endpoints and new ones that you may add can be found here:
+
+```
+http(s)://<hostname>:<port>/<application_context>/swagger-ui.html
+
+```
 
 
 ## Real-Time events

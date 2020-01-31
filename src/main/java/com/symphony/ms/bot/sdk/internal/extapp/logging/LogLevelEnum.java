@@ -1,4 +1,4 @@
-package com.symphony.ms.bot.sdk.extapp;
+package com.symphony.ms.bot.sdk.internal.extapp.logging;
 
 /**
  * Log level enum
