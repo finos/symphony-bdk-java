@@ -32,9 +32,15 @@ management:
   endpoints:
     web:
       base-path: /monitor
+      exposure:
+        include: health, info, prometheus
   endpoint:
     health:
       show-details: always
+  health:
+    defaults:
+      enabled: false
+  symphony-api-client-version: '@symphony.apiclient.version@'
 
 cors:
   allowed-origin: "*"

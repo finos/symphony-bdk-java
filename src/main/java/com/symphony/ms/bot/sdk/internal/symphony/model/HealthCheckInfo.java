@@ -32,9 +32,10 @@ public class HealthCheckInfo {
   private String agentVersion;
   private String agentToPodConnectionError;
   private String agentToKMConnectionError;
+  private String symphonyApiClientVersion;
 
-  public HealthCheckInfo(
-      HealthcheckResponse healthcheckResponse, boolean isPodUp) {
+  public HealthCheckInfo(HealthcheckResponse healthcheckResponse,
+      boolean isPodUp, String symphonyApiClientVersion) {
 
     this.podConnection = convert(isPodUp);
     if (healthcheckResponse != null) {
@@ -50,6 +51,8 @@ public class HealthCheckInfo {
           healthcheckResponse.getPodConnectivityError());
       this.agentToKMConnectionError = defaultValue(
           healthcheckResponse.getKeyManagerConnectivityError());
+
+      this.symphonyApiClientVersion = symphonyApiClientVersion;
 
       overallStatus = isPodUp
           && healthcheckResponse.getAgentServiceUser()

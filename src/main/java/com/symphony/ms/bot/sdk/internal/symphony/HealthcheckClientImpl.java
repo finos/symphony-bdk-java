@@ -2,6 +2,7 @@ package com.symphony.ms.bot.sdk.internal.symphony;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
 import com.symphony.ms.bot.sdk.internal.symphony.model.HealthCheckInfo;
@@ -16,6 +17,9 @@ public class HealthcheckClientImpl implements HealthcheckClient {
   private SymBotClient symBotClient;
   private RestClient restClient;
 
+  @Value("${management.symphony-api-client-version}")
+  private String symphonyApiClientVersion;
+
   public HealthcheckClientImpl(SymBotClient symBotClient, RestClient restClient) {
     this.symBotClient = symBotClient;
     this.restClient = restClient;
@@ -26,7 +30,8 @@ public class HealthcheckClientImpl implements HealthcheckClient {
    */
   @Override
   public HealthCheckInfo healthCheck() {
-    return new HealthCheckInfo(checkAgentStatus(), checkPodStatus());
+    return new HealthCheckInfo(checkAgentStatus(),
+        checkPodStatus(), symphonyApiClientVersion);
   }
 
   private String getPodHealthUrl() {

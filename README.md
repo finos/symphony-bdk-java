@@ -147,15 +147,6 @@ It should return something like:
 {
     "status":"UP",
     "details":{
-        "diskSpace":{
-            "status":"UP",
-            "details":{
-                "total":267985612800,
-                "free":110894546944,
-                "threshold":10485760
-            }
-            
-        },
         "symphony":{
             "status":"UP",
             "details":{
@@ -167,7 +158,8 @@ It should return something like:
                     "podVersion":"1.55.3",
                     "agentVersion":"2.55.9",
                     "agentToPodConnectionError":"N/A",
-                    "agentToKMConnectionError":"N/A"
+                    "agentToKMConnectionError":"N/A",
+                    "symphonyApiClientVersion":"1.0.49"
                 }
                 
             }
@@ -858,21 +850,12 @@ For more information about the Symphony standard templates, take a look on https
 The Symphony Bot SDK monitoring system is based on Spring Actuators. By default, it exposes the following health metrics:
 
 * **overall system health status**: represented by the top ```status``` field. It shows 'UP' if all other metrics are fine, that is, 'UP'. 
-* **diskspace**: disk space metrics. It shows 'DOWN' when the available disk space is below the defined threshold.
 * **symphony**: symphony components metrics. It shows 'UP' only if your bot is properly communicating with the POD and agent and all Symphony components (e.g. agent, Key Manager, POD) are accessible. 
 
 ```javascript
 {
     "status":"UP",
     "details":{
-        "diskSpace":{
-            "status":"UP",
-            "details":{
-                "total":267985612800,
-                "free":110891438080,
-                "threshold":10485760
-            }            
-        },
         "symphony":{
             "status":"UP",
             "details":{
@@ -884,7 +867,8 @@ The Symphony Bot SDK monitoring system is based on Spring Actuators. By default,
                     "podVersion":"1.55.3",
                     "agentVersion":"2.55.9",
                     "agentToPodConnectionError":"N/A",
-                    "agentToKMConnectionError":"N/A"
+                    "agentToKMConnectionError":"N/A",
+                    "symphonyApiClientVersion":"1.0.49"
                 }
                 
             }
