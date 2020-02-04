@@ -17,8 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class EventHandlerTest {
@@ -27,7 +27,7 @@ public class EventHandlerTest {
   private EventDispatcher eventDispatcher;
 
   @Mock
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   @Mock
   private FeatureManager featureManager;
@@ -91,8 +91,8 @@ public class EventHandlerTest {
     eventHandler.onEvent(event);
 
     verify(featureManager, times(1)).isCommandFeedbackEnabled();
-    verify(messageService, never())
-      .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+      ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -106,8 +106,8 @@ public class EventHandlerTest {
     eventHandler.onEvent(event);
 
     verify(featureManager, times(1)).isCommandFeedbackEnabled();
-    verify(messageService, times(1))
-      .sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+      ._sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
   }
 
   @Test
@@ -120,8 +120,8 @@ public class EventHandlerTest {
 
     spyEventHandler.onEvent(event);
 
-    verify(messageService, never())
-      .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+      ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
 }

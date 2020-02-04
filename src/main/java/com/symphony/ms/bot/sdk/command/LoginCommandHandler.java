@@ -6,7 +6,7 @@ import com.symphony.ms.bot.sdk.internal.command.AuthenticatedCommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.config.CommandAuthenticationProvider;
 import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Sample code to demonstrate how to use {@link AuthenticatedCommandHandler} along with an

@@ -6,23 +6,20 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
-import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
-
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticatedCommandHandlerTest {
@@ -34,7 +31,7 @@ public class AuthenticatedCommandHandlerTest {
   private CommandFilter commandFilter;
 
   @Mock
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   @Mock
   private FeatureManager featureManager;

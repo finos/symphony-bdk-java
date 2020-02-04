@@ -1,15 +1,13 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
-
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Predicate;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Base class for bot command handling. Provides mechanisms to automatically register child classes
@@ -24,7 +22,7 @@ public abstract class CommandHandler implements BaseCommandHandler {
 
   protected CommandFilter commandFilter;
 
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   protected FeatureManager featureManager;
 
@@ -67,13 +65,13 @@ public abstract class CommandHandler implements BaseCommandHandler {
       handle(command, commandResponse);
       if (commandResponse.hasContent()
           && featureManager.isCommandFeedbackEnabled()) {
-        messageService.sendMessage(command.getMessageEvent().getStreamId(), commandResponse);
+        messageClient._sendMessage(command.getMessageEvent().getStreamId(), commandResponse);
       }
 
     } catch (Exception e) {
       LOGGER.error("Error processing command {}\n{}", getCommandName(), e);
       if (featureManager.unexpectedErrorResponse() != null) {
-        messageService.sendMessage(command.getMessageEvent().getStreamId(),
+        messageClient._sendMessage(command.getMessageEvent().getStreamId(),
             new SymphonyMessage(featureManager.unexpectedErrorResponse()));
       }
     }
@@ -102,8 +100,8 @@ public abstract class CommandHandler implements BaseCommandHandler {
     this.commandFilter = commandFilter;
   }
 
-  public void setMessageService(MessageService messageService) {
-    this.messageService = messageService;
+  public void setMessageClient(MessageClientImpl messageClient) {
+    this.messageClient = messageClient;
   }
 
   public void setFeatureManager(FeatureManager featureManager) {

@@ -33,7 +33,7 @@ public class EventBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
           .rootBeanDefinition(beanDefinition.getBeanClassName())
           .setInitMethodName("register")
           .addPropertyReference("eventDispatcher", "eventDispatcherImpl")
-          .addPropertyReference("messageService", "messageServiceImpl")
+          .addPropertyReference("messageClient", "messageClientImpl")
           .addPropertyReference("featureManager", "featureManager")
           .getBeanDefinition();
 

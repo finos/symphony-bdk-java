@@ -1,5 +1,8 @@
 package com.symphony.ms.bot.sdk.internal.elements;
 
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.BaseCommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
@@ -8,14 +11,9 @@ import com.symphony.ms.bot.sdk.internal.event.BaseEventHandler;
 import com.symphony.ms.bot.sdk.internal.event.EventDispatcher;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
 import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.function.Predicate;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Symphony Elements Handler
@@ -36,7 +34,7 @@ public abstract class ElementsHandler implements
 
   private CommandFilter commandFilter;
 
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   private FeatureManager featureManager;
 
@@ -72,13 +70,13 @@ public abstract class ElementsHandler implements
       displayElements(command, elementsResponse);
 
       if (elementsResponse.hasContent()) {
-        messageService.sendMessage(command.getMessageEvent().getStreamId(), elementsResponse);
+        messageClient._sendMessage(command.getMessageEvent().getStreamId(), elementsResponse);
       }
 
     } catch (Exception e) {
       LOGGER.error("Error processing command {}\n{}", getCommandName(), e);
       if (featureManager.unexpectedErrorResponse() != null) {
-        messageService.sendMessage(command.getMessageEvent().getStreamId(),
+        messageClient._sendMessage(command.getMessageEvent().getStreamId(),
             new SymphonyMessage(featureManager.unexpectedErrorResponse()));
       }
     }
@@ -97,13 +95,13 @@ public abstract class ElementsHandler implements
 
       if (eventResponse.hasContent()
           && featureManager.isCommandFeedbackEnabled()) {
-        messageService.sendMessage(event.getStreamId(), eventResponse);
+        messageClient._sendMessage(event.getStreamId(), eventResponse);
       }
 
     } catch (Exception e) {
       LOGGER.error("Error processing elements action {}", e);
       if (featureManager.unexpectedErrorResponse() != null) {
-        messageService.sendMessage(event.getStreamId(),
+        messageClient._sendMessage(event.getStreamId(),
             new SymphonyMessage(featureManager.unexpectedErrorResponse()));
       }
     }
@@ -161,8 +159,8 @@ public abstract class ElementsHandler implements
     this.commandFilter = commandFilter;
   }
 
-  public void setMessageService(MessageService messageService) {
-    this.messageService = messageService;
+  public void setMessageClient(MessageClientImpl messageClient) {
+    this.messageClient = messageClient;
   }
 
   public void setFeatureManager(FeatureManager featureManager) {

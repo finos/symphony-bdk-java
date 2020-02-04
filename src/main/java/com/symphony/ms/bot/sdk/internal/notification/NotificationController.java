@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Notification controller
@@ -30,12 +30,12 @@ public class NotificationController {
 
   private InterceptorChain interceptorChain;
 
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   public NotificationController(InterceptorChain interceptorChain,
-      MessageService messageService) {
+      MessageClientImpl messageClient) {
     this.interceptorChain = interceptorChain;
-    this.messageService = messageService;
+    this.messageClient = messageClient;
   }
 
   @PostMapping(value = "/{identifier}")
@@ -57,7 +57,7 @@ public class NotificationController {
           && notificationRequest.getStreamId() != null) {
         LOGGER.debug("Sending notification for stream {}",
             notificationRequest.getStreamId());
-        messageService.sendMessage(
+        messageClient._sendMessage(
             notificationRequest.getStreamId(), notificationMessage);
       }
 

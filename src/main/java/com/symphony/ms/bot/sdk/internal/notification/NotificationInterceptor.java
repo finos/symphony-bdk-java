@@ -1,8 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.notification;
 
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
-
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package com.symphony.ms.bot.sdk.internal.message.model;
+package com.symphony.ms.bot.sdk.internal.symphony.model;
 
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 

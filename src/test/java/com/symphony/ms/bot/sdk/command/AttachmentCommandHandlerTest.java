@@ -11,10 +11,9 @@ import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachment;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

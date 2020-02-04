@@ -12,8 +12,8 @@ import com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBuilder;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.elements.ElementsHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
 
 import org.apache.commons.lang.StringUtils;

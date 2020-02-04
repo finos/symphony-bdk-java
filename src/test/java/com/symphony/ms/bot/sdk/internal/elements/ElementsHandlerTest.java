@@ -10,7 +10,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
@@ -18,19 +25,9 @@ import com.symphony.ms.bot.sdk.internal.event.EventDispatcher;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
 import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class ElementsHandlerTest {
@@ -45,7 +42,7 @@ public class ElementsHandlerTest {
   private CommandFilter commandFilter;
 
   @Mock
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   @Mock
   private FeatureManager featureManager;
@@ -137,8 +134,8 @@ public class ElementsHandlerTest {
     elementsHandler.onCommand(command);
 
     verify(command, times(2)).getMessageEvent();
-    verify(messageService, never())
-        .sendMessage(anyString(), any(SymphonyMessage.class));
+    verify(messageClient, never())
+        ._sendMessage(anyString(), any(SymphonyMessage.class));
 
   }
 
@@ -152,8 +149,8 @@ public class ElementsHandlerTest {
     spyElementsHandler.onCommand(command);
 
     verify(usersClient, times(1)).getBotDisplayName();
-    verify(messageService, never())
-      .sendMessage(anyString(), any(SymphonyMessage.class));
+    verify(messageClient, never())
+      ._sendMessage(anyString(), any(SymphonyMessage.class));
   }
 
   @Test
@@ -167,8 +164,8 @@ public class ElementsHandlerTest {
 
     elementsHandler.onCommand(command);
 
-    verify(messageService, times(1))
-        .sendMessage(eq("12345"), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+        ._sendMessage(eq("12345"), any(SymphonyMessage.class));
   }
 
   @Test
@@ -184,8 +181,8 @@ public class ElementsHandlerTest {
 
     verify(spyElementsHandler, times(1)).getCommandName();
     verify(featureManager, times(1)).unexpectedErrorResponse();
-    verify(messageService, never())
-      .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+      ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -205,8 +202,8 @@ public class ElementsHandlerTest {
 
     verify(spyElementsHandler, times(1)).getCommandName();
     verify(featureManager, times(2)).unexpectedErrorResponse();
-    verify(messageService, times(1))
-        .sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+        ._sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
   }
 
   @Test
@@ -240,8 +237,8 @@ public class ElementsHandlerTest {
     elementsHandler.onEvent(event);
 
     verify(featureManager, times(1)).isCommandFeedbackEnabled();
-    verify(messageService, never())
-      .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+      ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -255,8 +252,8 @@ public class ElementsHandlerTest {
     elementsHandler.onEvent(event);
 
     verify(featureManager, times(1)).isCommandFeedbackEnabled();
-    verify(messageService, times(1))
-      .sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+      ._sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
   }
 
   @Test
@@ -272,8 +269,8 @@ public class ElementsHandlerTest {
 
     spyElementsHandler.onEvent(event);
 
-    verify(messageService, never())
-      .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+      ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -290,8 +287,8 @@ public class ElementsHandlerTest {
 
     spyElementsHandler.onEvent(event);
 
-    verify(messageService, times(1))
-      .sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+      ._sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));
   }
 
 }

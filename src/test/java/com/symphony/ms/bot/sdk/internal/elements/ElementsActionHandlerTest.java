@@ -14,8 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.symphony.ms.bot.sdk.internal.event.EventDispatcher;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class ElementsActionHandlerTest {
@@ -24,7 +24,7 @@ public class ElementsActionHandlerTest {
   private EventDispatcher eventDispatcher;
 
   @Mock
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   @Mock
   private FeatureManager featureManager;

@@ -16,9 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class NotificationControllerTest {
@@ -27,7 +27,7 @@ public class NotificationControllerTest {
 
   private TestNotificationInterceptor notificationInterceptor;
 
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   private NotificationController notificationController;
 
@@ -57,10 +57,10 @@ public class NotificationControllerTest {
     interceptorChain = spy(new InterceptorChainImpl());
     interceptorChain.register(notificationInterceptor);
 
-    messageService = mock(MessageService.class);
+    messageClient = mock(MessageClientImpl.class);
 
     notificationController = new NotificationController(
-        interceptorChain, messageService);
+        interceptorChain, messageClient);
   }
 
   @Test
@@ -82,7 +82,7 @@ public class NotificationControllerTest {
     ResponseEntity<String> response = notificationController
         .receiveNotification(null, null, null);
 
-    verify(messageService, times(1)).sendMessage(anyString(), any(SymphonyMessage.class));
+    verify(messageClient, times(1))._sendMessage(anyString(), any(SymphonyMessage.class));
     assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
@@ -96,7 +96,7 @@ public class NotificationControllerTest {
     ResponseEntity<String> response = notificationController
         .receiveNotification(null, null, null);
 
-    verify(messageService, never()).sendMessage(anyString(), any(SymphonyMessage.class));
+    verify(messageClient, never())._sendMessage(anyString(), any(SymphonyMessage.class));
     assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
@@ -110,7 +110,7 @@ public class NotificationControllerTest {
     ResponseEntity<String> response = notificationController
         .receiveNotification(null, null, null);
 
-    verify(messageService, never()).sendMessage(anyString(), any(SymphonyMessage.class));
+    verify(messageClient, never())._sendMessage(anyString(), any(SymphonyMessage.class));
     assertEquals(HttpStatus.OK, response.getStatusCode());
   }
 
@@ -123,8 +123,8 @@ public class NotificationControllerTest {
     });
 
     doThrow(new RuntimeException())
-      .when(messageService)
-      .sendMessage(anyString(), any(SymphonyMessage.class));
+      .when(messageClient)
+      ._sendMessage(anyString(), any(SymphonyMessage.class));
 
     ResponseEntity<String> response = notificationController
         .receiveNotification(null, null, null);

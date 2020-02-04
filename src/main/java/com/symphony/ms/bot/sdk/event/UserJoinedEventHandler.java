@@ -2,7 +2,7 @@ package com.symphony.ms.bot.sdk.event;
 
 import com.symphony.ms.bot.sdk.internal.event.EventHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Sample code. Implementation of {@link EventHandler} to send greeting message

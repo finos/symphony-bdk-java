@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Sample code. Help command to return the list of available commands

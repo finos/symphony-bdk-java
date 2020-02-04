@@ -1,13 +1,12 @@
 package com.symphony.ms.bot.sdk.internal.event;
 
-import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
-import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ResolvableType;
+import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Base class for Symphony events handling. Provides mechanisms to
@@ -21,7 +20,7 @@ public abstract class EventHandler<E extends BaseEvent> implements BaseEventHand
 
   protected EventDispatcher eventDispatcher;
 
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   private FeatureManager featureManager;
 
@@ -57,7 +56,7 @@ public abstract class EventHandler<E extends BaseEvent> implements BaseEventHand
 
       if (eventResponse.hasContent()
           && featureManager.isCommandFeedbackEnabled()) {
-        messageService.sendMessage(event.getStreamId(), eventResponse);
+        messageClient._sendMessage(event.getStreamId(), eventResponse);
       }
 
     } catch (Exception e) {
@@ -77,8 +76,8 @@ public abstract class EventHandler<E extends BaseEvent> implements BaseEventHand
     this.eventDispatcher = eventDispatcher;
   }
 
-  public void setMessageService(MessageService messageService) {
-    this.messageService = messageService;
+  public void setMessageClient(MessageClientImpl messageClient) {
+    this.messageClient = messageClient;
   }
 
   public void setFeatureManager(FeatureManager featureManager) {

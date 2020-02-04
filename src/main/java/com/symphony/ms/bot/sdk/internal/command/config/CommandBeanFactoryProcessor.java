@@ -38,7 +38,7 @@ public class CommandBeanFactoryProcessor extends BaseBeanFactoryPostProcessor {
           .setInitMethodName("register")
           .addPropertyReference("commandDispatcher", "commandDispatcherImpl")
           .addPropertyReference("commandFilter", "commandFilterImpl")
-          .addPropertyReference("messageService", "messageServiceImpl")
+          .addPropertyReference("messageClient", "messageClientImpl")
           .addPropertyReference("featureManager", "featureManager")
           .addPropertyReference("usersClient", "usersClientImpl");
 

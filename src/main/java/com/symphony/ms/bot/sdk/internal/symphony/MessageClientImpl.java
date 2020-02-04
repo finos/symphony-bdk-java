@@ -1,10 +1,18 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachment;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
+import com.symphony.ms.bot.sdk.internal.lib.templating.TemplateService;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import clients.SymBotClient;
 import model.Attachment;
 import model.ContentAttachment;
@@ -12,22 +20,37 @@ import model.ImageInfo;
 import model.InboundMessage;
 import model.OutboundMessage;
 import model.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class MessageClientImpl implements MessageClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageClientImpl.class);
+  private static final String ENTITY_TAG = "<div class='entity' data-entity-id='%s'>%s</div>";
 
   private final SymBotClient symBotClient;
+  private final TemplateService templateService;
+  private final JsonMapper jsonMapper;
 
-  public MessageClientImpl(SymBotClient symBotClient) {
+  public MessageClientImpl(SymBotClient symBotClient, TemplateService templateService,
+      JsonMapper jsonMapper) {
     this.symBotClient = symBotClient;
+    this.templateService = templateService;
+    this.jsonMapper = jsonMapper;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void sendMessage(String streamId, SymphonyMessage message)
+      throws SymphonyClientException {
+    String symMessage = getSymphonyMessage(message);
+    String symJsonData = null;
+    if (message.isEnrichedMessage()) {
+      symMessage = entitify(message.getEntityName(), symMessage);
+      symJsonData = getEnricherData(message);
+    }
+
+    sendMessage(streamId, symMessage, symJsonData, message.getAttachments());
   }
 
   /**
@@ -36,8 +59,7 @@ public class MessageClientImpl implements MessageClient {
   @Override
   public void sendMessage(String streamId, String message, String jsonData)
       throws SymphonyClientException {
-    OutboundMessage outMessage = new OutboundMessage(message != null ? message : "", jsonData);
-    internalSendMessage(streamId, outMessage);
+    sendMessage(streamId, message, jsonData, null);
   }
 
   /**
@@ -46,15 +68,22 @@ public class MessageClientImpl implements MessageClient {
   @Override
   public void sendMessage(String streamId, String message, String jsonData,
       List<MessageAttachmentFile> attachments) throws SymphonyClientException {
+    LOGGER.debug("Sending message to stream: {}", streamId);
     List<ContentAttachment> contentAttachments = null;
     if (attachments != null && !attachments.isEmpty()) {
       contentAttachments =
           attachments.stream().map(this::toContentAttachment).collect(Collectors.toList());
     }
 
-    OutboundMessage outMessage =
-        new OutboundMessage(message != null ? message : "", jsonData, contentAttachments);
-    internalSendMessage(streamId, outMessage);
+    OutboundMessage outMessage = new OutboundMessage(
+        message != null ? message : "", jsonData, contentAttachments);
+
+    try {
+      symBotClient.getMessagesClient().sendMessage(streamId, outMessage);
+    } catch (Exception e) {
+      LOGGER.error("Error sending message to stream: {}", streamId);
+      throw new SymphonyClientException(e);
+    }
   }
 
   /**
@@ -96,14 +125,18 @@ public class MessageClientImpl implements MessageClient {
     }
   }
 
-  private void internalSendMessage(String streamId, OutboundMessage message)
-      throws SymphonyClientException {
-    LOGGER.debug("Sending message to stream: {}", streamId);
+  /**
+   * Sends message to Symphony swallowing any communication error.
+   * Internal use only.
+   *
+   * @param streamId
+   * @param message
+   */
+  public void _sendMessage(String streamId, SymphonyMessage message) {
     try {
-      symBotClient.getMessagesClient().sendMessage(streamId, message);
-    } catch (Exception e) {
-      LOGGER.error("Error sending message to stream: {}", streamId);
-      throw new SymphonyClientException(e);
+      sendMessage(streamId, message);
+    } catch (SymphonyClientException sce) {
+      LOGGER.error("Could not send message to Symphony", sce);
     }
   }
 
@@ -112,6 +145,37 @@ public class MessageClientImpl implements MessageClient {
     contentAttachment.setData(messageAttachmentFile.getFileContent());
     contentAttachment.setFileName(messageAttachmentFile.getFileName());
     return contentAttachment;
+  }
+
+  private String getSymphonyMessage(SymphonyMessage message) {
+    String symMessage = message.getMessage();
+    if (message.hasTemplate()) {
+      symMessage = processTemplateMessage(message);
+    }
+
+    return symMessage;
+  }
+
+  private String getEnricherData(SymphonyMessage message) {
+    return jsonMapper.toEnricherString(message.getEntityName(),
+        message.getEntity(), message.getVersion());
+  }
+
+  private String processTemplateMessage(SymphonyMessage message) {
+    String renderedString = null;
+    if (message.usesTemplateFile()) {
+      renderedString = templateService.processTemplateFile(
+          message.getTemplateFile(), message.getTemplateData());
+    } else {
+      renderedString = templateService.processTemplateString(
+          message.getTemplateString(), message.getTemplateData());
+    }
+
+    return renderedString;
+  }
+
+  private String entitify(String entityName, String content) {
+    return String.format(ENTITY_TAG, entityName, content);
   }
 
 }

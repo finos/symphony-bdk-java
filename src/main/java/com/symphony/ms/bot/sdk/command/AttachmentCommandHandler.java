@@ -3,10 +3,9 @@ package com.symphony.ms.bot.sdk.command;
 import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

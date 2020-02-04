@@ -10,8 +10,8 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Logging aspect that adds transaction ID, stream ID and user ID (when
@@ -31,12 +31,12 @@ public class EventHandlerAspect {
 
   private FeatureManager featureManager;
 
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   public EventHandlerAspect(FeatureManager featureManager,
-      MessageService messageService) {
+      MessageClientImpl messageClient) {
     this.featureManager = featureManager;
-    this.messageService = messageService;
+    this.messageClient = messageClient;
   }
 
   @Around("execution(public void com.symphony.ms.bot.sdk.internal.event.InternalEventListenerImpl.*(..))")
@@ -56,7 +56,7 @@ public class EventHandlerAspect {
           event.getClass().getSimpleName(), e);
 
       if (featureManager.unexpectedErrorResponse() != null) {
-        messageService.sendMessage(event.getStreamId(),
+        messageClient._sendMessage(event.getStreamId(),
             new SymphonyMessage(featureManager.unexpectedErrorResponse()));
       }
     }

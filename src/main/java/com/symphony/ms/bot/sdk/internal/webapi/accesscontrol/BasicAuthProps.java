@@ -29,7 +29,7 @@ public class BasicAuthProps {
     if ((name != null && !name.isEmpty())
         && (hashedPassword != null && !hashedPassword.isEmpty())
         && (salt != null && !salt.isEmpty())
-        && (urlMapping != null && urlMapping.isEmpty())) {
+        && (urlMapping != null && !urlMapping.isEmpty())) {
       isBasicAuth = true;
     }
     return isBasicAuth;
@@ -38,7 +38,7 @@ public class BasicAuthProps {
   public boolean isIpWhitelist() {
     boolean isIpWhitelist = false;
     if ((ipWhitelist != null && !ipWhitelist.isEmpty())
-        && (urlMapping != null && urlMapping.isEmpty())) {
+        && (urlMapping != null && !urlMapping.isEmpty())) {
       isIpWhitelist = true;
     }
     return isIpWhitelist;

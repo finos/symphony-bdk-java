@@ -10,23 +10,20 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
-import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
-
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class CommandHandlerTest {
@@ -38,7 +35,7 @@ public class CommandHandlerTest {
   private CommandFilter commandFilter;
 
   @Mock
-  private MessageService messageService;
+  private MessageClientImpl messageClient;
 
   @Mock
   private FeatureManager featureManager;
@@ -122,8 +119,8 @@ public class CommandHandlerTest {
     spyCommandHandler.onCommand(command);
 
     verify(usersClient, times(1)).getBotDisplayName();
-    verify(messageService, never())
-        .sendMessage(anyString(), any(SymphonyMessage.class));
+    verify(messageClient, never())
+        ._sendMessage(anyString(), any(SymphonyMessage.class));
   }
 
   @Test
@@ -136,8 +133,8 @@ public class CommandHandlerTest {
     commandHandler.onCommand(command);
 
     verify(featureManager, times(1)).isCommandFeedbackEnabled();
-    verify(messageService, never())
-        .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+        ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -153,8 +150,8 @@ public class CommandHandlerTest {
     commandHandler.onCommand(command);
 
     verify(featureManager, times(1)).isCommandFeedbackEnabled();
-    verify(messageService, times(1))
-        .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+        ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -170,8 +167,8 @@ public class CommandHandlerTest {
 
     verify(spyCommandHandler, times(1)).getCommandName();
     verify(featureManager, times(1)).unexpectedErrorResponse();
-    verify(messageService, never())
-        .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, never())
+        ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
   @Test
@@ -191,8 +188,8 @@ public class CommandHandlerTest {
 
     verify(spyCommandHandler, times(1)).getCommandName();
     verify(featureManager, atLeastOnce()).unexpectedErrorResponse();
-    verify(messageService, times(1))
-        .sendMessage(any(String.class), any(SymphonyMessage.class));
+    verify(messageClient, times(1))
+        ._sendMessage(any(String.class), any(SymphonyMessage.class));
   }
 
 }

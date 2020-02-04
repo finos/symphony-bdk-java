@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.event.EventHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.message.MessageService;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
 import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
 import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Implementation of {@link EventHandler} to check if the user joining the room is the configured
@@ -21,14 +21,14 @@ public class BotJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
   private final StreamsClient streamsClient;
   private final UsersClient usersClient;
   private final FeatureManager featureManager;
-  private final MessageService messageService;
+  private final MessageClientImpl messageClient;
 
   public BotJoinedEventHandler(StreamsClient streamsClient, UsersClient usersClient,
-      FeatureManager featureManager, MessageService messageService) {
+      FeatureManager featureManager, MessageClientImpl messageClient) {
     this.streamsClient = streamsClient;
     this.usersClient = usersClient;
     this.featureManager = featureManager;
-    this.messageService = messageService;
+    this.messageClient = messageClient;
   }
 
   @Override
@@ -63,10 +63,10 @@ public class BotJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
     if (isPublicRoomNotAllowedTemplateDefined()) {
       symphonyMessage.setTemplateFile(featureManager.getPublicRoomNotAllowedTemplate(),
               featureManager.getPublicRoomNotAllowedTemplateMap());
-      messageService.sendMessage(streamId, symphonyMessage);
+      messageClient._sendMessage(streamId, symphonyMessage);
     } else if (isPublicRoomNotAllowedMessageDefined()) {
       symphonyMessage.setMessage(featureManager.getPublicRoomNotAllowedMessage());
-      messageService.sendMessage(streamId, symphonyMessage);
+      messageClient._sendMessage(streamId, symphonyMessage);
     }
   }
 

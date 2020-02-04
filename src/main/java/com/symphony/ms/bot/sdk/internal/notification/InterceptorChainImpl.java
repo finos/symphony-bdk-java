@@ -5,8 +5,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 @Service
 public class InterceptorChainImpl implements InterceptorChain {

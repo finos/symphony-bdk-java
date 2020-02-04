@@ -4,9 +4,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.lib.jsonmapper.JsonMapper;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
 import com.symphony.ms.bot.sdk.internal.notification.NotificationInterceptor;
 import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Sample code. Demonstrates how to extend {@link NotificationInterceptor} to

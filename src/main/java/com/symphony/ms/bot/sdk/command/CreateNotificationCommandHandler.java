@@ -2,8 +2,7 @@ package com.symphony.ms.bot.sdk.command;
 
 import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;

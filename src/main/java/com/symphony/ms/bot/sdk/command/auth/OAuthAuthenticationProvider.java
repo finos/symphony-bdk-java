@@ -6,8 +6,7 @@ import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClientConnectionException;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.model.RestResponse;
-import com.symphony.ms.bot.sdk.internal.message.model.SymphonyMessage;
-
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 

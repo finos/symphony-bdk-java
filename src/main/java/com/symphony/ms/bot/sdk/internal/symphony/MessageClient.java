@@ -1,17 +1,28 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
+import java.util.List;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-
-import java.util.List;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Message client
+ * Manages sending message to Symphony.
  *
  * @author msecato
  */
 public interface MessageClient {
+
+  /**
+   * Sends message to the specified stream applying template processing when applicable.
+   *
+   * @param streamId
+   * @param message
+   * @throws SymphonyClientException on error connecting to Symphony
+   */
+  void sendMessage(String streamId, SymphonyMessage message)
+      throws SymphonyClientException;
 
   /**
    * Sends message to a Symphony stream
@@ -21,7 +32,8 @@ public interface MessageClient {
    * @param jsonData
    * @throws SymphonyClientException on error connecting to Symphony
    */
-  void sendMessage(String streamId, String message, String jsonData) throws SymphonyClientException;
+  void sendMessage(String streamId, String message, String jsonData)
+      throws SymphonyClientException;
 
   /**
    * Sends message with attachments to a Symphony stream
