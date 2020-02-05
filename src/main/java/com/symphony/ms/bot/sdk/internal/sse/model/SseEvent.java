@@ -18,7 +18,7 @@ public class SseEvent {
 
   private String id;
 
-  private String name;
+  private String event;
 
   private Object data;
 

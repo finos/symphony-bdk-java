@@ -6,6 +6,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class AttachmentCommandHandler extends CommandHandler {
     try {
       attachments = messageClient.downloadMessageAttachments(command.getMessageEvent());
     } catch (SymphonyClientException sce) {
-      LOGGER.error("SymphonyClientException thrown on FileCommandHandler", sce);
+      LOGGER.error("SymphonyClientException thrown on AttachmentCommandHandler", sce);
     }
     int size = attachments == null ? 0 : attachments.size();
     if (size <= 0) {

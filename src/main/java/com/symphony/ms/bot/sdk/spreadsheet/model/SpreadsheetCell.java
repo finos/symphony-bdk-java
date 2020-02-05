@@ -12,5 +12,5 @@ public class SpreadsheetCell {
 
   private int line;
   private int column;
-  private String value;
+  private Object value;
 }

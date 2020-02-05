@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,16 +21,16 @@ public class SseSubscriber {
   private SseEmitter sseEmitter;
   private String userId;
   private Map<String, String> filters;
-  private List<String> streams;
+  private String eventType;
   private String lastEventId;
   private boolean completed;
 
   public SseSubscriber(SseEmitter sseEmitter, String userId, Map<String, String> filters,
-      List<String> streams, String lastEventId) {
+      String eventType, String lastEventId) {
     this.sseEmitter = sseEmitter;
     this.userId = userId;
     this.filters = filters;
-    this.streams = streams;
+    this.eventType = eventType;
     this.lastEventId = lastEventId;
     this.completed = false;
 

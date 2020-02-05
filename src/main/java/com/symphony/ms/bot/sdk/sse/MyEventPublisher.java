@@ -4,34 +4,30 @@ import com.symphony.ms.bot.sdk.internal.sse.SsePublishEventException;
 import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
 import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import com.symphony.ms.bot.sdk.internal.sse.model.SsePublisherQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Sample code. Simple SsePublisher which sends events every second to client application.
  */
 public class MyEventPublisher extends SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(MyEventPublisher.class);
-
   private static final long WAIT_INTERVAL = 1000L;
 
   @Override
-  public List<String> getStreams() {
-    return Stream.of("stream1", "stream2")
-        .collect(Collectors.toList());
+  public String getEventType() {
+    return "myEvent";
   }
 
   @Override
-  public void stream(SseSubscriber subscriber) {
+  public void stream(SseSubscriber subscriber, SsePublisherQueue queue) {
     for (int i = 0; true; i++) {
       SseEvent event = SseEvent.builder()
-          .name("test_event")
+          .event("test_event")
           .data("SSE Test Event - " + LocalTime.now().toString())
           .id(String.valueOf(i))
           .retry(WAIT_INTERVAL)

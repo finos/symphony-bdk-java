@@ -1,12 +1,13 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SsePublisherRouterImpl implements SsePublisherRouter {
@@ -14,7 +15,7 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
 
   private List<SsePublisher> ssePublishers;
 
-  public SsePublisherRouterImpl () {
+  public SsePublisherRouterImpl() {
     this.ssePublishers = new ArrayList<>();
   }
 
@@ -23,8 +24,8 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    */
   @Override
   public void register(SsePublisher ssePublisher) {
-    LOGGER.info("Registering sse publisher for streams: {}",
-        ssePublisher.getStreams());
+    LOGGER.info("Registering sse publisher for event type: {}",
+        ssePublisher.getEventType());
     ssePublishers.add(ssePublisher);
   }
 
@@ -33,15 +34,9 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    */
   @Override
   public List<SsePublisher> findPublishers(SseSubscriber sseSubscriber) {
-    List<SsePublisher> publishers = new ArrayList<>();
-    ssePublishers.stream().forEach(pub -> {
-      if (!Collections.disjoint(
-          pub.getStreams(), sseSubscriber.getStreams())) {
-        publishers.add(pub);
-      }
-    });
-
-    return publishers;
+    return ssePublishers.stream()
+        .filter(pub -> pub.getEventType().equals(sseSubscriber.getEventType()))
+        .collect(Collectors.toList());
   }
 
   /**
@@ -49,8 +44,8 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    */
   @Override
   @Async("sseTaskExecutor")
-  public void bind(SseSubscriber subscriber, SsePublisher publisher) {
-    publisher.subscribe(subscriber);
+  public void bind(SseSubscriber subscriber, SsePublisher publisher, List<String> streams) {
+    publisher.subscribe(subscriber, streams);
   }
 
 }

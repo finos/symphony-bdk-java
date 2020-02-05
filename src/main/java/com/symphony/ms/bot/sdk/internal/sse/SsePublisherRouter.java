@@ -3,11 +3,10 @@ package com.symphony.ms.bot.sdk.internal.sse;
 import java.util.List;
 
 /**
- * Routes {@link SseSubscriber} to the corresponding {@link SsePublisher} based
- * on the streams specified by subscriber.
+ * Routes {@link SseSubscriber} to the corresponding {@link SsePublisher} based on the event type
+ * specified by subscriber.
  *
  * @author Marcus Secato
- *
  */
 public interface SsePublisherRouter {
 
@@ -19,8 +18,7 @@ public interface SsePublisherRouter {
   void register(SsePublisher ssePublisher);
 
   /**
-   * Finds {@link SsePublisher} based on the streams specified by
-   * {@link SseSubscriber}
+   * Finds {@link SsePublisher} based on the event type specified by {@link SseSubscriber}
    *
    * @param sseSubscriber
    * @return list of publishers
@@ -28,12 +26,12 @@ public interface SsePublisherRouter {
   List<SsePublisher> findPublishers(SseSubscriber sseSubscriber);
 
   /**
-   * Binds a {@link SseSubscriber} to a {@link SsePublisher} starting the event
-   * stream.
+   * Binds a {@link SseSubscriber} to a {@link SsePublisher} starting the event streams.
    *
    * @param subscriber
    * @param publisher
+   * @param streams
    */
-  void bind(SseSubscriber subscriber, SsePublisher publisher);
+  void bind(SseSubscriber subscriber, SsePublisher publisher, List<String> streams);
 
 }
