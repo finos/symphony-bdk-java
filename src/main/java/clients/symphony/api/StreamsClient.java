@@ -330,7 +330,6 @@ public class StreamsClient extends APIClient {
             throw new IllegalArgumentException("skip must be equal or greater than 0.");
         }
 
-
         if(limit < 0) {
             throw new IllegalArgumentException("limit must be equal or greater than 0.");
         }
