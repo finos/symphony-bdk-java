@@ -306,6 +306,7 @@ public class StreamsClient extends APIClient {
      * @param includeInactiveStreams Whether to include inactive conversations.
      * @return a list of all the streams
      * @throws SymClientException the generic client exception
+     * @throws IllegalArgumentException on illegal skip or limit parameter
      */
     public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams)
         throws SymClientException {
@@ -322,6 +323,7 @@ public class StreamsClient extends APIClient {
      * @param limit Maximum number of streams to return. If 0, all user streams will be returned.
      * @return a list of all the streams
      * @throws SymClientException the generic client exception
+     * @throws IllegalArgumentException on illegal skip or limit parameter
      */
     public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams, int skip, int limit)
         throws SymClientException {
