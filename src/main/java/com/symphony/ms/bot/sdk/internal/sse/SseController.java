@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 public class SseController {
   private static final Logger LOGGER = LoggerFactory.getLogger(SseController.class);
-
   private static final String[] SSE_PATHS =
-      {"v1/events/{eventType}", "v1/events/{eventType}/{streams}"};
+      {"events/{eventType}", "events/{eventType}/{streams}"};
 
   @Autowired
   @Qualifier("requestMappingHandlerMapping")
@@ -50,8 +50,10 @@ public class SseController {
 
   @PostConstruct
   public void init() throws NoSuchMethodException {
-    registerRoutes(SSE_PATHS);
-//    registerRoute(authPath.concat(SSE_PATH));
+    String[] routes = Arrays.stream(SSE_PATHS)
+        .map(path -> authPath.concat(path))
+        .toArray((size -> new String[size]));
+    registerRoutes(routes);
   }
 
   /**

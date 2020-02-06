@@ -20,7 +20,7 @@ public interface SpreadsheetService {
    *
    * @return all spreadsheets
    */
-  Map<String, Object[][]> getSpreadsheets();
+  Map<String, Map> getSpreadsheets();
 
   /**
    * Gets the spreadsheet of a room
@@ -28,22 +28,24 @@ public interface SpreadsheetService {
    * @param streamId the room id
    * @return the room spreadsheet
    */
-  Object[][] getSpreadsheet(String streamId);
+  Map getSpreadsheet(String streamId);
 
   /**
    * Sets the spreadsheet of a room
    *
    * @param roomSpreadsheet the spreadsheet
+   * @param userId          the id of the user that is reseting the spreadsheet
    */
-  void setSpreadsheet(RoomSpreadsheet roomSpreadsheet);
+  void setSpreadsheet(RoomSpreadsheet roomSpreadsheet, String userId);
 
   /**
    * Puts a cell in a spreadsheet of a room
    *
    * @param cell     the updated cell
    * @param streamId the room id
+   * @param userId   the id of the user that is updating the spreadsheet cell
    */
-  void putCell(SpreadsheetCell cell, String streamId);
+  void putCell(SpreadsheetCell cell, String streamId, String userId);
 
   /**
    * Gets the rooms that can have spreadsheet (bot's room), with a flag signing if the room already

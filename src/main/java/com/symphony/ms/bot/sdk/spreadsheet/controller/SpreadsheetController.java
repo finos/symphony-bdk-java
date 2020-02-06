@@ -1,37 +1,85 @@
 package com.symphony.ms.bot.sdk.spreadsheet.controller;
 
+import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.spreadsheet.model.RoomSpreadsheet;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetCell;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetRoom;
 import com.symphony.ms.bot.sdk.spreadsheet.service.SpreadsheetService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.List;
 import java.util.Map;
 
-/**
- * The spreadsheet controller
- *
- * @author Gabriel Berberian
- */
-@Controller
-@RequestMapping(value = "/spreadsheet")
+import javax.annotation.PostConstruct;
+
+@RestController
 public class SpreadsheetController {
 
-  private final SpreadsheetService spreadsheetService;
+  private static final String SPREADSHEET_PATH = "spreadsheet";
 
-  public SpreadsheetController(SpreadsheetService spreadsheetService) {
+  private final SpreadsheetService spreadsheetService;
+  private final String authPath;
+
+  @Autowired
+  @Qualifier("requestMappingHandlerMapping")
+  private RequestMappingHandlerMapping handlerMapping;
+
+  public SpreadsheetController(SpreadsheetService spreadsheetService, ConfigClient configClient) {
     this.spreadsheetService = spreadsheetService;
+    this.authPath = configClient.getExtAppAuthPath();
+  }
+
+  @PostConstruct
+  public void init() throws NoSuchMethodException {
+    registerRoute(authPath.concat(SPREADSHEET_PATH));
+  }
+
+  private void registerRoute(String route) throws NoSuchMethodException {
+    handlerMapping.registerMapping(
+        RequestMappingInfo.paths(route)
+            .methods(RequestMethod.GET)
+            .build(),
+        this,
+        SpreadsheetController.class.getDeclaredMethod("getAllSpreadsheets", String.class));
+    handlerMapping.registerMapping(
+        RequestMappingInfo.paths(route.concat("/{streamId}"))
+            .methods(RequestMethod.GET)
+            .build(),
+        this,
+        SpreadsheetController.class.getDeclaredMethod("getSpreadsheet", String.class,
+            String.class));
+    handlerMapping.registerMapping(
+        RequestMappingInfo.paths(route)
+            .methods(RequestMethod.POST)
+            .build(),
+        this,
+        SpreadsheetController.class.getDeclaredMethod("postSpreadsheet", String.class,
+            RoomSpreadsheet.class));
+    handlerMapping.registerMapping(
+        RequestMappingInfo.paths(route.concat("/{streamId}"))
+            .methods(RequestMethod.PUT)
+            .build(),
+        this,
+        SpreadsheetController.class.getDeclaredMethod("putSpreadsheet", String.class,
+            SpreadsheetCell.class, String.class));
+    handlerMapping.registerMapping(
+        RequestMappingInfo.paths(route.concat("/rooms"))
+            .methods(RequestMethod.GET)
+            .build(),
+        this,
+        SpreadsheetController.class.getDeclaredMethod("getRooms", String.class));
   }
 
   /**
@@ -39,9 +87,9 @@ public class SpreadsheetController {
    *
    * @return all spreadsheets
    */
-  @GetMapping
-  public ResponseEntity<Map<String, Object[][]>> getAllSpreadsheets() {
-    Map<String, Object[][]> currentSpreadsheets = spreadsheetService.getSpreadsheets();
+  public ResponseEntity<Map<String, Map>> getAllSpreadsheets(
+      @RequestAttribute("userId") String userId) {
+    Map<String, Map> currentSpreadsheets = spreadsheetService.getSpreadsheets();
     if (currentSpreadsheets != null && !currentSpreadsheets.isEmpty()) {
       return ResponseEntity.ok().body(currentSpreadsheets);
     }
@@ -54,9 +102,9 @@ public class SpreadsheetController {
    * @param streamId the id of the stream the spreadsheet belongs to
    * @return the spreadsheet
    */
-  @GetMapping("{streamId}")
-  public ResponseEntity<Object[][]> getSpreadsheet(@PathVariable String streamId) {
-    Object[][] currentSpreadsheet = spreadsheetService.getSpreadsheet(streamId);
+  public ResponseEntity<Map> getSpreadsheet(@RequestAttribute("userId") String userId,
+      @PathVariable String streamId) {
+    Map currentSpreadsheet = spreadsheetService.getSpreadsheet(streamId);
     if (currentSpreadsheet != null) {
       return ResponseEntity.ok().body(currentSpreadsheet);
     }
@@ -69,9 +117,9 @@ public class SpreadsheetController {
    * @param roomSpreadsheet the new spreadsheet
    * @return the response success
    */
-  @PostMapping
-  public ResponseEntity postSpreadsheet(@RequestBody RoomSpreadsheet roomSpreadsheet) {
-    spreadsheetService.setSpreadsheet(roomSpreadsheet);
+  public ResponseEntity postSpreadsheet(@RequestAttribute("userId") String userId,
+      @RequestBody RoomSpreadsheet roomSpreadsheet) {
+    spreadsheetService.setSpreadsheet(roomSpreadsheet, userId);
     return ResponseEntity.ok().build();
   }
 
@@ -82,10 +130,9 @@ public class SpreadsheetController {
    * @param streamId the id of the room the spreadsheet belongs to
    * @return the response success
    */
-  @PutMapping("{streamId}")
-  public ResponseEntity putSpreadsheet(@RequestBody SpreadsheetCell cell,
-      @PathVariable String streamId) {
-    spreadsheetService.putCell(cell, streamId);
+  public ResponseEntity putSpreadsheet(@RequestAttribute("userId") String userId,
+      @RequestBody SpreadsheetCell cell, @PathVariable String streamId) {
+    spreadsheetService.putCell(cell, streamId, userId);
     return ResponseEntity.ok().build();
   }
 
@@ -94,8 +141,7 @@ public class SpreadsheetController {
    *
    * @return the rooms with a flag signing if they have a spreadsheet
    */
-  @GetMapping("rooms")
-  public ResponseEntity<List<SpreadsheetRoom>> getRooms() {
+  public ResponseEntity<List<SpreadsheetRoom>> getRooms(@RequestAttribute("userId") String userId) {
     List<SpreadsheetRoom> spreadsheetRooms;
     try {
       spreadsheetRooms = spreadsheetService.getBotRooms();

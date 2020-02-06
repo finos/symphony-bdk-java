@@ -1,16 +1,17 @@
 package com.symphony.ms.bot.sdk.spreadsheet.model;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
- * Model representing a spreadsheet cell
+ * Model representing the content of a spreadsheet cell
  *
  * @author Gabriel Berberian
  */
 @Data
-public class SpreadsheetCell {
+@Builder
+public class SpreadsheetCellContent {
 
-  private String key;
   private Object value;
   private Object expr;
 }
