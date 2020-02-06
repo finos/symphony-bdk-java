@@ -41,7 +41,6 @@ public class DatafeedEventsService {
     private static int THREADPOOL_SIZE;
     private static int TIMEOUT_NO_OF_SECS;
 
-
     public DatafeedEventsService(SymBotClient client) {
         this.roomListeners = new ArrayList<>();
         this.imListeners = new ArrayList<>();
@@ -84,7 +83,7 @@ public class DatafeedEventsService {
             try {
                 datafeedId = datafeedClient.createDatafeed();
                 resetTimeout();
-            } catch (ProcessingException e) {
+            } catch (Exception e) {
                 handleError(e);
             }
         }
@@ -220,7 +219,7 @@ public class DatafeedEventsService {
         } else if (errMsg.contains("Could not find a datafeed with the")) {
             logger.error(errMsg);
         } else {
-            logger.error("HandlerError error", e);
+            logger.error("An unknown error happened, type : " + e.getClass(), e);
         }
 
         sleep();
@@ -232,7 +231,7 @@ public class DatafeedEventsService {
             }
             datafeedId = datafeedClient.createDatafeed();
             resetTimeout();
-        } catch (SymClientException e1) {
+        } catch (Exception e1) {
             sleep();
             handleError(e);
         }
@@ -244,7 +243,7 @@ public class DatafeedEventsService {
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
 
             // exponential backoff until we reach the MAX_BACKOFF_TIME (5 minutes)
-            if(TIMEOUT_NO_OF_SECS*2 <= MAX_BACKOFF_TIME) {
+            if (TIMEOUT_NO_OF_SECS * 2 <= MAX_BACKOFF_TIME) {
                 TIMEOUT_NO_OF_SECS *= 2;
             } else {
                 TIMEOUT_NO_OF_SECS = MAX_BACKOFF_TIME;
