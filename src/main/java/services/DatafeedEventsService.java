@@ -24,7 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DatafeedEventsService {
+
     private final Logger logger = LoggerFactory.getLogger(DatafeedEventsService.class);
+
+    private static final int MAX_BACKOFF_TIME = 5 * 60; // five minutes
+
     private SymBotClient botClient;
     private DatafeedClient datafeedClient;
     private List<RoomListener> roomListeners;
@@ -36,6 +40,7 @@ public class DatafeedEventsService {
     private AtomicBoolean stop = new AtomicBoolean();
     private static int THREADPOOL_SIZE;
     private static int TIMEOUT_NO_OF_SECS;
+
 
     public DatafeedEventsService(SymBotClient client) {
         this.roomListeners = new ArrayList<>();
@@ -237,7 +242,13 @@ public class DatafeedEventsService {
         try {
             logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
-            TIMEOUT_NO_OF_SECS *= 2;
+
+            // exponential backoff until we reach the MAX_BACKOFF_TIME (5 minutes)
+            if(TIMEOUT_NO_OF_SECS*2 <= MAX_BACKOFF_TIME) {
+                TIMEOUT_NO_OF_SECS *= 2;
+            } else {
+                TIMEOUT_NO_OF_SECS = MAX_BACKOFF_TIME;
+            }
         } catch (InterruptedException ie) {
             logger.error("Error trying to sleep ", ie);
         }
