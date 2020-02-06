@@ -3,6 +3,8 @@ package it.clients.symphony.api;
 import clients.symphony.api.StreamsClient;
 import clients.symphony.api.constants.PodConstants;
 import it.commons.BotTest;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -458,7 +460,7 @@ public class StreamsClientTest extends BotTest {
 
   @Test
   public void getUserStreamsSuccess() {
-    stubFor(post(urlEqualTo(PodConstants.LISTUSERSTREAMS))
+    stubFor(post(urlEqualTo(PodConstants.LISTUSERSTREAMS + "?skip=0&limit=50"))
         .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
         .willReturn(aResponse()
             .withStatus(200)
@@ -484,5 +486,15 @@ public class StreamsClientTest extends BotTest {
 
     assertNotNull(streamsList);
     assertEquals(1, streamsList.size());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void failToGetUserStreamsWithIllegalSkipValue() {
+    this.streamsClient.getUserStreams(Collections.emptyList(), true, -1, 0);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void failToGetUserStreamsWithIllegalLimitValue() {
+    this.streamsClient.getUserStreams(Collections.emptyList(), true, 0, -1);
   }
 }

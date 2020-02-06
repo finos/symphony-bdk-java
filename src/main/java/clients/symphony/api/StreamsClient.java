@@ -294,8 +294,48 @@ public class StreamsClient extends APIClient {
         }
     }
 
+    /**
+     * Returns a list of all the streams of which the requesting user is a member,
+     * sorted by creation date (ascending - oldest to newest).
+     *
+     * <p>
+     *   skip and limit parameters are set to default : skip=0 and limit=50.
+     * </p>
+     *
+     * @param streamTypes A list of stream types that will be returned.
+     * @param includeInactiveStreams Whether to include inactive conversations.
+     * @return a list of all the streams
+     * @throws SymClientException the generic client exception
+     * @throws IllegalArgumentException on illegal skip or limit parameter
+     */
     public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams)
         throws SymClientException {
+        return this.getUserStreams(streamTypes, includeInactiveStreams, 0, 50);
+    }
+
+    /**
+     * Returns a list of all the streams of which the requesting user is a member,
+     * sorted by creation date (ascending - oldest to newest).
+     *
+     * @param streamTypes A list of stream types that will be returned.
+     * @param includeInactiveStreams Whether to include inactive conversations.
+     * @param skip Number of stream results to skip.
+     * @param limit Maximum number of streams to return. If 0, all user streams will be returned.
+     * @return a list of all the streams
+     * @throws SymClientException the generic client exception
+     * @throws IllegalArgumentException on illegal skip or limit parameter
+     */
+    public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams, int skip, int limit)
+        throws SymClientException {
+
+        if(skip < 0) {
+            throw new IllegalArgumentException("skip must be equal or greater than 0.");
+        }
+
+        if(limit < 0) {
+            throw new IllegalArgumentException("limit must be equal or greater than 0.");
+        }
+
         List<Map> inputStreamTypes = new ArrayList<>();
         if (streamTypes != null) {
             for (String type : streamTypes) {
@@ -311,6 +351,8 @@ public class StreamsClient extends APIClient {
         Invocation.Builder builder = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTUSERSTREAMS)
+            .queryParam("skip", skip)
+            .queryParam("limit", limit)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken());
 
