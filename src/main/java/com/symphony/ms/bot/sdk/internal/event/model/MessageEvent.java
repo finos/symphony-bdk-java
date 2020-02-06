@@ -19,6 +19,7 @@ public class MessageEvent extends BaseEvent {
   private String messageId;
   private Long timestamp;
   private String message;
+  private String rawMessage;
   private String data;
   private List<MessageAttachment> attachments;
   private boolean externalRecipients;
@@ -34,6 +35,7 @@ public class MessageEvent extends BaseEvent {
     this.messageId = message.getMessageId();
     this.timestamp = message.getTimestamp();
     this.message = message.getMessageText().trim();
+    this.rawMessage = message.getMessage();
     this.data = message.getData();
     this.attachments = message.getAttachments() == null ? Collections.emptyList() :
         message.getAttachments().stream().map(MessageAttachment::new).collect(Collectors.toList());
