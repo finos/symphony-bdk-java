@@ -41,7 +41,6 @@ public class DatafeedEventsService {
     private static int THREADPOOL_SIZE;
     private static int TIMEOUT_NO_OF_SECS;
 
-
     public DatafeedEventsService(SymBotClient client) {
         this.roomListeners = new ArrayList<>();
         this.imListeners = new ArrayList<>();
@@ -244,7 +243,7 @@ public class DatafeedEventsService {
             TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
 
             // exponential backoff until we reach the MAX_BACKOFF_TIME (5 minutes)
-            if(TIMEOUT_NO_OF_SECS*2 <= MAX_BACKOFF_TIME) {
+            if (TIMEOUT_NO_OF_SECS * 2 <= MAX_BACKOFF_TIME) {
                 TIMEOUT_NO_OF_SECS *= 2;
             } else {
                 TIMEOUT_NO_OF_SECS = MAX_BACKOFF_TIME;

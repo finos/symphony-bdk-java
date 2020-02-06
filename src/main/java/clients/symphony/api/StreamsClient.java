@@ -328,11 +328,11 @@ public class StreamsClient extends APIClient {
     public List<StreamListItem> getUserStreams(List<String> streamTypes, boolean includeInactiveStreams, int skip, int limit)
         throws SymClientException {
 
-        if(skip < 0) {
+        if (skip < 0) {
             throw new IllegalArgumentException("skip must be equal or greater than 0.");
         }
 
-        if(limit < 0) {
+        if (limit < 0) {
             throw new IllegalArgumentException("limit must be equal or greater than 0.");
         }
 
