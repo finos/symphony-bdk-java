@@ -83,7 +83,7 @@ public class DatafeedEventsService {
             try {
                 datafeedId = datafeedClient.createDatafeed();
                 resetTimeout();
-            } catch (ProcessingException e) {
+            } catch (Exception e) {
                 handleError(e);
             }
         }
@@ -219,7 +219,7 @@ public class DatafeedEventsService {
         } else if (errMsg.contains("Could not find a datafeed with the")) {
             logger.error(errMsg);
         } else {
-            logger.error("HandlerError error", e);
+            logger.error("An unknown error happened, type : " + e.getClass(), e);
         }
 
         sleep();
@@ -231,7 +231,7 @@ public class DatafeedEventsService {
             }
             datafeedId = datafeedClient.createDatafeed();
             resetTimeout();
-        } catch (SymClientException e1) {
+        } catch (Exception e1) {
             sleep();
             handleError(e);
         }
