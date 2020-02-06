@@ -27,7 +27,7 @@ public class DatafeedEventsService {
 
     private final Logger logger = LoggerFactory.getLogger(DatafeedEventsService.class);
 
-    private final int MAX_BACKOFF_TIME = 5 * 60; // five minutes
+    private static final int MAX_BACKOFF_TIME = 5 * 60; // five minutes
 
     private SymBotClient botClient;
     private DatafeedClient datafeedClient;
