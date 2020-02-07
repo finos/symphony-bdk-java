@@ -9,6 +9,13 @@ package com.symphony.ms.bot.sdk.internal.symphony;
  */
 public interface ConfigClient {
 
+  /**
+   * @return the URL path used to enforce authentication
+   */
   String getExtAppAuthPath();
 
+  /**
+   * @return the extension app ID
+   */
+  String getExtAppId();
 }

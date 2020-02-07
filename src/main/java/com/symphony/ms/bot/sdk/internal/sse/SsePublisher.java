@@ -1,13 +1,11 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-import com.symphony.ms.bot.sdk.internal.sse.model.SsePublisherQueue;
-
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
 
 /**
  * Base class for Server-sent events publishers. Provides mechanisms to automatically register child
@@ -19,11 +17,8 @@ public abstract class SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(SsePublisher.class);
 
   private SsePublisherRouter ssePublisherRouter;
-  private List<SsePublisherQueue> queues;
-
-  public SsePublisher() {
-    this.queues = new ArrayList<>();
-  }
+  protected ConcurrentHashMap<String, List<SseSubscriber>> subscribers;
+  private boolean removed;
 
   /**
    * Initializes the SsePublisher dependencies. This method can be overridden by the child classes
@@ -33,28 +28,13 @@ public abstract class SsePublisher {
   }
 
   /**
-   * Gets the event type that this instance of SsePublisher handles. Client applications must
-   * specify the event type they want to subscribe to in the request path.
-   *
-   * @return the event type name
-   */
-  public abstract String getEventType();
-
-  /**
-   * Starts streaming events to the specified {@link SseSubscriber}
-   *
-   * @param subscriber
-   * @param queue
-   */
-  public abstract void stream(SseSubscriber subscriber, SsePublisherQueue queue);
-
-  /**
    * Registers the SsePublisher to the {@link SsePublisherRouter} to be notified when new {@link
    * SseSubscriber} requests arrive.
    */
   public void register() {
     init();
     this.ssePublisherRouter.register(this);
+    subscribers = new ConcurrentHashMap<String, List<SseSubscriber>>();
   }
 
   /**
@@ -62,63 +42,81 @@ public abstract class SsePublisher {
    *
    * @param subscriber
    */
-  public void subscribe(SseSubscriber subscriber, List<String> streams) {
-    try {
-      stream(subscriber, streams);
-    } catch (Exception e) {
-      LOGGER.error("Error streaming SSE events to user {}",
-          subscriber.getUserId(), e);
+  void addSubscriber(SseSubscriber subscriber) {
+    subscriber.getEventTypes()
+        .forEach(evt -> subscribers
+            .computeIfAbsent(evt, key -> new LinkedList<>()).add(subscriber));
 
-      subscriber.onError(e);
-    }
-    subscriber.onComplete();
-  }
-
-  public void stream(SseSubscriber subscriber, List<String> streams) {
-    SsePublisherQueue queue = registerQueue(streams);
-    stream(subscriber, queue);
-    removeQueue(queue);
+    onSubscriberAdded(subscriber);
   }
 
   /**
-   * Broadcasts a data to all publisher queues
+   * Removes the specified {@link SseSubscriber} from this instance of SsePublisher.
    *
-   * @param event the event to be broadcast
+   * @param subscriber
    */
-  public void broadcast(SseEvent event) {
-    queues.forEach(queue -> queue.addEvent(event));
+  void removeSubscriber(SseSubscriber subscriber) {
+    removed = false;
+    subscriber.getEventTypes()
+        .forEach(type -> subscribers
+            .computeIfPresent(type, (key, subs) -> {
+              removed = subs.remove(subscriber);
+              return !subs.isEmpty() ? subs : null;
+            }));
+
+    if (removed) {
+      onSubscriberRemoved(subscriber);
+    }
   }
 
   /**
-   * Broadcasts a data to the queues that relates with a specific stream
+   * Notifies publisher to send the given event
    *
-   * @param event  the event to be broadcast
-   * @param stream the stream that the event relates to
+   * @param event
    */
-  public void broadcast(SseEvent event, String stream) {
-    if (stream == null) {
-      broadcast(event);
-    } else {
-      queues.forEach(queue -> {
-        if (queue.hasStream(stream)) {
-          queue.addEvent(event);
-        }
-      });
-    }
+  public void publishEvent(SseEvent event) {
+    subscribers.computeIfPresent(event.getEvent(), (key, subs) -> {
+      subs.forEach(sub -> handleEvent(sub, event));
+      return subs;
+    });
   }
+
+  /**
+   * Returns the event types that this instance of SsePublisher handles. Client applications must
+   * specify the types they want to subscribe to in the request path.
+   *
+   * @return the event types list
+   */
+  public abstract List<String> getEventTypes();
+
+  /**
+   * Subscriber started listening. Subscription startup logic (if any) goes here.
+   *
+   * @param subscriber
+   */
+  protected void onSubscriberAdded(SseSubscriber subscriber) {
+    LOGGER.debug("Subscriber {} added", subscriber.getUserId());
+  }
+
+  /**
+   * Subscriber stopped listening. Subscription teardown logic (if any) goes here.
+   *
+   * @param subscriber
+   */
+  protected void onSubscriberRemoved(SseSubscriber subscriber) {
+    LOGGER.debug("Subscriber {} removed", subscriber.getUserId());
+  }
+
+  /**
+   * Process event targeted to the specified subscriber
+   *
+   * @param subscriber
+   * @param event
+   */
+  protected abstract void handleEvent(SseSubscriber subscriber, SseEvent event);
 
   public void setSsePublisherRouter(SsePublisherRouter ssePublisherRouter) {
     this.ssePublisherRouter = ssePublisherRouter;
-  }
-
-  private SsePublisherQueue registerQueue(List<String> streams) {
-    SsePublisherQueue queue = new SsePublisherQueue(streams);
-    queues.add(queue);
-    return queue;
-  }
-
-  private void removeQueue(SsePublisherQueue queue) {
-    queues.remove(queue);
   }
 
 }

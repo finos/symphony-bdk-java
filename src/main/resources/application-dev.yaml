@@ -6,17 +6,20 @@ server:
     context-path: "/botapp"
 
 concurrency:
-  pools:
-    bot:
+  bot:
+    pool:
       core-size: 8
       max-size: 10
       queue-capacity: 1000
-      thread-name-prefix: bot-thread-pool  
-    sse:
+      thread-name-prefix: bot-thread-pool
+  sse:  
+    pool:
       core-size: 10
       max-size: 100
       queue-capacity: 1000
       thread-name-prefix: sse-thread-pool
+    subscriber:
+      queue-capacity: 100
 
 resources: src/main/resources
 certs: certs

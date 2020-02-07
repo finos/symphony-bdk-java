@@ -1,13 +1,12 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SsePublisherRouterImpl implements SsePublisherRouter {
@@ -25,7 +24,7 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
   @Override
   public void register(SsePublisher ssePublisher) {
     LOGGER.info("Registering sse publisher for event type: {}",
-        ssePublisher.getEventType());
+        ssePublisher.getEventTypes());
     ssePublishers.add(ssePublisher);
   }
 
@@ -33,10 +32,16 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    * {@inheritDoc}
    */
   @Override
-  public List<SsePublisher> findPublishers(SseSubscriber sseSubscriber) {
-    return ssePublishers.stream()
-        .filter(pub -> pub.getEventType().equals(sseSubscriber.getEventType()))
-        .collect(Collectors.toList());
+  public List<SsePublisher> findPublishers(List<String> eventTypes) {
+    List<SsePublisher> publishers = new ArrayList<>();
+    ssePublishers.stream().forEach(pub -> {
+      if (!Collections.disjoint(
+          pub.getEventTypes(), eventTypes)) {
+        publishers.add(pub);
+      }
+    });
+
+    return publishers;
   }
 
   /**
@@ -44,8 +49,9 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    */
   @Override
   @Async("sseTaskExecutor")
-  public void bind(SseSubscriber subscriber, SsePublisher publisher, List<String> streams) {
-    publisher.subscribe(subscriber, streams);
+  public void bind(SseSubscriber subscriber, List<SsePublisher> publishers) {
+    LOGGER.debug("Binding subscriber to corresponding publishers");
+    subscriber.bindPublishers(publishers);
+    subscriber.startListening();
   }
-
 }

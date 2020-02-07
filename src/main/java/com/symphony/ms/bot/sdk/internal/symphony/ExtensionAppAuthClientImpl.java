@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.AppAuthenticateException;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 import authentication.SymExtensionAppRSAAuth;
 import model.AppAuthResponse;
@@ -23,14 +24,20 @@ public class ExtensionAppAuthClientImpl implements ExtensionAppAuthClient {
    * {@inheritDoc}
    */
   @Override
-  public AuthenticateResponse appAuthenticate(String appId) {
+  public AuthenticateResponse appAuthenticate(String appId) throws SymphonyClientException {
+    AppAuthResponse appAuthToken;
     try {
-      AppAuthResponse appAuthToken = symExtensionAppRSAAuth.appAuthenticate();
-      return new AuthenticateResponse(appId, appAuthToken.getAppToken());
+      appAuthToken = symExtensionAppRSAAuth.appAuthenticate();
     } catch (Exception e) {
-      LOGGER.error("Error authentication extension app: {}\n{}", appId, e);
+      LOGGER.error("Error authentication extension app {}: {}", appId, e.getMessage());
+      throw new SymphonyClientException(e);
+    }
+
+    if (appAuthToken == null) {
       throw new AppAuthenticateException();
     }
+
+    return new AuthenticateResponse(appId, appAuthToken.getAppToken());
   }
 
   /**

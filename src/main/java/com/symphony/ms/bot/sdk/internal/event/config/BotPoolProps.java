@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Component
-@ConfigurationProperties(prefix = "concurrency.pools.bot")
+@ConfigurationProperties(prefix = "concurrency.bot.pool")
 public class BotPoolProps {
 
   private Integer coreSize;

@@ -1,15 +1,16 @@
 package com.symphony.ms.bot.sdk.sse;
 
-import com.symphony.ms.bot.sdk.internal.sse.SsePublishEventException;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
 import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-import com.symphony.ms.bot.sdk.internal.sse.model.SsePublisherQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalTime;
 
 /**
  * Sample code. Simple SsePublisher which sends events every second to client application.
@@ -18,31 +19,65 @@ public class MyEventPublisher extends SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(MyEventPublisher.class);
   private static final long WAIT_INTERVAL = 1000L;
 
+  private boolean running = false;
+
   @Override
-  public String getEventType() {
-    return "myEvent";
+  public List<String> getEventTypes() {
+    return Stream.of("event1", "event2")
+        .collect(Collectors.toList());
   }
 
   @Override
-  public void stream(SseSubscriber subscriber, SsePublisherQueue queue) {
-    for (int i = 0; true; i++) {
-      SseEvent event = SseEvent.builder()
-          .event("test_event")
-          .data("SSE Test Event - " + LocalTime.now().toString())
-          .id(String.valueOf(i))
-          .retry(WAIT_INTERVAL)
-          .build();
-      LOGGER.debug("sending event with id {}", event.getId());
+  protected void handleEvent(SseSubscriber subscriber, SseEvent event) {
+    // For simplicity, just send the event to the client application. In real
+    // scenarios you could rely on subscriber.getMetadata to check if client is
+    // really interested in this particular event.
+    subscriber.sendEvent(event);
+  }
 
-      try {
-        subscriber.onEvent(event);
-      } catch (SsePublishEventException spee) {
-        LOGGER.warn("Failed to deliver event with ID: " + event.getId());
-        break;
-      }
-
-      waitForEvents(WAIT_INTERVAL);
+  @Override
+  protected void onSubscriberAdded(SseSubscriber subscriber) {
+    // Start simulating event generation on first subscription
+    if (!running) {
+      running = true;
+      simulateEvent();
     }
+  }
+
+  @Override
+  protected void onSubscriberRemoved(SseSubscriber subscriber) {
+    // Stop simulation if no more subscriber
+    boolean hasSubscribers = !subscribers.values().stream().allMatch(List::isEmpty);
+    if (!hasSubscribers) {
+      running = false;
+    }
+  }
+
+  private void simulateEvent() {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    executor.submit(() -> {
+      int id = 0;
+      while (running) {
+        id++;
+
+        // Simulate event alternation
+        String eventType = (id % 2) != 0 ? "event1" : "event2";
+
+        // Build sse event
+        SseEvent event = SseEvent.builder()
+            .event(eventType)
+            .data("SSE Test Event - " + LocalTime.now().toString())
+            .id(String.valueOf(id))
+            .build();
+
+        // Publish event
+        LOGGER.debug("Sending event with id {}", event.getId());
+        this.publishEvent(event);
+
+        waitForEvents(WAIT_INTERVAL);
+      }
+    });
+
   }
 
   private void waitForEvents(long milliseconds) {
