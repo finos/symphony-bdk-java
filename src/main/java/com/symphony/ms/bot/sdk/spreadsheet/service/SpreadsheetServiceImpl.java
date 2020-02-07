@@ -1,5 +1,16 @@
 package com.symphony.ms.bot.sdk.spreadsheet.service;
 
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
 import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
@@ -11,17 +22,6 @@ import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetResetEvent;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetRoom;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetUpdateEvent;
 import com.symphony.ms.bot.sdk.sse.SpreadsheetPublisher;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * The service that manages the shared spreadsheet
@@ -71,8 +71,7 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
   @Override
   public void setSpreadsheet(RoomSpreadsheet roomSpreadsheet, String userId) {
     spreadsheets.put(roomSpreadsheet.getStreamId(), roomSpreadsheet.getSpreadsheet());
-    spreadsheetPublisher.broadcast(buildResetEvent(roomSpreadsheet, userId),
-        roomSpreadsheet.getStreamId());
+    spreadsheetPublisher.publishEvent(buildResetEvent(roomSpreadsheet, userId));
   }
 
   /**
@@ -86,7 +85,7 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
           .expr(cell.getExpr())
           .value(cell.getValue())
           .build()));
-      spreadsheetPublisher.broadcast(buildUpdateEvent(cells, streamId, userId), streamId);
+      spreadsheetPublisher.publishEvent(buildUpdateEvent(cells, streamId, userId));
     }
   }
 
@@ -134,6 +133,9 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
             .expr(cell.getExpr())
             .userId(userId)
             .build()).toArray())
+        .metadata(Stream.of(
+            new AbstractMap.SimpleEntry<>("streamId", streamId))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
         .build();
   }
 

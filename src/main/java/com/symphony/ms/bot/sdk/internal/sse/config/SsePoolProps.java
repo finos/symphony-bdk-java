@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Component
-@ConfigurationProperties(prefix = "concurrency.pools.sse")
+@ConfigurationProperties(prefix = "concurrency.sse.pool")
 public class SsePoolProps {
 
   private Integer coreSize;

@@ -22,4 +22,12 @@ public class ConfigClientImpl implements ConfigClient {
     return path.endsWith("/") ? path : path.concat("/");
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getExtAppId() {
+    return symBotConfig.getAppId();
+  }
+
 }

@@ -1,5 +1,6 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
 
 /**
@@ -16,7 +17,7 @@ public interface ExtensionAppAuthClient {
    * @param appId
    * @return authenticate response
    */
-  AuthenticateResponse appAuthenticate(String appId);
+  AuthenticateResponse appAuthenticate(String appId) throws SymphonyClientException;
 
   /**
    * Validates tokens as part of extension app authentication process

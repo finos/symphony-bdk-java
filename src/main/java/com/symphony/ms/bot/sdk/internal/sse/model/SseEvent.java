@@ -1,5 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.sse.model;
 
+import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import lombok.Builder;
@@ -21,6 +23,9 @@ public class SseEvent {
   private String event;
 
   private Object data;
+
+  @JsonIgnore
+  private Map<String, String> metadata;
 
   private Long retry;
 
