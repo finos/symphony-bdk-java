@@ -39,13 +39,13 @@ public interface SpreadsheetService {
   void setSpreadsheet(RoomSpreadsheet roomSpreadsheet, String userId);
 
   /**
-   * Puts a cell in a spreadsheet of a room
+   * Puts a cells in a spreadsheet of a room
    *
-   * @param cell     the updated cell
+   * @param cells    the updated cells
    * @param streamId the room id
-   * @param userId   the id of the user that is updating the spreadsheet cell
+   * @param userId   the id of the user that is updating the spreadsheet cells
    */
-  void putCell(SpreadsheetCell cell, String streamId, String userId);
+  void putCells(List<SpreadsheetCell> cells, String streamId, String userId);
 
   /**
    * Gets the rooms that can have spreadsheet (bot's room), with a flag signing if the room already

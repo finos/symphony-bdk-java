@@ -79,14 +79,14 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
    * {@inheritDoc}
    */
   @Override
-  public void putCell(SpreadsheetCell cell, String streamId, String userId) {
+  public void putCells(List<SpreadsheetCell> cells, String streamId, String userId) {
     Map spreadsheet = spreadsheets.get(streamId);
     if (spreadsheet != null) {
-      spreadsheet.put(cell.getKey(), SpreadsheetCellContent.builder()
+      cells.forEach(cell -> spreadsheet.put(cell.getKey(), SpreadsheetCellContent.builder()
           .expr(cell.getExpr())
           .value(cell.getValue())
-          .build());
-      spreadsheetPublisher.broadcast(buildUpdateEvent(cell, streamId, userId), streamId);
+          .build()));
+      spreadsheetPublisher.broadcast(buildUpdateEvent(cells, streamId, userId), streamId);
     }
   }
 
@@ -122,19 +122,19 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
         ).build();
   }
 
-  private SseEvent buildUpdateEvent(SpreadsheetCell cell, String streamId, String userId) {
+  private SseEvent buildUpdateEvent(List<SpreadsheetCell> cells, String streamId, String userId) {
     return SseEvent.builder()
         .id(Long.toString(id.getAndIncrement()))
         .retry(WAIT_INTERVAL)
         .event(SPREADSHEET_UPDATE_EVENT)
-        .data(SpreadsheetUpdateEvent.builder()
+        .data(cells.stream().map(cell -> SpreadsheetUpdateEvent.builder()
             .streamId(streamId)
             .key(cell.getKey())
             .value(cell.getValue())
             .expr(cell.getExpr())
             .userId(userId)
-            .build()
-        ).build();
+            .build()).toArray())
+        .build();
   }
 
 }

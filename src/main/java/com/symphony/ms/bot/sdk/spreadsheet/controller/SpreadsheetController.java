@@ -72,8 +72,8 @@ public class SpreadsheetController {
             .methods(RequestMethod.PUT)
             .build(),
         this,
-        SpreadsheetController.class.getDeclaredMethod("putSpreadsheet", String.class,
-            SpreadsheetCell.class, String.class));
+        SpreadsheetController.class.getDeclaredMethod("putSpreadsheet", String.class, List.class,
+            String.class));
     handlerMapping.registerMapping(
         RequestMappingInfo.paths(route.concat("/rooms"))
             .methods(RequestMethod.GET)
@@ -126,13 +126,13 @@ public class SpreadsheetController {
   /**
    * Updates a spreadsheet
    *
-   * @param cell     the cell to be updated
+   * @param cells    the cells to be updated
    * @param streamId the id of the room the spreadsheet belongs to
    * @return the response success
    */
   public ResponseEntity putSpreadsheet(@RequestAttribute("userId") String userId,
-      @RequestBody SpreadsheetCell cell, @PathVariable String streamId) {
-    spreadsheetService.putCell(cell, streamId, userId);
+      @RequestBody List<SpreadsheetCell> cells, @PathVariable String streamId) {
+    spreadsheetService.putCells(cells, streamId, userId);
     return ResponseEntity.ok().build();
   }
 
