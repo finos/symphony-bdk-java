@@ -85,7 +85,15 @@ public class PresenceClientTest extends BotTest {
 
   @Test
   public void setOtherUserPresenceSuccess() {
-    // TODO
+
+    stubPost(PodConstants.SET_OTHER_USER_PRESENCE,
+        "{ \"category\": \"BUSY\", \"userId\": 1, \"timestamp\": 1503286569882 }"
+    );
+
+    final UserPresence userPresence = this.presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    assertNotNull(userPresence);
+    assertEquals(1L, userPresence.getUserId().longValue());
+    assertEquals(UserPresenceCategory.BUSY, userPresence.getCategory());
   }
 
   @Test

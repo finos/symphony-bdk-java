@@ -45,33 +45,33 @@ public class BotTest extends ServerTest {
         symBotClient = SymBotClient.initBot(config, auth);
     }
 
-    protected static StubMapping stubGet(String url, String jsonResponse) {
+    protected static StubMapping stubGet(String url, String returnedJsonResponse) {
         return stubFor(get(urlEqualTo(url))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody(jsonResponse))
+                .withBody(returnedJsonResponse))
         );
     }
 
-    protected static StubMapping stubDelete(String url, String jsonResponse) {
+    protected static StubMapping stubDelete(String url, String returnedJsonResponse) {
         return stubFor(delete(urlEqualTo(url))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody(jsonResponse))
+                .withBody(returnedJsonResponse))
         );
     }
 
-    protected static StubMapping stubPost(String url, String jsonResponse) {
+    protected static StubMapping stubPost(String url, String returnedJsonResponse) {
         return stubFor(post(urlEqualTo(url))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-                .withBody(jsonResponse))
+                .withBody(returnedJsonResponse))
         );
     }
 }
