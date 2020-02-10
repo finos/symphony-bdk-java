@@ -5,6 +5,8 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+
+import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Before;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -41,5 +43,35 @@ public class BotTest extends ServerTest {
         SymBotRSAAuth auth = new SymBotRSAAuth(config);
         auth.setSessionToken("eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LWJvdCIsImlzcyI6InN5bXBob255Iiwic2Vzc2lvbklkIjoiZmRiOTAxMmQzOTgwMGE3NzNkMTJjYWFmZGY5MjU4ZjZjOWEyMTE2MmYyZDU1ODQ3M2Y5ZDU5MDUyNjA0Mjg1ZjU0MWM5Yzg0Mzc5YTE0MjZmODNiZmZkZTljYmQ5NjRjMDAwMDAxNmRmMjMyODIwNTAwMDEzZmYwMDAwMDAxZTgiLCJ1c2VySWQiOiIzNTE3NzUwMDE0MTIwNzIifQ.DlQ_-sAqZLlAcVTr7t_PaYt_Muq_P82yYrtbEEZWMpHMl-7qCciwfi3uXns7oRbc1uvOrhQd603VKQJzQxaZBZBVlUPS-2ysH0tBpCS57ocTS6ZwtQwPLCZYdT-EZ70EzQ95kG6P5TrLENH6UveohgeDdmyzSPOEiwyEUjjmzaXFE8Tu0R3xQDwl-BKbsyUAAgd1X7T0cUDC3WIDl9xaTvyxavep4ZJnZJl4qPc1Tan0yU7JrxtXeD8uwNYlKLudT3UVxduFPMQP_2jyj5Laa-YWGKvRtXkcy2d3hzf4ll1l1wVnyJc1e6hW2EnRlff_Nxge-QCJMcZ_ALrpOUtAyQ");
         symBotClient = SymBotClient.initBot(config, auth);
+    }
+
+    protected static StubMapping stubGet(String url, String jsonResponse) {
+        return stubFor(get(urlEqualTo(url))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody(jsonResponse))
+        );
+    }
+
+    protected static StubMapping stubDelete(String url, String jsonResponse) {
+        return stubFor(delete(urlEqualTo(url))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody(jsonResponse))
+        );
+    }
+
+    protected static StubMapping stubPost(String url, String jsonResponse) {
+        return stubFor(post(urlEqualTo(url))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody(jsonResponse))
+        );
     }
 }
