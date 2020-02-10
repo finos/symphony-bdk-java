@@ -59,8 +59,8 @@ systems and push them as symphony messages.
     * [Static content](#static-content)
   * [Automatic endpoint documentation](#automatic-endpoint-documentation)
 * [Real-Time events](#real-time-events)
-  * [Generating events](#generating-events)
-  * [Subscribing to event streams](#subscribing-to-event-streams)
+  * [Publishing events](#publishing-events)
+  * [Subscribing to event types](#subscribing-to-event-types)
   * [Event stream mapping](#event-stream-mapping)
   * [Filtering events](#filtering-events)
 * [Advanced settings](#advanced-settings)
@@ -564,7 +564,7 @@ To extend ```EventHandler``` you need to:
 
 * specify the event type: ```EventHandler``` is a parameterized class so you need to specified which event type you want to handle. *Refer to the following subsection for the list of supported events*.
  
-* implement **void handle(&lt;symphony_event&gt; event, final SymphonyMessage eventResponse)**: this is where you add your business logic to handle the specified event. This method is automatically called when the specified event occurs in a room where the bot is. Use the ```event```object to retrieve event details (e.g. target user or target room). Use the ```SymphonyMessage``` object to format the event response. The SDK will take care of delivering the response to the correct Symphony room.
+* implement **void handle(&lt;symphony_event&gt; event, final SymphonyMessage eventResponse)**: this is where you add your business logic to handle the specified event. This method is automatically called when the specified event occurs in a room where the bot is. Use the ```event``` object to retrieve event details (e.g. target user or target room). Use the ```SymphonyMessage``` object to format the event response. The SDK will take care of delivering the response to the correct Symphony room.
 
 ```java
 public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
@@ -577,7 +577,7 @@ public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
 
 ```
 
-**Notice:** Different ```EventHandler``` child classes can handle the same event. All of them will have their ```handle```method called. There is no way to set the calling order. 
+**Notice:** Different ```EventHandler``` child classes can handle the same event. All of them will have their ```handle``` method called. There is no way to set the calling order. 
   
 
 ### Available Symphony events
@@ -597,7 +597,7 @@ public class UserJoinedEventHandler extends EventHandler<UserJoinedRoomEvent> {
 
 Symphony Bot SDK offers an easy way to control whether your bots are allowed to be added to public rooms or not.
 
-By default, bots built with the Symphony Bot SDK are able to join public rooms. To change that behavior, the developer just need to set the ```isPublicRoomAllowed``` in application-feature.yaml file.
+By default, bots built with the Symphony Bot SDK are able to join public rooms. To change that behavior, the developer just needs to set the ```isPublicRoomAllowed``` in application-feature.yaml file.
 
 It is also possible to configure a custom message the bot would send before quitting the room, through the following configurations:
 
@@ -811,7 +811,7 @@ Symphony Bot SDK is shipped with [Handlebars](https://github.com/jknack/handleba
 
 Symphony Bot SDK integrates seamlessly with [SmsRenderer](https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java) tool to offer predefined message templates.
 
-The file based methods in ```SymphonyMessage``` (```setTemplateFile``` and ```setEnrichedTemplateFile```) can be used to render such templates. For that, you just need to specify the predefined template from ```SmsRenderer.SmsTypes``` enum.
+The file-based methods in ```SymphonyMessage``` (```setTemplateFile``` and ```setEnrichedTemplateFile```) can be used to render such templates. For that, you just need to specify the predefined template from ```SmsRenderer.SmsTypes``` enum.
 
 Example:
 
@@ -921,7 +921,7 @@ Symphony Bot SDK removes all the complexity related to the authentication proces
 | POST | /application/**tokens/validate** |  Validates the application and Symphony tokens generated in previous step. Extension app provides the Symphony token, obtained through Symphony Client APIs. | `{"appToken":"05b...c",` `"symphonyToken":"0...6",` `"appId":"myAppId"}` | 200 OK if tokens valid, 401 Unauthorized otherwise |
 | POST | /application/**jwt/validate** | Validates a signed JWT holding user details  |  `{"jwt":"ey...g"}` | the user ID |
 
-Extension apps must rely on those three enpoints in the order they are described to get authenticated to Symphony. If any of those steps fails, the authentication fails and extension app will not be launched (i.e. not displayed on the left-nav menu).
+Extension apps must rely on those three endpoints in the order they are described to get authenticated to Symphony. If any of those steps fails, the authentication fails and extension app will not be launched (i.e. not displayed on the left-nav menu).
 
 
 ### Exposing new endpoints
@@ -950,6 +950,7 @@ public class MyController {
 }
 
 ```
+
 
 ### Protecting endpoints
 
@@ -1004,7 +1005,7 @@ The following clients are available:
 
 ### Serving the extension app
 
-Static assets of an extension app (e.g. javascript, css, images, html) can be served either in a separated host or along with the bundle you generate for your Symphony Bot SDK.
+Static assets of an extension app (e.g. Javascript, CSS, images, HTML) can be served either in a separated host or along with the bundle you generate for your Symphony Bot SDK.
 
 If you plan to have a different server for you web UI, make sure CORS is properly configured. In ```application-dev.yaml``` add the following properties:
 
@@ -1121,55 +1122,110 @@ http(s)://<hostname>:<port>/<application_context>/swagger-ui.html
 With Symphony Bot SDK your extension apps can quickly leverage real-time events. Based on the Server-Sent Event (SSE) technology, Symphony Bot SDK delivers real-time events support through the following components: 
 
 * ```SseController``` which exposes the endpoint through which extension applications subscribe for real-time events 
-* ```SsePublisher```, a base class to create real-time event generators
+* ```SsePublisher```, a base class to publish real-time events
 * ```SseSubscriber```, an abstraction of clients subscribing for events   
 
 
-### Generating events
+### Publishing events
 
-```SsePublisher``` child classes represent event generators. To extend ```SsePublisher``` implement the following methods:
+```SsePublisher``` child classes represent event publishers. Create as many publishers as you need according to the event types they should handle.
 
-* **List&lt;String&gt; getStreams()**: returns a list of event stream names that this particular publisher is responsible for. Clients must specify the streams they want to listen events to in their requests.
+To extend ```SsePublisher``` implement the following methods:
 
-* **void stream(SseSubscriber subscriber)**: where you add your business logic to generate events. This method is automatically called when clients request events for any stream handled by this particular publisher. Use the ```SseSubscriber``` object to retrieve details of the clients subscribing for events and to send them your events.   
+* **List&lt;String&gt; getEventTypes()**: returns a list with event types that this particular publisher is responsible for. Clients must specify the event types they want to listen to in their requests path.
+
+* **void handleEvent(SseSubscriber subscriber, SseEvent event)**: where you add your business logic to process events before publishing them. This method is not publicly visible. Your code will not work with it directly. Rather, your code should call ```publishEvent``` whenever you need to send an event. Symphony Bot SDK will automatically call ```handleEvent``` for each subscriber when ```publishEvent``` is invoked. Use the ```SseSubscriber``` object to retrieve details of the clients subscribing for events and to send them your events.   
+
+
+Optionally, you may consider extending the following methods:
+
+* **void init()**: invoked right after Symphony Bot SDK instantiates your class. Useful for initialization logic.  
+
+* **void onSubscriberAdded(SseSubscriber subscriber)**: called when new subscriber registers for event types handled by that particular publisher.
+
+* **void onSubscriberRemoved(SseSubscriber subscriber)**: called when subscriber unregisters for event types handled by that particular publisher.   
+
 
 ```java
   private static final long WAIT_INTERVAL = 1000L;
+  private boolean running = false;
 
   @Override
-  public List<String> getStreams() {
-    return Stream.of("stream1", "stream2")
+  public List<String> getEventTypes() {
+    return Stream.of("event1", "event2")
         .collect(Collectors.toList());
   }
 
   @Override
-  public void stream(SseSubscriber subscriber) {
-    for (int i = 0; true; i++) {
-      SseEvent event = SseEvent.builder()
-          .name("test_event")
-          .data("SSE Test Event - " + LocalTime.now().toString())
-          .id(String.valueOf(i))
-          .retry(WAIT_INTERVAL)
-          .build();
-      LOGGER.debug("sending event with id {}", event.getId());
+  protected void handleEvent(SseSubscriber subscriber, SseEvent event) {
+    // For simplicity, just send the event to the client application. In real
+    // scenarios you could rely on subscriber.getMetadata to check if client is
+    // really interested in this particular event.
+    subscriber.sendEvent(event);
+  }
 
-      try {
-        subscriber.onEvent(event);
-      } catch (SsePublishEventException spee) {
-        LOGGER.warn("Failed to deliver event with ID: " + event.getId());
+  @Override
+  protected void onSubscriberAdded(SseSubscriber subscriber) {
+    // Start simulating event generation on first subscription
+    if (!running) {
+      running = true;
+      simulateEvent();
+    }
+  }
+
+  @Override
+  protected void onSubscriberRemoved(SseSubscriber subscriber) {
+    // Stop simulation if no more subscriber
+    boolean hasSubscribers = !subscribers.values().stream().allMatch(List::isEmpty);
+    if (!hasSubscribers) {
+      running = false;
+    }
+  }
+
+  private void simulateEvent() {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    executor.submit(() -> {
+      int id = 0;
+      while (running) {
+        id++;
+
+        // Simulate event alternation
+        String eventType = (id % 2) != 0 ? "event1" : "event2";
+
+        // Build sse event
+        SseEvent event = SseEvent.builder()
+            .event(eventType)
+            .data("SSE Test Event - " + LocalTime.now().toString())
+            .id(String.valueOf(id))
+            .build();
+
+        // Publish event
+        LOGGER.debug("Sending event with id {}", event.getId());
+        this.publishEvent(event);
+
+        waitForEvents(WAIT_INTERVAL);
       }
+    });
 
-      waitForEvents(WAIT_INTERVAL);
+  }
+
+  private void waitForEvents(long milliseconds) {
+    try {
+      Thread.sleep(milliseconds);
+    } catch (InterruptedException ie) {
+      LOGGER.debug("Error waiting for next events");
     }
   }
 ```
 
+**Notice:** ```SsePublisher``` exposes the ```publishEvent``` method which must be called by your event generation logic to get events properly published to clients.
 
-### Subscribing to event streams
+
+### Subscribing to event types
 
 | Method | URL | Description
 |---|---|---|
-| GET | /secure/events/&lt;comma separated stream names&gt; | Subscribe to the specified event streams. Use query params to filter events.   
+| GET | /secure/events/&lt;comma separated event types&gt; | Subscribe to the specified event types. Use query params to add metadata such as filtering criteria.   
 
 **Client sample**
 
@@ -1183,9 +1239,9 @@ const evtSource = new EventSource("http://localhost:8080/botapp/secure/events/st
 
 ### Event stream mapping
 
-If you have multiple ```SsePublisher``` generating events of different nature (e.g. stock prices and currencies exchange rates), you can name the event streams so that subscribers are properly served by the corresponding publishers.
+If you have multiple ```SsePublisher``` generating events of different nature (e.g. stock prices and currencies exchange rates), you can name the event types so that subscribers are properly served by the corresponding publishers.
 
-Symphony Bot SDK automatically maps clients requests to the corresponding publishers based on the stream names present in the request path (e.g. /stockprice, /x-rate). Stream names in client requests must match the ones registered by publishers through ```getStreams()``` method.
+Symphony Bot SDK automatically maps clients requests to the corresponding publishers based on the event types present in the request path (e.g. /stockprice, /x-rate). Event types in client requests must match the ones registered by publishers through ```getEventTypes()``` method.
 
 **Client sample**
 
@@ -1200,9 +1256,10 @@ const evtSource2 = new EventSource("http://localhost:8080/botapp/secure/events/s
 
 ```
 
+
 ### Filtering events
 
-Real-time events may be filtered based on some criteria. All query parameters in a subscription request are handled by Symphony Bot SDK as filtering criteria and forwarded to publishers through ```SseSubscriber``` object.
+Real-time events may be filtered based on some criteria. All query parameters in a subscription request are handled by Symphony Bot SDK as metadata and forwarded to publishers through ```SseSubscriber``` object.
 
 
 ```javascript
@@ -1216,13 +1273,13 @@ The publisher then checks if there are any specified filters:
 
 ```java
   @Override
-  public void stream(SseSubscriber subscriber) {
+  protected void handleEvent(SseSubscriber subscriber, SseEvent event) {
     
     ...
     
-    Map<String, String> filter = subscriber.getFilters();
-    if (price.getStockName().equals(filter.get("name")) {
-      // generate SSE event
+    Map<String, String> metadata = subscriber.getMetadata();
+    if (price.getStockName().equals(metadata.get("filterByName")) {
+      // publish SSE event
     }
     
     ...
@@ -1241,6 +1298,7 @@ If SSL connection to any endpoint uses private or self-signed certificates, add 
 "truststorePassword": "truststore password",
 
 ```
+
 
 ### Proxy support
 
@@ -1288,6 +1346,7 @@ logging:
     com.symphony.ms.bot.sdk.internal: DEBUG
 
 ```
+
 
 ### Access control
 
