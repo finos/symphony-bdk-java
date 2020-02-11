@@ -3,18 +3,17 @@ package model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class UserPresence {
 
-    private String category;
+    private UserPresenceCategory category;
     private Long userId;
     private Long timestamp;
 
-    public String getCategory() {
+    public UserPresenceCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(UserPresenceCategory category) {
         this.category = category;
     }
 

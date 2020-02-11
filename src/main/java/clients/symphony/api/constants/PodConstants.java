@@ -22,9 +22,16 @@ public class PodConstants {
     public static final String GETCONNECTIONS = POD + "/v1/connection/list";
     public static final String SENDCONNECTIONREQUEST = POD + "/v1/connection/create";
     public static final String GETMESSAGESTATUS = POD + "/v1/message/{mid}/status";
+
     public static final String GETUSERPRESENCE = POD + "/v3/user/{uid}/presence";
-    public static final String SETPRESENCE = POD + "/v2/user/presence";
+    public static final String GET_OR_SET_PRESENCE = POD + "/v2/user/presence";
     public static final String REGISTERPRESENCEINTEREST = POD + "/v1/user/presence/register";
+    public static final String SET_OTHER_USER_PRESENCE = POD + "/v3/user/presence";
+    public static final String GET_ALL_PRESENCE = POD + "/v2/users/presence";
+    public static final String PRESENCE_FEED_CREATE = POD + "/v1/presence/feed/create";
+    public static final String PRESENCE_FEED_READ = POD + "/v1/presence/feed/{feedId}/read";
+    public static final String PRESENCE_FEED_DELETE = POD + "/v1/presence/feed/{feedId}/read";
+
     public static final String SEARCHUSERS = POD + "/v1/user/search";
     public static final String SEARCHROOMS = POD + "/v3/room/search";
     public static final String MESSAGESUPPRESS = POD + "/v1/admin/messagesuppression/{id}/suppress";
