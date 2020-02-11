@@ -96,6 +96,11 @@ public class PresenceClient extends APIClient {
         }
 
         if (limit != null) {
+
+            if (limit > 5000) {
+                throw new IllegalArgumentException("The maximum supported value for the limit is 5000.");
+            }
+
             target = target.queryParam("limit", limit);
         }
 

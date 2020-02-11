@@ -69,6 +69,11 @@ public class PresenceClientTest extends BotTest {
     assertEquals(1, presenceList.size());
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void getAllPresenceFailure() {
+    this.presenceClient.getAllPresence(1L, 5001);
+  }
+
   @Test
   public void setUserPresenceSuccess() {
 
