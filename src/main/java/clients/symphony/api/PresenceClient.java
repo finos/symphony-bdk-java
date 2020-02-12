@@ -5,7 +5,6 @@ import clients.symphony.api.constants.PodConstants;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
 import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.ws.rs.client.Entity;
@@ -14,12 +13,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import model.UserPresence;
 import model.UserPresenceCategory;
 
@@ -32,7 +26,8 @@ public class PresenceClient extends APIClient {
      * Returns the online status of the specified user.
      *
      * @param userId The unique ID of the user.
-     * @param local true: Perform a local query and set the presence to OFFLINE for users who are not local to the calling user’s pod.
+     * @param local true: Perform a local query and set the presence to OFFLINE for users who are not local to the calling
+     *              user’s pod.
      * @return a user presence status
      * @since 1.47
      */
@@ -83,7 +78,8 @@ public class PresenceClient extends APIClient {
 
     /**
      * Returns the presence of all users in a pod
-     * @param lastUserId Last user ID retrieved, used for paging. If provided, results skip users with IDs less than this parameter.
+     * @param lastUserId Last user ID retrieved, used for paging. If provided, results skip users with IDs less than this
+     *                   parameter.
      * @param limit Maximum number of records to return. The maximum supported value is 5000.
      * @return a list of user presence
      * @since 1.47
@@ -124,7 +120,8 @@ public class PresenceClient extends APIClient {
     /**
      * Sets the online status of the calling user.
      *
-     * @param category he new presence state for the user. Possible values are AVAILABLE, BUSY, AWAY, ON_THE_PHONE, BE_RIGHT_BACK, IN_A_MEETING, OUT_OF_OFFICE, OFF_WORK.
+     * @param category he new presence state for the user. Possible values are AVAILABLE, BUSY, AWAY, ON_THE_PHONE, BE_RIGHT_BACK,
+     *                 IN_A_MEETING, OUT_OF_OFFICE, OFF_WORK.
      * @return the online status of the calling user.
      * @since 1.47
      */
@@ -265,13 +262,15 @@ public class PresenceClient extends APIClient {
      * @return the user presence
      * @since 1.49
      */
-    public UserPresence setOtherUserPresence(@Nonnull Long userId, @Nonnull UserPresenceCategory category) throws SymClientException {
+    public UserPresence setOtherUserPresence(@Nonnull Long userId, @Nonnull UserPresenceCategory category)
+        throws SymClientException {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.SET_OTHER_USER_PRESENCE)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", this.botClient.getSymAuth().getSessionToken());
 
-        try (final Response response = builder.post(Entity.entity(new OtherUserPresenceRequest(userId, category), MediaType.APPLICATION_JSON_TYPE))) {
+        OtherUserPresenceRequest otherUserPresenceRequest = new OtherUserPresenceRequest(userId, category);
+        try (final Response response = builder.post(Entity.entity(otherUserPresenceRequest, MediaType.APPLICATION_JSON_TYPE))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, this.botClient);
@@ -288,7 +287,8 @@ public class PresenceClient extends APIClient {
         return this.botClient.getPodClient().target(this.botClient.getConfig().getPodUrl());
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     private static class OtherUserPresenceRequest {
@@ -296,12 +296,14 @@ public class PresenceClient extends APIClient {
         private UserPresenceCategory category;
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private static class PresenceFeedCreationResponse {
         private String id;
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     private static class Category {
