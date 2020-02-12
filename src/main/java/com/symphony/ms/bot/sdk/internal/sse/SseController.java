@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -80,7 +83,12 @@ public class SseController {
     SseSubscriber subscriber = new SseSubscriber(emitter, eventTypes,
         metadata, lastEventId, userId, queueCapacity);
 
-    ssePublisherRouter.bind(subscriber, publishers);
+    try {
+      ssePublisherRouter.bind(subscriber, publishers);
+    } catch (TaskRejectedException tre) {
+      LOGGER.info("Rejecting subscription. No more threads in SSE pool.");
+      throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE);
+    }
 
     return emitter;
   }

@@ -13,7 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 /**
- * Represents a client application subscribing for server-sent events
+ * Represents a client application subscribing for real-time events
  *
  * @author Marcus Secato
  */
@@ -39,8 +39,8 @@ public class SseSubscriber {
   @Getter(AccessLevel.NONE)
   private boolean listening = false;
 
-  public SseSubscriber(SseEmitter sseEmitter, List<String> eventTypes, Map<String, String> metadata,
-      String lastEventId, String userId, int queueCapacity) {
+  public SseSubscriber(SseEmitter sseEmitter, List<String> eventTypes,
+      Map<String, String> metadata, String lastEventId, String userId, int queueCapacity) {
     this.sseEmitter = sseEmitter;
     this.eventTypes = eventTypes;
     this.metadata = metadata;
@@ -48,6 +48,7 @@ public class SseSubscriber {
     this.userId = userId;
 
     this.eventQueue = new LinkedBlockingQueue<SseEvent>(queueCapacity);
+    this.sseEmitter.onCompletion(() -> forceComplete());
   }
 
   void bindPublishers(List<SsePublisher> publishers) {
@@ -66,12 +67,15 @@ public class SseSubscriber {
         SseEvent event = eventQueue.take();
         if (COMPLETION_EVENT.equals(event.getEvent())) {
           sseEmitter.complete();
+          terminate();
         } else if (COMPLETION_WITH_ERROR_EVENT.equals(event.getEvent())) {
           sseEmitter.completeWithError(lastPublisherError);
+          terminate();
+        } else {
+          sseEmitter.send(event);
         }
-        sseEmitter.send(event);
       } catch (Exception e) {
-        LOGGER.warn("Error handling event for user {}: {}", userId, e.getMessage());
+        LOGGER.info("Error handling event for user {}: {}", userId, e.getMessage());
         terminate();
       }
     }
@@ -88,21 +92,23 @@ public class SseSubscriber {
       eventQueue.put(sseEvent);
     } catch (InterruptedException ie) {
       LOGGER.debug("Queue interrupted error when adding event");
-      terminate();
     }
   }
 
   /**
-   * Informs client application that server is done publishing events
+   * Notifies subscriber that the given publisher is done sending event
+   *
+   * @param publisher
    */
   public void complete(SsePublisher publisher) {
     internalComplete(publisher);
   }
 
   /**
-   * Informs client application that event streaming is done due to error
+   * Notifies subscriber that the given publisher is done sending event due to error
    *
-   * @param ex the error
+   * @param publisher
+   * @param ex
    */
   public void completeWithError(SsePublisher publisher, Throwable ex) {
     lastPublisherError = ex;
@@ -135,4 +141,9 @@ public class SseSubscriber {
     publishers.stream().forEach(pub -> pub.removeSubscriber(this));
   }
 
+  private void forceComplete() {
+    sendEvent(SseEvent.builder()
+        .event(COMPLETION_EVENT)
+        .build());
+  }
 }

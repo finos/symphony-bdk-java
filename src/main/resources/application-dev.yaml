@@ -12,11 +12,11 @@ concurrency:
       max-size: 10
       queue-capacity: 1000
       thread-name-prefix: bot-thread-pool
-  sse:  
+  sse:
     pool:
       core-size: 10
       max-size: 100
-      queue-capacity: 1000
+      queue-capacity: 0
       thread-name-prefix: sse-thread-pool
     subscriber:
       queue-capacity: 100

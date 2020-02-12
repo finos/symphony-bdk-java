@@ -1,5 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.extapp.authentication;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import com.symphony.ms.bot.sdk.internal.symphony.ExtensionAppAuthClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.AppAuthenticateException;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.AuthenticateResponse;
+import com.symphony.ms.bot.sdk.internal.webapi.security.JwtCookieFilter;
 
 /**
  * Extension App authentication controller
@@ -74,15 +77,30 @@ public class AppAuthController {
   }
 
   @PostMapping("jwt/validate")
-  public ResponseEntity validateJwt(@RequestBody JwtInfo jwtInfo) {
+  public ResponseEntity validateJwt(@RequestBody JwtInfo jwtInfo, HttpServletResponse response) {
     LOGGER.debug("App auth step 3: Validating JWT");
     try {
-      return ResponseEntity.ok(
-          extAppAuthClient.verifyJWT(jwtInfo.getJwt()));
+      String jwt = jwtInfo.getJwt();
+      Long userId = extAppAuthClient.verifyJWT(jwt);
+      response.addCookie(jwtCookie(jwt));
+
+      return ResponseEntity.ok(userId);
     } catch (AppAuthenticateException aae) {
       LOGGER.error("Error validating JWT");
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+  }
+
+  private Cookie jwtCookie(String jwt) {
+    Cookie jwtCookie = new Cookie(JwtCookieFilter.JWT_COOKIE_NAME, jwt);
+
+    // 1 day
+    jwtCookie.setMaxAge(1 * 24 * 60 * 60);
+    jwtCookie.setSecure(true);
+    jwtCookie.setHttpOnly(true);
+    jwtCookie.setPath(configClient.getExtAppAuthPath());
+
+    return jwtCookie;
   }
 
 }

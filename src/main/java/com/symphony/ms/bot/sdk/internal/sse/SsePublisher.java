@@ -1,11 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
 
 /**
  * Base class for Server-sent events publishers. Provides mechanisms to automatically register child
@@ -17,7 +20,7 @@ public abstract class SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(SsePublisher.class);
 
   private SsePublisherRouter ssePublisherRouter;
-  protected ConcurrentHashMap<String, List<SseSubscriber>> subscribers;
+  private ConcurrentHashMap<String, List<SseSubscriber>> subscribers;
   private boolean removed;
 
   /**
@@ -47,7 +50,7 @@ public abstract class SsePublisher {
         .forEach(evt -> subscribers
             .computeIfAbsent(evt, key -> new LinkedList<>()).add(subscriber));
 
-    onSubscriberAdded(subscriber);
+    onSubscriberAdded(new SubscriptionEvent(subscriber));
   }
 
   /**
@@ -65,12 +68,12 @@ public abstract class SsePublisher {
             }));
 
     if (removed) {
-      onSubscriberRemoved(subscriber);
+      onSubscriberRemoved(new SubscriptionEvent(subscriber));
     }
   }
 
   /**
-   * Notifies publisher to send the given event
+   * Publishes events to subscribers
    *
    * @param event
    */
@@ -79,6 +82,28 @@ public abstract class SsePublisher {
       subs.forEach(sub -> handleEvent(sub, event));
       return subs;
     });
+  }
+
+  /**
+   * Notifies all subscribers there are no more events to be sent
+   */
+  public void complete() {
+    subscribers.values().stream()
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet())
+        .forEach(sub -> sub.complete(this));
+  }
+
+  /**
+   * Notifies all subscribers there are no more events to be sent due to error
+   *
+   * @param t the error
+   */
+  public void completeWithError(Throwable t) {
+    subscribers.values().stream()
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet())
+        .forEach(sub -> sub.completeWithError(this, t));
   }
 
   /**
@@ -92,19 +117,19 @@ public abstract class SsePublisher {
   /**
    * Subscriber started listening. Subscription startup logic (if any) goes here.
    *
-   * @param subscriber
+   * @param subscriberAddedEvent
    */
-  protected void onSubscriberAdded(SseSubscriber subscriber) {
-    LOGGER.debug("Subscriber {} added", subscriber.getUserId());
+  protected void onSubscriberAdded(SubscriptionEvent subscriberAddedEvent) {
+    LOGGER.debug("Subscriber {} added", subscriberAddedEvent.getUserId());
   }
 
   /**
    * Subscriber stopped listening. Subscription teardown logic (if any) goes here.
    *
-   * @param subscriber
+   * @param subscriberRemovedEvent
    */
-  protected void onSubscriberRemoved(SseSubscriber subscriber) {
-    LOGGER.debug("Subscriber {} removed", subscriber.getUserId());
+  protected void onSubscriberRemoved(SubscriptionEvent subscriberRemovedEvent) {
+    LOGGER.debug("Subscriber {} removed", subscriberRemovedEvent.getUserId());
   }
 
   /**

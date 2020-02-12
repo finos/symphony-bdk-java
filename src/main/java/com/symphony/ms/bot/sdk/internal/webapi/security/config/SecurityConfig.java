@@ -9,6 +9,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
+import com.symphony.ms.bot.sdk.internal.webapi.security.JwtCookieFilter;
 import com.symphony.ms.bot.sdk.internal.webapi.security.RequestOriginFilter;
 import com.symphony.ms.bot.sdk.internal.webapi.security.XSSFilter;
 
@@ -60,6 +62,16 @@ public class SecurityConfig {
         env.getProperty("request-origin.origin-header")));
     registrationBean.addUrlPatterns(
         env.getProperty("request-origin.url-mapping"));
+
+    return registrationBean;
+  }
+
+  @Bean
+  public FilterRegistrationBean<JwtCookieFilter> jwtCookieFilter(ConfigClient configClient) {
+    FilterRegistrationBean<JwtCookieFilter> registrationBean = new FilterRegistrationBean<>();
+    registrationBean.setFilter(new JwtCookieFilter());
+    registrationBean.addUrlPatterns(configClient.getExtAppAuthPath() + "*");
+    registrationBean.setOrder(1);
 
     return registrationBean;
   }

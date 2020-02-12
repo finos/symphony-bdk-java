@@ -1141,14 +1141,24 @@ Optionally, you may consider extending the following methods:
 
 * **void init()**: invoked right after Symphony Bot SDK instantiates your class. Useful for initialization logic.  
 
-* **void onSubscriberAdded(SseSubscriber subscriber)**: called when new subscriber registers for event types handled by that particular publisher.
+* **void onSubscriberAdded(SubscriptionEvent subscriberAddedEvent)**: called when new subscriber registers for event types handled by that particular publisher.
 
-* **void onSubscriberRemoved(SseSubscriber subscriber)**: called when subscriber unregisters for event types handled by that particular publisher.   
+* **void onSubscriberRemoved(SubscriptionEvent subscriberRemovedEvent)**: called when subscriber unregisters for event types handled by that particular publisher.
 
+
+**Notice:** DO NOT block the thread in ```onSubscriberAdded``` and ```onSubscriberRemoved``` methods.
+  
 
 ```java
   private static final long WAIT_INTERVAL = 1000L;
+
   private boolean running = false;
+  private List<SubscriptionEvent> subscribers;
+
+  @Override
+  public void init() {
+    subscribers = new ArrayList<>();
+  }
 
   @Override
   public List<String> getEventTypes() {
@@ -1165,8 +1175,9 @@ Optionally, you may consider extending the following methods:
   }
 
   @Override
-  protected void onSubscriberAdded(SseSubscriber subscriber) {
+  protected void onSubscriberAdded(SubscriptionEvent subscriberAddedEvent) {
     // Start simulating event generation on first subscription
+    subscribers.add(subscriberAddedEvent);
     if (!running) {
       running = true;
       simulateEvent();
@@ -1174,10 +1185,13 @@ Optionally, you may consider extending the following methods:
   }
 
   @Override
-  protected void onSubscriberRemoved(SseSubscriber subscriber) {
+  protected void onSubscriberRemoved(SubscriptionEvent subscriberRemovedEvent) {
+    subscribers = subscribers.stream()
+        .filter(sub -> sub.getUserId() != subscriberRemovedEvent.getUserId())
+        .collect(Collectors.toList());
+
     // Stop simulation if no more subscriber
-    boolean hasSubscribers = !subscribers.values().stream().allMatch(List::isEmpty);
-    if (!hasSubscribers) {
+    if (subscribers.isEmpty()) {
       running = false;
     }
   }
@@ -1216,6 +1230,7 @@ Optionally, you may consider extending the following methods:
       LOGGER.debug("Error waiting for next events");
     }
   }
+
 ```
 
 **Notice:** ```SsePublisher``` exposes the ```publishEvent``` method which must be called by your event generation logic to get events properly published to clients.
@@ -1463,14 +1478,15 @@ The timeout property is used to define the maximum amount of time a request wait
 | access-control.salt                      | Salt used when hashing password                                                              | application-dev.yaml     |
 | access-control.ipWhitelist               | The IP whitelist set                                                                         | application-dev.yaml     |
 | access-control.urlMapping                | The endpoints protected by either basic authentication or IP whitelist                       | application-dev.yaml     |
-| concurrency.pools.bot.coreSize           | The bot concurrency pools coreSize                                                           | application-dev.yaml     |
-| concurrency.pools.bot.maxSize            | The bot concurrency pools max size                                                           | application-dev.yaml     |
-| concurrency.pools.bot.queueCapacity      | The bot concurrency pools queue capacity                                                     | application-dev.yaml     |
-| concurrency.pools.bot.threadNamePrefix   | The bot concurrency pools thread name prefix                                                 | application-dev.yaml     |
-| concurrency.pools.sse.coreSize           | The SSE concurrency pools coreSize                                                           | application-dev.yaml     |
-| concurrency.pools.sse.maxSize            | The SSE concurrency pools max size                                                           | application-dev.yaml     |
-| concurrency.pools.sse.queueCapacity      | The SSE concurrency pools queue capacity                                                     | application-dev.yaml     |
-| concurrency.pools.sse.threadNamePrefix   | The SSE concurrency pools thread name prefix                                                 | application-dev.yaml     |
+| concurrency.bot.pool.core-size           | The bot concurrency pools coreSize                                                           | application-dev.yaml     |
+| concurrency.bot.pool.max-size            | The bot concurrency pools max size                                                           | application-dev.yaml     |
+| concurrency.bot.pool.queue-capacity      | The bot concurrency pools queue capacity                                                     | application-dev.yaml     |
+| concurrency.bot.pool.thread-name-prefix  | The bot concurrency pools thread name prefix                                                 | application-dev.yaml     |
+| concurrency.sse.pool.core-size           | The SSE concurrency pools coreSize                                                           | application-dev.yaml     |
+| concurrency.sse.pool.max-size            | The SSE concurrency pools max size                                                           | application-dev.yaml     |
+| concurrency.sse.pool.queue-capacity      | The SSE concurrency pools queue capacity (if 0 returns immediately if no thread available)   | application-dev.yaml     |
+| concurrency.sse.pool.thread-name-prefix  | The SSE concurrency pools thread name prefix                                                 | application-dev.yaml     |
+| concurrency.sse.subscriber.queue-capacity| Capacity of SSE subscriber queue. Defines the maximum number of concurrent publishers writing to the queue | application-dev.yaml     |
 | cors.allowed-origin                      | The allowed origin domain                                                                    | application-dev.yaml     |
 | cors.url-mapping                         | The endpoints which CORS support should be applied to                                        | application-dev.yaml     |
 | xss.url-mapping                          | The endpoints which cross-site scripting protection should be applied to                     | application-dev.yaml     |

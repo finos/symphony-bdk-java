@@ -119,7 +119,7 @@ public class SymphonyConfig {
         new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
     registrationBean.setFilter(authenticationFilter);
     registrationBean.addUrlPatterns("*");
-    registrationBean.setOrder(1);
+    registrationBean.setOrder(2);
     return registrationBean;
   }
 

@@ -1,6 +1,7 @@
 package com.symphony.ms.bot.sdk.sse;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
 import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
 
 /**
  * Sample code. Simple SsePublisher which sends events every second to client application.
@@ -20,6 +22,12 @@ public class MyEventPublisher extends SsePublisher {
   private static final long WAIT_INTERVAL = 1000L;
 
   private boolean running = false;
+  private List<SubscriptionEvent> subscribers;
+
+  @Override
+  public void init() {
+    subscribers = new ArrayList<>();
+  }
 
   @Override
   public List<String> getEventTypes() {
@@ -36,7 +44,9 @@ public class MyEventPublisher extends SsePublisher {
   }
 
   @Override
-  protected void onSubscriberAdded(SseSubscriber subscriber) {
+  protected void onSubscriberAdded(SubscriptionEvent subscriberAddedEvent) {
+    subscribers.add(subscriberAddedEvent);
+
     // Start simulating event generation on first subscription
     if (!running) {
       running = true;
@@ -45,10 +55,13 @@ public class MyEventPublisher extends SsePublisher {
   }
 
   @Override
-  protected void onSubscriberRemoved(SseSubscriber subscriber) {
+  protected void onSubscriberRemoved(SubscriptionEvent subscriberRemovedEvent) {
+    subscribers = subscribers.stream()
+        .filter(sub -> sub.getUserId() != subscriberRemovedEvent.getUserId())
+        .collect(Collectors.toList());
+
     // Stop simulation if no more subscriber
-    boolean hasSubscribers = !subscribers.values().stream().allMatch(List::isEmpty);
-    if (!hasSubscribers) {
+    if (subscribers.isEmpty()) {
       running = false;
     }
   }
