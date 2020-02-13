@@ -1,18 +1,18 @@
 <table>
-  <thead>
+    <thead>
     <tr>
-      {{#each message.[0]}}
-      <th>{{@key}}</th>
-      {{/each}}
+        {{#each message.[0]}}
+            <th>{{@key}}</th>
+        {{/each}}
     </tr>
-  </thead>
-  <tbody>
+    </thead>
+    <tbody>
     {{#each message}}
-    <tr>
-      {{#each this}}
-      <td>{{this}}</td>
-      {{/each}}
-    </tr>
+        <tr>
+            {{#each this}}
+                <td>{{this}}</td>
+            {{/each}}
+        </tr>
     {{/each}}
-  </tbody>
+    </tbody>
 </table>
