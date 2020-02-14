@@ -44,8 +44,7 @@ systems and push them as symphony messages.
   * [Forwarding notifications to rooms](#forwarding-notifications-to-rooms)
   * [Protecting notifications endpoint](#protecting-notifications-endpoint)
 * [Sending messages](#sending-messages)
-  * [Using Symphony standard templates](#using-symphony-standard-templates)
-* [Extending health metrics](#extending-health-metrics)  
+  * [Using Symphony standard templates](#using-symphony-standard-templates)  
 * [Extension applications](#extension-applications)
   * [Extension app authentication](#extension-app-authentication)
   * [Exposing new endpoints](#exposing-new-endpoints)
@@ -63,6 +62,9 @@ systems and push them as symphony messages.
   * [Subscribing to event types](#subscribing-to-event-types)
   * [Event stream mapping](#event-stream-mapping)
   * [Filtering events](#filtering-events)
+* [Monitoring Tools](#monitoring-tools)
+  * [Extending health details](#extending-health-details)
+  * [Extending Prometheus details](#extending-prometheus-details)
 * [Advanced settings](#advanced-settings)
   * [Custom truststore](#custom-truststore)
   * [Proxy support](#proxy-support)
@@ -845,65 +847,6 @@ Currently, Symphony Bot SDK offers the following templates:
 For more information about the Symphony standard templates, take a look on https://github.com/SymphonyPlatformSolutions/sms-sdk-renderer-java. Also, check [Template command](#template-command) section.
 
 
-## Extending health metrics
-
-The Symphony Bot SDK monitoring system is based on Spring Actuators. By default, it exposes the following health metrics:
-
-* **overall system health status**: represented by the top ```status``` field. It shows 'UP' if all other metrics are fine, that is, 'UP'. 
-* **symphony**: symphony components metrics. It shows 'UP' only if your bot is properly communicating with the POD and agent and all Symphony components (e.g. agent, Key Manager, POD) are accessible. 
-
-```javascript
-{
-    "status":"UP",
-    "details":{
-        "symphony":{
-            "status":"UP",
-            "details":{
-                "Symphony":{
-                    "agentConnection":"UP",
-                    "podConnection":"UP",
-                    "agentToPodConnection":"UP",
-                    "agentToKMConnection":"UP",
-                    "podVersion":"1.55.3",
-                    "agentVersion":"2.55.9",
-                    "agentToPodConnectionError":"N/A",
-                    "agentToKMConnectionError":"N/A",
-                    "symphonyApiClientVersion":"1.0.49"
-                }
-                
-            }
-        }        
-    }    
-}
-```
-
-There are many other built-in metrics in Spring Actuator. Please refer to their documentation for enabling those metrics. 
-
-To create your own custom metric you need to implement the Spring Actuator ```HealthIndicator``` interface and use ```Health``` builder to convey your status. Your metrics are automatically integrated with the system ones in the monitoring endpoint: http(s)://&lt;hostname&gt;:&lt;port&gt;/&lt;application_context&gt;/monitor/health.
-
-```java
-public class InternetConnectivityHealthIndicator implements HealthIndicator {
-
-  private RestClient restClient;
-
-  public InternetConnectivityHealthIndicator(RestClient restClient) {
-    this.restClient = restClient;
-  }
-
-  @Override
-  public Health health() {
-    try {
-      restClient.getRequest("https://symphony.com", String.class);
-      return Health.up().withDetail("connectivity", "UP").build();
-    } catch (Exception e) {
-      return Health.down().withDetail("connectivity", "DOWN").build();
-    }
-  }
-
-}
-```
-
-
 ## Extension applications
 
 In addition to all support for bots development, Symphony Bot SDK also comes with great tools to streamline the Symphony-extension apps integration process.
@@ -1300,6 +1243,107 @@ The publisher then checks if there are any specified filters:
     ...
   }
 
+```
+
+
+## Monitoring Tools
+
+Symphony Bot SDK comes with production-ready features to help you monitoring your applications when deployed to production.
+
+Such features consist of the following HTTP endpoints that you can use to pull health and other metrics to check the status of your application:
+
+* **/monitor/info**: simple endpoint that returns HTTP 200 OK when application is up
+* **/monitor/health**: provides health details. By default, only Symphony-related health details are exposed
+* **/monitor/prometheus**: health and metrics details to be consumed by [Prometheus](https://prometheus.io/)
+
+
+### Extending health details
+
+The Symphony Bot SDK monitoring system is based on Spring Actuators. By default, it exposes the following health metrics:
+
+* **overall system health status**: represented by the top ```status``` field. It shows 'UP' if all other metrics are fine, that is, 'UP'. 
+* **symphony**: symphony components metrics. It shows 'UP' only if your bot is properly communicating with the POD and agent and all Symphony components (e.g. agent, Key Manager, POD) are accessible. 
+
+```javascript
+{
+    "status":"UP",
+    "details":{
+        "symphony":{
+            "status":"UP",
+            "details":{
+                "Symphony":{
+                    "agentConnection":"UP",
+                    "podConnection":"UP",
+                    "agentToPodConnection":"UP",
+                    "agentToKMConnection":"UP",
+                    "podVersion":"1.55.3",
+                    "agentVersion":"2.55.9",
+                    "agentToPodConnectionError":"N/A",
+                    "agentToKMConnectionError":"N/A",
+                    "symphonyApiClientVersion":"1.0.49"
+                }
+                
+            }
+        }        
+    }    
+}
+```
+
+There are many other built-in metrics in Spring Actuator. Please refer to their documentation for enabling those metrics. 
+
+To create your own custom metric you need to implement the Spring Actuator ```HealthIndicator``` interface and use ```Health``` builder to convey your status. Your metrics are automatically integrated with the system ones in the monitoring endpoint: http(s)://&lt;hostname&gt;:&lt;port&gt;/&lt;application_context&gt;/monitor/health.
+
+```java
+public class InternetConnectivityHealthIndicator implements HealthIndicator {
+
+  private RestClient restClient;
+
+  public InternetConnectivityHealthIndicator(RestClient restClient) {
+    this.restClient = restClient;
+  }
+
+  @Override
+  public Health health() {
+    try {
+      restClient.getRequest("https://symphony.com", String.class);
+      return Health.up().withDetail("connectivity", "UP").build();
+    } catch (Exception e) {
+      return Health.down().withDetail("connectivity", "DOWN").build();
+    }
+  }
+
+}
+```
+
+### Extending Prometheus details
+
+Spring Actuator exposes default metrics in Prometheus endpoint. Symphony Bot SDK extends them to also include the communication status of Symphony-related components (e.g. agent, Key Manager, POD).
+
+To expose your own custom details in Prometheus endpoint, you need to implement ```MeterBinder``` interface as follow:
+
+```java
+public class SymphonyHealthMeterBinder implements MeterBinder {
+
+  ...
+  
+  private HealthCheckInfo status() {
+    return healthcheckClient.healthCheck();
+  }
+
+  @Override
+  public void bindTo(MeterRegistry registry) {
+    LOGGER.info("Registering Symphony health status to Prometheus endpoint");
+    HealthCheckInfo healthStatus = status();
+
+    Gauge.builder(METRIC_NAME, this, value -> value.status().checkOverallStatus() ? 1.0 : 0.0)
+        .description(METRIC_DESCRIPTION)
+        .tags(Tags.of(
+            Tag.of(TAG_POD_VERSION, healthStatus.getPodVersion()),
+            Tag.of(TAG_AGENT_VERSION, healthStatus.getAgentVersion()),
+            Tag.of(TAG_API_VERSION, healthStatus.getSymphonyApiClientVersion())))
+        .baseUnit(BASE_UNIT)
+        .register(registry);
+  }
 ```
 
 
