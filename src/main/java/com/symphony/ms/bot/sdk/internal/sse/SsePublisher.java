@@ -1,14 +1,17 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
+import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
+
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
 
 /**
  * Base class for Server-sent events publishers. Provides mechanisms to automatically register child
@@ -19,6 +22,7 @@ import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
 public abstract class SsePublisher {
   private static final Logger LOGGER = LoggerFactory.getLogger(SsePublisher.class);
 
+  @Setter
   private SsePublisherRouter ssePublisherRouter;
   private ConcurrentHashMap<String, List<SseSubscriber>> subscribers;
   private boolean removed;
@@ -37,7 +41,7 @@ public abstract class SsePublisher {
   public void register() {
     init();
     this.ssePublisherRouter.register(this);
-    subscribers = new ConcurrentHashMap<String, List<SseSubscriber>>();
+    this.subscribers = new ConcurrentHashMap<>();
   }
 
   /**
@@ -49,7 +53,6 @@ public abstract class SsePublisher {
     subscriber.getEventTypes()
         .forEach(evt -> subscribers
             .computeIfAbsent(evt, key -> new LinkedList<>()).add(subscriber));
-
     onSubscriberAdded(new SubscriptionEvent(subscriber));
   }
 
@@ -66,7 +69,6 @@ public abstract class SsePublisher {
               removed = subs.remove(subscriber);
               return !subs.isEmpty() ? subs : null;
             }));
-
     if (removed) {
       onSubscriberRemoved(new SubscriptionEvent(subscriber));
     }
@@ -107,14 +109,6 @@ public abstract class SsePublisher {
   }
 
   /**
-   * Returns the event types that this instance of SsePublisher handles. Client applications must
-   * specify the types they want to subscribe to in the request path.
-   *
-   * @return the event types list
-   */
-  public abstract List<String> getEventTypes();
-
-  /**
    * Subscriber started listening. Subscription startup logic (if any) goes here.
    *
    * @param subscriberAddedEvent
@@ -133,15 +127,19 @@ public abstract class SsePublisher {
   }
 
   /**
+   * Returns the event types that this instance of SsePublisher handles. Client applications must
+   * specify the types they want to subscribe to in the request path.
+   *
+   * @return the event types list
+   */
+  public abstract List<String> getEventTypes();
+
+  /**
    * Process event targeted to the specified subscriber
    *
    * @param subscriber
    * @param event
    */
   protected abstract void handleEvent(SseSubscriber subscriber, SseEvent event);
-
-  public void setSsePublisherRouter(SsePublisherRouter ssePublisherRouter) {
-    this.ssePublisherRouter = ssePublisherRouter;
-  }
 
 }

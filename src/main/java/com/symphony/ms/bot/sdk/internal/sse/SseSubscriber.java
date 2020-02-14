@@ -1,16 +1,18 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
+import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+
+import lombok.AccessLevel;
+import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-import lombok.AccessLevel;
-import lombok.Getter;
 
 /**
  * Represents a client application subscribing for real-time events
@@ -26,7 +28,7 @@ public class SseSubscriber {
   private List<String> eventTypes;
   private Map<String, String> metadata;
   private String lastEventId;
-  private String userId;
+  private Long userId;
 
   @Getter(AccessLevel.NONE)
   private SseEmitter sseEmitter;
@@ -39,15 +41,14 @@ public class SseSubscriber {
   @Getter(AccessLevel.NONE)
   private boolean listening = false;
 
-  public SseSubscriber(SseEmitter sseEmitter, List<String> eventTypes,
-      Map<String, String> metadata, String lastEventId, String userId, int queueCapacity) {
+  public SseSubscriber(SseEmitter sseEmitter, List<String> eventTypes, Map<String, String> metadata,
+      String lastEventId, Long userId, int queueCapacity) {
     this.sseEmitter = sseEmitter;
     this.eventTypes = eventTypes;
     this.metadata = metadata;
     this.lastEventId = lastEventId;
     this.userId = userId;
-
-    this.eventQueue = new LinkedBlockingQueue<SseEvent>(queueCapacity);
+    this.eventQueue = new LinkedBlockingQueue<>(queueCapacity);
     this.sseEmitter.onCompletion(() -> forceComplete());
   }
 

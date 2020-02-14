@@ -3,6 +3,8 @@ package com.symphony.ms.bot.sdk.spreadsheet.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * Model to represent spreadsheet update action
  *
@@ -14,7 +16,5 @@ public class SpreadsheetUpdateEvent {
 
   private String userId;
   private String streamId;
-  private String key;
-  private Object value;
-  private Object expr;
+  private List<SpreadsheetCell> cells;
 }

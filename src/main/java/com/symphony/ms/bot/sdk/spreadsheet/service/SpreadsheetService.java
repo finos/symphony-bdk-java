@@ -36,7 +36,7 @@ public interface SpreadsheetService {
    * @param roomSpreadsheet the spreadsheet
    * @param userId          the id of the user that is reseting the spreadsheet
    */
-  void setSpreadsheet(RoomSpreadsheet roomSpreadsheet, String userId);
+  void addSpreadsheet(RoomSpreadsheet roomSpreadsheet, String userId);
 
   /**
    * Puts a cells in a spreadsheet of a room

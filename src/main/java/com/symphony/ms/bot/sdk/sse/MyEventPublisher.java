@@ -1,5 +1,13 @@
 package com.symphony.ms.bot.sdk.sse;
 
+import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
+import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
+import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,12 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.symphony.ms.bot.sdk.internal.sse.SsePublisher;
-import com.symphony.ms.bot.sdk.internal.sse.SseSubscriber;
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
 
 /**
  * Sample code. Simple SsePublisher which sends events every second to client application.
