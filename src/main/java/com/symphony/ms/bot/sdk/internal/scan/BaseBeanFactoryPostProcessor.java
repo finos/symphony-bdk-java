@@ -17,14 +17,15 @@ public abstract class BaseBeanFactoryPostProcessor implements BeanFactoryPostPro
 
   private static final String BASE_PACKAGE_SCAN = "com.symphony.ms.bot.sdk";
 
-  protected <T> Set<BeanDefinition> scanComponents(Class<T> clazz) {
+  protected <T> Set<BeanDefinition> scanComponents(Class<?>... clazzes) {
     ClassPathScanningCandidateComponentProvider provider =
         new ClassPathScanningCandidateComponentProvider(false);
 
-    provider.addIncludeFilter(new AssignableTypeFilter(clazz));
+    for (Class<?> clazz : clazzes) {
+      provider.addIncludeFilter(new AssignableTypeFilter(clazz));
+    }
 
     return provider.findCandidateComponents(BASE_PACKAGE_SCAN);
-
   }
 
   @Override

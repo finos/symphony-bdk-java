@@ -10,10 +10,11 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 import com.symphony.ms.bot.sdk.internal.scan.BaseBeanFactoryPostProcessor;
+import io.micrometer.core.instrument.binder.MeterBinder;
 
 /**
- * Automatically scans for {@link HealthIndicator}, instantiates them and
- * registers to Spring bean registry.
+ * Automatically scans for {@link HealthIndicator} and {@link MeterBinder},
+ * instantiates them and registers to Spring bean registry.
  *
  * @author Marcus Secato
  *
@@ -25,8 +26,8 @@ public class MonitoringBeanFactoryProcessor extends BaseBeanFactoryPostProcessor
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
     final BeanDefinitionRegistry beanDefinitionRegistry = (BeanDefinitionRegistry) beanFactory;
-    Set<BeanDefinition> beanDefinitionSet = scanComponents(HealthIndicator.class);
-    LOGGER.info("Scanning for health indicators found {} beans", beanDefinitionSet.size());
+    Set<BeanDefinition> beanDefinitionSet = scanComponents(HealthIndicator.class, MeterBinder.class);
+    LOGGER.info("Scanning for health indicators/meter binders found {} beans", beanDefinitionSet.size());
 
     for (BeanDefinition beanDefinition : beanDefinitionSet) {
       BeanDefinition healthIndicator = BeanDefinitionBuilder
