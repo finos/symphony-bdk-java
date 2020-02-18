@@ -5,7 +5,7 @@ import clients.symphony.api.DatafeedClient;
 import configuration.LoadBalancingMethod;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
-import exceptions.SymClientException;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.ws.rs.ProcessingException;
+
 import listeners.*;
 import model.DatafeedEvent;
 import model.events.MessageSent;
@@ -54,29 +54,31 @@ public class DatafeedEventsService {
         THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
         resetTimeout();
 
-        try {
-            File file = new File("." + File.separator + "datafeed.id");
-            if (file.isDirectory()) {
-                file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
-            }
-            Path datafeedIdPath = Paths.get(file.getPath());
-            String[] persistedDatafeed = Files.readAllLines(datafeedIdPath).get(0).split("@");
-            datafeedId = persistedDatafeed[0];
-
-            if (client.getConfig() instanceof SymLoadBalancedConfig) {
-                SymLoadBalancedConfig lbConfig = (SymLoadBalancedConfig) client.getConfig();
-                String[] agentHostPort = persistedDatafeed[1].split(":");
-                if (lbConfig.getLoadBalancing().getMethod() == LoadBalancingMethod.external) {
-                    lbConfig.setActualAgentHost(agentHostPort[0]);
-                } else {
-                    int previousIndex = lbConfig.getAgentServers().indexOf(agentHostPort[0]);
-                    lbConfig.setCurrentAgentIndex(previousIndex);
+        if(this.botClient.getConfig().getReuseDatafeedID()) {
+            try {
+                File file = new File("." + File.separator + "datafeed.id");
+                if (file.isDirectory()) {
+                    file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
                 }
-            }
+                Path datafeedIdPath = Paths.get(file.getPath());
+                String[] persistedDatafeed = Files.readAllLines(datafeedIdPath).get(0).split("@");
+                datafeedId = persistedDatafeed[0];
 
-            logger.info("Using previous datafeed id: {}", datafeedId);
-        } catch (IOException e) {
-            logger.info("No previous datafeed id file");
+                if (client.getConfig() instanceof SymLoadBalancedConfig) {
+                    SymLoadBalancedConfig lbConfig = (SymLoadBalancedConfig) client.getConfig();
+                    String[] agentHostPort = persistedDatafeed[1].split(":");
+                    if (lbConfig.getLoadBalancing().getMethod() == LoadBalancingMethod.external) {
+                        lbConfig.setActualAgentHost(agentHostPort[0]);
+                    } else {
+                        int previousIndex = lbConfig.getAgentServers().indexOf(agentHostPort[0]);
+                        lbConfig.setCurrentAgentIndex(previousIndex);
+                    }
+                }
+
+                logger.info("Using previous datafeed id: {}", datafeedId);
+            } catch (IOException e) {
+                logger.info("No previous datafeed id file");
+            }
         }
 
         while (datafeedId == null) {
