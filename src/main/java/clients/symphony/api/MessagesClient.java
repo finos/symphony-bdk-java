@@ -60,6 +60,7 @@ public final class MessagesClient extends APIClient {
 
         Invocation.Builder builder = webTarget.request().accept("application/json");
         builder = builder.header("sessionToken", botClient.getSymAuth().getSessionToken());
+        builder = builder.header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
@@ -151,7 +152,8 @@ public final class MessagesClient extends APIClient {
 
         Invocation.Builder builder = webTarget
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
@@ -182,7 +184,8 @@ public final class MessagesClient extends APIClient {
             .queryParam("fileId", attachmentId)
             .queryParam("messageId", messageId)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             subBuilder = subBuilder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
@@ -225,7 +228,8 @@ public final class MessagesClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETMESSAGESTATUS.replace("{mid}", messageId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -260,7 +264,8 @@ public final class MessagesClient extends APIClient {
 
         Invocation.Builder builder = webTarget
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
@@ -290,7 +295,8 @@ public final class MessagesClient extends APIClient {
             .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.SHARE.replace("{sid}", streamId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());

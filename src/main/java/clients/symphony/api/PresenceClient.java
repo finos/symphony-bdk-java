@@ -36,7 +36,8 @@ public class PresenceClient extends APIClient {
             .path(PodConstants.GETUSERPRESENCE.replace("{uid}", Long.toString(userId)))
             .queryParam("local", local)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (final Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -61,7 +62,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.GET_OR_SET_PRESENCE)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (final Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -102,7 +104,8 @@ public class PresenceClient extends APIClient {
 
         final Invocation.Builder builder = target.path(PodConstants.GET_ALL_PRESENCE)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (final Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -129,7 +132,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.GET_OR_SET_PRESENCE)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(new Category(category), MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -162,7 +166,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.REGISTERPRESENCEINTEREST)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(userIds, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -187,7 +192,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.PRESENCE_FEED_CREATE)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity("{}", MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -215,7 +221,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.PRESENCE_FEED_READ.replace("{feedId}", feedId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity("{}", MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -241,7 +248,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.PRESENCE_FEED_DELETE.replace("{feedId}", feedId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (final Response response = builder.delete()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -267,7 +275,8 @@ public class PresenceClient extends APIClient {
         final Invocation.Builder builder = this.getTarget()
             .path(PodConstants.SET_OTHER_USER_PRESENCE)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", this.botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", this.botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         OtherUserPresenceRequest otherUserPresenceRequest = new OtherUserPresenceRequest(userId, category);
         try (final Response response = builder.post(Entity.entity(otherUserPresenceRequest, MediaType.APPLICATION_JSON_TYPE))) {

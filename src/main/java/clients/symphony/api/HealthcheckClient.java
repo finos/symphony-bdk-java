@@ -47,7 +47,8 @@ public class HealthcheckClient extends APIClient {
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.method(method.name())) {
             if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {

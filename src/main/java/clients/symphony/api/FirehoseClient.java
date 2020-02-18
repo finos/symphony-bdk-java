@@ -28,7 +28,8 @@ public class FirehoseClient extends APIClient {
             .path(AgentConstants.CREATEFIREHOSE)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -51,7 +52,9 @@ public class FirehoseClient extends APIClient {
             .path(AgentConstants.READFIREHOSE.replace("{id}", id))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
+        
         List<DatafeedEvent> firehoseEvents = null;
 
         try (Response response = builder.get()) {

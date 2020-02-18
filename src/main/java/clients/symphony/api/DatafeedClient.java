@@ -40,7 +40,8 @@ public final class DatafeedClient extends APIClient {
             .path(AgentConstants.CREATEDATAFEED)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
 
@@ -86,7 +87,8 @@ public final class DatafeedClient extends APIClient {
             .path(AgentConstants.READDATAFEED.replace("{id}", id))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         List<DatafeedEvent> datafeedEvents = null;
 

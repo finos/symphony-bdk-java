@@ -39,7 +39,8 @@ public class SignalsClient extends APIClient {
         }
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         }
@@ -65,7 +66,8 @@ public class SignalsClient extends APIClient {
             .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.GETSIGNAL.replace("{id}", id))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
@@ -90,7 +92,8 @@ public class SignalsClient extends APIClient {
             .target(botClient.getConfig().getAgentUrl())
             .path(AgentConstants.CREATESIGNAL)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         if (isKeyManTokenRequired) {
             builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
@@ -116,7 +119,8 @@ public class SignalsClient extends APIClient {
             .path(AgentConstants.UPDATESIGNAL.replace("{id}", signal.getId()))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(signal, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -138,7 +142,8 @@ public class SignalsClient extends APIClient {
             .path(AgentConstants.DELETESIGNAL.replace("{id}", id))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -166,7 +171,8 @@ public class SignalsClient extends APIClient {
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(entity)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -187,7 +193,8 @@ public class SignalsClient extends APIClient {
             .path(AgentConstants.UNSUBSCRIBESIGNAL.replace("{id}", id))
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(entity)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -216,7 +223,8 @@ public class SignalsClient extends APIClient {
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {

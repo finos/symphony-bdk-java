@@ -67,7 +67,8 @@ public final class ConnectionsClient extends APIClient {
             webTarget = webTarget.queryParam("userIds", userIdString);
         }
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -89,7 +90,8 @@ public final class ConnectionsClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ACCEPTCONNECTION)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
 
@@ -113,7 +115,8 @@ public final class ConnectionsClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.REJECTCONNECTION)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
 
@@ -138,7 +141,8 @@ public final class ConnectionsClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.SENDCONNECTIONREQUEST)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
 
@@ -162,7 +166,8 @@ public final class ConnectionsClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -183,7 +188,8 @@ public final class ConnectionsClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily()

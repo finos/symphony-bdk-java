@@ -38,7 +38,8 @@ public final class AdminClient extends APIClient {
             .path(AgentConstants.MESSAGEIMPORT)
             .request(MediaType.APPLICATION_JSON)
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken());
+            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(messageList, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -59,7 +60,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.MESSAGESUPPRESS.replace("{id}", id))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -89,7 +91,8 @@ public final class AdminClient extends APIClient {
         }
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(filter, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -109,7 +112,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADMINCREATEIM)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(userIdList, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -129,7 +133,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETUSERADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -160,7 +165,8 @@ public final class AdminClient extends APIClient {
         }
 
         Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatus() == 200) {
@@ -182,7 +188,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADMINCREATEUSER)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(newUser, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -203,7 +210,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADMINUPDATEUSER.replace("{uid}", Long.toString(userId)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(userAttributes, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -223,7 +231,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETAVATARADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -257,7 +266,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADMINUPDATEAVATAR.replace("{uid}", Long.toString(userId)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -275,7 +285,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETUSERSTATUSADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -303,7 +314,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.UPDATEUSERSTATUSADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         Entity entity = Entity.entity(new Status(status), MediaType.APPLICATION_JSON);
 
@@ -325,7 +337,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.PODFEATURESADMIN)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -345,7 +358,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETUSERFEATURESADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -366,7 +380,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.UPDATEUSERFEATURESADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(entitlements, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -385,7 +400,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.GETUSERAPPLICATIONSADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -407,7 +423,8 @@ public final class AdminClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.UPDATEUSERAPPLICATIONSADMIN.replace("{uid}", Long.toString(uid)))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(entitlementsUpdate, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {

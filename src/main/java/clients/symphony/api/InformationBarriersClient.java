@@ -26,7 +26,8 @@ public class InformationBarriersClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTIBGROUPS)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -47,7 +48,8 @@ public class InformationBarriersClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTIBGROUPMEMBERS.replace("{gid}", groupId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -68,7 +70,8 @@ public class InformationBarriersClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.ADDIBGROUPMEMBERS.replace("{gid}", groupId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(members, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -89,7 +92,8 @@ public class InformationBarriersClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.REMOVEIBGROUPMEMBERS.replace("{gid}", groupId))
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.post(Entity.entity(members, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -110,7 +114,8 @@ public class InformationBarriersClient extends APIClient {
             .target(botClient.getConfig().getPodUrl())
             .path(PodConstants.LISTPOLICIES)
             .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken());
+            .header("sessionToken", botClient.getSymAuth().getSessionToken())
+            .header("Cache-Control", "no-cache");
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
