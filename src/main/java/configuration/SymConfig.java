@@ -41,7 +41,7 @@ public class SymConfig {
     private String appId;
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
-    private boolean reuseDatafeedID;
+    private Boolean reuseDatafeedID;
     private String authenticationFilterUrlPattern;
     private boolean showFirehoseErrors;
     private int connectionTimeout;
@@ -326,7 +326,7 @@ public class SymConfig {
         this.datafeedEventsErrorTimeout = datafeedEventsErrorTimeout;
     }
 
-    public boolean getReuseDatafeedID() {
+    public Boolean getReuseDatafeedID() {
         return reuseDatafeedID;
     }
 

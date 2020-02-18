@@ -54,7 +54,8 @@ public class DatafeedEventsService {
         THREADPOOL_SIZE = threadPoolSize > 0 ? threadPoolSize : 5;
         resetTimeout();
 
-        if(this.botClient.getConfig().getReuseDatafeedID()) {
+        // if the reuseDatafeedID config isn't set (null), we assume its default value as true
+        if (botClient.getConfig().getReuseDatafeedID() == null || this.botClient.getConfig().getReuseDatafeedID()) {
             try {
                 File file = new File("." + File.separator + "datafeed.id");
                 if (file.isDirectory()) {
