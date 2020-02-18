@@ -1,7 +1,9 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
-import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
-
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletResponse;
+import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
 
 /**
  * Server-sent Event Controller Endpoint that offers all support required for client applications to
@@ -84,7 +81,7 @@ public class SseController {
 
     SseEmitter emitter = new SseEmitter();
     SseSubscriber subscriber = new SseSubscriber(emitter, eventTypes,
-        metadata, lastEventId, new Long(userId), queueCapacity);
+        metadata, lastEventId, parseUserId(userId), queueCapacity);
 
     try {
       ssePublisherRouter.bind(subscriber, publishers);
@@ -94,6 +91,19 @@ public class SseController {
     }
 
     return emitter;
+  }
+
+  private Long parseUserId(String userId) {
+    Long uid = null;
+    if (userId != null) {
+      try {
+        uid = new Long(userId);
+      } catch (NumberFormatException nfe) {
+        LOGGER.info("Rejecting subscription. Failed to parse user id {}", userId);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      }
+    }
+    return uid;
   }
 
   private void registerRoute(String route) throws NoSuchMethodException {

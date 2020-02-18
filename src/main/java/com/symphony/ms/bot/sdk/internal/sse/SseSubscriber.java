@@ -1,18 +1,17 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
+import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import lombok.AccessLevel;
+import lombok.Getter;
 
 /**
  * Represents a client application subscribing for real-time events
@@ -73,7 +72,7 @@ public class SseSubscriber {
           sseEmitter.completeWithError(lastPublisherError);
           terminate();
         } else {
-          sseEmitter.send(event);
+          sseEmitter.send(buildEvent(event));
         }
       } catch (Exception e) {
         LOGGER.info("Error handling event for user {}: {}", userId, e.getMessage());
@@ -146,5 +145,26 @@ public class SseSubscriber {
     sendEvent(SseEvent.builder()
         .event(COMPLETION_EVENT)
         .build());
+  }
+
+  private SseEventBuilder buildEvent(SseEvent event) {
+    SseEventBuilder builder = SseEmitter.event();
+    if (event.getId() != null) {
+      builder.id(event.getId());
+    }
+
+    if (event.getEvent() != null) {
+      builder.name(event.getEvent());
+    }
+
+    if (event.getData() != null) {
+      builder.data(event.getData());
+    }
+
+    if (event.getRetry() != null) {
+      builder.reconnectTime(event.getRetry());
+    }
+
+    return builder;
   }
 }
