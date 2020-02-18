@@ -1,6 +1,7 @@
 package com.symphony.ms.bot.sdk.internal.extapp.authentication;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,12 +78,13 @@ public class AppAuthController {
   }
 
   @PostMapping("jwt/validate")
-  public ResponseEntity validateJwt(@RequestBody JwtInfo jwtInfo, HttpServletResponse response) {
+  public ResponseEntity validateJwt(@RequestBody JwtInfo jwtInfo,
+      HttpServletRequest request, HttpServletResponse response) {
     LOGGER.debug("App auth step 3: Validating JWT");
     try {
       String jwt = jwtInfo.getJwt();
       Long userId = extAppAuthClient.verifyJWT(jwt);
-      response.addCookie(jwtCookie(jwt));
+      response.addCookie(jwtCookie(jwt, request.getContextPath()));
 
       return ResponseEntity.ok(userId);
     } catch (AppAuthenticateException aae) {
@@ -91,14 +93,14 @@ public class AppAuthController {
     }
   }
 
-  private Cookie jwtCookie(String jwt) {
+  private Cookie jwtCookie(String jwt, String path) {
     Cookie jwtCookie = new Cookie(JwtCookieFilter.JWT_COOKIE_NAME, jwt);
 
     // 1 day
     jwtCookie.setMaxAge(1 * 24 * 60 * 60);
     jwtCookie.setSecure(true);
     jwtCookie.setHttpOnly(true);
-    jwtCookie.setPath(configClient.getExtAppAuthPath());
+    jwtCookie.setPath(path.concat(configClient.getExtAppAuthPath()));
 
     return jwtCookie;
   }
