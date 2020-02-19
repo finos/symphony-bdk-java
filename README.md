@@ -94,6 +94,7 @@ can exclude the bot certificate section, all extension app sections and all opti
     // Optional: To modify the default datafeed handling properties
     "datafeedEventsThreadpoolSize": 5,
     "datafeedEventsErrorTimeout": 30,
+    "reuseDatafeedID": true,
     
     // Optional: Request filter pattern to verify JWT
     "authenticationFilterUrlPattern": "/v1/",

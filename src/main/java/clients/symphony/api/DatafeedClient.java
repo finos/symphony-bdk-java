@@ -58,7 +58,10 @@ public final class DatafeedClient extends APIClient {
                 logger.info("Created new datafeed {} for bot {}", datafeedId.getId(),
                     botClient.getBotUserInfo().getUsername());
 
-                writeDatafeedIdToDisk(botClient.getConfig(), datafeedId.getId());
+                // if the reuseDatafeedID config isn't set (null), we assume its default value as true
+                if (botClient.getConfig().getReuseDatafeedID() == null || botClient.getConfig().getReuseDatafeedID()) {
+                    writeDatafeedIdToDisk(botClient.getConfig(), datafeedId.getId());
+                }
 
                 return datafeedId.getId();
             }
