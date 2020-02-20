@@ -19,7 +19,8 @@ concurrency:
       queue-capacity: 0
       thread-name-prefix: sse-thread-pool
     subscriber:
-      queue-capacity: 100
+      queue-capacity: 10
+      queue-timeout: 5000
 
 resources: src/main/resources
 certs: certs

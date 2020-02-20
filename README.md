@@ -1531,6 +1531,7 @@ The timeout property is used to define the maximum amount of time a request wait
 | concurrency.sse.pool.queue-capacity      | The SSE concurrency pools queue capacity (if 0 returns immediately if no thread available)   | application-dev.yaml     |
 | concurrency.sse.pool.thread-name-prefix  | The SSE concurrency pools thread name prefix                                                 | application-dev.yaml     |
 | concurrency.sse.subscriber.queue-capacity| Capacity of SSE subscriber queue. Defines the maximum number of concurrent publishers writing to the queue | application-dev.yaml     |
+| concurrency.sse.subscriber.queue-timeout | How long a subscriber will wait for events before sending a keep-alive                       | application-dev.yaml     |
 | cors.allowed-origin                      | The allowed origin domain                                                                    | application-dev.yaml     |
 | cors.url-mapping                         | The endpoints which CORS support should be applied to                                        | application-dev.yaml     |
 | xss.url-mapping                          | The endpoints which cross-site scripting protection should be applied to                     | application-dev.yaml     |

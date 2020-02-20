@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,13 +21,14 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.symphony.ms.bot.sdk.internal.sse.config.SseSubscriberProps;
 import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
 
 /**
  * Server-sent Event Controller Endpoint that offers all support required for client applications to
  * receive real-time updates from server.
  *
- * @author msecato
+ * @author Marcus Secato
  */
 @RestController
 public class SseController {
@@ -39,15 +39,15 @@ public class SseController {
   @Qualifier("requestMappingHandlerMapping")
   private RequestMappingHandlerMapping handlerMapping;
 
-  @Value("${concurrency.sse.subscriber.queue-capacity:100}")
-  private int queueCapacity;
-
+  private final SseSubscriberProps subscriberConfig;
   private SsePublisherRouter ssePublisherRouter;
   private String authPath;
 
-  public SseController(SsePublisherRouter ssePublisherRouter, ConfigClient configClient) {
+  public SseController(SsePublisherRouter ssePublisherRouter,
+      ConfigClient configClient, SseSubscriberProps subscriberConfig) {
     this.ssePublisherRouter = ssePublisherRouter;
     this.authPath = configClient.getExtAppAuthPath();
+    this.subscriberConfig = subscriberConfig;
   }
 
   @PostConstruct
@@ -81,7 +81,7 @@ public class SseController {
 
     SseEmitter emitter = new SseEmitter();
     SseSubscriber subscriber = new SseSubscriber(emitter, eventTypes,
-        metadata, lastEventId, parseUserId(userId), queueCapacity);
+        metadata, lastEventId, parseUserId(userId), subscriberConfig);
 
     try {
       ssePublisherRouter.bind(subscriber, publishers);

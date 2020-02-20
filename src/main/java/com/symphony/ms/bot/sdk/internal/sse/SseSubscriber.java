@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
+import com.symphony.ms.bot.sdk.internal.sse.config.SseSubscriberProps;
 import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,6 +25,7 @@ public class SseSubscriber {
   private static final Logger LOGGER = LoggerFactory.getLogger(SseSubscriber.class);
   private static final String COMPLETION_EVENT = "_publisher_completion";
   private static final String COMPLETION_WITH_ERROR_EVENT = "_publisher_completion_error";
+  private static final String KEEPALIVE_EVENT = "keep-alive";
 
   private List<String> eventTypes;
   private Map<String, String> metadata;
@@ -39,15 +42,20 @@ public class SseSubscriber {
   private Throwable lastPublisherError;
   @Getter(AccessLevel.NONE)
   private boolean listening = false;
+  @Getter(AccessLevel.NONE)
+  private SseSubscriberProps subscriberConfig;
 
   public SseSubscriber(SseEmitter sseEmitter, List<String> eventTypes, Map<String, String> metadata,
-      String lastEventId, Long userId, int queueCapacity) {
+      String lastEventId, Long userId, SseSubscriberProps subscriberConfig) {
     this.sseEmitter = sseEmitter;
     this.eventTypes = eventTypes;
     this.metadata = metadata;
     this.lastEventId = lastEventId;
     this.userId = userId;
-    this.eventQueue = new LinkedBlockingQueue<>(queueCapacity);
+    this.subscriberConfig = subscriberConfig;
+
+    this.eventQueue = new LinkedBlockingQueue<>(
+        subscriberConfig.getQueueCapacity());
     this.sseEmitter.onCompletion(() -> forceComplete());
   }
 
@@ -64,15 +72,25 @@ public class SseSubscriber {
   private void listen() {
     while (listening) {
       try {
-        SseEvent event = eventQueue.take();
-        if (COMPLETION_EVENT.equals(event.getEvent())) {
-          sseEmitter.complete();
-          terminate();
-        } else if (COMPLETION_WITH_ERROR_EVENT.equals(event.getEvent())) {
-          sseEmitter.completeWithError(lastPublisherError);
-          terminate();
+        SseEvent event = eventQueue.poll(
+            subscriberConfig.getQueueTimeout(), TimeUnit.MILLISECONDS);
+
+        if (event == null) {
+          sseEmitter.send(SseEmitter.event()
+              .name(KEEPALIVE_EVENT));
         } else {
-          sseEmitter.send(buildEvent(event));
+          switch (event.getEvent()) {
+            case COMPLETION_EVENT:
+              sseEmitter.complete();
+              terminate();
+              break;
+            case COMPLETION_WITH_ERROR_EVENT:
+              sseEmitter.completeWithError(lastPublisherError);
+              terminate();
+              break;
+            default:
+              sseEmitter.send(buildEvent(event));
+          }
         }
       } catch (Exception e) {
         LOGGER.info("Error handling event for user {}: {}", userId, e.getMessage());
