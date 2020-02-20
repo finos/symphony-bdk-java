@@ -28,15 +28,14 @@ public class UsersClient extends APIClient {
     }
 
     public UserInfo getUserFromUsername(String username) throws SymClientException, NoContentException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                .getPodPort())
-            .path(PodConstants.GETUSERV2)
+        WebTarget webTarget = botClient.getPodClient()
+            .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + 
+                botClient.getConfig().getPodPort())
             .queryParam("username", username)
-            .queryParam("local", true)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+            .queryParam("local", true);
+
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            PodConstants.GETUSERV2, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -55,14 +54,13 @@ public class UsersClient extends APIClient {
     }
 
     public UserInfo getUserFromEmail(String email, Boolean local) throws SymClientException, NoContentException {
-        Invocation.Builder builder = botClient.getPodClient()
+        WebTarget webTarget = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETUSERSV3)
             .queryParam("email", email)
-            .queryParam("local", local)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+            .queryParam("local", local);
+
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            PodConstants.GETUSERSV3, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -85,14 +83,13 @@ public class UsersClient extends APIClient {
     }
 
     public UserInfo getUserFromId(Long id, Boolean local) throws SymClientException, NoContentException {
-        Invocation.Builder builder = botClient.getPodClient()
+        WebTarget webTarget = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETUSERSV3)
             .queryParam("uid", id)
-            .queryParam("local", local)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+            .queryParam("local", local);
+
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            PodConstants.GETUSERSV3, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -148,14 +145,13 @@ public class UsersClient extends APIClient {
             throw new NoContentException("No user sent for lookup");
         }
 
-        Invocation.Builder builder = botClient.getPodClient()
+        WebTarget webTarget = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETUSERSV3)
             .queryParam(emailBased ? "email" : "uid", lookUpListString.toString())
-            .queryParam("local", local)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+            .queryParam("local", local);
+
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            PodConstants.GETUSERSV3, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -178,8 +174,8 @@ public class UsersClient extends APIClient {
 
     public UserSearchResult searchUsers(String query, boolean local, int skip, int limit, UserFilter filter)
         throws SymClientException, NoContentException {
-        WebTarget webTarget = botClient.getPodClient().target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.SEARCHUSERS)
+        WebTarget webTarget = botClient.getPodClient()
+            .target(botClient.getConfig().getPodUrl())
             .queryParam("local", local);
 
         if (skip > 0) {
@@ -193,9 +189,8 @@ public class UsersClient extends APIClient {
         body.put("query", query);
         body.put("filters", filter);
 
-        Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget, 
+            PodConstants.SEARCHUSERS, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(body, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -216,12 +211,8 @@ public class UsersClient extends APIClient {
     public UserInfo getSessionUser() {
         UserInfo info;
 
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETSESSIONUSER)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.GETSESSIONUSER, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {

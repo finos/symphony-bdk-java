@@ -30,13 +30,9 @@ public class StreamsClient extends APIClient {
     }
 
     public String getUserListIM(List<Long> userIdList) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETIM)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
-
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.GETIM, botClient.getSymAuth().getSessionToken());
+        
         try (Response response = builder.post(Entity.entity(userIdList, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
@@ -51,12 +47,8 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo createRoom(Room room) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.CREATEROOM)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.CREATEROOM, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(room, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -74,12 +66,8 @@ public class StreamsClient extends APIClient {
     public void addMemberToRoom(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.ADDMEMBER.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.ADDMEMBER.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -95,12 +83,8 @@ public class StreamsClient extends APIClient {
     public void removeMemberFromRoom(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.REMOVEMEMBER.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.REMOVEMEMBER.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -114,12 +98,9 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo getRoomInfo(String streamId) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETROOMINFO.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.GETROOMINFO.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -135,12 +116,8 @@ public class StreamsClient extends APIClient {
     }
 
     public RoomInfo updateRoom(String streamId, Room room) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.UPDATEROOMINFO.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.UPDATEROOMINFO.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(room, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -157,12 +134,8 @@ public class StreamsClient extends APIClient {
     }
 
     public StreamInfo getStreamInfo(String streamId) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETSTREAMINFO.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.GETSTREAMINFO.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -179,12 +152,8 @@ public class StreamsClient extends APIClient {
     }
 
     public List<RoomMember> getRoomMembers(String streamId) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETROOMMEMBERS.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.GETROOMMEMBERS.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -209,13 +178,12 @@ public class StreamsClient extends APIClient {
     }
 
     private void setActiveRoom(String streamId, boolean active) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
+        WebTarget webTarget = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.SETACTIVE.replace("{id}", streamId))
-            .queryParam("active", active)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+            .queryParam("active", active);
+
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            PodConstants.SETACTIVE.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -231,12 +199,8 @@ public class StreamsClient extends APIClient {
     public void promoteUserToOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.PROMOTEOWNER.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.PROMOTEOWNER.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -252,12 +216,8 @@ public class StreamsClient extends APIClient {
     public void demoteUserFromOwner(String streamId, Long userId) throws SymClientException {
         NumericId id = new NumericId(userId);
 
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.DEMOTEOWNER.replace("{id}", streamId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.DEMOTEOWNER.replace("{id}", streamId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(id, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -273,8 +233,7 @@ public class StreamsClient extends APIClient {
     public RoomSearchResult searchRooms(RoomSearchQuery query, int skip, int limit)
         throws SymClientException, NoContentException {
         WebTarget webTarget = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.SEARCHROOMS);
+            .target(botClient.getConfig().getPodUrl());
 
         if (skip > 0) {
             webTarget = webTarget.queryParam("skip", skip);
@@ -286,9 +245,8 @@ public class StreamsClient extends APIClient {
             query.setLabels(new ArrayList<>());
         }
 
-        Invocation.Builder builder =  webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            PodConstants.SEARCHROOMS, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(query, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -360,14 +318,13 @@ public class StreamsClient extends APIClient {
         input.put("streamTypes", inputStreamTypes);
         input.put("includeInactiveStreams", includeInactiveStreams);
 
-        Invocation.Builder builder = botClient.getPodClient()
+        WebTarget webTarget = botClient.getPodClient()
             .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.LISTUSERSTREAMS)
             .queryParam("skip", skip)
-            .queryParam("limit", limit)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+            .queryParam("limit", limit);
+        
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget, 
+            PodConstants.LISTUSERSTREAMS, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {

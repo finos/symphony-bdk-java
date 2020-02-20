@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.HealthcheckResponse;
 
@@ -36,8 +35,7 @@ public class HealthcheckClient extends APIClient {
     private <T> T doRequest(String path, HttpMethod method, Class<T> clazz, Map<String, Object> queryParams) {
 
         WebTarget webTarget = botClient.getAgentClient()
-            .target(botClient.getConfig().getAgentUrl())
-            .path(path);
+            .target(botClient.getConfig().getAgentUrl());
 
         if (queryParams != null) {
             for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
@@ -45,10 +43,10 @@ public class HealthcheckClient extends APIClient {
             }
         }
 
-        Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget, path, 
+            botClient.getSymAuth().getSessionToken());
+            
+         builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
         try (Response response = builder.method(method.name())) {
             if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {

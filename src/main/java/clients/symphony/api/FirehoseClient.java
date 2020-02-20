@@ -7,7 +7,6 @@ import exceptions.UnauthorizedException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
@@ -23,13 +22,10 @@ public class FirehoseClient extends APIClient {
     }
 
     public String createFirehose() throws SymClientException {
-        Invocation.Builder builder = botClient.getAgentClient()
-            .target(botClient.getConfig().getAgentUrl())
-            .path(AgentConstants.CREATEFIREHOSE)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getAgentClient(), botClient.getConfig().getAgentUrl(),
+            AgentConstants.CREATEFIREHOSE, botClient.getSymAuth().getSessionToken());
+        
+        builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -47,13 +43,10 @@ public class FirehoseClient extends APIClient {
     }
 
     public List<DatafeedEvent> readFirehose(String id) throws SymClientException {
-        Invocation.Builder builder = botClient.getAgentClient()
-            .target(botClient.getConfig().getAgentUrl())
-            .path(AgentConstants.READFIREHOSE.replace("{id}", id))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getAgentClient(), botClient.getConfig().getAgentUrl(),
+            AgentConstants.READFIREHOSE.replace("{id}", id), botClient.getSymAuth().getSessionToken());
+        
+        builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
         
         List<DatafeedEvent> firehoseEvents = null;
 

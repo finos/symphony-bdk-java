@@ -22,12 +22,8 @@ public class InformationBarriersClient extends APIClient {
     }
 
     public List<InformationBarrierGroup> listGroups() throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.LISTIBGROUPS)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.LISTIBGROUPS, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -44,12 +40,8 @@ public class InformationBarriersClient extends APIClient {
     }
 
     public List<Long> listGroupMembers(String groupId) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.LISTIBGROUPMEMBERS.replace("{gid}", groupId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.LISTIBGROUPMEMBERS.replace("{gid}", groupId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -66,12 +58,8 @@ public class InformationBarriersClient extends APIClient {
     }
 
     public InformationBarrierGroupStatus addGroupMembers(String groupId, List<Long> members) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.ADDIBGROUPMEMBERS.replace("{gid}", groupId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.ADDIBGROUPMEMBERS.replace("{gid}", groupId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(members, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -88,12 +76,8 @@ public class InformationBarriersClient extends APIClient {
     }
 
     public InformationBarrierGroupStatus removeGroupMembers(String groupId, List<Long> members) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.REMOVEIBGROUPMEMBERS.replace("{gid}", groupId))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.REMOVEIBGROUPMEMBERS.replace("{gid}", groupId), botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(Entity.entity(members, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -110,12 +94,8 @@ public class InformationBarriersClient extends APIClient {
     }
 
     public List<Policy> listPolicies() throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.LISTPOLICIES)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.LISTPOLICIES, botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {

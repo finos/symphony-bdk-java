@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
@@ -35,13 +34,10 @@ public final class DatafeedClient extends APIClient {
     }
 
     public String createDatafeed() throws SymClientException {
-        Invocation.Builder builder = botClient.getAgentClient()
-            .target(config.getAgentUrl())
-            .path(AgentConstants.CREATEDATAFEED)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getAgentClient(), config.getAgentUrl(),
+            AgentConstants.CREATEDATAFEED, botClient.getSymAuth().getSessionToken());
+        
+        builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
         logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
 
@@ -83,12 +79,11 @@ public final class DatafeedClient extends APIClient {
 
     public List<DatafeedEvent> readDatafeed(String id) throws SymClientException {
         WebTarget webTarget = botClient.getAgentClient().target(config.getAgentUrl());
-        Invocation.Builder builder = webTarget
-            .path(AgentConstants.READDATAFEED.replace("{id}", id))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("keyManagerToken", botClient.getSymAuth().getKmToken())
-            .header("Cache-Control", "no-cache");
+        
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget,
+            AgentConstants.READDATAFEED.replace("{id}", id), botClient.getSymAuth().getSessionToken());
+            
+        builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
         List<DatafeedEvent> datafeedEvents = null;
 

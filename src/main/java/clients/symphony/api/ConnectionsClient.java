@@ -57,18 +57,17 @@ public final class ConnectionsClient extends APIClient {
         }
 
         WebTarget webTarget = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETCONNECTIONS);
-
+            .target(botClient.getConfig().getPodUrl());
+        
         if (status != null) {
             webTarget = webTarget.queryParam("status", status);
         }
         if (userIdString != null) {
             webTarget = webTarget.queryParam("userIds", userIdString);
         }
-        Invocation.Builder builder = webTarget.request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilderFromWebTarget(webTarget, PodConstants.GETCONNECTIONS,
+        botClient.getSymAuth().getSessionToken());
+
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -84,14 +83,9 @@ public final class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest acceptConnectionRequest(Long userId)
-        throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.ACCEPTCONNECTION)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+    public InboundConnectionRequest acceptConnectionRequest(Long userId) throws SymClientException {
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.ACCEPTCONNECTION, botClient.getSymAuth().getSessionToken());
 
         Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
 
@@ -109,14 +103,9 @@ public final class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest rejectConnectionRequest(Long userId)
-        throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.REJECTCONNECTION)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+    public InboundConnectionRequest rejectConnectionRequest(Long userId) throws SymClientException {
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.REJECTCONNECTION, botClient.getSymAuth().getSessionToken());
 
         Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
 
@@ -135,14 +124,9 @@ public final class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest sendConnectionRequest(Long userId)
-        throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.SENDCONNECTIONREQUEST)
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+    public InboundConnectionRequest sendConnectionRequest(Long userId) throws SymClientException {
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.SENDCONNECTIONREQUEST, botClient.getSymAuth().getSessionToken());
 
         Entity entity = Entity.entity(new UserId(userId), MediaType.APPLICATION_JSON);
 
@@ -160,14 +144,10 @@ public final class ConnectionsClient extends APIClient {
         }
     }
 
-    public InboundConnectionRequest getConnectionRequestStatus(Long userId)
-        throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+    public InboundConnectionRequest getConnectionRequestStatus(Long userId) throws SymClientException {
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.GETCONNECTIONSTATUS.replace("{userId}", Long.toString(userId)), 
+            botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.get()) {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
@@ -184,12 +164,9 @@ public final class ConnectionsClient extends APIClient {
     }
 
     public void removeConnection(Long userId) throws SymClientException {
-        Invocation.Builder builder = botClient.getPodClient()
-            .target(botClient.getConfig().getPodUrl())
-            .path(PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)))
-            .request(MediaType.APPLICATION_JSON)
-            .header("sessionToken", botClient.getSymAuth().getSessionToken())
-            .header("Cache-Control", "no-cache");
+        Invocation.Builder builder = createInvocationBuilder(botClient.getPodClient(), botClient.getConfig().getPodUrl(),
+            PodConstants.REMOVECONNECTION.replace("{userId}", Long.toString(userId)), 
+            botClient.getSymAuth().getSessionToken());
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily()
