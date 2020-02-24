@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class SsePublisherRouterImpl implements SsePublisherRouter {
   private static final Logger LOGGER = LoggerFactory.getLogger(SsePublisherRouterImpl.class);
 
-  private List<SsePublisher> ssePublishers;
+  private List<SsePublisher<?>> ssePublishers;
 
   public SsePublisherRouterImpl() {
     this.ssePublishers = new ArrayList<>();
@@ -22,7 +22,7 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    * {@inheritDoc}
    */
   @Override
-  public void register(SsePublisher ssePublisher) {
+  public void register(SsePublisher<?> ssePublisher) {
     LOGGER.info("Registering sse publisher for event type: {}",
         ssePublisher.getEventTypes());
     ssePublishers.add(ssePublisher);
@@ -32,8 +32,8 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    * {@inheritDoc}
    */
   @Override
-  public List<SsePublisher> findPublishers(List<String> eventTypes) {
-    List<SsePublisher> publishers = new ArrayList<>();
+  public List<SsePublisher<?>> findPublishers(List<String> eventTypes) {
+    List<SsePublisher<?>> publishers = new ArrayList<>();
     ssePublishers.stream().forEach(pub -> {
       if (!Collections.disjoint(
           pub.getEventTypes(), eventTypes)) {
@@ -49,7 +49,7 @@ public class SsePublisherRouterImpl implements SsePublisherRouter {
    */
   @Override
   @Async("sseTaskExecutor")
-  public void bind(SseSubscriber subscriber, List<SsePublisher> publishers) {
+  public void bind(SseSubscriber subscriber, List<SsePublisher<?>> publishers) {
     LOGGER.debug("Binding subscriber to corresponding publishers");
     subscriber.bindPublishers(publishers);
     subscriber.startListening();

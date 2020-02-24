@@ -15,7 +15,7 @@ public interface SsePublisherRouter {
    *
    * @param ssePublisher
    */
-  void register(SsePublisher ssePublisher);
+  void register(SsePublisher<?> ssePublisher);
 
   /**
    * Finds {@link SsePublisher} based on the specified event types
@@ -23,7 +23,7 @@ public interface SsePublisherRouter {
    * @param eventTypes
    * @return list of publishers
    */
-  List<SsePublisher> findPublishers(List<String> eventTypes);
+  List<SsePublisher<?>> findPublishers(List<String> eventTypes);
 
   /**
    * Binds a {@link SseSubscriber} to a {@link SsePublisher}s
@@ -31,5 +31,5 @@ public interface SsePublisherRouter {
    * @param subscriber
    * @param publishers
    */
-  void bind(SseSubscriber subscriber, List<SsePublisher> publishers);
+  void bind(SseSubscriber subscriber, List<SsePublisher<?>> publishers);
 }

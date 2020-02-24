@@ -35,7 +35,7 @@ public class SseSubscriber {
   @Getter(AccessLevel.NONE)
   private SseEmitter sseEmitter;
   @Getter(AccessLevel.NONE)
-  private List<SsePublisher> publishers;
+  private List<SsePublisher<?>> publishers;
   @Getter(AccessLevel.NONE)
   private BlockingQueue<SseEvent> eventQueue;
   @Getter(AccessLevel.NONE)
@@ -59,7 +59,7 @@ public class SseSubscriber {
     this.sseEmitter.onCompletion(() -> forceComplete());
   }
 
-  void bindPublishers(List<SsePublisher> publishers) {
+  void bindPublishers(List<SsePublisher<?>> publishers) {
     this.publishers = publishers;
     this.publishers.stream().forEach(pub -> pub.addSubscriber(this));
   }
@@ -118,7 +118,7 @@ public class SseSubscriber {
    *
    * @param publisher
    */
-  public void complete(SsePublisher publisher) {
+  public void complete(SsePublisher<?> publisher) {
     internalComplete(publisher);
   }
 
@@ -128,12 +128,12 @@ public class SseSubscriber {
    * @param publisher
    * @param ex
    */
-  public void completeWithError(SsePublisher publisher, Throwable ex) {
+  public void completeWithError(SsePublisher<?> publisher, Throwable ex) {
     lastPublisherError = ex;
     internalComplete(publisher);
   }
 
-  private void internalComplete(SsePublisher publisher) {
+  private void internalComplete(SsePublisher<?> publisher) {
     LOGGER.debug("Handling publisher completion");
     publishers = publishers.stream()
         .filter(pub -> !pub.equals(publisher))

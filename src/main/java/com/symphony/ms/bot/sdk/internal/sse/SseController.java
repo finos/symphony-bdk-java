@@ -71,7 +71,7 @@ public class SseController {
       @RequestAttribute(name = "userId", required = false) String userId,
       HttpServletResponse response) {
 
-    List<SsePublisher> publishers = ssePublisherRouter.findPublishers(eventTypes);
+    List<SsePublisher<?>> publishers = ssePublisherRouter.findPublishers(eventTypes);
 
     if (publishers.isEmpty()) {
       LOGGER.info("No SSE publisher found for event types {}", eventTypes);

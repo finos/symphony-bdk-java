@@ -1,27 +1,23 @@
 package com.symphony.ms.bot.sdk.spreadsheet.service;
 
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.StreamType;
 import com.symphony.ms.bot.sdk.spreadsheet.model.RoomSpreadsheet;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetCell;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetCellContent;
+import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetEvent;
 import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetRoom;
-import com.symphony.ms.bot.sdk.spreadsheet.model.SpreadsheetUpdateEvent;
 import com.symphony.ms.bot.sdk.sse.SpreadsheetPublisher;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * The service that manages the shared spreadsheet
@@ -32,17 +28,18 @@ import java.util.stream.Stream;
 public class SpreadsheetServiceImpl implements SpreadsheetService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SpreadsheetService.class);
   private static final String SPREADSHEET_UPDATE_EVENT = "spreadsheetUpdateEvent";
-  private static final long WAIT_INTERVAL = 1000L;
 
   private final SpreadsheetPublisher spreadsheetPublisher;
   private final StreamsClient streamsClient;
   private Map<String, Map> spreadsheets;
+  private final AtomicLong eventId;
 
   public SpreadsheetServiceImpl(SpreadsheetPublisher spreadsheetPublisher,
       StreamsClient streamsClient) {
     this.spreadsheetPublisher = spreadsheetPublisher;
     this.spreadsheets = new HashMap<>();
     this.streamsClient = streamsClient;
+    this.eventId = new AtomicLong(1);
   }
 
   /**
@@ -103,19 +100,13 @@ public class SpreadsheetServiceImpl implements SpreadsheetService {
     }
   }
 
-  private SseEvent buildUpdateEvent(List<SpreadsheetCell> cells, String streamId, String userId) {
-    return SseEvent.builder()
-        .id(Long.toString(spreadsheetPublisher.getIdAndIncrement()))
-        .retry(WAIT_INTERVAL)
-        .event(SPREADSHEET_UPDATE_EVENT)
-        .data(SpreadsheetUpdateEvent.builder()
-            .streamId(streamId)
-            .userId(userId)
-            .cells(cells)
-            .build())
-        .metadata(Stream.of(
-            new AbstractMap.SimpleEntry<>("streamId", streamId))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)))
+  private SpreadsheetEvent buildUpdateEvent(List<SpreadsheetCell> cells, String streamId, String userId) {
+    return SpreadsheetEvent.builder()
+        .type(SPREADSHEET_UPDATE_EVENT)
+        .id(Long.toString(eventId.getAndIncrement()))
+        .streamId(streamId)
+        .userId(userId)
+        .cells(cells)
         .build();
   }
 

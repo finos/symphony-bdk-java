@@ -1,17 +1,15 @@
 package com.symphony.ms.bot.sdk.internal.sse;
 
-import com.symphony.ms.bot.sdk.internal.sse.model.SseEvent;
-import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
-
-import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.sse.model.SsePublishable;
+import com.symphony.ms.bot.sdk.internal.sse.model.SubscriptionEvent;
+import lombok.Setter;
 
 /**
  * Base class for Server-sent events publishers. Provides mechanisms to automatically register child
@@ -19,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * @author Marcus Secato
  */
-public abstract class SsePublisher {
+public abstract class SsePublisher<E extends SsePublishable> {
   private static final Logger LOGGER = LoggerFactory.getLogger(SsePublisher.class);
 
   @Setter
@@ -79,8 +77,8 @@ public abstract class SsePublisher {
    *
    * @param event
    */
-  public void publishEvent(SseEvent event) {
-    subscribers.computeIfPresent(event.getEvent(), (key, subs) -> {
+  public void publishEvent(E event) {
+    subscribers.computeIfPresent(event.getType(), (key, subs) -> {
       subs.forEach(sub -> handleEvent(sub, event));
       return subs;
     });
@@ -140,6 +138,6 @@ public abstract class SsePublisher {
    * @param subscriber
    * @param event
    */
-  protected abstract void handleEvent(SseSubscriber subscriber, SseEvent event);
+  protected abstract void handleEvent(SseSubscriber subscriber, E event);
 
 }

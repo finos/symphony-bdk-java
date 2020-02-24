@@ -1,6 +1,6 @@
 # Symphony Bot SDK
 
-[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk.svg?style=svg)](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk) [![Java](https://img.shields.io/badge/JDK-1.8-blue.svg)](https://www.oracle.com/technetwork/java/javase/documentation/index.html) [![Maven](https://img.shields.io/badge/MAVEN-3.0.5+-blue.svg)](https://maven.apache.org/guides/index.html)
+[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk.svg?style=svg&circle-token=f7891ef2a6f117938ef4ee885076c2d2bcd9b9cd)](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk) [![Java](https://img.shields.io/badge/JDK-1.8-blue.svg)](https://www.oracle.com/technetwork/java/javase/documentation/index.html) [![Maven](https://img.shields.io/badge/MAVEN-3.0.5+-blue.svg)](https://maven.apache.org/guides/index.html)
 
 This SDK is managing all bot interactions from handling bot commands to receiving notifications from external
 systems and push them as symphony messages.
@@ -1071,13 +1071,15 @@ With Symphony Bot SDK your extension apps can quickly leverage real-time events.
 
 ### Publishing events
 
-```SsePublisher``` child classes represent event publishers. Create as many publishers as you need according to the event types they should handle.
+```SsePublisher``` child classes represent the bridge between your business logic and the client applications listening to your events. Create as many publishers as you need according to the event types they should publish.
+
+The ```SsePublisher``` class is parameterized to allow you to provide any kind of data in ```publishEvent``` as long as you implement the ```SsePublishable``` interface.
 
 To extend ```SsePublisher``` implement the following methods:
 
 * **List&lt;String&gt; getEventTypes()**: returns a list with event types that this particular publisher is responsible for. Clients must specify the event types they want to listen to in their requests path.
 
-* **void handleEvent(SseSubscriber subscriber, SseEvent event)**: where you add your business logic to process events before publishing them. This method is not publicly visible. Your code will not work with it directly. Rather, your code should call ```publishEvent``` whenever you need to send an event. Symphony Bot SDK will automatically call ```handleEvent``` for each subscriber when ```publishEvent``` is invoked. Use the ```SseSubscriber``` object to retrieve details of the clients subscribing for events and to send them your events.   
+* **void handleEvent(SseSubscriber subscriber, SsePublishable event)**: where you add your logic to process events before publishing them. This method is not publicly visible and your business logic will not call it directly. Rather, your code should call ```publishEvent``` whenever you need to publish an event. Symphony Bot SDK will automatically call ```handleEvent``` for each subscriber of that particular event type. Use the ```SseSubscriber``` object to retrieve details of the clients subscribing for events and to send them your events.   
 
 
 Optionally, you may consider extending the following methods:
@@ -1096,12 +1098,7 @@ Optionally, you may consider extending the following methods:
   private static final long WAIT_INTERVAL = 1000L;
 
   private boolean running = false;
-  private List<SubscriptionEvent> subscribers;
-
-  @Override
-  public void init() {
-    subscribers = new ArrayList<>();
-  }
+  private int subscribers;
 
   @Override
   public List<String> getEventTypes() {
@@ -1110,7 +1107,7 @@ Optionally, you may consider extending the following methods:
   }
 
   @Override
-  protected void handleEvent(SseSubscriber subscriber, SseEvent event) {
+  protected void handleEvent(SseSubscriber subscriber, SsePublishable event) {
     // For simplicity, just send the event to the client application. In real
     // scenarios you could rely on subscriber.getMetadata to check if client is
     // really interested in this particular event.
@@ -1120,7 +1117,7 @@ Optionally, you may consider extending the following methods:
   @Override
   protected void onSubscriberAdded(SubscriptionEvent subscriberAddedEvent) {
     // Start simulating event generation on first subscription
-    subscribers.add(subscriberAddedEvent);
+    subscribers++;
     if (!running) {
       running = true;
       simulateEvent();
@@ -1129,12 +1126,10 @@ Optionally, you may consider extending the following methods:
 
   @Override
   protected void onSubscriberRemoved(SubscriptionEvent subscriberRemovedEvent) {
-    subscribers = subscribers.stream()
-        .filter(sub -> sub.getUserId() != subscriberRemovedEvent.getUserId())
-        .collect(Collectors.toList());
+    subscribers--;
 
     // Stop simulation if no more subscriber
-    if (subscribers.isEmpty()) {
+    if (subscribers == 0) {
       running = false;
     }
   }
@@ -1146,18 +1141,15 @@ Optionally, you may consider extending the following methods:
       while (running) {
         id++;
 
-        // Simulate event alternation
-        String eventType = (id % 2) != 0 ? "event1" : "event2";
+        // Create sse publishable event with payload
+        SimpleEvent event = new SimpleEvent();
+        event.setId(Integer.toString(id));
+        event.setPayload("SSE Test Event - " + LocalTime.now().toString());
 
-        // Build sse event
-        SseEvent event = SseEvent.builder()
-            .event(eventType)
-            .data("SSE Test Event - " + LocalTime.now().toString())
-            .id(String.valueOf(id))
-            .build();
+        // Simulate event alternation
+        event.setType((id % 2) != 0 ? "event1" : "event2");
 
         // Publish event
-        LOGGER.debug("Sending event with id {}", event.getId());
         this.publishEvent(event);
 
         waitForEvents(WAIT_INTERVAL);
@@ -1174,9 +1166,17 @@ Optionally, you may consider extending the following methods:
     }
   }
 
+  @Data
+  @NoArgsConstructor
+  public class SimpleEvent implements SsePublishable {
+    private String payload;
+    private String type;
+    private String id;
+  }
+
 ```
 
-**Notice:** ```SsePublisher``` exposes the ```publishEvent``` method which must be called by your event generation logic to get events properly published to clients.
+**Notice:** ```SsePublisher``` exposes the ```publishEvent``` method which must be called by your event generation logic to get events properly published to clients. You may rely on ```complete``` or ```completeWithError``` methods to properly tell client applications your publisher is done and will send no more events.
 
 
 ### Subscribing to event types
