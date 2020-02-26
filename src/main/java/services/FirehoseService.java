@@ -121,7 +121,7 @@ public class FirehoseService {
 
     private void handleEvents(List<DatafeedEvent> firehoseEvents) {
         for (DatafeedEvent event : firehoseEvents) {
-            if (!event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId())) {
+            if (!event.getInitiator().getUser().getUserId().equals(botClient.getBotUserId())) {
                 switch (event.getType()) {
                     case "MESSAGESENT":
 

@@ -45,7 +45,7 @@ public class SymBotClientTest extends ServerTest {
         SymBotClient symBotClient = SymBotClient.initBot(config, auth);
 
         assertNotNull(symBotClient);
-        assertEquals("test-bot", symBotClient.getBotUserInfo().getUsername());
-        assertEquals(new Long(351775001412072L), symBotClient.getBotUserInfo().getId());
+        assertEquals("test-bot", symBotClient.getBotUsername());
+        assertEquals(new Long(351775001412072L), symBotClient.getBotUserId());
     }
 }
