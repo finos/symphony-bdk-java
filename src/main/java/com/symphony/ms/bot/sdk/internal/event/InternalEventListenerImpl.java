@@ -25,8 +25,7 @@ public class InternalEventListenerImpl implements InternalEventListener {
 
   private EventDispatcher eventDispatcher;
 
-  public InternalEventListenerImpl(CommandFilter commandFilter,
-      EventDispatcher eventDispatcher) {
+  public InternalEventListenerImpl(CommandFilter commandFilter, EventDispatcher eventDispatcher) {
     this.commandFilter = commandFilter;
     this.eventDispatcher = eventDispatcher;
   }

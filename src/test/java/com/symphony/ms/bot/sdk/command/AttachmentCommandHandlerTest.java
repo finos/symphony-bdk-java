@@ -14,6 +14,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -35,7 +36,7 @@ public class AttachmentCommandHandlerTest {
   @Test
   public void shouldSetNoAttachment() {
     MessageEvent messageEvent = new MessageEvent();
-    messageEvent.setUserId("userId");
+    messageEvent.setUserId(123L);
     BotCommand command = mock(BotCommand.class);
     when(command.getMessageEvent()).thenReturn(messageEvent);
     SymphonyMessage commandResponse = new SymphonyMessage();
@@ -43,7 +44,7 @@ public class AttachmentCommandHandlerTest {
     attachmentCommandHandler.handle(command, commandResponse);
 
     assertNotNull(commandResponse);
-    assertEquals("<mention uid=\"userId\"/> message has no attachment",
+    assertEquals("<mention uid=\"123\"/> message has no attachment",
         commandResponse.getMessage());
     assertNull(commandResponse.getAttachments());
   }
@@ -51,7 +52,7 @@ public class AttachmentCommandHandlerTest {
   @Test
   public void shouldSetOneAttachment() throws SymphonyClientException {
     MessageEvent message = new MessageEvent();
-    message.setUserId("userId");
+    message.setUserId(123L);
     message.setAttachments(Collections.singletonList(new MessageAttachment()));
     BotCommand command = mock(BotCommand.class);
     when(command.getMessageEvent()).thenReturn(message);
@@ -62,7 +63,7 @@ public class AttachmentCommandHandlerTest {
     attachmentCommandHandler.handle(command, commandResponse);
 
     assertNotNull(commandResponse);
-    assertEquals("<mention uid=\"userId\"/> message has 1 attachment(s):",
+    assertEquals("<mention uid=\"123\"/> message has 1 attachment(s):",
         commandResponse.getMessage());
     assertNotNull(commandResponse.getAttachments());
     assertEquals(1, commandResponse.getAttachments().size());
@@ -71,7 +72,7 @@ public class AttachmentCommandHandlerTest {
   @Test
   public void shouldSetManyAttachment() throws SymphonyClientException {
     MessageEvent message = new MessageEvent();
-    message.setUserId("userId");
+    message.setUserId(123L);
     message.setAttachments(Arrays.asList(
         new MessageAttachment(),
         new MessageAttachment(),
@@ -88,7 +89,7 @@ public class AttachmentCommandHandlerTest {
     attachmentCommandHandler.handle(command, commandResponse);
 
     assertNotNull(commandResponse);
-    assertEquals("<mention uid=\"userId\"/> message has 3 attachment(s):",
+    assertEquals("<mention uid=\"123\"/> message has 3 attachment(s):",
         commandResponse.getMessage());
     assertNotNull(commandResponse.getAttachments());
     assertEquals(3, commandResponse.getAttachments().size());

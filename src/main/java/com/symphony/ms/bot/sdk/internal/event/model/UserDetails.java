@@ -13,7 +13,7 @@ import model.User;
 @NoArgsConstructor
 public class UserDetails {
 
-  private String userId;
+  private Long userId;
   private String email;
   private String firstName;
   private String lastName;
@@ -21,7 +21,7 @@ public class UserDetails {
   private String username;
 
   public UserDetails(User user) {
-    this.userId = user.getUserId().toString();
+    this.userId = user.getUserId();
     this.email = user.getEmail();
     this.firstName = user.getFirstName();
     this.lastName = user.getLastName();

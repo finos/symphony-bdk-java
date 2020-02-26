@@ -31,7 +31,7 @@ public class MessageEvent extends BaseEvent {
 
   public MessageEvent(InboundMessage message) {
     this.streamId = message.getStream().getStreamId();
-    this.userId = message.getUser().getUserId().toString();
+    this.userId = message.getUser().getUserId();
     this.messageId = message.getMessageId();
     this.timestamp = message.getTimestamp();
     this.message = message.getMessageText().trim();

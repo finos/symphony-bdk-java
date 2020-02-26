@@ -6,7 +6,7 @@ package com.symphony.ms.bot.sdk.internal.symphony.model;
  * @author Gabriel Berberian
  */
 public enum StreamType {
-  ROOM, IM, MIM, UNKNOWN;
+  ROOM, IM, MIM, POST, UNKNOWN;
 
   public static StreamType value(String name) {
     switch (name.toUpperCase()) {
@@ -16,6 +16,8 @@ public enum StreamType {
         return IM;
       case "MIM":
         return MIM;
+      case "POST":
+        return POST;
       default:
         return UNKNOWN;
     }

@@ -1,6 +1,10 @@
 package com.symphony.ms.bot.sdk.internal.event.config;
 
-import java.util.UUID;
+import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -8,10 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
-import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
-import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
-import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
+import java.util.UUID;
 
 /**
  * Logging aspect that adds transaction ID, stream ID and user ID (when
@@ -45,9 +47,7 @@ public class EventHandlerAspect {
 
     MDC.put(TRANSACTION_ID, String.valueOf(UUID.randomUUID()));
     MDC.put(STREAM_ID, event.getStreamId());
-    if (event.getUserId() != null && !event.getUserId().isEmpty()) {
-      MDC.put(USER_ID, event.getUserId());
-    }
+    MDC.put(USER_ID, event.getUserId().toString());
 
     try {
       joinPoint.proceed();

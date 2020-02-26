@@ -4,11 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
 import com.symphony.ms.bot.sdk.internal.event.model.IMCreatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
@@ -21,6 +17,12 @@ import com.symphony.ms.bot.sdk.internal.event.model.RoomUpdatedEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserJoinedRoomEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.UserLeftRoomEvent;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class InternalEventListenerTest {
@@ -159,7 +161,7 @@ public class InternalEventListenerTest {
   public void onElementsActionTest() {
     SymphonyElementsEvent event = mock(SymphonyElementsEvent.class);
     when(event.getFormId()).thenReturn("12");
-    when(event.getUserId()).thenReturn("123");
+    when(event.getUserId()).thenReturn(123L);
     when(event.getStreamId()).thenReturn("1234");
 
     internalEventListener.onElementsAction(event);

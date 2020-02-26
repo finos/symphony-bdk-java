@@ -18,7 +18,7 @@ public class RoomMemberDemotedFromOwnerEvent extends BaseEvent {
 
   public RoomMemberDemotedFromOwnerEvent(RoomMemberDemotedFromOwner event) {
     this.streamId = event.getStream().getStreamId();
-    this.userId = event.getAffectedUser().getUserId().toString();
+    this.userId = event.getAffectedUser().getUserId();
     this.stream = new StreamDetails(event.getStream());
     this.user = new UserDetails(event.getAffectedUser());
   }

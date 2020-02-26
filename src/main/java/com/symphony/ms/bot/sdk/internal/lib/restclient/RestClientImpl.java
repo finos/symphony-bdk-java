@@ -1,9 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.lib.restclient;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.function.Supplier;
+import com.symphony.ms.bot.sdk.internal.lib.restclient.model.RestResponse;
+
+import io.github.resilience4j.bulkhead.Bulkhead;
+import io.github.resilience4j.bulkhead.BulkheadConfig;
+import io.github.resilience4j.bulkhead.BulkheadRegistry;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -15,14 +20,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import com.symphony.ms.bot.sdk.internal.lib.restclient.model.RestResponse;
-import io.github.resilience4j.bulkhead.Bulkhead;
-import io.github.resilience4j.bulkhead.BulkheadConfig;
-import io.github.resilience4j.bulkhead.BulkheadRegistry;
-import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Spring RestTemplate-based implementation of the {@link RestClient}
@@ -43,8 +45,8 @@ public class RestClientImpl implements RestClient {
 
   private BulkheadRegistry bhRegistry;
 
-  public RestClientImpl(RestTemplate restTemplate,
-      CircuitBreakerConfig cbConfig, BulkheadConfig bhConfig) {
+  public RestClientImpl(
+      RestTemplate restTemplate, CircuitBreakerConfig cbConfig, BulkheadConfig bhConfig) {
     this.restTemplate = restTemplate;
     this.cbConfig = cbConfig;
     this.bhConfig = bhConfig;

@@ -1,8 +1,8 @@
 package com.symphony.ms.bot.sdk.internal.symphony;
 
-import org.springframework.stereotype.Service;
 import clients.SymBotClient;
 import configuration.SymConfig;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ConfigClientImpl implements ConfigClient {
@@ -28,6 +28,14 @@ public class ConfigClientImpl implements ConfigClient {
   @Override
   public String getExtAppId() {
     return symBotConfig.getAppId();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getPodBaseUrl() {
+    return "https://" + symBotConfig.getPodHost() + ":" + symBotConfig.getPodPort();
   }
 
 }

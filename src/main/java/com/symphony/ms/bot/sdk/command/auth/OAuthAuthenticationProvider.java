@@ -7,6 +7,7 @@ import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClient;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.RestClientConnectionException;
 import com.symphony.ms.bot.sdk.internal.lib.restclient.model.RestResponse;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -31,7 +32,7 @@ public class OAuthAuthenticationProvider implements AuthenticationProvider {
   private static final String GRANT_TYPE = "authorization_code";
 
   private Map<String, String> userAccessTokenMap = new HashMap<>();
-  private Map<String, BotCommand> commandCache = new HashMap<>();
+  private Map<Long, BotCommand> commandCache = new HashMap<>();
 
   private RestClient restClient;
 
@@ -40,7 +41,7 @@ public class OAuthAuthenticationProvider implements AuthenticationProvider {
   }
 
   @Override
-  public AuthenticationContext getAuthenticationContext(String userId) {
+  public AuthenticationContext getAuthenticationContext(Long userId) {
     AuthenticationContext authContext = new AuthenticationContext();
     authContext.setAuthScheme("Bearer");
     authContext.setAuthToken(findCredentialsByUserId(userId));
@@ -82,11 +83,11 @@ public class OAuthAuthenticationProvider implements AuthenticationProvider {
 
   // Just a simple example. Ideally, implement a service to handle credentials
   // retrieval.
-  private String findCredentialsByUserId(String userId) {
+  private String findCredentialsByUserId(Long userId) {
     return userAccessTokenMap.get(userId);
   }
 
-  private String getLinkAccountUrl(String userId) {
+  private String getLinkAccountUrl(Long userId) {
     String linkAccount = AUTHORIZE_URL + "?"
         + "response_type=" + RESPONSE_TYPE + "&amp;"
         + "client_id=" + CLIENT_ID + "&amp;"

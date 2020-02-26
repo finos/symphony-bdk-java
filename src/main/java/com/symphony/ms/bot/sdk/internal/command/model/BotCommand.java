@@ -56,7 +56,7 @@ public class BotCommand {
 
   private void setMDCContext() {
     MDC.put(STREAM_ID, messageEvent.getStreamId());
-    MDC.put(USER_ID, messageEvent.getUserId());
+    MDC.put(USER_ID, messageEvent.getUserId().toString());
     MDC.put(ORIGINAL_TX_ID, originalTransactionId);
   }
 

@@ -14,13 +14,13 @@ import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 public interface AuthenticationProvider {
 
   /**
-   * Abstracts the underlying authentication mechanism by returning an
-   * {@link AuthenticationContext} object.
+   * Abstracts the underlying authentication mechanism by returning an {@link AuthenticationContext}
+   * object.
    *
    * @param userId the Symphony userId
    * @return the authentication context
    */
-  AuthenticationContext getAuthenticationContext(String userId);
+  AuthenticationContext getAuthenticationContext(Long userId);
 
   /**
    * Handles unauthenticated user

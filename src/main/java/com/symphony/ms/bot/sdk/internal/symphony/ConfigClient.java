@@ -18,4 +18,9 @@ public interface ConfigClient {
    * @return the extension app ID
    */
   String getExtAppId();
+
+  /**
+   * @return the pod base url
+   */
+  String getPodBaseUrl();
 }

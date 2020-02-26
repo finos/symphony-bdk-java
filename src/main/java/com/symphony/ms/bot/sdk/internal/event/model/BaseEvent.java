@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class BaseEvent {
 
   protected String streamId;
-  protected String userId;
+  protected Long userId;
 
 }

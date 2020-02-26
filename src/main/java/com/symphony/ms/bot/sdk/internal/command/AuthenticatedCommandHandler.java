@@ -3,6 +3,7 @@ package com.symphony.ms.bot.sdk.internal.command;
 import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

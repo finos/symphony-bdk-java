@@ -1,15 +1,14 @@
 package com.symphony.ms.bot.sdk.command.auth;
 
-import java.util.Base64;
 import com.symphony.ms.bot.sdk.internal.command.AuthenticationProvider;
 import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
+import java.util.Base64;
+
 /**
- * Sample code. Implementation of {@link AuthenticationProvider} to offer basic
- * authentication.
- *
+ * Sample code. Implementation of {@link AuthenticationProvider} to offer basic authentication.
  */
 public class BasicAuthenticationProvider implements AuthenticationProvider {
 
@@ -17,7 +16,7 @@ public class BasicAuthenticationProvider implements AuthenticationProvider {
   private String password = "strongpass";
 
   @Override
-  public AuthenticationContext getAuthenticationContext(String userId) {
+  public AuthenticationContext getAuthenticationContext(Long userId) {
     AuthenticationContext authContext = new AuthenticationContext();
     authContext.setAuthScheme("Basic");
     authContext.setAuthToken(findCredentialsByUserId(userId));
@@ -34,7 +33,7 @@ public class BasicAuthenticationProvider implements AuthenticationProvider {
 
   // Just a simple example. Ideally, implement a service to handle credentials
   // retrieval.
-  private String findCredentialsByUserId(String userId) {
+  private String findCredentialsByUserId(Long userId) {
     String credential = username + ":" + password;
     return new String(Base64.getEncoder().encode(
         credential.getBytes()));
