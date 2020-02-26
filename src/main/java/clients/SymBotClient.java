@@ -168,10 +168,17 @@ public final class SymBotClient implements ISymClient {
         this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
-        this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
-
+        try {
+            this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
+        }
+        // Exception happens when you can not get userId or username out of the JWT
+        // When that happens grab account info via API.
+        catch (ArrayIndexOutOfBoundsException e) {
+            getBotUserInfo();
+        }
+        
         SymMessageParser.createInstance(this);
-
+        
         reportIfLoadBalanced(config);
     }
 
@@ -218,7 +225,25 @@ public final class SymBotClient implements ISymClient {
     }
 
     public UserInfo getBotUserInfo() {
+        // botUserInfo is incomplete if getEmailAddress is null as we only parsed in username and id from JWT
+        if (botUserInfo == null || botUserInfo.getEmailAddress() == null) {
+            botUserInfo = this.getUsersClient().getSessionUser();
+        }
         return botUserInfo;
+    }
+    
+    public String getBotUsername() {
+        if (botUserInfo == null || botUserInfo.getUsername() == null) {
+            getBotUserInfo();
+        }
+        return botUserInfo.getUsername();
+    }
+    
+    public long getBotUserId() {
+        if (botUserInfo == null || botUserInfo.getId() == null) {
+            getBotUserInfo();
+        }
+        return botUserInfo.getId();
     }
 
     public DatafeedClient getDatafeedClient() {

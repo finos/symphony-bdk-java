@@ -42,7 +42,7 @@ public final class DatafeedClient extends APIClient {
             .header("sessionToken", botClient.getSymAuth().getSessionToken())
             .header("keyManagerToken", botClient.getSymAuth().getKmToken());
 
-        logger.info("Creating new datafeed for bot {}..", botClient.getBotUserInfo().getUsername());
+        logger.info("Creating new datafeed for bot {}..", botClient.getBotUsername());
 
         try (Response response = builder.post(null)) {
             if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
@@ -56,7 +56,7 @@ public final class DatafeedClient extends APIClient {
             } else {
                 StringId datafeedId = response.readEntity(StringId.class);
                 logger.info("Created new datafeed {} for bot {}", datafeedId.getId(),
-                    botClient.getBotUserInfo().getUsername());
+                    botClient.getBotUsername());
 
                 // if the reuseDatafeedID config isn't set (null), we assume its default value as true
                 if (botClient.getConfig().getReuseDatafeedID() == null || botClient.getConfig().getReuseDatafeedID()) {
