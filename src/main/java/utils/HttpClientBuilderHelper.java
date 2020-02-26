@@ -12,6 +12,8 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.jersey.NoCacheFeature;
+
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class HttpClientBuilderHelper {
@@ -24,6 +26,9 @@ public class HttpClientBuilderHelper {
         if (config.getTruststorePath() != null && jksStore != null) {
             loadTrustStore(config, jksStore, clientBuilder);
         }
+
+        clientBuilder.register(NoCacheFeature.class);
+
         return clientBuilder;
     }
 
@@ -43,6 +48,8 @@ public class HttpClientBuilderHelper {
         if (config.getTruststorePath() != null && jksStore != null) {
             loadTrustStore(config, jksStore, clientBuilder);
         }
+        clientBuilder.register(NoCacheFeature.class);
+
         return clientBuilder;
     }
 
@@ -62,6 +69,9 @@ public class HttpClientBuilderHelper {
         if (config.getTruststorePath() != null && jksStore != null) {
             loadTrustStore(config, jksStore, clientBuilder);
         }
+
+        clientBuilder.register(NoCacheFeature.class);
+
         return clientBuilder;
     }
 
@@ -110,6 +120,8 @@ public class HttpClientBuilderHelper {
                 clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPass);
             }
         }
+
+        clientConfig.register(NoCacheFeature.class);
 
         return clientConfig;
     }
