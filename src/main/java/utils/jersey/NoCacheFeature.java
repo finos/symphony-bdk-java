@@ -13,8 +13,8 @@ import javax.ws.rs.core.HttpHeaders;
  */
 public class NoCacheFeature implements ClientRequestFilter {
 
-  @Override
-  public void filter(ClientRequestContext requestContext) {
-    requestContext.getHeaders().add(HttpHeaders.CACHE_CONTROL, "no-cache");
-  }
+    @Override
+    public void filter(ClientRequestContext requestContext) {
+        requestContext.getHeaders().add(HttpHeaders.CACHE_CONTROL, "no-cache");
+    }
 }
