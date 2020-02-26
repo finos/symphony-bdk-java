@@ -36,6 +36,7 @@ public class DatafeedEventsService {
     private List<ConnectionListener> connectionListeners;
     private List<ElementsListener> elementsListeners;
     private String datafeedId = null;
+    private boolean skipNextSleep = false;
     private ExecutorService pool;
     private AtomicBoolean stop = new AtomicBoolean();
     private static int THREADPOOL_SIZE;
@@ -75,7 +76,7 @@ public class DatafeedEventsService {
                         lbConfig.setCurrentAgentIndex(previousIndex);
                     }
                 }
-
+                skipNextSleep = true; //Skip the sleep timeout 1st time if we are reusing datafeedId as it may not exist.
                 logger.info("Using previous datafeed id: {}", datafeedId);
             } catch (IOException e) {
                 logger.info("No previous datafeed id file");
@@ -225,6 +226,7 @@ public class DatafeedEventsService {
             logger.error("An unknown error happened, type : " + e.getClass(), e);
         }
 
+
         sleep();
 
         try {
@@ -241,18 +243,23 @@ public class DatafeedEventsService {
     }
 
     private void sleep() {
-        try {
-            logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
-            TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
+        if (skipNextSleep) {
+            skipNextSleep = true;
+        }
+        else {
+            try {
+                logger.info("Sleeping for {} seconds before retrying..", TIMEOUT_NO_OF_SECS);
+                TimeUnit.SECONDS.sleep(TIMEOUT_NO_OF_SECS);
 
-            // exponential backoff until we reach the MAX_BACKOFF_TIME (5 minutes)
-            if (TIMEOUT_NO_OF_SECS * 2 <= MAX_BACKOFF_TIME) {
-                TIMEOUT_NO_OF_SECS *= 2;
-            } else {
-                TIMEOUT_NO_OF_SECS = MAX_BACKOFF_TIME;
+                // exponential backoff until we reach the MAX_BACKOFF_TIME (5 minutes)
+                if (TIMEOUT_NO_OF_SECS * 2 <= MAX_BACKOFF_TIME) {
+                    TIMEOUT_NO_OF_SECS *= 2;
+                } else {
+                    TIMEOUT_NO_OF_SECS = MAX_BACKOFF_TIME;
+                }
+            } catch (InterruptedException ie) {
+                logger.error("Error trying to sleep ", ie);
             }
-        } catch (InterruptedException ie) {
-            logger.error("Error trying to sleep ", ie);
         }
     }
 
