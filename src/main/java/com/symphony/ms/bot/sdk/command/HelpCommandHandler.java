@@ -1,12 +1,13 @@
 package com.symphony.ms.bot.sdk.command;
 
+import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Sample code. Help command to return the list of available commands
@@ -20,7 +21,8 @@ public class HelpCommandHandler extends CommandHandler {
       "/login - returns the HTTP authorization header required to talk to external system",
       "/quote BRL - returns quote for the specified currency (e.g. BRL)",
       "/register quote - displays the currency quote registration form",
-      "/template alert - renders predefined templates (e.g. alert, notification) based on your inputs"
+      "/template alert - renders predefined templates (e.g. alert, notification) based on your inputs",
+      "/broadcast message - spread a message to all bot active rooms"
   };
 
   @Override

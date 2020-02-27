@@ -23,12 +23,14 @@ systems and push them as symphony messages.
   * [Template command](#template-command)
   * [Register quote command](#register-quote-command)
   * [Attachment command](#attachment-command)
+  * [Broadcast command](#broadcast-command)
   * [Default response](#default-response)
 * [Testing events](#testing-events)
 * [Testing notifications](#testing-notifications)
 * [Adding bot commands](#adding-bot-commands)
   * [Command initialization](#command-initialization)
   * [Default responses](#default-responses)
+  * [Multi response command handler](#multi-response-command-handler)
   * [Authenticating to external system](#authenticating-to-external-system)
     * [AuthenticationProvider](#authenticationprovider)
     * [AuthenticatedCommandHandler](#authenticatedcommandhandler)
@@ -205,6 +207,7 @@ Displays static help message with all available commands
 >- **@MyBot** /quote BRL - returns quote for the specified currency (e.g. BRL)
 >- **@MyBot** /register quote - displays the currency quote registration form
 >- **@MyBot** /template alert - renders predefined templates (e.g. alert, notification) based on your inputs
+>- **@MyBot** /broadcast message - spread a message to all bot active rooms
 
 
 ### Hello command
@@ -334,12 +337,37 @@ Highlights message attachments manipulation. Sample code explores downloading at
 >
 >>attachment1.png (6.47 kB)
 >>
->>attachment1.png (12.47 kB)
+>>attachment2.png (12.47 kB)
 
 >&#9679; **MyBot**
 >
->![attachment](readme/attachment.png) {:height="60%" width="60%"}
+>![attachment](readme/attachment.png)
 
+
+### Broadcast command
+
+Spread a message to all bot active rooms.
+
+In the room the command was posted, a messCommand initializationage informing the broadcast rooms must be generated, like the following example:
+
+>&#9679; **John Doe**
+>
+>@MyBot /broadcast hey guys!
+>
+>>attachment1.png (6.47 kB)
+>>
+>>attachment2.png (12.47 kB)
+
+>&#9679; **MyBot**
+>
+>![broadcast_command](readme/broadcast_command_response.png)
+
+In the broadcast rooms, the message content must be posted, like the example above:
+
+>&#9679; **MyBot**
+>
+>![attachment](readme/broadcast_message.png)
+ 
 
 ### Default response
 
@@ -440,6 +468,36 @@ Use simple regular expressions to make sure the message was targeted to the bot.
   @Override
   public void handle(BotCommand command, SymphonyMessage response) {
     response.setMessage("Sorry, I could not understand");
+  }
+
+```
+
+
+### Multi response command handler
+
+Some bots may also need to send custom messages to different rooms. Extend the ```MultiResponseCommandHandler``` class to add that behavior to your bots.
+
+Similarly to its base class (i.e. ```CommandHandler```), in ```MultiResponseCommandHandler``` you will need to provide implementation for both ```getCommandMatcher``` and ```handle``` methods.
+
+Use ```MultiResponseComposer``` to compose your messages.
+
+```java
+  @Override
+  protected Predicate<String> getCommandMatcher() {
+    return Pattern
+      .compile("^@" + getBotName() + "/compose$")
+      .asPredicate();
+  }
+
+  @Override
+  public void handle(BotCommand command, MultiResponseComposer multiResponseComposer) {
+    multiResponseComposer.compose()
+      .withMessage("message")
+      .toStreams("stream1", "stream2")
+      .withTemplateFile("template", getTemplateParam())
+      .withAttachments(getAttachments())
+      .toStreams("stream3", "stream4")
+      .complete();
   }
 
 ```

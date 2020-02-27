@@ -21,7 +21,8 @@ public abstract class MultiResponseCommandHandler extends CommandHandler {
 
   public void handle(BotCommand command, final SymphonyMessage commandResponse) {
     try {
-      MultiResponseComposerImpl multiResponseComposer = new MultiResponseComposerImpl();
+      MultiResponseComposerImpl multiResponseComposer =
+          new MultiResponseComposerImpl();
       handle(command, multiResponseComposer);
       if (!multiResponseComposer.isComplete()) {
         LOGGER.error("Error processing command {}\nIncomplete multi response composer",

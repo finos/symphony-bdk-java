@@ -5,6 +5,7 @@ import static com.symphony.ms.bot.sdk.internal.symphony.model.StreamType.ROOM;
 import com.symphony.ms.bot.sdk.internal.command.MultiResponseCommandHandler;
 import com.symphony.ms.bot.sdk.internal.command.MultiResponseComposer;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
 import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
 import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
@@ -61,10 +62,18 @@ public class BroadcastMessageCommandHandler extends MultiResponseCommandHandler 
     Set<String> broadcastStreamIds =
         broadcastStreams.stream().map(SymphonyStream::getStreamId).collect(Collectors.toSet());
 
+    List<MessageAttachmentFile> attachments = new ArrayList<>();
+    try {
+      attachments = messageClient.downloadMessageAttachments(command.getMessageEvent());
+    } catch (SymphonyClientException sce) {
+      LOGGER.error("SymphonyClientException thrown on AttachmentCommandHandler", sce);
+    }
+
     multiResponseComposer.compose()
         .withTemplateFile("list", parameterForListTemplate(broadcastStreams))
         .toStreams(commandStreamId)
         .withTemplateFile("simple", parameterForSimpleTemplate(command))
+        .withAttachments(attachments)
         .toStreams(broadcastStreamIds)
         .complete();
   }

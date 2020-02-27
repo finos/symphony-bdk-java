@@ -1,5 +1,6 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
+import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 import lombok.Getter;
@@ -17,8 +18,8 @@ import java.util.stream.Collectors;
  *
  * @author Gabriel Berberian
  */
-public class MultiResponseComposerImpl
-    implements MultiResponseComposer, ComposerMessageDefinition, ComposerStreamsDefinition {
+public class MultiResponseComposerImpl implements MultiResponseComposer, ComposerMessageDefinition,
+    ComposerAttachmentOrStreamDefinition, ComposerStreamsDefinition {
 
   @Getter private boolean complete;
 
@@ -37,13 +38,13 @@ public class MultiResponseComposerImpl
   }
 
   @Override
-  public ComposerStreamsDefinition withMessage(String message) {
+  public ComposerAttachmentOrStreamDefinition withMessage(String message) {
     this.message = new SymphonyMessage(message);
     return this;
   }
 
   @Override
-  public ComposerStreamsDefinition withEnrichedMessage(String message, String entityName,
+  public ComposerAttachmentOrStreamDefinition withEnrichedMessage(String message, String entityName,
       Object entity, String version) {
     this.message = new SymphonyMessage();
     this.message.setEnrichedMessage(message, entityName, entity, version);
@@ -51,7 +52,7 @@ public class MultiResponseComposerImpl
   }
 
   @Override
-  public ComposerStreamsDefinition withTemplateMessage(String templateMessage,
+  public ComposerAttachmentOrStreamDefinition withTemplateMessage(String templateMessage,
       Object templateData) {
     this.message = new SymphonyMessage();
     this.message.setTemplateMessage(templateMessage, templateData);
@@ -59,7 +60,7 @@ public class MultiResponseComposerImpl
   }
 
   @Override
-  public ComposerStreamsDefinition withEnrichedTemplateMessage(String templateMessage,
+  public ComposerAttachmentOrStreamDefinition withEnrichedTemplateMessage(String templateMessage,
       Object templateData, String entityName, Object entity, String version) {
     this.message = new SymphonyMessage();
     this.message.setEnrichedTemplateMessage(
@@ -68,14 +69,15 @@ public class MultiResponseComposerImpl
   }
 
   @Override
-  public ComposerStreamsDefinition withTemplateFile(String templateFile, Object templateData) {
+  public ComposerAttachmentOrStreamDefinition withTemplateFile(String templateFile,
+      Object templateData) {
     this.message = new SymphonyMessage();
     this.message.setTemplateFile(templateFile, templateData);
     return this;
   }
 
   @Override
-  public ComposerStreamsDefinition withEnrichedTemplateFile(String templateFile,
+  public ComposerAttachmentOrStreamDefinition withEnrichedTemplateFile(String templateFile,
       Object templateData, String entityName, Object entity, String version) {
     this.message = new SymphonyMessage();
     this.message.setEnrichedTemplateFile(templateFile, templateData, entityName, entity, version);
@@ -89,14 +91,26 @@ public class MultiResponseComposerImpl
   }
 
   @Override
-  public void complete() {
-    this.complete = true;
-  }
-
-  @Override
   public ComposerMessageDefinition toStreams(Collection<String> streamIds) {
     composedResponse.put(message, new HashSet<>(streamIds));
     return this;
+  }
+
+  @Override
+  public ComposerStreamsDefinition withAttachments(MessageAttachmentFile... attachments) {
+    this.message.setAttachments(Arrays.asList(attachments));
+    return this;
+  }
+
+  @Override
+  public ComposerStreamsDefinition withAttachments(Collection<MessageAttachmentFile> attachments) {
+    this.message.setAttachments(attachments.stream().collect(Collectors.toList()));
+    return this;
+  }
+
+  @Override
+  public void complete() {
+    this.complete = true;
   }
 
   protected boolean hasContent() {

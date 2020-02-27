@@ -13,7 +13,7 @@ public interface ComposerMessageDefinition {
    * @param message
    * @return
    */
-  ComposerStreamsDefinition withMessage(String message);
+  ComposerAttachmentOrStreamDefinition withMessage(String message);
 
   /**
    * Adds an enriched message to the response composition
@@ -24,7 +24,7 @@ public interface ComposerMessageDefinition {
    * @param version
    * @return
    */
-  ComposerStreamsDefinition withEnrichedMessage(
+  ComposerAttachmentOrStreamDefinition withEnrichedMessage(
       String message, String entityName, Object entity, String version);
 
   /**
@@ -34,7 +34,7 @@ public interface ComposerMessageDefinition {
    * @param templateData
    * @return
    */
-  ComposerStreamsDefinition withTemplateMessage(String templateMessage, Object templateData);
+  ComposerAttachmentOrStreamDefinition withTemplateMessage(String templateMessage, Object templateData);
 
   /**
    * Adds an enriched template message to the response composition
@@ -46,7 +46,7 @@ public interface ComposerMessageDefinition {
    * @param version
    * @return
    */
-  ComposerStreamsDefinition withEnrichedTemplateMessage(
+  ComposerAttachmentOrStreamDefinition withEnrichedTemplateMessage(
       String templateMessage, Object templateData, String entityName, Object entity,
       String version);
 
@@ -57,7 +57,7 @@ public interface ComposerMessageDefinition {
    * @param templateData
    * @return
    */
-  ComposerStreamsDefinition withTemplateFile(String templateFile, Object templateData);
+  ComposerAttachmentOrStreamDefinition withTemplateFile(String templateFile, Object templateData);
 
   /**
    * Adds an enriched template file to the response composition
@@ -69,7 +69,7 @@ public interface ComposerMessageDefinition {
    * @param version
    * @return
    */
-  ComposerStreamsDefinition withEnrichedTemplateFile(
+  ComposerAttachmentOrStreamDefinition withEnrichedTemplateFile(
       String templateFile, Object templateData, String entityName, Object entity, String version);
 
   /**
