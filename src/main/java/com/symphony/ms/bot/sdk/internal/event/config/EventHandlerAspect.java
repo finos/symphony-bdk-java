@@ -47,7 +47,9 @@ public class EventHandlerAspect {
 
     MDC.put(TRANSACTION_ID, String.valueOf(UUID.randomUUID()));
     MDC.put(STREAM_ID, event.getStreamId());
-    MDC.put(USER_ID, event.getUserId().toString());
+    if (event.getUserId() != null) {
+      MDC.put(USER_ID, event.getUserId().toString());
+    }
 
     try {
       joinPoint.proceed();

@@ -1,16 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
 import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
-
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.function.Predicate;
 
 /**
  * Base class for bot command handling. Has it child classes automatically registered to {@link
@@ -23,27 +21,23 @@ import java.util.function.Predicate;
 public abstract class CommandHandler implements BaseCommandHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(CommandHandler.class);
 
-  protected CommandDispatcher commandDispatcher;
+  private CommandDispatcher commandDispatcher;
 
-  protected CommandFilter commandFilter;
+  private CommandFilter commandFilter;
 
-  protected MessageClientImpl messageClient;
+  private MessageClientImpl messageClient;
 
-  protected FeatureManager featureManager;
+  private FeatureManager featureManager;
 
-  protected UsersClient usersClient;
+  private UsersClient usersClient;
 
-  /**
-   * Registers the CommandHandler to {@link CommandDispatcher} and {@link CommandFilter} so that it
-   * can listen to and handle commands.
-   */
-  public void register() {
+  private void register() {
     init();
     commandDispatcher.register(getCommandName(), this);
     commandFilter.addFilter(getCommandName(), getCommandMatcher());
   }
 
-  protected String getCommandName() {
+  private String getCommandName() {
     return this.getClass().getCanonicalName();
   }
 

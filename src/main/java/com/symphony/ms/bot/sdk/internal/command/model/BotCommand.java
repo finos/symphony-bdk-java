@@ -1,21 +1,20 @@
 package com.symphony.ms.bot.sdk.internal.command.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
 import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
 import com.symphony.ms.bot.sdk.internal.event.model.StreamDetails;
 import com.symphony.ms.bot.sdk.internal.event.model.UserDetails;
-
-import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Holds the bot command details
  *
  * @author Marcus Secato
  */
-@Data
 public class BotCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(BotCommand.class);
 
@@ -23,9 +22,11 @@ public class BotCommand {
   private static final String USER_ID = "userId";
   private static final String ORIGINAL_TX_ID = "originalTransactionId";
 
+  @Getter @Setter
+  private MessageEvent messageEvent;
+  @Setter
   private CommandDispatcher dispatcher;
   private String channel;
-  private MessageEvent messageEvent;
   private String originalTransactionId;
 
   public BotCommand(String channel, MessageEvent event, CommandDispatcher dispatcher) {
@@ -33,11 +34,6 @@ public class BotCommand {
     this.dispatcher = dispatcher;
     this.messageEvent = event;
     originalTransactionId = MDC.get("transactionId");
-  }
-
-  public BotCommand(String channel, CommandDispatcher dispatcher) {
-    this.channel = channel;
-    this.dispatcher = dispatcher;
   }
 
   public UserDetails getUser() {
@@ -56,7 +52,9 @@ public class BotCommand {
 
   private void setMDCContext() {
     MDC.put(STREAM_ID, messageEvent.getStreamId());
-    MDC.put(USER_ID, messageEvent.getUserId().toString());
+    if (messageEvent.getUserId() != null) {
+      MDC.put(USER_ID, messageEvent.getUserId().toString());
+    }
     MDC.put(ORIGINAL_TX_ID, originalTransactionId);
   }
 

@@ -118,7 +118,7 @@ public class SseSubscriber {
    *
    * @param publisher
    */
-  public void complete(SsePublisher<?> publisher) {
+  void complete(SsePublisher<?> publisher) {
     internalComplete(publisher);
   }
 
@@ -128,7 +128,7 @@ public class SseSubscriber {
    * @param publisher
    * @param ex
    */
-  public void completeWithError(SsePublisher<?> publisher, Throwable ex) {
+  void completeWithError(SsePublisher<?> publisher, Throwable ex) {
     lastPublisherError = ex;
     internalComplete(publisher);
   }

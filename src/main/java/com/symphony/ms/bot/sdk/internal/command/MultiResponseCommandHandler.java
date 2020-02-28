@@ -1,13 +1,14 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+import lombok.Setter;
 
 /**
  * Base class for bot command handling. Has it child classes automatically registered to {@link
@@ -16,9 +17,19 @@ import java.util.Set;
  *
  * @author Gabriel Berberian
  */
+@Setter
 public abstract class MultiResponseCommandHandler extends CommandHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiResponseCommandHandler.class);
 
+  private MessageClientImpl messageClient;
+
+  private FeatureManager featureManager;
+
+  private String getCommandName() {
+    return this.getClass().getCanonicalName();
+  }
+
+  @Override
   public void handle(BotCommand command, final SymphonyMessage commandResponse) {
     try {
       MultiResponseComposerImpl multiResponseComposer =

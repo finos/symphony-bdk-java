@@ -1,21 +1,28 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
+import lombok.Setter;
+
 /**
  * Offers a default response for when bot does not receive a valid command
  *
  * @author Marcus Secato
  *
  */
+@Setter
 public abstract class DefaultCommandHandler extends CommandHandler {
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void register() {
+  private CommandDispatcher commandDispatcher;
+
+  private CommandFilter commandFilter;
+
+  private void register() {
     init();
     commandDispatcher.register(getCommandName(), this);
     commandFilter.setDefaultFilter(getCommandName(), getCommandMatcher());
+  }
+
+  private String getCommandName() {
+    return this.getClass().getCanonicalName();
   }
 
 }

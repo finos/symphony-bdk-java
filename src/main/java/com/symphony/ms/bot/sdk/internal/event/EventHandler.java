@@ -7,6 +7,7 @@ import com.symphony.ms.bot.sdk.internal.event.model.BaseEvent;
 import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+import lombok.Setter;
 
 /**
  * Base class for Symphony events handling. Provides mechanisms to
@@ -15,21 +16,17 @@ import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
  * @author Marcus Secato
  *
  */
+@Setter
 public abstract class EventHandler<E extends BaseEvent> implements BaseEventHandler<E> {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventHandler.class);
 
-  protected EventDispatcher eventDispatcher;
+  private EventDispatcher eventDispatcher;
 
   private MessageClientImpl messageClient;
 
   private FeatureManager featureManager;
 
-  /**
-   * Registers the EventHandler to {@link EventDispatcher} so that it can
-   * listen to and handle the specified Symphony event.
-   *
-   */
-  public void register() {
+  private void register() {
     init();
     ResolvableType type = ResolvableType.forRawClass(this.getClass());
     eventDispatcher.register(
@@ -72,15 +69,4 @@ public abstract class EventHandler<E extends BaseEvent> implements BaseEventHand
    */
   public abstract void handle(E event, final SymphonyMessage eventResponse);
 
-  public void setEventDispatcher(EventDispatcher eventDispatcher) {
-    this.eventDispatcher = eventDispatcher;
-  }
-
-  public void setMessageClient(MessageClientImpl messageClient) {
-    this.messageClient = messageClient;
-  }
-
-  public void setFeatureManager(FeatureManager featureManager) {
-    this.featureManager = featureManager;
-  }
 }

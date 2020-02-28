@@ -1,14 +1,14 @@
 package com.symphony.ms.bot.sdk.command;
 
-import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import org.springframework.beans.factory.annotation.Value;
+import com.symphony.ms.bot.sdk.internal.command.CommandHandler;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 
 /**
  * Sample code for a CommandHandler that generates instructions on how to receive notifications from
@@ -17,6 +17,12 @@ import java.util.regex.Pattern;
 public class CreateNotificationCommandHandler extends CommandHandler {
 
   private static final String NOTIFICATION_PATH = "/notification";
+
+  private FeatureManager featureManager;
+
+  public CreateNotificationCommandHandler(FeatureManager featureManager) {
+    this.featureManager = featureManager;
+  }
 
   @Value("${server.servlet.context-path}")
   private String servletContext;

@@ -46,13 +46,6 @@ public class NotificationInterceptorTest {
   }
 
   @Test
-  public void registerTest() {
-    notificationInterceptor.register();
-
-    verify(interceptorChain, times(1)).register(notificationInterceptor);
-  }
-
-  @Test
   public void interceptTest() {
     NotificationInterceptor spyNotificationInterceptor = spy(notificationInterceptor);
     NotificationRequest request = mock(NotificationRequest.class);

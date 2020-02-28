@@ -1,9 +1,10 @@
 package com.symphony.ms.bot.sdk.internal.notification;
 
-import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.notification.model.NotificationRequest;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+import lombok.Setter;
 
 /**
  * Base class for intercepting and processing incoming requests from external sources. Provides
@@ -11,15 +12,13 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marcus Secato
  */
+@Setter
 public abstract class NotificationInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(NotificationInterceptor.class);
 
-  protected InterceptorChain interceptorChain;
+  private InterceptorChain interceptorChain;
 
-  /**
-   * Registers the NotificationInterceptor to {@link InterceptorChain}
-   */
-  public void register() {
+  private void register() {
     init();
     interceptorChain.register(this);
   }
@@ -38,7 +37,7 @@ public abstract class NotificationInterceptor {
    * @param notificationMessage
    * @return true if request processing should proceed, false if request should be discarded
    */
-  public boolean intercept(NotificationRequest notificationRequest,
+  boolean intercept(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage) {
     LOGGER.debug("Processing notification request");
 
@@ -50,7 +49,6 @@ public abstract class NotificationInterceptor {
     }
   }
 
-
   /**
    * Processes the incoming request
    *
@@ -60,9 +58,5 @@ public abstract class NotificationInterceptor {
    */
   public abstract boolean process(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage);
-
-  public void setInterceptorChain(InterceptorChain interceptorChain) {
-    this.interceptorChain = interceptorChain;
-  }
 
 }

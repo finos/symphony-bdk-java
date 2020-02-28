@@ -1,7 +1,9 @@
 package com.symphony.ms.bot.sdk.internal.elements;
 
+import com.symphony.ms.bot.sdk.internal.event.EventDispatcher;
 import com.symphony.ms.bot.sdk.internal.event.EventHandler;
 import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
+import lombok.Setter;
 
 /**
  * Symphony elements event handler
@@ -9,15 +11,13 @@ import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
  * @author Marcus Secato
  *
  */
+@Setter
 public abstract class ElementsActionHandler extends
     EventHandler<SymphonyElementsEvent> {
 
-  /**
-   * Register this handler to listen to Symphony elements events for a
-   * particular form.
-   */
-  @Override
-  public void register() {
+  private EventDispatcher eventDispatcher;
+
+  private void register() {
     eventDispatcher.register(getElementsFormId(), this);
   }
 

@@ -104,18 +104,6 @@ public class ElementsHandlerTest {
   }
 
   @Test
-  public void registerTest() {
-    elementsHandler.register();
-
-    verify(commandDispatcher, times(1))
-      .register(TestElementsHandler.class.getCanonicalName(), elementsHandler);
-    verify(commandFilter, times(1))
-      .addFilter(TestElementsHandler.class.getCanonicalName(), elementsHandler.getCommandMatcher());
-    verify(eventDispatcher, times(1))
-      .register("test-form-id", elementsHandler);
-  }
-
-  @Test
   public void onCommandTest() {
     ElementsHandler spyElementsHandler = spy(elementsHandler);
     BotCommand command = mock(BotCommand.class);
@@ -179,7 +167,6 @@ public class ElementsHandlerTest {
 
     spyElementsHandler.onCommand(command);
 
-    verify(spyElementsHandler, times(1)).getCommandName();
     verify(featureManager, times(1)).unexpectedErrorResponse();
     verify(messageClient, never())
       ._sendMessage(any(String.class), any(SymphonyMessage.class));
@@ -200,7 +187,6 @@ public class ElementsHandlerTest {
 
     spyElementsHandler.onCommand(command);
 
-    verify(spyElementsHandler, times(1)).getCommandName();
     verify(featureManager, times(2)).unexpectedErrorResponse();
     verify(messageClient, times(1))
         ._sendMessage(eq("STREAM_ID_1234"), any(SymphonyMessage.class));

@@ -30,6 +30,7 @@ public class SymphonyElementsEvent extends BaseEvent {
     this.formId = action.getFormId();
     this.formValues = action.getFormValues();
     this.user = new UserDetails(initiator);
+    this.userId = initiator.getUserId();
   }
 
 }

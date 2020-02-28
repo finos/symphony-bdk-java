@@ -8,41 +8,59 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
-import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
-import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
-import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import com.symphony.ms.bot.sdk.internal.command.CommandDispatcher;
+import com.symphony.ms.bot.sdk.internal.command.CommandFilter;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.event.EventDispatcher;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageEvent;
+import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
+import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
 
 @ExtendWith(MockitoExtension.class)
 public class TemplateHandlerTest {
 
   private static final String BOT_DISPLAY_NAME = "BotDisplayName";
 
-  @InjectMocks
-  private TemplateHandler templateHandler;
-
+  @Mock
+  private EventDispatcher eventDispatcher;
+  @Mock
+  private CommandDispatcher commandDispatcher;
+  @Mock
+  private CommandFilter commandFilter;
+  @Mock
+  private MessageClientImpl messageClient;
+  @Mock
+  private FeatureManager featureManager;
   @Mock
   private UsersClient usersClient;
 
+  private TemplateHandler templateHandler;
+
   @BeforeEach
   public void init() {
+    templateHandler = new TemplateHandler(usersClient);
+    templateHandler.setEventDispatcher(eventDispatcher);
+    templateHandler.setCommandDispatcher(commandDispatcher);
+    templateHandler.setCommandFilter(commandFilter);
+    templateHandler.setMessageClient(messageClient);
+    templateHandler.setFeatureManager(featureManager);
+    templateHandler.setUsersClient(usersClient);
+
     when(usersClient.getBotDisplayName()).thenReturn(BOT_DISPLAY_NAME);
     templateHandler.init();
   }

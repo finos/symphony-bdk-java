@@ -53,14 +53,6 @@ public class EventHandlerTest {
   }
 
   @Test
-  public void registerTest() {
-    eventHandler.register();
-
-    verify(eventDispatcher, times(1))
-      .register(BaseEvent.class.getCanonicalName(), eventHandler);
-  }
-
-  @Test
   public void onEventTest() {
     EventHandler<BaseEvent> spyEventHandler = spy(eventHandler);
     BaseEvent event = mock(BaseEvent.class);

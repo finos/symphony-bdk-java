@@ -1,21 +1,6 @@
 package com.symphony.ms.bot.sdk.command;
 
 import static com.symphony.ms.bot.sdk.internal.symphony.model.StreamType.ROOM;
-
-import com.symphony.ms.bot.sdk.internal.command.MultiResponseCommandHandler;
-import com.symphony.ms.bot.sdk.internal.command.MultiResponseComposer;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
-import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
-import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
-import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
-import com.symphony.ms.bot.sdk.internal.symphony.model.UserAvatar;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,6 +11,20 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.command.MultiResponseCommandHandler;
+import com.symphony.ms.bot.sdk.internal.command.MultiResponseComposer;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.event.model.MessageAttachmentFile;
+import com.symphony.ms.bot.sdk.internal.symphony.ConfigClient;
+import com.symphony.ms.bot.sdk.internal.symphony.MessageClient;
+import com.symphony.ms.bot.sdk.internal.symphony.StreamsClient;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyStream;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
+import com.symphony.ms.bot.sdk.internal.symphony.model.UserAvatar;
 
 /**
  * Sample command to broadcast a message to all bot rooms
@@ -38,10 +37,15 @@ public class BroadcastMessageCommandHandler extends MultiResponseCommandHandler 
 
   private final StreamsClient streamsClient;
   private final ConfigClient configClient;
+  private final MessageClient messageClient;
+  private final UsersClient usersClient;
 
-  public BroadcastMessageCommandHandler(StreamsClient streamsClient, ConfigClient configClient) {
+  public BroadcastMessageCommandHandler(StreamsClient streamsClient,
+      ConfigClient configClient, MessageClient messageClient, UsersClient usersClient) {
     this.streamsClient = streamsClient;
     this.configClient = configClient;
+    this.messageClient = messageClient;
+    this.usersClient = usersClient;
   }
 
   @Override

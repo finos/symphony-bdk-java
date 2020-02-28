@@ -14,6 +14,7 @@ import com.symphony.ms.bot.sdk.internal.feature.FeatureManager;
 import com.symphony.ms.bot.sdk.internal.symphony.MessageClientImpl;
 import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+import lombok.Setter;
 
 /**
  * Symphony Elements Handler
@@ -24,27 +25,19 @@ import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
  *
  * @author Marcus Secato
  */
+@Setter
 public abstract class ElementsHandler implements
     BaseCommandHandler, BaseEventHandler<SymphonyElementsEvent> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ElementsHandler.class);
 
   private EventDispatcher eventDispatcher;
-
   private CommandDispatcher commandDispatcher;
-
   private CommandFilter commandFilter;
-
   private MessageClientImpl messageClient;
-
   private FeatureManager featureManager;
+  private UsersClient usersClient;
 
-  protected UsersClient usersClient;
-
-  /**
-   * Registers the ElementsHandler to {@link CommandFilter}, {@link CommandDispatcher} and {@link
-   * EventDispatcher}.
-   */
-  public void register() {
+  private void register() {
     init();
     commandDispatcher.register(getCommandName(), this);
     commandFilter.addFilter(getCommandName(), getCommandMatcher());
@@ -107,7 +100,7 @@ public abstract class ElementsHandler implements
     }
   }
 
-  protected String getCommandName() {
+  private String getCommandName() {
     return this.getClass().getCanonicalName();
   }
 
@@ -146,29 +139,5 @@ public abstract class ElementsHandler implements
    */
   public abstract void handleAction(SymphonyElementsEvent event,
       final SymphonyMessage elementsResponse);
-
-  public void setEventDispatcher(EventDispatcher eventDispatcher) {
-    this.eventDispatcher = eventDispatcher;
-  }
-
-  public void setCommandDispatcher(CommandDispatcher commandDispatcher) {
-    this.commandDispatcher = commandDispatcher;
-  }
-
-  public void setCommandFilter(CommandFilter commandFilter) {
-    this.commandFilter = commandFilter;
-  }
-
-  public void setMessageClient(MessageClientImpl messageClient) {
-    this.messageClient = messageClient;
-  }
-
-  public void setFeatureManager(FeatureManager featureManager) {
-    this.featureManager = featureManager;
-  }
-
-  public void setUsersClient(UsersClient usersClient) {
-    this.usersClient = usersClient;
-  }
 
 }

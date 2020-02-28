@@ -1,11 +1,11 @@
 package com.symphony.ms.bot.sdk.internal.command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.symphony.ms.bot.sdk.internal.command.model.AuthenticationContext;
 import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
 import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.Setter;
 
 /**
  * Extends {@link CommandHandler} to simplify handling commands that require
@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author Marcus Secato
  *
  */
+@Setter
 public abstract class AuthenticatedCommandHandler extends CommandHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticatedCommandHandler.class);
 

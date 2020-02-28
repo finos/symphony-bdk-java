@@ -77,18 +77,6 @@ public class CommandHandlerTest {
   }
 
   @Test
-  public void registerTest() {
-    commandHandler.register();
-
-    verify(commandDispatcher, times(1))
-        .register(commandHandler.getClass().getCanonicalName(), commandHandler);
-    verify(commandFilter, times(1))
-        .addFilter(
-            commandHandler.getClass().getCanonicalName(),
-            commandHandler.getCommandMatcher());
-  }
-
-  @Test
   public void onCommandTest() {
     CommandHandler spyCommandHandler = spy(commandHandler);
     BotCommand command = mock(BotCommand.class);
@@ -165,7 +153,6 @@ public class CommandHandlerTest {
 
     spyCommandHandler.onCommand(command);
 
-    verify(spyCommandHandler, times(1)).getCommandName();
     verify(featureManager, times(1)).unexpectedErrorResponse();
     verify(messageClient, never())
         ._sendMessage(any(String.class), any(SymphonyMessage.class));
@@ -186,7 +173,6 @@ public class CommandHandlerTest {
 
     spyCommandHandler.onCommand(command);
 
-    verify(spyCommandHandler, times(1)).getCommandName();
     verify(featureManager, atLeastOnce()).unexpectedErrorResponse();
     verify(messageClient, times(1))
         ._sendMessage(any(String.class), any(SymphonyMessage.class));

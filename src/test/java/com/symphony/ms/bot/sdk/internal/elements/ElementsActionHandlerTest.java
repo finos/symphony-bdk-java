@@ -44,17 +44,6 @@ public class ElementsActionHandlerTest {
   }
 
   @Test
-  public void registerTest() {
-    ElementsActionHandler spyElementsHandler = spy(elementsHandler);
-
-    spyElementsHandler.register();
-
-    verify(spyElementsHandler, times(1)).getElementsFormId();
-    verify(eventDispatcher, times(1))
-      .register("test-form-id", spyElementsHandler);
-  }
-
-  @Test
   public void onEventTest() {
     ElementsActionHandler spyElementsHandler = spy(elementsHandler);
     SymphonyElementsEvent event = mock(SymphonyElementsEvent.class);

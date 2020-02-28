@@ -36,7 +36,7 @@ public abstract class SsePublisher<E extends SsePublishable> {
    * Registers the SsePublisher to the {@link SsePublisherRouter} to be notified when new {@link
    * SseSubscriber} requests arrive.
    */
-  public void register() {
+  private void register() {
     init();
     this.ssePublisherRouter.register(this);
     this.subscribers = new ConcurrentHashMap<>();

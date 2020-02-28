@@ -7,20 +7,6 @@ import static com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBui
 import static com.symphony.ms.bot.sdk.internal.command.matcher.EscapedCharacter.whiteSpace;
 import static com.symphony.ms.bot.sdk.internal.command.matcher.EscapedCharacter.word;
 import static services.SmsRenderer.SmsTypes.valueOf;
-
-import com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBuilder;
-import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
-import com.symphony.ms.bot.sdk.internal.elements.ElementsHandler;
-import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
-import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
-import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import services.SmsRenderer.SmsTypes;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,6 +18,18 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.symphony.ms.bot.sdk.internal.command.matcher.CommandMatcherBuilder;
+import com.symphony.ms.bot.sdk.internal.command.model.BotCommand;
+import com.symphony.ms.bot.sdk.internal.elements.ElementsHandler;
+import com.symphony.ms.bot.sdk.internal.event.model.SymphonyElementsEvent;
+import com.symphony.ms.bot.sdk.internal.symphony.UsersClient;
+import com.symphony.ms.bot.sdk.internal.symphony.exception.SymphonyClientException;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyMessage;
+import com.symphony.ms.bot.sdk.internal.symphony.model.SymphonyUser;
+import services.SmsRenderer.SmsTypes;
 
 /**
  * Sample code. CommandHandler that uses Symphony Renderer templates.
@@ -66,7 +64,13 @@ public class TemplateHandler extends ElementsHandler {
       "/template table"
   };
 
+  private UsersClient usersClient;
+
   private Pattern templateCommandPattern;
+
+  public TemplateHandler(UsersClient usersClient) {
+    this.usersClient = usersClient;
+  }
 
   @Override
   public void init() {
