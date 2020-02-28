@@ -11,8 +11,8 @@ public class SymphonyElementsAction {
     private Map<String, Object> formValues;
 
     public String getStreamId() {
-        if (stream != null && stream.get("id") != null) {
-            return stream.get("id");
+        if (stream != null && stream.get("streamId") != null) {
+            return stream.get("streamId");
         }
         if (formStream != null && formStream.get("streamId") != null) {
             return formStream.get("streamId")
@@ -24,8 +24,8 @@ public class SymphonyElementsAction {
     }
 
     public String getStreamType() {
-        if (stream != null && stream.get("type") != null) {
-            return stream.get("type");
+        if (stream != null && stream.get("streamType") != null) {
+            return stream.get("streamType");
         }
         return null;
     }
