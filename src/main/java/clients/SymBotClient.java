@@ -168,12 +168,11 @@ public final class SymBotClient implements ISymClient {
         this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
 
-        try {
-            this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
-        }
-        // Exception happens when you can not get userId or username out of the JWT
-        // When that happens grab account info via API.
-        catch (ArrayIndexOutOfBoundsException e) {
+
+        this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
+        
+        if (this.botUserInfo == null) {
+            logger.debug("Calling getSessionUser to get bot info.");
             getBotUserInfo();
         }
         
@@ -192,6 +191,11 @@ public final class SymBotClient implements ISymClient {
 
         this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
 
+        if (this.botUserInfo == null) {
+            logger.debug("Calling getSessionUser to get bot info.");
+            getBotUserInfo();
+        }
+        
         SymMessageParser.createInstance(this);
 
         reportIfLoadBalanced(config);
@@ -207,7 +211,7 @@ public final class SymBotClient implements ISymClient {
             user.setId(jsonNode.path("userId").asLong());
             logger.info("Authenticated as {} ({})", user.getUsername(), user.getId());
             return user;
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | ArrayIndexOutOfBoundsException e) {
             logger.error("Unable to parse user info");
             return null;
         }
