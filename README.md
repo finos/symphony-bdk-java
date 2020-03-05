@@ -1,6 +1,6 @@
 # Symphony Bot SDK
 
-[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk.svg?style=svg&circle-token=f7891ef2a6f117938ef4ee885076c2d2bcd9b9cd)](https://circleci.com/gh/SymphonyPlatformSolutions/sms-bot-sdk) [![Java](https://img.shields.io/badge/JDK-1.8-blue.svg)](https://www.oracle.com/technetwork/java/javase/documentation/index.html) [![Maven](https://img.shields.io/badge/MAVEN-3.0.5+-blue.svg)](https://maven.apache.org/guides/index.html)
+[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-bot-sdk-java.svg?style=svg&circle-token=f7891ef2a6f117938ef4ee885076c2d2bcd9b9cd)](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-bot-sdk-java) [![Java](https://img.shields.io/badge/JDK-1.8-blue.svg)](https://www.oracle.com/technetwork/java/javase/documentation/index.html) [![Maven](https://img.shields.io/badge/MAVEN-3.0.5+-blue.svg)](https://maven.apache.org/guides/index.html)
 
 This SDK is managing all bot interactions from handling bot commands to receiving notifications from external
 systems and push them as symphony messages.
