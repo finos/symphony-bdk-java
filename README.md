@@ -1457,10 +1457,10 @@ To change log file name and/or location, or to change log level for different pa
 
 ```yaml
 logging:
-  file: /home/myuser/sms-bot-sdk/logs/bot-app.log
+  file: /home/myuser/symphony-bot-sdk-java/logs/bot-app.log
   level:
     ROOT: INFO
-    com.symphony.ms.bot.sdk.internal: DEBUG
+    com.symphony.bot.sdk.internal: DEBUG
 
 ```
 

@@ -30,10 +30,10 @@
         <appender-ref ref="File"/>
     </root>
 
-    <logger name="com.symphony.ms.bot.sdk" additivity="false">
+    <logger name="com.symphony.bot.sdk" additivity="false">
         <appender-ref ref="Console"/>
     </logger>
-    <logger name="com.symphony.ms.bot.sdk" additivity="false">
+    <logger name="com.symphony.bot.sdk" additivity="false">
         <appender-ref ref="File"/>
     </logger>
 

@@ -30,7 +30,7 @@ logging:
   file: ${resources}/logs/bot-app.log
   level:
     ROOT: INFO
-    com.symphony.ms.bot.sdk.internal: DEBUG
+    com.symphony.bot.sdk.internal: DEBUG
 
 management:
   endpoints:

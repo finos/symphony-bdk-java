@@ -8,8 +8,8 @@
         <version>2.2.2.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.symphony.ms</groupId>
-    <artifactId>sms-bot-sdk</artifactId>
+    <groupId>com.symphony.platformsolutions</groupId>
+    <artifactId>symphony-bot-sdk-java</artifactId>
     <version>1.0.0</version>
 
     <properties>
