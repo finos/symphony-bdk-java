@@ -1,22 +1,21 @@
 package configuration;
 
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ *
+ */
+@Getter @Setter
 public class LoadBalancing {
+
+    /**
+     * Load balancing method
+     */
     private LoadBalancingMethod method;
+
+    /**
+     * Enable sticky sessions or not
+     */
     private boolean stickySessions;
-
-    public LoadBalancingMethod getMethod() {
-        return method;
-    }
-
-    public void setMethod(LoadBalancingMethod method) {
-        this.method = method;
-    }
-
-    public boolean isStickySessions() {
-        return stickySessions;
-    }
-
-    public void setStickySessions(boolean stickySessions) {
-        this.stickySessions = stickySessions;
-    }
 }

@@ -1,3 +1,10 @@
 package configuration;
 
-public enum LoadBalancingMethod { random, roundrobin, external }
+/**
+ * Supported load balancing methods.
+ */
+public enum LoadBalancingMethod {
+  random,
+  roundrobin,
+  external
+}
