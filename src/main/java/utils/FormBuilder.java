@@ -117,12 +117,16 @@ public class FormBuilder {
     }
 
     public FormBuilder addTextArea(String name, String display, String placeholder, boolean required) {
-        String textAreaML = TagBuilder.builder("textarea")
+        TagBuilder textAreaML = TagBuilder.builder("textarea")
             .addField("name", name)
             .addField("placeholder", placeholder)
-            .addField("required", required)
-            .setContents(display)
-            .build();
+            .addField("required", required);
+
+        if (display != null) {
+            messageML.append(textAreaML.setContents(display).build());
+        } else {
+            messageML.append(textAreaML.buildSelfClosing());
+        }
 
         messageML.append(textAreaML);
         return this;
