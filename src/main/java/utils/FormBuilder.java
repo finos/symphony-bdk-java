@@ -69,17 +69,20 @@ public class FormBuilder {
     public FormBuilder addTextField(
         String name, String display, String placeholder, boolean required, boolean masked, int minlength, int maxLength
     ) {
-        String textFieldML = TagBuilder.builder("text-field")
+        TagBuilder textFieldML = TagBuilder.builder("text-field")
             .addField("name", name)
             .addField("placeholder", placeholder)
             .addField("required", required)
             .addField("masked", masked)
             .addField("minlength", minlength)
-            .addField("maxlength", maxLength)
-            .setContents(display)
-            .build();
+            .addField("maxlength", maxLength);
 
-        messageML.append(textFieldML);
+        if (display != null) {
+            messageML.append(textFieldML.setContents(display).build());
+        } else {
+            messageML.append(textFieldML.buildSelfClosing());
+        }
+        
         return this;
     }
 
@@ -94,6 +97,22 @@ public class FormBuilder {
         } else {
             messageML.append(textFieldMLBuilder.buildSelfClosing());
         }
+        return this;
+    }
+
+    public FormBuilder addTextField(String name, String display, String placeholder, boolean required, boolean masked) {
+        TagBuilder textFieldML = TagBuilder.builder("text-field")
+            .addField("name", name)
+            .addField("placeholder", placeholder)
+            .addField("required", required)
+            .addField("masked", masked);
+
+        if (display != null) {
+            messageML.append(textFieldML.setContents(display).build());
+        } else {
+            messageML.append(textFieldML.buildSelfClosing());
+        }
+
         return this;
     }
 

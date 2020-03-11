@@ -167,8 +167,7 @@ public final class SymBotClient implements ISymClient {
 
         this.podClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(podConfig).build();
         this.agentClient = HttpClientBuilderHelper.getHttpClientBuilderWithTruststore(config).withConfig(agentConfig).build();
-
-
+        
         this.botUserInfo = parseUserFromSessionToken(symBotAuth.getSessionToken());
         
         if (this.botUserInfo == null) {
