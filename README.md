@@ -1460,7 +1460,7 @@ logging:
   file: /home/myuser/symphony-bot-sdk-java/logs/bot-app.log
   level:
     ROOT: INFO
-    com.symphony.bot.sdk.internal: DEBUG
+    com.symphony.bdk.bot.sdk: DEBUG
 
 ```
 

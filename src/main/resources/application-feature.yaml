@@ -2,7 +2,6 @@ features:
   commandFeedback: enabled
   transactionIdOnError: enabled
   eventUnexpectedErrorMessage: "Something went wrong, please contact your Symphony administrator"
-  notificationBaseUrl: "http://localhost:8080"
   isPublicRoomAllowed: false
   publicRoomNotAllowedMessage: Sorry, I cannot be added to public rooms
   publicRoomNotAllowedTemplate: alert
@@ -10,4 +9,3 @@ features:
     message:
       title: Bot not allowed in public rooms
       content: Sorry, I cannot be added to public rooms
-  spreadsheetPresenceTimeInterval: 10000

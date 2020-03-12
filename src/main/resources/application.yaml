@@ -1,4 +1,4 @@
 spring:
   profiles:
-    include: dev,feature
+    include: base,feature,props
 
