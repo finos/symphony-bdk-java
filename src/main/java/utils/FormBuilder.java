@@ -128,7 +128,6 @@ public class FormBuilder {
             messageML.append(textAreaML.buildSelfClosing());
         }
 
-        messageML.append(textAreaML);
         return this;
     }
 
