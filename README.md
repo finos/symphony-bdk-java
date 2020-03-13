@@ -101,7 +101,7 @@ mvn clean install
 
 ## Usage
 
-Using Symphony Bot SDK implies in building a Spring Boot application which requires a main class containing the ```public static void main()``` method used to start up the Spring context. Import the ```BotBootstrap``` class in that main method.
+Using Symphony Bot SDK implies in building a Spring Boot application which requires a main class containing the ```public static void main()``` method used to start up the Spring context. Import the ```BotBootstrap``` class in that main class.
 
 ```java
 @SpringBootApplication
