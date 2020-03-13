@@ -69,17 +69,20 @@ public class FormBuilder {
     public FormBuilder addTextField(
         String name, String display, String placeholder, boolean required, boolean masked, int minlength, int maxLength
     ) {
-        String textFieldML = TagBuilder.builder("text-field")
+        TagBuilder textFieldML = TagBuilder.builder("text-field")
             .addField("name", name)
             .addField("placeholder", placeholder)
             .addField("required", required)
             .addField("masked", masked)
             .addField("minlength", minlength)
-            .addField("maxlength", maxLength)
-            .setContents(display)
-            .build();
+            .addField("maxlength", maxLength);
 
-        messageML.append(textFieldML);
+        if (display != null) {
+            messageML.append(textFieldML.setContents(display).build());
+        } else {
+            messageML.append(textFieldML.buildSelfClosing());
+        }
+        
         return this;
     }
 
@@ -97,15 +100,34 @@ public class FormBuilder {
         return this;
     }
 
-    public FormBuilder addTextArea(String name, String display, String placeholder, boolean required) {
-        String textAreaML = TagBuilder.builder("textarea")
+    public FormBuilder addTextField(String name, String display, String placeholder, boolean required, boolean masked) {
+        TagBuilder textFieldML = TagBuilder.builder("text-field")
             .addField("name", name)
             .addField("placeholder", placeholder)
             .addField("required", required)
-            .setContents(display)
-            .build();
+            .addField("masked", masked);
 
-        messageML.append(textAreaML);
+        if (display != null) {
+            messageML.append(textFieldML.setContents(display).build());
+        } else {
+            messageML.append(textFieldML.buildSelfClosing());
+        }
+
+        return this;
+    }
+
+    public FormBuilder addTextArea(String name, String display, String placeholder, boolean required) {
+        TagBuilder textAreaML = TagBuilder.builder("textarea")
+            .addField("name", name)
+            .addField("placeholder", placeholder)
+            .addField("required", required);
+
+        if (display != null) {
+            messageML.append(textAreaML.setContents(display).build());
+        } else {
+            messageML.append(textAreaML.buildSelfClosing());
+        }
+
         return this;
     }
 
