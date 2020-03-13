@@ -55,7 +55,7 @@ public class SseController {
 
   @PostConstruct
   public void init() throws NoSuchMethodException {
-    registerRoute(SSE_PATH);
+    registerRoute(authPath.concat(SSE_PATH));
   }
 
   /**

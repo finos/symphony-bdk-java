@@ -2,6 +2,7 @@ package com.symphony.bdk.bot.sdk;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 /**
  * Triggers Spring scanning over SDK classes. Clients using the SDK must import
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan("com.symphony.bdk.bot.sdk")
+@PropertySource(value = { "application-base.properties" })
 public class BotBootstrap {
 
 }
