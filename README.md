@@ -40,10 +40,7 @@ This SDK is managing all bot interactions from handling bot commands to receivin
   * [Symphony clients](#symphony-clients)
   * [Serving the extension app](#serving-the-extension-app)
   * [Testing your app](#testing-your-app)
-    * [Streams details endpoint](#streams-details-endpoint)
-    * [Users details endpoint](#users-details-endpoint)
     * [Extension app log endpoint](#extension-app-log-endpoint)
-    * [Static content](#static-content)
   * [Automatic endpoint documentation](#automatic-endpoint-documentation)
 * [Real-Time events](#real-time-events)
   * [Publishing events](#publishing-events)
@@ -790,60 +787,6 @@ Symphony Bot SDK ships with few endpoints to assist you on understanding how to 
 Please refer to following sub-sections for more details.
 
 
-#### Streams details endpoint
-
-| Method | URL | Description
-|---|---|---|
-| GET | /secure/streams | Returns a list of streams the bot is part of
-
-**Response**
-
-```javascript
-[
-  {
-    "active": true,
-    "crossPod": true,
-    "members": [
-      7215545078229
-    ],
-    "roomName": " my room name",
-    "streamId": "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA",
-    "streamType": "ROOM"
-  }
-]
-```
-
-
-#### Users details endpoint
-
-| Method | URL | Description
-|---|---|---|
-| GET | /secure/users | Returns user details by username or user ID. Set either ```username``` or ```userId``` request parameter.
-
-**Response**
-
-```javascript
-{
-  "userId": 15942919536460,
-  "emailAddress": "test_1@symphony.com",
-  "firstName": "test_1",
-  "lastName": "test",
-  "displayName": "test_1 test",
-  "title": "Technical Writer",
-  "company": "pod232",
-  "username": "test_1",
-  "location": "location",
-  "avatars": [
-    {
-      "size": "original",
-      "url": "../avatars/static/150/default.png"
-    }
-  ]
-}
-
-```
-
-
 #### Extension app log endpoint
 
 | Method | URL | Description
@@ -856,15 +799,6 @@ Please refer to following sub-sections for more details.
 "a log message from frontend"
 
 ```
-
-
-#### Static content
-
-Under ```<symphony bot application base path>/src/main/resources/public``` you will find a sample Symphony logo (logo.svg).
- 
-Try accessing it from:
-* browser (full path URL): ```http(s)://<hostname>:<port>/<application_context>/app/logo.svg```
-* your extension app code (relative path): ```./logo.svg```
 
 
 ### Automatic endpoint documentation
