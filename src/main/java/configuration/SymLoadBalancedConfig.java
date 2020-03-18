@@ -68,11 +68,6 @@ public class SymLoadBalancedConfig extends SymConfig {
         return super.getAgentHost();
     }
 
-    @Override
-    public int getAgentPort() {
-        return super.getAgentPort();
-    }
-
     public void rotateAgent() {
         String newAgent = null;
         switch (this.loadBalancing.getMethod()) {
@@ -95,12 +90,13 @@ public class SymLoadBalancedConfig extends SymConfig {
         log.info("Agent rotated to: {}", newAgent);
     }
 
+    /**
+     * Retrieves actual Agent FQDN (Fully Qualified Domain Name) by calling /agent/v1/info endpoint.
+     */
     protected String getActualAgentHost() {
 
-        String externalAgentHost = (this.agentServers != null && this.agentServers.size() > 0) ?
-            this.agentServers.get(0) : this.getAgentHost();
-
-        final String uri = CommonConstants.HTTPS_PREFIX + externalAgentHost + ":" + getAgentPort();
+        // using "super" to ensure that we retrieve fqdn through the LB
+        final String uri = CommonConstants.HTTPS_PREFIX + super.getAgentHost() + ":" + super.getAgentPort();
 
         final Response response = getHttpClientBuilderWithTruststore(this).build().target(uri)
             .path(AgentConstants.INFO)
@@ -108,10 +104,12 @@ public class SymLoadBalancedConfig extends SymConfig {
             .get();
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            log.error("Unable to get actual hostname, cause : {}", response);
+            log.error("Unable to get actual Agent hostname, cause : {}", response);
             return null;
         } else {
-            return response.readEntity(AgentInfo.class).getServerFqdn();
+            final String agentServerFqdn = response.readEntity(AgentInfo.class).getServerFqdn();
+            log.debug("Agent FQDN={}", agentServerFqdn);
+            return agentServerFqdn;
         }
     }
 

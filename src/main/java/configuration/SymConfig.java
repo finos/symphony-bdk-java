@@ -359,8 +359,8 @@ public class SymConfig {
     }
 
     public String getAgentUrl() {
-        String port = (agentPort == 443) ? "" : ":" + agentPort;
-        return CommonConstants.HTTPS_PREFIX + agentHost + port;
+        String port = (this.getAgentPort() == 443) ? "" : ":" + this.getAgentPort();
+        return CommonConstants.HTTPS_PREFIX + this.getAgentHost() + port;
     }
 
     public String getPodUrl() {
