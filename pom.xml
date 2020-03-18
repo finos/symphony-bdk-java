@@ -36,6 +36,7 @@
         <jjwt.version>0.9.1</jjwt.version>
         <commons-codec.version>1.14</commons-codec.version>
         <commons-io.version>2.6</commons-io.version>
+        <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <jersey.version>2.30</jersey.version>
         <slf4j.version>1.7.30</slf4j.version>
         <lombok.version>1.18.10</lombok.version>
@@ -51,7 +52,7 @@
                     <configLocation>ps-style.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
                     <violationSeverity>warning</violationSeverity>
-                    <failOnViolation>true</failOnViolation>
+                    <failOnViolation>false</failOnViolation>
                 </configuration>
                 <executions>
                     <execution>
@@ -216,6 +217,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>${commons-beanutils.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>

@@ -21,5 +21,5 @@ public class AgentConstants {
     public static final String CREATEFIREHOSE = AGENT + "/v4/firehose/create";
     public static final String READFIREHOSE = AGENT + "/v4/firehose/{id}/read";
     public static final String HEALTHCHECK = AGENT + "/v2/HealthCheck";
-    public static final String GETHOST = "/gethost";
+    public static final String INFO = AGENT + "/v1/info";
 }
