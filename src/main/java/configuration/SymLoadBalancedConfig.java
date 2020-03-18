@@ -65,6 +65,7 @@ public class SymLoadBalancedConfig extends SymConfig {
 
             default:
         }
+
         return super.getAgentHost();
     }
 
