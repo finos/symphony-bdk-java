@@ -258,7 +258,7 @@ public class DatafeedEventsService {
 
     private void handleEvents(List<DatafeedEvent> datafeedEvents) {
         for (DatafeedEvent event : datafeedEvents) {
-            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserInfo().getId())) {
+            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserId())) {
                 continue;
             }
 
