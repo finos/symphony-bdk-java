@@ -13,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
  */
 @Configuration
 @ComponentScan("com.symphony.bdk.bot.sdk")
-@PropertySource(value = { "application-base.properties" })
+@PropertySource("classpath:application-base.properties")
 public class BotBootstrap {
 
 }
