@@ -1,6 +1,7 @@
 package com.symphony.bdk.bot.sdk.lib.templating.config;
 
 import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.helper.ConditionalHelpers;
 import com.symphony.bdk.bot.sdk.lib.templating.TemplateService;
 import com.symphony.bdk.bot.sdk.lib.templating.TemplateServiceImpl;
 
@@ -27,6 +28,7 @@ public class TemplateServiceConfig {
   public TemplateService getHandlebarsService() {
     LOGGER.info("Initializing Template Engine");
     Handlebars handlebars = new HandlebarsTemplateLoader().getHandlebars();
+    handlebars.registerHelpers(ConditionalHelpers.class);
     return new TemplateServiceImpl(handlebars);
   }
 
