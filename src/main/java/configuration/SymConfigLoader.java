@@ -114,7 +114,11 @@ public class SymConfigLoader {
         if ((new File(externalUrlPath)).exists()) {
             config = loadFromFile(externalUrlPath, clazz);
         } else {
-            config = load(SymConfigLoader.class.getResourceAsStream(configPath), clazz);
+            InputStream is = SymConfigLoader.class.getResourceAsStream(configPath);
+            if (is == null) {
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(configPath);
+            }
+            config = load(is, clazz);
         }
 
         if (config == null) {
