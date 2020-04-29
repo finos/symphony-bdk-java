@@ -2,6 +2,7 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
+import java.util.Map;
 import utils.SymMessageParser;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -123,5 +124,9 @@ public class InboundMessage {
 
     public List<Long> getMentions() {
         return SymMessageParser.getMentions(this);
+    }
+
+    public Map<String, String> getEmojis() {
+        return SymMessageParser.getEmojis(this);
     }
 }

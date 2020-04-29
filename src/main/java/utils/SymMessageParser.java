@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import model.InboundMessage;
@@ -21,7 +22,7 @@ public class SymMessageParser {
     private static final String HASHTAG_TYPE = "org.symphonyoss.taxonomy.hashtag";
     private static final String CASHTAG_TYPE = "org.symphonyoss.fin.security.id.ticker";
     private static final String MENTION_TYPE = "com.symphony.user.userId";
-    private static final String ENTITY_REGEX = "id=\"\\d+\">(.*?)<";
+    private static final String EMOJI_TYPE = "com.symphony.emoji";
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private SymMessageParser(SymBotClient botClient) {
@@ -58,35 +59,45 @@ public class SymMessageParser {
 
     private static JsonNode readTree(String entityData) {
         try {
+            if (entityData == null) {
+                return MAPPER.createArrayNode();
+            }
             return MAPPER.readTree(entityData);
         } catch (IOException e) {
             return MAPPER.createArrayNode();
         }
     }
 
-    private static List<String> getTextTags(InboundMessage message, String type) {
-        return StreamSupport.stream(readTree(message.getData()).spliterator(), false)
-            .map(node -> node.get("id").get(0))
-            .filter(node -> node.get("type").asText().equals(type))
-            .map(node -> node.get("value").asText())
+    @SuppressWarnings("unchecked")
+    private static <T> List<T> getTags(InboundMessage message, String type, Class<T> clazz) {
+        if (clazz != Long.class && clazz != String.class) {
+            return null;
+        }
+        return (List<T>) StreamSupport.stream(readTree(message.getData()).spliterator(), false)
+            .filter(node -> node.has("id") && node.get("id").get(0).get("type").asText().equals(type))
+            .map(node -> node.get("id").get(0).get("value"))
+            .map(node -> clazz == Long.class ? node.asLong() : node.asText())
             .distinct()
             .collect(Collectors.toList());
     }
 
     public static List<Long> getMentions(InboundMessage message) {
-        return StreamSupport.stream(readTree(message.getData()).spliterator(), false)
-            .map(node -> node.get("id").get(0))
-            .filter(node -> node.get("type").asText().equals(MENTION_TYPE))
-            .map(node -> node.get("value").asLong())
-            .distinct()
-            .collect(Collectors.toList());
+        return getTags(message, MENTION_TYPE, Long.class);
     }
 
     public static List<String> getHashtags(InboundMessage message) {
-        return getTextTags(message, HASHTAG_TYPE);
+        return getTags(message, HASHTAG_TYPE, String.class);
     }
 
     public static List<String> getCashtags(InboundMessage message) {
-        return getTextTags(message, CASHTAG_TYPE);
+        return getTags(message, CASHTAG_TYPE, String.class);
+    }
+
+    public static Map<String, String> getEmojis(InboundMessage message) {
+        return StreamSupport.stream(readTree(message.getData()).spliterator(), false)
+            .filter(node -> node.has("type") && node.get("type").asText().equals(EMOJI_TYPE))
+            .map(node -> node.get("data"))
+            .distinct()
+            .collect(Collectors.toMap(e -> e.get("annotation").asText(), e -> e.get("unicode").asText()));
     }
 }
