@@ -12,13 +12,13 @@ authentication, data feed / firehose event loops, message parsing and agent serv
 <dependency>
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-api-client-java</artifactId>
-    <version>[1.0.0,)</version>
+    <version>[1.1.0,)</version>
 </dependency>
 ```
 
 ### Gradle
 ```groovy
-compile: 'com.symphony.platformsolutions:symphony-api-client-java:1.0.+'
+compile: 'com.symphony.platformsolutions:symphony-api-client-java:1.1.+'
 ```
 
 ## Installation via Bot Generator
