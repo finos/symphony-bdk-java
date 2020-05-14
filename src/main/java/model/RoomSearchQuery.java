@@ -12,6 +12,8 @@ public class RoomSearchQuery {
     private NumericId creator;
     private NumericId owner;
     private NumericId member;
+    private String sortOrder;
+    private String subType;
 
     public String getQuery() {
         return query;
@@ -68,4 +70,12 @@ public class RoomSearchQuery {
     public void setMember(NumericId member) {
         this.member = member;
     }
+
+    public String getSortOrder() { return sortOrder; }
+    
+    public void setSortOrder(String sortOrder) { this.sortOrder = sortOrder; }
+
+    public String getSubType() { return subType; }
+    
+    public void setSubType(String subType) { this.subType = subType; }
 }
