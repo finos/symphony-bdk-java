@@ -1,8 +1,10 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoomSearchQuery {
     private String query;
     private List<String> labels;
@@ -12,6 +14,8 @@ public class RoomSearchQuery {
     private NumericId creator;
     private NumericId owner;
     private NumericId member;
+    private String sortOrder;
+    private String subType;
 
     public String getQuery() {
         return query;
@@ -68,4 +72,12 @@ public class RoomSearchQuery {
     public void setMember(NumericId member) {
         this.member = member;
     }
+
+    public String getSortOrder() { return sortOrder; }
+    
+    public void setSortOrder(String sortOrder) { this.sortOrder = sortOrder; }
+
+    public String getSubType() { return subType; }
+    
+    public void setSubType(String subType) { this.subType = subType; }
 }
