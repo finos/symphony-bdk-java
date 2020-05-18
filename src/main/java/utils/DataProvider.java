@@ -22,6 +22,7 @@ public class DataProvider implements IDataProvider {
     public DataProvider(SymBotClient botClient) {
         STANDARD_URI_SCHEMES.add("http");
         STANDARD_URI_SCHEMES.add("https");
+        STANDARD_URI_SCHEMES.add("quickws");
         this.botClient = botClient;
     }
 
