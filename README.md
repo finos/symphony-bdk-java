@@ -98,6 +98,10 @@ can exclude the bot certificate section, all extension app sections and all opti
     
     // Optional: Request filter pattern to verify JWT
     "authenticationFilterUrlPattern": "/v1/",
+    
+    // Optional: If custom URI schemes need to be supported by MessageML parser 
+                 By setting this property, the default schemes (http and https) will be overridden
+    "supportedUriSchemes": ["http", "https", "customScheme"],
 }
 ```
 

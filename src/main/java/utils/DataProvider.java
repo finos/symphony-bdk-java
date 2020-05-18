@@ -20,10 +20,17 @@ public class DataProvider implements IDataProvider {
     private SymBotClient botClient;
 
     public DataProvider(SymBotClient botClient) {
-        STANDARD_URI_SCHEMES.add("http");
-        STANDARD_URI_SCHEMES.add("https");
-        STANDARD_URI_SCHEMES.add("quickws");
         this.botClient = botClient;
+        
+        if(!this.botClient.getConfig().getSupportedUriSchemes().isEmpty()) {
+            for (String uriScheme : this.botClient.getConfig().getSupportedUriSchemes()) {
+                STANDARD_URI_SCHEMES.add(uriScheme);
+            }
+        }
+        else {
+            STANDARD_URI_SCHEMES.add("http");
+            STANDARD_URI_SCHEMES.add("https");
+        }
     }
 
     @Override
