@@ -2,6 +2,8 @@ package configuration;
 
 import clients.symphony.api.constants.CommonConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.ArrayList;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -45,6 +47,7 @@ public class SymConfig {
     private String authenticationFilterUrlPattern;
     private boolean showFirehoseErrors;
     private int connectionTimeout;
+    private ArrayList<String> supportedUriSchemes = new ArrayList<>();
 
     public String getSessionAuthHost() {
         return sessionAuthHost;
@@ -376,5 +379,9 @@ public class SymConfig {
     public String getSessionAuthUrl() {
         String port = (sessionAuthPort == 443) ? "" : ":" + sessionAuthPort;
         return CommonConstants.HTTPS_PREFIX + sessionAuthHost + port;
+    }
+    
+    public ArrayList<String> getSupportedUriSchemes() {
+        return supportedUriSchemes;
     }
 }
