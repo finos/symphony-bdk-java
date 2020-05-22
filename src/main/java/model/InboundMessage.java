@@ -10,6 +10,7 @@ public class InboundMessage {
     private String messageId;
     private Long timestamp;
     private String message;
+    private InboundMessage sharedMessage;
     private String data;
     private List<Attachment> attachments;
     private User user;
@@ -18,6 +19,8 @@ public class InboundMessage {
     private String diagnostic;
     private String userAgent;
     private String originalFormat;
+    private String disclaimer;
+    private String sid;
 
     public String getMessageId() {
         return messageId;
@@ -41,6 +44,14 @@ public class InboundMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public InboundMessage getSharedMessage() {
+        return sharedMessage;
+    }
+
+    public void setSharedMessage(InboundMessage sharedMessage) {
+        this.sharedMessage = sharedMessage;
     }
 
     public String getData() {
@@ -105,6 +116,22 @@ public class InboundMessage {
 
     public void setOriginalFormat(String originalFormat) {
         this.originalFormat = originalFormat;
+    }
+
+    public String getDisclaimer() {
+        return disclaimer;
+    }
+
+    public void setDisclaimer(String disclaimer) {
+        this.disclaimer = disclaimer;
+    }
+
+    public String getSid() {
+        return sid;
+    }
+
+    public void setSid(String sid) {
+        this.sid = sid;
     }
 
     public String getMessageText() {
