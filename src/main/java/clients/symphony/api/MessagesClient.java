@@ -134,6 +134,41 @@ public final class MessagesClient extends APIClient {
         return sendMessage(streamId, message, false);
     }
 
+    public InboundMessage getMessageById(String messageId) {
+        String cleanMessageId = messageId.replaceAll("=", "")
+                .replaceAll("/", "_")
+                .replaceAll("\\+", "-");
+
+        WebTarget webTarget = botClient.getAgentClient()
+                .target(botClient.getConfig().getAgentUrl())
+                .path(AgentConstants.GETMESSAGEBYID.replace("{mid}", cleanMessageId));
+
+        Invocation.Builder builder = webTarget
+                .request(MediaType.APPLICATION_JSON)
+                .header("sessionToken", botClient.getSymAuth().getSessionToken());
+
+        if (isKeyManTokenRequired) {
+            builder = builder.header("keyManagerToken", botClient.getSymAuth().getKmToken());
+        }
+
+        InboundMessage result;
+        try (Response response = builder.get()) {
+            if (response.getStatusInfo().getFamily() != SUCCESSFUL) {
+                try {
+                    handleError(response, botClient);
+                } catch (UnauthorizedException ex) {
+                    return getMessageById(messageId);
+                }
+                return null;
+            } else if (response.getStatus() == 204) {
+                return null;
+            } else {
+                result = response.readEntity(InboundMessage.class);
+            }
+            return result;
+        }
+    }
+
     public List<InboundMessage> getMessagesFromStream(String streamId, long since, int skip, int limit)
         throws SymClientException {
 
