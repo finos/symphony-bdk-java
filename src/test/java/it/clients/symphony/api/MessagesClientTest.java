@@ -27,6 +27,43 @@ public class MessagesClientTest extends BotTest {
   }
 
   @Test
+  public void getMessageByIdSuccess() {
+    stubFor(get(urlEqualTo(AgentConstants.GETMESSAGEBYID.replace("{mid}", "mock-message_id")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{\n" +
+                "  \"messageId\": \"mockMessageId\",\n" +
+                "  \"timestamp\": 1590130725008,\n" +
+                "  \"message\": \"<div data-format=\\\"PresentationML\\\" data-version=\\\"2.0\\\" class=\\\"wysiwyg\\\"><p>Hello</p></div>\",\n" +
+                "  \"data\": \"{}\",\n" +
+                "  \"user\": {\n" +
+                "    \"userId\": 12345678901234,\n" +
+                "    \"firstName\": \"Mock\",\n" +
+                "    \"lastName\": \"User\",\n" +
+                "    \"displayName\": \"Mock User\",\n" +
+                "    \"email\": \"mock.user@symphony.com\"\n" +
+                "  },\n" +
+                "  \"stream\": {\n" +
+                "    \"streamId\": \"mock_stream_id\",\n" +
+                "    \"streamType\": \"IM\"\n" +
+                "  },\n" +
+                "  \"userAgent\": \"DESKTOP-40.0.0-11751-Windows-10-Chrome-81.0.4044.138\",\n" +
+                "  \"originalFormat\": \"com.symphony.messageml.v2\",\n" +
+                "  \"disclaimer\": \"This is mock disclaimer\",\n" +
+                "  \"sid\": \"mock_sid\"\n" +
+                "}")));
+
+    InboundMessage message = messagesClient.getMessageById("mock+message/id");
+
+    assertNotNull(message);
+    assertEquals("mockMessageId", message.getMessageId());
+    assertEquals("This is mock disclaimer", message.getDisclaimer());
+    assertEquals("mock_sid", message.getSid());
+  }
+
+  @Test
   public void getMessagesFromStreamSuccess() {
     stubFor(get(urlEqualTo(AgentConstants.GETMESSAGES.replace("{sid}", "1").concat("?since=1461808167175")))
         .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
