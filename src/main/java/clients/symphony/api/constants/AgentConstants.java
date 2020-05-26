@@ -6,6 +6,7 @@ public class AgentConstants {
     public static final String READDATAFEED = AGENT + "/v4/datafeed/{id}/read";
     public static final String CREATEMESSAGE = AGENT + "/v4/stream/{sid}/message/create";
     public static final String GETMESSAGES = AGENT + "/v4/stream/{sid}/message";
+    public static final String GETMESSAGEBYID = AGENT + "/v1/message/{mid}";
     public static final String GETATTACHMENT = AGENT + "/v1/stream/{sid}/attachment";
     public static final String SEARCHMESSAGES = AGENT + "/v1/message/search";
     public static final String MESSAGEIMPORT = AGENT + "/v4/message/import";
