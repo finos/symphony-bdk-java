@@ -74,7 +74,11 @@ public class SymMessageParser {
             return null;
         }
         return (List<T>) StreamSupport.stream(readTree(message.getData()).spliterator(), false)
-            .filter(node -> node.has("id") && node.get("id").get(0).get("type").asText().equals(type))
+            .filter(node -> node.has("id"))
+            .filter(node -> node.get("id").size() > 0)
+            .filter(node -> node.get("id").get(0).has("type"))
+            .filter(node -> node.get("id").get(0).get("type").asText().equals(type))
+            .filter(node -> node.get("id").get(0).has("value"))
             .map(node -> node.get("id").get(0).get("value"))
             .map(node -> clazz == Long.class ? node.asLong() : node.asText())
             .distinct()
