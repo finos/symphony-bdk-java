@@ -6,6 +6,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Enumeration;
 import javax.ws.rs.client.ClientBuilder;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -130,7 +131,13 @@ public class HttpClientBuilderHelper {
         try (InputStream trustStoreIS = loadInputStream(config.getTruststorePath())) {
             tks.load(trustStoreIS, config.getTruststorePassword().toCharArray());
             clientBuilder.trustStore(tks);
-        } catch (CertificateException | NoSuchAlgorithmException | IOException e) {
+            Enumeration<String> aliases = tks.aliases();
+            while (aliases.hasMoreElements()) {
+                String alias = aliases.nextElement();
+                logger.debug("Truststore entry's alias: " + alias);
+            }
+            logger.debug(tks.toString());
+        } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException e) {
             logger.error("Error loading truststore", e);
         }
     }
