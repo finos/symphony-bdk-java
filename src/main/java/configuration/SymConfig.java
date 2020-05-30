@@ -2,6 +2,8 @@ package configuration;
 
 import clients.symphony.api.constants.CommonConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -48,6 +50,7 @@ public class SymConfig {
     private boolean showFirehoseErrors;
     private int connectionTimeout;
     private ArrayList<String> supportedUriSchemes = new ArrayList<>();
+    @Getter @Setter private RetryConfiguration retry = new RetryConfiguration();
 
     public String getSessionAuthHost() {
         return sessionAuthHost;

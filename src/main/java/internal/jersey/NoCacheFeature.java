@@ -1,4 +1,6 @@
-package utils.jersey;
+package internal.jersey;
+
+import org.apiguardian.api.API;
 
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
@@ -11,6 +13,7 @@ import javax.ws.rs.core.HttpHeaders;
  * @author Thibault Pensec
  * @since 24/02/2020
  */
+@API(status = API.Status.INTERNAL)
 public class NoCacheFeature implements ClientRequestFilter {
 
     @Override

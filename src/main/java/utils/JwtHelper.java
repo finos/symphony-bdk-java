@@ -60,6 +60,11 @@ public class JwtHelper {
         return parseRSAPrivateKey(IOUtils.toString(pemPrivateKeyFile, Charset.defaultCharset()));
     }
 
+    public static PrivateKey parseRSAPrivateKey(final byte[] content)
+        throws IOException, GeneralSecurityException {
+        return parseRSAPrivateKey(IOUtils.toString(content, "utf-8"));
+    }
+
     /**
      * Create a RSA Private Ket from a PEM String. It supports PKCS#1 and PKCS#8 string formats
      */
