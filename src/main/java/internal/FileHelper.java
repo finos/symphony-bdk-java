@@ -1,10 +1,10 @@
 package internal;
 
+import static org.apache.commons.io.IOUtils.toByteArray;
+
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apiguardian.api.API;
-import utils.HttpClientBuilderHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,17 +30,26 @@ public class FileHelper {
 
     byte[] content;
 
-    if(new File(path).exists()) {
-      content = IOUtils.toByteArray(new FileInputStream(path));
+    if(!isClasspath(path) && new File(path).exists()) {
+      content = toByteArray(new FileInputStream(path));
       logger.debug("File loaded from system path : {}", path);
     }
-    else if (HttpClientBuilderHelper.class.getResource(path) != null) {
-      content = IOUtils.toByteArray(HttpClientBuilderHelper.class.getResourceAsStream(path.replace("classpath:", "")));
+    else if (FileHelper.class.getResource(classpath(path)) != null) {
+      content = toByteArray(FileHelper.class.getResourceAsStream(classpath(path)));
       logger.debug("File loaded from classpath location : {}", path);
-    } else {
-      throw new FileNotFoundException("Unable to load custom truststore from path : " + path);
+    }
+    else {
+      throw new FileNotFoundException("Unable to load file from path : " + path);
     }
 
     return content;
+  }
+
+  private static String classpath(String path) {
+    return path.replace("classpath:", "");
+  }
+
+  private static boolean isClasspath(String path) {
+    return path.startsWith("classpath:");
   }
 }

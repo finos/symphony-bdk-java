@@ -31,6 +31,9 @@ import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.ClientBuilder;
 
+/**
+ * Set of support methods for creating and initializing Jersey {@link javax.ws.rs.client.Client} for Pod, Agent, KM, etc.
+ */
 @Slf4j
 public class HttpClientBuilderHelper {
 
@@ -65,37 +68,37 @@ public class HttpClientBuilderHelper {
     }
 
     public static ClientConfig getPodClientConfig(SymConfig config) {
-        final String proxyURL = !isEmpty(config.getPodProxyURL()) ? config.getPodProxyURL() : config.getProxyURL();
-        final String proxyUser = !isEmpty(config.getPodProxyUsername()) ? config.getPodProxyUsername() : config.getProxyUsername();
-        final String proxyPass = !isEmpty(config.getPodProxyPassword()) ? config.getPodProxyPassword() : config.getProxyPassword();
-        return getClientConfig(config, proxyURL, proxyUser, proxyPass);
+        return getClientConfig(
+            config,
+            getOr(config.getPodProxyURL(), config.getProxyURL()),
+            getOr(config.getPodProxyUsername(), config.getProxyUsername()),
+            getOr(config.getPodProxyPassword(), config.getProxyPassword())
+        );
     }
 
     public static ClientConfig getAgentClientConfig(SymConfig config) {
-        String proxyURL = config.getProxyURL();
-        String proxyUser = config.getProxyUsername();
-        String proxyPass = config.getProxyPassword();
-
-        return getClientConfig(config, proxyURL, proxyUser, proxyPass);
+        return getClientConfig(
+            config,
+            getOr(config.getAgentProxyURL(), config.getProxyURL()),
+            getOr(config.getAgentProxyUsername(), config.getProxyUsername()),
+            getOr(config.getAgentProxyPassword(), config.getProxyPassword())
+        );
     }
 
     public static ClientConfig getKMClientConfig(SymConfig config) {
-        String kmProxyURL = config.getKeyManagerProxyURL();
-        String kmProxyUser = config.getKeyManagerProxyUsername();
-        String kmProxyPass = config.getKeyManagerProxyPassword();
-
-        return getClientConfig(config, kmProxyURL, kmProxyUser, kmProxyPass);
+        return getClientConfig(
+            config,
+            getOr(config.getKeyManagerProxyURL(), config.getProxyURL()),
+            getOr(config.getKeyManagerProxyUsername(), config.getProxyURL()),
+            getOr(config.getKeyManagerProxyPassword(), config.getProxyURL())
+        );
     }
 
     private static ClientConfig getClientConfig(SymConfig config, String proxyURL, String proxyUser, String proxyPass) {
         final ClientConfig clientConfig = new ClientConfig();
 
-        if (config.getConnectionTimeout() == 0) {
-            config.setConnectionTimeout(35000);
-        }
-
         clientConfig.property(ClientProperties.CONNECT_TIMEOUT, config.getConnectionTimeout());
-        clientConfig.property(ClientProperties.READ_TIMEOUT, config.getConnectionTimeout());
+        clientConfig.property(ClientProperties.READ_TIMEOUT, config.getReadTimeout());
 
         if (!isEmpty(proxyURL)) {
             clientConfig.connectorProvider(new ApacheConnectorProvider());
@@ -134,4 +137,8 @@ public class HttpClientBuilderHelper {
 
         return sslConfig.createSSLContext();
     }
+
+  private static String getOr(final String preferredValue, final String fallbackValue) {
+    return !isEmpty(preferredValue) ? preferredValue : fallbackValue;
+  }
 }

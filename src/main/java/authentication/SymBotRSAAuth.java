@@ -79,8 +79,8 @@ public class SymBotRSAAuth extends APIClient implements ISymAuth {
             .maxAttempts(this.config.getRetry().getMaxAttempts())
             .intervalFunction(IntervalFunction.ofExponentialBackoff(
                 this.config.getRetry().getInitialIntervalMillis(),
-                this.config.getRetry().getMultiplier())
-            )
+                this.config.getRetry().getMultiplier()
+            ))
             .build();
 
         final RetryRegistry registry = RetryRegistry.of(config);

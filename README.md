@@ -103,7 +103,7 @@ can exclude the bot certificate section, all extension app sections and all opti
                  By setting this property, the default schemes (http and https) will be overridden
     "supportedUriSchemes": ["http", "https", "customScheme"],
   
-    // Optional/experimental: exponential backoff configuration for retryiable actions
+    // Optional/experimental: exponential backoff configuration for retries
     "retry": {
         "maxAttempts": 10,
         "initialIntervalMillis": 500,
