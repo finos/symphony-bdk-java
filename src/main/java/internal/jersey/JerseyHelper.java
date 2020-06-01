@@ -29,4 +29,14 @@ public class JerseyHelper {
   public static boolean isSuccess(Response response) {
     return response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL;
   }
+
+  /**
+   * Read Jersey {@link javax.ws.rs.client.Client} response and map it to a {@link Class}.
+   * @param response The Jersey {@link javax.ws.rs.client.Client} response.
+   * @param clz Type of the mapping class.
+   * @return mapped response.
+   */
+  public static <T> T read(final Response response, final Class<T> clz) {
+    return response.readEntity(clz);
+  }
 }

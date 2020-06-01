@@ -65,11 +65,15 @@ public class BotTest extends ServerTest {
         );
     }
 
-    protected static StubMapping stubPost(String url, String returnedJsonResponse) {
+    public static StubMapping stubPost(String url, String returnedJsonResponse) {
+        return stubPost(url,returnedJsonResponse, 200);
+    }
+
+    public static StubMapping stubPost(String url, String returnedJsonResponse, int status) {
         return stubFor(post(urlEqualTo(url))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
             .willReturn(aResponse()
-                .withStatus(200)
+                .withStatus(status)
                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                 .withBody(returnedJsonResponse))
         );

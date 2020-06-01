@@ -12,8 +12,8 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymConfig {
 
-    private static final int DEFAULT_CONNECTION_TIMEOUT = 35000;
-    private static final int DEFAULT_READ_TIMEOUT = 60000;
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 10_000;
+    private static final int DEFAULT_READ_TIMEOUT = 35_000;
 
     // ---------------------------------------------------------------------------------------------------------------//
     // NETWORK

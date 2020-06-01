@@ -15,6 +15,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,8 +25,11 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
@@ -36,6 +40,8 @@ import javax.ws.rs.client.ClientBuilder;
  */
 @Slf4j
 public class HttpClientBuilderHelper {
+
+    private static final String TRUSTSTORE_FORMAT = "JKS";
 
     public static ClientBuilder getHttpClientBuilderWithTruststore(SymConfig config) {
         return ClientBuilder.newBuilder().register(NoCacheFeature.class)
@@ -52,7 +58,7 @@ public class HttpClientBuilderHelper {
             .sslContext(createSSLContext(
                 config.getTruststorePath(),
                 config.getTruststorePassword(),
-                config.getBotCertPath() + config.getBotCertName(),
+                FileHelper.path(config.getBotCertPath(), config.getBotCertName()),
                 config.getBotCertPassword()
             ));
     }
@@ -62,7 +68,7 @@ public class HttpClientBuilderHelper {
             .sslContext(createSSLContext(
                 config.getTruststorePath(),
                 config.getTruststorePassword(),
-                config.getAppCertPath() + config.getAppCertName(),
+                FileHelper.path(config.getAppCertPath(), config.getAppCertName()),
                 config.getAppCertPassword()
             ));
     }
@@ -122,17 +128,25 @@ public class HttpClientBuilderHelper {
         final SslConfigurator sslConfig = SslConfigurator.newInstance();
 
         if (!isEmpty(truststorePath) && !isEmpty(truststorePassword)) {
-            byte[] trustStoreBytes = FileHelper.readFile(truststorePath);
-            sslConfig
-                .trustStoreBytes(trustStoreBytes)
-                .trustStorePassword(truststorePassword);
+            final byte[] trustStoreBytes = FileHelper.readFile(truststorePath);
+            final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
+            truststore.load(new ByteArrayInputStream(trustStoreBytes), truststorePassword.toCharArray());
+            // if logging debug is enabled, we print the truststore entries
+            if(logger.isDebugEnabled()) {
+                final List<String> aliases = Collections.list(truststore.aliases());
+                logger.debug("Your custom truststore ('{}') contains {} entries :", truststorePath, aliases.size());
+                for (String alias : aliases) {
+                    logger.debug("# {}", alias);
+                }
+            }
+            sslConfig.trustStore(truststore);
         }
 
         if (!isEmpty(keystorePath) && !isEmpty(keystorePassword)) {
-            byte[] keystoreBytes = FileHelper.readFile(keystorePath);
+            final byte[] keystoreBytes = FileHelper.readFile(keystorePath);
             sslConfig
-                .trustStoreBytes(keystoreBytes)
-                .trustStorePassword(keystorePassword);
+                .keyStoreBytes(keystoreBytes)
+                .keyStorePassword(keystorePassword);
         }
 
         return sslConfig.createSSLContext();

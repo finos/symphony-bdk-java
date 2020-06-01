@@ -9,6 +9,7 @@ import org.apiguardian.api.API;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.file.Paths;
 
 import javax.annotation.Nonnull;
 
@@ -43,6 +44,10 @@ public class FileHelper {
     }
 
     return content;
+  }
+
+  public static String path(String first, String... more) {
+    return Paths.get(first, more).toString();
   }
 
   private static String classpath(String path) {
