@@ -20,7 +20,7 @@ public class HealthcheckClient extends APIClient {
     }
 
     public HealthcheckResponse performHealthCheck() {
-        boolean showFirehoseErrors = botClient.getConfig().getShowFirehoseErrors();
+        boolean showFirehoseErrors = botClient.getConfig().isShowFirehoseErrors();
         if (showFirehoseErrors) {
             HashMap<String, Object> parameters = new HashMap<>();
             parameters.put(QueryParameterNames.SHOW_FIREHOSE_ERRORS.getName(), Boolean.TRUE);

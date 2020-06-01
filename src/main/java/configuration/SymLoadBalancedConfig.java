@@ -40,7 +40,7 @@ public class SymLoadBalancedConfig extends SymConfig {
             case random:
                 if (currentAgentIndex == -1 || !isSticky) {
                     rotateAgent();
-                    log.info("Returning random agent index #{}: {}", currentAgentIndex, agentServers.get(currentAgentIndex));
+                    logger.info("Returning random agent index #{}: {}", currentAgentIndex, agentServers.get(currentAgentIndex));
                 }
                 return agentServers.get(currentAgentIndex);
 
@@ -49,7 +49,7 @@ public class SymLoadBalancedConfig extends SymConfig {
                     currentAgentIndex++;
                 }
                 String roundRobinAgentHost = agentServers.get(currentAgentIndex);
-                log.info("Returning round-robin agent index #{}: {}", currentAgentIndex, roundRobinAgentHost);
+                logger.info("Returning round-robin agent index #{}: {}", currentAgentIndex, roundRobinAgentHost);
                 if (!isSticky) {
                     rotateAgent();
                 }
@@ -57,10 +57,10 @@ public class SymLoadBalancedConfig extends SymConfig {
 
             case external:
                 if (actualAgentHost == null || !isSticky) {
-                    log.info("Retrieving actual agent hostname..");
+                    logger.info("Retrieving actual agent hostname..");
                     rotateAgent();
                 }
-                log.info("Actual agent host: {}", actualAgentHost);
+                logger.info("Actual agent host: {}", actualAgentHost);
                 return actualAgentHost;
 
             default:
@@ -88,7 +88,7 @@ public class SymLoadBalancedConfig extends SymConfig {
                 break;
             default:
         }
-        log.info("Agent rotated to: {}", newAgent);
+        logger.info("Agent rotated to: {}", newAgent);
     }
 
     /**
@@ -105,11 +105,11 @@ public class SymLoadBalancedConfig extends SymConfig {
             .get();
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            log.error("Unable to get actual Agent hostname, cause : {}", response);
+            logger.error("Unable to get actual Agent hostname, cause : {}", response);
             return null;
         } else {
             final String agentServerFqdn = response.readEntity(AgentInfo.class).getServerFqdn();
-            log.debug("Agent FQDN={}", agentServerFqdn);
+            logger.debug("Agent FQDN={}", agentServerFqdn);
             return agentServerFqdn;
         }
     }
@@ -118,7 +118,7 @@ public class SymLoadBalancedConfig extends SymConfig {
         try {
             BeanUtils.copyProperties(this, config);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Unable to copy properties from " + config + " to this.", e);
+            logger.error("Unable to copy properties from " + config + " to this.", e);
         }
     }
 }
