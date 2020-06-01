@@ -34,6 +34,7 @@ public class JerseyHelper {
    * Read Jersey {@link javax.ws.rs.client.Client} response and map it to a {@link Class}.
    * @param response The Jersey {@link javax.ws.rs.client.Client} response.
    * @param clz Type of the mapping class.
+   * @param <T> result type
    * @return mapped response.
    */
   public static <T> T read(final Response response, final Class<T> clz) {

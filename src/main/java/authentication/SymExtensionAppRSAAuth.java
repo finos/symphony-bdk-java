@@ -55,8 +55,8 @@ public final class SymExtensionAppRSAAuth extends APIClient {
 
     /**
      * Create an instance initialized with provided Symphony configuration and app RSA private key. The parts of the
-     * configuration related to app RSA private key will be ignored, e.g. {@link SymConfig#getAppPrivateKeyPath()} and
-     * {@link SymConfig#getAppPrivateKeyName()}. If given private key is null, then the initialization will only use the
+     * configuration related to app RSA private key will be ignored, e.g. SymConfig#getAppPrivateKeyPath() and
+     * SymConfig#getAppPrivateKeyName(). If given private key is null, then the initialization will only use the
      * configuration, see {@link SymExtensionAppRSAAuth#SymExtensionAppRSAAuth(SymConfig)}.
      *
      * @param config        the Symphony configuration

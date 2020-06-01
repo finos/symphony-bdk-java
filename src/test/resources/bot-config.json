@@ -13,7 +13,8 @@
   "botPrivateKeyPath": "src/test/resources/",
   "botPrivateKeyName": "testprivatekey.pkcs8",
   "botUsername": "testbot",
-  "authTokenRefreshPeriod": "30",
+
+  "readTimeout": 5000,
   "connectionTimeout": 1000,
 
   "truststorePath": "src/test/resources/testkeystore.jks",

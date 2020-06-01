@@ -93,6 +93,7 @@ public class SymLoadBalancedConfig extends SymConfig {
 
     /**
      * Retrieves actual Agent FQDN (Fully Qualified Domain Name) by calling /agent/v1/info endpoint.
+     * @return actual Agent host
      */
     protected String getActualAgentHost() {
 
