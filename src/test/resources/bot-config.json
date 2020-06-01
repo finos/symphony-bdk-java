@@ -14,7 +14,14 @@
   "botPrivateKeyName": "testprivatekey.pkcs8",
   "botUsername": "testbot",
   "authTokenRefreshPeriod": "30",
+  "connectionTimeout": 1000,
+
   "truststorePath": "src/test/resources/testkeystore.jks",
   "truststorePassword": "123456",
-  "connectionTimeout": 1000
+
+  "retry": {
+    "maxAttempts": 2,
+    "initialIntervalMillis": 200,
+    "multiplier": 1.5
+  }
 }
