@@ -523,7 +523,7 @@ Sample [Handlebars](https://github.com/jknack/handlebars.java)-based template fo
   <h6>Remarks:</h6>
   <textarea name="remarks" placeholder="Enter your remarks.." required="false"></textarea>
   <button name="confirm" type="action">Confirm</button>
-  <button name="reset" type="reset">Reset</button>
+  <button type="reset">Reset</button>
 </form>
 ```
 
