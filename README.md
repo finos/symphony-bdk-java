@@ -102,6 +102,13 @@ can exclude the bot certificate section, all extension app sections and all opti
     // Optional: If custom URI schemes need to be supported by MessageML parser 
                  By setting this property, the default schemes (http and https) will be overridden
     "supportedUriSchemes": ["http", "https", "customScheme"],
+  
+    // Optional/experimental: exponential backoff configuration for retries
+    "retry": {
+        "maxAttempts": 10,
+        "initialIntervalMillis": 500,
+        "multiplier": 1.5
+    }
 }
 ```
 

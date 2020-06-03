@@ -82,7 +82,11 @@ public final class SymBotClient implements ISymClient {
         try {
             botAuth.authenticate();
         } catch (AuthenticationException e) {
-            throw e.getRootException();
+            if(e.hasRootException()) {
+                throw e.getRootException();
+            } else {
+                throw e;
+            }
         }
         return new SymBotClient(config, botAuth);
     }

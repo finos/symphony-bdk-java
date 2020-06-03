@@ -1,18 +1,22 @@
 package exceptions;
 
 public class AuthenticationException extends Exception {
-    private Exception rootException;
+
+    public AuthenticationException(String message) {
+        super(message);
+    }
 
     public AuthenticationException(Exception rootException) {
         super(rootException);
-        this.rootException = rootException;
     }
 
+    @Deprecated
     public Exception getRootException() {
-        return rootException;
+        return (Exception) this.getCause();
     }
 
-    public void setRootException(Exception rootException) {
-        this.rootException = rootException;
+    @Deprecated
+    public boolean hasRootException() {
+        return this.getRootException() != null;
     }
 }

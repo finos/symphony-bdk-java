@@ -146,6 +146,8 @@ public class PresenceClient extends APIClient {
 
     /**
      * @deprecated Use {@link PresenceClient#setPresence(UserPresenceCategory)} instead.
+     * @param status Authenticated user presence status
+     * @return current user presence
      */
     @Deprecated
     public UserPresence setPresence(@Nonnull String status) throws SymClientException {
