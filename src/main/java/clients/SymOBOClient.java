@@ -5,7 +5,6 @@ import clients.symphony.api.*;
 import configuration.SymConfig;
 import javax.ws.rs.client.Client;
 import org.glassfish.jersey.client.ClientConfig;
-import sun.jvm.hotspot.debugger.cdbg.Sym;
 import utils.HttpClientBuilderHelper;
 
 import java.util.HashMap;
