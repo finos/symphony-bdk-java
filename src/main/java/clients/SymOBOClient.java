@@ -5,10 +5,14 @@ import clients.symphony.api.*;
 import configuration.SymConfig;
 import javax.ws.rs.client.Client;
 import org.glassfish.jersey.client.ClientConfig;
+import sun.jvm.hotspot.debugger.cdbg.Sym;
 import utils.HttpClientBuilderHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class SymOBOClient implements ISymClient {
-    private static SymOBOClient oboClient;
+    private static final Map<ISymAuth, SymOBOClient> cachedOBOClients = new HashMap<>();
     private SymConfig config;
     private ISymAuth symAuth;
     private MessagesClient messagesClient;
@@ -21,25 +25,7 @@ public final class SymOBOClient implements ISymClient {
     private Client agentClient;
 
     public static SymOBOClient initOBOClient(SymConfig config, ISymAuth auth) {
-        if (oboClient == null) {
-            oboClient = new SymOBOClient(config, auth);
-            return oboClient;
-        }
-        return oboClient;
-    }
-
-    private SymOBOClient(SymConfig config,
-                         ISymAuth symAuth,
-                         ClientConfig podClientConfig,
-                         ClientConfig agentClientConfig) {
-        this.config = config;
-        this.symAuth = symAuth;
-        this.podClient = HttpClientBuilderHelper
-                .getHttpClientBuilderWithTruststore(config)
-                .withConfig(podClientConfig).build();
-        this.agentClient = HttpClientBuilderHelper
-                .getHttpClientBuilderWithTruststore(config)
-                .withConfig(agentClientConfig).build();
+        return cachedOBOClients.computeIfAbsent(auth, newAuth -> new SymOBOClient(config, newAuth));
     }
 
     public SymOBOClient(SymConfig config, ISymAuth symAuth) {
