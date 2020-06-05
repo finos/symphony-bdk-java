@@ -52,15 +52,13 @@ public class AuthenticationFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         if (matchesFilteredPattern(request.getServletPath())) {
-            String jwt =
-                request.getHeader(AUTHORIZATION_HEADER)
-                    .substring(AUTHORIZATION_HEADER_BEARER_PREFIX.length());
-            if (jwt == null) {
+            String jwt = request.getHeader(AUTHORIZATION_HEADER);
+            if (jwt == null || jwt.length() < AUTHORIZATION_HEADER_BEARER_PREFIX.length()) {
                 response.setStatus(401);
                 response.getWriter().write(MISSING_JWT_MESSAGE);
                 return;
             }
-
+            jwt = jwt.substring(AUTHORIZATION_HEADER_BEARER_PREFIX.length());
             Jws<Claims> jws;
             try {
                 PublicKey rsaVerifier = rsaAuth.getPodPublicKey();
