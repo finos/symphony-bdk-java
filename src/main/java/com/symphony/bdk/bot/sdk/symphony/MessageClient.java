@@ -18,8 +18,8 @@ public interface MessageClient {
   /**
    * Sends message to the specified stream applying template processing when applicable.
    *
-   * @param streamId
-   * @param message
+   * @param streamId the stream ID
+   * @param message the message to be sent
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void sendMessage(String streamId, SymphonyMessage message)
@@ -28,9 +28,9 @@ public interface MessageClient {
   /**
    * Sends message to a Symphony stream
    *
-   * @param streamId
-   * @param message
-   * @param jsonData
+   * @param streamId the stream ID
+   * @param message the message to be sent
+   * @param jsonData the message data
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void sendMessage(String streamId, String message, String jsonData)
@@ -39,10 +39,10 @@ public interface MessageClient {
   /**
    * Sends message with attachments to a Symphony stream
    *
-   * @param streamId
-   * @param message
-   * @param jsonData
-   * @param attachments
+   * @param streamId the stream ID
+   * @param message the message to be sent
+   * @param jsonData the message data
+   * @param attachments the attachments list
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void sendMessage(String streamId, String message, String jsonData,
@@ -51,8 +51,8 @@ public interface MessageClient {
   /**
    * Download specific attachments from a message from a stream to memory
    *
-   * @param messageEvent
-   * @return the attachments
+   * @param messageEvent the message event
+   * @return the attachments the attachments list
    * @throws SymphonyClientException on error downloading from Symphony
    */
   List<MessageAttachmentFile> downloadMessageAttachments(MessageEvent messageEvent)

@@ -14,16 +14,16 @@ public interface ComposerAttachmentOrStreamDefinition extends ComposerStreamsDef
   /**
    * Defines the attachments to be linked to a message
    *
-   * @param attachments
-   * @return
+   * @param attachments the attachments list
+   * @return an instance of ComposerStreamsDefinition
    */
   ComposerStreamsDefinition withAttachments(MessageAttachmentFile... attachments);
 
   /**
    * Defines the attachments to be linked to a message
    *
-   * @param attachments
-   * @return
+   * @param attachments the attachments list
+   * @return and instance of ComposerStreamsDefinition
    */
   ComposerStreamsDefinition withAttachments(Collection<MessageAttachmentFile> attachments);
 

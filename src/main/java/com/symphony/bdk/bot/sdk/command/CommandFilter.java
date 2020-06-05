@@ -15,8 +15,9 @@ public interface CommandFilter {
   /**
    * Registers a command filter
    *
-   * @param commandName
-   * @param filter
+   * @param commandName the command name. Should match the channel configured in
+   *        CommandDispatcher.
+   * @param filter the filter predicate
    */
   void addFilter(String commandName, Predicate<String> filter);
 
@@ -24,8 +25,9 @@ public interface CommandFilter {
    * Registers a default command filter. Used to return standard messages when
    * bot is not fed with a valid command.
    *
-   * @param commandName
-   * @param defaultFilter
+   * @param commandName the command name. Should match the channel configured in
+   *        CommandDispatcher.
+   * @param defaultFilter the default filter predicate
    */
   void setDefaultFilter(String commandName, Predicate<String> defaultFilter);
 
@@ -34,7 +36,7 @@ public interface CommandFilter {
    * message corresponds to a valid command, {@link CommandDispatcher} will be
    * called.
    *
-   * @param messageEvent
+   * @param messageEvent the message to be filtered
    */
   void filter(MessageEvent messageEvent);
 }

@@ -131,8 +131,8 @@ public class MessageClientImpl implements MessageClient {
    * Sends message to Symphony swallowing any communication error.
    * Internal use only.
    *
-   * @param streamId
-   * @param message
+   * @param streamId the stream ID
+   * @param message the message to be sent
    */
   public void _sendMessage(String streamId, SymphonyMessage message) {
     try {

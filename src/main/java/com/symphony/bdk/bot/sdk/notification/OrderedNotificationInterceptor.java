@@ -21,7 +21,7 @@ public abstract class OrderedNotificationInterceptor extends NotificationInterce
   /**
    * Specify the notification interceptor order in {@link InterceptorChain}
    *
-   * @return
+   * @return the interceptor order in chain
    */
   protected abstract int getOrder();
 

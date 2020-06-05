@@ -11,8 +11,8 @@ public interface TemplateService {
   /**
    * Process a template file
    *
-   * @param templateFile
-   * @param data
+   * @param templateFile the template file name
+   * @param data the template data
    * @return processed content
    */
   String processTemplateFile(String templateFile, Object data);
@@ -20,8 +20,8 @@ public interface TemplateService {
   /**
    * Process a template string
    *
-   * @param templateString
-   * @param data
+   * @param templateString the template string
+   * @param data the template data
    * @return processed content
    */
   String processTemplateString(String templateString, Object data);

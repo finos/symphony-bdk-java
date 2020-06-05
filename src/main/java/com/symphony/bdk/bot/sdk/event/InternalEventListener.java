@@ -24,7 +24,7 @@ public interface InternalEventListener {
    * Room message event received. Pushes event to CommandFilter for command
    * filtering.
    *
-   * @param message
+   * @param message the message received in Symphony chat room
    */
   void onRoomMessage(MessageEvent message);
 
@@ -32,77 +32,77 @@ public interface InternalEventListener {
    * IM message event received. Pushes event to CommandFilter for command
    * filtering.
    *
-   * @param message
+   * @param message the message received in Symphony IM
    */
   void onIMMessage(MessageEvent message);
 
   /**
    * Room created event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onRoomCreated(RoomCreatedEvent event);
 
   /**
    * Room reactivated event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onRoomReactivated(RoomReactivatedEvent event);
 
   /**
    * Room deactivated event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onRoomDeactivated(RoomDeactivatedEvent event);
 
   /**
    * Room updated event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onRoomUpdated(RoomUpdatedEvent event);
 
   /**
    * IM created event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onIMCreated(IMCreatedEvent event);
 
   /**
    * Room member demoted event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwnerEvent event);
 
   /**
    * Room member promoted event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwnerEvent event);
 
   /**
    * User joined room event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onUserJoinedRoom(UserJoinedRoomEvent event);
 
   /**
    * User left room event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onUserLeftRoom(UserLeftRoomEvent event);
 
   /**
    * Symphony elements event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param event the event
    */
   void onElementsAction(SymphonyElementsEvent event);
 

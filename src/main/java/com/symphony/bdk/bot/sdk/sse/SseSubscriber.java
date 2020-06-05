@@ -105,7 +105,7 @@ public class SseSubscriber {
    * Sends event back to client application. Called by {@link SsePublisher} when new event is
    * available.
    *
-   * @param sseEvent
+   * @param sseEvent the SSE event to be sent
    */
   public void sendEvent(SseEvent sseEvent) {
     try {
@@ -118,7 +118,7 @@ public class SseSubscriber {
   /**
    * Notifies subscriber that the given publisher is done sending event
    *
-   * @param publisher
+   * @param publisher the publisher 
    */
   void complete(SsePublisher<?> publisher) {
     internalComplete(publisher);
@@ -127,8 +127,8 @@ public class SseSubscriber {
   /**
    * Notifies subscriber that the given publisher is done sending event due to error
    *
-   * @param publisher
-   * @param ex
+   * @param publisher the publisher
+   * @param ex the error
    */
   void completeWithError(SsePublisher<?> publisher, Throwable ex) {
     lastPublisherError = ex;

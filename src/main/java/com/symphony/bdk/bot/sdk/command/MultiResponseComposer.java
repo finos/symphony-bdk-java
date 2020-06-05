@@ -10,14 +10,14 @@ public interface MultiResponseComposer {
   /**
    * Starts the response composition
    *
-   * @return
+   * @return an instance of ComposerMessageDefinition
    */
   ComposerMessageDefinition compose();
 
   /**
    * Expose composer complete status
    *
-   * @return
+   * @return true if response composition is done, false otherwise
    */
   boolean isComplete();
 }

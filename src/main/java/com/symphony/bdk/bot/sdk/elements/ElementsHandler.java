@@ -127,8 +127,8 @@ public abstract class ElementsHandler implements
   /**
    * Displays the Symphony elements form
    *
-   * @param command
-   * @param elementsResponse
+   * @param command the command issued in chat room
+   * @param elementsResponse the response to be sent to Symphony
    */
   public abstract void displayElements(BotCommand command,
       final SymphonyMessage elementsResponse);
@@ -136,8 +136,8 @@ public abstract class ElementsHandler implements
   /**
    * Handle the action triggered when Symphony elements form is submitted
    *
-   * @param event
-   * @param elementsResponse
+   * @param event the event triggered in Symphony
+   * @param elementsResponse the response to be sent to Symphony
    */
   public abstract void handleAction(SymphonyElementsEvent event,
       final SymphonyMessage elementsResponse);

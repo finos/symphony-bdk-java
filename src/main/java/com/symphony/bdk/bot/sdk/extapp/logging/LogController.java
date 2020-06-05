@@ -46,7 +46,9 @@ public class LogController {
 
   /**
    * Provides an interface which logs a message
+   * @param level the log level (DEBUG, INFO, WARN or ERROR)
    * @param message The message to be logged
+   * @return the response
    */
   public ResponseEntity<String> logMessage(
       @RequestParam Optional<LogLevelEnum> level, @RequestBody String message) {

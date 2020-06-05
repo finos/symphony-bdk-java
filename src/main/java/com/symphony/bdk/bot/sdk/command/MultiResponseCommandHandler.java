@@ -67,7 +67,7 @@ public abstract class MultiResponseCommandHandler extends CommandHandler {
   /**
    * Handles a command issued to the bot
    *
-   * @param command
+   * @param command the command issued in chat room
    * @param multiResponseComposer the response composer in which the developer will define the
    *                              messages to be sent to Symphony
    */

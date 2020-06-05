@@ -64,6 +64,7 @@ public class SymphonyConfig {
    *
    * @param symConfig configuration from bot-config.json
    * @return {@link SymBotRSAAuth}
+   * @throws AuthenticationException if authentication fails
    */
   @Bean
   public SymBotRSAAuth symBotRSAAuth(SymConfig symConfig)
@@ -79,6 +80,7 @@ public class SymphonyConfig {
    *
    * @param symConfig configuration from bot-config.json
    * @param symBotAuth bean of authentication
+   * @param symLbConfig the load balancer configuration from lb-config.json 
    * @return {@link SymBotClient}
    */
   @Bean
