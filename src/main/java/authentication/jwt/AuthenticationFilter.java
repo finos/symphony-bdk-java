@@ -1,6 +1,7 @@
 package authentication.jwt;
 
 import authentication.SymExtensionAppRSAAuth;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import configuration.SymConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -34,6 +35,7 @@ public class AuthenticationFilter implements Filter {
     private JwtParser parser = Jwts.parser();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public AuthenticationFilter(SymExtensionAppRSAAuth rsaAuth, SymConfig symConfig) {
         this.rsaAuth = rsaAuth;
@@ -72,8 +74,7 @@ public class AuthenticationFilter implements Filter {
             }
 
             try {
-                JwtPayload jwtPayload = new JwtPayload();
-                jwtPayload.setUserId(String.valueOf(jws.getBody().get(USER_ID_FIELDNAME)));
+                JwtPayload jwtPayload = OBJECT_MAPPER.convertValue(jws.getBody(), JwtPayload.class);
                 request.setAttribute(USER_INFO_PROPERTY, jwtPayload);
 
                 filterChain.doFilter(request, servletResponse);
