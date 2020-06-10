@@ -268,7 +268,7 @@ public class DatafeedEventsService {
 
                     if (messageSent.getMessage().getStream().getStreamType().equals("ROOM")) {
                         for (RoomListener listener : roomListeners) {
-                            listener.onRoomMessage(messageSent.getMessage());
+                            listener.onRoomMessage(messageSent.getMessage(), event.getInitiator());
                         }
                     } else {
                         for (IMListener listener : imListeners) {
@@ -285,49 +285,49 @@ public class DatafeedEventsService {
 
                 case "ROOMCREATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomCreated(event.getPayload().getRoomCreated());
+                        listener.onRoomCreated(event.getPayload().getRoomCreated(), event.getInitiator());
                     }
                     break;
 
                 case "ROOMUPDATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomUpdated(event.getPayload().getRoomUpdated());
+                        listener.onRoomUpdated(event.getPayload().getRoomUpdated(), event.getInitiator());
                     }
                     break;
 
                 case "ROOMDEACTIVATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomDeactivated(event.getPayload().getRoomDeactivated());
+                        listener.onRoomDeactivated(event.getPayload().getRoomDeactivated(), event.getInitiator());
                     }
                     break;
 
                 case "ROOMREACTIVATED":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomReactivated(event.getPayload().getRoomReactivated().getStream());
+                        listener.onRoomReactivated(event.getPayload().getRoomReactivated().getStream(), event.getInitiator());
                     }
                     break;
 
                 case "USERJOINEDROOM":
                     for (RoomListener listener : roomListeners) {
-                        listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom());
+                        listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom(), event.getInitiator());
                     }
                     break;
 
                 case "USERLEFTROOM":
                     for (RoomListener listener : roomListeners) {
-                        listener.onUserLeftRoom(event.getPayload().getUserLeftRoom());
+                        listener.onUserLeftRoom(event.getPayload().getUserLeftRoom(), event.getInitiator());
                     }
                     break;
 
                 case "ROOMMEMBERPROMOTEDTOOWNER":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner());
+                        listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner(), event.getInitiator());
                     }
                     break;
 
                 case "ROOMMEMBERDEMOTEDFROMOWNER":
                     for (RoomListener listener : roomListeners) {
-                        listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner());
+                        listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner(), event.getInitiator());
                     }
                     break;
 
