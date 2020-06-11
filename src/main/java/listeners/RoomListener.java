@@ -1,7 +1,6 @@
 package listeners;
 
 import model.InboundMessage;
-import model.Initiator;
 import model.Stream;
 import model.events.*;
 
