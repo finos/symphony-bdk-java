@@ -1,6 +1,7 @@
 package model.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import model.Initiator;
 import model.Stream;
 import model.User;
 
@@ -8,6 +9,15 @@ import model.User;
 public class RoomMemberPromotedToOwner {
     private Stream stream;
     private User affectedUser;
+    private Initiator initiator;
+
+    public Initiator getInitiator() {
+        return initiator;
+    }
+
+    public void setInitiator(Initiator initiator) {
+        this.initiator = initiator;
+    }
 
     public Stream getStream() {
         return stream;
