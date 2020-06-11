@@ -3,6 +3,7 @@ package com.symphony.bdk.bot.sdk.notification;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ import com.symphony.bdk.bot.sdk.symphony.model.SymphonyMessage;
  */
 @RestController
 @RequestMapping("/notification")
+@ConditionalOnProperty(value = "notification.endpoint.disabled", havingValue="false", matchIfMissing=true)
 public class NotificationController {
   private static final Logger LOGGER = LoggerFactory.getLogger(NotificationController.class);
 
