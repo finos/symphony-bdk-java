@@ -108,7 +108,11 @@ can exclude the bot certificate section, all extension app sections and all opti
         "maxAttempts": 10,
         "initialIntervalMillis": 500,
         "multiplier": 1.5
-    }
+    },
+
+    // Optional: path of folder where to write and read datafeed.id file
+    // defaults to "./" when not set
+    "datafeedIdFilePath": "folder/to/datafeed/id/"
 }
 ```
 
