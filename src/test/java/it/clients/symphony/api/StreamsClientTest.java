@@ -4,10 +4,8 @@ import authentication.AuthEndpointConstants;
 import clients.symphony.api.StreamsClient;
 import clients.symphony.api.constants.PodConstants;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import exceptions.AuthenticationException;
 import exceptions.SymClientException;
 import it.commons.BotTest;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,13 +17,11 @@ import javax.ws.rs.core.NoContentException;
 import model.*;
 import org.junit.Before;
 import org.junit.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
 
 public class StreamsClientTest extends BotTest {
   private StreamsClient streamsClient;
-
 
   @Before
   public void initClient() {
@@ -545,7 +541,7 @@ public class StreamsClientTest extends BotTest {
   }
 
   @Test(expected = SymClientException.class)
-  public void getListUserStreamsUnauthorized() throws AuthenticationException {
+  public void getListUserStreamsUnauthorized() {
     stubFor(post(urlEqualTo(PodConstants.LISTUSERSTREAMS + "?skip=0&limit=50"))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
             .willReturn(aResponse()
