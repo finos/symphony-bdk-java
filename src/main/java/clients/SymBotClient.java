@@ -33,9 +33,11 @@ import utils.HttpClientBuilderHelper;
 import utils.SymMessageParser;
 
 import javax.ws.rs.client.Client;
+import java.io.File;
 
 public final class SymBotClient implements ISymClient {
     private static final Logger logger = LoggerFactory.getLogger(SymBotClient.class);
+    private static final String DATAFEED_ID_FILE = "datafeed.id";
     private static SymBotClient botClient;
     private SymConfig config;
     private ISymAuth symBotAuth;
@@ -292,6 +294,16 @@ public final class SymBotClient implements ISymClient {
 
     public <T extends SymConfig> T getConfig(Class<T> clazz) {
         return clazz.cast(config);
+    }
+
+    public File getDatafeedIdFile() {
+        String pathToDatafeedIdFile = config.getDatafeedIdFilePath() + DATAFEED_ID_FILE;
+
+        File file = new File(pathToDatafeedIdFile);
+        if (file.isDirectory()) {
+            file = new File(pathToDatafeedIdFile + File.separator + DATAFEED_ID_FILE);
+        }
+        return file;
     }
 
     public ISymAuth getSymAuth() {

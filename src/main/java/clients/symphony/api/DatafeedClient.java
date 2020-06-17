@@ -71,11 +71,7 @@ public final class DatafeedClient extends APIClient {
     private void writeDatafeedIdToDisk(SymConfig config, String datafeedId) {
         String agentHostPort = config.getAgentHost() + ":" + config.getAgentPort();
 
-        File file = new File("." + File.separator + "datafeed.id");
-        if (file.isDirectory()) {
-            file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
-        }
-        try (FileWriter fw = new FileWriter(file)) {
+        try (FileWriter fw = new FileWriter(botClient.getDatafeedIdFile())) {
             fw.write(datafeedId + "@" + agentHostPort);
             fw.flush();
         } catch (IOException ex) {
