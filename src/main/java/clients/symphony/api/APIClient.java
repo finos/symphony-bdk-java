@@ -12,6 +12,7 @@ import static javax.ws.rs.core.Response.Status.*;
 
 public abstract class APIClient {
     private final Logger logger = LoggerFactory.getLogger(APIClient.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     protected void handleError(Response response, ISymClient botClient) throws SymClientException {
         if (response.getStatusInfo().getFamily() == Family.SERVER_ERROR) {
@@ -22,7 +23,6 @@ public abstract class APIClient {
             throw new ServerErrorException(response.getStatusInfo().getReasonPhrase());
         } else {
             String errorString = response.readEntity(String.class);
-            ObjectMapper mapper = new ObjectMapper();
             ClientError error;
             try {
                 error = mapper.readValue(errorString, ClientError.class);
