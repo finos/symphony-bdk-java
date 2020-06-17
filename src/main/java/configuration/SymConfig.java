@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@Getter @Setter
+@Getter
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymConfig {
 
@@ -79,6 +81,7 @@ public class SymConfig {
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
     private Boolean reuseDatafeedID;
+    private String datafeedIdFilePath;
 
     // ---------------------------------------------------------------------------------------------------------------//
     // MISC
@@ -106,5 +109,15 @@ public class SymConfig {
     public String getSessionAuthUrl() {
         String port = (this.getSessionAuthPort() == 443) ? "" : ":" + this.getSessionAuthPort();
         return CommonConstants.HTTPS_PREFIX + this.getSessionAuthHost() + port;
+    }
+
+    public String getDatafeedIdFilePath() {
+        if (datafeedIdFilePath == null || datafeedIdFilePath.isEmpty()) {
+            return "." + File.separator;
+        }
+        if (!datafeedIdFilePath.endsWith(File.separator)) {
+            return datafeedIdFilePath + File.separator;
+        }
+        return datafeedIdFilePath;
     }
 }

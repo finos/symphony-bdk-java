@@ -58,10 +58,7 @@ public class DatafeedEventsService {
         // if the reuseDatafeedID config isn't set (null), we assume its default value as true
         if (botClient.getConfig().getReuseDatafeedID() == null || this.botClient.getConfig().getReuseDatafeedID()) {
             try {
-                File file = new File("." + File.separator + "datafeed.id");
-                if (file.isDirectory()) {
-                    file = new File("." + File.separator + "datafeed.id" + File.separator + "datafeed.id");
-                }
+                File file = botClient.getDatafeedIdFile();
                 Path datafeedIdPath = Paths.get(file.getPath());
                 String[] persistedDatafeed = Files.readAllLines(datafeedIdPath).get(0).split("@");
                 datafeedId = persistedDatafeed[0];
