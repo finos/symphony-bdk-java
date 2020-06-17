@@ -1,6 +1,8 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import exceptions.*;
 import javax.ws.rs.core.Response;
 import model.ClientError;
@@ -19,7 +21,15 @@ public abstract class APIClient {
             );
             throw new ServerErrorException(response.getStatusInfo().getReasonPhrase());
         } else {
-            ClientError error = response.readEntity(ClientError.class);
+            String errorString = response.readEntity(String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            ClientError error;
+            try {
+                error = mapper.readValue(errorString, ClientError.class);
+            } catch (JsonProcessingException e) {
+                throw new APIClientErrorException(e.getMessage());
+            }
+
             if (response.getStatus() == BAD_REQUEST.getStatusCode()) {
                 logger.error("Client error occurred: {}", error);
                 throw new APIClientErrorException(error.getMessage());
