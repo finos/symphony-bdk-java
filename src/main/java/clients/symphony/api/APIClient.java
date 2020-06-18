@@ -19,6 +19,7 @@ public abstract class APIClient {
         try {
             return mapper.readValue(errorString, ClientError.class);
         } catch (JsonProcessingException e) {
+            logger.error("Error response is not in json format: {}", errorString);
             ClientError error = new ClientError();
             error.setMessage(errorString);
             return error;
