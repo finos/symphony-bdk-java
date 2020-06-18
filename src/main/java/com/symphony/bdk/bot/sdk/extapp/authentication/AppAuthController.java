@@ -28,7 +28,7 @@ import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
  *
  */
 @RestController
-@RequestMapping(value = "/application")
+@RequestMapping(value = {"/application", "/applications"})
 public class AppAuthController {
   private static final Logger LOGGER = LoggerFactory.getLogger(AppAuthController.class);
 
