@@ -1,6 +1,8 @@
 package clients.symphony.api;
 
 import clients.ISymClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import exceptions.*;
 import javax.ws.rs.core.Response;
 import model.ClientError;
@@ -10,6 +12,19 @@ import static javax.ws.rs.core.Response.Status.*;
 
 public abstract class APIClient {
     private final Logger logger = LoggerFactory.getLogger(APIClient.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    private ClientError readClientError(Response response) {
+        String errorString = response.readEntity(String.class);
+        try {
+            return mapper.readValue(errorString, ClientError.class);
+        } catch (JsonProcessingException e) {
+            logger.error("Error response is not in json format: {}", errorString);
+            ClientError error = new ClientError();
+            error.setMessage(errorString);
+            return error;
+        }
+    }
 
     protected void handleError(Response response, ISymClient botClient) throws SymClientException {
         if (response.getStatusInfo().getFamily() == Family.SERVER_ERROR) {
@@ -19,9 +34,9 @@ public abstract class APIClient {
             );
             throw new ServerErrorException(response.getStatusInfo().getReasonPhrase());
         } else {
-            ClientError error = response.readEntity(ClientError.class);
+            ClientError error = this.readClientError(response);
             if (response.getStatus() == BAD_REQUEST.getStatusCode()) {
-                logger.error("Client error occurred: {}", error);
+                logger.error("Client error occurred: {}", error.getMessage());
                 throw new APIClientErrorException(error.getMessage());
             } else if (response.getStatus() == UNAUTHORIZED.getStatusCode()) {
                 logger.error("User unauthorized, refreshing tokens");
