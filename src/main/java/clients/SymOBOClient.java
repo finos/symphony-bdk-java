@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class SymOBOClient implements ISymClient {
-    private static final Map<ISymAuth, SymOBOClient> cachedOBOClients = new HashMap<>();
     private SymConfig config;
     private ISymAuth symAuth;
     private MessagesClient messagesClient;
@@ -23,8 +22,9 @@ public final class SymOBOClient implements ISymClient {
     private Client podClient;
     private Client agentClient;
 
+    @Deprecated
     public static SymOBOClient initOBOClient(SymConfig config, ISymAuth auth) {
-        return cachedOBOClients.computeIfAbsent(auth, newAuth -> new SymOBOClient(config, newAuth));
+        return new SymOBOClient(config, auth);
     }
 
     public SymOBOClient(SymConfig config, ISymAuth symAuth) {
