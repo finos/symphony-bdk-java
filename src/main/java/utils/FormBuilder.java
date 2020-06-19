@@ -56,12 +56,13 @@ public class FormBuilder {
     }
 
     public FormBuilder addButton(String name, String display, FormButtonType type) {
-        String buttonML = TagBuilder.builder("button")
-            .addField("name", name)
-            .addField("type", type.toString().toLowerCase())
-            .setContents(display)
-            .build();
-
+        TagBuilder builder = TagBuilder.builder("button")
+                .setContents(display)
+                .addField("type", type.toString().toLowerCase());
+        if (type.equals(FormButtonType.ACTION)) {
+            builder.addField("name", name);
+        }
+        String buttonML = builder.build();
         messageML.append(buttonML);
         return this;
     }
