@@ -1,9 +1,12 @@
 package it.clients.symphony.api;
 
+import authentication.AuthEndpointConstants;
 import clients.symphony.api.StreamsClient;
 import clients.symphony.api.constants.PodConstants;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import exceptions.SymClientException;
 import it.commons.BotTest;
-
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -486,6 +489,74 @@ public class StreamsClientTest extends BotTest {
 
     assertNotNull(streamsList);
     assertEquals(1, streamsList.size());
+  }
+
+  @Test
+  public void getListUserStreamsUnAuthorizedSuccessRetry() {
+    stubFor(post(urlEqualTo(PodConstants.LISTUSERSTREAMS + "?skip=0&limit=50"))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .inScenario("Get List User Streams")
+            .whenScenarioStateIs(Scenario.STARTED)
+            .willReturn(aResponse()
+                    .withStatus(401)
+                    .withBody("{\r\n" +
+                            "   \"message\":  \"Can't retrieve session from ID 688787d8ff144c502c7\"\r\n" +
+                            "}"))
+            .willSetStateTo("Failed first time"));
+    stubPost(
+            AuthEndpointConstants.KEY_AUTH_PATH_RSA,
+            "{ \"token\": \"0100e4feOiJSUzUxMiJ97oqGf729d1866f\", \"name\": \"sessionToken\" }"
+    );
+    stubPost(
+            AuthEndpointConstants.SESSION_AUTH_PATH_RSA,
+            "{ \"token\": \"eyJhbGciOiJSUzUxMiJ97oqG1Kd28l1FpQ\", \"name\": \"sessionToken\" }"
+    );
+    stubFor(post(urlEqualTo(PodConstants.LISTUSERSTREAMS + "?skip=0&limit=50"))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .inScenario("Get List User Streams")
+            .whenScenarioStateIs("Failed first time")
+            .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                    .withBody("[\n" +
+                            "  {\n" +
+                            "    \"id\": \"iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA\",\n" +
+                            "    \"crossPod\": false,\n" +
+                            "    \"active\": true,\n" +
+                            "    \"streamType\": {\n" +
+                            "      \"type\": \"POST\"\n" +
+                            "    },\n" +
+                            "    \"streamAttributes\": {\n" +
+                            "      \"members\": [\n" +
+                            "        7215545078229\n" +
+                            "      ]\n" +
+                            "    }\n" +
+                            "  }\n" +
+                            "]")));
+
+    List<String> streamTypes = Arrays.asList("IM", "POST");
+    List<StreamListItem> streams =  streamsClient.getUserStreams(streamTypes, true);
+    assertEquals(streams.size(), 1);
+    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+  }
+
+  @Test(expected = SymClientException.class)
+  public void getListUserStreamsUnauthorized() {
+    stubFor(post(urlEqualTo(PodConstants.LISTUSERSTREAMS + "?skip=0&limit=50"))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .willReturn(aResponse()
+                    .withStatus(401)
+                    .withBody("{\r\n" +
+                            "   \"message\":  \"Can't retrieve session from ID 688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6\"\r\n" +
+                            "}")));
+
+    stubPost(
+            AuthEndpointConstants.SESSION_AUTH_PATH_RSA,
+            "{ \"error\": \"Service unavailable\" }",
+            503
+    );
+    List<String> streamTypes = Arrays.asList("IM", "POST");
+    streamsClient.getUserStreams(streamTypes, true);
   }
 
   @Test(expected = IllegalArgumentException.class)
