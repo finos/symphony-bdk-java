@@ -20,7 +20,7 @@ public class SymBotOBOClientTest extends BaseTest {
     SymOBOUserRSAAuth userAuth = new SymOBOUserRSAAuth(config, null,"username", null);
     SymOBOClient symOBOClient1 = SymOBOClient.initOBOClient(config, userAuth);
     SymOBOClient symOBOClient2 = SymOBOClient.initOBOClient(config, userAuth);
-    assertEquals(symOBOClient1, symOBOClient2);
+    assertNotEquals(symOBOClient1, symOBOClient2);
   }
 
   @Test
@@ -29,8 +29,6 @@ public class SymBotOBOClientTest extends BaseTest {
     SymOBOClient symOBOClient1 = SymOBOClient.initOBOClient(config, userAuth);
     SymOBOClient symOBOClient2 = SymOBOClient.initOBOClient(config,
             new SymOBOUserRSAAuth(config, null, "username-2", null));
-    SymOBOClient symOBOClient3 = SymOBOClient.initOBOClient(config, userAuth);
     assertNotEquals(symOBOClient1, symOBOClient2);
-    assertEquals(symOBOClient1, symOBOClient3);
   }
 }
