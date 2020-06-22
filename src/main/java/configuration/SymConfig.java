@@ -45,6 +45,8 @@ public class SymConfig {
     private String proxyUsername;
     private String proxyPassword;
 
+    private String contextPath;
+
     private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
     private int readTimeout = DEFAULT_READ_TIMEOUT;
 
@@ -93,22 +95,26 @@ public class SymConfig {
 
     public String getAgentUrl() {
         String port = (this.getAgentPort() == 443) ? "" : ":" + this.getAgentPort();
-        return CommonConstants.HTTPS_PREFIX + this.getAgentHost() + port;
+        String contextPath = (this.getContextPath() == null) ? "" : this.getContextPath();
+        return CommonConstants.HTTPS_PREFIX + this.getAgentHost() + port + contextPath;
     }
 
     public String getPodUrl() {
         String port = (this.getPodPort() == 443) ? "" : ":" + this.getPodPort();
-        return CommonConstants.HTTPS_PREFIX + this.getPodHost() + port;
+        String contextPath = (this.getContextPath() == null) ? "" : this.getContextPath();
+        return CommonConstants.HTTPS_PREFIX + this.getPodHost() + port + contextPath;
     }
 
     public String getKeyAuthUrl() {
         String port = (this.getKeyAuthPort() == 443) ? "" : ":" + this.getKeyAuthPort();
-        return CommonConstants.HTTPS_PREFIX + this.getKeyAuthHost() + port;
+        String contextPath = (this.getContextPath() == null) ? "" : this.getContextPath();
+        return CommonConstants.HTTPS_PREFIX + this.getKeyAuthHost() + port + contextPath;
     }
 
     public String getSessionAuthUrl() {
         String port = (this.getSessionAuthPort() == 443) ? "" : ":" + this.getSessionAuthPort();
-        return CommonConstants.HTTPS_PREFIX + this.getSessionAuthHost() + port;
+        String contextPath = (this.getContextPath() == null) ? "" : this.getContextPath();
+        return CommonConstants.HTTPS_PREFIX + this.getSessionAuthHost() + port + contextPath;
     }
 
     public String getDatafeedIdFilePath() {

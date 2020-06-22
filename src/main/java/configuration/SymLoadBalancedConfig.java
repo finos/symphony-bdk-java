@@ -98,7 +98,7 @@ public class SymLoadBalancedConfig extends SymConfig {
     protected String getActualAgentHost() {
 
         // using "super" to ensure that we retrieve fqdn through the LB
-        final String uri = CommonConstants.HTTPS_PREFIX + super.getAgentHost() + ":" + super.getAgentPort();
+        final String uri = super.getAgentUrl();
 
         final Response response = getHttpClientBuilderWithTruststore(this).build().target(uri)
             .path(AgentConstants.INFO)
