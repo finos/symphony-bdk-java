@@ -134,7 +134,10 @@ public class SymConfig {
     private String formatContextPath(String contextPath) {
         String formattedPath = (contextPath == null) ? "" : contextPath;
         if (!formattedPath.equals("") && formattedPath.charAt(0) != '/') {
-            return "/" + formattedPath;
+            formattedPath =  "/" + formattedPath;
+        }
+        if (!formattedPath.equals("") && formattedPath.endsWith("/")) {
+            formattedPath = formattedPath.substring(0, formattedPath.length() - 1);
         }
         return formattedPath;
     }

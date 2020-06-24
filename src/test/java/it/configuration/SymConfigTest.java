@@ -30,6 +30,8 @@ public class SymConfigTest {
         assertEquals(config.getAgentUrl(), "https://localhost:7443/ctx1/ctx2");
         config.setAgentContextPath("ctx");
         assertEquals(config.getAgentUrl(), "https://localhost:7443/ctx");
+        config.setAgentContextPath("ctx/");
+        assertEquals(config.getAgentUrl(), "https://localhost:7443/ctx");
     }
 
     @Test
@@ -42,6 +44,8 @@ public class SymConfigTest {
         config.setPodContextPath("/ctx1/ctx2");
         assertEquals(config.getPodUrl(), "https://localhost:7443/ctx1/ctx2");
         config.setPodContextPath("ctx");
+        assertEquals(config.getPodUrl(), "https://localhost:7443/ctx");
+        config.setPodContextPath("ctx/");
         assertEquals(config.getPodUrl(), "https://localhost:7443/ctx");
     }
 
@@ -56,6 +60,8 @@ public class SymConfigTest {
         assertEquals(config.getSessionAuthUrl(), "https://localhost:7443/ctx1/ctx2");
         config.setSessionAuthContextPath("ctx");
         assertEquals(config.getSessionAuthUrl(), "https://localhost:7443/ctx");
+        config.setSessionAuthContextPath("ctx/");
+        assertEquals(config.getSessionAuthUrl(), "https://localhost:7443/ctx");
     }
 
     @Test
@@ -68,6 +74,8 @@ public class SymConfigTest {
         config.setKeyAuthContextPath("/ctx1/ctx2");
         assertEquals(config.getKeyAuthUrl(), "https://localhost:7443/ctx1/ctx2");
         config.setKeyAuthContextPath("ctx");
+        assertEquals(config.getKeyAuthUrl(), "https://localhost:7443/ctx");
+        config.setKeyAuthContextPath("ctx/");
         assertEquals(config.getKeyAuthUrl(), "https://localhost:7443/ctx");
     }
 }
