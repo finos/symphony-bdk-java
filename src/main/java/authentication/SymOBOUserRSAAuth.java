@@ -47,7 +47,7 @@ public final class SymOBOUserRSAAuth extends APIClient implements ISymAuth {
 
     @Override
     public void sessionAuthenticate() {
-        String target = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        String target = this.config.getSessionAuthUrl();
         String path = (uid != null) ?
             AuthEndpointConstants.OBO_USER_ID_AUTH_PATH_RSA.replace("{uid}", Long.toString(uid)) :
             AuthEndpointConstants.OBO_USER_NAME_AUTH_PATH_RSA.replace("{username}", username);

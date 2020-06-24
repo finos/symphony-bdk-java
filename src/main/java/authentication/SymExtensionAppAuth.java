@@ -71,10 +71,7 @@ public final class SymExtensionAppAuth extends APIClient {
         Map<String, String> input = new HashMap<>();
         input.put("appToken", appToken);
 
-        String urlTarget = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost();
-        if (config.getSessionAuthPort() != 443) {
-            urlTarget += ":" + config.getSessionAuthPort();
-        }
+        String urlTarget = this.config.getSessionAuthUrl();
 
         Invocation.Builder builder = sessionAuthClient.target(urlTarget)
             .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
@@ -130,12 +127,14 @@ public final class SymExtensionAppAuth extends APIClient {
     }
 
     public UserInfo verifyJWT(final String jwt, final String podSessionAuthUrl) {
-        String authUrl = podSessionAuthUrl;
-        if (StringUtils.isBlank(authUrl)) {
-            authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        String target;
+        if (StringUtils.isBlank(podSessionAuthUrl)) {
+            target = this.config.getSessionAuthUrl();
+        } else {
+            target = CommonConstants.HTTPS_PREFIX + podSessionAuthUrl;
         }
         Response response
-            = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
+            = sessionAuthClient.target(target)
             .path(AuthEndpointConstants.POD_CERT_PATH)
             .request(MediaType.APPLICATION_JSON)
             .get();
