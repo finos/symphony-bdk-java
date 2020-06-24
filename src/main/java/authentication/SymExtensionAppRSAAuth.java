@@ -103,10 +103,7 @@ public final class SymExtensionAppRSAAuth extends APIClient {
         token.put("appToken", generateToken());
         token.put("authToken", jwt);
 
-        String urlTarget = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost();
-        if (config.getSessionAuthPort() != 443) {
-            urlTarget += ":" + config.getSessionAuthPort();
-        }
+        String urlTarget = this.config.getSessionAuthUrl();
         Invocation.Builder builder = sessionAuthClient.target(urlTarget)
             .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH_RSA)
             .request(MediaType.APPLICATION_JSON);
@@ -172,9 +169,9 @@ public final class SymExtensionAppRSAAuth extends APIClient {
     }
 
     private void setupPodCertificate() {
-        String authUrl = config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        String target = this.config.getSessionAuthUrl();
         Response response
-            = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX + authUrl)
+            = sessionAuthClient.target(target)
             .path(AuthEndpointConstants.POD_CERT_RSA_PATH)
             .request(MediaType.APPLICATION_JSON)
             .get();

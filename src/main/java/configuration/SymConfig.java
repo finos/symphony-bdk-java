@@ -22,21 +22,25 @@ public class SymConfig {
     //
     private String sessionAuthHost;
     private int sessionAuthPort;
+    private String sessionAuthContextPath;
 
     private String keyAuthHost;
     private int keyAuthPort;
+    private String keyAuthContextPath;
     private String keyManagerProxyURL;
     private String keyManagerProxyUsername;
     private String keyManagerProxyPassword;
 
     private String podHost;
     private int podPort;
+    private String podContextPath;
     private String podProxyURL;
     private String podProxyUsername;
     private String podProxyPassword;
 
     private String agentHost;
     private int agentPort;
+    private String agentContextPath;
     private String agentProxyURL;
     private String agentProxyUsername;
     private String agentProxyPassword;
@@ -44,6 +48,8 @@ public class SymConfig {
     private String proxyURL;
     private String proxyUsername;
     private String proxyPassword;
+
+
 
     private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
     private int readTimeout = DEFAULT_READ_TIMEOUT;
@@ -93,22 +99,26 @@ public class SymConfig {
 
     public String getAgentUrl() {
         String port = (this.getAgentPort() == 443) ? "" : ":" + this.getAgentPort();
-        return CommonConstants.HTTPS_PREFIX + this.getAgentHost() + port;
+        String contextPath = formatContextPath(this.getAgentContextPath());
+        return CommonConstants.HTTPS_PREFIX + this.getAgentHost() + port + contextPath;
     }
 
     public String getPodUrl() {
         String port = (this.getPodPort() == 443) ? "" : ":" + this.getPodPort();
-        return CommonConstants.HTTPS_PREFIX + this.getPodHost() + port;
+        String contextPath = formatContextPath(this.getPodContextPath());
+        return CommonConstants.HTTPS_PREFIX + this.getPodHost() + port + contextPath;
     }
 
     public String getKeyAuthUrl() {
         String port = (this.getKeyAuthPort() == 443) ? "" : ":" + this.getKeyAuthPort();
-        return CommonConstants.HTTPS_PREFIX + this.getKeyAuthHost() + port;
+        String contextPath = formatContextPath(this.getKeyAuthContextPath());
+        return CommonConstants.HTTPS_PREFIX + this.getKeyAuthHost() + port + contextPath;
     }
 
     public String getSessionAuthUrl() {
         String port = (this.getSessionAuthPort() == 443) ? "" : ":" + this.getSessionAuthPort();
-        return CommonConstants.HTTPS_PREFIX + this.getSessionAuthHost() + port;
+        String contextPath = formatContextPath(this.getSessionAuthContextPath());
+        return CommonConstants.HTTPS_PREFIX + this.getSessionAuthHost() + port + contextPath;
     }
 
     public String getDatafeedIdFilePath() {
@@ -119,5 +129,16 @@ public class SymConfig {
             return datafeedIdFilePath + File.separator;
         }
         return datafeedIdFilePath;
+    }
+
+    private String formatContextPath(String contextPath) {
+        String formattedPath = (contextPath == null) ? "" : contextPath;
+        if (!formattedPath.equals("") && formattedPath.charAt(0) != '/') {
+            formattedPath =  "/" + formattedPath;
+        }
+        if (!formattedPath.equals("") && formattedPath.endsWith("/")) {
+            formattedPath = formattedPath.substring(0, formattedPath.length() - 1);
+        }
+        return formattedPath;
     }
 }

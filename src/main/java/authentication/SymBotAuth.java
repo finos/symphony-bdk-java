@@ -85,7 +85,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
 
         logger.info("Session auth");
-        String sessionAuthTarget = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        String sessionAuthTarget = this.config.getSessionAuthUrl();
         Response response;
         try {
             response = sessionAuthClient.target(sessionAuthTarget)
@@ -124,7 +124,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         if (config == null) {
             return;
         }
-        String kmAuthTarget = CommonConstants.HTTPS_PREFIX + config.getKeyAuthHost() + ":" + config.getKeyAuthPort();
+        String kmAuthTarget = this.config.getKeyAuthUrl();
         Response response;
         try {
             response = kmAuthClient.target(kmAuthTarget)
@@ -179,7 +179,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     @Override
     public void logout() {
         logger.info("Logging out");
-        String target = CommonConstants.HTTPS_PREFIX + config.getSessionAuthHost() + ":" + config.getSessionAuthPort();
+        String target = this.config.getSessionAuthUrl();
         Invocation.Builder builder = sessionAuthClient.target(target)
             .path(AuthEndpointConstants.LOGOUT_PATH)
             .request(MediaType.APPLICATION_JSON)
