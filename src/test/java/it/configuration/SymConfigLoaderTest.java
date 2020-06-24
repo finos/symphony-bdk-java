@@ -39,7 +39,7 @@ public class SymConfigLoaderTest {
 
   @Test
   public void nonEmptyDatafeedIdFilePathWithSeparatorShouldReturnTheSame() {
-    String folder = "folder/";
+    String folder = "folder" + File.separator;
     assertInputProducesDatafeedIdPath("{ \"datafeedIdFilePath\": \"" + folder + "\"}", folder);
   }
 
