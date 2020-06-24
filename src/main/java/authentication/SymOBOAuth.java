@@ -74,9 +74,7 @@ public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
         if (config != null) {
             logger.info("Session app auth");
             Response response
-                = sessionAuthClient.target(CommonConstants.HTTPS_PREFIX
-                    + config.getSessionAuthHost()
-                    + ":" + config.getSessionAuthPort())
+                = sessionAuthClient.target(this.config.getSessionAuthUrl())
                 .path(AuthEndpointConstants.SESSION_APP_AUTH_PATH)
                     .request(MediaType.APPLICATION_JSON)
                     .post(null);

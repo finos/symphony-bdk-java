@@ -29,8 +29,7 @@ public class UsersClient extends APIClient {
 
     public UserInfo getUserFromUsername(String username) throws SymClientException, NoContentException {
         Invocation.Builder builder = botClient.getPodClient()
-            .target(CommonConstants.HTTPS_PREFIX + botClient.getConfig().getPodHost() + ":" + botClient.getConfig()
-                .getPodPort())
+            .target(this.botClient.getConfig().getPodUrl())
             .path(PodConstants.GETUSERV2)
             .queryParam("username", username)
             .queryParam("local", true)
