@@ -9,6 +9,7 @@ public class SymphonyElementsAction {
     private Map<String, String> stream;
     private String formId;
     private Map<String, Object> formValues;
+    private String formMessageId;
 
     public String getStreamId() {
         if (stream != null && stream.get("streamId") != null) {
@@ -52,5 +53,13 @@ public class SymphonyElementsAction {
 
     public void setFormValues(Map<String, Object> formValues) {
         this.formValues = formValues;
+    }
+    
+    public String getFormMessageId() {
+        return formMessageId;
+    }
+
+    public void setFormMessageId(String formMessageId) {
+        this.formMessageId = formMessageId;
     }
 }
