@@ -59,7 +59,7 @@ public class SymphonyElementsAction {
         return formMessageId;
     }
 
-    public void setFormMessageId(String formValues) {
-        this.formMessageId = formValues;
+    public void setFormMessageId(String formMessageId) {
+        this.formMessageId = formMessageId;
     }
 }
