@@ -22,6 +22,7 @@ public class SymphonyElementsEvent extends BaseEvent {
   private String formId;
   private Map<String, Object> formValues;
   private UserDetails user;
+  private String formMessageId;
 
   public SymphonyElementsEvent(User initiator, SymphonyElementsAction action) {
     this.streamId = action.getStreamId();
@@ -31,6 +32,7 @@ public class SymphonyElementsEvent extends BaseEvent {
     this.formValues = action.getFormValues();
     this.user = new UserDetails(initiator);
     this.userId = initiator.getUserId();
+    this.formMessageId = action.getFormMessageId();
   }
 
 }
