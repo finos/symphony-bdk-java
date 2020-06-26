@@ -32,8 +32,15 @@ public class FileHelper {
     byte[] content;
 
     if(!isClasspath(path) && new File(path).exists()) {
-      content = toByteArray(new FileInputStream(path));
-      logger.debug("File loaded from system path : {}", path);
+      try {
+        FileInputStream fis = new FileInputStream(path);
+        content = toByteArray(fis);
+        fis.close();
+        logger.debug("File loaded from system path : {}", path);
+      }
+      catch (Exception ex) {
+        throw new FileNotFoundException("Unable to load file from path : " + path);
+      }
     }
     else if (FileHelper.class.getResource(classpath(path)) != null) {
       content = toByteArray(FileHelper.class.getResourceAsStream(classpath(path)));
@@ -42,7 +49,6 @@ public class FileHelper {
     else {
       throw new FileNotFoundException("Unable to load file from path : " + path);
     }
-
     return content;
   }
 
