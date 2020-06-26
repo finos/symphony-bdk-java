@@ -27,20 +27,18 @@ public class FileHelper {
    * @return content of the file
    */
   @SneakyThrows
-  public static byte[] readFile(@Nonnull final String path) {
+  public static byte[] readFile(@Nonnull final String path) throws FileNotFoundException {
 
     byte[] content;
 
     if(!isClasspath(path) && new File(path).exists()) {
-      try {
-        FileInputStream fis = new FileInputStream(path);
-        content = toByteArray(fis);
-        fis.close();
-        logger.debug("File loaded from system path : {}", path);
-      }
-      catch (Exception ex) {
-        throw new FileNotFoundException("Unable to load file from path : " + path);
-      }
+      try(FileInputStream fis = new FileInputStream(path)) {
+          content = toByteArray(fis);
+          logger.debug("File loaded from system path : {}", path);
+        }
+        catch (Exception ex) {
+          throw new FileNotFoundException("Unable to load file from path : " + path);
+        }
     }
     else if (FileHelper.class.getResource(classpath(path)) != null) {
       content = toByteArray(FileHelper.class.getResourceAsStream(classpath(path)));
