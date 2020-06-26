@@ -66,7 +66,7 @@ public abstract class EventHandler<E extends BaseEvent> implements BaseEventHand
   /**
    * Handles the Symphony event
    *
-   * @param event
+   * @param event the event triggered in Symphony
    * @param eventResponse the response to be sent to Symphony chat
    */
   public abstract void handle(E event, final SymphonyMessage eventResponse);

@@ -15,15 +15,15 @@ public interface InterceptorChain {
   /**
    * Registers a {@link NotificationInterceptor} to process incoming requests
    *
-   * @param notificationInterceptor
+   * @param notificationInterceptor the interceptor to be registered
    */
   void register(NotificationInterceptor notificationInterceptor);
 
   /**
    * Registers a {@link NotificationInterceptor} in a specific order
    *
-   * @param index
-   * @param notificationInterceptor
+   * @param index the interceptor order in the chain
+   * @param notificationInterceptor the interceptor to be registered
    */
   void register(int index, NotificationInterceptor notificationInterceptor);
 
@@ -31,8 +31,8 @@ public interface InterceptorChain {
    * Iterates over all registered interceptors retrieving the result once all
    * interceptors are done.
    *
-   * @param notificationRequest
-   * @param notificationMessage
+   * @param notificationRequest the notification request
+   * @param notificationMessage the notification response to be sent to Symphony
    * @return true if all interceptors allowed the request to proceed, false if
    *         request should be discarded.
    */

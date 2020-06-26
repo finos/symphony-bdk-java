@@ -28,7 +28,7 @@ public interface UsersClient {
   /**
    * Gets user given an username
    *
-   * @param username
+   * @param username the username
    * @return the user, null if user not found
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -38,8 +38,8 @@ public interface UsersClient {
   /**
    * Gets user given an email
    *
-   * @param email
-   * @param local
+   * @param email the user email
+   * @param local whether search local POD only
    * @return the user, null if user not found
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -49,8 +49,8 @@ public interface UsersClient {
   /**
    * Gets user given an user userId
    *
-   * @param userId
-   * @param local
+   * @param userId the user ID
+   * @param local whether search local POD only
    * @return the user, null if user not found
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -60,8 +60,8 @@ public interface UsersClient {
   /**
    * Gets users given some user ids
    *
-   * @param userIds
-   * @param local
+   * @param userIds the user IDs list
+   * @param local whether search local POD only
    * @return the users or empty list if no user found
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -71,8 +71,8 @@ public interface UsersClient {
   /**
    * Gets users given some emails
    *
-   * @param emails
-   * @param local
+   * @param emails the emails list
+   * @param local whether search local POD only
    * @return the users or empty list if no user found
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -80,9 +80,9 @@ public interface UsersClient {
       throws SymphonyClientException;
 
   /**
-   * Searcher for user given an filter
+   * Search for user given an filter
    *
-   * @param userFilter
+   * @param userFilter the filter
    * @return the user search result
    * @throws SymphonyClientException on error connecting to Symphony
    */

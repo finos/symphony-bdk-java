@@ -87,7 +87,7 @@ public abstract class CommandHandler implements BaseCommandHandler {
   /**
    * Handles a command issued to the bot
    *
-   * @param command
+   * @param command the command issued in chat room
    * @param commandResponse the response to be sent to Symphony chat
    */
   public abstract void handle(BotCommand command, final SymphonyMessage commandResponse);

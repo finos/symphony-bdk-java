@@ -18,6 +18,8 @@ public class HashService {
    * Checks if given token is equal the hash
    *
    * @param token clear text hashedPassword to be hashed
+   * @param hash the hashed token
+   * @return whether token is valid
    */
   public boolean checkToken(String token, String hash) {
     return token.equals(hash);
@@ -26,6 +28,8 @@ public class HashService {
   /**
    * Generates a hash to be used as token
    *
+   * @param token the token to be hashed
+   * @param salt the salt to be included in hash
    * @return a hash
    * @throws NoSuchAlgorithmException when the instance of SHA-512 can't be get
    */

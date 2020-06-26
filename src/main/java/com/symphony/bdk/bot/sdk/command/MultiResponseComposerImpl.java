@@ -30,6 +30,9 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     this.complete = true;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerMessageDefinition compose() {
     this.composedResponse = new HashMap<>();
@@ -37,12 +40,18 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerAttachmentOrStreamDefinition withMessage(String message) {
     this.message = new SymphonyMessage(message);
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerAttachmentOrStreamDefinition withEnrichedMessage(String message, String entityName,
       Object entity, String version) {
@@ -51,6 +60,9 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerAttachmentOrStreamDefinition withTemplateMessage(String templateMessage,
       Object templateData) {
@@ -59,6 +71,9 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerAttachmentOrStreamDefinition withEnrichedTemplateMessage(String templateMessage,
       Object templateData, String entityName, Object entity, String version) {
@@ -68,6 +83,9 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerAttachmentOrStreamDefinition withTemplateFile(String templateFile,
       Object templateData) {
@@ -76,6 +94,9 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerAttachmentOrStreamDefinition withEnrichedTemplateFile(String templateFile,
       Object templateData, String entityName, Object entity, String version) {
@@ -84,30 +105,45 @@ public class MultiResponseComposerImpl implements MultiResponseComposer, Compose
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerMessageDefinition toStreams(String... streamIds) {
     composedResponse.put(message, Arrays.stream(streamIds).collect(Collectors.toSet()));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerMessageDefinition toStreams(Collection<String> streamIds) {
     composedResponse.put(message, new HashSet<>(streamIds));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerStreamsDefinition withAttachments(MessageAttachmentFile... attachments) {
     this.message.setAttachments(Arrays.asList(attachments));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public ComposerStreamsDefinition withAttachments(Collection<MessageAttachmentFile> attachments) {
     this.message.setAttachments(attachments.stream().collect(Collectors.toList()));
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void complete() {
     this.complete = true;

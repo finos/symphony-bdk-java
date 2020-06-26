@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  *
  * @author Marcus Secato
  *
- * @param <T>
+ * @param <T> the response body type
  */
 @Data
 @NoArgsConstructor
@@ -21,11 +21,23 @@ public class RestResponse<T> {
 
   private T body;
 
+  /**
+   * Rest response
+   * @param headers the HTTP headers
+   * @param status the HTTP status
+   */
   public RestResponse(Map<String, String> headers, int status) {
     this.headers = headers;
     this.status = status;
   }
 
+  /**
+   * Rest response
+   * 
+   * @param body the response body
+   * @param headers the HTTP headers
+   * @param status the HTTP status
+   */
   public RestResponse(T body, Map<String, String> headers, int status) {
     this.headers = headers;
     this.status = status;

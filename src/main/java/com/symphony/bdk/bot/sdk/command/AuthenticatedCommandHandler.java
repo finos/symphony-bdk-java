@@ -48,9 +48,9 @@ public abstract class AuthenticatedCommandHandler extends CommandHandler {
   /**
    * Handles a command issued to the bot
    *
-   * @param command
-   * @param commandResponse
-   * @param authenticationContext
+   * @param command the command issued in chat room
+   * @param commandResponse the response to be sent
+   * @param authenticationContext the authentication context
    */
   public abstract void handle(BotCommand command,
       SymphonyMessage commandResponse,

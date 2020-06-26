@@ -21,8 +21,8 @@ public interface StreamsClient {
   /**
    * Gets the id of an IM stream of a user with the bot
    *
-   * @param userId
-   * @return the IM stream id
+   * @param userId the user ID
+   * @return the IM stream ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   String getUserIMStreamId(Long userId) throws SymphonyClientException;
@@ -30,8 +30,8 @@ public interface StreamsClient {
   /**
    * Gets the id of an IM stream of a list of user
    *
-   * @param userIds
-   * @return the IM stream id
+   * @param userIds the user IDs list
+   * @return the IM stream ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   String getUserListIM(List<Long> userIds) throws SymphonyClientException;
@@ -39,7 +39,7 @@ public interface StreamsClient {
   /**
    * Creates a room
    *
-   * @param symphonyRoom
+   * @param symphonyRoom the Symphony room details
    * @return the created room
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -49,18 +49,18 @@ public interface StreamsClient {
   /**
    * Adds member to room
    *
-   * @param stringId
-   * @param userId
+   * @param streamId the stream ID to add member to 
+   * @param userId the user ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
-  void addMemberToRoom(String stringId, Long userId)
+  void addMemberToRoom(String streamId, Long userId)
       throws SymphonyClientException;
 
   /**
    * Removes a member from room
    *
-   * @param streamId
-   * @param userId
+   * @param streamId the stream ID to remove member from
+   * @param userId the user ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void removeMemberFromRoom(String streamId, Long userId)
@@ -69,7 +69,7 @@ public interface StreamsClient {
   /**
    * Gets room information
    *
-   * @param streamId
+   * @param streamId the stream ID
    * @return the room information
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -78,8 +78,8 @@ public interface StreamsClient {
   /**
    * Updates room
    *
-   * @param streamId
-   * @param symphonyRoom
+   * @param streamId the stream ID
+   * @param symphonyRoom the Symphony room details
    * @return the updated room
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -89,7 +89,7 @@ public interface StreamsClient {
   /**
    * Gets stream information
    *
-   * @param streamId
+   * @param streamId the stream ID
    * @return the stream info
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -98,7 +98,7 @@ public interface StreamsClient {
   /**
    * Gets room members
    *
-   * @param streamId
+   * @param streamId the stream ID
    * @return the room members
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -108,7 +108,7 @@ public interface StreamsClient {
   /**
    * Activates a room
    *
-   * @param streamId
+   * @param streamId the stream ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void activateRoom(String streamId) throws SymphonyClientException;
@@ -116,7 +116,7 @@ public interface StreamsClient {
   /**
    * Deactivates a room
    *
-   * @param streamId
+   * @param streamId the stream ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void deactivateRoom(String streamId) throws SymphonyClientException;
@@ -124,8 +124,8 @@ public interface StreamsClient {
   /**
    * Promotes a user to owner
    *
-   * @param streamId
-   * @param userId
+   * @param streamId the stream ID
+   * @param userId the user ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void promoteUserToOwner(String streamId, Long userId)
@@ -134,8 +134,8 @@ public interface StreamsClient {
   /**
    * Demotes a owner user
    *
-   * @param streamId
-   * @param userId
+   * @param streamId the stream ID
+   * @param userId the user ID
    * @throws SymphonyClientException on error connecting to Symphony
    */
   void demoteUserFromOwner(String streamId, Long userId)
@@ -144,7 +144,7 @@ public interface StreamsClient {
   /**
    * Searches for room
    *
-   * @param symphonySearchQuery
+   * @param symphonySearchQuery the search query
    * @return the searched room
    * @throws SymphonyClientException on error connecting to Symphony
    */
@@ -154,8 +154,8 @@ public interface StreamsClient {
   /**
    * Gets user streams
    *
-   * @param streamTypes
-   * @param includeInactiveStreams
+   * @param streamTypes the stream types to be considered in search
+   * @param includeInactiveStreams whether to include inactive streams in search
    * @return list of user streams
    * @throws SymphonyClientException on error connecting to Symphony
    */

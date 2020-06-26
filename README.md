@@ -31,6 +31,7 @@ This SDK is managing all bot interactions from handling bot commands to receivin
   * [Controlling interceptors order](#controlling-interceptors-order)
   * [Forwarding notifications to rooms](#forwarding-notifications-to-rooms)
   * [Protecting notifications endpoint](#protecting-notifications-endpoint)
+  * [Disabling notifications endpoint](#disabling-notifications-endpoint)
 * [Sending messages](#sending-messages)
   * [Using Symphony standard templates](#using-symphony-standard-templates)  
 * [Extension applications](#extension-applications)
@@ -523,7 +524,7 @@ Sample [Handlebars](https://github.com/jknack/handlebars.java)-based template fo
   <h6>Remarks:</h6>
   <textarea name="remarks" placeholder="Enter your remarks.." required="false"></textarea>
   <button name="confirm" type="action">Confirm</button>
-  <button name="reset" type="reset">Reset</button>
+  <button type="reset">Reset</button>
 </form>
 ```
 
@@ -603,6 +604,19 @@ access-control:
   ipWhitelist: <comma-separated IP list>
   urlMapping: "/notification"
 ```
+
+### Disabling notifications endpoint
+
+In case your application does not need to handle notifications coming from external systems, it is strongly recommended that you disable the endpoint as it is public by default.
+
+You can disable the notification endpoint by setting the following in ```application.yaml```file:
+
+```yaml
+notification:
+  endpoint:
+    disabled: true
+```
+
 
 ## Sending messages
 

@@ -14,7 +14,7 @@ public interface BaseEventHandler<E extends BaseEvent> {
   /**
    * Callback for when the event is received
    *
-   * @param event
+   * @param event the event triggered in Symphony
    */
   void onEvent(E event);
 }

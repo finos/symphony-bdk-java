@@ -25,8 +25,8 @@ public interface AuthenticationProvider {
   /**
    * Handles unauthenticated user
    *
-   * @param command
-   * @param commandResponse
+   * @param command the command issued in chat room
+   * @param commandResponse the response to be sent to chat room
    */
   void handleUnauthenticated(
       BotCommand command, SymphonyMessage commandResponse);

@@ -47,7 +47,7 @@ public abstract class SsePublisher<E extends SsePublishable> {
   /**
    * Binds the specified {@link SseSubscriber} to this instance of SsePublisher.
    *
-   * @param subscriber
+   * @param subscriber the SSE subscriber
    */
   void addSubscriber(SseSubscriber subscriber) {
     subscriber.getEventTypes()
@@ -59,7 +59,7 @@ public abstract class SsePublisher<E extends SsePublishable> {
   /**
    * Removes the specified {@link SseSubscriber} from this instance of SsePublisher.
    *
-   * @param subscriber
+   * @param subscriber the SSE subscriber
    */
   void removeSubscriber(SseSubscriber subscriber) {
     removed = false;
@@ -77,7 +77,7 @@ public abstract class SsePublisher<E extends SsePublishable> {
   /**
    * Publishes events to subscribers
    *
-   * @param event
+   * @param event the SSE event
    */
   public void publishEvent(E event) {
     subscribers.computeIfPresent(event.getType(), (key, subs) -> {
@@ -111,7 +111,7 @@ public abstract class SsePublisher<E extends SsePublishable> {
   /**
    * Subscriber started listening. Subscription startup logic (if any) goes here.
    *
-   * @param subscriberAddedEvent
+   * @param subscriberAddedEvent the subscriber added event
    */
   protected void onSubscriberAdded(SubscriptionEvent subscriberAddedEvent) {
     LOGGER.debug("Subscriber {} added", subscriberAddedEvent.getUserId());
@@ -120,7 +120,7 @@ public abstract class SsePublisher<E extends SsePublishable> {
   /**
    * Subscriber stopped listening. Subscription teardown logic (if any) goes here.
    *
-   * @param subscriberRemovedEvent
+   * @param subscriberRemovedEvent the subscriber removed event
    */
   protected void onSubscriberRemoved(SubscriptionEvent subscriberRemovedEvent) {
     LOGGER.debug("Subscriber {} removed", subscriberRemovedEvent.getUserId());
@@ -137,8 +137,8 @@ public abstract class SsePublisher<E extends SsePublishable> {
   /**
    * Process event targeted to the specified subscriber
    *
-   * @param subscriber
-   * @param event
+   * @param subscriber the SSE subscriber
+   * @param event the SSE event to be published
    */
   protected abstract void handleEvent(SseSubscriber subscriber, E event);
 

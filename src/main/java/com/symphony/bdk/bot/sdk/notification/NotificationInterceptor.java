@@ -35,8 +35,8 @@ public abstract class NotificationInterceptor {
   /**
    * Intercepts an incoming request
    *
-   * @param notificationRequest
-   * @param notificationMessage
+   * @param notificationRequest the notification request
+   * @param notificationMessage the notification response to be sent to Symphony
    * @return true if request processing should proceed, false if request should be discarded
    */
   boolean intercept(NotificationRequest notificationRequest,
@@ -54,9 +54,10 @@ public abstract class NotificationInterceptor {
   /**
    * Processes the incoming request
    *
-   * @param notificationRequest
-   * @param notificationMessage
-   * @return true if request processing should proceed, false if request should be discarded
+   * @param notificationRequest the notification request
+   * @param notificationMessage the notification response to be sent to Symphony
+   * @return true if request processing should proceed, false if request should
+   *         be discarded
    */
   public abstract boolean process(NotificationRequest notificationRequest,
       SymphonyMessage notificationMessage);

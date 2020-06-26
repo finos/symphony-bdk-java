@@ -10,19 +10,19 @@ public interface ComposerMessageDefinition {
   /**
    * Adds a message to the response composition
    *
-   * @param message
-   * @return
+   * @param message the message
+   * @return an instance of ComposerAttachmentOrStreamDefinition 
    */
   ComposerAttachmentOrStreamDefinition withMessage(String message);
 
   /**
    * Adds an enriched message to the response composition
    *
-   * @param message
-   * @param entityName
-   * @param entity
-   * @param version
-   * @return
+   * @param message the message
+   * @param entityName the entity name
+   * @param entity the data entity
+   * @param version the entity version
+   * @return an instance of ComposerAttachmentOrStreamDefinition
    */
   ComposerAttachmentOrStreamDefinition withEnrichedMessage(
       String message, String entityName, Object entity, String version);
@@ -30,21 +30,21 @@ public interface ComposerMessageDefinition {
   /**
    * Adds a template message to the response composition
    *
-   * @param templateMessage
-   * @param templateData
-   * @return
+   * @param templateMessage the template message
+   * @param templateData the template data
+   * @return an instance of ComposerAttachmentOrStreamDefinition
    */
   ComposerAttachmentOrStreamDefinition withTemplateMessage(String templateMessage, Object templateData);
 
   /**
    * Adds an enriched template message to the response composition
    *
-   * @param templateMessage
-   * @param templateData
-   * @param entityName
-   * @param entity
-   * @param version
-   * @return
+   * @param templateMessage the template message
+   * @param templateData the template data
+   * @param entityName the entity name
+   * @param entity the data entity 
+   * @param version the entity version 
+   * @return an instance of ComposerAttachmentOrStreamDefinition
    */
   ComposerAttachmentOrStreamDefinition withEnrichedTemplateMessage(
       String templateMessage, Object templateData, String entityName, Object entity,
@@ -53,21 +53,21 @@ public interface ComposerMessageDefinition {
   /**
    * Adds an enriched template message to the response composition
    *
-   * @param templateFile
-   * @param templateData
-   * @return
+   * @param templateFile the template file name
+   * @param templateData the template data
+   * @return an instance of ComposerAttachmentOrStreamDefinition
    */
   ComposerAttachmentOrStreamDefinition withTemplateFile(String templateFile, Object templateData);
 
   /**
    * Adds an enriched template file to the response composition
    *
-   * @param templateFile
-   * @param templateData
-   * @param entityName
-   * @param entity
-   * @param version
-   * @return
+   * @param templateFile the template file name
+   * @param templateData the template data
+   * @param entityName the entity name
+   * @param entity the data entity
+   * @param version the entity version 
+   * @return an instance of ComposerAttachmentOrStreamDefinition
    */
   ComposerAttachmentOrStreamDefinition withEnrichedTemplateFile(
       String templateFile, Object templateData, String entityName, Object entity, String version);

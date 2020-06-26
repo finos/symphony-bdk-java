@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import model.Keyword;
 import model.RoomInfo;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -52,10 +53,12 @@ public class SymphonyRoom {
     this.crossPod = roomInfo.getRoomAttributes().getCrossPod();
     this.viewHistory = roomInfo.getRoomAttributes().getViewHistory();
     this.multiLateralRoom = roomInfo.getRoomAttributes().getMultiLateralRoom();
-    this.keywords = roomInfo.getRoomAttributes()
-        .getKeywords()
-        .stream()
-        .collect(Collectors.toMap(Keyword::getKey, Keyword::getValue));
+    this.keywords = new HashMap<>();
+    if (roomInfo.getRoomAttributes().getKeywords() != null) {
+      this.keywords = roomInfo.getRoomAttributes().getKeywords()
+          .stream()
+          .collect(Collectors.toMap(Keyword::getKey, Keyword::getValue));
+    }
     this.id = roomInfo.getRoomSystemInfo().getId();
     this.creationDate = roomInfo.getRoomSystemInfo().getCreationDate();
     this.createdByUserId = roomInfo.getRoomSystemInfo().getCreatedByUserId();

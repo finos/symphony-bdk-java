@@ -23,7 +23,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-@EnableWebMvc
 public class AssetsConfig implements WebMvcConfigurer {
 
   @Bean
