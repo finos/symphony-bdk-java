@@ -84,6 +84,7 @@ public class SymConfig {
 
     // ---------------------------------------------------------------------------------------------------------------//
     // DATAFEED
+    private String datafeedVersion;
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
     private Boolean reuseDatafeedID;
@@ -141,4 +142,13 @@ public class SymConfig {
         }
         return formattedPath;
     }
+
+    public int getDatafeedEventsThreadpoolSize() {
+        return this.datafeedEventsThreadpoolSize > 0 ? this.datafeedEventsThreadpoolSize : 5;
+    }
+
+    public int getDatafeedEventsErrorTimeout() {
+        return this.datafeedEventsErrorTimeout > 0 ? this.datafeedEventsErrorTimeout : 30;
+    }
+
 }
