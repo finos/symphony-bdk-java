@@ -1,6 +1,7 @@
 package com.symphony.bdk.bot.sdk.webapi.security.config;
 
 import java.util.Arrays;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -11,6 +12,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import com.symphony.bdk.bot.sdk.symphony.ConfigClient;
+import com.symphony.bdk.bot.sdk.symphony.authentication.ExtensionAppAuthenticator;
+import com.symphony.bdk.bot.sdk.webapi.security.JwtAuthenticationFilter;
 import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
 import com.symphony.bdk.bot.sdk.webapi.security.RequestOriginFilter;
 import com.symphony.bdk.bot.sdk.webapi.security.XSSFilter;
@@ -32,7 +35,7 @@ public class SecurityConfig {
     config.addAllowedOrigin(env.getProperty("cors.allowed-origin"));
     config.addAllowedHeader("*");
     config.setAllowedMethods(
-        Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration(
@@ -73,6 +76,17 @@ public class SecurityConfig {
     registrationBean.setFilter(new JwtCookieFilter());
     registrationBean.addUrlPatterns(configClient.getExtAppAuthPath() + "*");
     registrationBean.setOrder(1);
+
+    return registrationBean;
+  }
+
+  @Bean
+  public FilterRegistrationBean<JwtAuthenticationFilter> addAuthenticationFilter(
+      ExtensionAppAuthenticator extensionAppAuthenticator, ConfigClient configClient) {
+    FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
+    registrationBean.setFilter(new JwtAuthenticationFilter(extensionAppAuthenticator));
+    registrationBean.addUrlPatterns(configClient.getExtAppAuthPath() + "*");
+    registrationBean.setOrder(2);
 
     return registrationBean;
   }

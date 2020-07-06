@@ -4,11 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.symphony.bdk.bot.sdk.symphony.authentication.ExtensionAppAuthenticator;
 import com.symphony.bdk.bot.sdk.symphony.exception.AppAuthenticateException;
 import com.symphony.bdk.bot.sdk.symphony.exception.SymphonyClientException;
 import com.symphony.bdk.bot.sdk.symphony.model.AuthenticateResponse;
 
-import authentication.SymExtensionAppRSAAuth;
 import model.AppAuthResponse;
 import model.UserInfo;
 
@@ -16,10 +16,10 @@ import model.UserInfo;
 public class ExtensionAppAuthClientImpl implements ExtensionAppAuthClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionAppAuthClientImpl.class);
 
-  private SymExtensionAppRSAAuth symExtensionAppRSAAuth;
+  private ExtensionAppAuthenticator extensionAppAuthenticator;
 
-  public ExtensionAppAuthClientImpl(SymExtensionAppRSAAuth symExtensionAppRSAAuth) {
-    this.symExtensionAppRSAAuth = symExtensionAppRSAAuth;
+  public ExtensionAppAuthClientImpl(ExtensionAppAuthenticator extensionAppAuthenticator) {
+    this.extensionAppAuthenticator = extensionAppAuthenticator;
   }
 
   /**
@@ -29,7 +29,7 @@ public class ExtensionAppAuthClientImpl implements ExtensionAppAuthClient {
   public AuthenticateResponse appAuthenticate(String appId) throws SymphonyClientException {
     AppAuthResponse appAuthToken;
     try {
-      appAuthToken = symExtensionAppRSAAuth.appAuthenticate();
+      appAuthToken = extensionAppAuthenticator.appAuthenticate();
     } catch (Exception e) {
       LOGGER.error("Error authentication extension app {}: {}", appId, e.getMessage());
       throw new SymphonyClientException(e);
@@ -47,7 +47,7 @@ public class ExtensionAppAuthClientImpl implements ExtensionAppAuthClient {
    */
   @Override
   public boolean validateTokens(String appToken, String symphonyToken) {
-    return symExtensionAppRSAAuth.validateTokens(appToken, symphonyToken);
+    return extensionAppAuthenticator.validateTokens(appToken, symphonyToken);
   }
 
   /**
@@ -55,7 +55,7 @@ public class ExtensionAppAuthClientImpl implements ExtensionAppAuthClient {
    */
   @Override
   public Long verifyJWT(String jwt) {
-    UserInfo userInfo = symExtensionAppRSAAuth.verifyJWT(jwt);
+    UserInfo userInfo = extensionAppAuthenticator.verifyJWT(jwt);
     if (userInfo != null) {
       return userInfo.getId();
     }

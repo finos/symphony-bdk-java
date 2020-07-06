@@ -2,12 +2,20 @@ package com.symphony.bdk.bot.sdk.symphony.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
+
+import com.symphony.bdk.bot.sdk.symphony.authentication.CertificateExtensionAppAuthenticator;
+import com.symphony.bdk.bot.sdk.symphony.authentication.ExtensionAppAuthenticator;
+import com.symphony.bdk.bot.sdk.symphony.authentication.RSAExtensionAppAuthenticator;
+
+import authentication.ISymAuth;
+import authentication.SymBotAuth;
 import authentication.SymBotRSAAuth;
-import authentication.SymExtensionAppRSAAuth;
-import authentication.jwt.AuthenticationFilter;
+import authentication.extensionapp.InMemoryTokensRepository;
+import authentication.extensionapp.TokensRepository;
 import clients.SymBotClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
@@ -60,33 +68,20 @@ public class SymphonyConfig {
   }
 
   /**
-   * Bean that authenticates the bot into a POD using the certificates
-   *
-   * @param symConfig configuration from bot-config.json
-   * @return {@link SymBotRSAAuth}
-   * @throws AuthenticationException if authentication fails
-   */
-  @Bean
-  public SymBotRSAAuth symBotRSAAuth(SymConfig symConfig)
-      throws AuthenticationException {
-    LOGGER.info("Authenticating user...");
-    SymBotRSAAuth botAuth = new SymBotRSAAuth(symConfig);
-    botAuth.authenticate();
-    return botAuth;
-  }
-
-  /**
    * Bean that creates a bot client to access datafeed
    *
    * @param symConfig configuration from bot-config.json
-   * @param symBotAuth bean of authentication
-   * @param symLbConfig the load balancer configuration from lb-config.json 
+   * @param symLbConfig the load balancer configuration from lb-config.json
    * @return {@link SymBotClient}
+   * @throws AuthenticationException if authentication fails
    */
   @Bean
   public SymBotClient symBotClient(SymConfig symConfig,
-      SymBotRSAAuth symBotAuth, SymLoadBalancedConfig symLbConfig) {
+      SymLoadBalancedConfig symLbConfig) throws AuthenticationException {
     LOGGER.info("Initializing bot client...");
+    ISymAuth symBotAuth = getSymBotAuth(symConfig);
+    symBotAuth.authenticate();
+
     if (symLbConfig.getLoadBalancing() == null) {
       return SymBotClient.initBot(symConfig, symBotAuth);
     }
@@ -94,35 +89,42 @@ public class SymphonyConfig {
   }
 
   /**
-   * Bean that authenticates the extension app into a POD using the RSA keys
+   * Creates a simple in-memory tokens cache to be used in extension app
+   * authentication process.
    *
-   * @param symConfig configuration from bot-config.json
-   * @return {@link SymExtensionAppRSAAuth}
+   * @return the tokens repository
    */
   @Bean
-  public SymExtensionAppRSAAuth symExtensionAppRSAAuth(SymConfig symConfig) {
-    LOGGER.info("Authenticating extension app...");
-    return new SymExtensionAppRSAAuth(symConfig);
+  @ConditionalOnMissingBean
+  public TokensRepository tokensRepository() {
+    return new InMemoryTokensRepository();
   }
 
   /**
-   * Adds a request filter to intercept and validate authorization header
+   * Registers an extension app authenticator bean
    *
-   * @param symExtensionAppRSAAuth - extension app data
-   * @param symConfig - configuration from bot-config.json
-   * @return {@link AuthenticationFilter}
+   * @param symConfig configuration from bot-config.json
+   * @param tokensRepository tokens repository
+   * @return the authenticator
    */
   @Bean
-  public FilterRegistrationBean<AuthenticationFilter> addAuthenticationFilter(
-      SymExtensionAppRSAAuth symExtensionAppRSAAuth, SymConfig symConfig) {
-    FilterRegistrationBean<AuthenticationFilter> registrationBean =
-        new FilterRegistrationBean<>();
-    AuthenticationFilter authenticationFilter =
-        new AuthenticationFilter(symExtensionAppRSAAuth, symConfig);
-    registrationBean.setFilter(authenticationFilter);
-    registrationBean.addUrlPatterns("*");
-    registrationBean.setOrder(2);
-    return registrationBean;
+  public ExtensionAppAuthenticator extensionAppAuthenticator(SymConfig symConfig,
+      TokensRepository tokensRepository) {
+    if (!StringUtils.isEmpty(symConfig.getAppPrivateKeyName())
+        && !StringUtils.isEmpty(symConfig.getAppPrivateKeyPath())) {
+      return new RSAExtensionAppAuthenticator(symConfig, tokensRepository);
+    } else {
+      return new CertificateExtensionAppAuthenticator(symConfig, tokensRepository);
+    }
+  }
+
+  private ISymAuth getSymBotAuth(SymConfig symConfig) {
+    if (!StringUtils.isEmpty(symConfig.getBotPrivateKeyName())
+        && !StringUtils.isEmpty(symConfig.getBotPrivateKeyPath())) {
+      return new SymBotRSAAuth(symConfig);
+    } else {
+      return new SymBotAuth(symConfig);
+    }
   }
 
 }

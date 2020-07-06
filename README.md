@@ -13,6 +13,7 @@ This SDK is managing all bot interactions from handling bot commands to receivin
   * [Installing from source](#installing-from-source)
 * [Usage](#usage)
 * [Configuration](#configuration)
+  * [Authenticating with certificate](#authenticating-with-certificate)
 * [Adding bot commands](#adding-bot-commands)
   * [Command initialization](#command-initialization)
   * [Default responses](#default-responses)
@@ -83,7 +84,7 @@ To install Symphony Bot SDK to your projects add the following entry in your ```
 <dependency>
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-bdk-bot-sdk-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.9</version>
 </dependency>
 ```
 
@@ -147,7 +148,7 @@ In ```bot-config.json``` it is required to set the path to RSA private key as we
   "agentPort": 443,
   "appId": "myapp",
   "appPrivateKeyPath": "certs/",
-  "appPrivateKeyName": "bot_private.pkcs8",
+  "appPrivateKeyName": "app_private.pkcs8",
   "botPrivateKeyPath": "certs/",
   "botPrivateKeyName": "bot_private.pkcs8",
   "botUsername": "mybot",
@@ -162,6 +163,39 @@ In ```bot-config.json``` it is required to set the path to RSA private key as we
 
 For the full set of Symphony Bot SDK settings please refer to [Advanced Settings](#advanced-settings) 
  
+
+### Authenticating with certificate
+Certificates are the alternative to RSA keys for authentication with Symphony. For certificate-based authentication update your ```bot-config.json``` file as below:
+
+```javascript
+// Remove
+{
+  ...
+
+  "appPrivateKeyPath": "certs/",
+  "appPrivateKeyName": "app_private.pkcs8",
+  "botPrivateKeyPath": "certs/",
+  "botPrivateKeyName": "bot_private.pkcs8",
+
+  ...
+}
+
+// Add
+{
+  ...
+
+  "appCertPath": "certs/",
+  "appCertName": "app_cert.p12",
+  "appCertPassword": "app-cert-password",
+  "botCertPath": "certs/",
+  "botCertName": "bot_cert.p12",
+  "botCertPassword": "bot-cert-password",
+
+  ...
+}
+ 
+```
+
 
 ## Adding bot commands
 

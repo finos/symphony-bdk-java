@@ -6,8 +6,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -15,6 +17,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +36,11 @@ public class JwtCookieFilter implements Filter {
   private static final String AUTHORIZATION_HEADER_BEARER = "Bearer";
 
   @Override
+  public void init(FilterConfig filterConfig) {
+    LOGGER.info("Initializing JwtCookieFilter Filter");
+  }
+
+  @Override
   public void doFilter(ServletRequest servletRequest,
       ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -49,6 +57,11 @@ public class JwtCookieFilter implements Filter {
     } else {
       chain.doFilter(request, response);
     }
+  }
+
+  @Override
+  public void destroy() {
+    LOGGER.info("Destroying JwtCookieFilter Filter");
   }
 
   private String getJwtFromCookie(Cookie[] cookies) {
