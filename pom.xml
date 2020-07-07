@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-bdk-bot-sdk-java</artifactId>
-    <version>1.0.8-SNAPSHOT</version>
+    <version>1.0.8</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
