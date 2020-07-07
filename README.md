@@ -84,7 +84,7 @@ To install Symphony Bot SDK to your projects add the following entry in your ```
 <dependency>
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-bdk-bot-sdk-java</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.8</version>
 </dependency>
 ```
 
