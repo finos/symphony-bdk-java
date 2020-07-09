@@ -134,10 +134,10 @@ abstract class AbstractDatafeedEventsService implements IDatafeedEventsService {
 
     protected void handleEvents(List<DatafeedEvent> datafeedEvents) {
         for (DatafeedEvent event : datafeedEvents) {
-            Initiator initiator = event.getInitiator();
-            if (event == null || initiator.getUser().getUserId().equals(botClient.getBotUserId())) {
+            if (event == null || event.getInitiator().getUser().getUserId().equals(botClient.getBotUserId())) {
                 continue;
             }
+            Initiator initiator = event.getInitiator();
 
             switch (event.getType()) {
                 case "MESSAGESENT":

@@ -5,6 +5,7 @@
       "id": "ulPr8a:eFFDL7",
       "messageId": "CszQa6uPAA9V",
       "timestamp": 1536346282592,
+      "type": "MESSAGESENT",
       "initiator": {
         "user": {
           "userId": 1456852,

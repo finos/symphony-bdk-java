@@ -1,13 +1,15 @@
 package services;
 
 import clients.SymBotClient;
+import exceptions.APIClientErrorException;
+import lombok.SneakyThrows;
 import model.DatafeedEvent;
 import model.datafeed.DatafeedV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -17,7 +19,10 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
 
     private static final Logger logger = LoggerFactory.getLogger(DatafeedEventsServiceV2.class);
 
+    private static final int AWAIT_TERMINATION = 1000;
+
     private final AtomicBoolean started = new AtomicBoolean(false);
+    private ExecutorService threadPool;
 
     public DatafeedEventsServiceV2(SymBotClient client) {
         super(client);
@@ -29,41 +34,67 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
      */
     @Override
     public void readDatafeed() {
-        try {
-            String datafeedId;
-            List<DatafeedV2> datafeedIds = datafeedClient.listDatafeedId();
-            if (datafeedIds.isEmpty()) {
-                datafeedId = this.createDatafeedId();
-            } else {
-                //Each bot should subscribe only one datafeed
-                datafeedId = datafeedIds.get(0).getId();
-            }
-
-            //Read datafeed in loop
-            started.set(true);
-            List<DatafeedEvent> events = null;
+        if (threadPool != null) {
+            threadPool.shutdownNow();
+        }
+        threadPool = Executors.newSingleThreadExecutor();
+        started.set(true);
+        threadPool.submit(() -> {
             do {
-                events = datafeedClient.readDatafeed(datafeedId, datafeedClient.getAckId());
-                if (events != null && !events.isEmpty()) {
-                    handleEvents(events);
+                try {
+                    readEventsFromDatafeed();
+                } catch (APIClientErrorException e) {
+                    //Datafeed was stale
+                    logger.info(e.getMessage());
+                } catch (Exception e) {
+                    logger.error("Something went wrong while reading datafeed", e);
+                    logger.info("Sleeping for {} seconds before retrying..", botClient.getConfig().getDatafeedEventsErrorTimeout());
+                    sleep(botClient.getConfig().getDatafeedEventsErrorTimeout());
                 }
             } while (started.get());
-        } catch (Exception e) {
-            this.started.set(false);
-            logger.error("Something went wrong while reading datafeed", e);
-            logger.info("Sleeping for {} seconds before retrying..", botClient.getConfig().getDatafeedEventsErrorTimeout());
-            sleep(botClient.getConfig().getDatafeedEventsErrorTimeout());
-            readDatafeed();
-        }
+        });
+    }
 
+    @SneakyThrows
+    private void readEventsFromDatafeed() {
+        String datafeedId;
+        List<DatafeedV2> datafeedIds = datafeedClient.listDatafeedId();
+        if (datafeedIds.isEmpty()) {
+            datafeedId = this.createDatafeedId();
+        } else {
+            //Each bot should subscribe only one datafeed
+            datafeedId = datafeedIds.get(0).getId();
+        }
+        //Read datafeed in loop
+        do {
+            List<DatafeedEvent> events = datafeedClient.readDatafeed(datafeedId, datafeedClient.getAckId());
+            if (events != null && !events.isEmpty()) {
+                handleEvents(events);
+            }
+
+        } while (started.get());
     }
 
     /**
      * {@inheritDoc}
      */
+    @SneakyThrows
     @Override
     public void stopDatafeedService() {
         this.started.set(false);
+        if (threadPool != null) {
+            threadPool.shutdown();
+            try {
+                if (!threadPool.awaitTermination(AWAIT_TERMINATION, TimeUnit.MILLISECONDS)) {
+                    threadPool.shutdownNow();
+                    if (!threadPool.awaitTermination(AWAIT_TERMINATION, TimeUnit.MILLISECONDS))
+                        logger.error("Pool did not terminate");
+                }
+            } catch (InterruptedException ie) {
+                threadPool.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**
