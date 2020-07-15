@@ -3,13 +3,18 @@ package it.commons;
 import clients.SymBotClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
+
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -45,5 +50,10 @@ public class BaseTest {
     @Before
     public void resetSymBot() {
         SymBotClient.clearBotClient();
+    }
+
+    protected String readResourceContent(String path) throws IOException {
+        InputStream resourceStream = BaseTest.class.getResourceAsStream(path);
+        return IOUtils.toString(resourceStream, StandardCharsets.UTF_8.name());
     }
 }
