@@ -1,12 +1,13 @@
-package clients.symphony.api;
+package clients.symphony.api.datafeeds;
 
 import clients.SymBotClient;
+import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.AgentConstants;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;
 import exceptions.SymClientException;
 import exceptions.UnauthorizedException;
-import java.io.File;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,22 +19,30 @@ import javax.ws.rs.core.Response;
 import model.DatafeedEvent;
 import model.DatafeedEventsList;
 import model.StringId;
+import model.datafeed.DatafeedV2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static javax.ws.rs.core.Response.Status.Family.CLIENT_ERROR;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 
-public final class DatafeedClient extends APIClient {
-    private final Logger logger = LoggerFactory.getLogger(DatafeedClient.class);
+/**
+ * DatafeedClientV1 class for handling the datafeed endpoints version 1.
+ */
+final class DatafeedClientV1 extends APIClient implements IDatafeedClient {
+    private final Logger logger = LoggerFactory.getLogger(DatafeedClientV1.class);
     private SymBotClient botClient;
     private SymConfig config;
 
-    public DatafeedClient(SymBotClient client) {
+    public DatafeedClientV1(SymBotClient client) {
         this.botClient = client;
         this.config = client.getConfig();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public String createDatafeed() throws SymClientException {
         Invocation.Builder builder = botClient.getAgentClient()
             .target(config.getAgentUrl())
@@ -79,7 +88,11 @@ public final class DatafeedClient extends APIClient {
         }
     }
 
-    public List<DatafeedEvent> readDatafeed(String id) throws SymClientException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DatafeedEvent> readDatafeed(String id, String... ackId) throws SymClientException {
         WebTarget webTarget = botClient.getAgentClient().target(config.getAgentUrl());
         Invocation.Builder builder = webTarget
             .path(AgentConstants.READDATAFEED.replace("{id}", id))
@@ -106,4 +119,30 @@ public final class DatafeedClient extends APIClient {
             return datafeedEvents;
         }
     }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DatafeedV2> listDatafeedId() {
+        throw new UnsupportedOperationException("List Datafeed not supported in Datafeed v1");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteDatafeed(String id) {
+        throw new UnsupportedOperationException("Delete Datafeed not supported in Datafeed v1");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getAckId() {
+        throw new UnsupportedOperationException("AckId not supported in Datafeed v1");
+    }
+
 }

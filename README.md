@@ -92,9 +92,10 @@ can exclude the bot certificate section, all extension app sections and all opti
     "truststorePassword": "changeit",
     
     // Optional: To modify the default datafeed handling properties
-    "datafeedEventsThreadpoolSize": 5,
-    "datafeedEventsErrorTimeout": 30,
+    "datafeedEventsThreadpoolSize": 5, // default value: 5
+    "datafeedEventsErrorTimeout": 30, // default value: 30
     "reuseDatafeedID": true,
+    "datafeedVersion": "v2", // bot will use datafeed version 1 by default
     
     // Optional: Request filter pattern to verify JWT
     "authenticationFilterUrlPattern": "/v1/",
