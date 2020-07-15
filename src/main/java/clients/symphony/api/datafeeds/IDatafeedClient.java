@@ -28,6 +28,7 @@ interface IDatafeedClient {
 
     /**
      * List all the datafeed of a bot.
+     * This feature is not supported in datafeed v1.
      *
      * @return          list of datafeeds that followed by the bot
      */
@@ -35,6 +36,7 @@ interface IDatafeedClient {
 
     /**
      * Delete the given datafeed.
+     * This feature is not supported in datafeed v1.
      *
      * @param   id      id of the datafeed to be deleted
      */
@@ -42,6 +44,7 @@ interface IDatafeedClient {
 
     /**
      * Get ackId for reading datafeedV2.
+     * This feature is not supported in datafeed v1.
      *
      * @return          ackId for reading datafeedV2
      */

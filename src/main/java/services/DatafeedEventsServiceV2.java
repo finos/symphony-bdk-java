@@ -23,9 +23,17 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
 
     private final AtomicBoolean started = new AtomicBoolean(false);
     private ExecutorService threadPool;
+    private final Sleeper sleeper;
 
     public DatafeedEventsServiceV2(SymBotClient client) {
         super(client);
+        this.sleeper = new Sleeper();
+        this.readDatafeed();
+    }
+
+    DatafeedEventsServiceV2(SymBotClient client, Sleeper sleeper) {
+        super(client);
+        this.sleeper = sleeper;
         this.readDatafeed();
     }
 
@@ -49,7 +57,7 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
                 } catch (Exception e) {
                     logger.error("Something went wrong while reading datafeed", e);
                     logger.info("Sleeping for {} seconds before retrying..", botClient.getConfig().getDatafeedEventsErrorTimeout());
-                    sleep(botClient.getConfig().getDatafeedEventsErrorTimeout());
+                    sleeper.sleep(botClient.getConfig().getDatafeedEventsErrorTimeout());
                 }
             } while (started.get());
         });
@@ -115,18 +123,10 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
                 logger.error("Unable to create feedId ({}), will retry in {} seconds.", e.getMessage(),
                         botClient.getConfig().getDatafeedEventsErrorTimeout());
                 logger.trace("More details :", e);
-                sleep(botClient.getConfig().getDatafeedEventsErrorTimeout());
+                sleeper.sleep(botClient.getConfig().getDatafeedEventsErrorTimeout());
             }
         } while (datafeedId == null);
         return datafeedId;
-    }
-
-    private static void sleep(int timeInSecs) {
-        try {
-            TimeUnit.SECONDS.sleep(timeInSecs);
-        } catch (InterruptedException e) {
-            logger.error("Thread sleep has failed.", e);
-        }
     }
 
 }

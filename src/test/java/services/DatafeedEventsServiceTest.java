@@ -7,11 +7,9 @@ import exceptions.APIClientErrorException;
 import model.datafeed.DatafeedV2;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.api.mockito.PowerMockito;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 public class DatafeedEventsServiceTest {
 
@@ -85,7 +83,9 @@ public class DatafeedEventsServiceTest {
     public void readStaleDatafeed() throws Exception {
         CountDownLatch doneSignal = new CountDownLatch(1);
         DatafeedV2 id = new DatafeedV2();
+        Sleeper sleeper = mock(Sleeper.class);
         id.setId("123");
+
         when(datafeedClient.listDatafeedId()).thenReturn(Collections.singletonList(id))
                 .thenReturn(Collections.emptyList());
         when(datafeedClient.createDatafeed()).thenReturn("1234");
@@ -97,13 +97,14 @@ public class DatafeedEventsServiceTest {
                     doneSignal.countDown();
                     return Collections.emptyList();
                 });
-        datafeedEventsServiceV2 = new DatafeedEventsServiceV2(symBotClient);
-        DatafeedEventsServiceV2 mockDFService = PowerMockito.spy(datafeedEventsServiceV2);
+
+        datafeedEventsServiceV2 = new DatafeedEventsServiceV2(symBotClient, sleeper);
         doneSignal.await();
+
         verify(datafeedClient, times(2)).listDatafeedId();
         verify(datafeedClient, times(1)).createDatafeed();
         verify(datafeedClient, times(1)).readDatafeed("123", "ack_id_string");
         verify(datafeedClient, atLeast(1)).readDatafeed("1234", "ack_id_string");
-        verifyPrivate(mockDFService, times(0)).invoke("sleep", anyInt());
+        verify(sleeper, times(0)).sleep(anyInt());
     }
 }
