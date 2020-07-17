@@ -4,7 +4,7 @@ import authentication.ISymAuth;
 import authentication.SymBotAuth;
 import authentication.SymBotRSAAuth;
 import clients.symphony.api.*;
-import clients.symphony.api.datafeeds.DatafeedClient;
+import clients.symphony.api.DatafeedClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
