@@ -1,4 +1,4 @@
-package clients.symphony.api.datafeeds;
+package clients.symphony.api;
 
 import clients.SymBotClient;
 import clients.symphony.api.constants.DatafeedVersion;
@@ -6,8 +6,6 @@ import configuration.SymConfig;
 import exceptions.SymClientException;
 import model.DatafeedEvent;
 import model.datafeed.DatafeedV2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 

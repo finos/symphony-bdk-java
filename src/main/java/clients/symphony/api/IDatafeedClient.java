@@ -1,4 +1,4 @@
-package clients.symphony.api.datafeeds;
+package clients.symphony.api;
 
 import model.DatafeedEvent;
 import model.datafeed.DatafeedV2;

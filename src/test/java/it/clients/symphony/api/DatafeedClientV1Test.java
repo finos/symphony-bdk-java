@@ -3,7 +3,7 @@ package it.clients.symphony.api;
 import authentication.SymBotRSAAuth;
 import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
-import clients.symphony.api.datafeeds.DatafeedClient;
+import clients.symphony.api.DatafeedClient;
 import clients.symphony.api.constants.AgentConstants;
 import it.commons.BotTest;
 
