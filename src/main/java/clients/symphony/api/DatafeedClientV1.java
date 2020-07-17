@@ -1,7 +1,6 @@
-package clients.symphony.api.datafeeds;
+package clients.symphony.api;
 
 import clients.SymBotClient;
-import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.AgentConstants;
 import configuration.SymConfig;
 import configuration.SymLoadBalancedConfig;

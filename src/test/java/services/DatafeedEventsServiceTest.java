@@ -1,7 +1,7 @@
 package services;
 
 import clients.SymBotClient;
-import clients.symphony.api.datafeeds.DatafeedClient;
+import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
 import exceptions.APIClientErrorException;
 import model.datafeed.DatafeedV2;
