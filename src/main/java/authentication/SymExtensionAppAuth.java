@@ -1,33 +1,27 @@
 package authentication;
 
-import clients.symphony.api.APIClient;
-import clients.symphony.api.constants.CommonConstants;
+import authentication.extensionapp.TokensRepository;
 import configuration.SymConfig;
-import exceptions.NoConfigException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import model.AppAuthResponse;
+import model.UserInfo;
+import org.glassfish.jersey.client.ClientConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import utils.HttpClientBuilderHelper;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import model.AppAuthResponse;
-import model.PodCert;
-import model.UserInfo;
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.jersey.client.ClientConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import utils.HttpClientBuilderHelper;
+import java.util.HashMap;
+import java.util.Map;
+
 import static utils.JwtHelper.validateJwt;
 
-public final class SymExtensionAppAuth extends APIClient {
+public final class SymExtensionAppAuth extends AbstractSymExtensionAppAuth {
     private final Logger logger = LoggerFactory.getLogger(SymExtensionAppAuth.class);
-    private SymConfig config;
-    private Client sessionAuthClient;
-    private int authRetries = 0;
 
     /**
      * Create an instance initialized with provided Symphony configuration.
@@ -35,14 +29,9 @@ public final class SymExtensionAppAuth extends APIClient {
      * @param config the Symphony configuration
      */
     public SymExtensionAppAuth(SymConfig config) {
-        this.config = config;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
-        this.sessionAuthClient = clientBuilder.build();
-
+        super(config);
         ClientConfig clientConfig = HttpClientBuilderHelper.getPodClientConfig(config);
-        if (clientConfig != null) {
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
-        }
+        this.initSessionAuthClient(config, clientConfig);
     }
 
     /**
@@ -52,108 +41,60 @@ public final class SymExtensionAppAuth extends APIClient {
      * @param sessionAuthClientConfig the session authentication client configuration
      */
     public SymExtensionAppAuth(SymConfig config, ClientConfig sessionAuthClientConfig) {
-        this.config = config;
+        super(config);
         ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
+        this.initSessionAuthClient(config, sessionAuthClientConfig);
+    }
 
-        if (sessionAuthClientConfig != null) {
-            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+    public SymExtensionAppAuth(SymConfig config, ClientConfig sessionAuthClientConfig, TokensRepository tokensRepository) {
+        super(config, tokensRepository);
+        this.initSessionAuthClient(config, sessionAuthClientConfig);
+    }
+
+    private void initSessionAuthClient(SymConfig config, ClientConfig clientConfig) {
+        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
+        if (clientConfig != null) {
+            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
         } else {
             this.sessionAuthClient = clientBuilder.build();
         }
     }
 
-    public AppAuthResponse sessionAppAuthenticate(String appToken) {
-        if (config == null) {
-            throw new NoConfigException("Must provide a SymConfig object to authenticate");
-        }
-
-        logger.info("Session extension app auth");
-        Map<String, String> input = new HashMap<>();
-        input.put("appToken", appToken);
-
-        String urlTarget = this.config.getSessionAuthUrl();
-
-        Invocation.Builder builder = sessionAuthClient.target(urlTarget)
-            .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
-            .request(MediaType.APPLICATION_JSON);
-
-        try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
-            if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                return response.readEntity(AppAuthResponse.class);
-            } else {
-                return handleSessionAppAuthFailure(response, appToken, null);
-            }
-        }
+    @Override
+    public AppAuthResponse appAuthenticate() {
+        String appToken = this.generateToken();
+        return sessionAppAuthenticate(appToken);
     }
 
-    public AppAuthResponse sessionAppAuthenticate(String appToken, String podSessionAuthUrl) {
-        if (podSessionAuthUrl == null) {
-            return sessionAppAuthenticate(appToken);
-        }
-
+    @Override
+    public AppAuthResponse sessionAppAuthenticate(String appToken, String... podSessionAuthUrl) {
+        String target = this.formattedPodSessionAuthUrl(podSessionAuthUrl);
         logger.info("Session extension app auth");
         Map<String, String> input = new HashMap<>();
         input.put("appToken", appToken);
 
-        String target = CommonConstants.HTTPS_PREFIX + podSessionAuthUrl;
         Invocation.Builder builder = sessionAuthClient.target(target)
-            .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
-            .request(MediaType.APPLICATION_JSON);
+                .path(AuthEndpointConstants.SESSION_EXT_APP_AUTH_PATH)
+                .request(MediaType.APPLICATION_JSON);
+
         try (Response response = builder.post(Entity.entity(input, MediaType.APPLICATION_JSON))) {
             if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                return response.readEntity(AppAuthResponse.class);
+                AppAuthResponse appAuthResponse = response.readEntity(AppAuthResponse.class);
+                return tokensRepository.save(appAuthResponse);
             } else {
                 return handleSessionAppAuthFailure(response, appToken, podSessionAuthUrl);
             }
         }
     }
 
-    private AppAuthResponse handleSessionAppAuthFailure(Response response, String appToken, String podSessionAuthUrl) {
-        try {
-            handleError(response, null);
-        } catch (Exception e) {
-            logger.error("Unexpected error, retry authentication in {} seconds", AuthEndpointConstants.TIMEOUT);
-        }
-        try {
-            TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-        } catch (InterruptedException e) {
-            logger.error("Error with authentication", e);
-        }
-        if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
-            logger.error("Max retries reached. Giving up on auth.");
-            return null;
-        }
-        return sessionAppAuthenticate(appToken, podSessionAuthUrl);
+    @Override
+    public UserInfo verifyJWT(String jwt, String... podSessionAuthUrl) {
+        String podCertificate = this.getPodCertificate(podSessionAuthUrl);
+        return validateJwt(jwt, podCertificate);
     }
 
-    public UserInfo verifyJWT(final String jwt, final String podSessionAuthUrl) {
-        String target;
-        if (StringUtils.isBlank(podSessionAuthUrl)) {
-            target = this.config.getSessionAuthUrl();
-        } else {
-            target = CommonConstants.HTTPS_PREFIX + podSessionAuthUrl;
-        }
-        Response response
-            = sessionAuthClient.target(target)
-            .path(AuthEndpointConstants.POD_CERT_PATH)
-            .request(MediaType.APPLICATION_JSON)
-            .get();
-        if (response.getStatusInfo().getFamily()
-            != Response.Status.Family.SUCCESSFUL) {
-            try {
-                handleError(response, null);
-            } catch (Exception e) {
-                logger.error("Unexpected error, retry authentication in 30 seconds");
-            }
-            try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
-            } catch (InterruptedException e) {
-                logger.error("Error with verify", e);
-            }
-            verifyJWT(jwt, podSessionAuthUrl);
-        } else {
-            return validateJwt(jwt, response.readEntity(PodCert.class).getCertificate());
-        }
-        return null;
+    private String getPodCertificate(String... podSessionAuthUrl) {
+        return this.getPodCertificateFromCertPath(AuthEndpointConstants.POD_CERT_PATH, podSessionAuthUrl);
     }
+
 }
