@@ -20,6 +20,7 @@ public class UserInfo {
     private String jobFunction;
     private String department;
     private String division;
+    private String accountType;
     private List<Avatar> avatars;
 
     public Long getId() {
@@ -133,6 +134,10 @@ public class UserInfo {
     public void setDivision(String division) {
         this.division = division;
     }
+
+    public String getAccountType() { return accountType; }
+
+    public void setAccountType(String accountType) { this.accountType = accountType; }
 
     public List<Avatar> getAvatars() {
         return avatars;
