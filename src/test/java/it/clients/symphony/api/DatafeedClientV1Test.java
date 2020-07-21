@@ -1,8 +1,13 @@
 package it.clients.symphony.api;
 
+import authentication.SymBotRSAAuth;
+import clients.SymBotClient;
+import clients.symphony.api.constants.PodConstants;
 import clients.symphony.api.DatafeedClient;
 import clients.symphony.api.constants.AgentConstants;
 import it.commons.BotTest;
+
+import java.io.IOException;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -13,12 +18,17 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class DatafeedClientTest extends BotTest {
+public class DatafeedClientV1Test extends BotTest {
   private DatafeedClient datafeedClient;
 
   @Before
-  public void initClient() {
-    datafeedClient = new DatafeedClient(symBotClient);
+  public void initClient() throws IOException {
+    stubGet(PodConstants.GETSESSIONUSER,
+            readResourceContent("/response_content/authenticate/get_session_user.json"));
+    SymBotRSAAuth auth = new SymBotRSAAuth(config);
+    auth.setSessionToken("eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LWJvdCIsImlzcyI6InN5bXBob255Iiwic2Vzc2lvbklkIjoiZmRiOTAxMmQzOTgwMGE3NzNkMTJjYWFmZGY5MjU4ZjZjOWEyMTE2MmYyZDU1ODQ3M2Y5ZDU5MDUyNjA0Mjg1ZjU0MWM5Yzg0Mzc5YTE0MjZmODNiZmZkZTljYmQ5NjRjMDAwMDAxNmRmMjMyODIwNTAwMDEzZmYwMDAwMDAxZTgiLCJ1c2VySWQiOiIzNTE3NzUwMDE0MTIwNzIifQ.DlQ_-sAqZLlAcVTr7t_PaYt_Muq_P82yYrtbEEZWMpHMl-7qCciwfi3uXns7oRbc1uvOrhQd603VKQJzQxaZBZBVlUPS-2ysH0tBpCS57ocTS6ZwtQwPLCZYdT-EZ70EzQ95kG6P5TrLENH6UveohgeDdmyzSPOEiwyEUjjmzaXFE8Tu0R3xQDwl-BKbsyUAAgd1X7T0cUDC3WIDl9xaTvyxavep4ZJnZJl4qPc1Tan0yU7JrxtXeD8uwNYlKLudT3UVxduFPMQP_2jyj5Laa-YWGKvRtXkcy2d3hzf4ll1l1wVnyJc1e6hW2EnRlff_Nxge-QCJMcZ_ALrpOUtAyQ");
+    symBotClient = SymBotClient.initBot(config, auth);
+    datafeedClient = symBotClient.getDatafeedClient();
   }
 
   @Test

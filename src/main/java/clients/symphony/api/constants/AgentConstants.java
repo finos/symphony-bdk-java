@@ -4,6 +4,10 @@ public class AgentConstants {
     public static final String AGENT = "/agent";
     public static final String CREATEDATAFEED = AGENT + "/v4/datafeed/create";
     public static final String READDATAFEED = AGENT + "/v4/datafeed/{id}/read";
+    public static final String LISTDATAFEEDV2 = AGENT + "/v5/datafeeds";
+    public static final String CREATEDATAFEEDV2 = AGENT + "/v5/datafeeds";
+    public static final String READDATAFEEDV2 = AGENT + "/v5/datafeeds/{id}/read";
+    public static final String DELETEDATAFEEDV2 = AGENT + "/v5/datafeeds/{id}";
     public static final String CREATEMESSAGE = AGENT + "/v4/stream/{sid}/message/create";
     public static final String GETMESSAGES = AGENT + "/v4/stream/{sid}/message";
     public static final String GETMESSAGEBYID = AGENT + "/v1/message/{mid}";
@@ -23,4 +27,7 @@ public class AgentConstants {
     public static final String READFIREHOSE = AGENT + "/v4/firehose/{id}/read";
     public static final String HEALTHCHECK = AGENT + "/v2/HealthCheck";
     public static final String INFO = AGENT + "/v1/info";
+
+    public static final String SESSIONTOKENHEADER = "sessionToken";
+    public static final String KEYMANAGERTOKENHEADER = "keyManagerToken";
 }
