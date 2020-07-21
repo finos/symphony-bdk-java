@@ -1,0 +1,26 @@
+<div>
+    <card data-accent-color="tempo-bg-color--gray" data-icon-src="
+        {{#if message.icon}}
+            {{message.icon}}
+        {{else}}
+            https://symphony.com/wp-content/uploads/2019/08/favicon.png
+        {{/if}}
+    ">
+        <header>
+            {{#if message.title}}
+                <span class="tempo-text-color--secondary">{{message.title}}</span>
+            {{/if}}
+            <ul>
+                {{#each message.content}}
+                    <li>
+                        {{#if this.header}}
+                            <b>{{this.header}}</b>{{this.body}}
+                        {{else}}
+                            {{this}}
+                        {{/if}}
+                    </li>
+                {{/each}}
+            </ul>
+        </header>
+    </card>
+</div>
