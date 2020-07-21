@@ -32,6 +32,7 @@ public class SymphonyUser {
   private String jobFunction;
   private String department;
   private String division;
+  private String accountType;
   private List<UserAvatar> avatars;
 
   public SymphonyUser(UserInfo userInfo) {
@@ -49,6 +50,7 @@ public class SymphonyUser {
     this.jobFunction = userInfo.getJobFunction();
     this.department = userInfo.getDepartment();
     this.division = userInfo.getDivision();
+    this.accountType = userInfo.getAccountType();
     this.avatars = userInfo.getAvatars().stream().map(UserAvatar::new).collect(Collectors.toList());
   }
 
