@@ -1,0 +1,18 @@
+<table>
+    <thead>
+    <tr>
+        {{#each message.[0]}}
+            <th>{{@key}}</th>
+        {{/each}}
+    </tr>
+    </thead>
+    <tbody>
+    {{#each message}}
+        <tr>
+            {{#each this}}
+                <td>{{this}}</td>
+            {{/each}}
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
