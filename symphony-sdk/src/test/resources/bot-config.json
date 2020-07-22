@@ -10,6 +10,8 @@
   "appId": "testapp",
   "appPrivateKeyPath": "src/test/resources/",
   "appPrivateKeyName": "testprivatekey.pkcs8",
+  "appCertPath": "src/test/resources/",
+  "appCertName": "testcertificate.crt",
   "botPrivateKeyPath": "src/test/resources/",
   "botPrivateKeyName": "testprivatekey.pkcs8",
   "botUsername": "testbot",
