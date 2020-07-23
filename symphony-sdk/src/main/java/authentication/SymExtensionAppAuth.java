@@ -92,6 +92,13 @@ public final class SymExtensionAppAuth extends AbstractSymExtensionAppAuth {
         return validateJwt(jwt, podCertificate);
     }
 
+    @Override
+    public Boolean validateTokens(String appToken, String symphonyToken) {
+        return tokensRepository.get(appToken)
+                .filter(token -> token.getSymphonyToken().equals(symphonyToken))
+                .isPresent();
+    }
+
     private String getPodCertificate(String... podSessionAuthUrl) {
         return this.getPodCertificateFromCertPath(AuthEndpointConstants.POD_CERT_PATH, podSessionAuthUrl);
     }

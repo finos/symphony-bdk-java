@@ -6,12 +6,11 @@ import clients.symphony.api.APIClient;
 import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
+import lombok.extern.slf4j.Slf4j;
 import model.AppAuthResponse;
 import model.PodCert;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
@@ -19,8 +18,8 @@ import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 abstract class AbstractSymExtensionAppAuth extends APIClient implements ISymExtensionAppAuth {
-    private final Logger logger = LoggerFactory.getLogger(AbstractSymExtensionAppAuth.class);
 
     private final SecureRandom secureRandom = new SecureRandom();
     protected final SymConfig config;
@@ -36,12 +35,6 @@ abstract class AbstractSymExtensionAppAuth extends APIClient implements ISymExte
     protected AbstractSymExtensionAppAuth(SymConfig config, TokensRepository tokensRepository) {
         this.config = config;
         this.tokensRepository = tokensRepository;
-    }
-
-    public Boolean validateTokens(String appToken, String symphonyToken) {
-        return tokensRepository.get(appToken)
-                .filter(token -> token.getSymphonyToken().equals(symphonyToken))
-                .isPresent();
     }
 
     protected String generateToken() {
@@ -70,8 +63,7 @@ abstract class AbstractSymExtensionAppAuth extends APIClient implements ISymExte
 
     protected String formattedPodSessionAuthUrl(String... podSessionAuthUrl) {
         String formattedUrl;
-        if (podSessionAuthUrl.length == 0 || podSessionAuthUrl[0] == null
-                || StringUtils.isBlank(podSessionAuthUrl[0])) {
+        if (podSessionAuthUrl.length == 0 || podSessionAuthUrl[0] == null || StringUtils.isBlank(podSessionAuthUrl[0])) {
             if (config == null) {
                 throw new NoConfigException("Must provide a SymConfig object to authenticate");
             }
@@ -83,8 +75,9 @@ abstract class AbstractSymExtensionAppAuth extends APIClient implements ISymExte
     }
 
     protected String getPodCertificateFromCertPath(String podCertPath, String... podSessionAuthUrl) {
+        int nbRetries = 0;
         String target = this.formattedPodSessionAuthUrl(podSessionAuthUrl);
-        String podCertificate;
+        String podCertificate = null;
         do {
             Response response
                     = sessionAuthClient.target(target)
@@ -106,7 +99,11 @@ abstract class AbstractSymExtensionAppAuth extends APIClient implements ISymExte
                 podCertificate = response.readEntity(PodCert.class).getCertificate();
                 break;
             }
-        } while (true);
+            nbRetries++;
+        } while (nbRetries < AuthEndpointConstants.MAX_AUTH_RETRY);
+        if (podCertificate == null) {
+            logger.error("Max retries reached but no podCertificate was retrieved. Giving up on getting pod certificate.");
+        }
         return podCertificate;
     }
 }

@@ -70,12 +70,18 @@ public final class SymExtensionAppRSAAuth extends AbstractSymExtensionAppAuth {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AppAuthResponse appAuthenticate() {
         String appToken = this.generateToken();
         return sessionAppAuthenticate(appToken);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AppAuthResponse sessionAppAuthenticate(String appToken, String... podSessionAuthUrl) {
         String target = this.formattedPodSessionAuthUrl(podSessionAuthUrl);
@@ -98,10 +104,23 @@ public final class SymExtensionAppRSAAuth extends AbstractSymExtensionAppAuth {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserInfo verifyJWT(String jwt, String... podSessionAuthUrl) {
         String podCertificate = this.getPodCertificate(podSessionAuthUrl);
         return validateJwt(jwt, podCertificate);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean validateTokens(String appToken, String symphonyToken) {
+        return tokensRepository.get(appToken)
+                .filter(token -> token.getSymphonyToken().equals(symphonyToken))
+                .isPresent();
     }
 
     private PrivateKey getAppPrivateKey() {
@@ -116,6 +135,12 @@ public final class SymExtensionAppRSAAuth extends AbstractSymExtensionAppAuth {
         return appPrivateKey;
     }
 
+    /**
+     * Get public rsa key deployed on pod
+     *
+     * @return Public key deployed on pod
+     * @throws CertificateException
+     */
     public PublicKey getPodPublicKey() throws CertificateException {
         String podCertificate = this.getPodCertificate();
         return CertificateUtils.parseX509Certificate(podCertificate).getPublicKey();
