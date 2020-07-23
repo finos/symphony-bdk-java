@@ -2,11 +2,10 @@ package authentication;
 
 import authentication.extensionapp.TokensRepository;
 import configuration.SymConfig;
+import lombok.extern.slf4j.Slf4j;
 import model.AppAuthResponse;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import utils.CertificateUtils;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
@@ -27,8 +26,8 @@ import java.util.Map;
 
 import static utils.JwtHelper.validateJwt;
 
+@Slf4j
 public final class SymExtensionAppRSAAuth extends AbstractSymExtensionAppAuth {
-    private final Logger logger = LoggerFactory.getLogger(SymExtensionAppRSAAuth.class);
     private PrivateKey appPrivateKey;
 
     /**

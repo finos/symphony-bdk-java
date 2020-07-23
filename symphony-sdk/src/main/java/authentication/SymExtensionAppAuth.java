@@ -2,11 +2,10 @@ package authentication;
 
 import authentication.extensionapp.TokensRepository;
 import configuration.SymConfig;
+import lombok.extern.slf4j.Slf4j;
 import model.AppAuthResponse;
 import model.UserInfo;
 import org.glassfish.jersey.client.ClientConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -19,8 +18,8 @@ import java.util.Map;
 
 import static utils.JwtHelper.validateJwt;
 
+@Slf4j
 public final class SymExtensionAppAuth extends AbstractSymExtensionAppAuth {
-    private final Logger logger = LoggerFactory.getLogger(SymExtensionAppAuth.class);
 
     /**
      * Create an instance initialized with provided Symphony configuration.
