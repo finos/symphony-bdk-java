@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>legacy</module>
+        <module>symphony-bdk-legacy</module>
     </modules>
 
     <properties>
