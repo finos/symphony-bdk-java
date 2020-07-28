@@ -16,7 +16,7 @@
 
     <modules>
         <module>symphony-bdk-bot-sdk-java</module>
-        <module>symphony-sdk</module>
+        <module>symphony-api-client-java</module>
         <module>sms-sdk-renderer-java</module>
     </modules>
 
