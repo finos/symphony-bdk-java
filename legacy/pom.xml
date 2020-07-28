@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>symphony-bdk</module>
+        <module>symphony-bdk-bot-sdk-java</module>
         <module>symphony-sdk</module>
         <module>sms-sdk-renderer-java</module>
     </modules>
