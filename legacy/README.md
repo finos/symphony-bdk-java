@@ -4,5 +4,5 @@
 
 This repository aggregates these java libraries below:
 * [symphony-api-client-java](symphony-api-client-java/README.md)
-* [sms-sdk-renderer-java](symphony-sms-renderer/README.md)
+* [sms-sdk-renderer-java](sms-sdk-renderer-java/README.md)
 * [symphony-bdk-bot-sdk-java](symphony-bdk/README.md)

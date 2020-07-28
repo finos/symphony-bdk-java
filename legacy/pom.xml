@@ -17,7 +17,7 @@
     <modules>
         <module>symphony-bdk</module>
         <module>symphony-sdk</module>
-        <module>symphony-sms-renderer</module>
+        <module>sms-sdk-renderer-java</module>
     </modules>
 
 </project>
