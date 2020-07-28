@@ -19,13 +19,3 @@ target/
 settings.xml
 datafeed.id
 
-### Certificates ###
-*.p12
-*.pem
-*.crt
-*.jks
-*.keystore
-*.der
-*.pkcs8
-*.cer
-
