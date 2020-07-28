@@ -12,9 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>symphony-sdk</module>
-        <module>symphony-sms-renderer</module>
-        <module>symphony-bdk</module>
+        <module>legacy</module>
     </modules>
 
     <properties>
