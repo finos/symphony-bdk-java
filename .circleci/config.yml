@@ -40,3 +40,20 @@ jobs:
       # run tests!
       - run: mvn checkstyle:check integration-test
 
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+            mkdir -p ~/code-coverage/jacoco/
+            find . -type f -regex ".*/target/jacoco.exec" -exec cp {} ~/code-coverage/jacoco/ \;
+            find . -type d -regex ".*/target/jacoco-report" -exec cp -r {} ~/code-coverage/jacoco/ \;
+          when: always
+
+      - store_test_results:
+          path: ~/test-results
+      - store_artifacts:
+          path: ~/test-results/junit
+      - store_artifacts:
+          path: ~/code-coverage/jacoco
+
