@@ -24,6 +24,28 @@
         <coverage.minimum>0.4</coverage.minimum>
     </properties>
 
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Symphony Platform Solutions</name>
+            <email>platformsolutions@symphony.com</email>
+            <organization>Symphony Communication Services</organization>
+            <organizationUrl>https://symphony.com/</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git</developerConnection>
+        <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
+    </scm>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -54,4 +76,44 @@
             </plugins>
         </pluginManagement>
     </build>
+    <profiles>
+        <!-- Skip gpg sign on Windows where people get the source code and build locally -->
+        <profile>
+            <id>skipStepsOnWindows</id>
+            <activation>
+                <os>
+                    <family>!windows</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 </project>
