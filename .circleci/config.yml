@@ -38,7 +38,7 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
       # run tests!
-      - run: mvn checkstyle:check integration-test
+      - run: mvn checkstyle:check verify
 
       - run:
           name: Save test results
