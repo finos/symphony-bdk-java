@@ -9,8 +9,7 @@
     </parent>
 
     <artifactId>symphony-bdk-legacy</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
-    <name>Symphony Java BDK Project Legacy</name>
+    <name>[legacy] Symphony Java BDK Legacy Parent</name>
     <description>Symphony Java BDK Legacy</description>
     <packaging>pom</packaging>
 
