@@ -4,6 +4,8 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiResponse;
 import com.symphony.bdk.core.api.invoker.Pair;
 
+import org.apiguardian.api.API;
+
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ import javax.ws.rs.core.GenericType;
 /**
  * Dummy {@link ApiClient} implementation returned by default by the {@link com.symphony.bdk.core.api.invoker.Configuration} class.
  */
+@API(status = API.Status.INTERNAL)
 public class ApiClientNotImplemented implements ApiClient {
 
   private static final String MESSAGE = "You must provide an real implementation of the ApiClient interface.";

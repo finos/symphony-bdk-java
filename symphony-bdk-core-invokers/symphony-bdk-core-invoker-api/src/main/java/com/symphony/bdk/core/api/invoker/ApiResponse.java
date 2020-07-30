@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.api.invoker;
 
+import lombok.Getter;
+import org.apiguardian.api.API;
+
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +11,10 @@ import java.util.Map;
  *
  * @param <T> The type of data that is deserialized from response body
  */
+@Getter
+@API(status = API.Status.STABLE)
 public class ApiResponse<T> {
+
     private final int statusCode;
     private final Map<String, List<String>> headers;
     private final T data;
@@ -30,17 +36,5 @@ public class ApiResponse<T> {
         this.statusCode = statusCode;
         this.headers = headers;
         this.data = data;
-    }
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public Map<String, List<String>> getHeaders() {
-        return headers;
-    }
-
-    public T getData() {
-        return data;
     }
 }

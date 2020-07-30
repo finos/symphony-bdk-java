@@ -18,12 +18,24 @@
     </properties>
 
     <dependencies>
+        <!-- FIXME: the invoker API should not depend on any HTTP library, the solution here is to fix the OpenAPI generator -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
         </dependency>
-    </dependencies>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apiguardian</groupId>
+            <artifactId>apiguardian-api</artifactId>
+        </dependency>
+
+    </dependencies>
 
 </project>

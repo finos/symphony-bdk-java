@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>symphony-bdk-examples-hello-world</module>
+        <module>simple-hello-world</module>
     </modules>
 
 </project>

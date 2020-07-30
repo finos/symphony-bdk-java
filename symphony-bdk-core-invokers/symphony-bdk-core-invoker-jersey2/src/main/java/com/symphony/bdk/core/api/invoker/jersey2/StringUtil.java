@@ -1,6 +1,10 @@
 package com.symphony.bdk.core.api.invoker.jersey2;
 
+import org.apiguardian.api.API;
+
+@API(status = API.Status.INTERNAL)
 public class StringUtil {
+
   /**
    * Check if the given array contains the given value (with case-insensitive comparison).
    *

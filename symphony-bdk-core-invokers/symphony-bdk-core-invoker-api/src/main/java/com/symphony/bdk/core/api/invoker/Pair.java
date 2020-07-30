@@ -1,16 +1,22 @@
 package com.symphony.bdk.core.api.invoker;
 
+import lombok.Getter;
+import org.apiguardian.api.API;
+
+@Getter
+@API(status = API.Status.INTERNAL)
 public class Pair {
+
     private String name = "";
     private String value = "";
 
-    public Pair (String name, String value) {
-        setName(name);
-        setValue(value);
+    public Pair(String name, String value) {
+        this.setName(name);
+        this.setValue(value);
     }
 
     private void setName(String name) {
-        if (!isValidString(name)) {
+        if (isInvalidString(name)) {
             return;
         }
 
@@ -18,30 +24,18 @@ public class Pair {
     }
 
     private void setValue(String value) {
-        if (!isValidString(value)) {
+        if (isInvalidString(value)) {
             return;
         }
 
         this.value = value;
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public String getValue() {
-        return this.value;
-    }
-
-    private boolean isValidString(String arg) {
+    private static boolean isInvalidString(String arg) {
         if (arg == null) {
-            return false;
+            return true;
         }
 
-        if (arg.trim().isEmpty()) {
-            return false;
-        }
-
-        return true;
+        return arg.trim().isEmpty();
     }
 }

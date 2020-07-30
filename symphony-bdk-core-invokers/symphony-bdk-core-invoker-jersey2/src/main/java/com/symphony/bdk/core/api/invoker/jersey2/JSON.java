@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.apiguardian.api.API;
 import org.openapitools.jackson.nullable.JsonNullableModule;
 
 import java.text.DateFormat;
 
 import javax.ws.rs.ext.ContextResolver;
 
-
+@API(status = API.Status.INTERNAL)
 public class JSON implements ContextResolver<ObjectMapper> {
 
   private final ObjectMapper mapper;

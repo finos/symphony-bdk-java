@@ -2,6 +2,7 @@ package com.symphony.bdk.core.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apiguardian.api.API;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
 import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
@@ -27,6 +28,7 @@ import java.util.Date;
  *   <li>generated a signed JWT for a given user</li>
  * </ul>
  */
+@API(status = API.Status.INTERNAL)
 public class JwtHelper {
 
 	// PKCS#8 format

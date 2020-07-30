@@ -5,6 +5,7 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiResponse;
 import com.symphony.bdk.core.api.invoker.Pair;
 
+import org.apiguardian.api.API;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -41,6 +42,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+/**
+ * Jersey2 implementation for the {@link ApiClient} interface called by generated code.
+ */
+@API(status = API.Status.STABLE)
 public class ApiClientJersey2 implements ApiClient {
 
   protected final Map<String, String> defaultHeaderMap = new HashMap<>();

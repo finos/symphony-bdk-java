@@ -20,7 +20,6 @@
         <jackson.version>2.10.1</jackson.version>
         <jersey.version>2.29.1</jersey.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <migbase64.version>2.2</migbase64.version>
         <swagger-annotations.version>1.6.0</swagger-annotations.version>
 
     </properties>
@@ -122,7 +121,6 @@
         <dependency>
             <groupId>com.brsanthu</groupId>
             <artifactId>migbase64</artifactId>
-            <version>${migbase64.version}</version>
         </dependency>
 
         <!-- ******************************** -->
