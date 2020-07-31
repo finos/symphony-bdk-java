@@ -7,4 +7,5 @@
             <username>${repo.username}</username>
             <password>${repo.password}</password>
         </server>
+    </servers>
 </settings>
