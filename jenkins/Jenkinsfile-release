@@ -1,0 +1,56 @@
+// used by https://warpdrive-lab.dev.symphony.com/jenkins/view/DevX-Basilic/job/bdk-deploy-java/
+
+@Library(['sym-pipeline']) _
+
+import com.symphony.cicd.SymphonyCICDUtils
+
+cicdUtils = new SymphonyCICDUtils()
+
+
+node {
+
+    // default org and branch
+    def org = env.PARAM_REPO_OWNER ?: 'SymphonyPlatformSolutions'
+    def branch = env.PARAM_BUILD_BRANCH ?: 'master'
+
+    withCredentials([
+        file(credentialsId: 'JAVA_SDK_GPG_KEY', variable: 'KEY'), 
+        string(credentialsId: 'JAVA_SDK_GPG_PASSPHRASE', variable: 'PASSPHRASE')
+    ]) {
+    
+      withEnv([
+        "PROJECT_TYPE=java",
+        "USE_OPENJDK11=false",
+        "DISABLE_SONAR=true",
+        "GIT_BRANCH=$PARAM_BUILD_BRANCH", 
+        "GIT_ORG=$PARAM_REPO_OWNER", 
+        "GIT_REPO=symphony-api-client-java"
+      ]) {
+    
+        stage('Git Checkout') {
+            gitCheckout()
+        }
+        
+        stage('Build project') {
+            cicdUtils.maven({ cmd = "-f pom.xml clean package" })
+        }
+        
+        stage('Check jar file') {
+            sh 'ls -la ./symphony-bdk-legacy/symphony-api-client-java/target'
+            sh 'find . -type f -regex ".*/target/symphony-api-client-java-.*.jar" -exec echo {} \\;'
+        }
+        
+        stage('Deploy') {
+            sh "gpg --batch --passphrase $PASSPHRASE --import $KEY"    
+        
+            sh 'find . -type f -regex ".*/target/symphony-api-client-java-.*.jar" -exec gpg --batch --passphrase $PASSPHRASE -ab {} \\;'
+            sh 'ls -la ./symphony-bdk-legacy/symphony-api-client-java/target'
+            sh '''
+                cd ./symphony-bdk-legacy/symphony-api-client-java
+                pwd
+                mvn --batch-mode --settings ../../Jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
+            '''
+        }
+      }
+    }
+}
