@@ -1,8 +1,8 @@
 # Symphony Java BDK [![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java.svg?style=shield)](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java) [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)  [![Email](https://img.shields.io/static/v1?label=contact&message=email&color=darkgoldenrod)](mailto:platformsolutions@symphony.com?subject=Java%20SDK)
 
-The Symphony Java BDK helps you to create Bots and Applications on top of the Symphony REST APIs. 
+The Symphony Java BDK helps you to create Bots and Applications on top of the [Symphony REST APIs](https://developers.symphony.com/restapi/reference). 
 
-Documentation about this BDK features is available under [docs](./docs/index.md) folder.
+Documentation about BDK features and usage is available under [docs](./docs/index.md) folder.
 
 ## How to Build
 

@@ -26,8 +26,8 @@
         <!-- Test dependencies -->
         <junit.version>RELEASE</junit.version>
         <logback.version>1.2.3</logback.version>
-        <mockito.version>2.23.4</mockito.version>
-        <mockserver.version>5.9.0</mockserver.version>
+        <mockito.version>3.4.6</mockito.version>
+        <mockserver.version>5.11.1</mockserver.version>
 
         <!-- Build Configuration -->
         <skipTests>false</skipTests>
@@ -220,7 +220,6 @@
             </modules>
         </profile>
 
-        <!-- Add -Prelease when releasing a new version of the BDK -->
         <profile>
             <id>release</id>
             <activation>
@@ -270,18 +269,18 @@
                     </plugin>
                 </plugins>
             </build>
+
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+
         </profile>
-
     </profiles>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 </project>
