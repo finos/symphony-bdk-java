@@ -48,7 +48,7 @@ node {
             sh '''
                 cd ./symphony-bdk-legacy/symphony-api-client-java
                 pwd
-                mvn --batch-mode --settings ../../Jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
+                mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
             '''
         }
       }
