@@ -20,6 +20,8 @@ public class ApiResponse<T> {
     private final T data;
 
     /**
+     * Creates new {@link ApiResponse} instance.
+     *
      * @param statusCode The status code of HTTP response
      * @param headers The headers of HTTP response
      */
@@ -28,6 +30,8 @@ public class ApiResponse<T> {
     }
 
     /**
+     * Creates new {@link ApiResponse} instance.
+     *
      * @param statusCode The status code of HTTP response
      * @param headers The headers of HTTP response
      * @param data The object deserialized from response bod

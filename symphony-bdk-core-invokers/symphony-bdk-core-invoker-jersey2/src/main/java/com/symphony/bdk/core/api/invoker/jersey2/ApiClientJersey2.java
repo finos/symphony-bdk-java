@@ -372,7 +372,7 @@ public class ApiClientJersey2 implements ApiClient {
         return accept;
       }
     }
-    return StringUtil.join(accepts, ",");
+    return String.join(",", accepts);
   }
 
   /**
@@ -488,13 +488,13 @@ public class ApiClientJersey2 implements ApiClient {
    * @return File
    * @throws ApiException If fail to read file content from response and write to disk
    */
-  protected File downloadFileFromResponse(Response response) throws ApiException {
+  protected File downloadFileFromResponse(final Response response) throws ApiException {
     try {
-      File file = prepareDownloadFile(response);
+      final File file = this.prepareDownloadFile(response);
       Files.copy(response.readEntity(InputStream.class), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
       return file;
     } catch (IOException e) {
-      throw new ApiException(e);
+      throw new ApiException("Unable to download file from response", e);
     }
   }
 

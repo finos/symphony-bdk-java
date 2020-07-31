@@ -3,6 +3,9 @@ package com.symphony.bdk.core.api.invoker;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
+/**
+ * Pair of string values. Used by generated code only.
+ */
 @Getter
 @API(status = API.Status.INTERNAL)
 public class Pair {
@@ -32,10 +35,6 @@ public class Pair {
     }
 
     private static boolean isInvalidString(String arg) {
-        if (arg == null) {
-            return true;
-        }
-
-        return arg.trim().isEmpty();
+        return arg == null || arg.trim().isEmpty();
     }
 }

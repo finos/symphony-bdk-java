@@ -16,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
@@ -57,7 +59,8 @@ public class JwtHelper {
 	}
 
 	/**
-	 * Creates a RSA Private Key from a PEM String. It supports PKCS#1 and PKCS#8 string formats
+	 * Creates a RSA Private Key from a PEM String. It supports PKCS#1 and PKCS#8 string formats.
+	 *
 	 * @param pemPrivateKey RSA Private Key content
 	 * @return a {@link PrivateKey} instance
 	 * @throws GeneralSecurityException On invalid Private Key
@@ -66,40 +69,49 @@ public class JwtHelper {
 
 		// PKCS#8 format
 		if (pemPrivateKey.contains(PEM_PRIVATE_START)) {
-
-			final String privateKeyString = pemPrivateKey
-				.replace(PEM_PRIVATE_START, "")
-				.replace(PEM_PRIVATE_END, "")
-				.replace("\\n", "\n")
-				.replaceAll("\\s", "");
-
-			final byte[] keyBytes = Base64.getDecoder().decode(privateKeyString.getBytes(StandardCharsets.UTF_8));
-			final PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-			return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+			return parsePKCS8PrivateKey(pemPrivateKey);
 		}
 		// PKCS#1 format
 		else if (pemPrivateKey.contains(PEM_RSA_PRIVATE_START)) {
-
-			try (final PemReader pemReader = new PemReader(new StringReader(pemPrivateKey))) {
-				final PemObject privateKeyObject = pemReader.readPemObject();
-				final RSAPrivateKey rsa = RSAPrivateKey.getInstance(privateKeyObject.getContent());
-				final RSAPrivateCrtKeyParameters privateKeyParameter = new RSAPrivateCrtKeyParameters(
-					rsa.getModulus(),
-					rsa.getPublicExponent(),
-					rsa.getPrivateExponent(),
-					rsa.getPrime1(),
-					rsa.getPrime2(),
-					rsa.getExponent1(),
-					rsa.getExponent2(),
-					rsa.getCoefficient()
-				);
-
-				return new JcaPEMKeyConverter().getPrivateKey(PrivateKeyInfoFactory.createPrivateKeyInfo(privateKeyParameter));
-			} catch (IOException e) {
-				throw new GeneralSecurityException("Invalid private key.", e);
-			}
-		} else {
+			return parsePKCS1PrivateKey(pemPrivateKey);
+		}
+		// format not detected
+		else {
 			throw new GeneralSecurityException("Invalid private key. Header not recognized.");
 		}
+	}
+
+	private static PrivateKey parsePKCS1PrivateKey(String pemPrivateKey) throws GeneralSecurityException {
+		try (final PemReader pemReader = new PemReader(new StringReader(pemPrivateKey))) {
+			final PemObject privateKeyObject = pemReader.readPemObject();
+			final RSAPrivateKey rsa = RSAPrivateKey.getInstance(privateKeyObject.getContent());
+			final RSAPrivateCrtKeyParameters privateKeyParameter = new RSAPrivateCrtKeyParameters(
+				rsa.getModulus(),
+				rsa.getPublicExponent(),
+				rsa.getPrivateExponent(),
+				rsa.getPrime1(),
+				rsa.getPrime2(),
+				rsa.getExponent1(),
+				rsa.getExponent2(),
+				rsa.getCoefficient()
+			);
+
+			return new JcaPEMKeyConverter().getPrivateKey(PrivateKeyInfoFactory.createPrivateKeyInfo(privateKeyParameter));
+		} catch (IOException e) {
+			throw new GeneralSecurityException("Invalid private key.", e);
+		}
+	}
+
+	private static PrivateKey parsePKCS8PrivateKey(String pemPrivateKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+
+		final String privateKeyString = pemPrivateKey
+			.replace(PEM_PRIVATE_START, "")
+			.replace(PEM_PRIVATE_END, "")
+			.replace("\\n", "\n")
+			.replaceAll("\\s", "");
+
+		final byte[] keyBytes = Base64.getDecoder().decode(privateKeyString.getBytes(StandardCharsets.UTF_8));
+
+		return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
 	}
 }
