@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>symphony-api-client-java-parent</artifactId>
+        <groupId>com.symphony.platformsolutions</groupId>
+        <version>1.2.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>symphony-bdk-core</artifactId>
+    <name>Symphony Java BDK Core </name>
+    <description>Symphony Java BDK Core Module</description>
+
+    <properties>
+
+        <!-- Alphabetical order -->
+        <bcpkix-jdk15on.version>1.64</bcpkix-jdk15on.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <jsr305.version>3.0.2</jsr305.version>
+        <swagger-annotations.version>1.6.0</swagger-annotations.version>
+
+        <!-- Code Gen -->
+        <openapi-generator-maven-plugin.version>4.3.0</openapi-generator-maven-plugin.version>
+        <codegen.generatorName>java</codegen.generatorName>
+        <codegen.invoker.library>jersey2</codegen.invoker.library>
+        <codegen.base.package>com.symphony.bdk.gen.api</codegen.base.package>
+        <codegen.spec.base>https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/master</codegen.spec.base>
+
+        <!-- Plugins -->
+        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-core-invoker-api</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apiguardian</groupId>
+            <artifactId>apiguardian-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.brsanthu</groupId>
+            <artifactId>migbase64</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>${bcpkix-jdk15on.version}</version>
+        </dependency>
+
+        <!-- ******************************** -->
+        <!-- * CodeGen related dependencies * -->
+        <!-- ******************************** -->
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>${jsr305.version}</version>
+        </dependency>
+
+        <!-- ******************************** -->
+        <!-- *             TEST             * -->
+        <!-- ******************************** -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Swagger code generation -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator-maven-plugin.version}</version>
+                <configuration>
+                    <!-- more options here : https://openapi-generator.tech/docs/generators/java -->
+                    <generatorName>${codegen.generatorName}</generatorName>
+                    <library>${codegen.invoker.library}</library>
+
+                    <generateApiTests>false</generateApiTests>
+                    <generateModelTests>false</generateModelTests>
+                    <generateSupportingFiles>false</generateSupportingFiles>
+                    <apiPackage>${codegen.base.package}</apiPackage>
+                    <modelPackage>${codegen.base.package}.model</modelPackage>
+                    <invokerPackage>com.symphony.bdk.core.api.invoker</invokerPackage>
+                    <templateDirectory>/Users/thibault.pensec/local/dx/symphony-api-client-java/templates</templateDirectory>
+                    <configOptions>
+                        <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                        <sourceFolder>src/main/java</sourceFolder>
+                        <dateLibrary>java8</dateLibrary>
+                        <useRuntimeException>false</useRuntimeException>
+                    </configOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>agent-api</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${codegen.spec.base}/agent/agent-api-public.yaml</inputSpec>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>pod-api</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${codegen.spec.base}/pod/pod-api-public.yaml</inputSpec>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>authenticator-api</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${codegen.spec.base}/authenticator/authenticator-api-public.yaml</inputSpec>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>login-api</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${codegen.spec.base}/login/login-api-public.yaml</inputSpec>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
