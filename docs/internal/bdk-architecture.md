@@ -13,6 +13,6 @@ command API, the template API or even an NLP integration
 - `framework` that provides connectors (or starters) for the main Java frameworks
 such as [SpringBoot](https://spring.io/projects/spring-boot), 
 [MicroProfile](https://projects.eclipse.org/projects/technology.microprofile), 
-[Micronaut](https://micronaut.io/), [Quarkus](https://quarkus.io/) or [Vertx](https://vertx.io/)
+[Micronaut](https://micronaut.io/) or [Quarkus](https://quarkus.io/)
 
 ### Core
