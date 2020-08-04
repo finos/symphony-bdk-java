@@ -4,6 +4,7 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.config.BdkConfig;
 
 import lombok.SneakyThrows;
+import org.apiguardian.api.API;
 
 /**
  * Factory responsible for creating {@link ApiClient} instances for each main Symphony's components :
@@ -13,6 +14,7 @@ import lombok.SneakyThrows;
  *   <li>Pod</li>
  * </ul>
  */
+@API(status = API.Status.EXPERIMENTAL)
 public class ApiClientFactory {
 
   private final BdkConfig config;

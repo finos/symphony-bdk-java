@@ -5,12 +5,15 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.apiguardian.api.API;
 
 /**
  * /!\ Temporary class, complete Config API will be done through https://perzoinc.atlassian.net/browse/APP-2884 /!\
  */
 @Getter
 @Setter
+@API(status = API.Status.DEPRECATED)
+@Deprecated
 public class BdkConfig {
 
   private String podUrl;

@@ -9,6 +9,7 @@ import com.symphony.bdk.core.config.BdkConfig;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
+import org.apiguardian.api.API;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
+@API(status = API.Status.STABLE)
 public class AuthenticatorFactory {
 
   private final BdkConfig config;

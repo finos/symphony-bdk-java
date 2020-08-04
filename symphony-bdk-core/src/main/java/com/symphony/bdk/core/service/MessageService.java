@@ -8,11 +8,13 @@ import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 /**
  * PLEASE PLEASE don't review this class !!
  */
 @Slf4j
+@API(status = API.Status.EXPERIMENTAL)
 public class MessageService {
 
   private final MessagesApi messagesApi;
