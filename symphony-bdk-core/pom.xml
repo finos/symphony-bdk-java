@@ -137,7 +137,7 @@
                     <apiPackage>${codegen.base.package}</apiPackage>
                     <modelPackage>${codegen.base.package}.model</modelPackage>
                     <invokerPackage>com.symphony.bdk.core.api.invoker</invokerPackage>
-                    <templateDirectory>/Users/thibault.pensec/local/dx/symphony-api-client-java/templates</templateDirectory>
+                    <templateDirectory>${maven.multiModuleProjectDirectory}/templates</templateDirectory>
                     <configOptions>
                         <hideGenerationTimestamp>true</hideGenerationTimestamp>
                         <sourceFolder>src/main/java</sourceFolder>
