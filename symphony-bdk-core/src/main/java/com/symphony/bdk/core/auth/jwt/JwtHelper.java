@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.auth;
+package com.symphony.bdk.core.auth.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

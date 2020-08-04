@@ -2,6 +2,8 @@ package com.symphony.bdk.core.auth;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.symphony.bdk.core.auth.jwt.JwtHelper;
+
 import com.migcomponents.migbase64.Base64;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

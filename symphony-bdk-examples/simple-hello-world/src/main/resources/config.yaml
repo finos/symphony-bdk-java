@@ -1,0 +1,8 @@
+podUrl: https://localhost.symphony.com:8443
+agentUrl: https://localhost.symphony.com:9443
+
+username: 'tibot'
+privateKeyPath: '/Users/thibault.pensec/local/conf/agent/privatekey.pem'
+
+appId: 'tibapp'
+appPrivateKeyPath: '/Users/thibault.pensec/local/conf/agent/privatekey.pem'
