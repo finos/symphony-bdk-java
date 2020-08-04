@@ -5,6 +5,9 @@ import com.symphony.bdk.core.auth.exception.AuthenticationException;
 
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  *
  */
@@ -20,16 +23,25 @@ public class AuthSessionImpl implements AuthSession {
     this.authenticator = authenticator;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String getSessionToken() {
+  public @Nonnull String getSessionToken() {
     return this.sessionToken;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String getKeyManagerToken() {
+  public @Nullable String getKeyManagerToken() {
     return this.keyManagerToken;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void refresh() throws AuthenticationException {
     this.sessionToken = this.authenticator.retrieveSessionToken();

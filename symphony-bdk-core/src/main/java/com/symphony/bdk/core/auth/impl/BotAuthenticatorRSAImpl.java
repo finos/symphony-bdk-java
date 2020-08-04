@@ -34,7 +34,7 @@ public class BotAuthenticatorRSAImpl {
     return this.doRetrieveToken(this.relayApiClient);
   }
 
-  private String doRetrieveToken(ApiClient client) throws AuthenticationException {
+  protected String doRetrieveToken(ApiClient client) throws AuthenticationException {
     final String jwt = JwtHelper.createSignedJwt(this.username, 30_000, this.privateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);

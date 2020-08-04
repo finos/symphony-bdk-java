@@ -27,7 +27,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
   private final String appId;
   private final PrivateKey appPrivateKey;
 
-  public OboAuthenticatorRSAImpl(ApiClient loginApiClient, String appId, PrivateKey appPrivateKey) {
+  public OboAuthenticatorRSAImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
     this.appId = appId;
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);
@@ -43,7 +43,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
     return new AuthSessionOboImpl(this, userId);
   }
 
-  public String retrieveOboSessionTokenByUserID(@Nonnull Long userId) throws AuthenticationException {
+  String retrieveOboSessionTokenByUserID(@Nonnull Long userId) throws AuthenticationException {
     final String appSessionToken = this.retrieveAppSessionToken();
     try {
       return this.authenticationApi.pubkeyAppUserUserIdAuthenticatePost(appSessionToken, userId).getToken();
@@ -52,7 +52,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
     }
   }
 
-  public String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthenticationException {
+  String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthenticationException {
     final String appSessionToken = this.retrieveAppSessionToken();
     try {
       return this.authenticationApi.pubkeyAppUsernameUsernameAuthenticatePost(appSessionToken, username).getToken();
@@ -61,7 +61,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
     }
   }
 
-  private String retrieveAppSessionToken() throws AuthenticationException {
+  protected String retrieveAppSessionToken() throws AuthenticationException {
     log.debug("Start authenticating app with id : {} ...", this.appId);
 
     final String jwt = JwtHelper.createSignedJwt(this.appId, 30_000, this.appPrivateKey);

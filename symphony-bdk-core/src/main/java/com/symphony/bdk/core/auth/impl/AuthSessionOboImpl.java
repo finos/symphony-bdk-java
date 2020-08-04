@@ -5,6 +5,9 @@ import com.symphony.bdk.core.auth.exception.AuthenticationException;
 
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  *
  */
@@ -17,28 +20,47 @@ public class AuthSessionOboImpl implements AuthSession {
 
   private String sessionToken;
 
-  public AuthSessionOboImpl(OboAuthenticatorRSAImpl authenticator, Long userId) {
+  /**
+   *
+   * @param authenticator
+   * @param userId
+   */
+  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRSAImpl authenticator, @Nonnull Long userId) {
     this.authenticator = authenticator;
     this.userId = userId;
     this.username = null;
   }
 
-  public AuthSessionOboImpl(OboAuthenticatorRSAImpl authenticator, String username) {
+  /**
+   *
+   * @param authenticator
+   * @param username
+   */
+  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRSAImpl authenticator, @Nonnull String username) {
     this.authenticator = authenticator;
     this.userId = null;
     this.username = username;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String getSessionToken() {
+  public @Nonnull String getSessionToken() {
     return this.sessionToken;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public String getKeyManagerToken() {
+  public @Nullable String getKeyManagerToken() {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void refresh() throws AuthenticationException {
     if (this.userId != null) {

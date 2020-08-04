@@ -15,11 +15,11 @@ import org.apiguardian.api.API;
  */
 @Slf4j
 @API(status = API.Status.EXPERIMENTAL)
-public class MessageService {
+public class V4MessageService {
 
   private final MessagesApi messagesApi;
 
-  public MessageService(ApiClient agentClient) {
+  public V4MessageService(ApiClient agentClient) {
     this.messagesApi = new MessagesApi(agentClient);
   }
 

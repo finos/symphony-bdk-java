@@ -4,6 +4,9 @@ import com.symphony.bdk.core.auth.exception.AuthenticationException;
 
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  *
  */
@@ -14,13 +17,13 @@ public interface AuthSession {
    *
    * @return
    */
-  String getSessionToken();
+  @Nonnull String getSessionToken();
 
   /**
    *
    * @return
    */
-  String getKeyManagerToken();
+  @Nullable String getKeyManagerToken();
 
   /**
    *

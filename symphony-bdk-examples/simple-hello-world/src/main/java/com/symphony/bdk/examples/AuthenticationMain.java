@@ -6,7 +6,7 @@ import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.exception.AuthenticationException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfig;
-import com.symphony.bdk.core.service.MessageService;
+import com.symphony.bdk.core.service.V4MessageService;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +33,14 @@ public class AuthenticationMain {
     );
 
     // create the message service using the Agent client
-    final MessageService messageService = new MessageService(apiClientFactory.getAgentClient());
+    final V4MessageService messageService = new V4MessageService(apiClientFactory.getAgentClient());
     final String streamId = "VGkonN0ysqZSY2scmMXnen___oxFBA6WdA";
     final String message = "<messageML>Hello, World!</messageML>";
 
     //
     // Regular auth example : send a message from the bot account
     //
-    final AuthSession botSession = authenticatorFactory.getBotAuthSession();
+    final AuthSession botSession = authenticatorFactory.authenticateBot();
     final V4Message regularMessage = messageService.sendMessage(botSession, streamId, message);
     log.info("Regular message sent : {}", regularMessage.getMessageId());
 
