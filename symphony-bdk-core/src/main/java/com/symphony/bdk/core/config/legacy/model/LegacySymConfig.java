@@ -16,6 +16,8 @@ public class LegacySymConfig {
     private static final int DEFAULT_READ_TIMEOUT = 35_000;
     private static final String DEFAULT_SCHEME = "https";
 
+    private String _version = "1.0";
+
     // ---------------------------------------------------------------------------------------------------------------//
     // NETWORK
     //
@@ -96,7 +98,7 @@ public class LegacySymConfig {
     private String authenticationFilterUrlPattern;
     private boolean showFirehoseErrors;
     private ArrayList<String> supportedUriSchemes = new ArrayList<>();
-    private RetryConfiguration retry = new RetryConfiguration();
+    private LegacyRetryConfiguration retry = new LegacyRetryConfiguration();
 
     public String getAgentUrl() {
         String port = (this.getAgentPort() == 443) ? "" : ":" + this.getAgentPort();

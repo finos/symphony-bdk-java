@@ -12,5 +12,5 @@ public class BdkBotConfig {
     private String username;
     private String privateKeyPath;
     private String certificatePath;
-    private String getCertificatePassword;
+    private String certificatePassword;
 }

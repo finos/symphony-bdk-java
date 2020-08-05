@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BdkSSLConfig {
+public class BdkSslConfig {
 
     private String truststorePath;
     private String truststorePassword;

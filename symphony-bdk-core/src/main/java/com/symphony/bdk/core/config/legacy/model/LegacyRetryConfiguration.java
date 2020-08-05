@@ -10,8 +10,9 @@ import org.apiguardian.api.API;
  */
 @ToString
 @Getter @Setter
-@API(status = API.Status.EXPERIMENTAL)
-public class RetryConfiguration {
+@Deprecated
+@API(status = API.Status.DEPRECATED)
+public class LegacyRetryConfiguration {
 
     public static final int DEFAULT_MAX_ATTEMPTS = 10;
     public static final long DEFAULT_INITIAL_INTERVAL_MILLIS = 500L;

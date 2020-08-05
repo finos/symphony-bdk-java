@@ -13,12 +13,12 @@ public class BdkClientConfig {
     private static final int DEFAULT_HTTPS_PORT = 443;
 
     private String scheme = DEFAULT_SCHEME;
-    private String url;
+    private String host;
     private int port;
     private String context = "";
 
     public String getBasePath() {
-        return this.scheme + "://" + this.url + ":" + this.port;
+        return this.scheme + "://" + this.host + ":" + this.port + this.getContext();
     }
 
     public String getContext() {
