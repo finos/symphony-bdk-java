@@ -1,8 +1,18 @@
-podUrl: https://devx1.symphony.com
-agentUrl: https://devx1.symphony.com
+_version: '2.0'
 
-username: 'tibot'
-privateKeyPath: '/Users/thibault.pensec/local/conf/agent/privatekey.pem'
+pod:
+  host: devx1.symphony.com
 
-appId: 'tibapp'
-appPrivateKeyPath: '/Users/thibault.pensec/local/conf/agent/privatekey.pem'
+agent:
+  host: devx1.symphony.com
+
+keyManager:
+  host: devx1.symphony.com
+
+bot:
+  username: tibot
+  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
+
+app:
+  appId: tibapp
+  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem

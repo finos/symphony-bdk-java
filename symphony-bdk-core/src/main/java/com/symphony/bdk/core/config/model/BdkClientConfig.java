@@ -12,20 +12,25 @@ public class BdkClientConfig {
 
     private String scheme = DEFAULT_SCHEME;
     private String host;
-    private int port;
+    private Integer port = DEFAULT_HTTPS_PORT;
     private String context = "";
 
     public String getBasePath() {
-        return this.scheme + "://" + this.host + ":" + this.port + this.getContext();
+        return this.scheme + "://" + this.host + this.getPortAsString() + this.getContext();
     }
 
     public String getContext() {
-        if (!context.equals("") && context.charAt(0) != '/') {
-            context =  "/" + context;
+        if (!this.context.equals("") && this.context.charAt(0) != '/') {
+            this.context =  "/" + this.context;
         }
-        if (!context.equals("") && context.endsWith("/")) {
-            context = context.substring(0, context.length() - 1);
+        if (!this.context.equals("") && this.context.endsWith("/")) {
+            this.context = this.context.substring(0, this.context.length() - 1);
         }
-        return context;
+
+        return this.context;
+    }
+
+    private String getPortAsString() {
+        return this.port != null ? ":" + this.port : "";
     }
 }

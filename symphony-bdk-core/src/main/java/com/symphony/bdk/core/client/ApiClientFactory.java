@@ -2,7 +2,7 @@ package com.symphony.bdk.core.client;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientProvider;
-import com.symphony.bdk.core.config.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkConfig;
 
 import org.apiguardian.api.API;
 
@@ -36,7 +36,7 @@ public class ApiClientFactory {
    */
   public ApiClient getLoginClient() {
     final ApiClient apiClient = this.apiClientProvider.newInstance();
-    apiClient.setBasePath(this.config.getPodUrl() + "/login");
+    apiClient.setBasePath(this.config.getPod().getBasePath() + "/login");
     return apiClient;
   }
 
@@ -46,7 +46,7 @@ public class ApiClientFactory {
    */
   public ApiClient getRelayClient() {
     final ApiClient apiClient = this.apiClientProvider.newInstance();
-    apiClient.setBasePath(this.config.getPodUrl() + "/relay");
+    apiClient.setBasePath(this.config.getKeyManager().getBasePath() + "/relay");
     return apiClient;
   }
 
@@ -56,7 +56,7 @@ public class ApiClientFactory {
    */
   public ApiClient getAgentClient() {
     final ApiClient apiClient = this.apiClientProvider.newInstance();
-    apiClient.setBasePath(this.config.getAgentUrl() + "/agent");
+    apiClient.setBasePath(this.config.getAgent().getBasePath() + "/agent");
     return apiClient;
   }
 }

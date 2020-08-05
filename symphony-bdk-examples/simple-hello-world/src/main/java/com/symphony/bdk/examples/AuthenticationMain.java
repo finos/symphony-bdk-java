@@ -1,10 +1,13 @@
 package com.symphony.bdk.examples;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.obo.Obo;
-import com.symphony.bdk.core.config.BdkConfig;
+import com.symphony.bdk.core.config.BdkConfigLoader;
+import com.symphony.bdk.core.exceptions.BdkConfigException;
 import com.symphony.bdk.gen.api.model.V4Message;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -16,10 +19,10 @@ public class AuthenticationMain {
   private static final String STREAM = "2IFEMquh3pOHAxcgLF8jU3___ozwgwIVdA";
   private static final String MESSAGE = "<messageML>Hello, World!</messageML>";
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws JsonProcessingException, BdkConfigException, AuthInitializationException {
 
     // setup SymphonyBdk facade object
-    final SymphonyBdk bdk = new SymphonyBdk(BdkConfig.load("/config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(BdkConfigLoader.loadFromClasspath("/config.yaml"));
 
     // send regular message using the Bot service account
     final V4Message regularMessage = bdk.messages().send(STREAM, MESSAGE);

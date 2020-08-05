@@ -4,9 +4,11 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientProvider;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.OboAuthenticator;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.obo.Obo;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.config.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.V4MessageService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,12 +31,13 @@ public class SymphonyBdk {
   private final AuthenticatorFactory authenticatorFactory;
 
   private final AuthSession botSession;
+  private final OboAuthenticator oboAuthenticator;
 
   /**
    *
    * @param config
    */
-  public SymphonyBdk(BdkConfig config) {
+  public SymphonyBdk(BdkConfig config) throws AuthInitializationException {
     this.config = config;
 
     this.apiClientFactory = new ApiClientFactory(this.config, findApiClientProvider());
@@ -46,6 +49,7 @@ public class SymphonyBdk {
     );
 
     this.botSession = this.authenticatorFactory.getBotAuthenticator().authenticateBot();
+    this.oboAuthenticator = this.authenticatorFactory.getOboAuthenticator();
   }
 
   public V4MessageService messages() {
@@ -55,9 +59,9 @@ public class SymphonyBdk {
   public V4MessageService messages(Obo.Handle oboHandle) {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
-      oboSession = this.authenticatorFactory.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
+      oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
     } else {
-      oboSession = this.authenticatorFactory.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
+      oboSession = this.oboAuthenticator.authenticateByUserId(oboHandle.getUserId());
     }
     return new V4MessageService(this.apiClientFactory.getAgentClient(), oboSession);
   }
