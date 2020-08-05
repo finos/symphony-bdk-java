@@ -1,10 +1,10 @@
 package com.symphony.bdk.core.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.symphony.bdk.core.config.legacy.LegacyConfigMapper;
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.exceptions.BdkConfigException;
@@ -27,7 +27,7 @@ public class BdkConfigLoader {
      *
      * @return Symphony Bot Configuration
      */
-    public static BdkConfig loadFromFile(String configPath) throws JsonProcessingException, BdkConfigException {
+    public static BdkConfig loadFromFile(String configPath) throws BdkConfigException {
         try {
             File file = new File(configPath);
             InputStream inputStream = new FileInputStream(file);
@@ -44,16 +44,16 @@ public class BdkConfigLoader {
      *
      * @return Symphony Bot Configuration
      */
-    public static BdkConfig loadFromInputStream(InputStream inputStream) throws JsonProcessingException, BdkConfigException {
+    public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
         if (inputStream != null) {
             JsonNode jsonNode = BdkConfigParser.parse(inputStream);
             if (jsonNode != null) {
                 JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                if (jsonNode.at("botUsername") != null) {
-                    LegacySymConfig legacySymConfig = JSON_MAPPER.treeToValue(jsonNode, LegacySymConfig.class);
-                    return LegacyConfigMapper.map(legacySymConfig);
+                if (jsonNode.at("/botUsername").isMissingNode()) {
+                    return JSON_MAPPER.convertValue(jsonNode, BdkConfig.class);
                 } else {
-                    return JSON_MAPPER.treeToValue(jsonNode, BdkConfig.class);
+                    LegacySymConfig legacySymConfig = JSON_MAPPER.convertValue(jsonNode, LegacySymConfig.class);
+                    return LegacyConfigMapper.map(legacySymConfig);
                 }
             }
         }
@@ -67,7 +67,7 @@ public class BdkConfigLoader {
      *
      * @return Symphony Bot Configuration
      */
-    public static BdkConfig loadFromClasspath(String configPath) throws JsonProcessingException, BdkConfigException {
+    public static BdkConfig loadFromClasspath(String configPath) throws BdkConfigException {
         InputStream inputStream = BdkConfigLoader.class.getResourceAsStream(configPath);
         if (inputStream != null) {
             return loadFromInputStream(inputStream);
