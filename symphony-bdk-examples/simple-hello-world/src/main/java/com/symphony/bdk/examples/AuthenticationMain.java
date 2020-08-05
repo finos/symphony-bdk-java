@@ -26,7 +26,7 @@ public class AuthenticationMain {
     final ApiClientFactory apiClientFactory = new ApiClientFactory(bdkConfig, ApiClientJersey2.class);
 
     // initialize the auth factory from config + login and relay clients
-    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(
+    final AuthenticatorFactory authFactory = new AuthenticatorFactory(
         bdkConfig,
         apiClientFactory.getLoginClient(),
         apiClientFactory.getRelayClient()
@@ -40,14 +40,14 @@ public class AuthenticationMain {
     //
     // Regular auth example : send a message from the bot account
     //
-    final AuthSession botSession = authenticatorFactory.authenticateBot();
+    final AuthSession botSession = authFactory.getBotAuthenticator().authenticateBot();
     final V4Message regularMessage = messageService.sendMessage(botSession, streamId, message);
     log.info("Regular message sent : {}", regularMessage.getMessageId());
 
     //
     // OBO auth example : send a message on-behalf-of an user
     //
-    final AuthSession oboSession = authenticatorFactory.getOboAuthenticator().authenticateByUsername("thibault.pensec");
+    final AuthSession oboSession = authFactory.getOboAuthenticator().authenticateByUsername("thibault.pensec");
     final V4Message oboMessage = messageService.sendMessage(oboSession, streamId, message);
     log.info("OBO message sent : {}", oboMessage.getMessageId());
   }

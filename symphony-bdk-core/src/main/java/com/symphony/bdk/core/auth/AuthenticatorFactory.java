@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.auth;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRSAImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRSAImpl;
 import com.symphony.bdk.core.config.BdkConfig;
@@ -31,16 +30,14 @@ public class AuthenticatorFactory {
    *
    * @return a not-refreshed {@link AuthSession} handle.
    */
-  public @Nonnull AuthSession authenticateBot() {
+  public @Nonnull BotAuthenticator getBotAuthenticator() {
 
-    final BotAuthenticatorRSAImpl authenticator = new BotAuthenticatorRSAImpl(
+    return new BotAuthenticatorRSAImpl(
         this.config.getUsername(),
         this.config.getBotPrivateKey(),
         this.loginApiClient,
         this.relayApiClient
     );
-
-    return new AuthSessionImpl(authenticator);
   }
 
   /**

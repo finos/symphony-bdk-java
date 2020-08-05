@@ -15,13 +15,13 @@ public interface AuthSession {
 
   /**
    *
-   * @return
+   * @return the Pod session token
    */
   @Nonnull String getSessionToken();
 
   /**
    *
-   * @return
+   * @return the KeyManager token, null if OBO
    */
   @Nullable String getKeyManagerToken();
 
