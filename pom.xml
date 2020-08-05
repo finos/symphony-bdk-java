@@ -20,6 +20,7 @@
         <commons-io.version>2.6</commons-io.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <lombok.version>1.18.12</lombok.version>
+        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <migbase64.version>2.2</migbase64.version>
         <resilience4j-retry.version>1.4.0</resilience4j-retry.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -273,6 +274,14 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
