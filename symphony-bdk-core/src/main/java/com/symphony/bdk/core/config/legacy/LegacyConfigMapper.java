@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.config;
+package com.symphony.bdk.core.config.legacy;
 
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
 import com.symphony.bdk.core.config.model.*;
