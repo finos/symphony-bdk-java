@@ -1,5 +1,5 @@
-podUrl: https://localhost.symphony.com:8443
-agentUrl: https://localhost.symphony.com:9443
+podUrl: https://devx1.symphony.com
+agentUrl: https://devx1.symphony.com
 
 username: 'tibot'
 privateKeyPath: '/Users/thibault.pensec/local/conf/agent/privatekey.pem'

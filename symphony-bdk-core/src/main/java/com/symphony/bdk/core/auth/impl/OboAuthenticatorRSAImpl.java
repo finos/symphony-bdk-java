@@ -39,7 +39,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
   }
 
   @Override
-  public AuthSession authenticateByUserID(@Nonnull Long userId) {
+  public AuthSession authenticateByUserId(@Nonnull Long userId) {
     return new AuthSessionOboImpl(this, userId);
   }
 

@@ -18,12 +18,14 @@ import org.apiguardian.api.API;
 public class V4MessageService {
 
   private final MessagesApi messagesApi;
+  private final AuthSession authSession;
 
-  public V4MessageService(ApiClient agentClient) {
+  public V4MessageService(ApiClient agentClient, AuthSession authSession) {
     this.messagesApi = new MessagesApi(agentClient);
+    this.authSession = authSession;
   }
 
-  public V4Message sendMessage(AuthSession authSession, String streamId, String message) {
+  public V4Message send(String streamId, String message) {
     try {
       return this.messagesApi.v4StreamSidMessageCreatePost(
           streamId,
@@ -37,19 +39,19 @@ public class V4MessageService {
       );
     } catch (ApiException e) {
       log.error("Cannot send message to stream {}", streamId, e);
-      sleep(10_000);
+      sleep(1_000);
       try {
         authSession.refresh();
       } catch (AuthenticationException exception) {
         log.error("Cannot authenticate", exception);
       }
-      return this.sendMessage(authSession, streamId, message);
+      return this.send(streamId, message);
     }
   }
 
   private static void sleep(long millis) {
     try {
-      Thread.sleep(1000);
+      Thread.sleep(millis);
     } catch (InterruptedException ex) {
       // nothing to do
     }

@@ -26,5 +26,5 @@ public interface OboAuthenticator {
    * @return
    * @throws AuthenticationException
    */
-  AuthSession authenticateByUserID(@Nonnull Long userId) throws AuthenticationException;
+  AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthenticationException;
 }
