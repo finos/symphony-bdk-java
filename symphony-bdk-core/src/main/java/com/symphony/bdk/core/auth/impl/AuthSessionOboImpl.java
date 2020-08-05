@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthenticationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import org.apiguardian.api.API;
 
@@ -62,9 +62,9 @@ public class AuthSessionOboImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
-  public void refresh() throws AuthenticationException {
+  public void refresh() throws AuthUnauthorizedException {
     if (this.userId != null) {
-      this.sessionToken = this.authenticator.retrieveOboSessionTokenByUserID(this.userId);
+      this.sessionToken = this.authenticator.retrieveOboSessionTokenByUserId(this.userId);
     } else if (this.username != null) {
       this.sessionToken = this.authenticator.retrieveOboSessionTokenByUsername(this.username);
     } else {

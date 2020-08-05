@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthenticationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import org.apiguardian.api.API;
 
@@ -43,7 +43,7 @@ public class AuthSessionImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
-  public void refresh() throws AuthenticationException {
+  public void refresh() throws AuthUnauthorizedException {
     this.sessionToken = this.authenticator.retrieveSessionToken();
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
   }

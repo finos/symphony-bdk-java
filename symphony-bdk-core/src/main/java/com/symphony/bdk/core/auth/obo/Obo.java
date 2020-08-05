@@ -1,8 +1,13 @@
 package com.symphony.bdk.core.auth.obo;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.apiguardian.api.API;
+
 /**
  *
  */
+@API(status = API.Status.EXPERIMENTAL)
 public class Obo {
 
   /**
@@ -10,8 +15,8 @@ public class Obo {
    * @param username
    * @return
    */
-  public static OboHandle username(String username) {
-    return new OboHandle(username, null);
+  public static Handle username(String username) {
+    return new Handle(username, null);
   }
 
   /**
@@ -19,7 +24,34 @@ public class Obo {
    * @param userId
    * @return
    */
-  public static OboHandle userId(long userId) {
-    return new OboHandle(null, userId);
+  public static Handle userId(long userId) {
+    return new Handle(null, userId);
+  }
+
+  /**
+   *
+   */
+  @Getter
+  @AllArgsConstructor
+  @API(status = API.Status.EXPERIMENTAL)
+  public static class Handle {
+
+    /**
+     *
+     */
+    private final String username;
+
+    /**
+     *
+     */
+    private final Long userId;
+
+    /**
+     *
+     * @return
+     */
+    public boolean hasUsername() {
+      return this.username!= null;
+    }
   }
 }

@@ -10,7 +10,11 @@ import org.apiguardian.api.API;
 import javax.annotation.Nonnull;
 
 /**
- *
+ * Factory class that provides new instances for the main authenticators :
+ * <ul>
+ *   <li>{@link BotAuthenticator} : to authenticate the main Bot service account</li>
+ *   <li>{@link OboAuthenticator} : to perform on-behalf-of authentication</li>
+ * </ul>
  */
 @API(status = API.Status.STABLE)
 public class AuthenticatorFactory {
@@ -26,9 +30,9 @@ public class AuthenticatorFactory {
   }
 
   /**
-   * Directly returns the (not refreshed) Bot's {@link AuthSession} handle.
+   * Creates a new instance of a {@link BotAuthenticator} service.
    *
-   * @return a not-refreshed {@link AuthSession} handle.
+   * @return a new {@link BotAuthenticator} instance.
    */
   public @Nonnull BotAuthenticator getBotAuthenticator() {
 
@@ -41,8 +45,9 @@ public class AuthenticatorFactory {
   }
 
   /**
+   * Creates a new instance of an {@link OboAuthenticator} service.
    *
-   * @return
+   * @return a new {@link OboAuthenticator} instance.
    */
   public @Nonnull OboAuthenticator getOboAuthenticator() {
 

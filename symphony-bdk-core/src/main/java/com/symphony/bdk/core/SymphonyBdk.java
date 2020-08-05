@@ -1,14 +1,14 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.core.api.invoker.ApiClientProvider;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
-import com.symphony.bdk.core.auth.obo.OboHandle;
+import com.symphony.bdk.core.auth.obo.Obo;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfig;
 import com.symphony.bdk.core.service.V4MessageService;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -37,7 +37,7 @@ public class SymphonyBdk {
   public SymphonyBdk(BdkConfig config) {
     this.config = config;
 
-    this.apiClientFactory = new ApiClientFactory(this.config, findApiClientClass());
+    this.apiClientFactory = new ApiClientFactory(this.config, findApiClientProvider());
 
     this.authenticatorFactory = new AuthenticatorFactory(
         this.config,
@@ -52,8 +52,7 @@ public class SymphonyBdk {
     return new V4MessageService(this.apiClientFactory.getAgentClient(), this.botSession);
   }
 
-  @SneakyThrows // TODO manage AuthenticationException
-  public V4MessageService messages(OboHandle oboHandle) {
+  public V4MessageService messages(Obo.Handle oboHandle) {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
       oboSession = this.authenticatorFactory.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
@@ -66,24 +65,22 @@ public class SymphonyBdk {
   /**
    * Load {@link ApiClient} implementation class using {@link ServiceLoader}.
    *
-   * @return
+   * @return an {@link ApiClientProvider}.
    */
-  private static Class<? extends ApiClient> findApiClientClass() {
+  private static ApiClientProvider findApiClientProvider() {
 
-    final ServiceLoader<ApiClient> apiClientServiceLoader = ServiceLoader.load(ApiClient.class);
+    final ServiceLoader<ApiClientProvider> apiClientServiceLoader = ServiceLoader.load(ApiClientProvider.class);
 
-    final List<Class<? extends ApiClient>> apiClientClazz =
-        StreamSupport.stream(apiClientServiceLoader.spliterator(), false)
-            .map(ApiClient::getClass)
+    final List<ApiClientProvider> apiClientProviders = StreamSupport.stream(apiClientServiceLoader.spliterator(), false)
             .collect(Collectors.toList());
 
-    if (apiClientClazz.isEmpty()) {
-      throw new IllegalStateException("No ApiClient implementation found in classpath.");
-    } else if (apiClientClazz.size() > 1) {
-      log.warn("More than 1 ApiClient implementation found in classpath, will use : {}",
-          apiClientClazz.stream().findFirst().get());
+    if (apiClientProviders.isEmpty()) {
+      throw new IllegalStateException("No ApiClientProvider implementation found in classpath.");
+    } else if (apiClientProviders.size() > 1) {
+      log.warn("More than 1 ApiClientProvider implementation found in classpath, will use : {}",
+          apiClientProviders.stream().findFirst().get());
     }
 
-    return apiClientClazz.stream().findFirst().get();
+    return apiClientProviders.stream().findFirst().get();
   }
 }

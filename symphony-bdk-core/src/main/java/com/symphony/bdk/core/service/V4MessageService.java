@@ -3,7 +3,7 @@ package com.symphony.bdk.core.service;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthenticationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.model.V4Message;
 
@@ -42,8 +42,9 @@ public class V4MessageService {
       sleep(1_000);
       try {
         authSession.refresh();
-      } catch (AuthenticationException exception) {
+      } catch (AuthUnauthorizedException exception) {
         log.error("Cannot authenticate", exception);
+        return null;
       }
       return this.send(streamId, message);
     }

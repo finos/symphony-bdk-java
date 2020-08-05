@@ -1,30 +1,28 @@
 package com.symphony.bdk.core.auth;
 
-import com.symphony.bdk.core.auth.exception.AuthenticationException;
-
 import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
 
 /**
- *
+ * On-behalf-of authenticator service.
  */
 @API(status = API.Status.STABLE)
 public interface OboAuthenticator {
 
   /**
+   * Authenticates on behalf of a particular user using his username.
    *
-   * @param username
-   * @return
-   * @throws AuthenticationException
+   * @param username Username of the user.
+   * @return an {@link AuthSession} for a given user.
    */
-  AuthSession authenticateByUsername(@Nonnull String username) throws AuthenticationException;
+  @Nonnull AuthSession authenticateByUsername(@Nonnull String username);
 
   /**
+   * Authenticates on behalf of a particular user using his userId.
    *
-   * @param userId
-   * @return
-   * @throws AuthenticationException
+   * @param userId Id of the user.
+   * @return an {@link AuthSession} for a given user.
    */
-  AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthenticationException;
+  @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId);
 }

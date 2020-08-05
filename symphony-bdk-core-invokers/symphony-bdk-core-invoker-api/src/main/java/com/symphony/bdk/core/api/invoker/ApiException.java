@@ -55,4 +55,8 @@ public class ApiException extends Exception {
         this.responseHeaders = responseHeaders;
         this.responseBody = responseBody;
     }
+
+    public boolean isUnauthorized() {
+        return this.code == 401;
+    }
 }
