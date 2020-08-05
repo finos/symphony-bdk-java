@@ -1,11 +1,13 @@
 package com.symphony.bdk.core.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.exceptions.BdkConfigException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -25,15 +27,14 @@ public class BdkConfigLoader {
      *
      * @return Symphony Bot Configuration
      */
-    public static BdkConfig loadFromFile(String configPath) throws JsonProcessingException {
+    public static BdkConfig loadFromFile(String configPath) throws JsonProcessingException, BdkConfigException {
         try {
             File file = new File(configPath);
             InputStream inputStream = new FileInputStream(file);
             return loadFromInputStream(inputStream);
         } catch (FileNotFoundException e) {
-            log.error("Config file is not found.");
+            throw new BdkConfigException("Config file is not found");
         }
-        return null;
     }
 
     /**
@@ -43,13 +44,14 @@ public class BdkConfigLoader {
      *
      * @return Symphony Bot Configuration
      */
-    public static BdkConfig loadFromInputStream(InputStream inputStream) throws JsonProcessingException {
+    public static BdkConfig loadFromInputStream(InputStream inputStream) throws JsonProcessingException, BdkConfigException {
         if (inputStream != null) {
             JsonNode jsonNode = BdkConfigParser.parse(inputStream);
             if (jsonNode != null) {
+                JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 if (jsonNode.at("botUsername") != null) {
                     LegacySymConfig legacySymConfig = JSON_MAPPER.treeToValue(jsonNode, LegacySymConfig.class);
-                    return BdkConfig.fromLegacyConfig(legacySymConfig);
+                    return LegacyConfigMapper.map(legacySymConfig);
                 } else {
                     return JSON_MAPPER.treeToValue(jsonNode, BdkConfig.class);
                 }
@@ -65,12 +67,11 @@ public class BdkConfigLoader {
      *
      * @return Symphony Bot Configuration
      */
-    public static BdkConfig loadFromClasspath(String configPath) throws JsonProcessingException {
+    public static BdkConfig loadFromClasspath(String configPath) throws JsonProcessingException, BdkConfigException {
         InputStream inputStream = BdkConfigLoader.class.getResourceAsStream(configPath);
         if (inputStream != null) {
             return loadFromInputStream(inputStream);
         }
-        log.error("Config file is not found");
-        return null;
+        throw new BdkConfigException("Config file is not found");
     }
 }
