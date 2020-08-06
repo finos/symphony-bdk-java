@@ -11,8 +11,8 @@ keyManager:
 
 bot:
   username: tibot
-  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
+  privateKeyPath: /Users/local/conf/agent/privatekey.pem
 
 app:
   appId: tibapp
-  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
+  privateKeyPath: /Users/local/conf/agent/privatekey.pem

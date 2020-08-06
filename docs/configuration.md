@@ -1,4 +1,4 @@
-#BDK Configuration
+# Configuration
 
 The BDK configuration is one of the most basic feature of the BDK project which help
 developers configure their own bot.

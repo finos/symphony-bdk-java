@@ -3,9 +3,9 @@
   "agentHost": "devx1.symphony.com",
   "keyAuthHost": "devx1.symphony.com",
   "botUsername": "tibot",
-  "botPrivateKeyPath": "/Users/thibault.pensec/local/conf/agent/",
+  "botPrivateKeyPath": "/Users/local/conf/agent/",
   "botPrivateKeyName": "privatekey.pem",
   "appId": "tibapp",
-  "appPrivateKeyPath": "/Users/thibault.pensec/local/conf/agent/",
+  "appPrivateKeyPath": "/Users/local/conf/agent/",
   "appPrivateKeyName": "privatekey.pem"
 }
