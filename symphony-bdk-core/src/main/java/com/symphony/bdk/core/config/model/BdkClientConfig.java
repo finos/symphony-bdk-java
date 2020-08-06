@@ -15,6 +15,15 @@ public class BdkClientConfig {
     private int port;
     private String context = "";
 
+    private String proxyUrl = null;
+    private String proxyUsername = null;
+    private String proxyPassword = null;
+
+    private Integer connectTimeout = null;
+    private Integer readTimeout = null;
+    private Integer connectionRequestTimeout = null;
+
+
     public String getBasePath() {
         return this.scheme + "://" + this.host + ":" + this.port + this.getContext();
     }
