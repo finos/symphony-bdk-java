@@ -1,53 +1,87 @@
 package com.symphony.bdk.core.config;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.symphony.bdk.core.config.exceptions.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.exceptions.BdkConfigException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BdkConfigLoaderTest {
 
     @Test
-    public void loadFromYamlInputStreamTest() throws JsonProcessingException, BdkConfigException {
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config.yaml");
+    public void loadFromYamlInputStreamTest() throws BdkConfigException {
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.yaml");
         BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
         assertEquals(config.getBot().getUsername(), "tibot");
     }
 
     @Test
-    public void loadFromJsonInputStreamTest() throws JsonProcessingException, BdkConfigException {
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config.json");
+    public void loadFromJsonInputStreamTest() throws BdkConfigException {
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.json");
         BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
         assertEquals(config.getBot().getUsername(), "tibot");
     }
 
     @Test
-    public void loadFromYamlFileTest() throws JsonProcessingException, BdkConfigException {
-        String configPath = System.getProperty("user.dir") + "/src/test/resources/config.yaml";
-        BdkConfig config = BdkConfigLoader.loadFromFile(configPath);
+    public void loadFromYamlFileTest(@TempDir Path tempDir) throws BdkConfigException, IOException {
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.yaml");
+        Path configPath = tempDir.resolve("config.yaml");
+        Files.copy(inputStream, configPath);
+        BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
         assertEquals(config.getBot().getUsername(), "tibot");
     }
 
     @Test
-    public void loadFromJsonFileTest() throws JsonProcessingException, BdkConfigException {
-        String configPath = System.getProperty("user.dir") + "/src/test/resources/config.json";
-        BdkConfig config = BdkConfigLoader.loadFromFile(configPath);
+    public void loadFromJsonFileTest(@TempDir Path tempDir) throws BdkConfigException, IOException {
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.json");
+        Path configPath = tempDir.resolve("config.json");
+        Files.copy(inputStream, configPath);
+        BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
         assertEquals(config.getBot().getUsername(), "tibot");
     }
 
     @Test
-    public void loadFromJsonClasspathTest() throws JsonProcessingException, BdkConfigException {
-        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.json");
+    public void loadFromJsonClasspathTest() throws BdkConfigException {
+        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.json");
         assertEquals(config.getBot().getUsername(), "tibot");
     }
 
     @Test
-    public void loadFromYamlClasspathTest() throws JsonProcessingException, BdkConfigException {
-        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.yaml");
+    public void loadFromYamlClasspathTest() throws BdkConfigException {
+        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
         assertEquals(config.getBot().getUsername(), "tibot");
+    }
+
+    @Test
+    public void loadFromFileNotFoundTest() throws BdkConfigException {
+        BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
+            String configPath = "/wrong_path/config.yaml";
+            BdkConfigLoader.loadFromFile(configPath);
+        });
+        assertEquals(exception.getMessage(), "Config file is not found");
+    }
+
+    @Test
+    public void loadLegacyFromInputStreamTest() throws BdkConfigException {
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/legacy_config.json");
+        BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
+        assertEquals(config.getBot().getUsername(), "tibot");
+        assertEquals(config.getBot().getPrivateKeyPath(), "/Users/local/conf/agent/privatekey.pem");
+        assertEquals(config.getApp().getPrivateKeyPath(), "/Users/local/conf/agent/privatekey.pem");
+    }
+
+    @Test
+    public void loadFromClasspathNotFoundTest() throws BdkConfigException {
+        BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
+            BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml");
+        });
+        assertEquals(exception.getMessage(), "Config file is not found");
     }
 }

@@ -213,11 +213,12 @@
                 <version>${jacoco-maven-plugin.version}</version>
                 <configuration>
                     <excludes>
-                        <!-- No need to cover exceptions and configs, mostly getters and setters -->
+                        <!-- No need to cover models, exceptions and configs, mostly getters and setters -->
                         <exclude>com/symphony/bdk/core/**/*Adapter.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Type.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Config.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
+                        <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>
