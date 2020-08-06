@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.symphony.bdk.core.config.exceptions.BdkConfigException;
+import com.symphony.bdk.core.config.exception.BdkConfigException;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;

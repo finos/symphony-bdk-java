@@ -7,8 +7,8 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
+import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.exceptions.BdkConfigException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuthDeepDiveMain {
 
-  public static void main(String[] args) throws BdkConfigException, AuthInitializationException, AuthUnauthorizedException {
+  public static void main(String[] args) throws AuthInitializationException, AuthUnauthorizedException, BdkConfigException {
 
     // load configuration from classpath
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.yaml");
