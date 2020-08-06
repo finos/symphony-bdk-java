@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.symphony.bdk.core.config.legacy.LegacyConfigMapper;
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.exceptions.BdkConfigException;
+import com.symphony.bdk.core.config.exceptions.BdkConfigException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;

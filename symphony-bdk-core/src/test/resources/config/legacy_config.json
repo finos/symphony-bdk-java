@@ -1,0 +1,11 @@
+{
+  "podHost": "devx1.symphony.com",
+  "agentHost": "devx1.symphony.com",
+  "keyAuthHost": "devx1.symphony.com",
+  "botUsername": "tibot",
+  "botPrivateKeyPath": "/Users/thibault.pensec/local/conf/agent/",
+  "botPrivateKeyName": "privatekey.pem",
+  "appId": "tibapp",
+  "appPrivateKeyPath": "/Users/thibault.pensec/local/conf/agent/",
+  "appPrivateKeyName": "privatekey.pem"
+}
