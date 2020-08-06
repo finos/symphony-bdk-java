@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.symphony.bdk.core.config.exceptions.BdkConfigException;
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 @Slf4j
+@API(status = API.Status.INTERNAL)
 class BdkConfigParser {
 
     private static final ObjectMapper JSON_MAPPER = new JsonMapper();
