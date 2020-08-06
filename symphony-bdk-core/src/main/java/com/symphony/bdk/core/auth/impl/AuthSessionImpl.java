@@ -19,7 +19,7 @@ public class AuthSessionImpl implements AuthSession {
   private String sessionToken;
   private String keyManagerToken;
 
-  public AuthSessionImpl(BotAuthenticatorRSAImpl authenticator) {
+  public AuthSessionImpl(@Nonnull BotAuthenticatorRSAImpl authenticator) {
     this.authenticator = authenticator;
   }
 

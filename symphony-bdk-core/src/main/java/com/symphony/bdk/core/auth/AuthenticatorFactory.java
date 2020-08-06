@@ -70,8 +70,10 @@ public class AuthenticatorFactory {
   private static PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
     try {
       return JwtHelper.parseRSAPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
-    } catch (GeneralSecurityException | IOException e) {
-      throw new AuthInitializationException();
+    } catch (GeneralSecurityException e) {
+      throw new AuthInitializationException("Unable to parse RSA Private Key located at " + privateKeyPath, e);
+    } catch (IOException e) {
+      throw new AuthInitializationException("Unable to read or find RSA Private Key from path " + privateKeyPath, e);
     }
   }
 }

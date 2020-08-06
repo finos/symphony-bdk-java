@@ -11,8 +11,9 @@ import javax.annotation.Nonnull;
 public interface BotAuthenticator {
 
   /**
+   * Authenticates a Bot's service account.
    *
-   * @return
+   * @return the authentication session.
    */
   @Nonnull AuthSession authenticateBot();
 }

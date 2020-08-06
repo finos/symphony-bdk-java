@@ -9,9 +9,9 @@
         <version>1.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>symphony-bdk-examples-hello-world</artifactId>
-    <name>Symphony Java BDK Examples - Hello World</name>
-    <description>Symphony Java BDK Parent - Hello World</description>
+    <artifactId>symphony-bdk-core-examples</artifactId>
+    <name>Symphony Java BDK Examples - Core</name>
+    <description>Symphony Java BDK Examples for the Core module</description>
 
     <dependencies>
 

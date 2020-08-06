@@ -4,14 +4,19 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
+
 /**
- * This is a particularly tough exception that means that authentication cannot be performed for several raisons
- * depending on the context : regular authentication or OBO.
+ * When thrown, it means that authentication cannot be performed for several raisons depending on the context :
+ * <ul>
+ *   <li>Regular Bot authentication</li>
+ *   <li>OBO authentication</li>
+ * </ul>
  */
 @API(status = API.Status.STABLE)
 public class AuthUnauthorizedException extends Exception {
 
-  public AuthUnauthorizedException(String message, ApiException source) {
+  public AuthUnauthorizedException(@Nonnull String message, @Nonnull ApiException source) {
     super(message, source);
   }
 }

@@ -11,7 +11,6 @@ import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -25,7 +24,6 @@ import javax.annotation.Nonnull;
  * @see <a href="https://developers.symphony.com/symphony-developer/docs/rsa-bot-authentication-workflow">RSA Bot Authentication Workflow</a>
  */
 @Slf4j
-@RequiredArgsConstructor
 @API(status = API.Status.INTERNAL)
 public class BotAuthenticatorRSAImpl implements BotAuthenticator {
 
@@ -34,6 +32,18 @@ public class BotAuthenticatorRSAImpl implements BotAuthenticator {
 
   private final ApiClient loginApiClient;
   private final ApiClient relayApiClient;
+
+  public BotAuthenticatorRSAImpl(
+      @Nonnull String username,
+      @Nonnull PrivateKey privateKey,
+      @Nonnull ApiClient loginApiClient,
+      @Nonnull ApiClient relayApiClient
+  ) {
+    this.username = username;
+    this.privateKey = privateKey;
+    this.loginApiClient = loginApiClient;
+    this.relayApiClient = relayApiClient;
+  }
 
   /**
    * {@inheritDoc}
@@ -65,7 +75,8 @@ public class BotAuthenticatorRSAImpl implements BotAuthenticator {
     } catch (ApiException ex) {
       if (ex.getCode() == 401) {
         // usually happens when the public RSA is wrong or if the username is not correct
-        throw new AuthUnauthorizedException("Service account with username '" + this.username + "' is not authorized to authenticate. Check if the public RSA key is valid or if the username is correct.", ex);
+        throw new AuthUnauthorizedException("Service account with username '" + this.username + "' is not authorized to authenticate. "
+            + "Check if the public RSA key is valid or if the username is correct.", ex);
       } else {
         // we don't know what to do, let's forward the ApiException
         throw new ApiRuntimeException(ex);

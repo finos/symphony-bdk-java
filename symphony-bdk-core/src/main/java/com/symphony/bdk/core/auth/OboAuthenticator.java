@@ -11,10 +11,10 @@ import javax.annotation.Nonnull;
 public interface OboAuthenticator {
 
   /**
-   * Authenticates on behalf of a particular user using his username.
+   * Authenticates on-behalf-of a particular user using his username.
    *
    * @param username Username of the user.
-   * @return an {@link AuthSession} for a given user.
+   * @return the authentication session.
    */
   @Nonnull AuthSession authenticateByUsername(@Nonnull String username);
 
@@ -22,7 +22,7 @@ public interface OboAuthenticator {
    * Authenticates on behalf of a particular user using his userId.
    *
    * @param userId Id of the user.
-   * @return an {@link AuthSession} for a given user.
+   * @return the authentication sessions.
    */
   @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId);
 }
