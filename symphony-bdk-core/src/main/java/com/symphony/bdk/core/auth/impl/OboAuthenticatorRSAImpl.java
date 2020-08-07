@@ -53,7 +53,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
     return new AuthSessionOboImpl(this, userId);
   }
 
-  String retrieveOboSessionTokenByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
+  protected String retrieveOboSessionTokenByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
     final String appSessionToken = this.retrieveAppSessionToken();
     try {
       return this.authenticationApi.pubkeyAppUserUserIdAuthenticatePost(appSessionToken, userId).getToken();
@@ -67,7 +67,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
     }
   }
 
-  String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthUnauthorizedException {
+  protected String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthUnauthorizedException {
     final String appSessionToken = this.retrieveAppSessionToken();
     try {
       return this.authenticationApi.pubkeyAppUsernameUsernameAuthenticatePost(appSessionToken, username).getToken();
