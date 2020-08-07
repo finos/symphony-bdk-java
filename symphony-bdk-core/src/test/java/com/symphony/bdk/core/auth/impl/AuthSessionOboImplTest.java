@@ -30,6 +30,10 @@ class AuthSessionOboImplTest {
     when(auth.retrieveOboSessionTokenByUsername(eq("username"))).thenReturn(sessionToken);
 
     final AuthSessionOboImpl session = new AuthSessionOboImpl(auth, "username");
+
+    assertNull(session.getSessionToken());
+    assertNull(session.getKeyManagerToken());
+
     session.refresh();
 
     assertEquals(sessionToken, session.getSessionToken());
@@ -48,6 +52,10 @@ class AuthSessionOboImplTest {
     when(auth.retrieveOboSessionTokenByUserId(eq(1234L))).thenReturn(sessionToken);
 
     final AuthSessionOboImpl session = new AuthSessionOboImpl(auth, 1234L);
+
+    assertNull(session.getSessionToken());
+    assertNull(session.getKeyManagerToken());
+
     session.refresh();
 
     assertEquals(sessionToken, session.getSessionToken());

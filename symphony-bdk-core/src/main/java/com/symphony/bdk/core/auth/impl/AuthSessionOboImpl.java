@@ -46,7 +46,7 @@ public class AuthSessionOboImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull String getSessionToken() {
+  public @Nullable String getSessionToken() {
     return this.sessionToken;
   }
 

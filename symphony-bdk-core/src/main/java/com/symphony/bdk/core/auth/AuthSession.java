@@ -4,7 +4,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -22,7 +21,7 @@ public interface AuthSession {
    *
    * @return the Pod session token
    */
-  @Nonnull String getSessionToken();
+  @Nullable String getSessionToken();
 
   /**
    * KeyManager's authentication token.
