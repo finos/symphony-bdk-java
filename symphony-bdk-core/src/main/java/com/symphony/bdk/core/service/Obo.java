@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.auth.obo;
+package com.symphony.bdk.core.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

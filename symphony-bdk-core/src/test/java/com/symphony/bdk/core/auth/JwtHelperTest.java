@@ -16,15 +16,13 @@ import java.security.PrivateKey;
 
 /**
  * Test class for the {@link JwtHelper}.
- * @author Thibault Pensec
- * @since 29/02/2020
  */
 @Slf4j
 class JwtHelperTest {
 
   @Test
   void loadRSAPrivateKey() throws GeneralSecurityException {
-    final PrivateKey privateKey = JwtHelper.parseRSAPrivateKey(generateRSAPrivateKey());
+    final PrivateKey privateKey = new JwtHelper().parseRSAPrivateKey(generateRSAPrivateKey());
     assertNotNull(privateKey);
   }
 

@@ -1,0 +1,58 @@
+package com.symphony.bdk.core.test;
+
+import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+
+import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
+
+import org.mockserver.client.MockServerClient;
+import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.HttpResponse;
+import org.mockserver.model.MediaType;
+
+import java.util.function.Consumer;
+
+/**
+ *
+ */
+public class BdkMockServer {
+
+  private ClientAndServer mockServer;
+  private MockServerClient mockServerClient;
+
+  public BdkMockServer() {
+  }
+
+  public void start() {
+    this.mockServer = startClientAndServer(10000);
+    this.mockServerClient = new MockServerClient("localhost", this.mockServer.getPort());
+  }
+
+  public void stop() {
+    this.mockServer.stop();
+    this.mockServerClient.stop();
+  }
+
+  public ApiClient newApiClient(String contextPath) {
+    return new ApiClientJersey2("http://localhost:" + mockServer.getPort() + contextPath);
+  }
+
+  public void onPost(String path, Consumer<HttpResponse> resModifier) {
+    this.onRequest("POST", path, resModifier);
+  }
+
+  public void onRequest(String method, String path, Consumer<HttpResponse> resModifier) {
+
+    final HttpResponse httpResponse = response()
+        .withContentType(MediaType.APPLICATION_JSON_UTF_8)
+        .withStatusCode(200);
+
+    resModifier.accept(httpResponse);
+
+    this.mockServerClient
+        .when(request().withMethod(method).withPath(path))
+        .respond(httpResponse);
+  }
+}

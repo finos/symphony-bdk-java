@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- *
+ * {@link AuthSession} impl for regular authentication mode.
  */
 @API(status = API.Status.INTERNAL)
 public class AuthSessionImpl implements AuthSession {
@@ -46,5 +46,9 @@ public class AuthSessionImpl implements AuthSession {
   public void refresh() throws AuthUnauthorizedException {
     this.sessionToken = this.authenticator.retrieveSessionToken();
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
+  }
+
+  protected BotAuthenticatorRSAImpl getAuthenticator() {
+    return this.authenticator;
   }
 }

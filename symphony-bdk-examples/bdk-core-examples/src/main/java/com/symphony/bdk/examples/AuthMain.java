@@ -2,7 +2,7 @@ package com.symphony.bdk.examples;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
-import com.symphony.bdk.core.auth.obo.Obo;
+import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.gen.api.model.V4Message;

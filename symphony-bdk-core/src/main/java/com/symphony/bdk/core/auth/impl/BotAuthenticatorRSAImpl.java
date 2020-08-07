@@ -33,6 +33,8 @@ public class BotAuthenticatorRSAImpl implements BotAuthenticator {
   private final ApiClient loginApiClient;
   private final ApiClient relayApiClient;
 
+  private JwtHelper jwtHelper = new JwtHelper();
+
   public BotAuthenticatorRSAImpl(
       @Nonnull String username,
       @Nonnull PrivateKey privateKey,
@@ -53,18 +55,18 @@ public class BotAuthenticatorRSAImpl implements BotAuthenticator {
     return new AuthSessionImpl(this);
   }
 
-  public String retrieveSessionToken() throws AuthUnauthorizedException {
+  protected String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using RSA authentication...");
     return this.doRetrieveToken(this.loginApiClient);
   }
 
-  public String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+  protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using RSA authentication...");
     return this.doRetrieveToken(this.relayApiClient);
   }
 
   protected String doRetrieveToken(ApiClient client) throws AuthUnauthorizedException {
-    final String jwt = JwtHelper.createSignedJwt(this.username, 30_000, this.privateKey);
+    final String jwt = this.jwtHelper.createSignedJwt(this.username, 30_000, this.privateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
@@ -82,5 +84,9 @@ public class BotAuthenticatorRSAImpl implements BotAuthenticator {
         throw new ApiRuntimeException(ex);
       }
     }
+  }
+
+  protected void setJwtHelper(JwtHelper jwtHelper) {
+    this.jwtHelper = jwtHelper;
   }
 }

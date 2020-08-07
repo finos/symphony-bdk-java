@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- *
+ * {@link AuthSession} impl for OBO authentication mode.
  */
 @API(status = API.Status.INTERNAL)
 public class AuthSessionOboImpl implements AuthSession {
@@ -70,5 +70,10 @@ public class AuthSessionOboImpl implements AuthSession {
     } else {
       throw new IllegalStateException("Both userId and username are null. One of them is mandatory to perform OBO authentication refresh.");
     }
+  }
+
+
+  protected OboAuthenticatorRSAImpl getAuthenticator() {
+    return authenticator;
   }
 }

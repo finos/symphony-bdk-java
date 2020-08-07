@@ -31,6 +31,8 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
   private final String appId;
   private final PrivateKey appPrivateKey;
 
+  private final JwtHelper jwtHelper = new JwtHelper();
+
   public OboAuthenticatorRSAImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
     this.appId = appId;
     this.appPrivateKey = appPrivateKey;
@@ -84,7 +86,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
   protected String retrieveAppSessionToken() throws AuthUnauthorizedException {
     log.debug("Start authenticating app with id : {} ...", this.appId);
 
-    final String jwt = JwtHelper.createSignedJwt(this.appId, 30_000, this.appPrivateKey);
+    final String jwt = this.jwtHelper.createSignedJwt(this.appId, 30_000, this.appPrivateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 

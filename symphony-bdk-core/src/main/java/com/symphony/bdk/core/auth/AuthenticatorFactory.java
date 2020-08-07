@@ -7,6 +7,7 @@ import com.symphony.bdk.core.auth.impl.OboAuthenticatorRSAImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apiguardian.api.API;
 
@@ -25,12 +26,15 @@ import javax.annotation.Nonnull;
  *   <li>{@link OboAuthenticator} : to perform on-behalf-of authentication</li>
  * </ul>
  */
+@Slf4j
 @API(status = API.Status.STABLE)
 public class AuthenticatorFactory {
 
   private final BdkConfig config;
   private final ApiClient loginApiClient;
   private final ApiClient relayApiClient;
+
+  private JwtHelper jwtHelper = new JwtHelper();
 
   public AuthenticatorFactory(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClient loginClient, @Nonnull ApiClient relayClient) {
     this.config = bdkConfig;
@@ -47,7 +51,7 @@ public class AuthenticatorFactory {
 
     return new BotAuthenticatorRSAImpl(
         this.config.getBot().getUsername(),
-        loadPrivateKeyFromPath(this.config.getBot().getPrivateKeyPath()),
+        this.loadPrivateKeyFromPath(this.config.getBot().getPrivateKeyPath()),
         this.loginApiClient,
         this.relayApiClient
     );
@@ -62,18 +66,23 @@ public class AuthenticatorFactory {
 
     return new OboAuthenticatorRSAImpl(
         this.config.getApp().getAppId(),
-        loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
+        this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
         this.loginApiClient
     );
   }
 
-  private static PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
+  private PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
+    log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
     try {
-      return JwtHelper.parseRSAPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
+      return this.jwtHelper.parseRSAPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
     } catch (GeneralSecurityException e) {
-      throw new AuthInitializationException("Unable to parse RSA Private Key located at " + privateKeyPath, e);
+      final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
+      log.error(message, e);
+      throw new AuthInitializationException(message, e);
     } catch (IOException e) {
-      throw new AuthInitializationException("Unable to read or find RSA Private Key from path " + privateKeyPath, e);
+      final String message = "Unable to read or find RSA Private Key from path " + privateKeyPath;
+      log.error(message, e);
+      throw new AuthInitializationException(message, e);
     }
   }
 }
