@@ -56,6 +56,11 @@ public class ApiException extends Exception {
         this.responseBody = responseBody;
     }
 
+    /**
+     * Check if response status if unauthorized or not.
+     *
+     * @return true if response status is 401, false otherwise
+     */
     public boolean isUnauthorized() {
         return this.code == 401;
     }

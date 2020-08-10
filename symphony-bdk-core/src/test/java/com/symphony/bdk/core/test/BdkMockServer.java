@@ -15,7 +15,9 @@ import org.mockserver.model.MediaType;
 import java.util.function.Consumer;
 
 /**
+ * MockServer helper, only for testing purpose.
  *
+ * @see <a href="https://www.mock-server.com/">MockServer</a>
  */
 public class BdkMockServer {
 
@@ -23,6 +25,7 @@ public class BdkMockServer {
   private MockServerClient mockServerClient;
 
   public BdkMockServer() {
+    // nothing to be done here
   }
 
   public void start() {
@@ -36,7 +39,7 @@ public class BdkMockServer {
   }
 
   public ApiClient newApiClient(String contextPath) {
-    return new ApiClientJersey2("http://localhost:" + mockServer.getPort() + contextPath);
+    return new ApiClientJersey2("http://localhost:" + this.mockServer.getPort() + contextPath);
   }
 
   public void onPost(String path, Consumer<HttpResponse> resModifier) {
