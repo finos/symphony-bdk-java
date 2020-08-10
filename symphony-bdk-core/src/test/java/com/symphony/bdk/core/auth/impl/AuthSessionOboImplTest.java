@@ -26,7 +26,7 @@ class AuthSessionOboImplTest {
 
     final String sessionToken = UUID.randomUUID().toString();
 
-    final OboAuthenticatorRSAImpl auth = mock(OboAuthenticatorRSAImpl.class);
+    final OboAuthenticatorRsaImpl auth = mock(OboAuthenticatorRsaImpl.class);
     when(auth.retrieveOboSessionTokenByUsername(eq("username"))).thenReturn(sessionToken);
 
     final AuthSessionOboImpl session = new AuthSessionOboImpl(auth, "username");
@@ -48,7 +48,7 @@ class AuthSessionOboImplTest {
 
     final String sessionToken = UUID.randomUUID().toString();
 
-    final OboAuthenticatorRSAImpl auth = mock(OboAuthenticatorRSAImpl.class);
+    final OboAuthenticatorRsaImpl auth = mock(OboAuthenticatorRsaImpl.class);
     when(auth.retrieveOboSessionTokenByUserId(eq(1234L))).thenReturn(sessionToken);
 
     final AuthSessionOboImpl session = new AuthSessionOboImpl(auth, 1234L);

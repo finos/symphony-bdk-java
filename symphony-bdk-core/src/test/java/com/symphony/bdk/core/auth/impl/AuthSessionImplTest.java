@@ -23,7 +23,7 @@ class AuthSessionImplTest {
     final String sessionToken = UUID.randomUUID().toString();
     final String kmToken = UUID.randomUUID().toString();
 
-    final BotAuthenticatorRSAImpl auth = mock(BotAuthenticatorRSAImpl.class);
+    final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
     when(auth.retrieveSessionToken()).thenReturn(sessionToken);
     when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
 

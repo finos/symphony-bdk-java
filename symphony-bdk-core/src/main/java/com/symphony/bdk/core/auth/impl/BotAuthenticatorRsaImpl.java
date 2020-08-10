@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class BotAuthenticatorRSAImpl implements BotAuthenticator {
+public class BotAuthenticatorRsaImpl implements BotAuthenticator {
 
   private final String username;
   private final PrivateKey privateKey;
@@ -35,7 +35,7 @@ public class BotAuthenticatorRSAImpl implements BotAuthenticator {
 
   private JwtHelper jwtHelper = new JwtHelper();
 
-  public BotAuthenticatorRSAImpl(
+  public BotAuthenticatorRsaImpl(
       @Nonnull String username,
       @Nonnull PrivateKey privateKey,
       @Nonnull ApiClient loginApiClient,

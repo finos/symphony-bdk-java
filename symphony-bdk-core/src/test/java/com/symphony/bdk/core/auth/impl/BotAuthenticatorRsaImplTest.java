@@ -16,17 +16,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Test class for the {@link BotAuthenticatorRSAImpl}.
+ * Test class for the {@link BotAuthenticatorRsaImpl}.
  */
 @ExtendWith(BdkMockServerExtension.class)
-class BotAuthenticatorRSAImplTest {
+class BotAuthenticatorRsaImplTest {
 
-  private BotAuthenticatorRSAImpl authenticator;
+  private BotAuthenticatorRsaImpl authenticator;
 
   @BeforeEach
   void init(final BdkMockServer mockServer) {
 
-    this.authenticator = new BotAuthenticatorRSAImpl(
+    this.authenticator = new BotAuthenticatorRsaImpl(
         "username",
         RsaHelper.generateKeyPair().getPrivate(),
         mockServer.newApiClient("/login"),

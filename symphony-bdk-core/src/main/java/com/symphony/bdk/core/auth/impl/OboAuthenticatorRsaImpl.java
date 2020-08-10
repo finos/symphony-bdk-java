@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class OboAuthenticatorRSAImpl implements OboAuthenticator {
+public class OboAuthenticatorRsaImpl implements OboAuthenticator {
 
   private final AuthenticationApi authenticationApi;
   private final String appId;
@@ -33,7 +33,7 @@ public class OboAuthenticatorRSAImpl implements OboAuthenticator {
 
   private final JwtHelper jwtHelper = new JwtHelper();
 
-  public OboAuthenticatorRSAImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
+  public OboAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
     this.appId = appId;
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);

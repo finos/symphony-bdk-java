@@ -18,17 +18,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.UUID;
 
 /**
- * Test class for the {@link OboAuthenticatorRSAImpl}.
+ * Test class for the {@link OboAuthenticatorRsaImpl}.
  */
 @ExtendWith(BdkMockServerExtension.class)
-class OboAuthenticatorRSAImplTest {
+class OboAuthenticatorRsaImplTest {
 
-  private OboAuthenticatorRSAImpl authenticator;
+  private OboAuthenticatorRsaImpl authenticator;
 
   @BeforeEach
   void init(final BdkMockServer mockServer) {
 
-    this.authenticator = new OboAuthenticatorRSAImpl(
+    this.authenticator = new OboAuthenticatorRsaImpl(
         "appId",
         RsaHelper.generateKeyPair().getPrivate(),
         mockServer.newApiClient("/login")

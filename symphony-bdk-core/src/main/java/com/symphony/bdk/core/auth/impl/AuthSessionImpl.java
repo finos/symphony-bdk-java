@@ -14,12 +14,12 @@ import javax.annotation.Nullable;
 @API(status = API.Status.INTERNAL)
 public class AuthSessionImpl implements AuthSession {
 
-  private final BotAuthenticatorRSAImpl authenticator;
+  private final BotAuthenticatorRsaImpl authenticator;
 
   private String sessionToken;
   private String keyManagerToken;
 
-  public AuthSessionImpl(@Nonnull BotAuthenticatorRSAImpl authenticator) {
+  public AuthSessionImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
     this.authenticator = authenticator;
   }
 
@@ -48,7 +48,7 @@ public class AuthSessionImpl implements AuthSession {
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
   }
 
-  protected BotAuthenticatorRSAImpl getAuthenticator() {
+  protected BotAuthenticatorRsaImpl getAuthenticator() {
     return this.authenticator;
   }
 }

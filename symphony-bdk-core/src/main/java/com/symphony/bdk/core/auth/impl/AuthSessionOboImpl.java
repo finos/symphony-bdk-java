@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 @API(status = API.Status.INTERNAL)
 public class AuthSessionOboImpl implements AuthSession {
 
-  private final OboAuthenticatorRSAImpl authenticator;
+  private final OboAuthenticatorRsaImpl authenticator;
   private final Long userId;
   private final String username;
 
@@ -25,7 +25,7 @@ public class AuthSessionOboImpl implements AuthSession {
    * @param authenticator
    * @param userId
    */
-  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRSAImpl authenticator, @Nonnull Long userId) {
+  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRsaImpl authenticator, @Nonnull Long userId) {
     this.authenticator = authenticator;
     this.userId = userId;
     this.username = null;
@@ -36,7 +36,7 @@ public class AuthSessionOboImpl implements AuthSession {
    * @param authenticator
    * @param username
    */
-  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRSAImpl authenticator, @Nonnull String username) {
+  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRsaImpl authenticator, @Nonnull String username) {
     this.authenticator = authenticator;
     this.userId = null;
     this.username = username;
@@ -73,7 +73,7 @@ public class AuthSessionOboImpl implements AuthSession {
   }
 
 
-  protected OboAuthenticatorRSAImpl getAuthenticator() {
+  protected OboAuthenticatorRsaImpl getAuthenticator() {
     return authenticator;
   }
 }

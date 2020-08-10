@@ -3,6 +3,7 @@ package com.symphony.bdk.core.api.invoker;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +63,6 @@ public class ApiException extends Exception {
      * @return true if response status is 401, false otherwise
      */
     public boolean isUnauthorized() {
-        return this.code == 401;
+        return this.code == HttpURLConnection.HTTP_UNAUTHORIZED;
     }
 }

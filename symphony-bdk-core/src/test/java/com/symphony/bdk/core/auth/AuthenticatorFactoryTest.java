@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
-import com.symphony.bdk.core.auth.impl.BotAuthenticatorRSAImpl;
-import com.symphony.bdk.core.auth.impl.OboAuthenticatorRSAImpl;
+import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.RsaHelper;
 
@@ -42,7 +42,7 @@ class AuthenticatorFactoryTest {
     final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT, DUMMY_API_CLIENT);
     final BotAuthenticator botAuth = factory.getBotAuthenticator();
     assertNotNull(botAuth);
-    assertEquals(BotAuthenticatorRSAImpl.class, botAuth.getClass());
+    assertEquals(BotAuthenticatorRsaImpl.class, botAuth.getClass());
   }
 
   @Test
@@ -79,7 +79,7 @@ class AuthenticatorFactoryTest {
     final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT, DUMMY_API_CLIENT);
     final OboAuthenticator oboAuth = factory.getOboAuthenticator();
     assertNotNull(oboAuth);
-    assertEquals(OboAuthenticatorRSAImpl.class, oboAuth.getClass());
+    assertEquals(OboAuthenticatorRsaImpl.class, oboAuth.getClass());
   }
 
   @SneakyThrows

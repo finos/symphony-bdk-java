@@ -2,8 +2,8 @@ package com.symphony.bdk.core.auth;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
-import com.symphony.bdk.core.auth.impl.BotAuthenticatorRSAImpl;
-import com.symphony.bdk.core.auth.impl.OboAuthenticatorRSAImpl;
+import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
@@ -34,7 +34,7 @@ public class AuthenticatorFactory {
   private final ApiClient loginApiClient;
   private final ApiClient relayApiClient;
 
-  private JwtHelper jwtHelper = new JwtHelper();
+  private final JwtHelper jwtHelper = new JwtHelper();
 
   public AuthenticatorFactory(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClient loginClient, @Nonnull ApiClient relayClient) {
     this.config = bdkConfig;
@@ -49,7 +49,7 @@ public class AuthenticatorFactory {
    */
   public @Nonnull BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
 
-    return new BotAuthenticatorRSAImpl(
+    return new BotAuthenticatorRsaImpl(
         this.config.getBot().getUsername(),
         this.loadPrivateKeyFromPath(this.config.getBot().getPrivateKeyPath()),
         this.loginApiClient,
@@ -64,7 +64,7 @@ public class AuthenticatorFactory {
    */
   public @Nonnull OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
 
-    return new OboAuthenticatorRSAImpl(
+    return new OboAuthenticatorRsaImpl(
         this.config.getApp().getAppId(),
         this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
         this.loginApiClient
