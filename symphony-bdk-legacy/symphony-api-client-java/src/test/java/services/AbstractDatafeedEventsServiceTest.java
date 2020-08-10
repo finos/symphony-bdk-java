@@ -168,58 +168,19 @@ public class AbstractDatafeedEventsServiceTest {
 
     // Anonymous class creation
     private RoomListener createRoomListener() {
-        return new RoomListener() {
-            @Override
-            public void onRoomMessage(InboundMessage message) {}
-            @Override
-            public void onRoomCreated(RoomCreated roomCreated) {}
-            @Override
-            public void onRoomDeactivated(RoomDeactivated roomDeactivated) {}
-            @Override
-            public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwner roomMemberDemotedFromOwner) {}
-            @Override
-            public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwner roomMemberPromotedToOwner) {}
-            @Override
-            public void onRoomReactivated(Stream stream) {}
-            @Override
-            public void onRoomUpdated(RoomUpdated roomUpdated) {}
-            @Override
-            public void onUserJoinedRoom(UserJoinedRoom userJoinedRoom) {}
-            @Override
-            public void onUserLeftRoom(UserLeftRoom userLeftRoom) {}
-        };
+        return mock(RoomListener.class);
     }
 
     private ConnectionListener createConnectionListener() {
-        return new ConnectionListener() {
-            @Override
-            public void onConnectionAccepted(User user) {}
-            @Override
-            public void onConnectionRequested(User user) {}
-        };
+        return mock(ConnectionListener.class);
     }
 
     private ElementsListener createElementsListener() {
-        return new ElementsListener() {
-            @Override
-            public void onElementsAction(User initiator, SymphonyElementsAction symphonyElementsAction) {
-
-            }
-        };
+        return mock(ElementsListener.class);
     }
 
     private IMListener createIMListener() {
-        return new IMListener() {
-            @Override
-            public void onIMMessage(InboundMessage message) {
-
-            }
-
-            @Override
-            public void onIMCreated(Stream stream) {
-
-            }
-        };
+        return mock(IMListener.class);
     }
 }
 

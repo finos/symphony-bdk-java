@@ -26,7 +26,7 @@ public class FirehoseServiceTest {
     public void readFirehoseTest() {
         FirehoseService firehoseService = new FirehoseService(symBotClient);
         firehoseService.readFirehose();
-        Thread.sleep(1500);
+        Thread.sleep(500);
         firehoseService.stopDatafeedService();
         verify(firehoseClient, times(1)).createFirehose();
         verify(firehoseClient, atLeastOnce()).readFirehose("123");
@@ -36,12 +36,12 @@ public class FirehoseServiceTest {
     @Test
     public void restartDatafeedTest() {
         FirehoseService firehoseService = new FirehoseService(symBotClient, "123456");
-        Thread.sleep(1500);
+        Thread.sleep(500);
         firehoseService.stopDatafeedService();
         verify(firehoseClient, atLeastOnce()).readFirehose("123456");
 
         firehoseService.restartDatafeedService();
-        Thread.sleep(1500);
+        Thread.sleep(500);
         firehoseService.stopDatafeedService();
         verify(firehoseClient, times(1)).createFirehose();
         verify(firehoseClient, atLeastOnce()).readFirehose("123");

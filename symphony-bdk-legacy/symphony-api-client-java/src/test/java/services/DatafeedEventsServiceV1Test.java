@@ -36,7 +36,7 @@ public class DatafeedEventsServiceV1Test {
     public void readDatafeedTest() {
         datafeedEventsService = new DatafeedEventsService(symBotClient);
         // Wait for async operation to finish
-        Thread.sleep(1500);
+        Thread.sleep(500);
         datafeedEventsService.stopDatafeedService();
         verify(datafeedClient, times(1)).createDatafeed();
         verify(datafeedClient, atLeastOnce()).readDatafeed("123");
@@ -46,14 +46,14 @@ public class DatafeedEventsServiceV1Test {
     @Test
     public void restartDatafeedTest() {
         datafeedEventsService = new DatafeedEventsService(symBotClient);
-        Thread.sleep(1500);
+        Thread.sleep(500);
         datafeedEventsService.stopDatafeedService();
         verify(datafeedClient, times(1)).createDatafeed();
         verify(datafeedClient, atLeastOnce()).readDatafeed("123");
 
         when(datafeedClient.createDatafeed()).thenReturn("123456");
         datafeedEventsService.restartDatafeedService();
-        Thread.sleep(1500);
+        Thread.sleep(500);
         datafeedEventsService.stopDatafeedService();
         verify(datafeedClient, times(2)).createDatafeed();
         verify(datafeedClient, atLeastOnce()).readDatafeed("123456");
