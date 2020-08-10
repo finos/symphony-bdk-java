@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.config;
 
-import com.symphony.bdk.core.config.exceptions.BdkConfigException;
+import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

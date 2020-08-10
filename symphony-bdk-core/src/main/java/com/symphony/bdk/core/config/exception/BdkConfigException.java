@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.config.exceptions;
+package com.symphony.bdk.core.config.exception;
 
 public class BdkConfigException extends Exception{
 

@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.auth;
+package com.symphony.bdk.core.auth.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -50,7 +50,7 @@ public class JwtHelper {
 	 * the public key stored for the user
 	 * @return a signed JWT for a specific user (or subject)
 	 */
-	public static String createSignedJwt(String user, long expiration, Key privateKey) {
+	public String createSignedJwt(String user, long expiration, Key privateKey) {
 		return Jwts.builder()
 			.setSubject(user)
 			.setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -65,7 +65,7 @@ public class JwtHelper {
 	 * @return a {@link PrivateKey} instance
 	 * @throws GeneralSecurityException On invalid Private Key
 	 */
-	public static PrivateKey parseRSAPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
+	public PrivateKey parseRsaPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
 
 		// PKCS#8 format
 		if (pemPrivateKey.contains(PEM_PRIVATE_START)) {

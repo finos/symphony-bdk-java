@@ -129,6 +129,17 @@
             <artifactId>mockserver-netty</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -214,8 +225,9 @@
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
-                        <exclude>com/symphony/bdk/core/BdkCore.class</exclude>
-                        <exclude>com/symphony/bdk/core/auth/*</exclude>
+                        <!-- Exclude temporary classes from coverage -->
+                        <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/**/*.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>

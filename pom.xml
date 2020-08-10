@@ -22,6 +22,7 @@
         <lombok.version>1.18.12</lombok.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <migbase64.version>2.2</migbase64.version>
+        <resilience4j-retry.version>1.4.0</resilience4j-retry.version>
         <slf4j.version>1.7.30</slf4j.version>
 
         <!-- Test dependencies -->
@@ -103,6 +104,12 @@
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-retry</artifactId>
+                <version>${resilience4j-retry.version}</version>
             </dependency>
 
             <!-- Testing -->
