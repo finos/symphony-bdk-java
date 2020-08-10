@@ -19,30 +19,23 @@ import org.apiguardian.api.API;
 @API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdk {
 
-  private final BdkConfig config;
   private final ApiClientFactory apiClientFactory;
-  private final AuthenticatorFactory authenticatorFactory;
 
   private final AuthSession botSession;
   private final OboAuthenticator oboAuthenticator;
 
-  /**
-   *
-   * @param config
-   */
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException {
-    this.config = config;
 
-    this.apiClientFactory = new ApiClientFactory(this.config);
+    this.apiClientFactory = new ApiClientFactory(config);
 
-    this.authenticatorFactory = new AuthenticatorFactory(
-        this.config,
+    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(
+        config,
         apiClientFactory.getLoginClient(),
         apiClientFactory.getRelayClient()
     );
 
-    this.botSession = this.authenticatorFactory.getBotAuthenticator().authenticateBot();
-    this.oboAuthenticator = this.authenticatorFactory.getOboAuthenticator();
+    this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+    this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();
   }
 
   public V4MessageService messages() {
