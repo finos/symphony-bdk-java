@@ -4,6 +4,7 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientProvider;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -72,6 +73,7 @@ public class ApiClientFactory {
    *
    * @return an {@link ApiClientProvider}.
    */
+  @Generated // exclude from code coverage as it is very difficult to mock the ServiceLoader class (which is final)
   private static ApiClientProvider findApiClientProvider() {
 
     final ServiceLoader<ApiClientProvider> apiClientServiceLoader = ServiceLoader.load(ApiClientProvider.class);

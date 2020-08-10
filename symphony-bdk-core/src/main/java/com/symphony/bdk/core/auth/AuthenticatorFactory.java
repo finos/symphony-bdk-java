@@ -74,7 +74,7 @@ public class AuthenticatorFactory {
   private PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
     log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
     try {
-      return this.jwtHelper.parseRSAPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
+      return this.jwtHelper.parseRsaPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
     } catch (GeneralSecurityException e) {
       final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
       log.error(message, e);

@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.client;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ApiClientFactoryTest {
 
   private final ApiClientFactory factory = new ApiClientFactory(this.createConfig());
-
+  
   @Test
   void testGetLoginClient() {
 

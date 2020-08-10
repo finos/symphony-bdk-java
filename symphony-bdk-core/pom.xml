@@ -225,8 +225,9 @@
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
-                        <exclude>com/symphony/bdk/core/BdkCore.class</exclude>
-                        <exclude>com/symphony/bdk/core/auth/*</exclude>
+                        <!-- Exclude temporary classes from coverage -->
+                        <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/**/*.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>

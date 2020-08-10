@@ -65,7 +65,7 @@ public class JwtHelper {
 	 * @return a {@link PrivateKey} instance
 	 * @throws GeneralSecurityException On invalid Private Key
 	 */
-	public PrivateKey parseRSAPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
+	public PrivateKey parseRsaPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
 
 		// PKCS#8 format
 		if (pemPrivateKey.contains(PEM_PRIVATE_START)) {
