@@ -9,7 +9,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
-import com.symphony.bdk.core.test.RsaHelper;
+import com.symphony.bdk.core.test.RsaTestHelper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ class OboAuthenticatorRsaImplTest {
 
     this.authenticator = new OboAuthenticatorRsaImpl(
         "appId",
-        RsaHelper.generateKeyPair().getPrivate(),
+        RsaTestHelper.generateKeyPair().getPrivate(),
         mockServer.newApiClient("/login")
     );
   }

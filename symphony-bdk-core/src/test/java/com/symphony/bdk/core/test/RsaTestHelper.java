@@ -9,7 +9,7 @@ import java.security.KeyPairGenerator;
 /**
  * Helper class for generating RSA key pair.
  */
-public class RsaHelper {
+public class RsaTestHelper {
 
   @SneakyThrows
   public static KeyPair generateKeyPair() {

@@ -10,7 +10,7 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.test.RsaHelper;
+import com.symphony.bdk.core.test.RsaTestHelper;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 class AuthenticatorFactoryTest {
 
   private static final ApiClient DUMMY_API_CLIENT = new ApiClientJersey2();
-  private static final String RSA_PRIVATE_KEY = RsaHelper.generatePrivateKeyAsString();
+  private static final String RSA_PRIVATE_KEY = RsaTestHelper.generatePrivateKeyAsString();
 
   @Test
   void testGetBotAuthenticatorWithValidPrivateKey(@TempDir Path tempDir) throws AuthInitializationException {
