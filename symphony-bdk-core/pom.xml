@@ -225,35 +225,14 @@
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
+                        <exclude>com/symphony/bdk/core/BdkCore.class</exclude>
+                        <exclude>com/symphony/bdk/core/auth/*</exclude>
+
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>jacoco-report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>target/jacoco.exec</dataFile>
-                            <outputDirectory>target/jacoco-report</outputDirectory>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>jacoco-check</id>
                         <goals>
