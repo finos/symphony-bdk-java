@@ -168,19 +168,58 @@ public class AbstractDatafeedEventsServiceTest {
 
     // Anonymous class creation
     private RoomListener createRoomListener() {
-        return mock(RoomListener.class);
+        return new RoomListener() {
+            @Override
+            public void onRoomMessage(InboundMessage message) {}
+            @Override
+            public void onRoomCreated(RoomCreated roomCreated) {}
+            @Override
+            public void onRoomDeactivated(RoomDeactivated roomDeactivated) {}
+            @Override
+            public void onRoomMemberDemotedFromOwner(RoomMemberDemotedFromOwner roomMemberDemotedFromOwner) {}
+            @Override
+            public void onRoomMemberPromotedToOwner(RoomMemberPromotedToOwner roomMemberPromotedToOwner) {}
+            @Override
+            public void onRoomReactivated(Stream stream) {}
+            @Override
+            public void onRoomUpdated(RoomUpdated roomUpdated) {}
+            @Override
+            public void onUserJoinedRoom(UserJoinedRoom userJoinedRoom) {}
+            @Override
+            public void onUserLeftRoom(UserLeftRoom userLeftRoom) {}
+        };
     }
 
     private ConnectionListener createConnectionListener() {
-        return mock(ConnectionListener.class);
+        return new ConnectionListener() {
+            @Override
+            public void onConnectionAccepted(User user) {}
+            @Override
+            public void onConnectionRequested(User user) {}
+        };
     }
 
     private ElementsListener createElementsListener() {
-        return mock(ElementsListener.class);
+        return new ElementsListener() {
+            @Override
+            public void onElementsAction(User initiator, SymphonyElementsAction symphonyElementsAction) {
+
+            }
+        };
     }
 
     private IMListener createIMListener() {
-        return mock(IMListener.class);
+        return new IMListener() {
+            @Override
+            public void onIMMessage(InboundMessage message) {
+
+            }
+
+            @Override
+            public void onIMCreated(Stream stream) {
+
+            }
+        };
     }
 }
 

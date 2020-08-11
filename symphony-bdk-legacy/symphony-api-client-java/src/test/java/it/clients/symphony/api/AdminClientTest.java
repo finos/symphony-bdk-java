@@ -3,6 +3,7 @@ package it.clients.symphony.api;
 import clients.symphony.api.AdminClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.PodConstants;
+import exceptions.UnauthorizedException;
 import it.commons.BotTest;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,11 +17,18 @@ import model.*;
 import model.events.AdminStreamInfoList;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.*;
 
 public class AdminClientTest extends BotTest {
+
+  private  static  final Logger logger = LoggerFactory.getLogger(AdminClient.class);
+
   private AdminClient adminClient;
+
 
   @Before
   public void initClient() {
@@ -42,18 +50,35 @@ public class AdminClientTest extends BotTest {
                 "  }\r\n" +
                 "]")));
 
-    OutboundImportMessageList outMessageList = new OutboundImportMessageList();
-    OutboundImportMessage message = new OutboundImportMessage();
+    final OutboundImportMessageList outMessageList = new OutboundImportMessageList();
+    final OutboundImportMessage message = new OutboundImportMessage();
     message.setMessage("<messageML>Imported message</messageML>");
+    message.setData("Data message");
     message.setIntendedMessageTimestamp(1433045622000L);
     message.setIntendedMessageFromUserId(7215545057281L);
+    message.setOriginatingSystemId("OSI");
+    message.setOriginalMessageId("OMI");
     message.setStreamId("Z3oQRAZGTCNl5KjiUH2G1n___qr9lLT8dA");
-    outMessageList.add(message);
 
-    InboundImportMessageList inMessageList = adminClient.importMessages(outMessageList);
+    assertNotNull(message);
+    outMessageList.add(message);
+    assertEquals(1, outMessageList.size());
+
+    final InboundImportMessageList inMessageList = adminClient.importMessages(outMessageList);
     assertNotNull(inMessageList);
     assertEquals(1,  inMessageList.size());
+
     assertEquals("FjSY1y3L", inMessageList.get(0).getMessageId());
+    assertEquals("AGENT_SDK", inMessageList.get(0).getOriginatingSystemId());
+    assertEquals("M2", inMessageList.get(0).getOriginalMessageId());
+
+    assertEquals("<messageML>Imported message</messageML>", outMessageList.get(0).getMessage());
+    assertEquals("Data message", outMessageList.get(0).getData());
+    assertEquals(1433045622000L, outMessageList.get(0).getIntendedMessageTimestamp());
+    assertEquals(7215545057281L, outMessageList.get(0).getIntendedMessageFromUserId());
+    assertEquals("OSI", outMessageList.get(0).getOriginatingSystemId());
+    assertEquals("OMI", outMessageList.get(0).getOriginalMessageId());
+    assertEquals("Z3oQRAZGTCNl5KjiUH2G1n___qr9lLT8dA", outMessageList.get(0).getStreamId());
   }
 
   @Test
@@ -69,9 +94,11 @@ public class AdminClientTest extends BotTest {
                 "  \"suppressionDate\": 1461565603191\r\n" +
                 "}")));
 
-    SuppressionResult result = adminClient.suppressMessage("1");
+    final SuppressionResult result = adminClient.suppressMessage("1");
     assertNotNull(result);
     assertEquals("1",  result.getMessageId());
+    assertEquals(true, result.isSuppressed());
+    assertEquals(1461565603191L, result.getSuppressionDate());
   }
 
   @Test
@@ -172,11 +199,179 @@ public class AdminClientTest extends BotTest {
                 "  ]\r\n" +
                 "}")));
 
-    AdminStreamFilter filter = new AdminStreamFilter();
-    AdminStreamInfoList result = adminClient.listEnterpriseStreams(filter, 0, 0);
+    final AdminStreamFilter filter = new AdminStreamFilter();
+    final AdminStreamInfoList result = adminClient.listEnterpriseStreams(filter, 0, 0);
 
     assertNotNull(result);
     assertEquals(4,  result.getCount());
+    assertEquals(0, result.getSkip());
+    assertEquals(50, result.getLimit());
+
+    final AdminStreamFilter filter1 = result.getFilter();
+    verifyFilter(filter1);
+
+    final List<AdminStreamInfo> adminStreamInfoList = result.getStreams();
+    int num = 0;
+    AdminStreamAttributes adminStreamAttributes = null;
+
+    String id;
+    boolean isExternal;
+    boolean isActive;
+    boolean isPublic;
+    String type;
+
+    String roomName;
+    String roomDescription;
+    long createdByUserId;
+    long createdDate;
+    long lastModifiedDate;
+    String originCompany;
+    Integer originCompanyId;
+    Integer membersCounts;
+    long lastMessageDate;
+
+    List<Long> listMembers = new ArrayList<Long>();
+
+    for (final AdminStreamInfo adminStreamInfo : adminStreamInfoList){
+      num++;
+      adminStreamAttributes = adminStreamInfo.getAttributes();
+      if(num == 1){
+        listMembers.clear();
+        id  = "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA";
+        isExternal = false;
+        isActive = true;
+        isPublic = false;
+        type = "ROOM";
+        logger.debug("isActive = "+adminStreamInfo.isActive());
+        logger.debug("ID = "+adminStreamInfo.getId());
+        verifyStream(adminStreamInfo, id, isExternal, isActive, isPublic, type);
+
+        roomName = "Active Internal Private Room";
+        roomDescription = "Active Internal Private Room";
+        createdByUserId = 8933531975689L;
+        createdDate = 1481575056047L;
+        lastModifiedDate = 1481575056047L;
+        originCompany = "Symphony";
+        originCompanyId = Integer.valueOf(130);
+        membersCounts = Integer.valueOf(1);
+        lastMessageDate = 1516699467959L;
+        verifyAttributes(adminStreamAttributes, roomName, roomDescription, createdByUserId,  createdDate, lastModifiedDate, originCompany, originCompanyId, membersCounts, lastMessageDate);
+      }
+      else if(num == 2){
+        listMembers.clear();
+        id  = "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA";
+        isExternal = true;
+        isActive = false;
+        isPublic = false;
+        type = "ROOM";
+        verifyStream(adminStreamInfo, id, isExternal, isActive, isPublic, type);
+
+        roomName = "Inactive External Room";
+        roomDescription = "Inactive External Room";
+        createdByUserId = 8933531975686L;
+        createdDate = 1481876438194L;
+        lastModifiedDate = 1481876438194L;
+        originCompany = "Symphony";
+        originCompanyId = Integer.valueOf(130);
+        membersCounts = Integer.valueOf(2);
+        lastMessageDate = 1516699467959L;
+        verifyAttributes(adminStreamAttributes, roomName, roomDescription, createdByUserId,  createdDate, lastModifiedDate, originCompany, originCompanyId, membersCounts, lastMessageDate);
+      }
+      else if(num == 3){
+        listMembers.clear();
+        id  = "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA";
+        isExternal = false;
+        isActive = true;
+        type = "IM";
+        verifyStream(adminStreamInfo, id, isExternal, isActive, type);
+
+        listMembers.add(8933531975686L);
+        listMembers.add(8933531975689L);
+
+        createdByUserId = 8933531975689L;
+        createdDate = 1482302390238L;
+        lastModifiedDate = 1482302390238L;
+        originCompany = "Symphony";
+        originCompanyId = Integer.valueOf(130);
+        membersCounts = Integer.valueOf(2);
+        lastMessageDate = 1516699467959L;
+        verifyAttributes(adminStreamAttributes, createdByUserId, createdDate, lastModifiedDate, originCompany, originCompanyId, membersCounts, lastMessageDate, listMembers);
+      }
+      else if(num == 4){
+        listMembers.clear();
+        id  = "k19u9c3GSE_iq0VHDKe1on___qa0Cp2WdA";
+        isExternal = false;
+        isActive = true;
+        type = "MIM";
+        verifyStream(adminStreamInfo, id, isExternal, isActive, type);
+
+        listMembers.add(8933531975688L);
+        listMembers.add(8933531975689L);
+        listMembers.add(8933531975717L);
+
+        createdByUserId = 8933531975688L;
+        createdDate = 1483038089833L;
+        lastModifiedDate = 1483038089833L;
+        originCompany = "Symphony";
+        originCompanyId = Integer.valueOf(130);
+        membersCounts = Integer.valueOf(3);
+        lastMessageDate = 1516699467959L;
+        verifyAttributes(adminStreamAttributes, createdByUserId, createdDate, lastModifiedDate, originCompany, originCompanyId, membersCounts, lastMessageDate, listMembers);
+      }
+    }
+  }
+
+  private void verifyAttributes(final AdminStreamAttributes adminStreamAttributes, final String roomName, final String roomDescription, final long createdByUserId, final long createdDate, final long lastModifiedDate, final String originCompany, final Integer originCompanyId, final Integer membersCount, final long lastMessageDate) {
+    assertEquals(roomName, adminStreamAttributes.getRoomName());
+    assertEquals(roomDescription, adminStreamAttributes.getRoomDescription());
+    assertEquals(createdByUserId, adminStreamAttributes.getCreatedByUserId());
+    assertEquals(createdDate, adminStreamAttributes.getCreatedDate());
+    assertEquals(lastModifiedDate, adminStreamAttributes.getLastModifiedDate());
+    assertEquals(originCompany, adminStreamAttributes.getOriginCompany());
+    assertEquals(originCompanyId, adminStreamAttributes.getOriginCompanyId());
+    assertEquals(membersCount, adminStreamAttributes.getMembersCount());
+    assertEquals(lastMessageDate, adminStreamAttributes.getLastModifiedDate());
+  }
+
+  private void verifyAttributes(final AdminStreamAttributes adminStreamAttributes, final long createdByUserId, final long createdDate, final long lastModifiedDate, final String originCompany, final Integer originCompanyId, final Integer membersCount, final long lastMessageDate, final List<Long> listMembers) {
+    assertEquals(createdByUserId, adminStreamAttributes.getCreatedByUserId());
+    assertEquals(createdDate, adminStreamAttributes.getCreatedDate());
+    assertEquals(lastModifiedDate, adminStreamAttributes.getLastModifiedDate());
+    assertEquals(originCompany, adminStreamAttributes.getOriginCompany());
+    assertEquals(originCompanyId, adminStreamAttributes.getOriginCompanyId());
+    assertEquals(membersCount, adminStreamAttributes.getMembersCount());
+    assertEquals(lastMessageDate, adminStreamAttributes.getLastModifiedDate());
+    assertEquals(listMembers.size(), adminStreamAttributes.getMembers().size());
+    int n = adminStreamAttributes.getMembers().size();
+    for(int i = 0; i < n; i++){
+      assertEquals(listMembers.get(i), adminStreamAttributes.getMembers().get(i));
+    }
+  }
+
+  private void verifyStream(final AdminStreamInfo adminStreamInfo, final String id, final boolean isExternal, final boolean isActive, final boolean isPublic, final String type) {
+      assertEquals(id, adminStreamInfo.getId());
+      assertEquals(isExternal, adminStreamInfo.isExternal());
+      assertEquals(isActive, adminStreamInfo.isActive());
+      assertEquals(isPublic, adminStreamInfo.isPublic());
+      assertEquals(type, adminStreamInfo.getType());
+  }
+
+  private void verifyStream(final AdminStreamInfo adminStreamInfo, final String id, final boolean isExternal, final boolean isActive, final String type) {
+    assertEquals(id, adminStreamInfo.getId());
+    assertEquals(isExternal, adminStreamInfo.isExternal());
+    assertEquals(isActive, adminStreamInfo.isActive());
+    assertEquals(type, adminStreamInfo.getType());
+  }
+
+  private void verifyFilter(final AdminStreamFilter filter1) {
+    assertEquals(1, filter1.getStreamTypes().size());
+    assertEquals("ROOM", filter1.getStreamTypes().get(0));
+    assertEquals("EXTERNAL", filter1.getScope());
+    assertEquals("EXTERNAL", filter1.getOrigin());
+    assertEquals("ACTIVE", filter1.getStatus());
+    assertEquals("PRIVATE", filter1.getPrivacy());
+    assertEquals(Long.valueOf(1481575056047L), filter1.getStartDate());
+    assertEquals(Long.valueOf(1483038089833L), filter1.getEndDate());
   }
 
   @Test
