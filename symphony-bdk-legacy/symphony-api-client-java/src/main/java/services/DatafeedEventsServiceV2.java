@@ -51,6 +51,8 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
             do {
                 try {
                     readEventsFromDatafeed();
+                } catch (APIClientErrorException e) {
+                    logger.debug("Something went wrong rather than faulty datafeed", e);
                 } catch (Exception e) {
                     logger.error("Something went wrong while reading datafeed", e);
                     logger.info("Sleeping for {} seconds before retrying..", botClient.getConfig().getDatafeedEventsErrorTimeout());
