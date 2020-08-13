@@ -28,11 +28,7 @@ public class SymphonyBdk {
 
     this.apiClientFactory = new ApiClientFactory(config);
 
-    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(
-        config,
-        apiClientFactory.getLoginClient(),
-        apiClientFactory.getRelayClient()
-    );
+    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, this.apiClientFactory);
 
     this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();

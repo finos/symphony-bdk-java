@@ -3,17 +3,21 @@ package com.symphony.bdk.core.auth;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
+import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.RsaTestHelper;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -29,6 +33,14 @@ class AuthenticatorFactoryTest {
 
   private static final ApiClient DUMMY_API_CLIENT = new ApiClientJersey2();
   private static final String RSA_PRIVATE_KEY = RsaTestHelper.generatePrivateKeyAsString();
+  private static ApiClientFactory DUMMY_API_CLIENT_FACTORY;
+
+  @BeforeAll
+  public static void setup() {
+    DUMMY_API_CLIENT_FACTORY = mock(ApiClientFactory.class);
+    when(DUMMY_API_CLIENT_FACTORY.getLoginClient()).thenReturn(DUMMY_API_CLIENT);
+    when(DUMMY_API_CLIENT_FACTORY.getRelayClient()).thenReturn(DUMMY_API_CLIENT);
+  }
 
   @Test
   void testGetBotAuthenticatorWithValidPrivateKey(@TempDir Path tempDir) throws AuthInitializationException {
@@ -39,7 +51,7 @@ class AuthenticatorFactoryTest {
       return privateKeyPath.toAbsolutePath().toString();
     });
 
-    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT, DUMMY_API_CLIENT);
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
     final BotAuthenticator botAuth = factory.getBotAuthenticator();
     assertNotNull(botAuth);
     assertEquals(BotAuthenticatorRsaImpl.class, botAuth.getClass());
@@ -54,7 +66,7 @@ class AuthenticatorFactoryTest {
       return privateKeyPath.toAbsolutePath().toString();
     });
 
-    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT, DUMMY_API_CLIENT);
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
     assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
   }
 
@@ -63,7 +75,7 @@ class AuthenticatorFactoryTest {
 
     final BdkConfig config = createRsaConfig(() -> tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem").toAbsolutePath().toString());
 
-    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT, DUMMY_API_CLIENT);
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
     assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
   }
 
@@ -76,7 +88,7 @@ class AuthenticatorFactoryTest {
       return privateKeyPath.toAbsolutePath().toString();
     });
 
-    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT, DUMMY_API_CLIENT);
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
     final OboAuthenticator oboAuth = factory.getOboAuthenticator();
     assertNotNull(oboAuth);
     assertEquals(OboAuthenticatorRsaImpl.class, oboAuth.getClass());
