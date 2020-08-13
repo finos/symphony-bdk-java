@@ -52,8 +52,7 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
                 try {
                     readEventsFromDatafeed();
                 } catch (APIClientErrorException e) {
-                    //Datafeed was stale
-                    logger.info(e.getMessage());
+                    logger.debug("Something went wrong rather than faulty datafeed", e);
                 } catch (Exception e) {
                     logger.error("Something went wrong while reading datafeed", e);
                     logger.info("Sleeping for {} seconds before retrying..", botClient.getConfig().getDatafeedEventsErrorTimeout());
@@ -74,10 +73,19 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
             datafeedId = datafeedIds.get(0).getId();
         }
         //Read datafeed in loop
+        logger.info("Start reading datafeed events from datafeed {}", datafeedId);
         do {
-            List<DatafeedEvent> events = datafeedClient.readDatafeed(datafeedId, datafeedClient.getAckId());
-            if (events != null && !events.isEmpty()) {
-                handleEvents(events);
+            try {
+                List<DatafeedEvent> events = datafeedClient.readDatafeed(datafeedId, datafeedClient.getAckId());
+                if (events != null && !events.isEmpty()) {
+                    handleEvents(events);
+                }
+            } catch (APIClientErrorException e) {
+                //Datafeed was stale
+                logger.debug("Something went wrong with this datafeed: {}", datafeedId, e);
+                logger.info(e.getMessage());
+                datafeedClient.deleteDatafeed(datafeedId);
+                break;
             }
 
         } while (started.get());
