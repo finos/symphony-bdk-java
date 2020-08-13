@@ -80,7 +80,7 @@ class DatafeedEventsServiceV2 extends AbstractDatafeedEventsService {
                 }
             } catch (APIClientErrorException e) {
                 //Datafeed was stale
-                logger.debug("Something went wrong with this datafeed: {}", datafeedId);
+                logger.debug("Something went wrong with this datafeed: {}", datafeedId, e);
                 logger.info(e.getMessage());
                 datafeedClient.deleteDatafeed(datafeedId);
                 break;
