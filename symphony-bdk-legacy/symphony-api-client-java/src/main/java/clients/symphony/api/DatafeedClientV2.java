@@ -95,7 +95,7 @@ final class DatafeedClientV2 extends APIClient implements IDatafeedClient {
                 return null;
             } else {
                 DatafeedV2EventList datafeedEventList = response.readEntity(DatafeedV2EventList.class);
-                logger.info("Read datafeed events from datafeed {} ...", datafeedId);
+                logger.debug("Read datafeed events from datafeed {} ...", datafeedId);
                 this.ackId = datafeedEventList.getAckId();
                 return datafeedEventList.getEvents();
             }
