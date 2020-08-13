@@ -103,6 +103,7 @@ public class DatafeedEventsServiceTest {
 
         verify(datafeedClient, times(2)).listDatafeedId();
         verify(datafeedClient, times(1)).createDatafeed();
+        verify(datafeedClient, times(1)).deleteDatafeed("123");
         verify(datafeedClient, times(1)).readDatafeed("123", "ack_id_string");
         verify(datafeedClient, atLeast(1)).readDatafeed("1234", "ack_id_string");
         verify(sleeper, times(0)).sleep(anyInt());
