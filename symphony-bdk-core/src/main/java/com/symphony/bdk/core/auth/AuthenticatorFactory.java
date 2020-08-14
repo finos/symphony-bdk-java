@@ -1,24 +1,22 @@
 package com.symphony.bdk.core.auth;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
-
-import javax.annotation.Nonnull;
 
 /**
  * Factory class that provides new instances for the main authenticators :
@@ -47,8 +45,12 @@ public class AuthenticatorFactory {
    * @return a new {@link BotAuthenticator} instance.
    */
   public @Nonnull BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
-    //TODO if cert authent configured, return correct class
-    // Generated method to use : AuthenticationApi.v1AuthenticatePostWithHttpInfo()
+    if (this.config.getBot().isCertificateAuthenticationConfigured()) {
+      return new BotAuthenticatorCertImpl(
+          this.apiClientFactory.getSessionAuthClient(),
+          this.apiClientFactory.getKeyAuthClient()
+      );
+    }
     return new BotAuthenticatorRsaImpl(
         this.config.getBot().getUsername(),
         this.loadPrivateKeyFromPath(this.config.getBot().getPrivateKeyPath()),

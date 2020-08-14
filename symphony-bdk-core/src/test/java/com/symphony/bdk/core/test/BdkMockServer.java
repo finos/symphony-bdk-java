@@ -1,18 +1,17 @@
 package com.symphony.bdk.core.test;
 
-import static org.mockserver.integration.ClientAndServer.startClientAndServer;
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
-
 import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
-
+import com.symphony.bdk.core.api.invoker.jersey2.ApiClientBuilderJersey2;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.MediaType;
 
 import java.util.function.Consumer;
+
+import static org.mockserver.integration.ClientAndServer.startClientAndServer;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 
 /**
  * MockServer helper, only for testing purpose.
@@ -39,7 +38,9 @@ public class BdkMockServer {
   }
 
   public ApiClient newApiClient(String contextPath) {
-    return new ApiClientJersey2("http://localhost:" + this.mockServer.getPort() + contextPath);
+    return new ApiClientBuilderJersey2()
+        .basePath("http://localhost:" + this.mockServer.getPort() + contextPath)
+        .buildClient();
   }
 
   public void onPost(String path, Consumer<HttpResponse> resModifier) {
