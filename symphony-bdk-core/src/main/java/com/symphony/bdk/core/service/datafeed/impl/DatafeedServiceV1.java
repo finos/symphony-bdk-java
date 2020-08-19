@@ -3,7 +3,6 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.model.V4Event;
 import lombok.extern.slf4j.Slf4j;
@@ -36,11 +35,9 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
      */
     @Override
     public void start() throws Throwable {
-        log.debug("Start retrieving datafeed id from disk");
         this.datafeedId = this.retrieveDatafeedIdFromDisk();
 
         if (this.datafeedId == null) {
-            log.debug("Start creating a new datafeed and save to disk");
             this.datafeedId = this.createDatafeedAndSaveToDisk();
         }
 
@@ -71,12 +68,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
                 log.error("Error {}: {}", e.getCode(), e.getMessage());
                 if (e.isUnauthorized()) {
                     log.info("Re-authenticate and try again");
-                    try {
-                        authSession.refresh();
-                    } catch (AuthUnauthorizedException authUnauthorizedException) {
-                        log.error("Cannot re-authenticate the bot");
-                        throw authUnauthorizedException;
-                    }
+                    authSession.refresh();
                 }
                 if (e.isClientError()) {
                     log.info("Recreate a new datafeed and try again");
@@ -86,10 +78,10 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             }
             return null;
         });
-
     }
 
     private String createDatafeedAndSaveToDisk() throws Throwable {
+        log.debug("Start creating a new datafeed and save to disk");
         return this.retry.executeCheckedSupplier(() -> {
             try {
                 String id = this.datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
@@ -99,12 +91,8 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             } catch (ApiException e) {
                 log.error("Error {}: {}", e.getCode(), e.getMessage());
                 if (e.isUnauthorized()) {
-                    try {
-                        authSession.refresh();
-                    } catch (AuthUnauthorizedException authUnauthorizedException) {
-                        log.error("Cannot re-authenticate the bot");
-                        throw authUnauthorizedException;
-                    }
+                    log.info("Re-authenticate and try again");
+                    authSession.refresh();
                 }
                 throw e;
             }
@@ -112,6 +100,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     }
 
     private String retrieveDatafeedIdFromDisk() {
+        log.debug("Start retrieving datafeed id from disk");
         String datafeedId = null;
         try {
             File file = this.getDatafeedIdFile();
@@ -120,7 +109,8 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             datafeedId = persistedDatafeed[0];
             log.info("Retrieve datafeed id from persisted file: {}", datafeedId);
         } catch (IOException e) {
-            log.info("No datafeed id is persisted");
+            log.debug(e.getMessage());
+            log.info("No persisted datafeed id could be retrieved from the filesystem");
         }
         return datafeedId;
     }
