@@ -2,6 +2,7 @@ package com.symphony.bdk.examples;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
@@ -18,7 +19,7 @@ public class AuthMain {
   private static final String STREAM = "2IFEMquh3pOHAxcgLF8jU3___ozwgwIVdA";
   private static final String MESSAGE = "<messageML>Hello, World!</messageML>";
 
-  public static void main(String[] args) throws BdkConfigException, AuthInitializationException {
+  public static void main(String[] args) throws BdkConfigException, AuthInitializationException, AuthUnauthorizedException {
 
     // setup SymphonyBdk facade object
     final SymphonyBdk bdk = new SymphonyBdk(BdkConfigLoader.loadFromClasspath("/config.yaml"));

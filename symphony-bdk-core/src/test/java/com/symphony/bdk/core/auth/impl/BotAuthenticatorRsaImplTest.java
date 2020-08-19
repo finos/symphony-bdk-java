@@ -1,19 +1,16 @@
 package com.symphony.bdk.core.auth.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.RsaTestHelper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the {@link BotAuthenticatorRsaImpl}.
@@ -35,7 +32,7 @@ class BotAuthenticatorRsaImplTest {
   }
 
   @Test
-  void testAuthenticateBot() {
+  void testAuthenticateBot() throws AuthUnauthorizedException {
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
     assertEquals(AuthSessionImpl.class, session.getClass());

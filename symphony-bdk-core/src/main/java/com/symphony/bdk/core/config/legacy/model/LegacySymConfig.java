@@ -23,26 +23,26 @@ public class LegacySymConfig {
     //
     private String scheme = DEFAULT_SCHEME;
     private String sessionAuthHost;
-    private int sessionAuthPort;
-    private String sessionAuthContextPath;
+    private int sessionAuthPort = 443;
+    private String sessionAuthContextPath = "";
 
     private String keyAuthHost;
-    private int keyAuthPort;
-    private String keyAuthContextPath;
+    private int keyAuthPort = 443;
+    private String keyAuthContextPath = "";
     private String keyManagerProxyURL;
     private String keyManagerProxyUsername;
     private String keyManagerProxyPassword;
 
     private String podHost;
-    private int podPort;
-    private String podContextPath;
+    private int podPort = 443;
+    private String podContextPath = "";
     private String podProxyURL;
     private String podProxyUsername;
     private String podProxyPassword;
 
     private String agentHost;
-    private int agentPort;
-    private String agentContextPath;
+    private int agentPort = 443;
+    private String agentContextPath = "";
     private String agentProxyURL;
     private String agentProxyUsername;
     private String agentProxyPassword;
@@ -86,7 +86,7 @@ public class LegacySymConfig {
 
     // ---------------------------------------------------------------------------------------------------------------//
     // DATAFEED
-    private String datafeedVersion;
+    private String datafeedVersion = "v1";
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
     private Boolean reuseDatafeedID;

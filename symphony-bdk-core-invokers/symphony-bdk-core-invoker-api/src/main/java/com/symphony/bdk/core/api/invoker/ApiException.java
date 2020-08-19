@@ -3,11 +3,10 @@ package com.symphony.bdk.core.api.invoker;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
+import javax.ws.rs.core.GenericType;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.core.GenericType;
 
 /**
  * Main exception raised when invoking {@link ApiClient#invokeAPI(String, String, List, Object, Map, Map, Map, String, String, String[], GenericType)}.
@@ -58,11 +57,29 @@ public class ApiException extends Exception {
     }
 
     /**
-     * Check if response status if unauthorized or not.
+     * Check if response status is unauthorized or not.
      *
      * @return true if response status is 401, false otherwise
      */
     public boolean isUnauthorized() {
         return this.code == HttpURLConnection.HTTP_UNAUTHORIZED;
+    }
+
+    /**
+     * Check if response status is client error or not
+     *
+     * @return true if response status is 400, false otherwise
+     */
+    public boolean isClientError() {
+        return this.code == HttpURLConnection.HTTP_BAD_REQUEST;
+    }
+
+    /**
+     * Check if response status is server error or not
+     *
+     * @return true if response status equals or greater than 500, false otherwise
+     */
+    public boolean isServerError() {
+        return this.code >= HttpURLConnection.HTTP_INTERNAL_ERROR;
     }
 }

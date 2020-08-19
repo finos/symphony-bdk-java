@@ -17,4 +17,7 @@ public class BdkConfig {
     private BdkExtAppConfig app = new BdkExtAppConfig();
     private BdkSslConfig ssl = new BdkSslConfig();
 
+    private BdkRetryConfig retry = new BdkRetryConfig();
+    private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
+
 }

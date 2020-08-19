@@ -3,17 +3,15 @@ package com.symphony.bdk.core.client;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientProvider;
 import com.symphony.bdk.core.config.model.BdkConfig;
-
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import javax.annotation.Nonnull;
 
 /**
  * Factory responsible for creating {@link ApiClient} instances for each main Symphony's components :
@@ -43,6 +41,17 @@ public class ApiClientFactory {
   public ApiClient getLoginClient() {
     final ApiClient apiClient = this.apiClientProvider.newInstance();
     apiClient.setBasePath(this.config.getPod().getBasePath() + "/login");
+    return apiClient;
+  }
+
+  /**
+   * Returns a fully initialized {@link ApiClient} for Pod API.
+   *
+   * @return an new {@link ApiClient} instance.
+   */
+  public ApiClient getPodClient() {
+    final ApiClient apiClient = this.apiClientProvider.newInstance();
+    apiClient.setBasePath(this.config.getPod().getBasePath() + "/pod");
     return apiClient;
   }
 

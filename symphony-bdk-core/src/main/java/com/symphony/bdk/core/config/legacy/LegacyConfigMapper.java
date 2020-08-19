@@ -45,6 +45,15 @@ public class LegacyConfigMapper {
         ssl.setTrustStorePath(legacySymConfig.getTruststorePath());
         ssl.setTrustStorePassword(legacySymConfig.getTruststorePassword());
 
+        BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
+        datafeed.setDatafeedIdFilePath(legacySymConfig.getDatafeedIdFilePath());
+        datafeed.setVersion(legacySymConfig.getDatafeedVersion());
+
+        BdkRetryConfig retry = new BdkRetryConfig();
+        retry.setInitialIntervalMillis(legacySymConfig.getRetry().getInitialIntervalMillis());
+        retry.setMultiplier(legacySymConfig.getRetry().getMultiplier());
+        retry.setMaxAttempts(legacySymConfig.getRetry().getMaxAttempts());
+
         BdkConfig config = new BdkConfig();
         config.setAgent(agent);
         config.setPod(pod);
@@ -52,6 +61,8 @@ public class LegacyConfigMapper {
         config.setBot(bot);
         config.setApp(app);
         config.setSsl(ssl);
+        config.setDatafeed(datafeed);
+        config.setRetry(retry);
         return config;
     }
 }
