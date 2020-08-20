@@ -1,12 +1,15 @@
 package com.symphony.bdk.core.service.datafeed;
 
+import com.symphony.bdk.core.api.invoker.ApiException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+
 public interface DatafeedService {
 
     /**
      * Start the datafeed events service
      *
      */
-    void start() throws Throwable;
+    void start() throws AuthUnauthorizedException, ApiException;
 
     /**
      * Stop the datafeed events service

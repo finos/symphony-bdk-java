@@ -46,7 +46,7 @@ public class LegacyConfigMapper {
         ssl.setTrustStorePassword(legacySymConfig.getTruststorePassword());
 
         BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
-        datafeed.setDatafeedIdFilePath(legacySymConfig.getDatafeedIdFilePath());
+        datafeed.setIdFilePath(legacySymConfig.getDatafeedIdFilePath());
         datafeed.setVersion(legacySymConfig.getDatafeedVersion());
 
         BdkRetryConfig retry = new BdkRetryConfig();

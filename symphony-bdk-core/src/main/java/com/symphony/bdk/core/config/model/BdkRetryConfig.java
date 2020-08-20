@@ -18,7 +18,9 @@ public class BdkRetryConfig {
     private long maxIntervalMillis = DEFAULT_MAX_INTERVAL_MILLIS;
 
     public double getMultiplier() {
-        if (this.multiplier < 1) return 1;
+        if (this.multiplier < 1) {
+            return 1;
+        }
         return this.multiplier;
     }
 }

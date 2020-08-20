@@ -10,16 +10,16 @@ import java.io.File;
 public class BdkDatafeedConfig {
 
     private String version = "v1";
-    private String datafeedIdFilePath;
+    private String idFilePath;
     private BdkRetryConfig retry;
 
-    public String getDatafeedIdFilePath() {
-        if (datafeedIdFilePath == null || datafeedIdFilePath.isEmpty()) {
+    public String getIdFilePath() {
+        if (idFilePath == null || idFilePath.isEmpty()) {
             return "." + File.separator;
         }
-        if (!datafeedIdFilePath.endsWith(File.separator)) {
-            return datafeedIdFilePath + File.separator;
+        if (!idFilePath.endsWith(File.separator)) {
+            return idFilePath + File.separator;
         }
-        return datafeedIdFilePath;
+        return idFilePath;
     }
 }

@@ -7,14 +7,13 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.service.BotInfoService;
+import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.service.V4MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
-import com.symphony.bdk.gen.api.model.UserV2;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -30,8 +29,6 @@ public class SymphonyBdk {
   private final AuthSession botSession;
   private final OboAuthenticator oboAuthenticator;
   private final BdkConfig config;
-
-  private UserV2 botInfo;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 

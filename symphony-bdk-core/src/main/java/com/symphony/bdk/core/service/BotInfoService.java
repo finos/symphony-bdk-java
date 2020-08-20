@@ -24,14 +24,10 @@ public class BotInfoService {
      *
      * @return information about the bot itself
      */
-    public UserV2 getBotInfo() {
+    public UserV2 getBotInfo() throws ApiException {
         if (userInfo == null) {
-            try {
-                log.debug("Call session api to get bot info");
-                userInfo = this.sessionApi.v2SessioninfoGet(authSession.getSessionToken());
-            } catch (ApiException e) {
-                log.error("Cannot retrieve bot information", e);
-            }
+            log.debug("Call session api to get bot info");
+            userInfo = this.sessionApi.v2SessioninfoGet(authSession.getSessionToken());
         }
         return userInfo;
     }

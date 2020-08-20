@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-public class DatafeedEventConstant {
+class DatafeedEventConstant {
 
     public static final String MESSAGESENT = "MESSAGESENT";
     public static final String MESSAGESUPPRESSED = "MESSAGESUPPRESSED";

@@ -1,6 +1,7 @@
 package com.symphony.bdk.examples;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.BdkConfigLoader;
@@ -19,7 +20,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class DatafeedExampleMain {
 
-    public static void main(String[] args) throws BdkConfigException, AuthInitializationException, AuthUnauthorizedException, InterruptedException {
+    public static void main(String[] args) throws ApiException, BdkConfigException, AuthInitializationException, AuthUnauthorizedException, InterruptedException {
 
         // load configuration from classpath
         final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.yaml");
@@ -34,6 +35,7 @@ public class DatafeedExampleMain {
 
         log.info("DatafeedV1: Start");
         DatafeedService ds = bdk.datafeed();
+
         ds.subscribe(new DatafeedEventListener() {
             @Override
             public void onMessageSent(V4Event event) {
@@ -123,6 +125,8 @@ public class DatafeedExampleMain {
                 throwable.printStackTrace();
             }
         });
+        Thread.sleep(5000);
+        ds.stop();
         Thread.sleep(100000);
     }
 }

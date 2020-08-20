@@ -233,7 +233,8 @@
 
                         <!-- Exclude temporary classes from coverage -->
                         <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
-                        <exclude>com/symphony/bdk/core/service/**/*.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/V4MessageService.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>

@@ -32,7 +32,10 @@ class BotAuthenticatorRsaImplTest {
   }
 
   @Test
-  void testAuthenticateBot() throws AuthUnauthorizedException {
+  void testAuthenticateBot(final BdkMockServer mockServer) throws AuthUnauthorizedException {
+    mockServer.onPost("/login/pubkey/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
+    mockServer.onPost("/relay/pubkey/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
+
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
     assertEquals(AuthSessionImpl.class, session.getClass());
