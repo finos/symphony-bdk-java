@@ -6,6 +6,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.model.V4Event;
+import io.github.resilience4j.retry.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -61,8 +62,14 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     }
 
     private void readDatafeed() throws ApiException, AuthUnauthorizedException {
+        Retry retry = Retry.of("Read Datafeed Retry", this.retryConfig);
+        retry.getEventPublisher().onRetry(event -> {
+            long intervalInMillis = event.getWaitInterval().toMillis();
+            double interval = intervalInMillis / 1000.0;
+            log.info("Retry in {} secs...", interval);
+        });
         try {
-            this.retry.executeCheckedSupplier(() -> {
+            retry.executeCheckedSupplier(() -> {
                 try {
                     List<V4Event> events = datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null);
                     if (events != null && !events.isEmpty()) {
@@ -98,7 +105,13 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     protected String createDatafeedAndSaveToDisk() throws ApiException, AuthUnauthorizedException {
         try {
             log.debug("Start creating a new datafeed and save to disk");
-            return this.retry.executeCheckedSupplier(() -> {
+            Retry retry = Retry.of("Datafeed Retry", this.retryConfig);
+            retry.getEventPublisher().onRetry(event -> {
+                long intervalInMillis = event.getWaitInterval().toMillis();
+                double interval = intervalInMillis / 1000.0;
+                log.info("Retry in {} secs...", interval);
+            });
+            return retry.executeCheckedSupplier(() -> {
                 try {
                     String id = this.datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
                     this.writeDatafeedIdToDisk(id);
@@ -144,7 +157,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         return datafeedId;
     }
 
-    private void writeDatafeedIdToDisk(String datafeedId) {
+    protected void writeDatafeedIdToDisk(String datafeedId) {
         String agentUrl = bdkConfig.getAgent().getHost() + ":" + bdkConfig.getAgent().getPort();
         try {
             FileUtils.writeStringToFile(this.getDatafeedIdFile(), datafeedId + "@" + agentUrl, StandardCharsets.UTF_8);

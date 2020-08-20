@@ -12,8 +12,7 @@ public enum DatafeedVersion {
     public static DatafeedVersion of(String version) {
         if ("v2".equalsIgnoreCase(version)) {
             return V2;
-        } else {
-            return V1;
         }
+        return V1;
     }
 }

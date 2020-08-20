@@ -11,9 +11,7 @@ public class BdkExponentialFunction {
         long initialIntervalMillis = retryConfig.getInitialIntervalMillis();
         double multiplier = retryConfig.getMultiplier();
         long maxIntervalMillis = retryConfig.getMaxIntervalMillis();
-        if (multiplier < 1.0D) {
-            throw new IllegalArgumentException("Illegal argument multiplier: " + multiplier);
-        }
+
         if (initialIntervalMillis < 10L) {
             throw new IllegalArgumentException("Illegal argument interval: " + initialIntervalMillis + " millis");
         }

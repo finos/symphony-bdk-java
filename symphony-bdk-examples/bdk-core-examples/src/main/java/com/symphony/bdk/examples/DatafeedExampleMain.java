@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class DatafeedExampleMain {
@@ -41,81 +42,6 @@ public class DatafeedExampleMain {
             public void onMessageSent(V4Event event) {
                 log.info("Message Sent");
             }
-
-            @Override
-            public void onSharedPost(V4Event event) {
-
-            }
-
-            @Override
-            public void onInstantMessageCreated(V4Event event) {
-                log.info("IM Created");
-            }
-
-            @Override
-            public void onRoomCreated(V4Event event) {
-
-            }
-
-            @Override
-            public void onRoomUpdated(V4Event event) {
-
-            }
-
-            @Override
-            public void onRoomDeactivated(V4Event event) {
-
-            }
-
-            @Override
-            public void onRoomReactivated(V4Event event) {
-
-            }
-
-            @Override
-            public void onUserRequestedToJoinRoom(V4Event event) {
-
-            }
-
-            @Override
-            public void onUserJoinedRoom(V4Event event) {
-
-            }
-
-            @Override
-            public void onUserLeftRoom(V4Event event) {
-
-            }
-
-            @Override
-            public void onRoomMemberPromotedToOwner(V4Event event) {
-
-            }
-
-            @Override
-            public void onRoomMemberDemotedFromOwner(V4Event event) {
-
-            }
-
-            @Override
-            public void onConnectionRequested(V4Event event) {
-
-            }
-
-            @Override
-            public void onConnectionAccepted(V4Event event) {
-
-            }
-
-            @Override
-            public void onMessageSuppressed(V4Event event) {
-
-            }
-
-            @Override
-            public void onSymphonyElementsAction(V4Event event) {
-
-            }
         });
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
@@ -125,8 +51,15 @@ public class DatafeedExampleMain {
                 throwable.printStackTrace();
             }
         });
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         ds.stop();
-        Thread.sleep(100000);
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+        }
     }
 }

@@ -12,7 +12,6 @@ import com.symphony.bdk.core.util.BdkExponentialFunction;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.V4Event;
-import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,14 +21,13 @@ import java.util.List;
 @Slf4j
 abstract class AbstractDatafeedService implements DatafeedService {
 
-    protected final DatafeedApi datafeedApi;
-    protected final SessionApi sessionApi;
     protected final AuthSession authSession;
     protected final BdkConfig bdkConfig;
     protected final BotInfoService sessionInfoService;
     protected final List<DatafeedEventListener> listeners;
     protected final RetryConfig retryConfig;
-    protected final Retry retry;
+    protected DatafeedApi datafeedApi;
+    protected SessionApi sessionApi;
 
     public AbstractDatafeedService(ApiClient agentClient, ApiClient podClient, AuthSession authSession, BdkConfig config) {
         this.datafeedApi = new DatafeedApi(agentClient);
@@ -45,17 +43,11 @@ abstract class AbstractDatafeedService implements DatafeedService {
                 .retryOnException(e -> {
                     if (e instanceof ApiException) {
                         ApiException apiException = (ApiException) e;
-                        return apiException.isServerError() || apiException.isUnauthorized();
+                        return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
                     }
                     return false;
                 })
                 .build();
-        this.retry = Retry.of("Datafeed Retry", this.retryConfig);
-        this.retry.getEventPublisher().onRetry(event -> {
-            long intervalInMillis = event.getWaitInterval().toMillis();
-            double interval = intervalInMillis / 1000.0;
-            log.info("Retry in {} secs...", interval);
-        });
     }
 
     /**
@@ -74,7 +66,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
         listeners.remove(listener);
     }
 
-    protected void handleV4EventList(List<V4Event> events) {
+    protected void handleV4EventList(List<V4Event> events) throws ApiException {
         for (V4Event event : events) {
             if (event == null || event.getType() == null) {
                 continue;
@@ -151,8 +143,11 @@ abstract class AbstractDatafeedService implements DatafeedService {
                         break;
                 }
             }
-
-
         }
     }
+
+    protected void setDatafeedApi(DatafeedApi datafeedApi) {
+        this.datafeedApi = datafeedApi;
+    }
+
 }
