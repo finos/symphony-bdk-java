@@ -38,7 +38,9 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
      */
     @Override
     public void start() throws AuthUnauthorizedException, ApiException {
-        if (this.started.get()) throw new IllegalStateException("The datafeed service is already started");
+        if (this.started.get()) {
+            throw new IllegalStateException("The datafeed service is already started");
+        }
         this.datafeedId = this.retrieveDatafeedIdFromDisk();
 
         if (this.datafeedId == null) {
@@ -105,7 +107,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     protected String createDatafeedAndSaveToDisk() throws ApiException, AuthUnauthorizedException {
         try {
             log.debug("Start creating a new datafeed and save to disk");
-            Retry retry = Retry.of("Datafeed Retry", this.retryConfig);
+            Retry retry = Retry.of("Create Datafeed Retry", this.retryConfig);
             retry.getEventPublisher().onRetry(event -> {
                 long intervalInMillis = event.getWaitInterval().toMillis();
                 double interval = intervalInMillis / 1000.0;
@@ -152,7 +154,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             datafeedId = persistedDatafeed[0];
             log.info("Retrieve datafeed id from persisted file: {}", datafeedId);
         } catch (IOException e) {
-            log.info("No persisted datafeed id could be retrieved from the filesystem");
+            log.debug("No persisted datafeed id could be retrieved from the filesystem");
         }
         return datafeedId;
     }

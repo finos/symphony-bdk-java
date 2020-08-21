@@ -14,6 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(BdkMockServerExtension.class)
@@ -39,12 +41,13 @@ public class BotInfoServiceTest {
     }
 
     @Test
-    void getBotInfo(BdkMockServer mockServer) throws ApiException {
-        System.out.println(ResResponseHelper.readResResponseFromClasspath("bot_info.json"));
+    void getBotInfo(BdkMockServer mockServer) throws ApiException, IOException {
+        String botInfoResponse = ResResponseHelper.readResResponseFromClasspath("bot_info.json");
         mockServer.onGet("/pod/v2/sessioninfo",
-                res -> res.withBody(ResResponseHelper.readResResponseFromClasspath("bot_info.json")));
+                res -> res.withBody(botInfoResponse));
+
         UserV2 botInfo = this.botInfoService.getBotInfo();
-        assertNotNull(botInfo);
+
         assertEquals(botInfo.getId(), 7696581394433L);
         assertEquals(botInfo.getDisplayName(), "Symphony Admin");
     }

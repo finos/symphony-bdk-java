@@ -71,9 +71,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
             if (event == null || event.getType() == null) {
                 continue;
             }
-            if (event.getInitiator() != null && event.getInitiator().getUser() != null
-                    && event.getInitiator().getUser().getUserId() != null
-                    && event.getInitiator().getUser().getUserId().equals(sessionInfoService.getBotInfo().getId())) {
+            if (this.isSelfGeneratedEvent(event)) {
                 continue;
             }
             for (DatafeedEventListener listener : listeners) {
@@ -144,6 +142,12 @@ abstract class AbstractDatafeedService implements DatafeedService {
                 }
             }
         }
+    }
+
+    private boolean isSelfGeneratedEvent(V4Event event) throws ApiException {
+        return event.getInitiator() != null && event.getInitiator().getUser() != null
+                && event.getInitiator().getUser().getUserId() != null
+                && event.getInitiator().getUser().getUserId().equals(sessionInfoService.getBotInfo().getId());
     }
 
     protected void setDatafeedApi(DatafeedApi datafeedApi) {

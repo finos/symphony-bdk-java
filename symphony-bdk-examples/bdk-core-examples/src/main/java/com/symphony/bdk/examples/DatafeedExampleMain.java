@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DatafeedExampleMain {
 
-    public static void main(String[] args) throws ApiException, BdkConfigException, AuthInitializationException, AuthUnauthorizedException, InterruptedException {
+    public static void main(String[] args) throws ApiException, BdkConfigException, AuthInitializationException, AuthUnauthorizedException {
 
         // load configuration from classpath
         final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.yaml");
