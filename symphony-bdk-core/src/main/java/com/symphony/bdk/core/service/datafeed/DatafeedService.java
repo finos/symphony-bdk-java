@@ -3,6 +3,9 @@ package com.symphony.bdk.core.service.datafeed;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
+/**
+ * Interface definition for a service to be used for handling the datafeed API.
+ */
 public interface DatafeedService {
 
     /**

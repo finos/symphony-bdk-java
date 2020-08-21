@@ -59,6 +59,12 @@ public class SymphonyBdk {
     return new V4MessageService(this.apiClientFactory.getAgentClient(), oboSession);
   }
 
+  /**
+   * Get the {@link DatafeedService} from a Bdk entry point.
+   * The returned datafeed service instance depends on the configuration of datafeed version.
+   *
+   * @return {@link DatafeedService} datafeed service instance.
+   */
   public DatafeedService datafeed() {
     if (DatafeedVersion.of(this.config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
       return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.apiClientFactory.getPodClient(), this.botSession, this.config);
@@ -66,6 +72,11 @@ public class SymphonyBdk {
     return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.apiClientFactory.getPodClient(), this.botSession, this.config);
   }
 
+  /**
+   * Get the {@link BotInfoService} from a Bdk entry point.
+   *
+   * @return {@link BotInfoService} bot info service instance.
+   */
   public BotInfoService botInfo() {
     return new BotInfoService(this.apiClientFactory.getPodClient(), this.botSession);
   }

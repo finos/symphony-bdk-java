@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.service.datafeed;
 
+/**
+ * Options of datafeed version can be used.
+ */
 public enum DatafeedVersion {
     V1, V2;
 

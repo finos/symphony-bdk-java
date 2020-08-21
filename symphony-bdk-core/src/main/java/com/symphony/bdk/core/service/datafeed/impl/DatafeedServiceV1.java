@@ -19,6 +19,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A class for implementing the datafeed v1 service.
+ */
 @Slf4j
 public class DatafeedServiceV1 extends AbstractDatafeedService {
 

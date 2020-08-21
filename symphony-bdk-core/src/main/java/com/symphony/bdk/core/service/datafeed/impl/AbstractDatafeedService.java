@@ -18,6 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base class for implementing the datafeed services. A datafeed services can help a bot subscribe or unsubscribe
+ * a {@link DatafeedEventListener} and handle the received event by the subscribed listeners.
+ */
 @Slf4j
 abstract class AbstractDatafeedService implements DatafeedService {
 
@@ -66,6 +70,13 @@ abstract class AbstractDatafeedService implements DatafeedService {
         listeners.remove(listener);
     }
 
+    /**
+     * Handle a received listener by using the subscribed {@link DatafeedEventListener}.
+     *
+     * @param events List of Datafeed events to be handled
+     *
+     * @throws ApiException if the bot cannot get the information about itself by using {@link BotInfoService}
+     */
     protected void handleV4EventList(List<V4Event> events) throws ApiException {
         for (V4Event event : events) {
             if (event == null || event.getType() == null) {

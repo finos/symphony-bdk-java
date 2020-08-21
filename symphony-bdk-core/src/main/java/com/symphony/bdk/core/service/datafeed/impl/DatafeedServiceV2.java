@@ -6,6 +6,9 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A class for implementing the datafeed v1 service.
+ */
 public class DatafeedServiceV2 extends AbstractDatafeedService {
 
     private final AtomicBoolean started = new AtomicBoolean();
@@ -14,11 +17,17 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
         super(agentClient, podClient, authSession, config);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void start() {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void stop() {
 
