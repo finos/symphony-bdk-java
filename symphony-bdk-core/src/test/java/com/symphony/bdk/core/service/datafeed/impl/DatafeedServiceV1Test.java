@@ -16,6 +16,7 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.Datafeed;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
+import io.github.resilience4j.retry.Retry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -29,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -127,6 +129,14 @@ public class DatafeedServiceV1Test {
     }
 
     @Test
+    void startTestClientErrorCreate() throws ApiException, AuthUnauthorizedException {
+        when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenThrow(new ApiException(400, "test_client_error"));
+
+        assertThrows(ApiException.class, this.datafeedService::start);
+        verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
+    }
+
+    @Test
     void startTestFailedAuthRead() throws ApiException, AuthUnauthorizedException {
         when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
         when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
@@ -136,6 +146,35 @@ public class DatafeedServiceV1Test {
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
         verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    }
+
+    @Test
+    void startServiceAlreadyStarted() throws ApiException, AuthUnauthorizedException {
+        AtomicInteger signal = new AtomicInteger(0);
+        List<V4Event> events = new ArrayList<>();
+        V4Event event = new V4Event().type(DatafeedEventConstant.MESSAGESENT);
+        events.add(event);
+        when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
+        when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+                .thenReturn(events);
+
+        this.datafeedService.unsubscribe(this.listener);
+        this.datafeedService.subscribe(new DatafeedEventListener() {
+            @Override
+            public void onMessageSent(V4Event event) {
+                try {
+                    datafeedService.start();
+                } catch (AuthUnauthorizedException | ApiException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    signal.incrementAndGet();
+                } finally {
+                    datafeedService.stop();
+                }
+            }
+        });
+        this.datafeedService.start();
+        assertEquals(signal.get(), 1);
     }
 
     @Test
@@ -182,6 +221,14 @@ public class DatafeedServiceV1Test {
 
         String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
         assertNull(datafeedId);
+    }
+
+    @Test
+    void getRetryInstanceTest() {
+        Retry retry = this.datafeedService.getRetryInstance("Test retry");
+        assertNotNull(retry);
+        assertEquals("Test retry", retry.getName());
+        assertEquals(2, retry.getRetryConfig().getMaxAttempts());
     }
 
     @Test
