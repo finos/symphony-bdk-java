@@ -165,4 +165,8 @@ abstract class AbstractDatafeedService implements DatafeedService {
         this.datafeedApi = datafeedApi;
     }
 
+    protected void setSessionApi(SessionApi sessionApi) {
+        this.sessionApi = sessionApi;
+    }
+
 }

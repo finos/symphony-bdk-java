@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BotInfoService {
 
-    private final SessionApi sessionApi;
+    private SessionApi sessionApi;
     private final AuthSession authSession;
     private static UserV2 userInfo;
 
@@ -34,6 +34,10 @@ public class BotInfoService {
             userInfo = this.sessionApi.v2SessioninfoGet(authSession.getSessionToken());
         }
         return userInfo;
+    }
+
+    protected void setSessionApi(SessionApi sessionApi) {
+        this.sessionApi = sessionApi;
     }
 
 }

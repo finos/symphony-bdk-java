@@ -2,49 +2,38 @@ package com.symphony.bdk.core.service;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.BotAuthenticator;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
-import com.symphony.bdk.core.test.BdkMockServer;
-import com.symphony.bdk.core.test.BdkMockServerExtension;
-import com.symphony.bdk.core.test.ResResponseHelper;
-import com.symphony.bdk.core.test.RsaTestHelper;
+import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@ExtendWith(BdkMockServerExtension.class)
 public class BotInfoServiceTest {
 
     private BotInfoService botInfoService;
 
     @BeforeEach
-    void init(BdkMockServer mockServer) throws AuthUnauthorizedException {
-        mockServer.onPost("/login/pubkey/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
-        mockServer.onPost("/relay/pubkey/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
-        BotAuthenticator botAuthenticator = new BotAuthenticatorRsaImpl(
-                "username",
-                RsaTestHelper.generateKeyPair().getPrivate(),
-                mockServer.newApiClient("/login"),
-                mockServer.newApiClient("/relay")
-        );
-        AuthSession authSession = botAuthenticator.authenticateBot();
+    void init() {
+        AuthSession authSession = mock(AuthSession.class);
+        when(authSession.getSessionToken()).thenReturn("1234");
+        when(authSession.getKeyManagerToken()).thenReturn("1234");
         this.botInfoService = new BotInfoService(
-                mockServer.newApiClient("/pod"),
+                null,
                 authSession
         );
     }
 
     @Test
-    void getBotInfo(BdkMockServer mockServer) throws ApiException, IOException {
-        String botInfoResponse = ResResponseHelper.readResResponseFromClasspath("bot_info.json");
-        mockServer.onGet("/pod/v2/sessioninfo",
-                res -> res.withBody(botInfoResponse));
+    void getBotInfo() throws ApiException, IOException {
+        SessionApi sessionApi = mock(SessionApi.class);
+        UserV2 user = new UserV2().id(7696581394433L).displayName("Symphony Admin");
+        when(sessionApi.v2SessioninfoGet("1234")).thenReturn(user);
+        this.botInfoService.setSessionApi(sessionApi);
 
         UserV2 botInfo = this.botInfoService.getBotInfo();
 

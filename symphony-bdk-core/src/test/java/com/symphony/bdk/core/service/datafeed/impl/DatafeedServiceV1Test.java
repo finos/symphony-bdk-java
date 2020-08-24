@@ -11,15 +11,13 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
-import com.symphony.bdk.core.test.BdkMockServer;
-import com.symphony.bdk.core.test.BdkMockServerExtension;
-import com.symphony.bdk.core.test.ResResponseHelper;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.Datafeed;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
@@ -35,20 +33,17 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(BdkMockServerExtension.class)
 public class DatafeedServiceV1Test {
 
     private DatafeedServiceV1 datafeedService;
     private BdkConfig bdkConfig;
     private DatafeedApi datafeedApi;
+    private SessionApi sessionApi;
     private AuthSession authSession;
     private DatafeedEventListener listener;
 
     @BeforeEach
-    void init(@TempDir Path tempDir, final BdkMockServer mockServer) throws BdkConfigException, IOException {
-        String botInfoResponse = ResResponseHelper.readResResponseFromClasspath("bot_info.json");
-        mockServer.onGet("/pod/v2/sessioninfo",
-                res -> res.withBody(botInfoResponse));
+    void init(@TempDir Path tempDir) throws BdkConfigException, IOException, ApiException {
         this.authSession = Mockito.mock(AuthSessionImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
@@ -66,8 +61,8 @@ public class DatafeedServiceV1Test {
         this.bdkConfig.setRetry(retryConfig);
 
         this.datafeedService = new DatafeedServiceV1(
-                mockServer.newApiClient("/agent"),
-                mockServer.newApiClient("/pod"),
+                null,
+                null,
                 this.authSession,
                 this.bdkConfig
         );
@@ -80,13 +75,16 @@ public class DatafeedServiceV1Test {
         this.datafeedService.subscribe(listener);
         this.datafeedApi = mock(DatafeedApi.class);
         this.datafeedService.setDatafeedApi(datafeedApi);
+        this.sessionApi = mock(SessionApi.class);
+        UserV2 botInfo = new UserV2().id(7696581394433L);
+        when(this.sessionApi.v2SessioninfoGet("1234")).thenReturn(botInfo);
+        this.datafeedService.setSessionApi(this.sessionApi);
     }
 
     @Test
     void startTest() throws ApiException, AuthUnauthorizedException {
         List<V4Event> events = new ArrayList<>();
-        V4Event event = new V4Event();
-        event.setType(DatafeedEventConstant.MESSAGESENT);
+        V4Event event = new V4Event().type(DatafeedEventConstant.MESSAGESENT);
         events.add(event);
         when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
         when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
@@ -193,13 +191,12 @@ public class DatafeedServiceV1Test {
         Field[] fields = DatafeedEventConstant.class.getDeclaredFields();
         for (Field f : fields) {
             if (Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())) {
-                V4Event event = new V4Event();
                 try {
-                    event.setType((String) f.get(String.class));
+                    V4Event event = new V4Event().type((String) f.get(String.class));
+                    events.add(event);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
-                events.add(event);
             }
         }
         this.datafeedService.unsubscribe(this.listener);
