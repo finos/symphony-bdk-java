@@ -7,6 +7,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.model.V4Event;
 import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
@@ -46,15 +47,25 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         }
         this.datafeedId = this.retrieveDatafeedIdFromDisk();
 
-        if (this.datafeedId == null) {
-            this.datafeedId = this.createDatafeedAndSaveToDisk();
-        }
+        try {
+            if (this.datafeedId == null) {
+                this.datafeedId = this.createDatafeedAndSaveToDisk();
+            }
 
-        log.debug("Start reading events from datafeed {}", datafeedId);
-        do {
-            this.started.set(true);
-            this.readDatafeed();
-        } while (this.started.get());
+            log.debug("Start reading events from datafeed {}", datafeedId);
+            do {
+                this.started.set(true);
+                this.readDatafeed();
+            } while (this.started.get());
+        } catch (Throwable e) {
+            if (e instanceof ApiException) {
+                throw (ApiException) e;
+            } else if (e instanceof AuthUnauthorizedException) {
+                throw (AuthUnauthorizedException) e;
+            } else {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -66,81 +77,61 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         this.started.set(false);
     }
 
-    private void readDatafeed() throws ApiException, AuthUnauthorizedException {
-        Retry retry = Retry.of("Read Datafeed Retry", this.retryConfig);
-        retry.getEventPublisher().onRetry(event -> {
-            long intervalInMillis = event.getWaitInterval().toMillis();
-            double interval = intervalInMillis / 1000.0;
-            log.info("Retry in {} secs...", interval);
-        });
-        try {
-            retry.executeCheckedSupplier(() -> {
-                try {
-                    List<V4Event> events = datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null);
-                    if (events != null && !events.isEmpty()) {
-                        handleV4EventList(events);
-                    }
-                } catch (ApiException e) {
-                    if (e.isUnauthorized()) {
-                        log.info("Re-authenticate and try again");
-                        authSession.refresh();
-                    } else {
-                        log.error("Error {}: {}", e.getCode(), e.getMessage());
-                        if (e.isClientError()) {
-                            log.info("Recreate a new datafeed and try again");
+    private void readDatafeed() throws Throwable {
+        RetryConfig config = RetryConfig.from(this.retryConfig).retryOnException(e -> {
+            if (e instanceof ApiException && e.getSuppressed().length == 0) {
+                ApiException apiException = (ApiException) e;
+                return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
+            }
+            return false;
+        }).build();
+        Retry retry = this.getRetryInstance("Read Datafeed", config);
+        retry.executeCheckedSupplier(() -> {
+            try {
+                List<V4Event> events = datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null);
+                if (events != null && !events.isEmpty()) {
+                    handleV4EventList(events);
+                }
+            } catch (ApiException e) {
+                if (e.isUnauthorized()) {
+                    log.info("Re-authenticate and try again");
+                    authSession.refresh();
+                } else {
+                    log.error("Error {}: {}", e.getCode(), e.getMessage());
+                    if (e.isClientError()) {
+                        log.info("Recreate a new datafeed and try again");
+                        try {
                             datafeedId = this.createDatafeedAndSaveToDisk();
+                        } catch (Throwable throwable) {
+                            e.addSuppressed(throwable);
                         }
                     }
-                    throw e;
                 }
-                return null;
-            });
-        } catch (Throwable e) {
-            if (e instanceof ApiException) {
-                throw (ApiException) e;
-            } else if (e instanceof AuthUnauthorizedException) {
-                throw (AuthUnauthorizedException) e;
-            } else {
-                e.printStackTrace();
+                throw e;
             }
-        }
-
+            return null;
+        });
     }
 
-    protected String createDatafeedAndSaveToDisk() throws ApiException, AuthUnauthorizedException {
-        try {
-            log.debug("Start creating a new datafeed and save to disk");
-            Retry retry = Retry.of("Create Datafeed Retry", this.retryConfig);
-            retry.getEventPublisher().onRetry(event -> {
-                long intervalInMillis = event.getWaitInterval().toMillis();
-                double interval = intervalInMillis / 1000.0;
-                log.info("Retry in {} secs...", interval);
-            });
-            return retry.executeCheckedSupplier(() -> {
-                try {
-                    String id = this.datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
-                    this.writeDatafeedIdToDisk(id);
-                    log.debug("Datafeed: {} was created and saved to disk", id);
-                    return id;
-                } catch (ApiException e) {
+    protected String createDatafeedAndSaveToDisk() throws Throwable {
+        log.debug("Start creating a new datafeed and save to disk");
+        Retry retry = this.getRetryInstance("Create Datafeed");
+        return retry.executeCheckedSupplier(() -> {
+            try {
+                String id = this.datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
+                this.writeDatafeedIdToDisk(id);
+                log.debug("Datafeed: {} was created and saved to disk", id);
+                return id;
+            } catch (ApiException e) {
+                if (e.isUnauthorized()) {
+                    log.info("Re-authenticate and try again");
+                    authSession.refresh();
+                } else {
                     log.error("Error {}: {}", e.getCode(), e.getMessage());
-                    if (e.isUnauthorized()) {
-                        log.info("Re-authenticate and try again");
-                        authSession.refresh();
-                    }
-                    throw e;
                 }
-            });
-        } catch (Throwable e) {
-            if (e instanceof ApiException) {
-                throw (ApiException) e;
-            } else if (e instanceof AuthUnauthorizedException) {
-                throw (AuthUnauthorizedException) e;
-            } else {
-                e.printStackTrace();
-                return null;
+                throw e;
             }
-        }
+        });
     }
 
     protected String retrieveDatafeedIdFromDisk() {

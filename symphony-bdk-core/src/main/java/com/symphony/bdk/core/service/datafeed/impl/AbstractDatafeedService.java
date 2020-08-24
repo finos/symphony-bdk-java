@@ -12,6 +12,7 @@ import com.symphony.bdk.core.util.BdkExponentialFunction;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.V4Event;
+import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +48,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
                 .retryOnException(e -> {
                     if (e instanceof ApiException) {
                         ApiException apiException = (ApiException) e;
-                        return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
+                        return apiException.isServerError() || apiException.isUnauthorized();
                     }
                     return false;
                 })
@@ -159,6 +160,16 @@ abstract class AbstractDatafeedService implements DatafeedService {
         return event.getInitiator() != null && event.getInitiator().getUser() != null
                 && event.getInitiator().getUser().getUserId() != null
                 && event.getInitiator().getUser().getUserId().equals(sessionInfoService.getBotInfo().getId());
+    }
+
+    protected Retry getRetryInstance(String name, RetryConfig... config) {
+        Retry retry = config.length == 0 ? Retry.of(name, this.retryConfig) : Retry.of(name, config[0]);
+        retry.getEventPublisher().onRetry(event -> {
+            long intervalInMillis = event.getWaitInterval().toMillis();
+            double interval = intervalInMillis / 1000.0;
+            log.info("Retry in {} secs...", interval);
+        });
+        return retry;
     }
 
     protected void setDatafeedApi(DatafeedApi datafeedApi) {
