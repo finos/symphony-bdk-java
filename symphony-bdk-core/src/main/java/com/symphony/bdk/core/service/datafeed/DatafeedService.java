@@ -15,7 +15,8 @@ public interface DatafeedService {
     void start() throws AuthUnauthorizedException, ApiException;
 
     /**
-     * Stop the datafeed events service
+     * Stop the datafeed events service.
+     * The datafeed service will be stopped after a small delay to finish the last read datafeed call.
      *
      */
     void stop();
