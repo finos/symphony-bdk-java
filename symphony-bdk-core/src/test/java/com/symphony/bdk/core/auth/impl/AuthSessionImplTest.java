@@ -29,7 +29,7 @@ class AuthSessionImplTest {
     assertEquals(sessionToken, session.getSessionToken());
     assertEquals(kmToken, session.getKeyManagerToken());
 
-    verify(auth, times(2)).retrieveSessionToken();
-    verify(auth, times(2)).retrieveKeyManagerToken();
+    verify(auth, times(1)).retrieveSessionToken();
+    verify(auth, times(1)).retrieveKeyManagerToken();
   }
 }
