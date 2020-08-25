@@ -3,7 +3,8 @@ package com.symphony.bdk.core.service.datafeed;
 import com.symphony.bdk.gen.api.model.*;
 
 /**
- * Interface definition for a callback to be invoked when a real-time event is received.
+ * Interface definition for a callback to be invoked when a real-time event is received from the datafeed.
+ * @see <a href="https://developers.symphony.com/restapi/docs/real-time-events">real-time-events</a>
  */
 public interface RealTimeEventListener {
 

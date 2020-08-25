@@ -14,9 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BotInfoService {
 
-    private SessionApi sessionApi;
     private final AuthSession authSession;
-    private static UserV2 userInfo;
+    private SessionApi sessionApi;
+    private UserV2 userInfo;
 
     public BotInfoService(ApiClient podClient, AuthSession authSession) {
         this.sessionApi = new SessionApi(podClient);
