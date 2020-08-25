@@ -8,9 +8,10 @@ import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.model.Token;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+
+import javax.annotation.Nonnull;
 
 /**
  * Bot authenticator certificate implementation.
@@ -24,7 +25,7 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
   private final ApiClient sessionAuthClient;
   private final ApiClient keyAuthClient;
 
-  public BotAuthenticatorCertImpl(@NonNull ApiClient sessionAuthClient, @NonNull ApiClient keyAuthClient) {
+  public BotAuthenticatorCertImpl(@Nonnull ApiClient sessionAuthClient, @Nonnull ApiClient keyAuthClient) {
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
   }
@@ -41,7 +42,7 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull String retrieveSessionToken() throws AuthUnauthorizedException {
+  public @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException {
     return doRetrieveToken(this.sessionAuthClient);
   }
 
@@ -49,7 +50,7 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public @NonNull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+  public @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     return doRetrieveToken(this.keyAuthClient);
   }
 

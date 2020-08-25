@@ -11,7 +11,6 @@ import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -56,18 +55,12 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
     return new AuthSessionImpl(this);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public @NonNull String retrieveSessionToken() throws AuthUnauthorizedException {
+  public String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using RSA authentication...");
     return this.doRetrieveToken(this.loginApiClient);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public @NonNull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+  public String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using RSA authentication...");
     return this.doRetrieveToken(this.relayApiClient);
   }

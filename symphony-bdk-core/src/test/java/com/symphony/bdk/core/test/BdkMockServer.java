@@ -47,6 +47,10 @@ public class BdkMockServer {
     this.onRequest("POST", path, resModifier);
   }
 
+  public void onGet(String path, Consumer<HttpResponse> resModifier) {
+    this.onRequest("GET", path, resModifier);
+  }
+
   public void onRequest(String method, String path, Consumer<HttpResponse> resModifier) {
 
     final HttpResponse httpResponse = response()

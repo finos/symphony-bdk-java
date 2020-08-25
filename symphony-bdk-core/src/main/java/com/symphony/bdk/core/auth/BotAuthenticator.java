@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.auth;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import lombok.NonNull;
 import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
@@ -24,12 +23,12 @@ public interface BotAuthenticator {
    * @return a new session token
    * @throws AuthUnauthorizedException in case of authentication failure
    */
-  @NonNull String retrieveSessionToken() throws AuthUnauthorizedException;
+  @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException;
 
   /**
    *
    * @return a new key manager token
    * @throws AuthUnauthorizedException in case of authentication failure
    */
-  @NonNull String retrieveKeyManagerToken() throws AuthUnauthorizedException;
+  @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException;
 }

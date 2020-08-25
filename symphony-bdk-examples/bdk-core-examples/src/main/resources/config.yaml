@@ -10,9 +10,17 @@ keyManager:
   host: devx1.symphony.com
 
 bot:
-  username: tibot
-  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
+  username: fxbot-hong
+  privateKeyPath: /Users/hong.le/dev/fxBot/rsa/rsa-private-fxBot.pem
 
 app:
-  appId: tibapp
-  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
+  appId: app-hong
+  privateKeyPath: /Users/hong.le/dev/fxBot/rsa/app_privatekey.pem
+
+datafeed:
+  version: v1
+  retry:
+    maxAttempts: 6
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000

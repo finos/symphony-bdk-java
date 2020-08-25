@@ -12,12 +12,11 @@ import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import javax.annotation.Nonnull;
 
 /**
  * Factory responsible for creating {@link ApiClient} instances for each main Symphony's components :
@@ -46,6 +45,15 @@ public class ApiClientFactory {
    */
   public ApiClient getLoginClient() {
     return buildClient(this.config.getPod().getBasePath() + "/login");
+  }
+
+  /**
+   * Returns a fully initialized {@link ApiClient} for Pod API.
+   *
+   * @return an new {@link ApiClient} instance.
+   */
+  public ApiClient getPodClient() {
+    return buildClient(this.config.getPod().getBasePath() + "/pod");
   }
 
   /**

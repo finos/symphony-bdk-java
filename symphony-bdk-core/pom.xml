@@ -97,6 +97,12 @@
             <version>${jackson.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-retry</artifactId>
+            <version>${resilience4j-retry.version}</version>
+        </dependency>
+
         <!-- ******************************** -->
         <!-- * CodeGen related dependencies * -->
         <!-- ******************************** -->
@@ -223,11 +229,16 @@
                         <exclude>com/symphony/bdk/core/**/*Type.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Config.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
+                        <exclude>com/symphony/bdk/core/**/*Constant.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
-                        <!-- Exclude temporary classes from coverage -->
+                        <!-- Exclude Thibault's temporary classes from coverage -->
                         <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
-                        <exclude>com/symphony/bdk/core/service/**/*.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/V4MessageService.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
+                        <exclude>com/symphony/bdk/core/service/Obo$Handle.class</exclude>
+                        <!-- Exclude datafeed service v2 because it's not implemented yet -->
+                        <exclude>com/symphony/bdk/core/service/datafeed/impl/DatafeedServiceV2.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>

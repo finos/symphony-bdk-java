@@ -15,6 +15,7 @@ public class LegacySymConfig {
     private static final int DEFAULT_CONNECTION_TIMEOUT = 10_000;
     private static final int DEFAULT_READ_TIMEOUT = 35_000;
     private static final String DEFAULT_SCHEME = "https";
+    private static final int DEFAULT_PORT = 443;
 
     private String _version = "1.0";
 
@@ -23,26 +24,26 @@ public class LegacySymConfig {
     //
     private String scheme = DEFAULT_SCHEME;
     private String sessionAuthHost;
-    private int sessionAuthPort;
-    private String sessionAuthContextPath;
+    private int sessionAuthPort = DEFAULT_PORT;
+    private String sessionAuthContextPath = "";
 
     private String keyAuthHost;
-    private int keyAuthPort;
-    private String keyAuthContextPath;
+    private int keyAuthPort = DEFAULT_PORT;
+    private String keyAuthContextPath = "";
     private String keyManagerProxyURL;
     private String keyManagerProxyUsername;
     private String keyManagerProxyPassword;
 
     private String podHost;
-    private int podPort;
-    private String podContextPath;
+    private int podPort = DEFAULT_PORT;
+    private String podContextPath = "";
     private String podProxyURL;
     private String podProxyUsername;
     private String podProxyPassword;
 
     private String agentHost;
-    private int agentPort;
-    private String agentContextPath;
+    private int agentPort = DEFAULT_PORT;
+    private String agentContextPath = "";
     private String agentProxyURL;
     private String agentProxyUsername;
     private String agentProxyPassword;
@@ -86,7 +87,7 @@ public class LegacySymConfig {
 
     // ---------------------------------------------------------------------------------------------------------------//
     // DATAFEED
-    private String datafeedVersion;
+    private String datafeedVersion = "v1";
     private int datafeedEventsThreadpoolSize;
     private int datafeedEventsErrorTimeout;
     private Boolean reuseDatafeedID;
@@ -101,25 +102,25 @@ public class LegacySymConfig {
     private LegacyRetryConfiguration retry = new LegacyRetryConfiguration();
 
     public String getAgentUrl() {
-        String port = (this.getAgentPort() == 443) ? "" : ":" + this.getAgentPort();
+        String port = (this.getAgentPort() == DEFAULT_PORT) ? "" : ":" + this.getAgentPort();
         String contextPath = formatContextPath(this.getAgentContextPath());
         return this.getScheme() + "://" + this.getAgentHost() + port + contextPath;
     }
 
     public String getPodUrl() {
-        String port = (this.getPodPort() == 443) ? "" : ":" + this.getPodPort();
+        String port = (this.getPodPort() == DEFAULT_PORT) ? "" : ":" + this.getPodPort();
         String contextPath = formatContextPath(this.getPodContextPath());
         return this.getScheme() + "://" + this.getPodHost() + port + contextPath;
     }
 
     public String getKeyAuthUrl() {
-        String port = (this.getKeyAuthPort() == 443) ? "" : ":" + this.getKeyAuthPort();
+        String port = (this.getKeyAuthPort() == DEFAULT_PORT) ? "" : ":" + this.getKeyAuthPort();
         String contextPath = formatContextPath(this.getKeyAuthContextPath());
         return this.getScheme() + "://" + this.getKeyAuthHost() + port + contextPath;
     }
 
     public String getSessionAuthUrl() {
-        String port = (this.getSessionAuthPort() == 443) ? "" : ":" + this.getSessionAuthPort();
+        String port = (this.getSessionAuthPort() == DEFAULT_PORT) ? "" : ":" + this.getSessionAuthPort();
         String contextPath = formatContextPath(this.getSessionAuthContextPath());
         return this.getScheme() + "://" + this.getSessionAuthHost() + port + contextPath;
     }

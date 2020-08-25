@@ -38,6 +38,13 @@ class ApiClientFactoryTest {
   }
 
   @Test
+  void testGetPodClient() {
+    final ApiClient podClient = this.factory.getPodClient();
+    assertEquals(ApiClientJersey2.class, podClient.getClass());
+    assertEquals("https://pod-host:443/pod", podClient.getBasePath());
+  }
+
+  @Test
   void testSessionAuthClientWithoutCertificateConfiguredShouldFail() {
     assertThrows(AuthInitializationException.class, () -> this.factory.getSessionAuthClient());
   }
