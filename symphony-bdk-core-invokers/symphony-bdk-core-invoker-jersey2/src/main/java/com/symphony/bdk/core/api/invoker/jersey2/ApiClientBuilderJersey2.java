@@ -15,7 +15,7 @@ import javax.ws.rs.client.ClientBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientJersey2}.
@@ -23,9 +23,9 @@ import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   private String basePath;
-  private String keyStorePath;
+  private byte[] keyStoreBytes;
   private String keyStorePassword;
-  private String trustStorePath;
+  private byte[] trustStoreBytes;
   private String trustStorePassword;
   private Map<String, String> defaultHeaders;
   private int connectionTimeout;
@@ -34,9 +34,9 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   public ApiClientBuilderJersey2() {
     basePath = "https://acme.symphony.com";
-    keyStorePath = null;
+    keyStoreBytes = null;
     keyStorePassword = null;
-    trustStorePath = null;
+    trustStoreBytes = null;
     trustStorePassword = null;
     defaultHeaders = new HashMap<>();
     connectionTimeout = 0;
@@ -87,8 +87,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder keyStore(String keyStorePath, String keyStorePassword) {
-    this.keyStorePath = keyStorePath;
+  public ApiClientBuilder keyStore(byte[] keyStoreBytes, String keyStorePassword) {
+    this.keyStoreBytes = keyStoreBytes;
     this.keyStorePassword = keyStorePassword;
     return this;
   }
@@ -97,8 +97,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder trustStore(String trustStorePath, String trustStorePassword) {
-    this.trustStorePath = trustStorePath;
+  public ApiClientBuilder trustStore(byte[] trustStoreBytes, String trustStorePassword) {
+    this.trustStoreBytes = trustStoreBytes;
     this.trustStorePassword = trustStorePassword;
     return this;
   }
@@ -154,15 +154,15 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   private SSLContext createSSLContext() {
     final SslConfigurator sslConfig = SslConfigurator.newInstance();
 
-    if (!isEmpty(trustStorePath) && !isEmpty(trustStorePassword)) {
+    if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
       sslConfig
-          .trustStoreFile(trustStorePath)
+          .trustStoreBytes(trustStoreBytes)
           .trustStorePassword(trustStorePassword);
     }
 
-    if (!isEmpty(keyStorePath) && !isEmpty(keyStorePassword)) {
+    if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
       sslConfig
-          .keyStoreFile(keyStorePath)
+          .keyStoreBytes(keyStoreBytes)
           .keyStorePassword(keyStorePassword);
     }
 

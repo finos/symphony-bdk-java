@@ -22,21 +22,21 @@ public interface ApiClientBuilder {
   ApiClientBuilder userAgent(String userAgent);
 
   /**
-   * @param keyStorePath     path to the key store file (aka client certificate)
+   * @param keyStoreBytes content of the key store (aka client certificate)
    * @param keyStorePassword password of the key store
    * @return the updated instance of {@link ApiClientBuilder}
    */
-  ApiClientBuilder keyStore(String keyStorePath, String keyStorePassword);
+  ApiClientBuilder keyStore(byte[] keyStoreBytes, String keyStorePassword);
 
   /**
-   * @param trustStorePath     path to the trust store file
+   * @param trustStoreBytes content of the trust store
    * @param trustStorePassword password of the truststore
    * @return the updated instance of {@link ApiClientBuilder}
    */
-  ApiClientBuilder trustStore(String trustStorePath, String trustStorePassword);
+  ApiClientBuilder trustStore(byte[] trustStoreBytes, String trustStorePassword);
 
   /**
-   * @param key   name of the header to be added in all HTTP calls
+   * @param key name of the header to be added in all HTTP calls
    * @param value header value
    * @return the updated instance of {@link ApiClientBuilder}
    */
@@ -49,8 +49,8 @@ public interface ApiClientBuilder {
   ApiClientBuilder temporaryFolderPath(String temporaryFolderPath);
 
   /**
-   * Set the connection timeout (in milliseconds).
-   * A value of 0 means no timeout, otherwise values must be between 1 and {@link Integer#MAX_VALUE}.
+   * Set the connection timeout (in milliseconds). A value of 0 means no timeout, otherwise values
+   * must be between 1 and {@link Integer#MAX_VALUE}.
    *
    * @param connectionTimeout Connection timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
@@ -58,9 +58,8 @@ public interface ApiClientBuilder {
   ApiClientBuilder connectionTimeout(int connectionTimeout);
 
   /**
-   * Set the read timeout (in milliseconds).
-   * A value of 0 means no timeout, otherwise values must be between 1 and
-   * {@link Integer#MAX_VALUE}.
+   * Set the read timeout (in milliseconds). A value of 0 means no timeout, otherwise values must be
+   * between 1 and {@link Integer#MAX_VALUE}.
    *
    * @param readTimeout Read timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
