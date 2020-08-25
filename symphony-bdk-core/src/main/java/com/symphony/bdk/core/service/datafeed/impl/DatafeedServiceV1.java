@@ -63,7 +63,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             } else if (e instanceof AuthUnauthorizedException) {
                 throw (AuthUnauthorizedException) e;
             } else {
-                e.printStackTrace();
+                log.error("Unknown error", e);
             }
         }
     }

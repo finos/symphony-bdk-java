@@ -10,13 +10,11 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.security.PrivateKey;
-
 import javax.annotation.Nonnull;
+import java.security.PrivateKey;
 
 /**
  * OBO authenticator RSA implementation.
@@ -43,16 +41,20 @@ public class OboAuthenticatorRsaImpl implements OboAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull AuthSession authenticateByUsername(@Nonnull String username) {
-    return new AuthSessionOboImpl(this, username);
+  public @Nonnull AuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException {
+    AuthSession authSession = new AuthSessionOboImpl(this, username);
+    authSession.refresh();
+    return authSession;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId) {
-    return new AuthSessionOboImpl(this, userId);
+  public @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
+    AuthSession authSession = new AuthSessionOboImpl(this, userId);
+    authSession.refresh();
+    return authSession;
   }
 
   protected String retrieveOboSessionTokenByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {

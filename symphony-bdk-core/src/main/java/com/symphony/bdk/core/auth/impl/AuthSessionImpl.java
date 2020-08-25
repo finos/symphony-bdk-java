@@ -19,10 +19,8 @@ public class AuthSessionImpl implements AuthSession {
   private String sessionToken;
   private String keyManagerToken;
 
-  public AuthSessionImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) throws AuthUnauthorizedException {
+  public AuthSessionImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
     this.authenticator = authenticator;
-    this.sessionToken = authenticator.retrieveSessionToken();
-    this.keyManagerToken = authenticator.retrieveKeyManagerToken();
   }
 
   /**
