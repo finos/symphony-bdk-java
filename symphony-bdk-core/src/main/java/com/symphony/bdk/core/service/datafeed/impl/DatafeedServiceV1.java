@@ -63,7 +63,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             } else if (e instanceof AuthUnauthorizedException) {
                 throw (AuthUnauthorizedException) e;
             } else {
-                e.printStackTrace();
+                log.error("Unknown error", e);
             }
         }
     }
@@ -79,7 +79,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
 
     private void readDatafeed() throws Throwable {
         RetryConfig config = RetryConfig.from(this.retryConfig).retryOnException(e -> {
-            if (e instanceof ApiException) {
+            if (e instanceof ApiException && e.getSuppressed().length == 0) {
                 ApiException apiException = (ApiException) e;
                 return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
             }
@@ -100,7 +100,11 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
                     log.error("Error {}: {}", e.getCode(), e.getMessage());
                     if (e.isClientError()) {
                         log.info("Recreate a new datafeed and try again");
-                        datafeedId = this.createDatafeedAndSaveToDisk();
+                        try {
+                            datafeedId = this.createDatafeedAndSaveToDisk();
+                        } catch (Throwable throwable) {
+                            e.addSuppressed(throwable);
+                        }
                     }
                 }
                 throw e;

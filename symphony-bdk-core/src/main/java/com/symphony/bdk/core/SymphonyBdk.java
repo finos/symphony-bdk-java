@@ -49,7 +49,7 @@ public class SymphonyBdk {
     return new V4MessageService(this.apiClientFactory.getAgentClient(), this.botSession);
   }
 
-  public V4MessageService messages(Obo.Handle oboHandle) {
+  public V4MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
       oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
