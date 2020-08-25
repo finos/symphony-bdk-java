@@ -1,0 +1,92 @@
+<div>
+    <card data-accent-color="
+        {{#if message.alert}}
+            tempo-bg-color--red
+        {{else}}
+            tempo-bg-color--blue
+        {{/if}}"
+          data-icon-src="
+        {{#if message.icon}}
+              {{message.icon}}
+          {{else}}
+            https://symphony.com/wp-content/uploads/2019/08/favicon.png'
+        {{/if}}
+    ">
+        <header>
+            {{#if message.title}}
+                <h2>{{message.title}}</h2>
+                <hr/>
+            {{/if}}
+            <div>
+                {{#if message.content}}
+                    {{#if message.content.header}}
+                        <card data-accent-color="tempo-bg-color--background">
+                            <header>
+                                {{message.content.header}}
+                            </header>
+                            <body>
+                            {{message.content.body}}
+                            </body>
+                        </card>
+                    {{else}}
+                        <span class="tempo-text-color--normal">{{message.content}}</span>
+                    {{/if}}
+                {{/if}}
+            </div>
+            <div class="labelBackground badge">
+                {{#if message.comment}}
+                    <div>
+                        <span class="tempo-text-color--secondary">Comments:</span>
+                        <br/>
+                        <span class="tempo-text-color--normal">{{message.comment.body}}</span>
+                        <br/>
+                    </div>
+                {{/if}}
+                <div>
+                    {{#if message.description}}
+                        <span class="tempo-text-color--secondary">Description:</span>
+                        <span class="tempo-text-color--normal">{{message.description}}</span>
+                    {{/if}}
+                    {{#if message.assignee}}
+                        <br/>
+                        <span class="tempo-text-color--secondary">Assignee:</span>
+                        <span class="tempo-text-color--normal">{{message.assignee.displayName}}</span>
+                    {{/if}}
+                </div>
+                {{#if message.showStatusBar}}
+                    <hr/>
+                    <div>
+                        {{#if message.type}}
+                            <span class="tempo-text-color--secondary">Type:</span>
+                            <span class="tempo-text-color--normal"
+                                  style="margin-right:24px">{{message.type.name}}</span>
+                        {{/if}}
+                        {{#if message.priority}}
+                            <span class="tempo-text-color--secondary">Priority:</span>
+                            <span class="tempo-text-color--normal"
+                                  style="margin-right:24px">{{message.priority.name}}</span>
+                        {{/if}}
+                        {{#if message.status}}
+                            <span class="tempo-text-color--secondary">Status:</span>
+                            {{#if message.alert}}
+                            <span class="tempo-bg-color--red tempo-text-color--white tempo-token"
+                                  style="margin-right:24px">
+                            {{else}}
+                            <span class="tempo-bg-color--green tempo-text-color--white tempo-token"
+                                  style="margin-right:24px">
+                            {{/if}}
+                            {{message.status.name}}
+                        </span>
+                        {{/if}}
+                        {{#if message.labels}}
+                            <span class="tempo-text-color--secondary">Labels:</span>
+                            {{#each message.labels}}
+                                <span class="hashTag" style="margin-right:24px">{{this.text}}</span>
+                            {{/each}}
+                        {{/if}}
+                    </div>
+                {{/if}}
+            </div>
+        </header>
+    </card>
+</div>

@@ -30,7 +30,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: mvn dependency:go-offline
+      - run: mvn compile dependency:go-offline
 
       - save_cache:
           paths:
@@ -38,4 +38,41 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
       # run tests!
-      - run: mvn checkstyle:check integration-test
+      - run:
+          name: Check BDK 2.0
+          command: mvn checkstyle:check verify -P2.0
+
+      - run:
+          name: Check legacy
+          command: mvn checkstyle:check verify -Plegacy
+
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+
+      - run:
+          name: Save code coverage BDK 2.0
+          command: |
+            mkdir -p ~/code-coverage/jacoco/symphony-bdk-core/
+            find . -type f -regex ".*/symphony-bdk-core/target/jacoco.exec" -exec cp {} ~/code-coverage/jacoco/symphony-bdk-core/ \;
+            find . -type d -regex ".*/symphony-bdk-core/target/jacoco-report" -exec cp -r {} ~/code-coverage/jacoco/symphony-bdk-core/ \;
+
+      - run:
+          name: Save code coverage Legacy SDK
+          command: |
+            mkdir -p ~/code-coverage/jacoco/symphony-api-client-java/
+            find . -type f -regex ".*/symphony-api-client-java/target/jacoco.exec" -exec cp {} ~/code-coverage/jacoco/symphony-api-client-java/ \;
+            find . -type d -regex ".*/symphony-api-client-java/target/jacoco-report" -exec cp -r {} ~/code-coverage/jacoco/symphony-api-client-java/ \;
+
+      - store_test_results:
+          path: ~/test-results
+
+      - store_artifacts:
+          path: ~/test-results/junit
+
+      - store_artifacts:
+          path: ~/code-coverage/jacoco
+
