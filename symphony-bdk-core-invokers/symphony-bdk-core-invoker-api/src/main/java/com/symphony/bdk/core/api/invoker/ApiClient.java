@@ -3,6 +3,7 @@ package com.symphony.bdk.core.api.invoker;
 import org.apiguardian.api.API;
 
 import javax.ws.rs.core.GenericType;
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,18 +16,18 @@ public interface ApiClient {
   /**
    * Invoke API by sending HTTP request with the given options.
    *
-   * @param <T>          Type
-   * @param path         The sub-path of the HTTP URL
-   * @param method       The request method, one of "GET", "POST", "PUT", "HEAD" and "DELETE"
-   * @param queryParams  The query parameters
-   * @param body         The request body object
+   * @param <T> Type
+   * @param path The sub-path of the HTTP URL
+   * @param method The request method, one of "GET", "POST", "PUT", "HEAD" and "DELETE"
+   * @param queryParams The query parameters
+   * @param body The request body object
    * @param headerParams The header parameters
    * @param cookieParams The cookie parameters
-   * @param formParams   The form parameters
-   * @param accept       The request's Accept header
-   * @param contentType  The request's Content-Type header
-   * @param authNames    The authentications to apply
-   * @param returnType   The return type into which to deserialize the response
+   * @param formParams The form parameters
+   * @param accept The request's Accept header
+   * @param contentType The request's Content-Type header
+   * @param authNames The authentications to apply
+   * @param returnType The return type into which to deserialize the response
    * @return The response body in type of string
    * @throws ApiException API exception
    */
@@ -63,31 +64,28 @@ public interface ApiClient {
    * Format to {@code Pair} objects.
    *
    * @param collectionFormat Collection format
-   * @param name             Name
-   * @param value            Value
+   * @param name Name
+   * @param value Value
    * @return List of pairs
    */
   List<Pair> parameterToPairs(String collectionFormat, String name, Object value);
 
   /**
-   * Select the Accept header's value from the given accepts array:
-   * if JSON exists in the given array, use it;
-   * otherwise use all of them (joining into a string)
+   * Select the Accept header's value from the given accepts array: if JSON exists in the given
+   * array, use it; otherwise use all of them (joining into a string)
    *
    * @param accepts The accepts array to select from
-   * @return The Accept header to use. If the given array is empty,
-   * null will be returned (not to set the Accept header explicitly).
+   * @return The Accept header to use. If the given array is empty, null will be returned (not to
+   * set the Accept header explicitly).
    */
   String selectHeaderAccept(String[] accepts);
 
   /**
-   * Select the Content-Type header's value from the given array:
-   * if JSON exists in the given array, use it;
-   * otherwise use the first one of the array.
+   * Select the Content-Type header's value from the given array: if JSON exists in the given array,
+   * use it; otherwise use the first one of the array.
    *
    * @param contentTypes The Content-Type array to select from
-   * @return The Content-Type header to use. If the given array is empty,
-   * JSON will be used.
+   * @return The Content-Type header to use. If the given array is empty, JSON will be used.
    */
   String selectHeaderContentType(String[] contentTypes);
 

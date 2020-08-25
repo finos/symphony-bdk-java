@@ -73,7 +73,7 @@ class ApiClientFactoryTest {
 
   @Test
   void testAuthClientWithTrustStore() throws AuthInitializationException {
-    BdkConfig configWithTrustStore = this.createConfigWithTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "changeit");
+    BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "changeit");
     ApiClient sessionAuth = new ApiClientFactory(configWithTrustStore).getSessionAuthClient();
 
     assertEquals(ApiClientJersey2.class, sessionAuth.getClass());
@@ -81,16 +81,16 @@ class ApiClientFactoryTest {
   }
 
   @Test
-  void testAuthClientWithWrongTrustStorePathShouldFail() throws AuthInitializationException {
-    BdkConfig configWithTrustStore = this.createConfigWithTrustStore("./src/test/resources/certs/non_existing_truststore", "changeit");
+  void testAuthClientWithWrongTrustStorePathShouldFail() {
+    BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/non_existing_truststore", "changeit");
 
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
   }
 
   @Test
-  void testAuthClientWithWrongTrustStorePasswordShouldFail() throws AuthInitializationException {
-    BdkConfig configWithTrustStore = this.createConfigWithTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "wrongpass");
+  void testAuthClientWithWrongTrustStorePasswordShouldFail() {
+    BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "wrongpass");
 
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
@@ -104,7 +104,7 @@ class ApiClientFactoryTest {
     assertEquals("https://km-host:443/keyauth", keyAuth.getBasePath());
   }
 
-  private BdkConfig createConfigWithTrustStore(String trustStorePath, String trustStorePassword) {
+  private BdkConfig createConfigWithCertificateAndTrustStore(String trustStorePath, String trustStorePassword) {
     BdkConfig config = createConfigWithCertificate();
     config.getSsl().setTrustStorePath(trustStorePath);
     config.getSsl().setTrustStorePassword(trustStorePassword);
