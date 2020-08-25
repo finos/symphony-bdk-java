@@ -6,7 +6,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.BotInfoService;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.util.BdkExponentialFunction;
 import com.symphony.bdk.gen.api.DatafeedApi;
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Base class for implementing the datafeed services. A datafeed services can help a bot subscribe or unsubscribe
- * a {@link DatafeedEventListener} and handle the received event by the subscribed listeners.
+ * a {@link RealTimeEventListener} and handle the received event by the subscribed listeners.
  */
 @Slf4j
 abstract class AbstractDatafeedService implements DatafeedService {
@@ -29,7 +29,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
     protected final AuthSession authSession;
     protected final BdkConfig bdkConfig;
     protected final BotInfoService sessionInfoService;
-    protected final List<DatafeedEventListener> listeners;
+    protected final List<RealTimeEventListener> listeners;
     protected final RetryConfig retryConfig;
     protected DatafeedApi datafeedApi;
     protected SessionApi sessionApi;
@@ -59,7 +59,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
      * {@inheritDoc}
      */
     @Override
-    public void subscribe(DatafeedEventListener listener) {
+    public void subscribe(RealTimeEventListener listener) {
         listeners.add(listener);
     }
 
@@ -67,12 +67,12 @@ abstract class AbstractDatafeedService implements DatafeedService {
      * {@inheritDoc}
      */
     @Override
-    public void unsubscribe(DatafeedEventListener listener) {
+    public void unsubscribe(RealTimeEventListener listener) {
         listeners.remove(listener);
     }
 
     /**
-     * Handle a received listener by using the subscribed {@link DatafeedEventListener}.
+     * Handle a received listener by using the subscribed {@link RealTimeEventListener}.
      *
      * @param events List of Datafeed events to be handled
      *
@@ -86,117 +86,117 @@ abstract class AbstractDatafeedService implements DatafeedService {
             if (this.isSelfGeneratedEvent(event)) {
                 continue;
             }
-            for (DatafeedEventListener listener : listeners) {
+            for (RealTimeEventListener listener : listeners) {
                 switch (event.getType()) {
                     case DatafeedEventConstant.MESSAGESENT:
                         listener.onMessageSent(event);
                         if (event.getPayload() != null) {
-                            listener.onMessageSent(event.getPayload().getMessageSent());
+                            listener.onMessageSent(event.getInitiator(), event.getPayload().getMessageSent());
                         }
                         break;
 
                     case DatafeedEventConstant.MESSAGESUPPRESSED:
                         listener.onMessageSuppressed(event);
                         if (event.getPayload() != null) {
-                            listener.onMessageSuppressed(event.getPayload().getMessageSuppressed());
+                            listener.onMessageSuppressed(event.getInitiator(), event.getPayload().getMessageSuppressed());
                         }
                         break;
 
                     case DatafeedEventConstant.INSTANTMESSAGECREATED:
                         listener.onInstantMessageCreated(event);
                         if (event.getPayload() != null) {
-                            listener.onInstantMessageCreated(event.getPayload().getInstantMessageCreated());
+                            listener.onInstantMessageCreated(event.getInitiator(), event.getPayload().getInstantMessageCreated());
                         }
                         break;
 
                     case DatafeedEventConstant.SHAREDPOST:
                         listener.onSharedPost(event);
                         if (event.getPayload() != null) {
-                            listener.onSharedPost(event.getPayload().getSharedPost());
+                            listener.onSharedPost(event.getInitiator(), event.getPayload().getSharedPost());
                         }
                         break;
 
                     case DatafeedEventConstant.ROOMCREATED:
                         listener.onRoomCreated(event);
                         if (event.getPayload() != null) {
-                            listener.onRoomCreated(event.getPayload().getRoomCreated());
+                            listener.onRoomCreated(event.getInitiator(), event.getPayload().getRoomCreated());
                         }
                         break;
 
                     case DatafeedEventConstant.ROOMUPDATED:
                         listener.onRoomUpdated(event);
                         if (event.getPayload() != null) {
-                            listener.onRoomUpdated(event.getPayload().getRoomUpdated());
+                            listener.onRoomUpdated(event.getInitiator(), event.getPayload().getRoomUpdated());
                         }
                         break;
 
                     case DatafeedEventConstant.ROOMDEACTIVATED:
                         listener.onRoomDeactivated(event);
                         if (event.getPayload() != null) {
-                            listener.onRoomDeactivated(event.getPayload().getRoomDeactivated());
+                            listener.onRoomDeactivated(event.getInitiator(), event.getPayload().getRoomDeactivated());
                         }
                         break;
 
                     case DatafeedEventConstant.ROOMREACTIVATED:
                         listener.onRoomReactivated(event);
                         if (event.getPayload() != null) {
-                            listener.onRoomReactivated(event.getPayload().getRoomReactivated());
+                            listener.onRoomReactivated(event.getInitiator(), event.getPayload().getRoomReactivated());
                         }
                         break;
 
                     case DatafeedEventConstant.USERREQUESTEDTOJOINROOM:
                         listener.onUserRequestedToJoinRoom(event);
                         if (event.getPayload() != null) {
-                            listener.onUserRequestedToJoinRoom(event.getPayload().getUserRequestedToJoinRoom());
+                            listener.onUserRequestedToJoinRoom(event.getInitiator(), event.getPayload().getUserRequestedToJoinRoom());
                         }
                         break;
 
                     case DatafeedEventConstant.USERJOINEDROOM:
                         listener.onUserJoinedRoom(event);
                         if (event.getPayload() != null) {
-                            listener.onUserJoinedRoom(event.getPayload().getUserJoinedRoom());
+                            listener.onUserJoinedRoom(event.getInitiator(), event.getPayload().getUserJoinedRoom());
                         }
                         break;
 
                     case DatafeedEventConstant.USERLEFTROOM:
                         listener.onUserLeftRoom(event);
                         if (event.getPayload() != null) {
-                            listener.onUserLeftRoom(event.getPayload().getUserLeftRoom());
+                            listener.onUserLeftRoom(event.getInitiator(), event.getPayload().getUserLeftRoom());
                         }
                         break;
 
                     case DatafeedEventConstant.ROOMMEMBERPROMOTEDTOOWNER:
                         listener.onRoomMemberPromotedToOwner(event);
                         if (event.getPayload() != null) {
-                            listener.onRoomMemberPromotedToOwner(event.getPayload().getRoomMemberPromotedToOwner());
+                            listener.onRoomMemberPromotedToOwner(event.getInitiator(), event.getPayload().getRoomMemberPromotedToOwner());
                         }
                         break;
 
                     case DatafeedEventConstant.ROOMMEMBERDEMOTEDFROMOWNER:
                         listener.onRoomMemberDemotedFromOwner(event);
                         if (event.getPayload() != null) {
-                            listener.onRoomMemberDemotedFromOwner(event.getPayload().getRoomMemberDemotedFromOwner());
+                            listener.onRoomMemberDemotedFromOwner(event.getInitiator(), event.getPayload().getRoomMemberDemotedFromOwner());
                         }
                         break;
 
                     case DatafeedEventConstant.CONNECTIONACCEPTED:
                         listener.onConnectionAccepted(event);
                         if (event.getPayload() != null) {
-                            listener.onConnectionAccepted(event.getPayload().getConnectionAccepted());
+                            listener.onConnectionAccepted(event.getInitiator(), event.getPayload().getConnectionAccepted());
                         }
                         break;
 
                     case DatafeedEventConstant.CONNECTIONREQUESTED:
                         listener.onConnectionRequested(event);
                         if (event.getPayload() != null) {
-                            listener.onConnectionRequested(event.getPayload().getConnectionRequested());
+                            listener.onConnectionRequested(event.getInitiator(), event.getPayload().getConnectionRequested());
                         }
                         break;
 
                     case DatafeedEventConstant.SYMPHONYELEMENTSACTION:
                         listener.onSymphonyElementsAction(event);
                         if (event.getPayload() != null) {
-                            listener.onSymphonyElementsAction(event.getPayload().getSymphonyElementsAction());
+                            listener.onSymphonyElementsAction(event.getInitiator(), event.getPayload().getSymphonyElementsAction());
                         }
                         break;
                 }

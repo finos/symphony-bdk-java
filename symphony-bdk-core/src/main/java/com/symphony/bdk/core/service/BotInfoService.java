@@ -8,7 +8,7 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Base class for implementing the bot ingo services.
+ * Base class for implementing the bot info services.
  * BotInfoService can help the bot retrieving the information about itself by using session API.
  */
 @Slf4j

@@ -6,6 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Custom BdkExponentialFunction class to be used in Bdk Retry mechanism.
+ * The interval between 2 retries will be initiated by the value BdkRetryConfig#initialIntervalMillis.
+ *
+ * After each retry, this interval will be multiplied by BdkRetryConfig#multiplier.
+ *
+ * This interval will be limited by BdkRetryConfig#maxIntervalMillis, in means that, when this interval
+ * is greater than this value, it will not be multiplied any more and set to BdkRetryConfig#maxIntervalMillis.
  */
 @Slf4j
 public class BdkExponentialFunction {

@@ -1,5 +1,9 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+/**
+ * Contains event type constants using in {@link com.symphony.bdk.gen.api.model.V4Event}.
+ * These constants are used in Datafeed service for categorizing the received Real-time events.
+ */
 class DatafeedEventConstant {
 
     public static final String MESSAGESENT = "MESSAGESENT";

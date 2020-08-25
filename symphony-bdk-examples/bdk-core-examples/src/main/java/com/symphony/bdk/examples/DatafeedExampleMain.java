@@ -7,8 +7,8 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Event;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,7 +24,7 @@ public class DatafeedExampleMain {
         log.info("DatafeedV1: Start");
         DatafeedService ds = bdk.datafeed();
 
-        ds.subscribe(new DatafeedEventListener() {
+        ds.subscribe(new RealTimeEventListener() {
             @Override
             public void onMessageSent(V4Event event) {
                 if (event.getPayload() != null && event.getPayload().getMessageSent() != null

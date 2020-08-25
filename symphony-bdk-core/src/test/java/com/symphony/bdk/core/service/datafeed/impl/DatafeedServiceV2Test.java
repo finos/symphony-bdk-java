@@ -9,7 +9,7 @@ import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.*;
@@ -33,7 +33,7 @@ public class DatafeedServiceV2Test {
     private DatafeedApi datafeedApi;
     private SessionApi sessionApi;
     private AuthSession authSession;
-    private DatafeedEventListener listener;
+    private RealTimeEventListener listener;
 
     @BeforeEach
     void setUp() throws BdkConfigException, ApiException {
@@ -58,7 +58,7 @@ public class DatafeedServiceV2Test {
                 this.authSession,
                 this.bdkConfig
         );
-        this.listener = new DatafeedEventListener() {
+        this.listener = new RealTimeEventListener() {
             @Override
             public void onMessageSent(V4Event event) {
                 datafeedService.stop();
@@ -115,7 +115,7 @@ public class DatafeedServiceV2Test {
                 .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
 
         this.datafeedService.unsubscribe(this.listener);
-        this.datafeedService.subscribe(new DatafeedEventListener() {
+        this.datafeedService.subscribe(new RealTimeEventListener() {
             @Override
             public void onMessageSent(V4Event event) {
                 try {

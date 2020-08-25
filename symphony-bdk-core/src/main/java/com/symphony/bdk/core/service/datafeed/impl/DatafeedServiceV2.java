@@ -17,7 +17,22 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A class for implementing the datafeed v1 service.
+ * A class for implementing the datafeed v2 service.
+ *
+ * This service will be started by calling {@link DatafeedServiceV2#start()}
+ *
+ * At the beginning, the BDK bot will try to retrieve the list of datafeed to which it is listening. Since each bot
+ * should only listening to just one datafeed, the first datafeed in the list will be used by the bot to be listened to.
+ * If the retrieved list is empty, the BDK bot will create a new datafeed to listen.
+ *
+ * The BDK bot will listen to this datafeed to get all the received real-time events.
+ *
+ * If this datafeed becomes stale or faulty, the BDK bot will create the new one for listening.
+ *
+ * This service will be stopped by calling {@link DatafeedServiceV2#stop()}
+ *
+ * If the datafeed service is stopped during a read datafeed call, it has to wait until the last read finish to be
+ * really stopped
  */
 @Slf4j
 public class DatafeedServiceV2 extends AbstractDatafeedService {
