@@ -10,13 +10,11 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.security.PrivateKey;
-
 import javax.annotation.Nonnull;
+import java.security.PrivateKey;
 
 /**
  * Bot authenticator RSA implementation.
@@ -50,9 +48,12 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
   /**
    * {@inheritDoc}
    */
+  @Nonnull
   @Override
-  public @Nonnull AuthSession authenticateBot() {
-    return new AuthSessionImpl(this);
+  public AuthSession authenticateBot() throws AuthUnauthorizedException {
+    AuthSession authSession = new AuthSessionImpl(this);
+    authSession.refresh();
+    return authSession;
   }
 
   protected String retrieveSessionToken() throws AuthUnauthorizedException {

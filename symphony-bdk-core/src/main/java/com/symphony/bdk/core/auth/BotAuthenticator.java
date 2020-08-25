@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth;
 
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
@@ -15,5 +16,5 @@ public interface BotAuthenticator {
    *
    * @return the authentication session.
    */
-  @Nonnull AuthSession authenticateBot();
+  @Nonnull AuthSession authenticateBot() throws AuthUnauthorizedException;
 }

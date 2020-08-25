@@ -1,12 +1,11 @@
 package com.symphony.bdk.core.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
 import com.symphony.bdk.core.config.model.BdkConfig;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test class for the {@link ApiClientFactory}.
@@ -37,6 +36,14 @@ class ApiClientFactoryTest {
     final ApiClient agentClient = this.factory.getAgentClient();
     assertEquals(ApiClientJersey2.class, agentClient.getClass());
     assertEquals("https://agent-host:443/agent", agentClient.getBasePath());
+  }
+
+  @Test
+  void testGetPodClient() {
+
+    final ApiClient podClient = this.factory.getPodClient();
+    assertEquals(ApiClientJersey2.class, podClient.getClass());
+    assertEquals("https://pod-host:443/pod", podClient.getBasePath());
   }
 
   private BdkConfig createConfig() {
