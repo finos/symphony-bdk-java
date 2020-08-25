@@ -11,6 +11,8 @@ import com.symphony.bdk.bot.sdk.event.model.RoomUpdatedEvent;
 import com.symphony.bdk.bot.sdk.event.model.SymphonyElementsEvent;
 import com.symphony.bdk.bot.sdk.event.model.UserJoinedRoomEvent;
 import com.symphony.bdk.bot.sdk.event.model.UserLeftRoomEvent;
+import com.symphony.bdk.bot.sdk.event.model.ConnectionAcceptedEvent;
+import com.symphony.bdk.bot.sdk.event.model.ConnectionRequestedEvent;
 
 /**
  * Internal Symphony events listener
@@ -106,4 +108,18 @@ public interface InternalEventListener {
    */
   void onElementsAction(SymphonyElementsEvent event);
 
+  /**
+   * Connection request received. Pushes event to EventDispatcher.
+   *
+   * @param event
+   */
+  void onConnectionRequested(ConnectionRequestedEvent connectionRequestedEvent);
+  
+  /**
+   * Accepted connection request event received. Pushes event to EventDispatcher.
+   *
+   * @param event
+   */
+  void onConnectionAccepted(ConnectionAcceptedEvent connectionRequestedEvent);
+  
 }

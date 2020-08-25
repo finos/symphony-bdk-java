@@ -15,11 +15,14 @@ import com.symphony.bdk.bot.sdk.event.model.RoomUpdatedEvent;
 import com.symphony.bdk.bot.sdk.event.model.SymphonyElementsEvent;
 import com.symphony.bdk.bot.sdk.event.model.UserJoinedRoomEvent;
 import com.symphony.bdk.bot.sdk.event.model.UserLeftRoomEvent;
+import com.symphony.bdk.bot.sdk.event.model.ConnectionRequestedEvent;
+import com.symphony.bdk.bot.sdk.event.model.ConnectionAcceptedEvent;
 import com.symphony.bdk.bot.sdk.symphony.DatafeedClient;
 
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
+import listeners.ConnectionListener;
 import model.InboundMessage;
 import model.Stream;
 import model.User;
@@ -39,7 +42,7 @@ import model.events.UserLeftRoom;
  * @author Marcus Secato
  */
 @Service
-public class EventListener implements IMListener, RoomListener, ElementsListener {
+public class EventListener implements IMListener, RoomListener, ElementsListener, ConnectionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventListener.class);
 
   private DatafeedClient datafeedClient;
@@ -54,6 +57,7 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
     this.datafeedClient.registerIMListener(this);
     this.datafeedClient.registerRoomListener(this);
     this.datafeedClient.registerElementsListener(this);
+    this.datafeedClient.registerConnectionsListener(this);
   }
 
   @Override
@@ -138,6 +142,18 @@ public class EventListener implements IMListener, RoomListener, ElementsListener
   public void onElementsAction(User initiator, SymphonyElementsAction action) {
     LOGGER.debug("onElementsAction");
     internalEventListener.onElementsAction(new SymphonyElementsEvent(initiator, action));
+  }
+  
+  @Override
+  public void onConnectionRequested(User user) {
+    LOGGER.debug("onConnectionRequested");
+    internalEventListener.onConnectionRequested(new ConnectionRequestedEvent(user));
+  }
+
+  @Override
+  public void onConnectionAccepted(User user) {
+    LOGGER.debug("onConnectionRequested");
+    internalEventListener.onConnectionAccepted(new ConnectionAcceptedEvent(user));
   }
 
 }
