@@ -15,13 +15,6 @@
 
     <properties>
 
-        <!-- Alphabetical order -->
-        <bcpkix-jdk15on.version>1.64</bcpkix-jdk15on.version>
-        <jackson.version>2.11.2</jackson.version>
-        <jjwt.version>0.9.1</jjwt.version>
-        <jsr305.version>3.0.2</jsr305.version>
-        <swagger-annotations.version>1.6.0</swagger-annotations.version>
-
         <!-- Code Gen -->
         <openapi-generator-maven-plugin.version>4.3.0</openapi-generator-maven-plugin.version>
         <codegen.generatorName>java</codegen.generatorName>
@@ -34,12 +27,23 @@
 
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.symphony.platformsolutions</groupId>
+                <artifactId>symphony-bdk-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core-invoker-api</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -76,31 +80,26 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
-            <version>${jjwt.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk15on</artifactId>
-            <version>${bcpkix-jdk15on.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-retry</artifactId>
-            <version>${resilience4j-retry.version}</version>
         </dependency>
 
         <!-- ******************************** -->
@@ -109,12 +108,10 @@
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>${swagger-annotations.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
-            <version>${jsr305.version}</version>
         </dependency>
 
         <!-- ******************************** -->
@@ -143,7 +140,6 @@
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
 

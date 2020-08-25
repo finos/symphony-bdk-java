@@ -13,18 +13,28 @@
     <name>Symphony Java BDK Examples - Core</name>
     <description>Symphony Java BDK Examples for the Core module</description>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.symphony.platformsolutions</groupId>
+                <artifactId>symphony-bdk-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
