@@ -1,8 +1,8 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+
 import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
@@ -12,14 +12,14 @@ import javax.annotation.Nullable;
  * {@link AuthSession} impl for regular authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionImpl implements AuthSession {
+public class AuthSessionRsaImpl implements AuthSession {
 
-  private final BotAuthenticator authenticator;
+  private final BotAuthenticatorRsaImpl authenticator;
 
   private String sessionToken;
   private String keyManagerToken;
 
-  public AuthSessionImpl(@Nonnull BotAuthenticator authenticator) {
+  public AuthSessionRsaImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
     this.authenticator = authenticator;
   }
 
@@ -48,7 +48,7 @@ public class AuthSessionImpl implements AuthSession {
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
   }
 
-  protected BotAuthenticator getAuthenticator() {
+  protected BotAuthenticatorRsaImpl getAuthenticator() {
     return this.authenticator;
   }
 }

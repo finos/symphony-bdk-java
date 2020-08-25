@@ -16,19 +16,5 @@ public interface BotAuthenticator {
    *
    * @return the authentication session.
    */
-  @Nonnull AuthSession authenticateBot();
-
-  /**
-   *
-   * @return a new session token
-   * @throws AuthUnauthorizedException in case of authentication failure
-   */
-  @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException;
-
-  /**
-   *
-   * @return a new key manager token
-   * @throws AuthUnauthorizedException in case of authentication failure
-   */
-  @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException;
+  @Nonnull AuthSession authenticateBot() throws AuthUnauthorizedException;
 }

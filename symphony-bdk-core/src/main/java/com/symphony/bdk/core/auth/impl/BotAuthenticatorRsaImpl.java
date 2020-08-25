@@ -52,7 +52,7 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
    */
   @Override
   public @Nonnull AuthSession authenticateBot() {
-    return new AuthSessionImpl(this);
+    return new AuthSessionRsaImpl(this);
   }
 
   public String retrieveSessionToken() throws AuthUnauthorizedException {

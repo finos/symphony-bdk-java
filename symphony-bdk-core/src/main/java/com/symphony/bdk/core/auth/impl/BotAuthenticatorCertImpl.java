@@ -8,6 +8,7 @@ import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.model.Token;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -16,7 +17,9 @@ import javax.annotation.Nonnull;
 /**
  * Bot authenticator certificate implementation.
  *
- * @see <a href="https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1">Bot Authentication Workflow</a>
+ * @see
+ * <a href="https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1">Bot
+ * Authentication Workflow</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
@@ -25,7 +28,8 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
   private final ApiClient sessionAuthClient;
   private final ApiClient keyAuthClient;
 
-  public BotAuthenticatorCertImpl(@Nonnull ApiClient sessionAuthClient, @Nonnull ApiClient keyAuthClient) {
+  public BotAuthenticatorCertImpl(@Nonnull ApiClient sessionAuthClient,
+      @Nonnull ApiClient keyAuthClient) {
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
   }
@@ -34,23 +38,19 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public AuthSession authenticateBot() {
-    return new AuthSessionImpl(this);
+  public AuthSession authenticateBot() throws AuthUnauthorizedException {
+    AuthSessionCertImpl authSession = new AuthSessionCertImpl(this);
+    authSession.refresh();
+    return authSession;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException {
+    log.debug("Start retrieving sessionToken using certificate authentication...");
     return doRetrieveToken(this.sessionAuthClient);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+    log.debug("Start retrieving keyManagerToken using certificate authentication...");
     return doRetrieveToken(this.keyAuthClient);
   }
 
@@ -62,8 +62,9 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
     } catch (ApiException ex) {
       if (ex.getCode() == 401) {
         // usually happens when the certificate is not correct
-        throw new AuthUnauthorizedException("Service account is not authorized to authenticate using certificate. " +
-            "Please check if certificate is correct.", ex);
+        throw new AuthUnauthorizedException(
+            "Service account is not authorized to authenticate using certificate. " +
+                "Please check if certificate is correct.", ex);
       } else {
         // we don't know what to do, let's forward the ApiException
         throw new ApiRuntimeException(ex);

@@ -32,11 +32,14 @@ public class BotAuthenticatorCertImplTest {
   }
 
   @Test
-  void testAuthenticateBot() {
+  void testAuthenticateBot(final BdkMockServer mockServer) throws AuthUnauthorizedException {
+    mockServer.onPost(SESSIONAUTH_AUTHENTICATE_URL, res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
+    mockServer.onPost(KEYAUTH_AUTHENTICATE_URL, res -> res.withBody("{ \"token\": \"1235\", \"name\": \"keyManagerToken\" }"));
+
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
-    assertEquals(AuthSessionImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionImpl) session).getAuthenticator());
+    assertEquals(AuthSessionCertImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionCertImpl) session).getAuthenticator());
   }
 
   @Test

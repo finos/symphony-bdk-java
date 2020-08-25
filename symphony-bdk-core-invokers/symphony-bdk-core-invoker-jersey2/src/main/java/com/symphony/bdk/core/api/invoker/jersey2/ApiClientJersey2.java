@@ -325,8 +325,8 @@ public class ApiClientJersey2 implements ApiClient {
    * Serialize the given Java object into string entity according the given
    * Content-Type (only JSON is supported for now).
    *
-   * @param obj         Object
-   * @param formParams  Form parameters
+   * @param obj Object
+   * @param formParams Form parameters
    * @param contentType Context type
    * @return Entity
    * @throws ApiException API exception
@@ -363,8 +363,8 @@ public class ApiClientJersey2 implements ApiClient {
   /**
    * Deserialize response body to Java object according to the Content-Type.
    *
-   * @param <T>        Type
-   * @param response   Response
+   * @param <T> Type
+   * @param response Response
    * @param returnType Return type
    * @return Deserialize object
    * @throws ApiException API exception

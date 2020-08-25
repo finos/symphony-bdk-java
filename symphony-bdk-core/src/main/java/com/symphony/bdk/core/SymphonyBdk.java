@@ -30,7 +30,7 @@ public class SymphonyBdk {
   private final OboAuthenticator oboAuthenticator;
   private final BdkConfig config;
 
-  public SymphonyBdk(BdkConfig config) throws AuthInitializationException {
+  public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
     this.apiClientFactory = new ApiClientFactory(config);
 

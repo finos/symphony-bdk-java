@@ -3,7 +3,7 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
+import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
@@ -44,7 +44,7 @@ public class DatafeedServiceV1Test {
 
     @BeforeEach
     void init(@TempDir Path tempDir) throws BdkConfigException, ApiException {
-        this.authSession = Mockito.mock(AuthSessionImpl.class);
+        this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
         this.bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
