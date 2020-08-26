@@ -4,7 +4,6 @@ import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,8 +13,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class RequestReplyApplication implements DatafeedEventListener {
 
-  @Autowired
-  private MessageService messageService;
+  private final MessageService messageService;
+
+  public RequestReplyApplication(MessageService messageService) {
+    this.messageService = messageService;
+  }
 
   @Override
   public void onMessageSent(V4MessageSent event) {
