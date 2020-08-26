@@ -1,25 +1,15 @@
+domain: devx1.symphony.com
+
 bdk:
   pod:
-    host: devx1.symphony.com
+    host: ${domain}
 
   agent:
-    host: devx1.symphony.com
+    host: ${domain}
 
   keyManager:
-    host: devx1.symphony.com
+    host: ${domain}
 
   bot:
     username: tibot
-    privateKeyPath: /Users/thibault.pensec/local/conf/agent/privateKey.pem
-
-  app:
-    appId: tibapp
-    privateKeyPath: /Users/thibault.pensec/local/conf/agent/privateKey.pem
-
-  datafeed:
-    version: v1
-    retry:
-      maxAttempts: 6
-      initialIntervalMillis: 2000
-      multiplier: 1.5
-      maxIntervalMillis: 10000
+    privateKeyPath: ${user.home}/local/conf/agent/privateKey.pem
