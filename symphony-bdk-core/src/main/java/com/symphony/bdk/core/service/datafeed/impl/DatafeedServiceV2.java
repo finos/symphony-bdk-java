@@ -41,8 +41,8 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     private final AckId ackId;
     private V5Datafeed datafeed;
 
-    public DatafeedServiceV2(ApiClient agentClient, ApiClient podClient, AuthSession authSession, BdkConfig config) {
-        super(agentClient, podClient, authSession, config);
+    public DatafeedServiceV2(ApiClient agentClient, AuthSession authSession, BdkConfig config) {
+        super(agentClient, authSession, config);
         this.ackId = new AckId().ackId("");
     }
 
@@ -60,18 +60,14 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
                 this.datafeed = this.createDatafeed();
             }
             log.debug("Start reading datafeed events");
+            this.started.set(true);
             do {
-                this.started.set(true);
                 this.readDatafeed();
             } while (this.started.get());
-        } catch (Throwable e) {
-            if (e instanceof ApiException) {
-                throw (ApiException) e;
-            } else if (e instanceof AuthUnauthorizedException) {
-                throw (AuthUnauthorizedException) e;
-            } else {
-                e.printStackTrace();
-            }
+        } catch (AuthUnauthorizedException | ApiException exception) {
+            throw exception;
+        } catch (Throwable throwable) {
+            log.error("Unknown error", throwable);
         }
     }
 

@@ -48,8 +48,8 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     private final AtomicBoolean started = new AtomicBoolean();
     private String datafeedId;
 
-    public DatafeedServiceV1(ApiClient agentClient, ApiClient podClient, AuthSession authSession, BdkConfig config) {
-        super(agentClient, podClient, authSession, config);
+    public DatafeedServiceV1(ApiClient agentClient, AuthSession authSession, BdkConfig config) {
+        super(agentClient, authSession, config);
         this.started.set(false);
         this.datafeedId = null;
     }
@@ -70,18 +70,14 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
             }
 
             log.debug("Start reading events from datafeed {}", datafeedId);
+            this.started.set(true);
             do {
-                this.started.set(true);
                 this.readDatafeed();
             } while (this.started.get());
-        } catch (Throwable e) {
-            if (e instanceof ApiException) {
-                throw (ApiException) e;
-            } else if (e instanceof AuthUnauthorizedException) {
-                throw (AuthUnauthorizedException) e;
-            } else {
-                log.error("Unknown error", e);
-            }
+        } catch (AuthUnauthorizedException | ApiException exception) {
+            throw exception;
+        } catch (Throwable throwable) {
+            log.error("Unknown error", throwable);
         }
     }
 

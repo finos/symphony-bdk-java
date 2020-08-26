@@ -11,8 +11,10 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.SessionApi;
-import com.symphony.bdk.gen.api.model.*;
+import com.symphony.bdk.gen.api.model.AckId;
+import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.gen.api.model.V5Datafeed;
+import com.symphony.bdk.gen.api.model.V5EventList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -29,24 +31,22 @@ import static org.mockito.Mockito.*;
 public class DatafeedServiceV2Test {
 
     private DatafeedServiceV2 datafeedService;
-    private BdkConfig bdkConfig;
     private DatafeedApi datafeedApi;
-    private SessionApi sessionApi;
     private AuthSession authSession;
     private RealTimeEventListener listener;
 
     @BeforeEach
-    void setUp() throws BdkConfigException, ApiException {
-        this.bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
-        BdkDatafeedConfig datafeedConfig = this.bdkConfig.getDatafeed();
+    void setUp() throws BdkConfigException {
+        BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+        BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
         datafeedConfig.setVersion("v2");
-        this.bdkConfig.setDatafeed(datafeedConfig);
+        bdkConfig.setDatafeed(datafeedConfig);
         BdkRetryConfig retryConfig = new BdkRetryConfig();
-        retryConfig.setInitialIntervalMillis(500);
+        retryConfig.setInitialIntervalMillis(50);
         retryConfig.setMultiplier(1);
         retryConfig.setMaxAttempts(2);
-        retryConfig.setMaxIntervalMillis(900);
-        this.bdkConfig.setRetry(retryConfig);
+        retryConfig.setMaxIntervalMillis(90);
+        bdkConfig.setRetry(retryConfig);
 
         this.authSession = Mockito.mock(AuthSessionImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
@@ -54,9 +54,8 @@ public class DatafeedServiceV2Test {
 
         this.datafeedService = new DatafeedServiceV2(
                 null,
-                null,
                 this.authSession,
-                this.bdkConfig
+                bdkConfig
         );
         this.listener = new RealTimeEventListener() {
             @Override
@@ -68,10 +67,6 @@ public class DatafeedServiceV2Test {
 
         this.datafeedApi = mock(DatafeedApi.class);
         this.datafeedService.setDatafeedApi(datafeedApi);
-
-        this.sessionApi = mock(SessionApi.class);
-        when(this.sessionApi.v2SessioninfoGet("1234")).thenReturn(new UserV2().id(7696581394433L));
-        this.datafeedService.setSessionApi(this.sessionApi);
     }
 
     @Test

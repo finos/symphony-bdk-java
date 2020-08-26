@@ -5,12 +5,10 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.service.BotInfoService;
-import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.util.BdkExponentialFunction;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
@@ -28,16 +26,12 @@ abstract class AbstractDatafeedService implements DatafeedService {
 
     protected final AuthSession authSession;
     protected final BdkConfig bdkConfig;
-    protected final BotInfoService sessionInfoService;
     protected final List<RealTimeEventListener> listeners;
     protected final RetryConfig retryConfig;
     protected DatafeedApi datafeedApi;
-    protected SessionApi sessionApi;
 
-    public AbstractDatafeedService(ApiClient agentClient, ApiClient podClient, AuthSession authSession, BdkConfig config) {
+    public AbstractDatafeedService(ApiClient agentClient, AuthSession authSession, BdkConfig config) {
         this.datafeedApi = new DatafeedApi(agentClient);
-        this.sessionApi = new SessionApi(podClient);
-        this.sessionInfoService = new BotInfoService(podClient, authSession);
         this.listeners = new ArrayList<>();
         this.authSession = authSession;
         this.bdkConfig = config;
@@ -76,9 +70,8 @@ abstract class AbstractDatafeedService implements DatafeedService {
      *
      * @param events List of Datafeed events to be handled
      *
-     * @throws ApiException if the bot cannot get the information about itself by using {@link BotInfoService}
      */
-    protected void handleV4EventList(List<V4Event> events) throws ApiException {
+    protected void handleV4EventList(List<V4Event> events) {
         for (V4Event event : events) {
             if (event == null || event.getType() == null) {
                 continue;
@@ -204,10 +197,10 @@ abstract class AbstractDatafeedService implements DatafeedService {
         }
     }
 
-    private boolean isSelfGeneratedEvent(V4Event event) throws ApiException {
+    private boolean isSelfGeneratedEvent(V4Event event) {
         return event.getInitiator() != null && event.getInitiator().getUser() != null
-                && event.getInitiator().getUser().getUserId() != null
-                && event.getInitiator().getUser().getUserId().equals(sessionInfoService.getBotInfo().getId());
+                && event.getInitiator().getUser().getUsername() != null
+                && event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
     }
 
     protected Retry getRetryInstance(String name, RetryConfig... config) {
@@ -222,10 +215,6 @@ abstract class AbstractDatafeedService implements DatafeedService {
 
     protected void setDatafeedApi(DatafeedApi datafeedApi) {
         this.datafeedApi = datafeedApi;
-    }
-
-    protected void setSessionApi(SessionApi sessionApi) {
-        this.sessionApi = sessionApi;
     }
 
 }

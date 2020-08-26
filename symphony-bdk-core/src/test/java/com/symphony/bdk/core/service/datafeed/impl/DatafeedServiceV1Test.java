@@ -12,7 +12,6 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.*;
 import io.github.resilience4j.retry.Retry;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +37,11 @@ public class DatafeedServiceV1Test {
     private DatafeedServiceV1 datafeedService;
     private BdkConfig bdkConfig;
     private DatafeedApi datafeedApi;
-    private SessionApi sessionApi;
     private AuthSession authSession;
     private RealTimeEventListener listener;
 
     @BeforeEach
-    void init(@TempDir Path tempDir) throws BdkConfigException, ApiException {
+    void init(@TempDir Path tempDir) throws BdkConfigException {
         this.authSession = Mockito.mock(AuthSessionImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
@@ -54,14 +52,13 @@ public class DatafeedServiceV1Test {
         this.bdkConfig.setDatafeed(datafeedConfig);
 
         BdkRetryConfig retryConfig = new BdkRetryConfig();
-        retryConfig.setInitialIntervalMillis(500);
+        retryConfig.setInitialIntervalMillis(50);
         retryConfig.setMultiplier(1);
         retryConfig.setMaxAttempts(2);
-        retryConfig.setMaxIntervalMillis(900);
+        retryConfig.setMaxIntervalMillis(90);
         this.bdkConfig.setRetry(retryConfig);
 
         this.datafeedService = new DatafeedServiceV1(
-                null,
                 null,
                 this.authSession,
                 this.bdkConfig
@@ -75,10 +72,6 @@ public class DatafeedServiceV1Test {
         this.datafeedService.subscribe(listener);
         this.datafeedApi = mock(DatafeedApi.class);
         this.datafeedService.setDatafeedApi(datafeedApi);
-        this.sessionApi = mock(SessionApi.class);
-        UserV2 botInfo = new UserV2().id(7696581394433L);
-        when(this.sessionApi.v2SessioninfoGet("1234")).thenReturn(botInfo);
-        this.datafeedService.setSessionApi(this.sessionApi);
     }
 
     @Test
@@ -230,7 +223,7 @@ public class DatafeedServiceV1Test {
     }
 
     @Test
-    void handleV4EventTest() throws ApiException {
+    void handleV4EventTest() {
         List<V4Event> events = new ArrayList<>();
         events.add(null);
         Field[] fields = DatafeedEventConstant.class.getDeclaredFields();
