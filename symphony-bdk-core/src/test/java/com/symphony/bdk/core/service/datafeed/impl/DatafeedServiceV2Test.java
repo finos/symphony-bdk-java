@@ -11,10 +11,7 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.model.AckId;
-import com.symphony.bdk.gen.api.model.V4Event;
-import com.symphony.bdk.gen.api.model.V5Datafeed;
-import com.symphony.bdk.gen.api.model.V5EventList;
+import com.symphony.bdk.gen.api.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -76,7 +73,7 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(datafeeds);
         AckId ackId = datafeedService.getAckId();
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
-                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
+                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
 
         this.datafeedService.start();
 
@@ -90,7 +87,7 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.createDatafeed("1234", "1234")).thenReturn(new V5Datafeed().id("test-id"));
         AckId ackId = datafeedService.getAckId();
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
-                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
+                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
 
         this.datafeedService.start();
 
@@ -107,7 +104,9 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(datafeeds);
         AckId ackId = datafeedService.getAckId();
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
-                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
+                .thenReturn(new V5EventList()
+                        .addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload()))
+                        .ackId("ack-id"));
 
         this.datafeedService.unsubscribe(this.listener);
         this.datafeedService.subscribe(new RealTimeEventListener() {
@@ -168,7 +167,7 @@ public class DatafeedServiceV2Test {
         });
         AckId ackId = datafeedService.getAckId();
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
-                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
+                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
 
         this.datafeedService.start();
 
@@ -214,7 +213,7 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.createDatafeed("1234", "1234")).thenReturn(new V5Datafeed().id("recreate-df-id"));
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(400, "client-error"));
         when(datafeedApi.readDatafeed("recreate-df-id", "1234", "1234", ackId))
-                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
+                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
 
         this.datafeedService.start();
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
@@ -255,7 +254,7 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.createDatafeed("1234", "1234")).thenReturn(new V5Datafeed().id("recreate-df-id"));
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(400, "client-error"));
         when(datafeedApi.readDatafeed("recreate-df-id", "1234", "1234", ackId))
-                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(DatafeedEventConstant.MESSAGESENT)).ackId("ack-id"));
+                .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
         when(datafeedApi.deleteDatafeed("test-id", "1234", "1234")).thenThrow(new ApiException(400, "client-error"));
 
         this.datafeedService.start();

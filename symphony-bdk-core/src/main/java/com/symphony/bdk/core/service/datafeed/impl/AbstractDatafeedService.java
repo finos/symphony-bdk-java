@@ -79,120 +79,13 @@ abstract class AbstractDatafeedService implements DatafeedService {
             if (this.isSelfGeneratedEvent(event)) {
                 continue;
             }
-            for (RealTimeEventListener listener : listeners) {
-                switch (event.getType()) {
-                    case DatafeedEventConstant.MESSAGESENT:
-                        listener.onMessageSent(event);
-                        if (event.getPayload() != null) {
-                            listener.onMessageSent(event.getInitiator(), event.getPayload().getMessageSent());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.MESSAGESUPPRESSED:
-                        listener.onMessageSuppressed(event);
-                        if (event.getPayload() != null) {
-                            listener.onMessageSuppressed(event.getInitiator(), event.getPayload().getMessageSuppressed());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.INSTANTMESSAGECREATED:
-                        listener.onInstantMessageCreated(event);
-                        if (event.getPayload() != null) {
-                            listener.onInstantMessageCreated(event.getInitiator(), event.getPayload().getInstantMessageCreated());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.SHAREDPOST:
-                        listener.onSharedPost(event);
-                        if (event.getPayload() != null) {
-                            listener.onSharedPost(event.getInitiator(), event.getPayload().getSharedPost());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.ROOMCREATED:
-                        listener.onRoomCreated(event);
-                        if (event.getPayload() != null) {
-                            listener.onRoomCreated(event.getInitiator(), event.getPayload().getRoomCreated());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.ROOMUPDATED:
-                        listener.onRoomUpdated(event);
-                        if (event.getPayload() != null) {
-                            listener.onRoomUpdated(event.getInitiator(), event.getPayload().getRoomUpdated());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.ROOMDEACTIVATED:
-                        listener.onRoomDeactivated(event);
-                        if (event.getPayload() != null) {
-                            listener.onRoomDeactivated(event.getInitiator(), event.getPayload().getRoomDeactivated());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.ROOMREACTIVATED:
-                        listener.onRoomReactivated(event);
-                        if (event.getPayload() != null) {
-                            listener.onRoomReactivated(event.getInitiator(), event.getPayload().getRoomReactivated());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.USERREQUESTEDTOJOINROOM:
-                        listener.onUserRequestedToJoinRoom(event);
-                        if (event.getPayload() != null) {
-                            listener.onUserRequestedToJoinRoom(event.getInitiator(), event.getPayload().getUserRequestedToJoinRoom());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.USERJOINEDROOM:
-                        listener.onUserJoinedRoom(event);
-                        if (event.getPayload() != null) {
-                            listener.onUserJoinedRoom(event.getInitiator(), event.getPayload().getUserJoinedRoom());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.USERLEFTROOM:
-                        listener.onUserLeftRoom(event);
-                        if (event.getPayload() != null) {
-                            listener.onUserLeftRoom(event.getInitiator(), event.getPayload().getUserLeftRoom());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.ROOMMEMBERPROMOTEDTOOWNER:
-                        listener.onRoomMemberPromotedToOwner(event);
-                        if (event.getPayload() != null) {
-                            listener.onRoomMemberPromotedToOwner(event.getInitiator(), event.getPayload().getRoomMemberPromotedToOwner());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.ROOMMEMBERDEMOTEDFROMOWNER:
-                        listener.onRoomMemberDemotedFromOwner(event);
-                        if (event.getPayload() != null) {
-                            listener.onRoomMemberDemotedFromOwner(event.getInitiator(), event.getPayload().getRoomMemberDemotedFromOwner());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.CONNECTIONACCEPTED:
-                        listener.onConnectionAccepted(event);
-                        if (event.getPayload() != null) {
-                            listener.onConnectionAccepted(event.getInitiator(), event.getPayload().getConnectionAccepted());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.CONNECTIONREQUESTED:
-                        listener.onConnectionRequested(event);
-                        if (event.getPayload() != null) {
-                            listener.onConnectionRequested(event.getInitiator(), event.getPayload().getConnectionRequested());
-                        }
-                        break;
-
-                    case DatafeedEventConstant.SYMPHONYELEMENTSACTION:
-                        listener.onSymphonyElementsAction(event);
-                        if (event.getPayload() != null) {
-                            listener.onSymphonyElementsAction(event.getInitiator(), event.getPayload().getSymphonyElementsAction());
-                        }
-                        break;
+            try {
+                RealTimeEventType eventType = RealTimeEventType.valueOf(event.getType());
+                for (RealTimeEventListener listener : listeners) {
+                    eventType.dispatch(listener, event);
                 }
+            } catch (IllegalArgumentException e) {
+                log.warn("Receive events with unknown type");
             }
         }
     }
