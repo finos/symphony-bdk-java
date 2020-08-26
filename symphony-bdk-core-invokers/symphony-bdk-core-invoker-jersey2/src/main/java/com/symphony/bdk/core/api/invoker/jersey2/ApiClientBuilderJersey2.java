@@ -45,7 +45,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     connectionTimeout = 15000;
     readTimeout = 60000;
     temporaryFolderPath = null;
-    userAgent("Symphony BDK/2.0/java");
+    userAgent("Symphony BDK/" + getBdkVersion() + "/java/1.8");
   }
 
   /**
@@ -140,6 +140,12 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClientBuilder readTimeout(int readTimeout) {
     this.readTimeout = readTimeout;
     return this;
+  }
+
+  private String getBdkVersion() {
+    String jarVersion = getClass().getPackage().getImplementationVersion();
+
+    return jarVersion == null ? "2.0" : jarVersion;
   }
 
   private ClientConfig createClientConfig() {
