@@ -31,8 +31,7 @@ public class ApiClientFactory {
   private final ApiClientProvider apiClientProvider;
 
   public ApiClientFactory(@Nonnull BdkConfig config) {
-    this.config = config;
-    this.apiClientProvider = findApiClientProvider();
+    this(config, findApiClientProvider());
   }
 
   public ApiClientFactory(@Nonnull BdkConfig config, @Nonnull ApiClientProvider apiClientProvider) {

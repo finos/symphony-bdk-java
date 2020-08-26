@@ -231,7 +231,6 @@
                         <!-- Exclude Thibault's temporary classes from coverage -->
                         <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
                         <exclude>com/symphony/bdk/core/service/MessageService.class</exclude>
-                        <exclude>com/symphony/bdk/core/client/ApiClientFactory.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo$Handle.class</exclude>
                         <!-- Exclude datafeed service v2 because it's not implemented yet -->
