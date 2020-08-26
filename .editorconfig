@@ -4,7 +4,7 @@ end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = true
-max_line_length = 100
+max_line_length = 120
 tab_width = 4
 ij_continuation_indent_size = 8
 ij_formatter_off_tag = @formatter:off
@@ -259,9 +259,9 @@ ij_java_variable_annotation_wrap = normal
 ij_java_visibility = public
 ij_java_while_brace_force = always
 ij_java_while_on_new_line = false
-ij_java_wrap_comments = true
+ij_java_wrap_comments = false
 ij_java_wrap_first_method_in_call_chain = false
-ij_java_wrap_long_lines = true
+ij_java_wrap_long_lines = false
 
 [.editorconfig]
 ij_editorconfig_align_group_field_declarations = false
