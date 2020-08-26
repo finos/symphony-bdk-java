@@ -39,8 +39,8 @@ public class BdkMockServer {
 
   public ApiClient newApiClient(String contextPath) {
     return new ApiClientBuilderJersey2()
-        .basePath("http://localhost:" + this.mockServer.getPort() + contextPath)
-        .buildClient();
+        .withBasePath("http://localhost:" + this.mockServer.getPort() + contextPath)
+        .build();
   }
 
   public void onPost(String path, Consumer<HttpResponse> resModifier) {

@@ -45,14 +45,14 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     connectionTimeout = 15000;
     readTimeout = 60000;
     temporaryFolderPath = null;
-    userAgent("Symphony BDK/" + getBdkVersion() + "/java/1.8");
+    withUserAgent("Symphony BDK/" + getBdkVersion() + "/java/1.8");
   }
 
   /**
-   * Specific implementation of {@link ApiClientBuilder#buildClient()} which returns an {@link ApiClientJersey2} instance.
+   * Specific implementation of {@link ApiClientBuilder#build()} which returns an {@link ApiClientJersey2} instance.
    */
   @Override
-  public ApiClient buildClient() {
+  public ApiClient build() {
     java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
 
     SSLContext sslContext = createSSLContext();
@@ -72,7 +72,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder basePath(String basePath) {
+  public ApiClientBuilder withBasePath(String basePath) {
     this.basePath = basePath;
     return this;
   }
@@ -81,7 +81,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder userAgent(String userAgent) {
+  public ApiClientBuilder withUserAgent(String userAgent) {
     withDefaultHeader("User-Agent", userAgent);
     return this;
   }
@@ -90,7 +90,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder keyStore(byte[] keyStoreBytes, String keyStorePassword) {
+  public ApiClientBuilder withKeyStore(byte[] keyStoreBytes, String keyStorePassword) {
     this.keyStoreBytes = keyStoreBytes;
     this.keyStorePassword = keyStorePassword;
     return this;
@@ -100,7 +100,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder trustStore(byte[] trustStoreBytes, String trustStorePassword) {
+  public ApiClientBuilder withTrustStore(byte[] trustStoreBytes, String trustStorePassword) {
     this.trustStoreBytes = trustStoreBytes;
     this.trustStorePassword = trustStorePassword;
     return this;
@@ -119,7 +119,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder temporaryFolderPath(String temporaryFolderPath) {
+  public ApiClientBuilder withTemporaryFolderPath(String temporaryFolderPath) {
     this.temporaryFolderPath = temporaryFolderPath;
     return this;
   }
@@ -128,7 +128,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder connectionTimeout(int connectionTimeout) {
+  public ApiClientBuilder withConnectionTimeout(int connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
     return this;
   }
@@ -137,7 +137,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder readTimeout(int readTimeout) {
+  public ApiClientBuilder withReadTimeout(int readTimeout) {
     this.readTimeout = readTimeout;
     return this;
   }

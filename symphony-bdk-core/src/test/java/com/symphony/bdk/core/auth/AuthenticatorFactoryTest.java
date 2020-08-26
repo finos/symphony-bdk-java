@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
  */
 class AuthenticatorFactoryTest {
 
-  private static final ApiClient DUMMY_API_CLIENT = new ApiClientBuilderJersey2().buildClient();
+  private static final ApiClient DUMMY_API_CLIENT = new ApiClientBuilderJersey2().build();
   private static final String RSA_PRIVATE_KEY = RsaTestHelper.generatePrivateKeyAsString();
   private static ApiClientFactory DUMMY_API_CLIENT_FACTORY;
 

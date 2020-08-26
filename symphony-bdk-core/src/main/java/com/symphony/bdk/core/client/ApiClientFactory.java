@@ -102,7 +102,7 @@ public class ApiClientFactory {
   }
 
   private ApiClient buildClient(String basePath) throws AuthInitializationException {
-    return getApiClientBuilder(basePath).buildClient();
+    return getApiClientBuilder(basePath).build();
   }
 
   private ApiClient buildClientWithCertificate(String basePath) throws AuthInitializationException {
@@ -116,20 +116,20 @@ public class ApiClientFactory {
     byte[] certificateBytes = getBytesFromFile(botConfig.getCertificatePath());
 
     return getApiClientBuilder(basePath)
-        .keyStore(certificateBytes, botConfig.getCertificatePassword())
-        .buildClient();
+        .withKeyStore(certificateBytes, botConfig.getCertificatePassword())
+        .build();
   }
 
   private ApiClientBuilder getApiClientBuilder(String basePath) throws AuthInitializationException {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
-        .basePath(basePath);
+        .withBasePath(basePath);
 
     BdkSslConfig sslConfig = this.config.getSsl();
 
     if(isNotEmpty(sslConfig.getTrustStorePath())) {
       byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStorePath());
-      apiClientBuilder.trustStore(trustStoreBytes, sslConfig.getTrustStorePassword());
+      apiClientBuilder.withTrustStore(trustStoreBytes, sslConfig.getTrustStorePassword());
     }
 
     return apiClientBuilder;
