@@ -9,11 +9,13 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.BotInfoService;
 import com.symphony.bdk.core.service.Obo;
-import com.symphony.bdk.core.service.V4MessageService;
+import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.gen.api.MessagesApi;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -45,18 +47,18 @@ public class SymphonyBdk {
     this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();
   }
 
-  public V4MessageService messages() {
-    return new V4MessageService(this.apiClientFactory.getAgentClient(), this.botSession);
+  public MessageService messages() {
+    return new MessageService(new MessagesApi(this.apiClientFactory.getAgentClient()), this.botSession);
   }
 
-  public V4MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
+  public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
       oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
     } else {
       oboSession = this.oboAuthenticator.authenticateByUserId(oboHandle.getUserId());
     }
-    return new V4MessageService(this.apiClientFactory.getAgentClient(), oboSession);
+    return new MessageService(new MessagesApi(this.apiClientFactory.getAgentClient()), oboSession);
   }
 
   /**

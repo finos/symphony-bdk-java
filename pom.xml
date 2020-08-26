@@ -142,6 +142,7 @@
                 <module>symphony-bdk-core</module>
                 <module>symphony-bdk-core-invokers</module>
                 <module>symphony-bdk-examples</module>
+                <module>symphony-bdk-spring</module>
             </modules>
         </profile>
 
