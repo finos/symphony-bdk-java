@@ -55,12 +55,12 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
     return new AuthSessionRsaImpl(this);
   }
 
-  public String retrieveSessionToken() throws AuthUnauthorizedException {
+  protected String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using RSA authentication...");
     return this.doRetrieveToken(this.loginApiClient);
   }
 
-  public String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+  protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using RSA authentication...");
     return this.doRetrieveToken(this.relayApiClient);
   }

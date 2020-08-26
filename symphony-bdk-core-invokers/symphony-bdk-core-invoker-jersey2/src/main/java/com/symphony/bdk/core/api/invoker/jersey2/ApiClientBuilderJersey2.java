@@ -2,6 +2,8 @@ package com.symphony.bdk.core.api.invoker.jersey2;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
+
+import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -20,6 +22,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientJersey2}.
  */
+@API(status = API.Status.STABLE)
 public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   private String basePath;
@@ -39,8 +42,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     trustStoreBytes = null;
     trustStorePassword = null;
     defaultHeaders = new HashMap<>();
-    connectionTimeout = 0;
-    readTimeout = 0;
+    connectionTimeout = 15000;
+    readTimeout = 60000;
     temporaryFolderPath = null;
     userAgent("Symphony BDK/2.0/java");
   }

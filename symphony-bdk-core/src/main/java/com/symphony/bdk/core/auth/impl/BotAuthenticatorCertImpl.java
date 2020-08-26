@@ -17,9 +17,7 @@ import javax.annotation.Nonnull;
 /**
  * Bot authenticator certificate implementation.
  *
- * @see
- * <a href="https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1">Bot
- * Authentication Workflow</a>
+ * @see <a href="https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1">BotAuthentication Workflow</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
@@ -44,12 +42,12 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
     return authSession;
   }
 
-  public @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException {
+  protected @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using certificate authentication...");
     return doRetrieveToken(this.sessionAuthClient);
   }
 
-  public @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+  protected  @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using certificate authentication...");
     return doRetrieveToken(this.keyAuthClient);
   }

@@ -1,8 +1,11 @@
 package com.symphony.bdk.core.api.invoker;
 
+import org.apiguardian.api.API;
+
 /**
  * Builder class to create a new instance of an {@link ApiClient}
  */
+@API(status = API.Status.STABLE)
 public interface ApiClientBuilder {
   /**
    * @return a new {@link ApiClient} based on the previously called methods below.
@@ -50,7 +53,7 @@ public interface ApiClientBuilder {
 
   /**
    * Set the connection timeout (in milliseconds). A value of 0 means no timeout, otherwise values
-   * must be between 1 and {@link Integer#MAX_VALUE}.
+   * must be between 1 and {@link Integer#MAX_VALUE}. If not set, connection timeout will be 15000.
    *
    * @param connectionTimeout Connection timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
@@ -59,7 +62,7 @@ public interface ApiClientBuilder {
 
   /**
    * Set the read timeout (in milliseconds). A value of 0 means no timeout, otherwise values must be
-   * between 1 and {@link Integer#MAX_VALUE}.
+   * between 1 and {@link Integer#MAX_VALUE}. If not set, read timeout will be 60000.
    *
    * @param readTimeout Read timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
