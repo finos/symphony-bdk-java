@@ -14,6 +14,7 @@ import com.symphony.bdk.gen.api.model.Token;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.net.HttpURLConnection;
 import java.security.PrivateKey;
 
 import javax.annotation.Nonnull;
@@ -75,7 +76,7 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
       log.debug("{} successfully retrieved.", token.getName());
       return token.getToken();
     } catch (ApiException ex) {
-      if (ex.getCode() == 401) {
+      if (ex.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
         // usually happens when the public RSA is wrong or if the username is not correct
         throw new AuthUnauthorizedException("Service account with username '" + this.username + "' is not authorized to authenticate. "
             + "Check if the public RSA key is valid or if the username is correct.", ex);

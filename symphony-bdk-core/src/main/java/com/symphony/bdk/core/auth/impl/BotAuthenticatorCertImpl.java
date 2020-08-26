@@ -14,6 +14,8 @@ import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
 
+import java.net.HttpURLConnection;
+
 /**
  * Bot authenticator certificate implementation.
  *
@@ -58,7 +60,7 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
       log.debug("{} successfully retrieved.", token.getName());
       return token.getToken();
     } catch (ApiException ex) {
-      if (ex.getCode() == 401) {
+      if (ex.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
         // usually happens when the certificate is not correct
         throw new AuthUnauthorizedException(
             "Service account is not authorized to authenticate using certificate. " +
