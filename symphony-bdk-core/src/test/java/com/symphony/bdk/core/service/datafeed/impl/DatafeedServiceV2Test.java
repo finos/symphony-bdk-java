@@ -56,7 +56,7 @@ public class DatafeedServiceV2Test {
         );
         this.listener = new RealTimeEventListener() {
             @Override
-            public void onMessageSent(V4Event event) {
+            public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
                 datafeedService.stop();
             }
         };
@@ -111,7 +111,7 @@ public class DatafeedServiceV2Test {
         this.datafeedService.unsubscribe(this.listener);
         this.datafeedService.subscribe(new RealTimeEventListener() {
             @Override
-            public void onMessageSent(V4Event event) {
+            public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
                 try {
                     datafeedService.start();
                 } catch (AuthUnauthorizedException | ApiException e) {
