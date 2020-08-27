@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.client;
 
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilderProvider;
@@ -21,8 +23,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
-
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 /**
  * Factory responsible for creating {@link ApiClient} instances for each main Symphony's components

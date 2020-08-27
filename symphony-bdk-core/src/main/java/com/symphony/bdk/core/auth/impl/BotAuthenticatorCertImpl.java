@@ -12,9 +12,9 @@ import com.symphony.bdk.gen.api.model.Token;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 import java.net.HttpURLConnection;
+
+import javax.annotation.Nonnull;
 
 /**
  * Bot authenticator certificate implementation.

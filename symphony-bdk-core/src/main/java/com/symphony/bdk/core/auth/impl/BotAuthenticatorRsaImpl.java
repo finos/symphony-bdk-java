@@ -51,9 +51,12 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
   /**
    * {@inheritDoc}
    */
+  @Nonnull
   @Override
-  public @Nonnull AuthSession authenticateBot() {
-    return new AuthSessionRsaImpl(this);
+  public AuthSession authenticateBot() throws AuthUnauthorizedException {
+    AuthSession authSession = new AuthSessionRsaImpl(this);
+    authSession.refresh();
+    return authSession;
   }
 
   protected String retrieveSessionToken() throws AuthUnauthorizedException {

@@ -7,7 +7,6 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.BotInfoService;
 import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.service.V4MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
@@ -64,18 +63,9 @@ public class SymphonyBdk {
    */
   public DatafeedService datafeed() throws AuthInitializationException {
     if (DatafeedVersion.of(this.config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.apiClientFactory.getPodClient(), this.botSession, this.config);
+      return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
     }
-    return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.apiClientFactory.getPodClient(), this.botSession, this.config);
-  }
-
-  /**
-   * Get the {@link BotInfoService} from a Bdk entry point.
-   *
-   * @return {@link BotInfoService} bot info service instance.
-   */
-  public BotInfoService botInfo() throws AuthInitializationException {
-    return new BotInfoService(this.apiClientFactory.getPodClient(), this.botSession);
+    return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
   }
 
 }
