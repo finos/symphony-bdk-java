@@ -33,22 +33,19 @@ public class SymphonyBdk {
 
     this.apiClientFactory = new ApiClientFactory(config);
 
-    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(
-        config,
-        apiClientFactory.getLoginClient(),
-        apiClientFactory.getRelayClient()
-    );
+    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, this.apiClientFactory);
 
     this.config = config;
     this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();
   }
 
-  public V4MessageService messages() {
+  public V4MessageService messages() throws AuthInitializationException {
     return new V4MessageService(this.apiClientFactory.getAgentClient(), this.botSession);
   }
 
-  public V4MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
+  public V4MessageService messages(Obo.Handle oboHandle)
+      throws AuthUnauthorizedException, AuthInitializationException {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
       oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
@@ -64,7 +61,7 @@ public class SymphonyBdk {
    *
    * @return {@link DatafeedService} datafeed service instance.
    */
-  public DatafeedService datafeed() {
+  public DatafeedService datafeed() throws AuthInitializationException {
     if (DatafeedVersion.of(this.config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
       return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
     }

@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.test;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
+import com.symphony.bdk.core.api.invoker.jersey2.ApiClientBuilderJersey2;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpResponse;
@@ -38,7 +38,9 @@ public class BdkMockServer {
   }
 
   public ApiClient newApiClient(String contextPath) {
-    return new ApiClientJersey2("http://localhost:" + this.mockServer.getPort() + contextPath);
+    return new ApiClientBuilderJersey2()
+        .withBasePath("http://localhost:" + this.mockServer.getPort() + contextPath)
+        .build();
   }
 
   public void onPost(String path, Consumer<HttpResponse> resModifier) {

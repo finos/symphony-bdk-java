@@ -1,9 +1,20 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
+import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
@@ -12,7 +23,28 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.model.*;
+import com.symphony.bdk.gen.api.model.Datafeed;
+import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
+import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
+import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
+import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.gen.api.model.V4MessageSuppressed;
+import com.symphony.bdk.gen.api.model.V4Payload;
+import com.symphony.bdk.gen.api.model.V4RoomCreated;
+import com.symphony.bdk.gen.api.model.V4RoomDeactivated;
+import com.symphony.bdk.gen.api.model.V4RoomMemberDemotedFromOwner;
+import com.symphony.bdk.gen.api.model.V4RoomMemberPromotedToOwner;
+import com.symphony.bdk.gen.api.model.V4RoomReactivated;
+import com.symphony.bdk.gen.api.model.V4RoomUpdated;
+import com.symphony.bdk.gen.api.model.V4SharedPost;
+import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
+import com.symphony.bdk.gen.api.model.V4User;
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
+import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
+import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
+
 import io.github.resilience4j.retry.Retry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,9 +59,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 public class DatafeedServiceV1Test {
 
     private DatafeedServiceV1 datafeedService;
@@ -40,7 +69,7 @@ public class DatafeedServiceV1Test {
 
     @BeforeEach
     void init(@TempDir Path tempDir) throws BdkConfigException {
-        this.authSession = Mockito.mock(AuthSessionImpl.class);
+        this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
         this.bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");

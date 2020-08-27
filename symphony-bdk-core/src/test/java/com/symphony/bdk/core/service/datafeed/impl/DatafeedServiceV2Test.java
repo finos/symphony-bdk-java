@@ -3,7 +3,7 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
+import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -45,7 +45,7 @@ public class DatafeedServiceV2Test {
         retryConfig.setMaxIntervalMillis(90);
         bdkConfig.setRetry(retryConfig);
 
-        this.authSession = Mockito.mock(AuthSessionImpl.class);
+        this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
 
