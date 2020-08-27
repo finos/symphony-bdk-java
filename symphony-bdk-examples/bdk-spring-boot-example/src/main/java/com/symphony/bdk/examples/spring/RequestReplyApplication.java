@@ -1,7 +1,8 @@
 package com.symphony.bdk.examples.spring;
 
 import com.symphony.bdk.core.service.MessageService;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
 import org.springframework.boot.SpringApplication;
@@ -11,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Sample Request/Reply Application.
  */
 @SpringBootApplication
-public class RequestReplyApplication implements DatafeedEventListener {
+public class RequestReplyApplication implements RealTimeEventListener {
 
   private final MessageService messageService;
 
@@ -20,7 +21,7 @@ public class RequestReplyApplication implements DatafeedEventListener {
   }
 
   @Override
-  public void onMessageSent(V4MessageSent event) {
+  public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
     this.messageService.send(event.getMessage().getStream(),"<messageML>Hello, from Spring!</messageML>");
   }
 

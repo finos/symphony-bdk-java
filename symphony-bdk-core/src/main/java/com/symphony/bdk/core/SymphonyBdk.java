@@ -8,7 +8,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.BotInfoService;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;

@@ -2,9 +2,9 @@ package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
@@ -33,13 +33,13 @@ public class BdkDatafeedConfig {
   ) {
 
     if (datafeedVersion == DatafeedVersion.V2) {
-      return new DatafeedServiceV2(apiClientFactory.getAgentClient(), apiClientFactory.getPodClient(), botSession, properties);
+      return new DatafeedServiceV2(apiClientFactory.getAgentClient(), botSession, properties);
     }
-    return new DatafeedServiceV1(apiClientFactory.getAgentClient(), apiClientFactory.getPodClient(), botSession, properties);
+    return new DatafeedServiceV1(apiClientFactory.getAgentClient(), botSession, properties);
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")
-  public DatafeedAsyncLauncherService datafeedAsyncLauncherService(final DatafeedService datafeedService, List<DatafeedEventListener> realTimeEventListeners) {
+  public DatafeedAsyncLauncherService datafeedAsyncLauncherService(final DatafeedService datafeedService, List<RealTimeEventListener> realTimeEventListeners) {
     return new DatafeedAsyncLauncherService(datafeedService, realTimeEventListeners);
   }
 }
