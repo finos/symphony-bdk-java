@@ -36,6 +36,10 @@ public class DatafeedAsyncLauncherService {
    */
   public void start() {
     Executors.newSingleThreadExecutor().submit(() -> {
+
+      // set name of the single Thread
+      Thread.currentThread().setName("DatafeedService Thread");
+
       try {
         this.datafeedService.start();
       } catch (AuthUnauthorizedException | ApiException apiException) {

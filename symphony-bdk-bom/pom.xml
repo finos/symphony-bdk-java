@@ -31,7 +31,7 @@
         <migbase64.version>2.2</migbase64.version>
         <resilience4j-retry.version>1.4.0</resilience4j-retry.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <spring-boot-starter.version>2.3.0.RELEASE</spring-boot-starter.version>
+        <spring-boot-starter.version>2.3.3.RELEASE</spring-boot-starter.version>
         <spring-boot-configuration-processor.version>2.2.0.RELEASE</spring-boot-configuration-processor.version>
         <swagger-annotations.version>1.6.0</swagger-annotations.version>
 
