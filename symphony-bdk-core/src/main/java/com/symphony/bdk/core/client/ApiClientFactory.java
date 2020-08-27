@@ -114,7 +114,7 @@ public class ApiClientFactory {
 
     if (!botConfig.isCertificateAuthenticationConfigured()) {
       throw new ApiClientInitializationException("For certificate authentication, " +
-          "certificatePath and certificatePassword must be set", null);
+          "certificatePath and certificatePassword must be set");
     }
 
     byte[] certificateBytes = getBytesFromFile(botConfig.getCertificatePath());

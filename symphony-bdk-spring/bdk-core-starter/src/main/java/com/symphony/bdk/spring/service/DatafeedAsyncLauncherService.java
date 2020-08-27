@@ -5,20 +5,28 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
+
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 
 /**
- *
+ * Async Launcher for the {@link DatafeedService} that call the {@link DatafeedService#start()} method in a separate
+ * thread.
  */
-public class DatafeedAsyncLauncherService {
+@Slf4j
+@API(status = API.Status.INTERNAL)
+public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHandler {
 
   private final DatafeedService datafeedService;
   private final List<RealTimeEventListener> realTimeEventListeners;
 
-  public DatafeedAsyncLauncherService(DatafeedService datafeedService, List<RealTimeEventListener> realTimeEventListeners) {
+  public DatafeedAsyncLauncherService(
+      final DatafeedService datafeedService,
+      final List<RealTimeEventListener> realTimeEventListeners
+  ) {
     this.datafeedService = datafeedService;
     this.realTimeEventListeners = realTimeEventListeners;
   }
@@ -35,20 +43,43 @@ public class DatafeedAsyncLauncherService {
    * Asynchronous execution of the {@link DatafeedService#start()} method.
    */
   public void start() {
-    Executors.newSingleThreadExecutor().submit(() -> {
-
-      // set name of the single Thread
-      Thread.currentThread().setName("DatafeedService Thread");
-
-      try {
-        this.datafeedService.start();
-      } catch (AuthUnauthorizedException | ApiException apiException) {
-        apiException.printStackTrace();
-      }
-    });
+    final Thread datafeedThread = new Thread(this::uncheckedStart, "SymphonyBdk_DatafeedThread");
+    datafeedThread.setUncaughtExceptionHandler(this);
+    datafeedThread.start();
   }
 
+  /**
+   * Wrapper for the {@link DatafeedService#stop()} method.
+   */
   public void stop() {
     this.datafeedService.stop();
+  }
+
+  @Override
+  public void uncaughtException(Thread datafeedThread, Throwable source) {
+
+    final Throwable cause = source.getCause();
+
+    if (cause.getClass().equals(AuthUnauthorizedException.class)) {
+      log.error("An authentication exception has occurred while starting the Datafeed loop, "
+          + "please check error below:", cause);
+    } else if (cause.getClass().equals(ApiException.class)) {
+      log.error("An API error has been received while starting the Datafeed loop in a separate thread, "
+          + "please check error below:", cause);
+    } else {
+      log.error("An unknown error has occurred while starting the Datafeed loop, "
+          + "please check error below:", cause);
+    }
+  }
+
+  /**
+   * Wrap the potential
+   */
+  private void uncheckedStart() {
+    try {
+      this.datafeedService.start();
+    } catch (AuthUnauthorizedException | ApiException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

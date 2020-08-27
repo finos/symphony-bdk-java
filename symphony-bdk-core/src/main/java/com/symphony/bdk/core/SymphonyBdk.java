@@ -6,7 +6,6 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.Obo;
@@ -14,6 +13,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,8 @@ public class SymphonyBdk {
 
   private final AuthSession botSession;
   private final OboAuthenticator oboAuthenticator;
-  private final BdkConfig config;
+
+  private final DatafeedService datafeedService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
@@ -38,17 +39,23 @@ public class SymphonyBdk {
 
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, this.apiClientFactory);
 
-    this.config = config;
     this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();
+
+    // setup the datafeed
+    final DatafeedApi datafeedApi = new DatafeedApi(this.apiClientFactory.getAgentClient());
+    if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
+      this.datafeedService = new DatafeedServiceV2(datafeedApi, this.botSession, config);
+    } else {
+      this.datafeedService = new DatafeedServiceV1(datafeedApi, this.botSession, config);
+    }
   }
 
   public MessageService messages() {
     return new MessageService(new MessagesApi(this.apiClientFactory.getAgentClient()), this.botSession);
   }
 
-  public MessageService messages(Obo.Handle oboHandle)
-      throws AuthUnauthorizedException, ApiClientInitializationException {
+  public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
       oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
@@ -65,10 +72,6 @@ public class SymphonyBdk {
    * @return {@link DatafeedService} datafeed service instance.
    */
   public DatafeedService datafeed() {
-    if (DatafeedVersion.of(this.config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
-    }
-    return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
+    return this.datafeedService;
   }
-
 }

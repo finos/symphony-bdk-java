@@ -38,8 +38,8 @@ import org.springframework.context.annotation.Bean;
  * Injection of all available raw-APIs generated from the official Symphony Swagger specifications.
  *
  * <p>
- *   Please note that each raw-API requires a particular {@link com.symphony.bdk.core.api.invoker.ApiClient} as unique
- *   constructor parameter, depending on which component it targets:
+ * Please note that each raw-API requires a particular {@link com.symphony.bdk.core.api.invoker.ApiClient} as unique
+ * constructor parameter, depending on which component it targets:
  *   <ul>
  *     <li>Pod</li>
  *     <li>Agent</li>
@@ -47,7 +47,7 @@ import org.springframework.context.annotation.Bean;
  * </p>
  *
  * <p>
- *   Those beans are not intended to be used by end-developers. They are injected into the Spring application context
+ *   Those beans are not "really" intended to be used by end-developers. They are injected into the Spring application context
  *   in order to be consumed by the service layer that provides an improved developer experience. However, as we won't
  *   be able to wrap every single raw-API within a dedicated service class, end-developers will still have the ability
  *   to do it by themselves.

@@ -1,11 +1,12 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
+
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +49,8 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     private final AtomicBoolean started = new AtomicBoolean();
     private String datafeedId;
 
-    public DatafeedServiceV1(ApiClient agentClient, AuthSession authSession, BdkConfig config) {
-        super(agentClient, authSession, config);
+    public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+        super(datafeedApi, authSession, config);
         this.started.set(false);
         this.datafeedId = null;
     }
