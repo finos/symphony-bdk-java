@@ -7,9 +7,10 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
-import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4MessageSent;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,12 +25,11 @@ public class DatafeedExampleMain {
         log.info("DatafeedV1: Start");
         DatafeedService ds = bdk.datafeed();
 
-        ds.subscribe(new DatafeedEventListener() {
+        ds.subscribe(new RealTimeEventListener() {
             @Override
-            public void onMessageSent(V4Event event) {
-                if (event.getPayload() != null && event.getPayload().getMessageSent() != null
-                        && event.getPayload().getMessageSent().getMessage() != null) {
-                    log.info("Message with id {} successfully received !", event.getPayload().getMessageSent().getMessage().getMessageId());
+            public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
+                if (event.getMessage() != null) {
+                    log.info("Message with id {} successfully received !", event.getMessage().getMessageId());
                 }
             }
         });

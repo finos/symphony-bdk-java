@@ -67,18 +67,9 @@ public class SymphonyBdk {
    */
   public DatafeedService datafeed() {
     if (DatafeedVersion.of(this.config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.apiClientFactory.getPodClient(), this.botSession, this.config);
+      return new DatafeedServiceV2(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
     }
-    return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.apiClientFactory.getPodClient(), this.botSession, this.config);
-  }
-
-  /**
-   * Get the {@link BotInfoService} from a Bdk entry point.
-   *
-   * @return {@link BotInfoService} bot info service instance.
-   */
-  public BotInfoService botInfo() {
-    return new BotInfoService(this.apiClientFactory.getPodClient(), this.botSession);
+    return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
   }
 
 }

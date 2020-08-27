@@ -1,5 +1,16 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -10,10 +21,30 @@ import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedEventListener;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.SessionApi;
-import com.symphony.bdk.gen.api.model.*;
+import com.symphony.bdk.gen.api.model.Datafeed;
+import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
+import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
+import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
+import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.gen.api.model.V4MessageSuppressed;
+import com.symphony.bdk.gen.api.model.V4Payload;
+import com.symphony.bdk.gen.api.model.V4RoomCreated;
+import com.symphony.bdk.gen.api.model.V4RoomDeactivated;
+import com.symphony.bdk.gen.api.model.V4RoomMemberDemotedFromOwner;
+import com.symphony.bdk.gen.api.model.V4RoomMemberPromotedToOwner;
+import com.symphony.bdk.gen.api.model.V4RoomReactivated;
+import com.symphony.bdk.gen.api.model.V4RoomUpdated;
+import com.symphony.bdk.gen.api.model.V4SharedPost;
+import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
+import com.symphony.bdk.gen.api.model.V4User;
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
+import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
+import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
+
 import io.github.resilience4j.retry.Retry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,28 +53,22 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 public class DatafeedServiceV1Test {
 
     private DatafeedServiceV1 datafeedService;
     private BdkConfig bdkConfig;
     private DatafeedApi datafeedApi;
-    private SessionApi sessionApi;
     private AuthSession authSession;
-    private DatafeedEventListener listener;
+    private RealTimeEventListener listener;
 
     @BeforeEach
-    void init(@TempDir Path tempDir) throws BdkConfigException, ApiException {
+    void init(@TempDir Path tempDir) throws BdkConfigException {
         this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
@@ -54,37 +79,32 @@ public class DatafeedServiceV1Test {
         this.bdkConfig.setDatafeed(datafeedConfig);
 
         BdkRetryConfig retryConfig = new BdkRetryConfig();
-        retryConfig.setInitialIntervalMillis(500);
+        retryConfig.setInitialIntervalMillis(50);
         retryConfig.setMultiplier(1);
         retryConfig.setMaxAttempts(2);
-        retryConfig.setMaxIntervalMillis(900);
+        retryConfig.setMaxIntervalMillis(90);
         this.bdkConfig.setRetry(retryConfig);
 
         this.datafeedService = new DatafeedServiceV1(
                 null,
-                null,
                 this.authSession,
                 this.bdkConfig
         );
-        this.listener = new DatafeedEventListener() {
+        this.listener = new RealTimeEventListener() {
             @Override
-            public void onMessageSent(V4Event event) {
+            public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
                 datafeedService.stop();
             }
         };
         this.datafeedService.subscribe(listener);
         this.datafeedApi = mock(DatafeedApi.class);
         this.datafeedService.setDatafeedApi(datafeedApi);
-        this.sessionApi = mock(SessionApi.class);
-        UserV2 botInfo = new UserV2().id(7696581394433L);
-        when(this.sessionApi.v2SessioninfoGet("1234")).thenReturn(botInfo);
-        this.datafeedService.setSessionApi(this.sessionApi);
     }
 
     @Test
     void startTest() throws ApiException, AuthUnauthorizedException {
         List<V4Event> events = new ArrayList<>();
-        V4Event event = new V4Event().type(DatafeedEventConstant.MESSAGESENT);
+        V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload());
         events.add(event);
         when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
         when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
@@ -150,16 +170,16 @@ public class DatafeedServiceV1Test {
     void startServiceAlreadyStarted() throws ApiException, AuthUnauthorizedException {
         AtomicInteger signal = new AtomicInteger(0);
         List<V4Event> events = new ArrayList<>();
-        V4Event event = new V4Event().type(DatafeedEventConstant.MESSAGESENT);
+        V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload());
         events.add(event);
         when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
         when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
                 .thenReturn(events);
 
         this.datafeedService.unsubscribe(this.listener);
-        this.datafeedService.subscribe(new DatafeedEventListener() {
+        this.datafeedService.subscribe(new RealTimeEventListener() {
             @Override
-            public void onMessageSent(V4Event event) {
+            public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
                 try {
                     datafeedService.start();
                 } catch (AuthUnauthorizedException | ApiException ignored) {
@@ -230,10 +250,10 @@ public class DatafeedServiceV1Test {
     }
 
     @Test
-    void handleV4EventTest() throws ApiException {
+    void handleV4EventTest() {
         List<V4Event> events = new ArrayList<>();
         events.add(null);
-        Field[] fields = DatafeedEventConstant.class.getDeclaredFields();
+        RealTimeEventType[] types = RealTimeEventType.values();
         V4Payload payload = new V4Payload()
                 .messageSent(new V4MessageSent())
                 .messageSuppressed(new V4MessageSuppressed())
@@ -251,64 +271,36 @@ public class DatafeedServiceV1Test {
                 .userLeftRoom(new V4UserLeftRoom())
                 .userJoinedRoom(new V4UserJoinedRoom())
                 .userRequestedToJoinRoom(new V4UserRequestedToJoinRoom());
-        for (Field f : fields) {
-            if (Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers())) {
-                try {
-                    V4Event event = new V4Event().type((String) f.get(String.class));
-                    event.payload(payload);
-                    events.add(event);
-                } catch (IllegalAccessException ignored) {
-
-                }
-            }
+        V4Initiator initiator = new V4Initiator();
+        for (RealTimeEventType type : types) {
+            V4Event event = new V4Event().type(type.name());
+            event.payload(payload).initiator(initiator);
+            events.add(event);
         }
+        events.add(new V4Event().type("unknown-type").payload(payload));
+        events.add(new V4Event().type(types[0].name()).initiator(new V4Initiator().user(new V4User().username(bdkConfig.getBot().getUsername()))));
         this.datafeedService.unsubscribe(this.listener);
-        DatafeedEventListener listener = new DatafeedEventListener() {};
-        DatafeedEventListener spiedListener = Mockito.spy(listener);
+        RealTimeEventListener listener = new RealTimeEventListener() {};
+        RealTimeEventListener spiedListener = Mockito.spy(listener);
         this.datafeedService.subscribe(spiedListener);
         this.datafeedService.handleV4EventList(events);
 
-        verify(spiedListener).onMessageSent(getEventByType(events, DatafeedEventConstant.MESSAGESENT));
-        verify(spiedListener).onMessageSent(payload.getMessageSent());
-        verify(spiedListener).onMessageSuppressed(getEventByType(events, DatafeedEventConstant.MESSAGESUPPRESSED));
-        verify(spiedListener).onMessageSuppressed(payload.getMessageSuppressed());
-        verify(spiedListener).onSymphonyElementsAction(getEventByType(events, DatafeedEventConstant.SYMPHONYELEMENTSACTION));
-        verify(spiedListener).onSymphonyElementsAction(payload.getSymphonyElementsAction());
-        verify(spiedListener).onSharedPost(getEventByType(events, DatafeedEventConstant.SHAREDPOST));
-        verify(spiedListener).onSharedPost(payload.getSharedPost());
-        verify(spiedListener).onInstantMessageCreated(getEventByType(events, DatafeedEventConstant.INSTANTMESSAGECREATED));
-        verify(spiedListener).onInstantMessageCreated(payload.getInstantMessageCreated());
-        verify(spiedListener).onRoomCreated(getEventByType(events, DatafeedEventConstant.ROOMCREATED));
-        verify(spiedListener).onRoomCreated(payload.getRoomCreated());
-        verify(spiedListener).onRoomUpdated(getEventByType(events, DatafeedEventConstant.ROOMUPDATED));
-        verify(spiedListener).onRoomUpdated(payload.getRoomUpdated());
-        verify(spiedListener).onRoomDeactivated(getEventByType(events, DatafeedEventConstant.ROOMDEACTIVATED));
-        verify(spiedListener).onRoomDeactivated(payload.getRoomDeactivated());
-        verify(spiedListener).onRoomReactivated(getEventByType(events, DatafeedEventConstant.ROOMREACTIVATED));
-        verify(spiedListener).onRoomReactivated(payload.getRoomReactivated());
-        verify(spiedListener).onConnectionRequested(getEventByType(events, DatafeedEventConstant.CONNECTIONREQUESTED));
-        verify(spiedListener).onConnectionRequested(payload.getConnectionRequested());
-        verify(spiedListener).onConnectionAccepted(getEventByType(events, DatafeedEventConstant.CONNECTIONACCEPTED));
-        verify(spiedListener).onConnectionAccepted(payload.getConnectionAccepted());
-        verify(spiedListener).onRoomMemberDemotedFromOwner(getEventByType(events, DatafeedEventConstant.ROOMMEMBERDEMOTEDFROMOWNER));
-        verify(spiedListener).onRoomMemberDemotedFromOwner(payload.getRoomMemberDemotedFromOwner());
-        verify(spiedListener).onRoomMemberPromotedToOwner(getEventByType(events, DatafeedEventConstant.ROOMMEMBERPROMOTEDTOOWNER));
-        verify(spiedListener).onRoomMemberPromotedToOwner(payload.getRoomMemberPromotedToOwner());
-        verify(spiedListener).onUserLeftRoom(getEventByType(events, DatafeedEventConstant.USERLEFTROOM));
-        verify(spiedListener).onUserLeftRoom(payload.getUserLeftRoom());
-        verify(spiedListener).onUserJoinedRoom(getEventByType(events, DatafeedEventConstant.USERJOINEDROOM));
-        verify(spiedListener).onUserJoinedRoom(payload.getUserJoinedRoom());
-        verify(spiedListener).onUserRequestedToJoinRoom(getEventByType(events, DatafeedEventConstant.USERREQUESTEDTOJOINROOM));
-        verify(spiedListener).onUserRequestedToJoinRoom(payload.getUserRequestedToJoinRoom());
-    }
-
-    private V4Event getEventByType(List<V4Event> events, String type) {
-        for (V4Event event : events) {
-            if (event != null && event.getType() != null && event.getType().equals(type)) {
-                return event;
-            }
-        }
-        return null;
+        verify(spiedListener).onMessageSent(initiator, payload.getMessageSent());
+        verify(spiedListener).onMessageSuppressed(initiator, payload.getMessageSuppressed());
+        verify(spiedListener).onSymphonyElementsAction(initiator, payload.getSymphonyElementsAction());
+        verify(spiedListener).onSharedPost(initiator, payload.getSharedPost());
+        verify(spiedListener).onInstantMessageCreated(initiator, payload.getInstantMessageCreated());
+        verify(spiedListener).onRoomCreated(initiator, payload.getRoomCreated());
+        verify(spiedListener).onRoomUpdated(initiator, payload.getRoomUpdated());
+        verify(spiedListener).onRoomDeactivated(initiator, payload.getRoomDeactivated());
+        verify(spiedListener).onRoomReactivated(initiator, payload.getRoomReactivated());
+        verify(spiedListener).onConnectionRequested(initiator, payload.getConnectionRequested());
+        verify(spiedListener).onConnectionAccepted(initiator, payload.getConnectionAccepted());
+        verify(spiedListener).onRoomMemberDemotedFromOwner(initiator, payload.getRoomMemberDemotedFromOwner());
+        verify(spiedListener).onRoomMemberPromotedToOwner(initiator, payload.getRoomMemberPromotedToOwner());
+        verify(spiedListener).onUserLeftRoom(initiator, payload.getUserLeftRoom());
+        verify(spiedListener).onUserJoinedRoom(initiator, payload.getUserJoinedRoom());
+        verify(spiedListener).onUserRequestedToJoinRoom(initiator, payload.getUserRequestedToJoinRoom());
     }
 
 }

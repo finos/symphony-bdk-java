@@ -22,16 +22,16 @@ public interface DatafeedService {
     void stop();
 
     /**
-     * The bot subscribes to a {@link DatafeedEventListener}
+     * The bot subscribes to a {@link RealTimeEventListener}
      *
      * @param listener a Datafeed event listener to be subscribed
      */
-    void subscribe(DatafeedEventListener listener);
+    void subscribe(RealTimeEventListener listener);
 
     /**
-     * The bot unsubscribes to a {@link DatafeedEventListener}
+     * The bot unsubscribes to a {@link RealTimeEventListener}
      *
      * @param listener a Datafeed event listener to be unsubscribed
      */
-    void unsubscribe(DatafeedEventListener listener);
+    void unsubscribe(RealTimeEventListener listener);
 }

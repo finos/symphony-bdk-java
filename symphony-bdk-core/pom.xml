@@ -233,8 +233,6 @@
                         <exclude>com/symphony/bdk/core/service/MessageService.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo$Handle.class</exclude>
-                        <!-- Exclude datafeed service v2 because it's not implemented yet -->
-                        <exclude>com/symphony/bdk/core/service/datafeed/impl/DatafeedServiceV2.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>
