@@ -1,6 +1,8 @@
 package com.symphony.bdk.spring.config;
 
+import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -28,6 +30,8 @@ import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.UtilApi;
 import com.symphony.bdk.gen.api.ViolationsApi;
 
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -53,133 +57,152 @@ import org.springframework.context.annotation.Bean;
  */
 public class BdkApiClientsConfig {
 
+  @Autowired
+  private ApiClientFactory clientFactory;
+
   @Bean
-  public AppEntitlementApi appEntitlementApi(ApiClientFactory apiClientFactory) {
-    return new AppEntitlementApi(apiClientFactory.getPodClient());
+  public AppEntitlementApi appEntitlementApi() {
+    return new AppEntitlementApi(podApiClient());
   }
 
   @Bean
-  public ApplicationApi applicationApi(ApiClientFactory apiClientFactory) {
-    return new ApplicationApi(apiClientFactory.getPodClient());
+  public ApplicationApi applicationApi() {
+    return new ApplicationApi(podApiClient());
   }
 
   @Bean
-  public AttachmentsApi attachmentsApi(ApiClientFactory apiClientFactory) {
-    return new AttachmentsApi(apiClientFactory.getAgentClient());
+  public AttachmentsApi attachmentsApi() {
+    return new AttachmentsApi(agentApiClient());
   }
 
   @Bean
-  public AuditTrailApi auditTrailApi(ApiClientFactory apiClientFactory) {
-    return new AuditTrailApi(apiClientFactory.getAgentClient());
+  public AuditTrailApi auditTrailApi() {
+    return new AuditTrailApi(agentApiClient());
   }
 
   @Bean
-  public CertificatePodApi certificatePodApi(ApiClientFactory apiClientFactory) {
-    return new CertificatePodApi(apiClientFactory.getPodClient());
+  public CertificatePodApi certificatePodApi() {
+    return new CertificatePodApi(podApiClient());
   }
 
   @Bean
-  public ConnectionApi connectionApi(ApiClientFactory apiClientFactory) {
-    return new ConnectionApi(apiClientFactory.getPodClient());
+  public ConnectionApi connectionApi() {
+    return new ConnectionApi(podApiClient());
   }
 
   @Bean
-  public DatafeedApi datafeedApi(ApiClientFactory apiClientFactory) {
-    return new DatafeedApi(apiClientFactory.getAgentClient());
+  public DatafeedApi datafeedApi() {
+    return new DatafeedApi(agentApiClient());
   }
 
   @Bean
-  public DefaultApi defaultApi(ApiClientFactory apiClientFactory) {
-    return new DefaultApi(apiClientFactory.getPodClient());
+  public DefaultApi defaultApi() {
+    return new DefaultApi(podApiClient());
   }
 
   @Bean
-  public DisclaimerApi disclaimerApi(ApiClientFactory apiClientFactory) {
-    return new DisclaimerApi(apiClientFactory.getPodClient());
+  public DisclaimerApi disclaimerApi() {
+    return new DisclaimerApi(podApiClient());
   }
 
   @Bean
-  public DlpPoliciesAndDictionaryManagementApi dlpPoliciesAndDictionaryManagementApi(ApiClientFactory apiClientFactory) {
-    return new DlpPoliciesAndDictionaryManagementApi(apiClientFactory.getAgentClient());
+  public DlpPoliciesAndDictionaryManagementApi dlpPoliciesAndDictionaryManagementApi() {
+    return new DlpPoliciesAndDictionaryManagementApi(agentApiClient());
   }
 
   @Bean
-  public InfoBarriersApi infoBarriersApi(ApiClientFactory apiClientFactory) {
-    return new InfoBarriersApi(apiClientFactory.getPodClient());
+  public InfoBarriersApi infoBarriersApi() {
+    return new InfoBarriersApi(podApiClient());
   }
 
   @Bean
-  public MessagesApi messagesApi(ApiClientFactory apiClientFactory) {
-    return new MessagesApi(apiClientFactory.getAgentClient());
+  public MessagesApi messagesApi() {
+    return new MessagesApi(agentApiClient());
   }
 
   @Bean
-  public MessageApi messageApi(ApiClientFactory apiClientFactory) {
-    return new MessageApi(apiClientFactory.getAgentClient());
+  public MessageApi messageApi() {
+    return new MessageApi(agentApiClient());
   }
 
   @Bean
-  public PodApi podApi(ApiClientFactory apiClientFactory) {
-    return new PodApi(apiClientFactory.getPodClient());
+  public PodApi podApi() {
+    return new PodApi(podApiClient());
   }
 
   @Bean
-  public PresenceApi presenceApi(ApiClientFactory apiClientFactory) {
-    return new PresenceApi(apiClientFactory.getPodClient());
+  public PresenceApi presenceApi() {
+    return new PresenceApi(podApiClient());
   }
 
   @Bean
-  public RoomMembershipApi roomMembershipApi(ApiClientFactory apiClientFactory) {
-    return new RoomMembershipApi(apiClientFactory.getPodClient());
+  public RoomMembershipApi roomMembershipApi() {
+    return new RoomMembershipApi(podApiClient());
   }
 
   @Bean
-  public SessionApi sessionApi(ApiClientFactory apiClientFactory) {
-    return new SessionApi(apiClientFactory.getPodClient());
+  public SessionApi sessionApi() {
+    return new SessionApi(podApiClient());
   }
 
   @Bean
-  public SecurityApi securityApi(ApiClientFactory apiClientFactory) {
-    return new SecurityApi(apiClientFactory.getPodClient());
+  public SecurityApi securityApi() {
+    return new SecurityApi(podApiClient());
   }
 
   @Bean
-  public ShareApi shareApi(ApiClientFactory apiClientFactory) {
-    return new ShareApi(apiClientFactory.getAgentClient());
+  public ShareApi shareApi() {
+    return new ShareApi(agentApiClient());
   }
 
   @Bean
-  public SignalsApi signalsApi(ApiClientFactory apiClientFactory) {
-    return new SignalsApi(apiClientFactory.getAgentClient());
+  public SignalsApi signalsApi() {
+    return new SignalsApi(agentApiClient());
   }
 
   @Bean
-  public StreamsApi streamsApi(ApiClientFactory apiClientFactory) {
-    return new StreamsApi(apiClientFactory.getPodClient());
+  public StreamsApi streamsApi() {
+    return new StreamsApi(podApiClient());
   }
 
   @Bean
-  public SystemApi systemApi(ApiClientFactory apiClientFactory) {
-    return new SystemApi(apiClientFactory.getPodClient());
+  public SystemApi systemApi() {
+    return new SystemApi(podApiClient());
   }
 
   @Bean
-  public UserApi userApi(ApiClientFactory apiClientFactory) {
-    return new UserApi(apiClientFactory.getPodClient());
+  public UserApi userApi() {
+    return new UserApi(podApiClient());
   }
 
   @Bean
-  public UsersApi usersApi(ApiClientFactory apiClientFactory) {
-    return new UsersApi(apiClientFactory.getPodClient());
+  public UsersApi usersApi() {
+    return new UsersApi(podApiClient());
   }
 
   @Bean
-  public UtilApi utilApi(ApiClientFactory apiClientFactory) {
-    return new UtilApi(apiClientFactory.getAgentClient());
+  public UtilApi utilApi() {
+    return new UtilApi(agentApiClient());
   }
 
   @Bean
-  public ViolationsApi violationsApi(ApiClientFactory apiClientFactory) {
-    return new ViolationsApi(apiClientFactory.getAgentClient());
+  public ViolationsApi violationsApi() {
+    return new ViolationsApi(agentApiClient());
+  }
+
+  private ApiClient agentApiClient() {
+    try {
+      return this.clientFactory.getAgentClient();
+    } catch (ApiClientInitializationException e) {
+      throw new BeanCreationException("Unable to build Agent's ApiClient", e);
+    }
+  }
+
+  private ApiClient podApiClient() {
+    try {
+      return this.clientFactory.getPodClient();
+    } catch (ApiClientInitializationException e) {
+      throw new BeanCreationException("Unable to build Agent's ApiClient", e);
+    }
   }
 }

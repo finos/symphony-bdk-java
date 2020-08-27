@@ -1,6 +1,6 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.api.invoker.jersey2.ApiClientProviderJersey2;
+import com.symphony.bdk.core.api.invoker.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
@@ -22,17 +22,13 @@ public class BdkCoreConfig {
   @Primary
   @Bean(name = "defaultSymphonyBdkApiClientFactory")
   public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties) {
-    return new ApiClientFactory(properties, new ApiClientProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
+    return new ApiClientFactory(properties, new ApiClientBuilderProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
   }
 
   @Primary
   @Bean(name = "defaultSymphonyBdkAuthenticatorFactory")
   public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties, ApiClientFactory apiClientFactory) {
-    return new AuthenticatorFactory(
-        properties,
-        apiClientFactory.getLoginClient(),
-        apiClientFactory.getRelayClient()
-    );
+    return new AuthenticatorFactory(properties, apiClientFactory);
   }
 
   @Primary

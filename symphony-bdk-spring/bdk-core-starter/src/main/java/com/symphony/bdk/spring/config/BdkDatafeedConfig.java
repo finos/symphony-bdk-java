@@ -25,7 +25,13 @@ public class BdkDatafeedConfig {
   }
 
   @Bean
-  public DatafeedService datafeedService(SymphonyBdkCoreProperties properties, ApiClientFactory apiClientFactory, AuthSession botSession, DatafeedVersion datafeedVersion) {
+  public DatafeedService datafeedService(
+      SymphonyBdkCoreProperties properties,
+      ApiClientFactory apiClientFactory,
+      AuthSession botSession,
+      DatafeedVersion datafeedVersion
+  ) {
+
     if (datafeedVersion == DatafeedVersion.V2) {
       return new DatafeedServiceV2(apiClientFactory.getAgentClient(), apiClientFactory.getPodClient(), botSession, properties);
     }
@@ -33,7 +39,7 @@ public class BdkDatafeedConfig {
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")
-  public DatafeedAsyncLauncherService datafeedAsyncLauncherService(DatafeedService datafeedService, List<DatafeedEventListener> realTimeEventListeners) {
+  public DatafeedAsyncLauncherService datafeedAsyncLauncherService(final DatafeedService datafeedService, List<DatafeedEventListener> realTimeEventListeners) {
     return new DatafeedAsyncLauncherService(datafeedService, realTimeEventListeners);
   }
 }
