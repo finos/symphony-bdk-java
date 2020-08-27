@@ -1,7 +1,11 @@
 package com.symphony.bdk.core.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -9,9 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BdkConfigLoaderTest {
 
@@ -83,5 +84,17 @@ public class BdkConfigLoaderTest {
             BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml");
         });
         assertEquals(exception.getMessage(), "Config file is not found");
+    }
+
+    @Test
+    public void loadClientGlobalConfig() throws BdkConfigException {
+        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_client_global.yaml");
+        assertEquals(config.getPod().getHost(), "devx1.symphony.com");
+        assertEquals(config.getPod().getPort(), 8443);
+        assertEquals(config.getPod().getContext(), "context");
+        assertEquals(config.getScheme(), "https");
+        assertEquals(config.getAgent().getPort(), 443);
+        assertEquals(config.getAgent().getFormattedContext(), "/context");
+        assertEquals(config.getKeyManager().getFormattedContext(), "/diff-context");
     }
 }

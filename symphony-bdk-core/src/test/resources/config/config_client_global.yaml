@@ -1,0 +1,22 @@
+host: devx1.symphony.com
+context: context
+port: 8443
+
+pod:
+  port: 8443
+
+agent:
+  host: devx1.symphony.com
+  port: 443
+
+keyManager:
+  host: devx1.symphony.com
+  context: diff-context
+
+bot:
+  username: tibot
+  privateKeyPath: /Users/local/conf/agent/privatekey.pem
+
+app:
+  appId: tibapp
+  privateKeyPath: /Users/local/conf/agent/privatekey.pem

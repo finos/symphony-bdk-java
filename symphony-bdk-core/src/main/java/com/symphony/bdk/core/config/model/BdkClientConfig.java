@@ -7,13 +7,10 @@ import lombok.Setter;
 @Setter
 public class BdkClientConfig {
 
-    private static final String DEFAULT_SCHEME = "https";
-    private static final int DEFAULT_HTTPS_PORT = 443;
-
-    private String scheme = DEFAULT_SCHEME;
-    private String host;
-    private Integer port = DEFAULT_HTTPS_PORT;
-    private String context = "";
+    private String scheme = null;
+    private String host = null;
+    private Integer port = null;
+    private String context = null;
 
     private String proxyUrl = null;
     private String proxyUsername = null;
@@ -25,10 +22,13 @@ public class BdkClientConfig {
 
 
     public String getBasePath() {
-        return this.scheme + "://" + this.host + this.getPortAsString() + this.getContext();
+        return this.scheme + "://" + this.host + this.getPortAsString() + this.getFormattedContext();
     }
 
-    public String getContext() {
+    public String getFormattedContext() {
+        if (this.context == null) {
+            return "";
+        }
         if (!this.context.equals("") && this.context.charAt(0) != '/') {
             this.context =  "/" + this.context;
         }

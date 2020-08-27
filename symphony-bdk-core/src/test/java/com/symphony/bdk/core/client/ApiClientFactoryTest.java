@@ -1,13 +1,14 @@
 package com.symphony.bdk.core.client;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for the {@link ApiClientFactory}.
@@ -136,9 +137,17 @@ class ApiClientFactoryTest {
     final BdkConfig config = new BdkConfig();
 
     config.getPod().setHost("pod-host");
+    config.getPod().setScheme("https");
+    config.getPod().setPort(443);
     config.getAgent().setHost("agent-host");
+    config.getAgent().setScheme("https");
+    config.getAgent().setPort(443);
     config.getKeyManager().setHost("km-host");
+    config.getKeyManager().setScheme("https");
+    config.getKeyManager().setPort(443);
     config.getSessionAuth().setHost("sa-host");
+    config.getSessionAuth().setScheme("https");
+    config.getSessionAuth().setPort(443);
 
     return config;
   }

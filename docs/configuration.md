@@ -6,6 +6,9 @@ developers configure their own bot.
 ## Configuration structure
 
 The BDK configuration now includes the following properties:
+- The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
+These global properties can be used by the client configuration by default or can be override if
+user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
 - `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
 the service account using by the bot is created.
 - `agent` contains information like host, port, scheme, context, proxy... of the agent which 
