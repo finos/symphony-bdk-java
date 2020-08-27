@@ -4,17 +4,20 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiResponse;
 import com.symphony.bdk.core.api.invoker.Pair;
-
 import org.apiguardian.api.API;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,45 +34,22 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 /**
  * Jersey2 implementation for the {@link ApiClient} interface called by generated code.
  */
 @API(status = API.Status.STABLE)
 public class ApiClientJersey2 implements ApiClient {
 
-  protected final Map<String, String> defaultHeaderMap = new HashMap<>();
+  protected Client httpClient;
+  protected String basePath;
+  protected Map<String, String> defaultHeaderMap;
+  protected String tempFolderPath;
 
-  protected final Client httpClient;
-  protected final JSON json;
-
-  protected String basePath = "https://acme.symphony.com";
-  protected int connectionTimeout = 0;
-  protected int readTimeout = 0;
-  protected String tempFolderPath = null;
-
-  public ApiClientJersey2() {
-
-    this.json = new JSON();
-    this.httpClient = this.buildHttpClient();
-
-    // Set default User-Agent.
-    this.setUserAgent("Symphony BDK/2.0/java"); // TODO configure version from pom.xml
-  }
-
-  public ApiClientJersey2(final String basePath) {
-    this();
-    this.setBasePath(basePath);
+  public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders, String temporaryFolderPath) {
+    this.httpClient = httpClient;
+    this.basePath = basePath;
+    this.defaultHeaderMap = new HashMap<>(defaultHeaders);
+    this.tempFolderPath = temporaryFolderPath;
   }
 
   /**
@@ -159,7 +139,9 @@ public class ApiClientJersey2 implements ApiClient {
       if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
         return new ApiResponse<>(statusCode, responseHeaders);
       } else if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
-        if (returnType == null) { return new ApiResponse<>(statusCode, responseHeaders); } else {
+        if (returnType == null) {
+          return new ApiResponse<>(statusCode, responseHeaders);
+        } else {
           return new ApiResponse<>(statusCode, responseHeaders, deserialize(response, returnType));
         }
       } else {
@@ -188,92 +170,9 @@ public class ApiClientJersey2 implements ApiClient {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public String getBasePath() {
     return basePath;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ApiClient setBasePath(String basePath) {
-    this.basePath = basePath;
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ApiClient setUserAgent(String userAgent) {
-    addDefaultHeader("User-Agent", userAgent);
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ApiClient addDefaultHeader(String key, String value) {
-    defaultHeaderMap.put(key, value);
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getTempFolderPath() {
-    return tempFolderPath;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ApiClient setTempFolderPath(String tempFolderPath) {
-    this.tempFolderPath = tempFolderPath;
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int getConnectTimeout() {
-    return connectionTimeout;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ApiClient setConnectTimeout(int connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
-    httpClient.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
-    return this;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public int getReadTimeout() {
-    return readTimeout;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ApiClient setReadTimeout(int readTimeout) {
-    this.readTimeout = readTimeout;
-    httpClient.property(ClientProperties.READ_TIMEOUT, readTimeout);
-    return this;
   }
 
   /**
@@ -305,7 +204,9 @@ public class ApiClientJersey2 implements ApiClient {
     List<Pair> params = new ArrayList<Pair>();
 
     // preconditions
-    if (name == null || name.isEmpty() || value == null) { return params; }
+    if (name == null || name.isEmpty() || value == null) {
+      return params;
+    }
 
     Collection<?> valueCollection;
     if (value instanceof Collection) {
@@ -411,6 +312,7 @@ public class ApiClientJersey2 implements ApiClient {
    * APPLICATION/JSON
    * application/vnd.company+json
    * "* / *" is also default to JSON
+   *
    * @param mime MIME
    * @return True if the MIME type is JSON
    */
@@ -422,6 +324,7 @@ public class ApiClientJersey2 implements ApiClient {
   /**
    * Serialize the given Java object into string entity according the given
    * Content-Type (only JSON is supported for now).
+   *
    * @param obj Object
    * @param formParams Form parameters
    * @param contentType Context type
@@ -459,6 +362,7 @@ public class ApiClientJersey2 implements ApiClient {
 
   /**
    * Deserialize response body to Java object according to the Content-Type.
+   *
    * @param <T> Type
    * @param response Response
    * @param returnType Return type
@@ -484,6 +388,7 @@ public class ApiClientJersey2 implements ApiClient {
 
   /**
    * Download file from the given response.
+   *
    * @param response Response
    * @return File
    * @throws ApiException If fail to read file content from response and write to disk
@@ -505,7 +410,9 @@ public class ApiClientJersey2 implements ApiClient {
       // Get filename from the Content-Disposition header.
       Pattern pattern = Pattern.compile("filename=['\"]?([^'\"\\s]+)['\"]?");
       Matcher matcher = pattern.matcher(contentDisposition);
-      if (matcher.find()) { filename = matcher.group(1); }
+      if (matcher.find()) {
+        filename = matcher.group(1);
+      }
     }
 
     String prefix;
@@ -522,40 +429,23 @@ public class ApiClientJersey2 implements ApiClient {
         suffix = filename.substring(pos);
       }
       // File.createTempFile requires the prefix to be at least three characters long
-      if (prefix.length() < 3) { prefix = "download-"; }
+      if (prefix.length() < 3) {
+        prefix = "download-";
+      }
     }
 
-    if (tempFolderPath == null) { return File.createTempFile(prefix, suffix); } else {
+    if (tempFolderPath == null) {
+      return File.createTempFile(prefix, suffix);
+    } else {
       return File.createTempFile(prefix, suffix, new File(tempFolderPath));
     }
   }
 
-  /**
-   * Build the Client used to make HTTP requests.
-   * @return Client
-   */
-  protected Client buildHttpClient() {
-    final ClientConfig clientConfig = new ClientConfig();
-    clientConfig.register(MultiPartFeature.class);
-    clientConfig.register(this.json);
-    clientConfig.register(JacksonFeature.class);
-    clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
-    // turn off compliance validation to be able to send payloads with DELETE calls
-    clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
-    java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
-    performAdditionalClientConfiguration(clientConfig);
-    return ClientBuilder.newClient(clientConfig);
-  }
-
-  protected void performAdditionalClientConfiguration(ClientConfig clientConfig) {
-    // No-op extension point
-  }
-
   protected Map<String, List<String>> buildResponseHeaders(Response response) {
-    Map<String, List<String>> responseHeaders = new HashMap<String, List<String>>();
+    Map<String, List<String>> responseHeaders = new HashMap<>();
     for (Entry<String, List<Object>> entry : response.getHeaders().entrySet()) {
       List<Object> values = entry.getValue();
-      List<String> headers = new ArrayList<String>();
+      List<String> headers = new ArrayList<>();
       for (Object o : values) {
         headers.add(String.valueOf(o));
       }

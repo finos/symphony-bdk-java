@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
- * Test class for the {@link AuthSessionImpl}.
+ * Test class for the {@link AuthSessionRsaImpl}.
  */
-class AuthSessionImplTest {
+class AuthSessionRsaImplTest {
 
   @Test
   void testRefresh() throws AuthUnauthorizedException {
@@ -23,7 +23,7 @@ class AuthSessionImplTest {
     when(auth.retrieveSessionToken()).thenReturn(sessionToken);
     when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
 
-    final AuthSessionImpl session = new AuthSessionImpl(auth);
+    final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
     session.refresh();
 
     assertEquals(sessionToken, session.getSessionToken());

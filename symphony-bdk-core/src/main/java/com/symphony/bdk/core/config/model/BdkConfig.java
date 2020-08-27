@@ -12,6 +12,7 @@ public class BdkConfig {
     private BdkClientConfig agent = new BdkClientConfig();
     private BdkClientConfig pod = new BdkClientConfig();
     private BdkClientConfig keyManager = new BdkClientConfig();
+    private BdkClientConfig sessionAuth = new BdkClientConfig();
 
     private BdkBotConfig bot = new BdkBotConfig();
     private BdkExtAppConfig app = new BdkExtAppConfig();
