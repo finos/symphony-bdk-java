@@ -38,8 +38,8 @@ class BotAuthenticatorRsaImplTest {
 
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
-    assertEquals(AuthSessionImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionImpl) session).getAuthenticator());
+    assertEquals(AuthSessionRsaImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionRsaImpl) session).getAuthenticator());
   }
 
   @Test
