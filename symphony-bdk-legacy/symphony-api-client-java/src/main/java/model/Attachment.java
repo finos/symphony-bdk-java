@@ -2,6 +2,8 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Attachment {
 
@@ -9,6 +11,7 @@ public class Attachment {
     private String name;
     private Long size;
     private ImageInfo image;
+    private List<ImageInfo> images;
 
     public String getId() {
         return id;
@@ -40,5 +43,13 @@ public class Attachment {
 
     public void setImage(ImageInfo image) {
         this.image = image;
+    }
+
+    public List<ImageInfo> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageInfo> images) {
+        this.images = images;
     }
 }
