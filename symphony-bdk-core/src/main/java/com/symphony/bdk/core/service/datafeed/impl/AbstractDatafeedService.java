@@ -85,7 +85,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
                     eventType.dispatch(listener, event);
                 }
             } catch (IllegalArgumentException e) {
-                log.warn("Receive events with unknown type");
+                log.warn("Receive events with unknown type: {}", event.getType());
             }
         }
     }
