@@ -1,4 +1,4 @@
-# BDK Project Architecture
+# BDK2.0 - Project Architecture
 
 The BDK project is composed in a set of different Maven modules. The approach consists in having one module per BDK 
 "layer".

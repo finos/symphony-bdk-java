@@ -1,13 +1,14 @@
 package com.symphony.bdk.core.client;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
-import com.symphony.bdk.core.config.model.BdkConfig;
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+import com.symphony.bdk.core.config.model.BdkConfig;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for the {@link ApiClientFactory}.
@@ -17,28 +18,28 @@ class ApiClientFactoryTest {
   private final ApiClientFactory factory = new ApiClientFactory(this.createConfig());
 
   @Test
-  void testGetLoginClient() throws AuthInitializationException {
+  void testGetLoginClient() {
     final ApiClient loginClient = this.factory.getLoginClient();
     assertEquals(ApiClientJersey2.class, loginClient.getClass());
     assertEquals("https://pod-host:443/login", loginClient.getBasePath());
   }
 
   @Test
-  void testGetRelayClient() throws AuthInitializationException {
+  void testGetRelayClient() {
     final ApiClient relayClient = this.factory.getRelayClient();
     assertEquals(ApiClientJersey2.class, relayClient.getClass());
     assertEquals("https://km-host:443/relay", relayClient.getBasePath());
   }
 
   @Test
-  void testGetAgentClient() throws AuthInitializationException {
+  void testGetAgentClient()  {
     final ApiClient agentClient = this.factory.getAgentClient();
     assertEquals(ApiClientJersey2.class, agentClient.getClass());
     assertEquals("https://agent-host:443/agent", agentClient.getBasePath());
   }
 
   @Test
-  void testGetPodClient() throws AuthInitializationException {
+  void testGetPodClient() {
     final ApiClient podClient = this.factory.getPodClient();
     assertEquals(ApiClientJersey2.class, podClient.getClass());
     assertEquals("https://pod-host:443/pod", podClient.getBasePath());
@@ -46,11 +47,11 @@ class ApiClientFactoryTest {
 
   @Test
   void testSessionAuthClientWithoutCertificateConfiguredShouldFail() {
-    assertThrows(AuthInitializationException.class, () -> this.factory.getSessionAuthClient());
+    assertThrows(ApiClientInitializationException.class, this.factory::getSessionAuthClient);
   }
 
   @Test
-  void testSessionAuthClient() throws AuthInitializationException {
+  void testSessionAuthClient() {
     ApiClient sessionAuth = new ApiClientFactory(this.createConfigWithCertificate()).getSessionAuthClient();
 
     assertEquals(ApiClientJersey2.class, sessionAuth.getClass());
@@ -59,15 +60,15 @@ class ApiClientFactoryTest {
 
   @Test
   void testKeyAuthClientWithoutCertificateConfiguredShouldFail() {
-    assertThrows(AuthInitializationException.class, () -> this.factory.getKeyAuthClient());
+    assertThrows(ApiClientInitializationException.class, this.factory::getKeyAuthClient);
   }
 
   @Test
   void testAuthClientWithWrongCertPathShouldFail() {
     BdkConfig bdkConfig = this.createConfigWithCertificate("./non/existent/file.p12", "password");
 
-    assertThrows(AuthInitializationException.class, () -> new ApiClientFactory(bdkConfig).getSessionAuthClient());
-    assertThrows(AuthInitializationException.class, () -> new ApiClientFactory(bdkConfig).getKeyAuthClient());
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getSessionAuthClient());
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getKeyAuthClient());
   }
 
   @Test
@@ -79,7 +80,7 @@ class ApiClientFactoryTest {
   }
 
   @Test
-  void testAuthClientWithTrustStore() throws AuthInitializationException {
+  void testAuthClientWithTrustStore() {
     BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "changeit");
     ApiClient sessionAuth = new ApiClientFactory(configWithTrustStore).getSessionAuthClient();
 
@@ -91,8 +92,8 @@ class ApiClientFactoryTest {
   void testAuthClientWithWrongTrustStorePathShouldFail() {
     BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/non_existing_truststore", "changeit");
 
-    assertThrows(AuthInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
-    assertThrows(AuthInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
   }
 
   @Test
@@ -104,7 +105,7 @@ class ApiClientFactoryTest {
   }
 
   @Test
-  void testKeyAuthClient() throws AuthInitializationException {
+  void testKeyAuthClient() {
     ApiClient keyAuth = new ApiClientFactory(this.createConfigWithCertificate()).getKeyAuthClient();
 
     assertEquals(ApiClientJersey2.class, keyAuth.getClass());
