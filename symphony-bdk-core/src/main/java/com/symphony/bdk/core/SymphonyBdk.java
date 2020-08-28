@@ -13,6 +13,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -37,7 +38,7 @@ public class SymphonyBdk {
 
     this.config = config;
     this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
-    this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();
+    this.oboAuthenticator = this.config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
   }
 
   public V4MessageService messages() throws AuthInitializationException {
@@ -48,9 +49,9 @@ public class SymphonyBdk {
       throws AuthUnauthorizedException, AuthInitializationException {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
-      oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
+      oboSession = this.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
     } else {
-      oboSession = this.oboAuthenticator.authenticateByUserId(oboHandle.getUserId());
+      oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
     }
     return new V4MessageService(this.apiClientFactory.getAgentClient(), oboSession);
   }
@@ -68,4 +69,10 @@ public class SymphonyBdk {
     return new DatafeedServiceV1(this.apiClientFactory.getAgentClient(), this.botSession, this.config);
   }
 
+  protected OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
+    if (this.oboAuthenticator == null) {
+      throw new AuthInitializationException("OBO is not configured", null);
+    }
+    return this.oboAuthenticator;
+  }
 }
