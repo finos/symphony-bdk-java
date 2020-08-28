@@ -73,7 +73,8 @@ public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHan
   }
 
   /**
-   * Wrap the potential
+   * Wraps the {@link DatafeedService#start()} by encapsulating the potential {@link AuthUnauthorizedException} and
+   * {@link ApiException} as a {@link RuntimeException}.
    */
   private void uncheckedStart() {
     try {
