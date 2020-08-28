@@ -6,6 +6,9 @@ developers configure their own bot.
 ## Configuration structure
 
 The BDK configuration now includes the following properties:
+- The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
+These global properties can be used by the client configuration by default or can be override if
+user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
 - `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
 the service account using by the bot is created.
 - `agent` contains information like host, port, scheme, context, proxy... of the agent which 
@@ -68,6 +71,58 @@ The configuration file after being read will be represented by `BdkConfig` class
 - The configuration for `bot` is represented by `BdkBotConfig`.
 - The configuration for `app` is represented by `BdkExtAppConfig`.
 - The configuration for `ssl` is represented by `BdkSslConfig`.
+
+## BDK configuration example
+
+```yaml
+scheme: https
+host: localhost.symphony.com
+port: 8443
+
+pod:
+  host: dev.symphony.com
+  port: 443
+
+agent:
+  context: agent
+
+keyManager:
+  host: dev-key.symphony.com
+  port: 8444
+
+sessionAuth:
+  host: dev-session.symphony.com
+  port: 8444
+
+bot:
+  username: bot-name
+  privateKeyPath: path/to/private-key.pem
+  certificatePath: /path/to/bot-certificate.p12
+  certificatePassword: changeit
+
+ssl:
+  trustStorePath: /path/to/all_symphony_certs_truststore
+  trustStorePassword: changeit
+
+app:
+  appId: app-id
+  privateKeyPath: path/to/private-key.pem
+
+datafeed:
+  version: v1
+  retry:
+    maxAttempts: 6
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000
+
+retry:
+  maxAttempts: 6
+  initialIntervalMillis: 2000
+  multiplier: 1.5
+  maxIntervalMillis: 10000
+
+```
 
 ## Backward Compatibility with legacy configuration file  
 

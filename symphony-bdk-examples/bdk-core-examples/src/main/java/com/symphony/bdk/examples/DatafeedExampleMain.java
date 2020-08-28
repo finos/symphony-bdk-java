@@ -19,7 +19,7 @@ public class DatafeedExampleMain {
     public static void main(String[] args) throws ApiException, BdkConfigException, AuthInitializationException, AuthUnauthorizedException {
 
         // load configuration from classpath
-        final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.yaml");
+        final BdkConfig config = BdkConfigLoader.loadFromClasspath("/enhanced_config.yaml");
 
         SymphonyBdk bdk = new SymphonyBdk(config);
         log.info("DatafeedV1: Start");

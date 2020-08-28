@@ -137,9 +137,17 @@ class ApiClientFactoryTest {
     final BdkConfig config = new BdkConfig();
 
     config.getPod().setHost("pod-host");
+    config.getPod().setScheme("https");
+    config.getPod().setPort(443);
     config.getAgent().setHost("agent-host");
+    config.getAgent().setScheme("https");
+    config.getAgent().setPort(443);
     config.getKeyManager().setHost("km-host");
+    config.getKeyManager().setScheme("https");
+    config.getKeyManager().setPort(443);
     config.getSessionAuth().setHost("sa-host");
+    config.getSessionAuth().setScheme("https");
+    config.getSessionAuth().setPort(443);
 
     return config;
   }
