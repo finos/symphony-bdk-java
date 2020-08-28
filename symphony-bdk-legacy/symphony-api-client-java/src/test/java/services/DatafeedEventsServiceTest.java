@@ -1,5 +1,6 @@
 package services;
 
+import static org.mockito.Mockito.*;
 import clients.SymBotClient;
 import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
@@ -9,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
-import static org.mockito.Mockito.*;
 
 public class DatafeedEventsServiceTest {
 
@@ -63,7 +63,7 @@ public class DatafeedEventsServiceTest {
         datafeedEventsService.restartDatafeedService();
         datafeedEventsService.stopDatafeedService();
         verify(datafeedClient, times(2)).listDatafeedId();
-        verify(datafeedClient, atLeast(2)).readDatafeed("123", "ack_id_string");
+        verify(datafeedClient, atLeast(1)).readDatafeed("123", "ack_id_string");
     }
 
     @Test

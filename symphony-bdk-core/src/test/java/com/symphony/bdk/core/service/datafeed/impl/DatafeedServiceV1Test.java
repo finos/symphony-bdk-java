@@ -1,9 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -60,6 +57,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatafeedServiceV1Test {
@@ -207,8 +205,9 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(tempDir.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeed();
-        assertEquals(datafeedId, "8e7c8672-220");
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertTrue(datafeedId.isPresent());
+        assertEquals(datafeedId.get(), "8e7c8672-220");
     }
 
     @Test
@@ -220,8 +219,9 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(datafeedFile.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeed();
-        assertEquals(datafeedId, "8e7c8672-220");
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertTrue(datafeedId.isPresent());
+        assertEquals(datafeedId.get(), "8e7c8672-220");
     }
 
     @Test
@@ -232,8 +232,8 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(datafeedFile.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeed();
-        assertNull(datafeedId);
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertFalse(datafeedId.isPresent());
     }
 
     @Test
@@ -242,8 +242,8 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath("unknown_path");
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeed();
-        assertNull(datafeedId);
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertFalse(datafeedId.isPresent());
     }
 
     @Test
@@ -252,8 +252,8 @@ public class DatafeedServiceV1Test {
         BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
         datafeedConfig.setIdFilePath(datafeedFile.toString());
 
-        String datafeedId = this.datafeedService.retrieveDatafeed();
-        assertNull(datafeedId);
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertFalse(datafeedId.isPresent());
     }
 
     @Test

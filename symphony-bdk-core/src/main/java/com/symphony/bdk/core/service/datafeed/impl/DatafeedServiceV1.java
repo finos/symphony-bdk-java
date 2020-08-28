@@ -4,7 +4,7 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedRepository;
+import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
@@ -13,6 +13,7 @@ import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -39,14 +40,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DatafeedServiceV1 extends AbstractDatafeedService {
 
     private final AtomicBoolean started = new AtomicBoolean();
-    private final DatafeedRepository datafeedRepository;
+    private final DatafeedIdRepository datafeedRepository;
     private String datafeedId;
 
     public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
-        this(datafeedApi, authSession, config, new OnDiskDatafeedRepository(config));
+        this(datafeedApi, authSession, config, new OnDiskDatafeedIdRepository(config));
     }
 
-    public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, DatafeedRepository repository) {
+    public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, DatafeedIdRepository repository) {
       super(datafeedApi, authSession, config);
       this.started.set(false);
       this.datafeedId = null;
@@ -61,13 +62,10 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         if (this.started.get()) {
             throw new IllegalStateException("The datafeed service is already started");
         }
-        this.datafeedId = this.retrieveDatafeed();
+        Optional<String> persistedDatafeedId = this.retrieveDatafeed();
 
         try {
-            if (this.datafeedId == null) {
-                this.datafeedId = this.createDatafeed();
-            }
-
+            this.datafeedId = persistedDatafeedId.orElse(this.createDatafeed());
             log.debug("Start reading events from datafeed {}", datafeedId);
             this.started.set(true);
             do {
@@ -146,7 +144,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         });
     }
 
-    protected String retrieveDatafeed() {
+    protected Optional<String> retrieveDatafeed() {
         log.debug("Start retrieving datafeed id");
         return this.datafeedRepository.read();
     }

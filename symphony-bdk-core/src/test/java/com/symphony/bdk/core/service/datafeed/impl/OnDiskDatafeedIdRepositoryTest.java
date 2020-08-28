@@ -1,14 +1,15 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedRepository;
+import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +21,12 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
-public class OnDiskDatafeedRepositoryTest {
+/**
+ * Test class for the {@link OnDiskDatafeedIdRepository}.
+ */
+public class OnDiskDatafeedIdRepositoryTest {
 
   private BdkConfig bdkConfig;
   private Path datafeedFile;
@@ -37,7 +42,7 @@ public class OnDiskDatafeedRepositoryTest {
 
   @Test
   void writeDatafeedTest() throws IOException {
-    DatafeedRepository repository = new OnDiskDatafeedRepository(bdkConfig);
+    DatafeedIdRepository repository = new OnDiskDatafeedIdRepository(bdkConfig);
     repository.write("test-id");
     String datafeedFileContent = Files.readAllLines(this.datafeedFile).get(0);
     assertEquals(datafeedFileContent, "test-id@devx1.symphony.com:443");
@@ -47,32 +52,33 @@ public class OnDiskDatafeedRepositoryTest {
   void readDatafeedTest() throws IOException {
     InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/datafeed/datafeedId");
     Files.copy(inputStream, datafeedFile);
-    DatafeedRepository repository = new OnDiskDatafeedRepository(bdkConfig);
-    String datafeedId = repository.read();
-    assertEquals(datafeedId, "8e7c8672-220");
+    DatafeedIdRepository repository = new OnDiskDatafeedIdRepository(bdkConfig);
+    Optional<String> datafeedId = repository.read();
+    assertTrue(datafeedId.isPresent());
+    assertEquals(datafeedId.get(), "8e7c8672-220");
   }
 
   @Test
   void readInvalidDatafeedFileTest() throws IOException {
     FileUtils.writeStringToFile(datafeedFile.toFile(), "invalid-datafeed-file", StandardCharsets.UTF_8);
-    DatafeedRepository repository = new OnDiskDatafeedRepository(bdkConfig);
-    String datafeedId = repository.read();
-    assertNull(datafeedId);
+    DatafeedIdRepository repository = new OnDiskDatafeedIdRepository(bdkConfig);
+    Optional<String> datafeedId = repository.read();
+    assertFalse(datafeedId.isPresent());
   }
 
   @Test
   void readEmptyDatafeedFileTest() throws IOException {
     FileUtils.writeStringToFile(datafeedFile.toFile(), "", StandardCharsets.UTF_8);
-    DatafeedRepository repository = new OnDiskDatafeedRepository(bdkConfig);
-    String datafeedId = repository.read();
-    assertNull(datafeedId);
+    DatafeedIdRepository repository = new OnDiskDatafeedIdRepository(bdkConfig);
+    Optional<String> datafeedId = repository.read();
+    assertFalse(datafeedId.isPresent());
   }
 
   @Test
   void readNotExistDatafeedFileTest() {
-    DatafeedRepository repository = new OnDiskDatafeedRepository(bdkConfig);
-    String datafeedId = repository.read();
-    assertNull(datafeedId);
+    DatafeedIdRepository repository = new OnDiskDatafeedIdRepository(bdkConfig);
+    Optional<String> datafeedId = repository.read();
+    assertFalse(datafeedId.isPresent());
   }
 
 }
