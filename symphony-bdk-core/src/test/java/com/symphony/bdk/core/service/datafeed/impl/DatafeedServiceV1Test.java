@@ -1,9 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -46,17 +43,21 @@ import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 
 import io.github.resilience4j.retry.Retry;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DatafeedServiceV1Test {
@@ -204,8 +205,9 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(tempDir.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
-        assertEquals(datafeedId, "8e7c8672-220");
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertTrue(datafeedId.isPresent());
+        assertEquals(datafeedId.get(), "8e7c8672-220");
     }
 
     @Test
@@ -217,8 +219,21 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(datafeedFile.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
-        assertEquals(datafeedId, "8e7c8672-220");
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertTrue(datafeedId.isPresent());
+        assertEquals(datafeedId.get(), "8e7c8672-220");
+    }
+
+    @Test
+    void retrieveDatafeedIdFromInvalidDatafeedFile(@TempDir Path tempDir) throws IOException {
+        Path datafeedFile = tempDir.resolve("datafeed.id");
+        FileUtils.writeStringToFile(new File(String.valueOf(datafeedFile)), "8e7c8672-220", StandardCharsets.UTF_8 );
+        BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
+        datafeedConfig.setIdFilePath(datafeedFile.toString());
+        bdkConfig.setDatafeed(datafeedConfig);
+
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertFalse(datafeedId.isPresent());
     }
 
     @Test
@@ -227,8 +242,8 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath("unknown_path");
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
-        assertNull(datafeedId);
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertFalse(datafeedId.isPresent());
     }
 
     @Test
@@ -237,8 +252,8 @@ public class DatafeedServiceV1Test {
         BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
         datafeedConfig.setIdFilePath(datafeedFile.toString());
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
-        assertNull(datafeedId);
+        Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
+        assertFalse(datafeedId.isPresent());
     }
 
     @Test
