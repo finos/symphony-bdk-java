@@ -3,6 +3,7 @@ context: context
 port: 8443
 
 pod:
+  host: diff-pod.symphony.com
   port: 8443
 
 agent:
@@ -12,6 +13,9 @@ agent:
 keyManager:
   host: devx1.symphony.com
   context: diff-context
+
+sessionAuth:
+  scheme: http
 
 bot:
   username: tibot

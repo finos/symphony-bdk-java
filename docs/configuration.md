@@ -72,6 +72,58 @@ The configuration file after being read will be represented by `BdkConfig` class
 - The configuration for `app` is represented by `BdkExtAppConfig`.
 - The configuration for `ssl` is represented by `BdkSslConfig`.
 
+## BDK configuration example
+
+```yaml
+scheme: https
+host: localhost.symphony.com
+port: 8443
+
+pod:
+  host: devx1.symphony.com
+  port: 443
+
+agent:
+  context: agent
+
+keyManager:
+  host: sym-devx1-dev-chat-glb-1-ause1-all.symphony.com
+  port: 8444
+
+sessionAuth:
+  host: sym-devx1-dev-chat-glb-1-ause1-all.symphony.com
+  port: 8444
+
+bot:
+  username: bot-name
+  privateKeyPath: path/to/private-key.pem
+  certificatePath: /path/to/bot-certificate.p12
+  certificatePassword: changeit
+
+ssl:
+  trustStorePath: /path/to/all_symphony_certs_truststore
+  trustStorePassword: changeit
+
+app:
+  appId: app-id
+  privateKeyPath: path/to/private-key.pem
+
+datafeed:
+  version: v1
+  retry:
+    maxAttempts: 6
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000
+
+retry:
+    maxAttempts: 6
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000
+
+```
+
 ## Backward Compatibility with legacy configuration file  
 
 The legacy configuration using by the Java SDK v1 is also supported in BDK Configuration 2.0.
