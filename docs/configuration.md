@@ -80,18 +80,18 @@ host: localhost.symphony.com
 port: 8443
 
 pod:
-  host: devx1.symphony.com
+  host: dev.symphony.com
   port: 443
 
 agent:
   context: agent
 
 keyManager:
-  host: sym-devx1-dev-chat-glb-1-ause1-all.symphony.com
+  host: dev-key.symphony.com
   port: 8444
 
 sessionAuth:
-  host: sym-devx1-dev-chat-glb-1-ause1-all.symphony.com
+  host: dev-session.symphony.com
   port: 8444
 
 bot:
@@ -117,10 +117,10 @@ datafeed:
     maxIntervalMillis: 10000
 
 retry:
-    maxAttempts: 6
-    initialIntervalMillis: 2000
-    multiplier: 1.5
-    maxIntervalMillis: 10000
+  maxAttempts: 6
+  initialIntervalMillis: 2000
+  multiplier: 1.5
+  maxIntervalMillis: 10000
 
 ```
 
