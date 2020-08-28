@@ -3,15 +3,16 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
-        <artifactId>symphony-bdk-core-invokers</artifactId>
+        <artifactId>symphony-bdk-spring</artifactId>
         <groupId>com.symphony.platformsolutions</groupId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>symphony-bdk-core-invoker-api</artifactId>
-    <name>Symphony Java BDK Core Invoker API</name>
-    <description>Symphony Java BDK Core Invoker API Module</description>
+    <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
+    <name>Symphony Java BDK Core Spring Boot Starter</name>
+    <description>SpringBoot Wrapper for the Symphony BDK Core module</description>
 
     <dependencyManagement>
         <dependencies>
@@ -26,21 +27,32 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- FIXME: the invoker API should not depend on any HTTP library, the solution here is to fix the OpenAPI generator -->
+
+        <!-- Symphony BDK Core -->
         <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
         </dependency>
 
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
 
+        <!-- Spring Boot -->
         <dependency>
-            <groupId>org.apiguardian</groupId>
-            <artifactId>apiguardian-api</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
 
     </dependencies>

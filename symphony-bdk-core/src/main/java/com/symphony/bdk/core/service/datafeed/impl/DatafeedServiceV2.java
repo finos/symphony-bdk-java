@@ -1,14 +1,15 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5EventList;
+
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,8 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     private final AckId ackId;
     private V5Datafeed datafeed;
 
-    public DatafeedServiceV2(ApiClient agentClient, AuthSession authSession, BdkConfig config) {
-        super(agentClient, authSession, config);
+    public DatafeedServiceV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+        super(datafeedApi, authSession, config);
         this.ackId = new AckId().ackId("");
     }
 
