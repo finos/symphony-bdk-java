@@ -46,13 +46,16 @@ import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 
 import io.github.resilience4j.retry.Retry;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -204,7 +207,7 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(tempDir.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
+        String datafeedId = this.datafeedService.retrieveDatafeed();
         assertEquals(datafeedId, "8e7c8672-220");
     }
 
@@ -217,8 +220,20 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(datafeedFile.toString());
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
+        String datafeedId = this.datafeedService.retrieveDatafeed();
         assertEquals(datafeedId, "8e7c8672-220");
+    }
+
+    @Test
+    void retrieveDatafeedIdFromInvalidDatafeedFile(@TempDir Path tempDir) throws IOException {
+        Path datafeedFile = tempDir.resolve("datafeed.id");
+        FileUtils.writeStringToFile(new File(String.valueOf(datafeedFile)), "8e7c8672-220", StandardCharsets.UTF_8 );
+        BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
+        datafeedConfig.setIdFilePath(datafeedFile.toString());
+        bdkConfig.setDatafeed(datafeedConfig);
+
+        String datafeedId = this.datafeedService.retrieveDatafeed();
+        assertNull(datafeedId);
     }
 
     @Test
@@ -227,7 +242,7 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath("unknown_path");
         bdkConfig.setDatafeed(datafeedConfig);
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
+        String datafeedId = this.datafeedService.retrieveDatafeed();
         assertNull(datafeedId);
     }
 
@@ -237,7 +252,7 @@ public class DatafeedServiceV1Test {
         BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
         datafeedConfig.setIdFilePath(datafeedFile.toString());
 
-        String datafeedId = this.datafeedService.retrieveDatafeedIdFromDisk();
+        String datafeedId = this.datafeedService.retrieveDatafeed();
         assertNull(datafeedId);
     }
 

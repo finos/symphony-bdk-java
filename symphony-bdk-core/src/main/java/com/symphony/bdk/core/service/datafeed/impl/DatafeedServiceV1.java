@@ -4,20 +4,14 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.service.datafeed.DatafeedRepository;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,15 +38,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 public class DatafeedServiceV1 extends AbstractDatafeedService {
 
-    private static final String DATAFEED_ID_FILE = "datafeed.id";
-
     private final AtomicBoolean started = new AtomicBoolean();
+    private final DatafeedRepository datafeedRepository;
     private String datafeedId;
 
     public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
-        super(datafeedApi, authSession, config);
-        this.started.set(false);
-        this.datafeedId = null;
+        this(datafeedApi, authSession, config, new OnDiskDatafeedRepository(config));
+    }
+
+    public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, DatafeedRepository repository) {
+      super(datafeedApi, authSession, config);
+      this.started.set(false);
+      this.datafeedId = null;
+      this.datafeedRepository = repository;
     }
 
     /**
@@ -63,11 +61,11 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         if (this.started.get()) {
             throw new IllegalStateException("The datafeed service is already started");
         }
-        this.datafeedId = this.retrieveDatafeedIdFromDisk();
+        this.datafeedId = this.retrieveDatafeed();
 
         try {
             if (this.datafeedId == null) {
-                this.datafeedId = this.createDatafeedAndSaveToDisk();
+                this.datafeedId = this.createDatafeed();
             }
 
             log.debug("Start reading events from datafeed {}", datafeedId);
@@ -115,7 +113,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
                     if (e.isClientError()) {
                         log.info("Recreate a new datafeed and try again");
                         try {
-                            datafeedId = this.createDatafeedAndSaveToDisk();
+                            datafeedId = this.createDatafeed();
                         } catch (Throwable throwable) {
                             e.addSuppressed(throwable);
                         }
@@ -127,14 +125,14 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         });
     }
 
-    protected String createDatafeedAndSaveToDisk() throws Throwable {
-        log.debug("Start creating a new datafeed and save to disk");
+    protected String createDatafeed() throws Throwable {
+        log.debug("Start creating a new datafeed and persisting it");
         Retry retry = this.getRetryInstance("Create Datafeed");
         return retry.executeCheckedSupplier(() -> {
             try {
                 String id = this.datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
-                this.writeDatafeedIdToDisk(id);
-                log.debug("Datafeed: {} was created and saved to disk", id);
+                this.datafeedRepository.write(id);
+                log.debug("Datafeed: {} was created and persisted", id);
                 return id;
             } catch (ApiException e) {
                 if (e.isUnauthorized()) {
@@ -148,42 +146,9 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         });
     }
 
-    protected String retrieveDatafeedIdFromDisk() {
-        log.debug("Start retrieving datafeed id from disk");
-        String datafeedId = null;
-        try {
-            File file = this.getDatafeedIdFile();
-            Path datafeedIdPath = Paths.get(file.getPath());
-            List<String> lines = Files.readAllLines(datafeedIdPath);
-            if (lines.isEmpty()) {
-                return null;
-            }
-            String[] persistedDatafeed = lines.get(0).split("@");
-            datafeedId = persistedDatafeed[0];
-            log.info("Retrieve datafeed id from persisted file: {}", datafeedId);
-        } catch (IOException e) {
-            log.debug("No persisted datafeed id could be retrieved from the filesystem");
-        }
-        return datafeedId;
-    }
-
-    protected void writeDatafeedIdToDisk(String datafeedId) {
-        String agentUrl = bdkConfig.getAgent().getHost() + ":" + bdkConfig.getAgent().getPort();
-        try {
-            FileUtils.writeStringToFile(this.getDatafeedIdFile(), datafeedId + "@" + agentUrl, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    private File getDatafeedIdFile() {
-        String pathToDatafeedIdFile = bdkConfig.getDatafeed().getIdFilePath();
-
-        File file = new File(pathToDatafeedIdFile);
-        if (file.isDirectory()) {
-            file = new File(pathToDatafeedIdFile + File.separator + DATAFEED_ID_FILE);
-        }
-        return file;
+    protected String retrieveDatafeed() {
+        log.debug("Start retrieving datafeed id");
+        return this.datafeedRepository.read();
     }
 
 }
