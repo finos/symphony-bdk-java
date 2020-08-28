@@ -27,4 +27,7 @@ public class BdkConfig {
     private BdkRetryConfig retry = new BdkRetryConfig();
     private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
 
+    public boolean isOboConfigured() {
+      return app.isConfigured();
+    }
 }

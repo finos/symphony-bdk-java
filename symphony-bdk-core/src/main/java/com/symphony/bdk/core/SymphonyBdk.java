@@ -19,6 +19,8 @@ import com.symphony.bdk.gen.api.MessagesApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.util.Optional;
+
 /**
  * BDK entry point.
  */
@@ -40,7 +42,7 @@ public class SymphonyBdk {
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, this.apiClientFactory);
 
     this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
-    this.oboAuthenticator = authenticatorFactory.getOboAuthenticator();
+    this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
 
     // setup the datafeed
     final DatafeedApi datafeedApi = new DatafeedApi(this.apiClientFactory.getAgentClient());
@@ -58,9 +60,9 @@ public class SymphonyBdk {
   public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
     AuthSession oboSession;
     if (oboHandle.hasUsername()) {
-      oboSession = this.oboAuthenticator.authenticateByUsername(oboHandle.getUsername());
+      oboSession = this.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
     } else {
-      oboSession = this.oboAuthenticator.authenticateByUserId(oboHandle.getUserId());
+      oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
     }
     return new MessageService(new MessagesApi(this.apiClientFactory.getAgentClient()), oboSession);
   }
@@ -73,5 +75,10 @@ public class SymphonyBdk {
    */
   public DatafeedService datafeed() {
     return this.datafeedService;
+  }
+
+  protected OboAuthenticator getOboAuthenticator() {
+    return Optional.ofNullable(this.oboAuthenticator)
+        .orElseThrow(() -> new IllegalStateException("OBO is not configured."));
   }
 }
