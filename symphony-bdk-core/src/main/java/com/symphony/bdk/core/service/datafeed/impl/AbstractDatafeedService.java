@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -10,6 +9,7 @@ import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.util.BdkExponentialFunction;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
+
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,8 @@ abstract class AbstractDatafeedService implements DatafeedService {
     protected final RetryConfig retryConfig;
     protected DatafeedApi datafeedApi;
 
-    public AbstractDatafeedService(ApiClient agentClient, AuthSession authSession, BdkConfig config) {
-        this.datafeedApi = new DatafeedApi(agentClient);
+    public AbstractDatafeedService(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+        this.datafeedApi = datafeedApi;
         this.listeners = new ArrayList<>();
         this.authSession = authSession;
         this.bdkConfig = config;

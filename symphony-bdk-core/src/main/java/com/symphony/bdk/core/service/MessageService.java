@@ -1,11 +1,11 @@
 package com.symphony.bdk.core.service;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4Stream;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -15,14 +15,18 @@ import org.apiguardian.api.API;
  */
 @Slf4j
 @API(status = API.Status.EXPERIMENTAL)
-public class V4MessageService {
+public class MessageService {
 
   private final MessagesApi messagesApi;
   private final AuthSession authSession;
 
-  public V4MessageService(ApiClient agentClient, AuthSession authSession) {
-    this.messagesApi = new MessagesApi(agentClient);
+  public MessageService(MessagesApi messagesApi, AuthSession authSession) {
+    this.messagesApi = messagesApi;
     this.authSession = authSession;
+  }
+
+  public V4Message send(V4Stream stream, String message) {
+    return this.send(stream.getStreamId(), message);
   }
 
   public V4Message send(String streamId, String message) {

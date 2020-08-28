@@ -5,7 +5,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilderProvider;
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkBotConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
@@ -41,8 +41,12 @@ public class ApiClientFactory {
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
   public ApiClientFactory(@Nonnull BdkConfig config) {
+    this(config, findApiClientBuilderProvider());
+  }
+
+  public ApiClientFactory(@Nonnull BdkConfig config, @Nonnull ApiClientBuilderProvider apiClientBuilderProvider) {
     this.config = config;
-    this.apiClientBuilderProvider = findApiClientBuilderProvider();
+    this.apiClientBuilderProvider = apiClientBuilderProvider;
   }
 
   /**
@@ -50,7 +54,7 @@ public class ApiClientFactory {
    *
    * @return an new {@link ApiClient} instance.
    */
-  public ApiClient getLoginClient() throws AuthInitializationException {
+  public ApiClient getLoginClient() {
     return buildClient(this.config.getPod().getBasePath() + "/login");
   }
 
@@ -59,7 +63,7 @@ public class ApiClientFactory {
    *
    * @return an new {@link ApiClient} instance.
    */
-  public ApiClient getPodClient() throws AuthInitializationException {
+  public ApiClient getPodClient() {
     return buildClient(this.config.getPod().getBasePath() + "/pod");
   }
 
@@ -68,7 +72,7 @@ public class ApiClientFactory {
    *
    * @return an new {@link ApiClient} instance.
    */
-  public ApiClient getRelayClient() throws AuthInitializationException {
+  public ApiClient getRelayClient() {
     return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
   }
 
@@ -77,7 +81,7 @@ public class ApiClientFactory {
    *
    * @return an new {@link ApiClient} instance.
    */
-  public ApiClient getAgentClient() throws AuthInitializationException {
+  public ApiClient getAgentClient() {
     return buildClient(this.config.getAgent().getBasePath() + "/agent");
   }
 
@@ -87,7 +91,7 @@ public class ApiClientFactory {
    *
    * @return an new {@link ApiClient} instance.
    */
-  public ApiClient getSessionAuthClient() throws AuthInitializationException {
+  public ApiClient getSessionAuthClient() {
     return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth");
   }
 
@@ -97,20 +101,20 @@ public class ApiClientFactory {
    *
    * @return an new {@link ApiClient} instance.
    */
-  public ApiClient getKeyAuthClient() throws AuthInitializationException {
+  public ApiClient getKeyAuthClient() {
     return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth");
   }
 
-  private ApiClient buildClient(String basePath) throws AuthInitializationException {
+  private ApiClient buildClient(String basePath) {
     return getApiClientBuilder(basePath).build();
   }
 
-  private ApiClient buildClientWithCertificate(String basePath) throws AuthInitializationException {
+  private ApiClient buildClientWithCertificate(String basePath) {
     BdkBotConfig botConfig = this.config.getBot();
 
     if (!botConfig.isCertificateAuthenticationConfigured()) {
-      throw new AuthInitializationException("For certificate authentication, " +
-          "certificatePath and certificatePassword must be set", null);
+      throw new ApiClientInitializationException("For certificate authentication, " +
+          "certificatePath and certificatePassword must be set");
     }
 
     byte[] certificateBytes = getBytesFromFile(botConfig.getCertificatePath());
@@ -120,7 +124,7 @@ public class ApiClientFactory {
         .build();
   }
 
-  private ApiClientBuilder getApiClientBuilder(String basePath) throws AuthInitializationException {
+  private ApiClientBuilder getApiClientBuilder(String basePath) {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
         .withBasePath(basePath);
@@ -135,11 +139,11 @@ public class ApiClientFactory {
     return apiClientBuilder;
   }
 
-  private byte[] getBytesFromFile(String filePath) throws AuthInitializationException {
+  private byte[] getBytesFromFile(String filePath) {
     try {
       return Files.readAllBytes(new File(filePath).toPath());
     } catch (IOException e) {
-      throw new AuthInitializationException("Could not read file " + filePath, e);
+      throw new ApiClientInitializationException("Could not read file " + filePath, e);
     }
   }
 
