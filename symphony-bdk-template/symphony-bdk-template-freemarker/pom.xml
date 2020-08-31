@@ -32,9 +32,17 @@
             <version>2.3.30</version>
         </dependency>
         <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.12</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-template-api</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -42,5 +50,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>
