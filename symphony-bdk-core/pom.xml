@@ -102,12 +102,6 @@
             <artifactId>resilience4j-retry</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.30</version>
-        </dependency>
-
         <!-- ******************************** -->
         <!-- * CodeGen related dependencies * -->
         <!-- ******************************** -->

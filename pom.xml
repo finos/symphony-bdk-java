@@ -155,6 +155,7 @@
                 <module>symphony-bdk-core-invokers</module>
                 <module>symphony-bdk-examples</module>
                 <module>symphony-bdk-spring</module>
+                <module>symphony-bdk-template</module>
             </modules>
         </profile>
 

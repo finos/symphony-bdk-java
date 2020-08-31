@@ -67,6 +67,11 @@
                 <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.symphony.platformsolutions</groupId>
+                <artifactId>symphony-bdk-template-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- API Guardian -->
             <dependency>

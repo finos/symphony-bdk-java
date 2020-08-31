@@ -1,6 +1,8 @@
-package com.symphony.bdk.core.template.impl;
+package com.symphony.bdk.core.template.freemarker;
 
-import com.symphony.bdk.core.template.TemplateException;
+
+
+import com.symphony.bdk.core.template.api.TemplateException;
 
 import org.junit.jupiter.api.Test;
 

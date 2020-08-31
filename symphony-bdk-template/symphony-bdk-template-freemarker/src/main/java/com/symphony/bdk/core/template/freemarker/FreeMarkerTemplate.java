@@ -1,7 +1,9 @@
-package com.symphony.bdk.core.template.impl;
+package com.symphony.bdk.core.template.freemarker;
 
-import com.symphony.bdk.core.template.Template;
-import com.symphony.bdk.core.template.TemplateException;
+
+import com.symphony.bdk.core.template.api.Template;
+
+import com.symphony.bdk.core.template.api.TemplateException;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateExceptionHandler;

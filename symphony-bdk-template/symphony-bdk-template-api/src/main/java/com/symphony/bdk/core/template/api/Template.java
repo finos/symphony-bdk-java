@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.template;
+package com.symphony.bdk.core.template.api;
 
 import java.util.Map;
 
