@@ -1,5 +1,3 @@
-_version: '2.0'
-
 pod:
   host: devx1.symphony.com
 
@@ -10,12 +8,12 @@ keyManager:
   host: devx1.symphony.com
 
 bot:
-  username: fxbot-hong
-  privateKeyPath: /Users/hong.le/dev/fxBot/rsa/rsa-private-fxBot.pem
+  username: tibot
+  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
 
 app:
-  appId: app-hong
-  privateKeyPath: /Users/hong.le/dev/fxBot/rsa/app_privatekey.pem
+  appId: tibapp
+  privateKeyPath: /Users/thibault.pensec/local/conf/agent/privatekey.pem
 
 datafeed:
   version: v1

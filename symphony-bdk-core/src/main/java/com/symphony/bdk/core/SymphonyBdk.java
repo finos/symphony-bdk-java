@@ -6,6 +6,7 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.command.BotCommandRegistry;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.Obo;
@@ -35,6 +36,8 @@ public class SymphonyBdk {
 
   private final DatafeedService datafeedService;
 
+  private final BotCommandRegistry botCommandRegistry;
+
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
     this.apiClientFactory = new ApiClientFactory(config);
@@ -51,6 +54,14 @@ public class SymphonyBdk {
     } else {
       this.datafeedService = new DatafeedServiceV1(datafeedApi, this.botSession, config);
     }
+
+    // initialize the commands registry, that subscribes to real-time events coming from the Datafeed
+    this.botCommandRegistry = new BotCommandRegistry();
+    this.datafeedService.subscribe(this.botCommandRegistry);
+  }
+
+  public BotCommandRegistry commands() {
+    return this.botCommandRegistry;
   }
 
   public MessageService messages() {
@@ -76,6 +87,8 @@ public class SymphonyBdk {
   public DatafeedService datafeed() {
     return this.datafeedService;
   }
+
+
 
   protected OboAuthenticator getOboAuthenticator() {
     return Optional.ofNullable(this.oboAuthenticator)
