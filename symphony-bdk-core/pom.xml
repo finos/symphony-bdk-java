@@ -25,6 +25,7 @@
         <!-- Plugins -->
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 
+
     </properties>
 
     <dependencyManagement>
@@ -100,6 +101,11 @@
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-retry</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
         </dependency>
 
         <!-- ******************************** -->

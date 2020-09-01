@@ -20,7 +20,7 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserList;
 
-import com.sun.istack.internal.NotNull;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -61,7 +61,7 @@ public class UserService {
    * @param uid User Id
    * @return Details of the user.
    */
-  public V2UserDetail getUserDetailByUid(@NotNull Long uid) {
+  public V2UserDetail getUserDetailByUid(@NonNull Long uid) {
     try {
       return userApi.v2AdminUserUidGet(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -82,7 +82,7 @@ public class UserService {
         return userApi.v2AdminUserListGet(authSession.getSessionToken(), null, null);
       }
       List<UserDetail> userDetailList = userApi.v1AdminUserFindPost(authSession.getSessionToken(), filter, null, null);
-      return userDetailList.stream().map(UserDetailMapper::toV2UserDetail).collect(Collectors.toList());
+      return userDetailList.stream().map(UserDetailMapper.INSTANCE::userDetailToV2UserDetail).collect(Collectors.toList());
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
     }
@@ -94,7 +94,7 @@ public class UserService {
    * @param uid User Id
    * @param roleId Role Id
    */
-  public void addRoleToUser(@NotNull Long uid, @NotNull String roleId) {
+  public void addRoleToUser(@NonNull Long uid, @NonNull String roleId) {
     try {
       StringId stringId = new StringId().id(roleId);
       userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), uid, stringId);
@@ -108,7 +108,7 @@ public class UserService {
    * @param uid User Id
    * @param roleId Role Id
    */
-  public void removeRoleFromUser(@NotNull Long uid, @NotNull String roleId) {
+  public void removeRoleFromUser(@NonNull Long uid, @NonNull String roleId) {
     try {
       StringId stringId = new StringId().id(roleId);
       userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), uid, stringId);
@@ -122,7 +122,7 @@ public class UserService {
    * @param uid User Id
    * @return List of avatar urls of the user
    */
-  public List<Avatar> getAvatarFromUser(@NotNull Long uid) {
+  public List<Avatar> getAvatarFromUser(@NonNull Long uid) {
     try {
       return userApi.v1AdminUserUidAvatarGet(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -135,7 +135,7 @@ public class UserService {
    * @param uid User Id
    * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
    */
-  public void updateAvatarOfUser(@NotNull Long uid, @NotNull String image) {
+  public void updateAvatarOfUser(@NonNull Long uid, @NonNull String image) {
     try {
       AvatarUpdate avatarUpdate = new AvatarUpdate().image(image);
       userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate);
@@ -150,7 +150,7 @@ public class UserService {
    * @param uid User Id
    * @return Disclaimer assigned to the user.
    */
-  public Disclaimer getDisclaimerAssignedToUser(@NotNull Long uid) {
+  public Disclaimer getDisclaimerAssignedToUser(@NonNull Long uid) {
     try {
       return userApi.v1AdminUserUidDisclaimerGet(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -163,7 +163,7 @@ public class UserService {
    *
    * @param uid User Id
    */
-  public void unAssignDisclaimerFromUser(@NotNull Long uid) {
+  public void unAssignDisclaimerFromUser(@NonNull Long uid) {
     try {
       userApi.v1AdminUserUidDisclaimerDelete(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -177,7 +177,7 @@ public class UserService {
    * @param uid User Id
    * @param disclaimerId Disclaimer to be assigned
    */
-  public void assignDisclaimerToUser(@NotNull Long uid, @NotNull String disclaimerId) {
+  public void assignDisclaimerToUser(@NonNull Long uid, @NonNull String disclaimerId) {
     try {
       StringId stringId = new StringId().id(disclaimerId);
       userApi.v1AdminUserUidDisclaimerUpdatePost(authSession.getSessionToken(), uid, stringId);
@@ -192,7 +192,7 @@ public class UserService {
    * @param uid User Id
    * @return List of delegates assigned to an user.
    */
-  public List<Long> getDelegatesAssignedToUser(@NotNull Long uid) {
+  public List<Long> getDelegatesAssignedToUser(@NonNull Long uid) {
     try {
       return userApi.v1AdminUserUidDelegatesGet(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -207,7 +207,7 @@ public class UserService {
    * @param delegatedUserId Delegated user Id to be assigned
    * @param actionEnum Action to be performed
    */
-  public void updateDelegatesAssignedToUser(@NotNull Long uid, @NotNull Long delegatedUserId, @NotNull DelegateAction.ActionEnum actionEnum) {
+  public void updateDelegatesAssignedToUser(@NonNull Long uid, @NonNull Long delegatedUserId, @NonNull DelegateAction.ActionEnum actionEnum) {
     try {
       DelegateAction delegateAction = new DelegateAction().action(actionEnum).userId(delegatedUserId);
       userApi.v1AdminUserUidDelegatesUpdatePost(authSession.getSessionToken(), uid, delegateAction);
@@ -222,7 +222,7 @@ public class UserService {
    * @param uid User Id
    * @return List of feature entitlements of the user.
    */
-  public List<Feature> getFeatureEntitlementsOfUser(@NotNull Long uid) {
+  public List<Feature> getFeatureEntitlementsOfUser(@NonNull Long uid) {
     try {
       return userApi.v1AdminUserUidFeaturesGet(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -236,7 +236,7 @@ public class UserService {
    * @param uid User Id
    * @param features List of feature entitlements to be updated
    */
-  public void updateFeatureEntitlementsOfUser(@NotNull Long uid, @NotNull List<Feature> features) {
+  public void updateFeatureEntitlementsOfUser(@NonNull Long uid, @NonNull List<Feature> features) {
     try {
       userApi.v1AdminUserUidFeaturesUpdatePost(authSession.getSessionToken(), uid, features);
     } catch (ApiException apiException) {
@@ -250,7 +250,7 @@ public class UserService {
    * @param uid User Id
    * @return Status of the user.
    */
-  public UserStatus getStatusOfUser(@NotNull Long uid) {
+  public UserStatus getStatusOfUser(@NonNull Long uid) {
     try {
       return userApi.v1AdminUserUidStatusGet(authSession.getSessionToken(), uid);
     } catch (ApiException apiException) {
@@ -264,7 +264,7 @@ public class UserService {
    * @param uid User Id
    * @param status Status to be updated to the user
    */
-  public void updateStatusOfUser(@NotNull Long uid, @NotNull UserStatus status) {
+  public void updateStatusOfUser(@NonNull Long uid, @NonNull UserStatus status) {
     try {
       userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), uid, status);
     } catch (ApiException apiException) {
@@ -281,7 +281,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return User found by uid
    */
-  public UserV2 getUserById(@NotNull Long uid, @Nullable Boolean local) {
+  public UserV2 getUserById(@NonNull Long uid, @Nullable Boolean local) {
     try {
       return usersApi.v2UserGet(authSession.getSessionToken(), uid, null, null, local);
     } catch (ApiException apiException) {
@@ -298,7 +298,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return User found by email
    */
-  public UserV2 getUserByEmail(@NotNull String email, @Nullable Boolean local) {
+  public UserV2 getUserByEmail(@NonNull String email, @Nullable Boolean local) {
     try {
       return usersApi.v2UserGet(authSession.getSessionToken(), null, email, null, local);
     } catch (ApiException apiException) {
@@ -312,7 +312,7 @@ public class UserService {
    * @param username Username of the user
    * @return User found by username
    */
-  public UserV2 getUserByUsername(@NotNull String username) {
+  public UserV2 getUserByUsername(@NonNull String username) {
     try {
       return usersApi.v2UserGet(authSession.getSessionToken(), null, null, username, true);
     } catch (ApiException apiException) {
@@ -329,7 +329,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return Users found by user ids
    */
-  public List<UserV2> searchUserByIds(@NotNull List<Long> uidList, @Nullable Boolean local) {
+  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @Nullable Boolean local) {
     try {
       String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
       V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local);
@@ -348,7 +348,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return Users found by emails.
    */
-  public List<UserV2> searchUserByEmails(@NotNull List<String> emailList, @Nullable Boolean local) {
+  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @Nullable Boolean local) {
     try {
       String emails = String.join(",", emailList);
       V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local);
@@ -364,7 +364,7 @@ public class UserService {
    * @param usernameList List of usernames
    * @return Users found by usernames
    */
-  public List<UserV2> searchUserByUsernames(@NotNull List<String> usernameList) {
+  public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
     try {
       String usernames = String.join(",", usernameList);
       V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true);
@@ -383,7 +383,7 @@ public class UserService {
    *              from other pods who are visible to the calling user will also be returned.
    * @return List of users found by query
    */
-  public List<UserV2> searchUserBySearchQuery(@NotNull UserSearchQuery query, @Nullable Boolean local) {
+  public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query, @Nullable Boolean local) {
     try {
       UserSearchResults results = usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local);
       return results.getUsers();

@@ -6,14 +6,15 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.gen.api.model.UserFilter;
+import com.symphony.bdk.gen.api.model.V2UserDetail;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 @Slf4j
 public class UserExampleMain {
-
-  private static final String BOT_USERNAME = "tibot";
 
   public static void main(String[] args)
       throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
@@ -21,9 +22,14 @@ public class UserExampleMain {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.yaml");
 
     SymphonyBdk bdk = new SymphonyBdk(config);
-    log.info("Get user by username {}", BOT_USERNAME);
-    UserV2 user = bdk.user().getUserByUsername("tibot");
-    log.info("Bot's display name: {}", user.getDisplayName());
-    log.info("Bot's company: {}", user.getCompany());
+    UserFilter filter = new UserFilter().status(UserFilter.StatusEnum.DISABLED).feature("canCreatePublicRoom");
+    log.info("Get user by filter");
+    List<V2UserDetail> userDetailList = bdk.users().listUsersDetailByFilter(filter);
+    log.info("Retrieve {} records", userDetailList.size());
+    log.info("First record: ");
+    log.info(userDetailList.get(0).getUserAttributes().getUserName());
+    log.info("Account type: {}", userDetailList.get(0).getUserAttributes().getAccountType());
+    log.info("Company: {}", userDetailList.get(0).getUserAttributes().getCompanyName());
+    log.info("Role: {}", userDetailList.get(0).getRoles());
   }
 }

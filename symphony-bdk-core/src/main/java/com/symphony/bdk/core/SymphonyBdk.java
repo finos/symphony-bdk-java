@@ -17,7 +17,9 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.MessagesApi;
+
 import com.symphony.bdk.gen.api.UserApi;
+
 import com.symphony.bdk.gen.api.UsersApi;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +42,7 @@ public class SymphonyBdk {
   private final OboAuthenticator oboAuthenticator;
 
   private final DatafeedService datafeedService;
-  private UserService userService;
+  private final UserService userService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
@@ -60,6 +62,8 @@ public class SymphonyBdk {
     } else {
       this.datafeedService = new DatafeedServiceV1(datafeedApi, this.botSession, config);
     }
+    // setup other services
+    this.userService = new UserService(new UserApi(this.podClient), new UsersApi(this.podClient), this.botSession);
   }
 
   public MessageService messages() {
@@ -91,10 +95,7 @@ public class SymphonyBdk {
    *
    * @return {@link UserService} user service instance.
    */
-  public UserService user() {
-    if (this.userService == null) {
-      this.userService = new UserService(new UserApi(this.podClient), new UsersApi(this.podClient), this.botSession);
-    }
+  public UserService users() {
     return this.userService;
   }
 
