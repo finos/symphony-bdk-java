@@ -48,12 +48,23 @@ public class UserService {
 
   private final UserApi userApi;
   private final UsersApi usersApi;
-  private final AuthSession authSession;
+  private AuthSession authSession;
 
   public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession) {
     this.userApi = userApi;
     this.usersApi = usersApi;
     this.authSession = authSession;
+  }
+
+  /**
+   * Setting up the service with an {@link AuthSession}
+   *
+   * @param authSession the {@link AuthSession} to be passed to the service
+   * @return current {@link UserService} instance with {@link AuthSession}
+   */
+  public UserService authSession(AuthSession authSession) {
+    this.authSession = authSession;
+    return this;
   }
 
   /**
