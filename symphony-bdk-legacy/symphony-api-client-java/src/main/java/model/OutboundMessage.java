@@ -3,6 +3,7 @@ package model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,26 +24,15 @@ public class OutboundMessage {
         this.data = data;
     }
 
-    public OutboundMessage(String message, File[] attachment) {
+    public OutboundMessage(String message, File... attachment) {
         this.message = message;
         this.attachment = attachment;
     }
 
-    public OutboundMessage(String message, File attachment) {
-        this.message = message;
-        this.attachment = new File[] { attachment };
-    }
-
-    public OutboundMessage(String message, String data, File[] attachment) {
+    public OutboundMessage(String message, String data, File... attachment) {
         this.message = message;
         this.data = data;
         this.attachment = attachment;
-    }
-
-    public OutboundMessage(String message, String data, File attachment) {
-        this.message = message;
-        this.data = data;
-        this.attachment = new File[] { attachment };
     }
 
     public OutboundMessage(String message, List<ContentAttachment> contentAttachment) {
@@ -50,10 +40,9 @@ public class OutboundMessage {
         this.contentAttachment = contentAttachment;
     }
 
-    public OutboundMessage(String message, ContentAttachment contentAttachment) {
+    public OutboundMessage(String message, ContentAttachment... contentAttachment) {
         this.message = message;
-        this.contentAttachment = new ArrayList<>();
-        this.contentAttachment.add(contentAttachment);
+        this.contentAttachment = Arrays.asList(contentAttachment);
     }
 
     public OutboundMessage(String message, String data, List<ContentAttachment> contentAttachment) {
@@ -62,11 +51,10 @@ public class OutboundMessage {
         this.contentAttachment = contentAttachment;
     }
 
-    public OutboundMessage(String message, String data, ContentAttachment contentAttachment) {
+    public OutboundMessage(String message, String data, ContentAttachment... contentAttachment) {
         this.message = message;
         this.data = data;
-        this.contentAttachment = new ArrayList<>();
-        this.contentAttachment.add(contentAttachment);
+        this.contentAttachment = Arrays.asList(contentAttachment);
     }
 
     public String getMessage() {
@@ -89,12 +77,8 @@ public class OutboundMessage {
         return attachment;
     }
 
-    public void setAttachment(File[] attachment) {
+    public void setAttachment(File... attachment) {
         this.attachment = attachment;
-    }
-
-    public void setAttachment(File attachment) {
-        this.attachment = new File[] { attachment };
     }
 
     public void addAttachment(File attachment) {
@@ -116,9 +100,8 @@ public class OutboundMessage {
         this.contentAttachment = contentAttachment;
     }
 
-    public void setContentAttachment(ContentAttachment contentAttachment) {
-        this.contentAttachment = new ArrayList<>();
-        this.contentAttachment.add(contentAttachment);
+    public void setContentAttachment(ContentAttachment... contentAttachment) {
+        this.contentAttachment = Arrays.asList(contentAttachment);
     }
 
     public void addContentAttachment(ContentAttachment contentAttachment) {
