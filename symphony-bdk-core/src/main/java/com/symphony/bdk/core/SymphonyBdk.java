@@ -96,22 +96,7 @@ public class SymphonyBdk {
    * @return {@link UserService} user service instance.
    */
   public UserService users() {
-    return this.userService.authSession(this.botSession);
-  }
-
-  /**
-   * Get the {@link UserService} with OBO {@link AuthSession} from a Bdk entry point.
-   *
-   * @return {@link UserService} user service instance with OBO {@link AuthSession}.
-   */
-  public UserService users(Obo.Handle oboHandle) throws AuthUnauthorizedException {
-    AuthSession oboSession;
-    if (oboHandle.hasUsername()) {
-      oboSession = this.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
-    } else {
-      oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
-    }
-    return this.userService.authSession(oboSession);
+    return this.userService;
   }
 
   protected OboAuthenticator getOboAuthenticator() {
