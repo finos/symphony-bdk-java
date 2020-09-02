@@ -1,0 +1,15 @@
+domain: devx1.symphony.com
+
+bdk:
+  pod:
+    host: ${domain}
+
+  agent:
+    host: ${domain}
+
+  keyManager:
+    host: ${domain}
+
+  bot:
+    username: tibot
+    privateKeyPath: ${user.home}/local/conf/agent/privateKey.pem

@@ -12,14 +12,14 @@ import javax.annotation.Nullable;
  * {@link AuthSession} impl for regular authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionImpl implements AuthSession {
+public class AuthSessionRsaImpl implements AuthSession {
 
   private final BotAuthenticatorRsaImpl authenticator;
 
   private String sessionToken;
   private String keyManagerToken;
 
-  public AuthSessionImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
+  public AuthSessionRsaImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
     this.authenticator = authenticator;
   }
 

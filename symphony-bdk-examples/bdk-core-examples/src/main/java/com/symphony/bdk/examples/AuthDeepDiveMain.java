@@ -27,11 +27,7 @@ public class AuthDeepDiveMain {
     final ApiClientFactory apiClientFactory = new ApiClientFactory(config);
 
     // this factory provides services allowing regular and OBO authentication
-    final AuthenticatorFactory authFactory = new AuthenticatorFactory(
-        config,
-        apiClientFactory.getLoginClient(),
-        apiClientFactory.getRelayClient()
-    );
+    final AuthenticatorFactory authFactory = new AuthenticatorFactory(config, apiClientFactory);
 
     // the BotAuthenticator interface process regular service account authentication for the main Bot account defined in the configuration
     final BotAuthenticator botAuth = authFactory.getBotAuthenticator();

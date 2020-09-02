@@ -6,6 +6,9 @@ developers configure their own bot.
 ## Configuration structure
 
 The BDK configuration now includes the following properties:
+- The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
+These global properties can be used by the client configuration by default or can be override if
+user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
 - `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
 the service account using by the bot is created.
 - `agent` contains information like host, port, scheme, context, proxy... of the agent which 
@@ -17,6 +20,37 @@ the certificate for authenticating the service account on pod.
 - `app` contains information about the extension app that the bot will use like 
 the appId, the private key or the certificate for authenticating the extension app.
 - `ssl` contains trustStore and trustStore password for SSL communication.
+- `datafeed` contains information of the datafeed service to be used by the bot.
+- `retry` contains information for retry mechanism to be used by the bot.
+
+### Retry Configuration
+The retry mechanism used by the bot will be configured by these following properties:
+- `maxAttempts`: maximum number of retry attempts that the bot is able to make.
+- `multiplier`: after each attempt, the interval between two attempts will be multiplied by 
+this factor. (Exponential backoff strategy)
+- `initialIntervalMillis`: the initial interval between two attempts.
+- `maxIntervalMillis`: the limit of the interval between two attempts. For example: if the 
+current interval is 1000 millis, multiplier is 2.0 and the maxIntervalMillis is 1500 millis,
+then the interval for next retry will be 1500 millis.
+
+Each bot will have a global retry configuration to be used in every services with the following
+default value:
+- `maxAttempts`: 10
+- `initialIntervalMillis`: 500
+- `multiplier`: 2
+- `maxIntervalMillis`: 300000 (5 mins)
+
+This global retry configuration can be override by each service. We can define a specific retry 
+configuration inside service configuration to override the global one.
+
+### DatafeedConfiguration
+The datafeed configuration will contain information about the datafeed service to be used by the bot:
+- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v1
+service. 
+- `idFilePath`: the path to the file which will be used to persist a created datafeed id in case the 
+datafeed service v1 is used.
+- `retry`: the specific retry configuration can be used to override the global retry configuration. If no
+retry configuration is defined, the global one will be used.
 
 ## Configuration format
 
@@ -37,6 +71,58 @@ The configuration file after being read will be represented by `BdkConfig` class
 - The configuration for `bot` is represented by `BdkBotConfig`.
 - The configuration for `app` is represented by `BdkExtAppConfig`.
 - The configuration for `ssl` is represented by `BdkSslConfig`.
+
+## BDK configuration example
+
+```yaml
+scheme: https
+host: localhost.symphony.com
+port: 8443
+
+pod:
+  host: dev.symphony.com
+  port: 443
+
+agent:
+  context: agent
+
+keyManager:
+  host: dev-key.symphony.com
+  port: 8444
+
+sessionAuth:
+  host: dev-session.symphony.com
+  port: 8444
+
+bot:
+  username: bot-name
+  privateKeyPath: path/to/private-key.pem
+  certificatePath: /path/to/bot-certificate.p12
+  certificatePassword: changeit
+
+ssl:
+  trustStorePath: /path/to/all_symphony_certs_truststore
+  trustStorePassword: changeit
+
+app:
+  appId: app-id
+  privateKeyPath: path/to/private-key.pem
+
+datafeed:
+  version: v1
+  retry:
+    maxAttempts: 6
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000
+
+retry:
+  maxAttempts: 6
+  initialIntervalMillis: 2000
+  multiplier: 1.5
+  maxIntervalMillis: 10000
+
+```
 
 ## Backward Compatibility with legacy configuration file  
 

@@ -3,6 +3,7 @@ package com.symphony.bdk.core.config;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.legacy.LegacyConfigMapper;
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
+import com.symphony.bdk.core.config.model.BdkClientConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -51,7 +52,8 @@ public class BdkConfigLoader {
             if (jsonNode != null) {
                 JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 if (jsonNode.at("/botUsername").isMissingNode()) {
-                    return JSON_MAPPER.convertValue(jsonNode, BdkConfig.class);
+                    BdkConfig config = JSON_MAPPER.convertValue(jsonNode, BdkConfig.class);
+                    return setUpGlobalValueConfig(config);
                 } else {
                     LegacySymConfig legacySymConfig = JSON_MAPPER.convertValue(jsonNode, LegacySymConfig.class);
                     return LegacyConfigMapper.map(legacySymConfig);
@@ -74,5 +76,29 @@ public class BdkConfigLoader {
             return loadFromInputStream(inputStream);
         }
         throw new BdkConfigException("Config file is not found");
+    }
+
+    private static BdkConfig setUpGlobalValueConfig(BdkConfig config) {
+      config.setPod(setUpClientConfig(config, config.getPod()));
+      config.setAgent(setUpClientConfig(config, config.getAgent()));
+      config.setKeyManager(setUpClientConfig(config, config.getKeyManager()));
+      config.setSessionAuth(setUpClientConfig(config, config.getSessionAuth()));
+      return config;
+    }
+
+    private static BdkClientConfig setUpClientConfig(BdkConfig config, BdkClientConfig clientConfig) {
+      if (clientConfig.getHost() == null) {
+        clientConfig.setHost(config.getHost());
+      }
+      if (clientConfig.getPort() == null) {
+        clientConfig.setPort(config.getPort());
+      }
+      if (clientConfig.getScheme() == null) {
+        clientConfig.setScheme(config.getScheme());
+      }
+      if (clientConfig.getContext() == null) {
+        clientConfig.setContext(config.getContext());
+      }
+      return clientConfig;
     }
 }

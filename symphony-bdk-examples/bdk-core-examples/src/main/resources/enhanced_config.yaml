@@ -1,0 +1,28 @@
+
+host: devx1.symphony.com
+port: 8443
+
+pod:
+  port: 443
+
+agent:
+  port: 443
+
+keyManager:
+  port: 443
+
+bot:
+  username: fxbot-hong
+  privateKeyPath: /Users/hong.le/dev/fxBot/rsa/rsa-private-fxBot.pem
+
+app:
+  appId: app-hong
+  privateKeyPath: /Users/hong.le/dev/fxBot/rsa/app_privatekey.pem
+
+datafeed:
+  version: v1
+  retry:
+    maxAttempts: 6
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000

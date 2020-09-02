@@ -1,21 +1,17 @@
 package com.symphony.bdk.core.auth.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+
 /**
- * Test class for the {@link AuthSessionImpl}.
+ * Test class for the {@link AuthSessionRsaImpl}.
  */
-class AuthSessionImplTest {
+class AuthSessionRsaImplTest {
 
   @Test
   void testRefresh() throws AuthUnauthorizedException {
@@ -27,7 +23,7 @@ class AuthSessionImplTest {
     when(auth.retrieveSessionToken()).thenReturn(sessionToken);
     when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
 
-    final AuthSessionImpl session = new AuthSessionImpl(auth);
+    final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
     session.refresh();
 
     assertEquals(sessionToken, session.getSessionToken());

@@ -1,21 +1,18 @@
 package com.symphony.bdk.core.auth.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.RsaTestHelper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class for the {@link OboAuthenticatorRsaImpl}.
@@ -36,7 +33,10 @@ class OboAuthenticatorRsaImplTest {
   }
 
   @Test
-  void testAuthenticateByUsername() {
+  void testAuthenticateByUsername(final BdkMockServer mockServer) throws AuthUnauthorizedException {
+    mockServer.onPost("/login/pubkey/app/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
+    // mock obo session retrieval by username
+    mockServer.onPost("/login/pubkey/app/username/" + "username" + "/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
     final AuthSession session = this.authenticator.authenticateByUsername("username");
     assertNotNull(session);
     assertEquals(AuthSessionOboImpl.class, session.getClass());
@@ -44,7 +44,10 @@ class OboAuthenticatorRsaImplTest {
   }
 
   @Test
-  void testAuthenticateByUserId() {
+  void testAuthenticateByUserId(final BdkMockServer mockServer) throws AuthUnauthorizedException {
+    mockServer.onPost("/login/pubkey/app/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
+    // mock obo session retrieval by userId
+    mockServer.onPost("/login/pubkey/app/user/" + 1234L + "/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
     final AuthSession session = this.authenticator.authenticateByUserId(1234L);
     assertNotNull(session);
     assertEquals(AuthSessionOboImpl.class, session.getClass());
