@@ -16,7 +16,7 @@
     <properties>
 
         <!-- Code Gen -->
-        <openapi-generator-maven-plugin.version>4.3.0</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>4.3.1</openapi-generator-maven-plugin.version>
         <codegen.generatorName>java</codegen.generatorName>
         <codegen.invoker.library>jersey2</codegen.invoker.library>
         <codegen.base.package>com.symphony.bdk.gen.api</codegen.base.package>

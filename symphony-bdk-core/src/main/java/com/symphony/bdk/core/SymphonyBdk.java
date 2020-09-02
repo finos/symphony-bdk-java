@@ -1,21 +1,24 @@
 package com.symphony.bdk.core;
 
+import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.command.BotCommandRegistry;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.Obo;
+import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.MessagesApi;
+import com.symphony.bdk.gen.api.SessionApi;
+import com.symphony.bdk.gen.api.model.UserV2;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -35,8 +38,9 @@ public class SymphonyBdk {
   private final OboAuthenticator oboAuthenticator;
 
   private final DatafeedService datafeedService;
+  private final SessionService sessionService;
 
-  private final BotCommandRegistry botCommandRegistry;
+  private final ActivityRegistry activityRegistry;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
@@ -55,13 +59,17 @@ public class SymphonyBdk {
       this.datafeedService = new DatafeedServiceV1(datafeedApi, this.botSession, config);
     }
 
-    // initialize the commands registry, that subscribes to real-time events coming from the Datafeed
-    this.botCommandRegistry = new BotCommandRegistry();
-    this.datafeedService.subscribe(this.botCommandRegistry);
+    this.sessionService = new SessionService(new SessionApi(this.apiClientFactory.getPodClient()));
+    final UserV2 botSession = this.sessionService.getSession(this.botSession);
+
+    // other test
+    this.activityRegistry = new ActivityRegistry(botSession.getDisplayName(), this.datafeedService::subscribe);
+    //this.activityRegistry.setSubscriber(this.datafeedService::subscribe);
+    //this.datafeedService.subscribe(this.activityRegistry);
   }
 
-  public BotCommandRegistry commands() {
-    return this.botCommandRegistry;
+  public ActivityRegistry activities() {
+    return this.activityRegistry;
   }
 
   public MessageService messages() {
@@ -87,8 +95,6 @@ public class SymphonyBdk {
   public DatafeedService datafeed() {
     return this.datafeedService;
   }
-
-
 
   protected OboAuthenticator getOboAuthenticator() {
     return Optional.ofNullable(this.oboAuthenticator)
