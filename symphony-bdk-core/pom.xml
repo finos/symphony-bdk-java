@@ -226,11 +226,7 @@
                 <configuration>
                     <excludes>
                         <!-- No need to cover models, exceptions and configs, mostly getters and setters -->
-                        <exclude>com/symphony/bdk/core/**/*Adapter.class</exclude>
-                        <exclude>com/symphony/bdk/core/**/*Type.class</exclude>
-                        <exclude>com/symphony/bdk/core/**/*Config.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
-                        <exclude>com/symphony/bdk/core/**/*Constant.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
                         <!-- Exclude Thibault's temporary classes from coverage -->

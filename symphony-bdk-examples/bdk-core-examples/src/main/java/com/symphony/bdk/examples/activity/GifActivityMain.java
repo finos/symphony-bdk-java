@@ -1,6 +1,6 @@
 package com.symphony.bdk.examples.activity;
 
-import static com.symphony.bdk.core.config.BdkConfigLoader.fromSymphonyDir;
+import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.activity.Activity;
@@ -40,7 +40,7 @@ public class GifActivityMain {
   public static void main(String[] args) throws Exception {
 
     // setup SymphonyBdk facade object
-    final SymphonyBdk bdk = new SymphonyBdk(fromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
     // register new activity that sends a gif to the chat
     bdk.activities().register(new GifCommand());

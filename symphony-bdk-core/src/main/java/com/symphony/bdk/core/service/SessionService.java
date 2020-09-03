@@ -7,11 +7,13 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 
 import lombok.RequiredArgsConstructor;
+import org.apiguardian.api.API;
 
 /**
- * TODO: add description here
+ * {@link SessionApi} wrapper service.
  */
 @RequiredArgsConstructor
+@API(status = API.Status.EXPERIMENTAL)
 public class SessionService {
 
   private final SessionApi sessionApi;

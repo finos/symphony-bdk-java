@@ -80,7 +80,7 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> implemen
     }
   }
 
-  @SneakyThrows // we can assume that this method can neven fail
+  @SneakyThrows // assuming that this method can never fail
   @SuppressWarnings("unchecked")
   private C createContextInstance(V4Initiator initiator, E event) {
     final Class<C> clz = (Class<C>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];

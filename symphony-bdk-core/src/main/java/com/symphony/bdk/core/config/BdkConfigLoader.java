@@ -36,7 +36,7 @@ public class BdkConfigLoader {
       InputStream inputStream = new FileInputStream(file);
       return loadFromInputStream(inputStream);
     } catch (FileNotFoundException e) {
-      throw new BdkConfigException("Config file is not found");
+      throw new BdkConfigException("Config file has not been found found", e);
     }
   }
 
@@ -75,7 +75,7 @@ public class BdkConfigLoader {
    * @param relPath Configuration file relative path from the ${user.home}/.symphony directory
    * @return Symphony Bot Configuration
    */
-  public static BdkConfig fromSymphonyDir(String relPath) throws BdkConfigException {
+  public static BdkConfig loadFromSymphonyDir(String relPath) throws BdkConfigException {
     final String home = System.getProperty("user.home");
     final Path symphonyDirPath = Paths.get(home, ".symphony");
     final Path configPath = symphonyDirPath.resolve(relPath);
