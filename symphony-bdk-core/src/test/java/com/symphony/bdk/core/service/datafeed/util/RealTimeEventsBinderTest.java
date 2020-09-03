@@ -27,6 +27,12 @@ class RealTimeEventsBinderTest {
   }
 
   @Test
+  void testConstructorJustToMakeJacocoHappy() {
+    final RealTimeEventsBinder instance = new RealTimeEventsBinder();
+    assertNotNull(instance);
+  }
+
+  @Test
   void testBindOnMessageSent() {
     final AtomicBoolean methodCalled = new AtomicBoolean(false);
     final BiConsumer<V4Initiator, V4MessageSent> methodToBind = (initiator, v4MessageSent) -> methodCalled.set(true);

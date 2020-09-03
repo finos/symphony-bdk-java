@@ -53,7 +53,7 @@ class CommandActivityTest {
   @Test
   void testBeforeMatcher() {
     final CommandContext context = createContext();
-    context.getEventSource().getMessage().setMessage("<div><p><span>hello world</span></p></div>");
+    context.getSourceEvent().getMessage().setMessage("<div><p><span>hello world</span></p></div>");
 
     assertNull(context.getTextContent(), "Message text content must be null before beforeMatcher method.");
     act.beforeMatcher(context);
@@ -63,7 +63,7 @@ class CommandActivityTest {
   @Test
   void testBeforeMatcherWithFailure() {
     final CommandContext context = createContext();
-    context.getEventSource().getMessage().setMessage("<div<p><span>hello world<span></p></div>");
+    context.getSourceEvent().getMessage().setMessage("<div<p><span>hello world<span></p></div>");
 
     assertThrows(ActivityExecutionException.class, () -> act.beforeMatcher(context));
   }

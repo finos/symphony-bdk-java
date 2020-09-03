@@ -53,8 +53,8 @@ class FormReplyActivityTest {
     final String formId = UUID.randomUUID().toString();
 
     final FormReplyContext context = createContext();
-    context.getEventSource().setFormId(formId);
-    context.getEventSource().setFormValues(Collections.singletonMap("foo", "bar"));
+    context.getSourceEvent().setFormId(formId);
+    context.getSourceEvent().setFormValues(Collections.singletonMap("foo", "bar"));
 
     act.beforeMatcher(context);
 

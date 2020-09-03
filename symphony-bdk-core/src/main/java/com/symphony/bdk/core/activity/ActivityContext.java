@@ -10,7 +10,7 @@ import org.apiguardian.api.API;
  * Base class for an activity context holder. Contains the mandatory context attributes:
  * <ul>
  *   <li>{@link ActivityContext#initiator} : user info that triggered the chat event</li>
- *   <li>{@link ActivityContext#eventSource} : chat event source object</li>
+ *   <li>{@link ActivityContext#sourceEvent} : chat event source object</li>
  * </ul>
  */
 @Getter
@@ -22,11 +22,11 @@ public abstract class ActivityContext<E> {
   private final V4Initiator initiator;
 
   /**
-   * The activity real-time event source. Possible classes:
+   * The activity source real-time event. Possible classes:
    * <ul>
    *   <li>{@link com.symphony.bdk.gen.api.model.V4MessageSent}</li>
    *   <li>{@link com.symphony.bdk.gen.api.model.V4SymphonyElementsAction}</li>
    * </ul>
    */
-  private final E eventSource;
+  private final E sourceEvent;
 }

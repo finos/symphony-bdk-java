@@ -39,9 +39,6 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> implemen
   /**
    * This callback can be used to prepare {@link ActivityContext} before actually processing the
    * {@link com.symphony.bdk.core.activity.ActivityMatcher#matches(ActivityContext)} method.
-   * <p>
-   *   WARNING: Please don't forget to call super if overridden.
-   * </p>
    */
   protected void beforeMatcher(C context) {
     // nothing is done here by default

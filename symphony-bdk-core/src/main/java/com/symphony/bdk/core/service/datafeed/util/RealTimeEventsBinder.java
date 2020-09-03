@@ -13,6 +13,10 @@ import java.util.function.Consumer;
  */
 public class RealTimeEventsBinder {
 
+  public RealTimeEventsBinder() {
+    // nothing to be done here
+  }
+
   /**
    * Bind "onMessageSent" real-time event to a target method.
    *

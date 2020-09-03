@@ -45,7 +45,7 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
 
   /** {@inheritDoc} */
   protected void beforeMatcher(C context) {
-    context.setTextContent(getMessageTextContext(context.getEventSource().getMessage().getMessage()));
+    context.setTextContent(getMessageTextContext(context.getSourceEvent().getMessage().getMessage()));
   }
 
   protected static String getMessageTextContext(String presentationML) {
