@@ -52,7 +52,7 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> implemen
     final C context = this.createContextInstance(initiator, event);
 
     try {
-      log.trace("Before before matcher execution");
+      log.trace("Before beforeMatcher execution");
       this.beforeMatcher(context);
     } catch (Exception ex) {
       log.warn("Before matcher execution failed.", ex);

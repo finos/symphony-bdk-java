@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * TODO: add description here
+ * The activity registry allows to register an activity by binding it to the Datafeed events. It also maintains the list
+ * of registered activities for reporting if necessary.
  */
 @Slf4j
 @RequiredArgsConstructor

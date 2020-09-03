@@ -46,7 +46,7 @@ public class GifActivityMain {
     bdk.activities().register(new GifCommand());
 
     // displays the Gif form on /gif command with no params
-    bdk.activities().register(new SlashCommand("/gif", context ->
+    bdk.activities().register(new SlashCommand("/gif", true, context ->
         // send message contains Elements form to select a gif category
         bdk.messages().send(context.getStreamId(), loadGifElementsForm())
     ));

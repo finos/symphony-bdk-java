@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity.command;
 
 import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.bindOnMessageSent;
 
+import com.symphony.bdk.core.activity.exception.ActivityExecutionException;
 import com.symphony.bdk.core.activity.internal.AbstractActivity;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -12,15 +13,16 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * A form reply activity corresponds to any message send in a chat where the bot is part of.
@@ -46,19 +48,19 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
     context.setTextContent(getMessageTextContext(context.getEventSource().getMessage().getMessage()));
   }
 
-  @SneakyThrows // TODO handle exception properly here
   protected static String getMessageTextContext(String presentationML) {
-    final Document doc = DOCUMENT_BUILDER.parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
-    return doc.getChildNodes().item(0).getTextContent();
+    try {
+      final Document doc = DOCUMENT_BUILDER.parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
+      return doc.getChildNodes().item(0).getTextContent();
+    } catch (SAXException | IOException e) {
+      throw new ActivityExecutionException("Unable to parse presentationML", e);
+    }
   }
 
   @Nonnull
+  @SneakyThrows
   private static DocumentBuilder initDocumentBuilder() {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    try {
-      return factory.newDocumentBuilder();
-    } catch (ParserConfigurationException e) {
-      throw new RuntimeException("[fatal] Unable to create the DocumentBuilder for XML parsing.", e);
-    }
+    return factory.newDocumentBuilder();
   }
 }

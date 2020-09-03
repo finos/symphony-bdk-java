@@ -39,6 +39,7 @@
         <junit.version>RELEASE</junit.version>
         <logback.version>1.2.3</logback.version>
         <mockito.version>3.4.6</mockito.version>
+        <mockito-junit-jupiter.version>3.3.3</mockito-junit-jupiter.version>
         <mockserver.version>5.11.1</mockserver.version>
 
     </properties>
@@ -221,6 +222,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito-junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

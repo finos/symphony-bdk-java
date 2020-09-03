@@ -138,6 +138,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
             <scope>test</scope>

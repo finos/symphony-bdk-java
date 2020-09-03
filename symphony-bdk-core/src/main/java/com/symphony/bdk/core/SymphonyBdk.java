@@ -62,10 +62,8 @@ public class SymphonyBdk {
     this.sessionService = new SessionService(new SessionApi(this.apiClientFactory.getPodClient()));
     final UserV2 botSession = this.sessionService.getSession(this.botSession);
 
-    // other test
+    // initialize activity registry
     this.activityRegistry = new ActivityRegistry(botSession.getDisplayName(), this.datafeedService::subscribe);
-    //this.activityRegistry.setSubscriber(this.datafeedService::subscribe);
-    //this.datafeedService.subscribe(this.activityRegistry);
   }
 
   public ActivityRegistry activities() {
