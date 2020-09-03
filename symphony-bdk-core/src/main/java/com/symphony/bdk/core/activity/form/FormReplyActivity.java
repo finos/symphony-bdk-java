@@ -2,7 +2,7 @@ package com.symphony.bdk.core.activity.form;
 
 import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.bindOnSymphonyElementsAction;
 
-import com.symphony.bdk.core.activity.internal.AbstractActivity;
+import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
@@ -25,8 +25,8 @@ public abstract class FormReplyActivity<C extends FormReplyContext>
 
   /** {@inheritDoc} */
   @Override
-  public void subscribe(Consumer<RealTimeEventListener> subscriber) {
-    bindOnSymphonyElementsAction(subscriber, this::processEvent);
+  public void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
+    bindOnSymphonyElementsAction(realTimeEventsSource, this::processEvent);
   }
 
   /** {@inheritDoc} */

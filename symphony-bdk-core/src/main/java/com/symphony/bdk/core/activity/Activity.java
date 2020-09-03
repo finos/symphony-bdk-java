@@ -3,11 +3,8 @@ package com.symphony.bdk.core.activity;
 import com.symphony.bdk.core.activity.command.CommandActivity;
 import com.symphony.bdk.core.activity.form.FormReplyActivity;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
-import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 
 import org.apiguardian.api.API;
-
-import java.util.function.Consumer;
 
 /**
  * Contract definition for an Activity that can be registered via the {@link ActivityRegistry}.
@@ -27,13 +24,6 @@ import java.util.function.Consumer;
 public interface Activity<C extends ActivityContext<?>> {
 
   /**
-   * Attaches an Activity to its dedicated real-time event.
-   *
-   * @param subscriber The real-time event subscriber, issued from the {@link com.symphony.bdk.core.service.datafeed.DatafeedService}.
-   */
-  void subscribe(Consumer<RealTimeEventListener> subscriber);
-
-  /**
    * Any kind of activity must provide an {@link ActivityMatcher} in order to detect if it can be applied to a certain
    * user input.
    *
@@ -50,7 +40,7 @@ public interface Activity<C extends ActivityContext<?>> {
   void onActivity(C context);
 
   /**
-   * Retrieve activity information.
+   * Retrieve activity details. Can be used for metrics, reporting or help generation.
    *
    * @return activity info
    */

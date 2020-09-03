@@ -30,7 +30,7 @@ class FormReplyActivityTest {
   @BeforeEach
   void setUp() {
     act = new TestFormReplyActivity();
-    act.subscribe(datafeedService::subscribe);
+    act.bindToRealTimeEventsSource(datafeedService::subscribe);
   }
 
   @Test

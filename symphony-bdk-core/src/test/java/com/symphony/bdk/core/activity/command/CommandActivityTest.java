@@ -33,7 +33,7 @@ class CommandActivityTest {
   @BeforeEach
   void setUp() {
     act = new TestCommandActivity();
-    act.subscribe(datafeedService::subscribe);
+    act.bindToRealTimeEventsSource(datafeedService::subscribe);
   }
 
   @Test

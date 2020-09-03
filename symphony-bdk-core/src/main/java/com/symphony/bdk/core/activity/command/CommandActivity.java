@@ -3,7 +3,7 @@ package com.symphony.bdk.core.activity.command;
 import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.bindOnMessageSent;
 
 import com.symphony.bdk.core.activity.exception.ActivityExecutionException;
-import com.symphony.bdk.core.activity.internal.AbstractActivity;
+import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
@@ -39,8 +39,8 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
 
   /** {@inheritDoc} */
   @Override
-  public void subscribe(Consumer<RealTimeEventListener> subscriber) {
-    bindOnMessageSent(subscriber, this::processEvent);
+  public void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
+    bindOnMessageSent(realTimeEventsSource, this::processEvent);
   }
 
   /** {@inheritDoc} */

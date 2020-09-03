@@ -38,7 +38,7 @@ class SlashCommandTest {
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
     final SlashCommand cmd = new SlashCommand("/test", handler);
     cmd.setBotDisplayName("BotMention");
-    cmd.subscribe(provider::setListener);
+    cmd.bindToRealTimeEventsSource(provider::setListener);
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, "/test")));
     assertTrue(handlerCalled.get());
@@ -53,7 +53,7 @@ class SlashCommandTest {
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
     final SlashCommand cmd = new SlashCommand("/test", false, handler);
     cmd.setBotDisplayName("BotMention");
-    cmd.subscribe(provider::setListener);
+    cmd.bindToRealTimeEventsSource(provider::setListener);
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(false, "/test")));
     assertTrue(handlerCalled.get());
@@ -68,7 +68,7 @@ class SlashCommandTest {
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
     final SlashCommand cmd = new SlashCommand("/test", handler);
     cmd.setBotDisplayName("BotMention");
-    cmd.subscribe(provider::setListener);
+    cmd.bindToRealTimeEventsSource(provider::setListener);
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, "/foo")));
     assertFalse(handlerCalled.get());

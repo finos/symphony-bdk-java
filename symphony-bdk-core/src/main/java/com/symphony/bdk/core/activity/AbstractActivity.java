@@ -1,8 +1,7 @@
-package com.symphony.bdk.core.activity.internal;
+package com.symphony.bdk.core.activity;
 
-import com.symphony.bdk.core.activity.Activity;
-import com.symphony.bdk.core.activity.ActivityContext;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
+import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 
 import lombok.SneakyThrows;
@@ -11,6 +10,7 @@ import org.apiguardian.api.API;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Base abstract class for activities provided by the BDK. Provides a generic flow to process an incoming chat event.
@@ -20,6 +20,13 @@ import java.util.Optional;
 public abstract class AbstractActivity<E, C extends ActivityContext<E>> implements Activity<C> {
 
   private ActivityInfo info;
+
+  /**
+   * Bind an Activity to its real-time event.
+   *
+   * @param realTimeEventsSource The real-time events source, issued from the {@link com.symphony.bdk.core.service.datafeed.DatafeedService}.
+   */
+  protected abstract void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource);
 
   /**
    * Build activity info.

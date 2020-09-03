@@ -49,6 +49,6 @@ public class ActivityRegistry {
     }
 
     // make the activity to subscribe to its expected real-time event
-    activity.subscribe(this.subscriber);
+    ((AbstractActivity<?, ?>) activity).bindToRealTimeEventsSource(this.subscriber);
   }
 }
