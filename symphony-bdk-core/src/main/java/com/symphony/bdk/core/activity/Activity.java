@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.core.activity.command.CommandActivity;
 import com.symphony.bdk.core.activity.form.FormReplyActivity;
+import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 
 import org.apiguardian.api.API;
@@ -47,4 +48,12 @@ public interface Activity<C extends ActivityContext<?>> {
    * @param context The activity context object.
    */
   void onActivity(C context);
+
+  /**
+   * Retrieve activity information.
+   *
+   * @return activity info
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  ActivityInfo getInfo();
 }

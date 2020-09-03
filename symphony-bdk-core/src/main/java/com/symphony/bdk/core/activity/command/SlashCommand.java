@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.activity.command;
 
+import com.symphony.bdk.core.activity.model.ActivityInfo;
+import com.symphony.bdk.core.activity.model.ActivityType;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
@@ -38,7 +41,6 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
    * @throws IllegalArgumentException if command name if empty.
    */
   public SlashCommand(@Nonnull String slashCommandName, boolean requiresBotMention, @Nonnull Consumer<CommandContext> callback) {
-
     if (StringUtils.isEmpty(slashCommandName)) {
       throw new IllegalArgumentException("The slash command name cannot be empty.");
     }
@@ -57,5 +59,13 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
   @Override
   public void onActivity(CommandContext context) {
     this.callback.accept(context);
+  }
+
+  @Override
+  protected ActivityInfo info() {
+    final ActivityInfo info = ActivityInfo.of(ActivityType.command);
+    info.setName("Slash command '" + this.slashCommandName + "'");
+    info.setDescription("Usage: " + (this.requiresBotMention ? "@BotMention " : "") + this.slashCommandName);
+    return info;
   }
 }

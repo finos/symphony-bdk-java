@@ -1,6 +1,8 @@
 package com.symphony.bdk.examples.activity;
 
 import com.symphony.bdk.core.activity.command.PatternCommandActivity;
+import com.symphony.bdk.core.activity.model.ActivityInfo;
+import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.examples.activity.context.GifCommandContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,5 +26,13 @@ public class GifCommand extends PatternCommandActivity<GifCommandContext> {
   @Override
   public void onActivity(final GifCommandContext context) {
     log.info("Gif category is \"{}\"", context.getCategory());
+  }
+
+  @Override
+  protected ActivityInfo info() {
+    final ActivityInfo info = ActivityInfo.of(ActivityType.command);
+    info.setName("Gif Random by Category command");
+    info.setDescription("Usage: @BotMention /gif {category}");
+    return info;
   }
 }

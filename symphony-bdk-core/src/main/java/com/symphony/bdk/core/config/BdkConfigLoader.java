@@ -68,7 +68,7 @@ public class BdkConfigLoader {
    *
    * <p>
    *   Note: The .symphony directory is located under your home directory (<code>System.getProperty("user.home")</code>).
-   *   This is convention adopted in order to avoid storing sensitive information (such as usernames, private keys...)
+   *   Convention adopted in order to avoid storing sensitive information (such as usernames, private keys...)
    *   within the code base.
    * </p>
    *

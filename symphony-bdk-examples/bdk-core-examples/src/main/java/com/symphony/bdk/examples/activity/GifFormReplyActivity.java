@@ -2,6 +2,8 @@ package com.symphony.bdk.examples.activity;
 
 import com.symphony.bdk.core.activity.ActivityMatcher;
 import com.symphony.bdk.core.activity.form.FormReplyActivity;
+import com.symphony.bdk.core.activity.model.ActivityInfo;
+import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.examples.activity.context.GifFormReplyContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,5 +22,13 @@ public class GifFormReplyActivity extends FormReplyActivity<GifFormReplyContext>
   @Override
   public void onActivity(GifFormReplyContext context) {
     log.info("Gif category is \"{}\"", context.getFormValue("category"));
+  }
+
+  @Override
+  protected ActivityInfo info() {
+    final ActivityInfo info = ActivityInfo.of(ActivityType.form);
+    info.setName("Gif Display category form command");
+    info.setDescription("Form handler for the Gif Category form");
+    return info;
   }
 }

@@ -3,13 +3,19 @@ package com.symphony.bdk.examples.activity;
 import static com.symphony.bdk.core.config.BdkConfigLoader.fromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.activity.Activity;
+import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.core.activity.model.ActivityInfo;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>Activity API demonstration around a simple Gif bot logic.</p>
@@ -28,6 +34,7 @@ import java.nio.charset.StandardCharsets;
  *   </tr>
  * </table>
  */
+@Slf4j
 public class GifActivityMain {
 
   public static void main(String[] args) throws Exception {
@@ -47,8 +54,28 @@ public class GifActivityMain {
     // register a "formReply" activity that handles the Gif category form submission
     bdk.activities().register(new GifFormReplyActivity());
 
+    // display activities documentation in the console
+    reportActivities(bdk.activities());
+
     // finally, start the datafeed loop
     bdk.datafeed().start();
+  }
+
+  private static void reportActivities(ActivityRegistry registry) {
+    final List<ActivityInfo> infos = registry.getActivityList()
+        .stream()
+        .map(Activity::getInfo)
+        .collect(Collectors.toList());
+
+    log.info("--");
+    log.info("-- ACTIVITIES REPORT --");
+    for (ActivityInfo info : infos) {
+      log.info("--");
+      log.info("TYPE: {}", info.getType());
+      log.info("NAME: {}", info.getName());
+      log.info("DESC: {}", info.getDescription());
+    }
+    log.info("--");
   }
 
   @SneakyThrows
