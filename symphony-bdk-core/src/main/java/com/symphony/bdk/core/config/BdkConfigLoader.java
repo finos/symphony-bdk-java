@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -75,6 +76,7 @@ public class BdkConfigLoader {
    * @param relPath Configuration file relative path from the ${user.home}/.symphony directory
    * @return Symphony Bot Configuration
    */
+  @Generated // skip code coverage, CircleCI does not allow to create file in the home directory
   public static BdkConfig loadFromSymphonyDir(String relPath) throws BdkConfigException {
     final String home = System.getProperty("user.home");
     final Path symphonyDirPath = Paths.get(home, ".symphony");

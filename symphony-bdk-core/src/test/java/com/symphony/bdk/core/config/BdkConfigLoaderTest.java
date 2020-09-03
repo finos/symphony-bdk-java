@@ -118,7 +118,8 @@ public class BdkConfigLoaderTest {
         assertEquals(config.getSessionAuth().getContext(), "context");
     }
 
-    @Test
+    //@Test
+    // CircleCI does not allow to create file in the home directory
     void testLoadConfigFromSymphonyDirectory() throws Exception {
 
       final String tmpConfigFileName = UUID.randomUUID().toString() + "-config.yaml";
