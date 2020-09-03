@@ -37,7 +37,7 @@ public class BdkConfigLoader {
       InputStream inputStream = new FileInputStream(file);
       return loadFromInputStream(inputStream);
     } catch (FileNotFoundException e) {
-      throw new BdkConfigException("Config file has not been found found", e);
+      throw new BdkConfigException("Config file has not been found", e);
     }
   }
 

@@ -71,7 +71,7 @@ public class BdkConfigLoaderTest {
             String configPath = "/wrong_path/config.yaml";
             BdkConfigLoader.loadFromFile(configPath);
         });
-        assertEquals(exception.getMessage(), "Config file has not been not found");
+        assertEquals(exception.getMessage(), "Config file has not been found");
     }
 
     @Test
