@@ -81,7 +81,7 @@ public class BdkConfigLoader {
     final String home = System.getProperty("user.home");
     final Path symphonyDirPath = Paths.get(home, ".symphony");
     final Path configPath = symphonyDirPath.resolve(relPath);
-    log.debug("Loading configuration from : {}", configPath);
+    log.debug("Loading configuration from the Symphony directory : {}", configPath);
     try {
       return loadFromInputStream(new FileInputStream(configPath.toFile()));
     } catch (FileNotFoundException e) {
