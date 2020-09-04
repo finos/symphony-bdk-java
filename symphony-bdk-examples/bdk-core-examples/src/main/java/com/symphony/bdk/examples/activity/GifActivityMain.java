@@ -3,7 +3,7 @@ package com.symphony.bdk.examples.activity;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.activity.Activity;
+import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
@@ -64,7 +64,7 @@ public class GifActivityMain {
   private static void reportActivities(ActivityRegistry registry) {
     final List<ActivityInfo> infos = registry.getActivityList()
         .stream()
-        .map(Activity::getInfo)
+        .map(AbstractActivity::getInfo)
         .collect(Collectors.toList());
 
     log.info("--");

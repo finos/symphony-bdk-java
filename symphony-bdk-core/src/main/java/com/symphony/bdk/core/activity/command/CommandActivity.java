@@ -39,7 +39,7 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
 
   /** {@inheritDoc} */
   @Override
-  public void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
+  protected void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
     bindOnMessageSent(realTimeEventsSource, this::processEvent);
   }
 

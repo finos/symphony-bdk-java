@@ -1,6 +1,7 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
+import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.OboAuthenticator;
@@ -33,18 +34,19 @@ import java.util.Optional;
 public class SymphonyBdk {
 
   private final ApiClientFactory apiClientFactory;
+  private final ApiClient agentClient;
 
   private final AuthSession botSession;
   private final OboAuthenticator oboAuthenticator;
 
   private final DatafeedService datafeedService;
-  private final SessionService sessionService;
 
   private final ActivityRegistry activityRegistry;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
     this.apiClientFactory = new ApiClientFactory(config);
+    this.agentClient = this.apiClientFactory.getAgentClient();
 
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, this.apiClientFactory);
 
@@ -52,18 +54,19 @@ public class SymphonyBdk {
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
 
     // setup the datafeed
-    final DatafeedApi datafeedApi = new DatafeedApi(this.apiClientFactory.getAgentClient());
+    final DatafeedApi datafeedApi = new DatafeedApi(agentClient);
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
       this.datafeedService = new DatafeedServiceV2(datafeedApi, this.botSession, config);
     } else {
       this.datafeedService = new DatafeedServiceV1(datafeedApi, this.botSession, config);
     }
 
-    this.sessionService = new SessionService(new SessionApi(this.apiClientFactory.getPodClient()));
-    final UserV2 botSession = this.sessionService.getSession(this.botSession);
+    // init the session service
+    final SessionService sessionService = new SessionService(new SessionApi(this.apiClientFactory.getPodClient()));
+    final UserV2 botSession = sessionService.getSession(this.botSession);
 
-    // initialize activity registry
-    this.activityRegistry = new ActivityRegistry(botSession.getDisplayName(), this.datafeedService::subscribe);
+    // init activity registry
+    this.activityRegistry = new ActivityRegistry(botSession, this.datafeedService::subscribe);
   }
 
   public ActivityRegistry activities() {
@@ -71,7 +74,7 @@ public class SymphonyBdk {
   }
 
   public MessageService messages() {
-    return new MessageService(new MessagesApi(this.apiClientFactory.getAgentClient()), this.botSession);
+    return new MessageService(new MessagesApi(this.agentClient), this.botSession);
   }
 
   public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
@@ -81,7 +84,7 @@ public class SymphonyBdk {
     } else {
       oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
     }
-    return new MessageService(new MessagesApi(this.apiClientFactory.getAgentClient()), oboSession);
+    return new MessageService(new MessagesApi(this.agentClient), oboSession);
   }
 
   /**

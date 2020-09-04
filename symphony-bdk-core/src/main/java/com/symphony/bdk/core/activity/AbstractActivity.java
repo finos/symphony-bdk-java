@@ -17,9 +17,25 @@ import java.util.function.Consumer;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public abstract class AbstractActivity<E, C extends ActivityContext<E>> implements Activity<C> {
+public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
 
   private ActivityInfo info;
+
+  /**
+   * Any kind of activity must provide an {@link ActivityMatcher} in order to detect if it can be applied to a certain
+   * user input.
+   *
+   * @return an {@link ActivityMatcher} implementation.
+   */
+  protected abstract ActivityMatcher<C> matcher();
+
+  /**
+   * Contain the activity business logic. Executed only if the {@link ActivityMatcher#matches(ActivityContext)} retured
+   * a true value.
+   *
+   * @param context The activity context object.
+   */
+  protected abstract void onActivity(C context);
 
   /**
    * Bind an Activity to its real-time event.
@@ -33,7 +49,11 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> implemen
    */
   protected abstract ActivityInfo info();
 
-  @Override
+  /**
+   * Retrieve activity details. Can be used for metrics, reporting or help generation.
+   *
+   * @return activity info
+   */
   public ActivityInfo getInfo() {
 
     if (this.info == null) {
