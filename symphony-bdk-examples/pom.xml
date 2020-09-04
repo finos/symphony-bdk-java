@@ -17,6 +17,7 @@
     <modules>
         <module>bdk-core-examples</module>
         <module>bdk-spring-boot-example</module>
+        <module>bdk-template-examples</module>
     </modules>
 
 </project>
