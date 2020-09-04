@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.activity.TestCommandActivity;
-import com.symphony.bdk.core.activity.exception.ActivityExecutionException;
+import com.symphony.bdk.core.activity.exception.FatalActivityExecutionException;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
@@ -65,7 +65,7 @@ class CommandActivityTest {
     final CommandContext context = createContext();
     context.getSourceEvent().getMessage().setMessage("<div<p><span>hello world<span></p></div>");
 
-    assertThrows(ActivityExecutionException.class, () -> act.beforeMatcher(context));
+    assertThrows(FatalActivityExecutionException.class, () -> act.beforeMatcher(context));
   }
 
   private static CommandContext createContext() {

@@ -1,5 +1,6 @@
 package com.symphony.bdk.core;
 
+import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
@@ -10,6 +11,7 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.Obo;
+import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
@@ -18,6 +20,7 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 
+import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.UserApi;
 
 import com.symphony.bdk.gen.api.UsersApi;
@@ -43,6 +46,8 @@ public class SymphonyBdk {
 
   private final DatafeedService datafeedService;
   private final UserService userService;
+  private final SessionService sessionService;
+  private final ActivityRegistry activityRegistry;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
 
@@ -64,6 +69,8 @@ public class SymphonyBdk {
     }
     // setup other services
     this.userService = new UserService(new UserApi(this.podClient), new UsersApi(this.podClient), this.botSession);
+    this.sessionService = new SessionService(new SessionApi(this.podClient));
+    this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(this.botSession), this.datafeedService::subscribe);
   }
 
   public MessageService messages() {
@@ -97,6 +104,15 @@ public class SymphonyBdk {
    */
   public UserService users() {
     return this.userService;
+  }
+
+  /**
+   * Returns the {@link ActivityRegistry} in order to register Command or Form activities.
+   *
+   * @return the single {@link ActivityRegistry}
+   */
+  public ActivityRegistry activities() {
+    return this.activityRegistry;
   }
 
   protected OboAuthenticator getOboAuthenticator() {

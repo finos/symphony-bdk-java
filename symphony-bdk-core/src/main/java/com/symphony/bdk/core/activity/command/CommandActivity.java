@@ -2,7 +2,7 @@ package com.symphony.bdk.core.activity.command;
 
 import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.bindOnMessageSent;
 
-import com.symphony.bdk.core.activity.exception.ActivityExecutionException;
+import com.symphony.bdk.core.activity.exception.FatalActivityExecutionException;
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -48,12 +48,12 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
     context.setTextContent(getMessageTextContext(context.getSourceEvent().getMessage().getMessage()));
   }
 
-  protected static String getMessageTextContext(String presentationML) {
+  protected String getMessageTextContext(String presentationML) {
     try {
       final Document doc = DOCUMENT_BUILDER.parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
       return doc.getChildNodes().item(0).getTextContent();
     } catch (SAXException | IOException e) {
-      throw new ActivityExecutionException("Unable to parse presentationML", e);
+      throw new FatalActivityExecutionException(this.getInfo(), "Unable to parse presentationML", e);
     }
   }
 
