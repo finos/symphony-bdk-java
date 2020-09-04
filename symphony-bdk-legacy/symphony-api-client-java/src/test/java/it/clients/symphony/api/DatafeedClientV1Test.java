@@ -5,6 +5,9 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
 import clients.symphony.api.DatafeedClient;
 import clients.symphony.api.constants.AgentConstants;
+import exceptions.APIClientErrorException;
+import exceptions.ForbiddenException;
+import exceptions.ServerErrorException;
 import exceptions.SymClientException;
 import it.commons.BotTest;
 
@@ -12,6 +15,8 @@ import java.io.IOException;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
+
 import model.DatafeedEvent;
 import model.EventPayload;
 import model.InboundMessage;
@@ -37,6 +42,7 @@ public class DatafeedClientV1Test extends BotTest {
     datafeedClient = symBotClient.getDatafeedClient();
   }
 
+  // createDatafeed
   @Test
   public void createDatafeedSuccess() {
     stubFor(post(urlEqualTo(AgentConstants.CREATEDATAFEED))
@@ -60,6 +66,67 @@ public class DatafeedClientV1Test extends BotTest {
       fail();
     }
   }
+
+  @Test(expected = APIClientErrorException.class)
+  public void createDatafeedFailure400() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEDATAFEED))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(400)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+      assertNotNull(datafeedClient);
+
+      final String datafeedId = datafeedClient.createDatafeed();
+  }
+
+  @Test(expected = SymClientException.class)
+  public void createDatafeedFailure401() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEDATAFEED))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(401)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 401,"
+                + "\"message\": \"Invalid session\"}")));
+
+    assertNotNull(datafeedClient);
+
+    final String datafeedId = datafeedClient.createDatafeed();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void createDatafeedFailure403() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEDATAFEED))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(403)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 403,"
+                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
+
+    assertNotNull(datafeedClient);
+
+    final String datafeedId = datafeedClient.createDatafeed();
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void createDatafeedFailure500() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEDATAFEED))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(500)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final String datafeedId = datafeedClient.createDatafeed();
+  }
+  // End createDatafeed
 
   @Test
   public void readDatafeedSuccess() {

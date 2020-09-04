@@ -1,6 +1,5 @@
 package it.clients.symphony.api;
 
-import clients.symphony.api.APIClient;
 import clients.symphony.api.AdminClient;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.PodConstants;
@@ -12,23 +11,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import model.*;
 import model.events.AdminStreamInfoList;
-import net.bytebuddy.implementation.bind.MethodDelegationBinder;
-import net.minidev.json.JSONObject;
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static net.bytebuddy.matcher.ElementMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
 
 public class AdminClientTest extends BotTest {
