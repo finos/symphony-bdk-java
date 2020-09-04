@@ -128,6 +128,7 @@ public class DatafeedClientV1Test extends BotTest {
   }
   // End createDatafeed
 
+  // readDatafeed
   @Test
   public void readDatafeedSuccess() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
@@ -233,6 +234,80 @@ public class DatafeedClientV1Test extends BotTest {
     }
   }
 
+  @Test
+  public void readDatafeedFailure204() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(204)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+    assertNotNull(events);
+    assertTrue(events.isEmpty());
+  }
+
+  @Test(expected = APIClientErrorException.class)
+  public void readDatafeedFailure400() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(400)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = SymClientException.class)
+  public void readDatafeedFailure401() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(401)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void readDatafeedFailure403() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(403)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 403,"
+                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void readDatafeedFailure500() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(500)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
   @Test(expected = javax.ws.rs.ProcessingException.class)
   public void readDatafeedConnectionTimeout() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
@@ -247,5 +322,5 @@ public class DatafeedClientV1Test extends BotTest {
       fail();
     }
   }
-
+  // End readDatafeed
 }
