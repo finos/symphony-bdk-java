@@ -1,0 +1,33 @@
+{
+    "users": [
+        {
+            "id": 1234,
+            "emailAddress": "tibot@symphony.com",
+            "firstName": null,
+            "lastName": null,
+            "displayName": "Test Bot",
+            "title": null,
+            "company": "Symphony",
+            "username": "tibot",
+            "location": null,
+            "accountType": "SYSTEM",
+            "avatars": [
+                {
+                    "size": "original",
+                    "url": "../avatars/static/150/default.png"
+                },
+                {
+                    "size": "small",
+                    "url": "../avatars/static/50/default.png"
+                }
+            ],
+            "workPhoneNumber": null,
+            "mobilePhoneNumber": null,
+            "jobFunction": null,
+            "department": null,
+            "division": null,
+            "roles": null
+        }
+    ],
+    "errors": null
+}
