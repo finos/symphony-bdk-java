@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -9,15 +9,14 @@
         <version>1.2.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>symphony-bdk-examples</artifactId>
-    <name>Symphony Java BDK Examples Parent</name>
-    <description>Symphony Java BDK Parent Module</description>
+    <artifactId>symphony-bdk-template</artifactId>
+    <name>Symphony Java BDK Template</name>
+    <description>Symphony Java BDK Template Module</description>
     <packaging>pom</packaging>
 
     <modules>
-        <module>bdk-core-examples</module>
-        <module>bdk-spring-boot-example</module>
-        <module>bdk-template-examples</module>
+        <module>symphony-bdk-template-api</module>
+        <module>symphony-bdk-template-freemarker</module>
     </modules>
 
 </project>
