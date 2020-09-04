@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -178,13 +179,8 @@ public class UserService {
    * @see         <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@NonNull Long uid, @NonNull byte[] image) {
-    try {
-      String imageString = new String(image);
-      AvatarUpdate avatarUpdate = new AvatarUpdate().image(imageString);
-      userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    String imageBase64 = Base64.getEncoder().encodeToString(image);
+    this.updateAvatarOfUser(uid, imageBase64);
   }
 
   /**
@@ -195,14 +191,8 @@ public class UserService {
    * @see               <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@NonNull Long uid, @NonNull InputStream imageStream) throws IOException {
-    try {
-      byte[] bytes = IOUtils.toByteArray(imageStream);
-      String imageString = new String(bytes);
-      AvatarUpdate avatarUpdate = new AvatarUpdate().image(imageString);
-      userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    byte[] bytes = IOUtils.toByteArray(imageStream);
+    this.updateAvatarOfUser(uid, bytes);
   }
 
   /**

@@ -43,6 +43,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -216,7 +217,8 @@ class UserServiceTest {
     this.service.updateAvatarOfUser(1234L, bytes);
     this.service.updateAvatarOfUser(1234L, inputStream);
 
-    verify(spiedUserApi, times(3)).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image("iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s")));
+    verify(spiedUserApi).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image("iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s")));
+    verify(spiedUserApi, times(2)).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image(Base64.getEncoder().encodeToString(bytes))));
 
   }
 
