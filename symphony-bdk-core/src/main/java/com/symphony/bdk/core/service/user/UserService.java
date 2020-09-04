@@ -63,10 +63,10 @@ public class UserService {
 
   /**
    * Retrieve user details of a particular user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    *
    * @param uid User Id
-   * @return Details of the user.
+   * @return    Details of the user.
+   * @see       <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    */
   public V2UserDetail getUserDetailByUid(@NonNull Long uid) {
     try {
@@ -78,9 +78,9 @@ public class UserService {
 
   /**
    * Retrieve all users in the company (pod).
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
    *
    * @return List of retrieved users
+   * @see    <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
    */
   public List<V2UserDetail> listUsersDetail() {
     try {
@@ -93,10 +93,10 @@ public class UserService {
 
   /**
    * Retrieve a list of users in the company (pod) by a filter.
-   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    *
-   * @param filter using to filter users by
-   * @return List of retrieved users
+   * @param filter  using to filter users by
+   * @return        List of retrieved users
+   * @see           <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    */
   public List<V2UserDetail> listUsersDetail(@NonNull UserFilter filter) {
     try {
@@ -109,10 +109,10 @@ public class UserService {
 
   /**
    * Add a role to an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    *
-   * @param uid User Id
-   * @param roleId Role Id
+   * @param uid     User Id
+   * @param roleId  Role Id
+   * @see           <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
   public void addRoleToUser(@NonNull Long uid, @NonNull RoleId roleId) {
     try {
@@ -125,10 +125,10 @@ public class UserService {
 
   /**
    * Remove a role from an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    *
-   * @param uid User Id
-   * @param roleId Role Id
+   * @param uid     User Id
+   * @param roleId  Role Id
+   * @see           <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
   public void removeRoleFromUser(@NonNull Long uid, @NonNull RoleId roleId) {
     try {
@@ -141,10 +141,10 @@ public class UserService {
 
   /**
    * Get the url of avatar of an user
-   * @see <a href="https://developers.symphony.com/restapi/reference#user-avatar">User Avatar</a>
    *
    * @param uid User Id
-   * @return List of avatar urls of the user
+   * @return    List of avatar urls of the user
+   * @see       <a href="https://developers.symphony.com/restapi/reference#user-avatar">User Avatar</a>
    */
   public List<Avatar> getAvatarFromUser(@NonNull Long uid) {
     try {
@@ -156,10 +156,10 @@ public class UserService {
 
   /**
    * Update avatar of an user
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    *
-   * @param uid User Id
+   * @param uid   User Id
    * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
+   * @see         <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@NonNull Long uid, @NonNull String image) {
     try {
@@ -172,10 +172,10 @@ public class UserService {
 
   /**
    * Update avatar of an user
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    *
-   * @param uid User Id
+   * @param uid   User Id
    * @param image The avatar image in bytes array for the user profile picture.
+   * @see         <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@NonNull Long uid, @NonNull byte[] image) {
     try {
@@ -189,10 +189,10 @@ public class UserService {
 
   /**
    * Update avatar of an user
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    *
-   * @param uid User Id
+   * @param uid         User Id
    * @param imageStream The avatar image input stream for the user profile picture.
+   * @see               <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@NonNull Long uid, @NonNull InputStream imageStream) throws IOException {
     try {
@@ -207,10 +207,10 @@ public class UserService {
 
   /**
    * Get disclaimer assigned to an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#user-disclaimer">User Disclaimer</a>
    *
    * @param uid User Id
-   * @return Disclaimer assigned to the user.
+   * @return    Disclaimer assigned to the user.
+   * @see       <a href="https://developers.symphony.com/restapi/reference#user-disclaimer">User Disclaimer</a>
    */
   public Disclaimer getDisclaimerAssignedToUser(@NonNull Long uid) {
     try {
@@ -222,9 +222,9 @@ public class UserService {
 
   /**
    * Unassign disclaimer from an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#unassign-user-disclaimer">Unassign User Disclaimer</a>
    *
    * @param uid User Id
+   * @see       <a href="https://developers.symphony.com/restapi/reference#unassign-user-disclaimer">Unassign User Disclaimer</a>
    */
   public void unAssignDisclaimerFromUser(@NonNull Long uid) {
     try {
@@ -236,10 +236,10 @@ public class UserService {
 
   /**
    * Assign disclaimer to an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    *
-   * @param uid User Id
-   * @param disclaimerId Disclaimer to be assigned
+   * @param uid           User Id
+   * @param disclaimerId  Disclaimer to be assigned
+   * @see                 <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    */
   public void assignDisclaimerToUser(@NonNull Long uid, @NonNull String disclaimerId) {
     try {
@@ -252,10 +252,10 @@ public class UserService {
 
   /**
    * Get delegates assigned to an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#delegates">User Delegates</a>
    *
    * @param uid User Id
-   * @return List of delegates assigned to an user.
+   * @return    List of delegates assigned to an user.
+   * @see       <a href="https://developers.symphony.com/restapi/reference#delegates">User Delegates</a>
    */
   public List<Long> getDelegatesAssignedToUser(@NonNull Long uid) {
     try {
@@ -267,11 +267,11 @@ public class UserService {
 
   /**
    * Update delegates assigned to an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
    *
-   * @param uid User Id
+   * @param uid             User Id
    * @param delegatedUserId Delegated user Id to be assigned
-   * @param actionEnum Action to be performed
+   * @param actionEnum      Action to be performed
+   * @see                   <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
    */
   public void updateDelegatesAssignedToUser(@NonNull Long uid, @NonNull Long delegatedUserId, @NonNull DelegateAction.ActionEnum actionEnum) {
     try {
@@ -284,10 +284,10 @@ public class UserService {
 
   /**
    * Get feature entitlements of an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#features">User Features</a>
    *
    * @param uid User Id
-   * @return List of feature entitlements of the user.
+   * @return    List of feature entitlements of the user.
+   * @see       <a href="https://developers.symphony.com/restapi/reference#features">User Features</a>
    */
   public List<Feature> getFeatureEntitlementsOfUser(@NonNull Long uid) {
     try {
@@ -299,10 +299,10 @@ public class UserService {
 
   /**
    * Update feature entitlements of an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    *
-   * @param uid User Id
-   * @param features List of feature entitlements to be updated
+   * @param uid       User Id
+   * @param features  List of feature entitlements to be updated
+   * @see             <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    */
   public void updateFeatureEntitlementsOfUser(@NonNull Long uid, @NonNull List<Feature> features) {
     try {
@@ -314,10 +314,10 @@ public class UserService {
 
   /**
    * Get status of an user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#user-status">User Status</a>
    *
    * @param uid User Id
-   * @return Status of the user.
+   * @return    Status of the user.
+   * @see       <a href="https://developers.symphony.com/restapi/reference#user-status">User Status</a>
    */
   public UserStatus getStatusOfUser(@NonNull Long uid) {
     try {
@@ -329,10 +329,10 @@ public class UserService {
 
   /**
    * Update the status of an user
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    *
-   * @param uid User Id
-   * @param status Status to be updated to the user
+   * @param uid     User Id
+   * @param status  Status to be updated to the user
+   * @see           <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    */
   public void updateStatusOfUser(@NonNull Long uid, @NonNull UserStatus status) {
     try {
@@ -345,11 +345,11 @@ public class UserService {
   /**
    * Get user by id
    *
-   * @param uid User Id
+   * @param uid   User Id
    * @param local If true then a local DB search will be performed and only local pod users will be
-   *             returned. If absent or false then a directory search will be performed and users
-   *             from other pods who are visible to the calling user will also be returned.
-   * @return User found by uid
+   *              returned. If absent or false then a directory search will be performed and users
+   *              from other pods who are visible to the calling user will also be returned.
+   * @return      User found by uid
    */
   public UserV2 getUserById(@NonNull Long uid, @NonNull Boolean local) {
     try {
@@ -363,7 +363,7 @@ public class UserService {
    * Get user by id
    *
    * @param uid User Id
-   * @return User found by uid
+   * @return    User found by uid
    */
   public UserV2 getUserById(@NonNull Long uid) {
     try {
@@ -376,11 +376,11 @@ public class UserService {
   /**
    * Get user by email
    *
-   * @param email Email address of the user
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *             returned. If absent or false then a directory search will be performed and users
-   *             from other pods who are visible to the calling user will also be returned.
-   * @return User found by email
+   * @param email   Email address of the user
+   * @param local   If true then a local DB search will be performed and only local pod users will be
+   *                returned. If absent or false then a directory search will be performed and users
+   *                from other pods who are visible to the calling user will also be returned.
+   * @return        User found by email
    */
   public UserV2 getUserByEmail(@NonNull String email, @NonNull Boolean local) {
     try {
@@ -394,7 +394,7 @@ public class UserService {
    * Get user by email
    *
    * @param email Email address of the user
-   * @return User found by email
+   * @return      User found by email
    */
   public UserV2 getUserByEmail(@NonNull String email) {
     try {
@@ -407,8 +407,8 @@ public class UserService {
   /**
    * Get user within a local pod by username
    *
-   * @param username Username of the user
-   * @return User found by username
+   * @param username  Username of the user
+   * @return          User found by username
    */
   public UserV2 getUserByUsername(@NonNull String username) {
     try {
@@ -420,13 +420,13 @@ public class UserService {
 
   /**
    * Search user by list of user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param uidList List of user ids
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *             returned. If absent or false then a directory search will be performed and users
-   *             from other pods who are visible to the calling user will also be returned.
-   * @return Users found by user ids
+   * @param local   If true then a local DB search will be performed and only local pod users will be
+   *                returned. If absent or false then a directory search will be performed and users
+   *                from other pods who are visible to the calling user will also be returned.
+   * @return        Users found by user ids
+   * @see           <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @NonNull Boolean local) {
     try {
@@ -440,10 +440,10 @@ public class UserService {
 
   /**
    * Search user by list of user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param uidList List of user ids
-   * @return Users found by user ids
+   * @return        Users found by user ids
+   * @see           <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
     try {
@@ -457,13 +457,13 @@ public class UserService {
 
   /**
    * Search user by list of email addresses.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param emailList List of email addresses
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *             returned. If absent or false then a directory search will be performed and users
-   *             from other pods who are visible to the calling user will also be returned.
-   * @return Users found by emails.
+   * @param local     If true then a local DB search will be performed and only local pod users will be
+   *                  returned. If absent or false then a directory search will be performed and users
+   *                  from other pods who are visible to the calling user will also be returned.
+   * @return          Users found by emails.
+   * @see             <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @NonNull Boolean local) {
     try {
@@ -477,10 +477,10 @@ public class UserService {
 
   /**
    * Search user by list of email addresses.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param emailList List of email addresses
-   * @return Users found by emails.
+   * @return          Users found by emails.
+   * @see             <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
     try {
@@ -494,10 +494,10 @@ public class UserService {
 
   /**
    * Search user by list of usernames.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
-   * @param usernameList List of usernames
-   * @return Users found by usernames
+   * @param usernameList  List of usernames
+   * @return              Users found by usernames
+   * @see                 <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
     try {
@@ -511,13 +511,13 @@ public class UserService {
 
   /**
    * Search user by a complicated search query.
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    *
    * @param query Searching query containing complicated information like title, location, company...
    * @param local If true then a local DB search will be performed and only local pod users will be
    *              returned. If absent or false then a directory search will be performed and users
    *              from other pods who are visible to the calling user will also be returned.
-   * @return List of users found by query
+   * @return      List of users found by query
+   * @see         <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query, @Nullable Boolean local) {
     try {

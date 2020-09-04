@@ -2,6 +2,7 @@ package com.symphony.bdk.core.service.user.constant;
 
 /**
  * Static roles that have special logic attached to them.
+ * @see <a href="https://developers.symphony.com/restapi/docs/permissions">Symphony Roles</a>
  */
 public enum RoleId {
   ADMINISTRATOR,
