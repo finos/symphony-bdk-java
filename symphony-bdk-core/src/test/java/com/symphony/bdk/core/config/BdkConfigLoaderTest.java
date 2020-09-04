@@ -1,18 +1,23 @@
 package com.symphony.bdk.core.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 public class BdkConfigLoaderTest {
 
@@ -66,7 +71,7 @@ public class BdkConfigLoaderTest {
             String configPath = "/wrong_path/config.yaml";
             BdkConfigLoader.loadFromFile(configPath);
         });
-        assertEquals(exception.getMessage(), "Config file is not found");
+        assertEquals(exception.getMessage(), "Config file has not been found");
     }
 
     @Test
@@ -111,5 +116,20 @@ public class BdkConfigLoaderTest {
         assertEquals(config.getSessionAuth().getHost(), "devx1.symphony.com");
         assertEquals(config.getSessionAuth().getPort(), 8443);
         assertEquals(config.getSessionAuth().getContext(), "context");
+    }
+
+    //@Test
+    // CircleCI does not allow to create file in the home directory
+    void testLoadConfigFromSymphonyDirectory() throws Exception {
+
+      final String tmpConfigFileName = UUID.randomUUID().toString() + "-config.yaml";
+      final Path tmpConfigPath = Paths.get(System.getProperty("user.home"), ".symphony", tmpConfigFileName);
+      final InputStream configInputStream = this.getClass().getResourceAsStream("/config/config.yaml");
+      IOUtils.copy(configInputStream, new FileOutputStream(tmpConfigPath.toFile()));
+
+      final BdkConfig config = BdkConfigLoader.loadFromSymphonyDir(tmpConfigFileName);
+      assertNotNull(config);
+
+      Files.delete(tmpConfigPath);
     }
 }

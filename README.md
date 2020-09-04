@@ -38,3 +38,6 @@ Still in construction, the 2.0 modules are deactivated by default but can be act
 ./mvnw clean install -P2.0,-legacy
 ```
 
+## License
+
+The Symphony BDK is Open Source software released under the [MIT License](./LICENSE).

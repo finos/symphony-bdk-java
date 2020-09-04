@@ -14,6 +14,7 @@ import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.service.user.constant.RoleId;
+import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
@@ -353,7 +354,7 @@ class UserServiceTest {
     List<Feature> features = this.service.getFeatureEntitlementsOfUser(1234L);
 
     assertEquals(features.size(), 4);
-    assertEquals(features.get(0).getEntitlment(), "canCreatePublicRoom");
+    assertEquals(features.get(0).getEntitlment(), UserFeature.canCreatePublicRoom.name());
     assertEquals(features.get(1).getEnabled(), false);
   }
 

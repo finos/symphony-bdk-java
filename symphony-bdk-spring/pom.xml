@@ -8,7 +8,7 @@
     </modules>
 
     <parent>
-        <artifactId>symphony-api-client-java-parent</artifactId>
+        <artifactId>symphony-bdk-java</artifactId>
         <groupId>com.symphony.platformsolutions</groupId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>

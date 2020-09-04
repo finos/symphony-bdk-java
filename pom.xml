@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.symphony.platformsolutions</groupId>
-    <artifactId>symphony-api-client-java-parent</artifactId>
+    <artifactId>symphony-bdk-java</artifactId>
     <version>1.2.0-SNAPSHOT</version>
     <name>Symphony Java BDK Project</name>
     <description>Symphony Java BDK Parent</description>

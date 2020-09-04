@@ -98,6 +98,7 @@ public class UserService {
    * @param filter  using to filter users by
    * @return        List of retrieved users
    * @see           <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see           com.symphony.bdk.core.service.user.constant.UserFeature
    */
   public List<V2UserDetail> listUsersDetail(@NonNull UserFilter filter) {
     try {

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>symphony-api-client-java-parent</artifactId>
+        <artifactId>symphony-bdk-java</artifactId>
         <groupId>com.symphony.platformsolutions</groupId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
@@ -19,7 +19,7 @@
         <mapstruct.version>1.3.1.Final</mapstruct.version>
 
         <!-- Code Gen -->
-        <openapi-generator-maven-plugin.version>4.3.0</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>4.3.1</openapi-generator-maven-plugin.version>
         <codegen.generatorName>java</codegen.generatorName>
         <codegen.invoker.library>jersey2</codegen.invoker.library>
         <codegen.base.package>com.symphony.bdk.gen.api</codegen.base.package>
@@ -148,6 +148,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
             <scope>test</scope>
@@ -232,11 +237,7 @@
                 <configuration>
                     <excludes>
                         <!-- No need to cover models, exceptions and configs, mostly getters and setters -->
-                        <exclude>com/symphony/bdk/core/**/*Adapter.class</exclude>
-                        <exclude>com/symphony/bdk/core/**/*Type.class</exclude>
-                        <exclude>com/symphony/bdk/core/**/*Config.class</exclude>
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
-                        <exclude>com/symphony/bdk/core/**/*Constant.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
                         <!-- Exclude Thibault's temporary classes from coverage -->

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>symphony-api-client-java-parent</artifactId>
+        <artifactId>symphony-bdk-java</artifactId>
         <groupId>com.symphony.platformsolutions</groupId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
@@ -39,6 +39,7 @@
         <junit.version>RELEASE</junit.version>
         <logback.version>1.2.3</logback.version>
         <mockito.version>3.4.6</mockito.version>
+        <mockito-junit-jupiter.version>3.3.3</mockito-junit-jupiter.version>
         <mockserver.version>5.11.1</mockserver.version>
 
     </properties>
@@ -238,6 +239,12 @@
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito-junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
