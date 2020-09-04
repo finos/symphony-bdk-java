@@ -5,6 +5,7 @@ import static utils.HttpClientBuilderHelper.getHttpClientBuilderWithTruststore;
 import clients.symphony.api.constants.AgentConstants;
 import clients.symphony.api.constants.CommonConstants;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import exceptions.SymClientException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +84,10 @@ public class SymLoadBalancedConfig extends SymConfig {
                 newAgent = agentServers.get(currentAgentIndex);
                 break;
             case external:
-                actualAgentHost = getActualAgentHost();
+                if (agentServers.size() != 1) {
+                  throw new SymClientException("Load balancing configuration with method \"external\" must contain only one agent server");
+                }
+                actualAgentHost = getActualAgentHost(agentServers.get(0));
                 newAgent = actualAgentHost;
                 break;
             default:
@@ -95,11 +99,9 @@ public class SymLoadBalancedConfig extends SymConfig {
      * Retrieves actual Agent FQDN (Fully Qualified Domain Name) by calling /agent/v1/info endpoint.
      * @return actual Agent host
      */
-    protected String getActualAgentHost() {
-
-        // using "super" to ensure that we retrieve fqdn through the LB
-        final String uri = super.getAgentUrl();
-
+    protected String getActualAgentHost(String externalLoadBalancerUrl) {
+        // we assume host + port + context is put in the agentServers in the lb-config
+        final String uri = CommonConstants.HTTPS_PREFIX + externalLoadBalancerUrl;
         final Response response = getHttpClientBuilderWithTruststore(this).build().target(uri)
             .path(AgentConstants.INFO)
             .request(MediaType.APPLICATION_JSON)
