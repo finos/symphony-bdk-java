@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 import model.*;
 import model.events.AdminStreamInfoList;
+import net.bytebuddy.implementation.bind.MethodDelegationBinder;
 import net.minidev.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -89,7 +90,7 @@ public class AdminClientTest extends BotTest {
       assertEquals("OMI", outMessageList.get(0).getOriginalMessageId());
       assertEquals("Z3oQRAZGTCNl5KjiUH2G1n___qr9lLT8dA", outMessageList.get(0).getStreamId());
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -235,7 +236,7 @@ public class AdminClientTest extends BotTest {
       assertEquals(true, result.isSuppressed());
       assertEquals(1461565603191L, result.getSuppressionDate());
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -516,7 +517,7 @@ public class AdminClientTest extends BotTest {
           verifyAttributes(adminStreamAttributes, createdByUserId, createdDate, lastModifiedDate, originCompany, originCompanyId, membersCounts, lastMessageDate, listMembers);
         }
       }
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -599,7 +600,7 @@ public class AdminClientTest extends BotTest {
       assertNotNull(streamId);
       assertEquals("xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA", streamId);
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -766,7 +767,7 @@ public class AdminClientTest extends BotTest {
       assertEquals("small", avatar.getSize());
       assertEquals("../avatars/static/50/default.png", avatar.getUrl());
 
-    } catch (NoContentException nce) {
+    } catch (final NoContentException nce) {
       fail();
     }
   }
@@ -784,7 +785,7 @@ public class AdminClientTest extends BotTest {
     AdminUserInfo adminUser = null;
     try {
       adminUser = adminClient.getUser(1L);
-    } catch (NoContentException e) {
+    } catch (final NoContentException e) {
       e.printStackTrace();
     }
     assertNotNull(adminUser);
@@ -806,7 +807,7 @@ public class AdminClientTest extends BotTest {
     AdminUserInfo adminUser = null;
     try {
       adminUser = adminClient.getUser(1L);
-    } catch (NoContentException e) {
+    } catch (final NoContentException e) {
       e.printStackTrace();
     }
     assertNotNull(adminUser);
@@ -828,7 +829,7 @@ public class AdminClientTest extends BotTest {
     AdminUserInfo adminUser = null;
     try {
       adminUser = adminClient.getUser(1L);
-    } catch (NoContentException e) {
+    } catch (final NoContentException e) {
       e.printStackTrace();
     }
     assertNotNull(adminUser);
@@ -847,7 +848,7 @@ public class AdminClientTest extends BotTest {
     AdminUserInfo adminUser = null;
     try {
       adminUser = adminClient.getUser(1L);
-    } catch (NoContentException e) {
+    } catch (final NoContentException e) {
       e.printStackTrace();
     }
     assertNotNull(adminUser);
@@ -995,7 +996,7 @@ public class AdminClientTest extends BotTest {
           verifyUserSystemInfo(adminUserInfo, adminUserSystemInfo, expectedId, expectedStatus, expectedCreatedDate, expectedCratedBy, expectedLastUpdatedDate, expectedLastLoginDate, expectedRoles);
         }
       }
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -1196,7 +1197,7 @@ public class AdminClientTest extends BotTest {
       assertEquals(1, roles.size());
       assertEquals("INDIVIDUAL", roles.get(0));
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -1363,7 +1364,7 @@ public class AdminClientTest extends BotTest {
       assertEquals(1, roles.size());
       assertEquals("INDIVIDUAL", roles.get(0));
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -1479,7 +1480,7 @@ public class AdminClientTest extends BotTest {
         assertEquals(expectedUrls.get(i), avatarList.get(i).getUrl());
       }
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -1565,9 +1566,9 @@ public class AdminClientTest extends BotTest {
 
       adminClient.updateAvatar(1L, AdminClientTest.class.getResource("/avatar.png").getFile());
       assertTrue(true);
-    } catch (IOException io) {
+    } catch (final IOException io) {
       fail();
-    } catch (SymClientException e){
+    } catch (final SymClientException e){
       fail();
     }
   }
@@ -1585,7 +1586,7 @@ public class AdminClientTest extends BotTest {
 
     try {
       adminClient.updateAvatar(1L, AdminClientTest.class.getResource("/avatar.png").getFile());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       e.printStackTrace();
     }
   }
@@ -1606,7 +1607,7 @@ public class AdminClientTest extends BotTest {
 
     try {
       adminClient.updateAvatar(1L, AdminClientTest.class.getResource("/avatar.png").getFile());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       e.printStackTrace();
     }
   }
@@ -1627,7 +1628,7 @@ public class AdminClientTest extends BotTest {
 
     try {
       adminClient.updateAvatar(1L, AdminClientTest.class.getResource("/avatar.png").getFile());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       e.printStackTrace();
     }
   }
@@ -1645,7 +1646,7 @@ public class AdminClientTest extends BotTest {
 
     try {
       adminClient.updateAvatar(1L, AdminClientTest.class.getResource("/avatar.png").getFile());
-    } catch (IOException e) {
+    } catch (final IOException e) {
       e.printStackTrace();
     }
   }
@@ -1668,7 +1669,7 @@ public class AdminClientTest extends BotTest {
       final String status = adminClient.getUserStatus(1L);
       assertNotNull(status);
       assertEquals("ENABLED", status);
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -1748,7 +1749,7 @@ public class AdminClientTest extends BotTest {
       assertNotNull(adminClient);
       adminClient.updateUserStatus(1L, "DISABLED");
       assertTrue(true);
-    } catch (SymClientException e){
+    } catch (final SymClientException e){
       fail();
     }
   }
@@ -1880,7 +1881,7 @@ public class AdminClientTest extends BotTest {
       assertEquals("canViewInternalScreenShareMobile", features.get(22));
       assertEquals("canManageSignalSubscription", features.get(23));
 
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
@@ -2019,7 +2020,7 @@ public class AdminClientTest extends BotTest {
         assertEquals(expectedEntitlement, featureEntitlement.getEntitlment());
         assertEquals(expectedEnable, featureEntitlement.getEnabled());
       }
-    } catch (SymClientException e){
+    } catch (final SymClientException e){
       fail();
     }
   }
@@ -2106,8 +2107,8 @@ public class AdminClientTest extends BotTest {
 
       assertTrue(true);
 
-    } catch (SymClientException e) {
-      e.printStackTrace();
+    } catch (final SymClientException e) {
+      fail();
     }
   }
 
@@ -2258,9 +2259,9 @@ public class AdminClientTest extends BotTest {
           }
         }
       }
-    } catch(SymClientException e){
-        fail();
-      }
+    } catch(final SymClientException e){
+      fail();
+    }
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -2418,7 +2419,7 @@ public class AdminClientTest extends BotTest {
           }
         }
       }
-    } catch (SymClientException e) {
+    } catch (final SymClientException e) {
       fail();
     }
   }
