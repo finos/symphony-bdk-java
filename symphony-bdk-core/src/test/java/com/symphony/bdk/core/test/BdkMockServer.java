@@ -57,34 +57,25 @@ public class BdkMockServer {
   }
 
   public void onRequest(String method, String path, Consumer<HttpResponse> resModifier) {
-
-    final HttpResponse httpResponse = response()
-        .withContentType(MediaType.APPLICATION_JSON_UTF_8)
-        .withStatusCode(200);
-
-    resModifier.accept(httpResponse);
-
-    this.mockServerClient
-        .when(request().withMethod(method).withPath(path))
-        .respond(httpResponse);
+    this.onRequestWithResponseCode(method, 200, path, resModifier);
   }
 
   public void onPostFailed(int errorCode, String path, Consumer<HttpResponse> resModifier) {
-    this.onRequestFailed("POST", errorCode, path, resModifier);
+    this.onRequestWithResponseCode("POST", errorCode, path, resModifier);
   }
 
   public void onGetFailed(int errorCode, String path, Consumer<HttpResponse> resModifier) {
-    this.onRequestFailed("GET", errorCode, path, resModifier);
+    this.onRequestWithResponseCode("GET", errorCode, path, resModifier);
   }
 
   public void onDeleteFailed(int errorCode, String path, Consumer<HttpResponse> resModifier) {
-    this.onRequestFailed("DELETE", errorCode, path, resModifier);
+    this.onRequestWithResponseCode("DELETE", errorCode, path, resModifier);
   }
 
-  public void onRequestFailed(String method, int errorCode, String path, Consumer<HttpResponse> resModifier) {
+  public void onRequestWithResponseCode(String method, int responseCode, String path, Consumer<HttpResponse> resModifier) {
     final HttpResponse httpResponse = response()
         .withContentType(MediaType.APPLICATION_JSON_UTF_8)
-        .withStatusCode(errorCode);
+        .withStatusCode(responseCode);
 
     resModifier.accept(httpResponse);
     this.mockServerClient

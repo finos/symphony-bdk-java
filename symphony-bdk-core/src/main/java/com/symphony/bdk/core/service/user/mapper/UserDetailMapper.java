@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.service.user;
+package com.symphony.bdk.core.service.user.mapper;
 
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserDetail;

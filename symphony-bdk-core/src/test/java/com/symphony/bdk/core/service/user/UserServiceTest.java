@@ -1,9 +1,10 @@
 package com.symphony.bdk.core.service.user;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
@@ -12,6 +13,8 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.service.user.constant.RoleId;
+import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.ResResponseHelper;
@@ -37,7 +40,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -101,20 +106,30 @@ class UserServiceTest {
   }
 
   @Test
-  void listUsersDetailByFilterTest(final BdkMockServer mockServer) throws IOException {
+  void listUsersDetailTest(final BdkMockServer mockServer) throws IOException {
     String responseV2 = ResResponseHelper.readResResponseFromClasspath("/user/list_users_detail_v2.json");
-    String responseV1 = ResResponseHelper.readResResponseFromClasspath("/user/list_users_detail_v1.json");
     mockServer.onGet(V2_USER_LIST, res -> res.withBody(responseV2));
+    List<V2UserDetail> UserDetails = this.service.listUsersDetail();
+
+    assertEquals(UserDetails.size(), 5);
+    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+  }
+
+  @Test
+  void listUsersDetailTestFailed(final BdkMockServer mockServer) {
+    mockServer.onGetFailed(400, V2_USER_LIST, res -> res.withBody("{}"));
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.listUsersDetail());
+  }
+
+  @Test
+  void listUsersDetailByFilterTest(final BdkMockServer mockServer) throws IOException {
+    String responseV1 = ResResponseHelper.readResResponseFromClasspath("/user/list_users_detail_v1.json");
+
     mockServer.onPost(USER_FIND, res -> res.withBody(responseV1));
-
-    List<V2UserDetail> v2UserDetails = this.service.listUsersDetailByFilter(null);
-
-    assertEquals(v2UserDetails.size(), 5);
-    assertEquals(v2UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
-    assertEquals(v2UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
-
     UserFilter userFilter = new UserFilter();
-    List<V2UserDetail> userDetails = this.service.listUsersDetailByFilter(userFilter);
+    List<V2UserDetail> userDetails = this.service.listUsersDetail(userFilter);
 
     assertEquals(userDetails.size(), 4);
     assertEquals(userDetails.get(2).getUserAttributes().getUserName(), "bot.user");
@@ -122,11 +137,18 @@ class UserServiceTest {
   }
 
   @Test
+  void listUsersDetailByFilterTestFailed(final BdkMockServer mockServer) {
+    mockServer.onPostFailed(400, USER_FIND, res -> res.withBody("{}"));
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.listUsersDetail(new UserFilter()));
+  }
+
+  @Test
   void addRoleToUserTest(final BdkMockServer mockServer) throws ApiException {
     mockServer.onPost(ADD_ROLE_TO_USER.replace("{uid}", "1234"),
         res -> res.withBody("{\"format\": \"TEXT\", \"message\": \"Role added\"}"));
 
-    this.service.addRoleToUser(1234L, "INDIVIDUAL");
+    this.service.addRoleToUser(1234L, RoleId.INDIVIDUAL);
 
     verify(spiedUserApi).v1AdminUserUidRolesAddPost(eq("1234"), eq(1234L), eq(new StringId().id("INDIVIDUAL")));
   }
@@ -135,7 +157,7 @@ class UserServiceTest {
   void addRoleToUserTestFailed(final BdkMockServer mockServer) {
     mockServer.onPostFailed(400, ADD_ROLE_TO_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.addRoleToUser(1234L, "INDIVIDUAL"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.addRoleToUser(1234L, RoleId.INDIVIDUAL));
   }
 
   @Test
@@ -143,7 +165,7 @@ class UserServiceTest {
     mockServer.onPost(REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"),
         res -> res.withBody("{\"format\": \"TEXT\", \"message\": \"Role removed\"}"));
 
-    this.service.removeRoleFromUser(1234L, "INDIVIDUAL");
+    this.service.removeRoleFromUser(1234L, RoleId.INDIVIDUAL);
 
     verify(spiedUserApi).v1AdminUserUidRolesRemovePost(eq("1234"), eq(1234L), eq(new StringId().id("INDIVIDUAL")));
   }
@@ -152,7 +174,7 @@ class UserServiceTest {
   void removeRoleFromUserTestFailed(final BdkMockServer mockServer) {
     mockServer.onPostFailed(400, REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.removeRoleFromUser(1234L, "INDIVIDUAL"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.removeRoleFromUser(1234L, RoleId.INDIVIDUAL));
   }
 
   @Test
@@ -183,20 +205,31 @@ class UserServiceTest {
   }
 
   @Test
-  void updateAvatarOfUserTest(final BdkMockServer mockServer) throws ApiException {
+  void updateAvatarOfUserTest(final BdkMockServer mockServer) throws ApiException, IOException {
     mockServer.onPost(UPDATE_AVATAR_OF_USER.replace("{uid}", "1234"),
         res -> res.withBody("{\"format\": \"TEXT\", \"message\": \"OK\"}"));
+    String avatar = "iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s";
+    byte[] bytes = avatar.getBytes();
+    InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    this.service.updateAvatarOfUser(1234L, "image");
+    this.service.updateAvatarOfUser(1234L, avatar);
+    this.service.updateAvatarOfUser(1234L, bytes);
+    this.service.updateAvatarOfUser(1234L, inputStream);
 
-    verify(spiedUserApi).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image("image")));
+    verify(spiedUserApi, times(3)).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image("iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s")));
+
   }
 
   @Test
   void updateAvatarOfUserTestFailed(final BdkMockServer mockServer) {
     mockServer.onPostFailed(400, UPDATE_AVATAR_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+    String avatar = "iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s";
+    byte[] bytes = avatar.getBytes();
+    InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, "image"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, avatar));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, bytes));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, inputStream));
   }
 
   @Test
@@ -403,15 +436,29 @@ class UserServiceTest {
     assertEquals(user3.getId(), 1234L);
     assertEquals(user3.getUsername(), "tibot");
     assertEquals(user3.getDisplayName(), "Test Bot");
+
+    UserV2 user4 = this.service.getUserById(1234L);
+
+    assertEquals(user4.getId(), 1234L);
+    assertEquals(user4.getUsername(), "tibot");
+    assertEquals(user4.getDisplayName(), "Test Bot");
+
+    UserV2 user5 = this.service.getUserByEmail("tibot@symphony.com");
+
+    assertEquals(user5.getId(), 1234L);
+    assertEquals(user5.getUsername(), "tibot");
+    assertEquals(user5.getDisplayName(), "Test Bot");
   }
 
   @Test
-  void getUserByIdTestFailed(final BdkMockServer mockServer) {
+  void getUserV2TestFailed(final BdkMockServer mockServer) {
     mockServer.onGetFailed(400, GET_USER_V2, res -> res.withBody("{}"));
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getUserById(1234L, true));
     assertThrows(ApiRuntimeException.class, () -> this.service.getUserByEmail("tibot@symphony.com", true));
     assertThrows(ApiRuntimeException.class, () -> this.service.getUserByUsername("tibot"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getUserById(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getUserByEmail("tibot@symphony.com"));
   }
 
   @Test
@@ -433,6 +480,16 @@ class UserServiceTest {
 
     assertEquals(users3.size(), 1);
     assertEquals(users3.get(0).getId(), 1234L);
+
+    List<UserV2> users4 = this.service.searchUserByIds(Collections.singletonList(1234L));
+
+    assertEquals(users4.size(), 1);
+    assertEquals(users4.get(0).getId(), 1234L);
+
+    List<UserV2> users5 = this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"));
+
+    assertEquals(users5.size(), 1);
+    assertEquals(users5.get(0).getId(), 1234L);
   }
 
   @Test
@@ -442,6 +499,8 @@ class UserServiceTest {
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L), true));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com")));
   }
 
   @Test

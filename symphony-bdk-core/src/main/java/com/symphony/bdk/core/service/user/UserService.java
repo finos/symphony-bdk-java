@@ -3,6 +3,8 @@ package com.symphony.bdk.core.service.user;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.user.constant.RoleId;
+import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -22,14 +24,17 @@ import com.symphony.bdk.gen.api.model.V2UserList;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 /**
- * A class for implementing the user service.
+ * Service class for managing users.
  *
  * This service is used for retrieving information about a particular user,
  * search users by ids, emails or usernames, perform some action related to
@@ -58,6 +63,8 @@ public class UserService {
 
   /**
    * Retrieve user details of a particular user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
+   *
    * @param uid User Id
    * @return Details of the user.
    */
@@ -70,17 +77,29 @@ public class UserService {
   }
 
   /**
+   * Retrieve all users in the company (pod).
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   *
+   * @return List of retrieved users
+   */
+  public List<V2UserDetail> listUsersDetail() {
+    try {
+      return userApi.v2AdminUserListGet(authSession.getSessionToken(), null, null);
+
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
    * Retrieve a list of users in the company (pod) by a filter.
-   * If no filter is given, retrieving all users in the company (pod).
+   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    *
    * @param filter using to filter users by
    * @return List of retrieved users
    */
-  public List<V2UserDetail> listUsersDetailByFilter(@Nullable UserFilter filter) {
+  public List<V2UserDetail> listUsersDetail(@NonNull UserFilter filter) {
     try {
-      if (filter == null) {
-        return userApi.v2AdminUserListGet(authSession.getSessionToken(), null, null);
-      }
       List<UserDetail> userDetailList = userApi.v1AdminUserFindPost(authSession.getSessionToken(), filter, null, null);
       return userDetailList.stream().map(UserDetailMapper.INSTANCE::userDetailToV2UserDetail).collect(Collectors.toList());
     } catch (ApiException apiException) {
@@ -90,13 +109,14 @@ public class UserService {
 
   /**
    * Add a role to an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    *
    * @param uid User Id
    * @param roleId Role Id
    */
-  public void addRoleToUser(@NonNull Long uid, @NonNull String roleId) {
+  public void addRoleToUser(@NonNull Long uid, @NonNull RoleId roleId) {
     try {
-      StringId stringId = new StringId().id(roleId);
+      StringId stringId = new StringId().id(roleId.name());
       userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), uid, stringId);
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -105,12 +125,14 @@ public class UserService {
 
   /**
    * Remove a role from an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
+   *
    * @param uid User Id
    * @param roleId Role Id
    */
-  public void removeRoleFromUser(@NonNull Long uid, @NonNull String roleId) {
+  public void removeRoleFromUser(@NonNull Long uid, @NonNull RoleId roleId) {
     try {
-      StringId stringId = new StringId().id(roleId);
+      StringId stringId = new StringId().id(roleId.name());
       userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), uid, stringId);
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -119,6 +141,8 @@ public class UserService {
 
   /**
    * Get the url of avatar of an user
+   * @see <a href="https://developers.symphony.com/restapi/reference#user-avatar">User Avatar</a>
+   *
    * @param uid User Id
    * @return List of avatar urls of the user
    */
@@ -132,6 +156,8 @@ public class UserService {
 
   /**
    * Update avatar of an user
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
+   *
    * @param uid User Id
    * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
    */
@@ -145,7 +171,43 @@ public class UserService {
   }
 
   /**
+   * Update avatar of an user
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
+   *
+   * @param uid User Id
+   * @param image The avatar image in bytes array for the user profile picture.
+   */
+  public void updateAvatarOfUser(@NonNull Long uid, @NonNull byte[] image) {
+    try {
+      String imageString = new String(image);
+      AvatarUpdate avatarUpdate = new AvatarUpdate().image(imageString);
+      userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate);
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
+   * Update avatar of an user
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
+   *
+   * @param uid User Id
+   * @param imageStream The avatar image input stream for the user profile picture.
+   */
+  public void updateAvatarOfUser(@NonNull Long uid, @NonNull InputStream imageStream) throws IOException {
+    try {
+      byte[] bytes = IOUtils.toByteArray(imageStream);
+      String imageString = new String(bytes);
+      AvatarUpdate avatarUpdate = new AvatarUpdate().image(imageString);
+      userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate);
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
    * Get disclaimer assigned to an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#user-disclaimer">User Disclaimer</a>
    *
    * @param uid User Id
    * @return Disclaimer assigned to the user.
@@ -160,6 +222,7 @@ public class UserService {
 
   /**
    * Unassign disclaimer from an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#unassign-user-disclaimer">Unassign User Disclaimer</a>
    *
    * @param uid User Id
    */
@@ -173,6 +236,7 @@ public class UserService {
 
   /**
    * Assign disclaimer to an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    *
    * @param uid User Id
    * @param disclaimerId Disclaimer to be assigned
@@ -188,6 +252,7 @@ public class UserService {
 
   /**
    * Get delegates assigned to an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#delegates">User Delegates</a>
    *
    * @param uid User Id
    * @return List of delegates assigned to an user.
@@ -202,6 +267,7 @@ public class UserService {
 
   /**
    * Update delegates assigned to an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
    *
    * @param uid User Id
    * @param delegatedUserId Delegated user Id to be assigned
@@ -218,6 +284,7 @@ public class UserService {
 
   /**
    * Get feature entitlements of an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#features">User Features</a>
    *
    * @param uid User Id
    * @return List of feature entitlements of the user.
@@ -232,6 +299,7 @@ public class UserService {
 
   /**
    * Update feature entitlements of an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    *
    * @param uid User Id
    * @param features List of feature entitlements to be updated
@@ -246,6 +314,7 @@ public class UserService {
 
   /**
    * Get status of an user.
+   * @see <a href="https://developers.symphony.com/restapi/reference#user-status">User Status</a>
    *
    * @param uid User Id
    * @return Status of the user.
@@ -260,6 +329,7 @@ public class UserService {
 
   /**
    * Update the status of an user
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    *
    * @param uid User Id
    * @param status Status to be updated to the user
@@ -281,9 +351,23 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return User found by uid
    */
-  public UserV2 getUserById(@NonNull Long uid, @Nullable Boolean local) {
+  public UserV2 getUserById(@NonNull Long uid, @NonNull Boolean local) {
     try {
       return usersApi.v2UserGet(authSession.getSessionToken(), uid, null, null, local);
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
+   * Get user by id
+   *
+   * @param uid User Id
+   * @return User found by uid
+   */
+  public UserV2 getUserById(@NonNull Long uid) {
+    try {
+      return usersApi.v2UserGet(authSession.getSessionToken(), uid, null, null, false);
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
     }
@@ -298,7 +382,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return User found by email
    */
-  public UserV2 getUserByEmail(@NonNull String email, @Nullable Boolean local) {
+  public UserV2 getUserByEmail(@NonNull String email, @NonNull Boolean local) {
     try {
       return usersApi.v2UserGet(authSession.getSessionToken(), null, email, null, local);
     } catch (ApiException apiException) {
@@ -308,6 +392,20 @@ public class UserService {
 
   /**
    * Get user by email
+   *
+   * @param email Email address of the user
+   * @return User found by email
+   */
+  public UserV2 getUserByEmail(@NonNull String email) {
+    try {
+      return usersApi.v2UserGet(authSession.getSessionToken(), null, email, null, false);
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
+   * Get user within a local pod by username
    *
    * @param username Username of the user
    * @return User found by username
@@ -322,6 +420,7 @@ public class UserService {
 
   /**
    * Search user by list of user ids
+   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param uidList List of user ids
    * @param local If true then a local DB search will be performed and only local pod users will be
@@ -329,7 +428,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return Users found by user ids
    */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @Nullable Boolean local) {
+  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @NonNull Boolean local) {
     try {
       String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
       V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local);
@@ -340,7 +439,25 @@ public class UserService {
   }
 
   /**
+   * Search user by list of user ids
+   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   *
+   * @param uidList List of user ids
+   * @return Users found by user ids
+   */
+  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
+    try {
+      String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false);
+      return v2UserList.getUsers();
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
    * Search user by list of email addresses.
+   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param emailList List of email addresses
    * @param local If true then a local DB search will be performed and only local pod users will be
@@ -348,7 +465,7 @@ public class UserService {
    *             from other pods who are visible to the calling user will also be returned.
    * @return Users found by emails.
    */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @Nullable Boolean local) {
+  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @NonNull Boolean local) {
     try {
       String emails = String.join(",", emailList);
       V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local);
@@ -359,7 +476,25 @@ public class UserService {
   }
 
   /**
+   * Search user by list of email addresses.
+   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   *
+   * @param emailList List of email addresses
+   * @return Users found by emails.
+   */
+  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
+    try {
+      String emails = String.join(",", emailList);
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false);
+      return v2UserList.getUsers();
+    } catch (ApiException apiException) {
+      throw new ApiRuntimeException(apiException);
+    }
+  }
+
+  /**
    * Search user by list of usernames.
+   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    *
    * @param usernameList List of usernames
    * @return Users found by usernames
@@ -376,6 +511,7 @@ public class UserService {
 
   /**
    * Search user by a complicated search query.
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    *
    * @param query Searching query containing complicated information like title, location, company...
    * @param local If true then a local DB search will be performed and only local pod users will be

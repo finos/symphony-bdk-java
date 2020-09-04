@@ -24,7 +24,7 @@ public class UserExampleMain {
     SymphonyBdk bdk = new SymphonyBdk(config);
     UserFilter filter = new UserFilter().status(UserFilter.StatusEnum.DISABLED).feature("canCreatePublicRoom");
     log.info("Get user by filter");
-    List<V2UserDetail> userDetailList = bdk.users().listUsersDetailByFilter(filter);
+    List<V2UserDetail> userDetailList = bdk.users().listUsersDetail(filter);
     log.info("Retrieve {} records", userDetailList.size());
     log.info("First record: ");
     log.info(userDetailList.get(0).getUserAttributes().getUserName());
