@@ -1,16 +1,11 @@
 package authentication;
 
-import static internal.jersey.JerseyHelper.isNotSuccess;
-import static internal.jersey.JerseyHelper.isSuccess;
-
 import clients.symphony.api.APIClient;
-import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.AuthenticationException;
 import internal.FileHelper;
 import internal.jersey.JerseyHelper;
 import io.github.resilience4j.core.IntervalFunction;
-import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import lombok.SneakyThrows;
@@ -20,16 +15,6 @@ import org.glassfish.jersey.client.ClientConfig;
 import utils.HttpClientBuilderHelper;
 import utils.JwtHelper;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeoutException;
-
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -37,7 +22,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.ws.WebServiceException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
+
+import static internal.jersey.JerseyHelper.isNotSuccess;
 
 @Slf4j
 public class SymBotRSAAuth extends APIClient implements ISymAuth {
