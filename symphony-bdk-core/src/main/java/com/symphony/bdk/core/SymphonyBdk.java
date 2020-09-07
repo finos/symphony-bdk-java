@@ -17,10 +17,16 @@ import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.DefaultApi;
+import com.symphony.bdk.gen.api.MessageApi;
+import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 
+import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.SessionApi;
+import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 
 import com.symphony.bdk.gen.api.UsersApi;
@@ -74,7 +80,9 @@ public class SymphonyBdk {
   }
 
   public MessageService messages() {
-    return new MessageService(new MessagesApi(this.agentClient), this.botSession);
+    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.agentClient),
+        new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
+        new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), this.botSession);
   }
 
   public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
@@ -84,7 +92,9 @@ public class SymphonyBdk {
     } else {
       oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
     }
-    return new MessageService(new MessagesApi(this.agentClient), oboSession);
+    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.agentClient),
+        new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
+        new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), oboSession);
   }
 
   /**

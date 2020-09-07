@@ -3,6 +3,8 @@ package com.symphony.bdk.core.api.invoker.jersey2;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
 
+import com.symphony.bdk.core.api.invoker.utils.ApiUtils;
+
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.ClientConfig;
@@ -45,7 +47,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     connectionTimeout = 15000;
     readTimeout = 60000;
     temporaryFolderPath = null;
-    withUserAgent("Symphony BDK/" + getBdkVersion() + "/java/1.8");
+    withUserAgent(ApiUtils.getUserAgent());
   }
 
   /**
@@ -140,12 +142,6 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClientBuilder withReadTimeout(int readTimeout) {
     this.readTimeout = readTimeout;
     return this;
-  }
-
-  private String getBdkVersion() {
-    String jarVersion = getClass().getPackage().getImplementationVersion();
-
-    return jarVersion == null ? "2.0" : jarVersion;
   }
 
   private ClientConfig createClientConfig() {
