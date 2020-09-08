@@ -18,7 +18,6 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.template.api.TemplateException;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -39,12 +38,10 @@ public class MessageExampleMain {
 
     //use templates
     final V4Message sentWithBuiltInTemplate = bdk.messages().send(STREAM_ID, "simpleMML",
-        new HashMap<String, String>() {{
-          put("message", "Hello from a built-in template!");
-        }});
+        Collections.singletonMap("message", "Hello from a built-in template!"));
 
     final V4Message sendWithCustomTemplate = bdk.messages()
-        .send(STREAM_ID, "customTemplate.ftl", new HashMap<String, String>());
+        .send(STREAM_ID, "customTemplate.ftl", Collections.emptyMap());
 
     //retrieve the details of existing messages
     final V4Message message = bdk.messages().getMessage(MESSAGE_ID);

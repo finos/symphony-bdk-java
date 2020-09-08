@@ -3,7 +3,7 @@ package com.symphony.bdk.core.api.invoker.jersey2;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
 
-import com.symphony.bdk.core.api.invoker.utils.ApiUtils;
+import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;

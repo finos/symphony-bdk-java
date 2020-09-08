@@ -3,9 +3,9 @@ package com.symphony.bdk.core.service;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
-import com.symphony.bdk.core.api.invoker.utils.ApiUtils;
+import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.util.SupplierWithApiException;
+import com.symphony.bdk.core.api.invoker.util.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
