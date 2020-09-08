@@ -1,5 +1,7 @@
 package com.symphony.bdk.examples;
 
+import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
+
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -15,13 +17,9 @@ import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.template.api.TemplateException;
 
-import sun.jvm.hotspot.ui.tree.SimpleTreeModel;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 /**
  * This demonstrates a basic usage of the message service.
