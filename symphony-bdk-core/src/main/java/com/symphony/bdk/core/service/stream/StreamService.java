@@ -5,10 +5,8 @@ import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.StreamsApi;
-
 import com.symphony.bdk.gen.api.model.RoomDetail;
 import com.symphony.bdk.gen.api.model.Stream;
-
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
@@ -18,14 +16,12 @@ import com.symphony.bdk.gen.api.model.V2MembershipList;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
-
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
-
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +60,9 @@ public class StreamService {
    * If there is an existing IM conversation with the same set of participants then
    * the id of that existing stream will be returned.
    *
-   * @param uids List of user ids of the participants
+   * If the given list of user ids contains only one id, an IM will be created, otherwise, a MIM will be created.
+   *
+   * @param uids List of user ids of the participants.
    * @return The created IM or MIM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
@@ -77,16 +75,18 @@ public class StreamService {
   }
 
   /**
-   * Create a new single instant message conversation between the caller and specified user.
+   * Create a new single or multi party instant message conversation between the caller and specified user.
    *
    * The caller is implicitly included in the members of the created chat.
    *
-   * @param uid User id of the participant
+   * If only one user id is given, an IM will be created, otherwise, a MIM will be created.
+   *
+   * @param uids User ids of the participant
    * @return The created IM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
-  public Stream create(Long uid) {
-    return this.create(Collections.singletonList(uid));
+  public Stream create(Long... uids) {
+    return this.create(Arrays.asList(uids));
   }
 
   /**
