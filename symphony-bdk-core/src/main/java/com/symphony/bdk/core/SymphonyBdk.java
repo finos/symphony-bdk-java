@@ -16,11 +16,13 @@ import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 
 import com.symphony.bdk.gen.api.SessionApi;
+import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 
 import com.symphony.bdk.gen.api.UsersApi;
@@ -46,6 +48,7 @@ public class SymphonyBdk {
 
   private final DatafeedService datafeedService;
   private final UserService userService;
+  private final StreamService streamService;
   private final SessionService sessionService;
   private final ActivityRegistry activityRegistry;
 
@@ -69,6 +72,7 @@ public class SymphonyBdk {
     }
     // setup other services
     this.userService = new UserService(new UserApi(this.podClient), new UsersApi(this.podClient), this.botSession);
+    this.streamService = new StreamService(new StreamsApi(this.podClient), this.botSession);
     this.sessionService = new SessionService(new SessionApi(this.podClient));
     this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(this.botSession), this.datafeedService::subscribe);
   }
@@ -104,6 +108,15 @@ public class SymphonyBdk {
    */
   public UserService users() {
     return this.userService;
+  }
+
+  /**
+   * Get the {@link StreamService} from a Bdk entry point.
+   *
+   * @return {@link StreamService} user service instance.
+   */
+  public StreamService streams() {
+    return this.streamService;
   }
 
   /**

@@ -1,0 +1,36 @@
+{
+    "count":2,
+    "skip":0,
+    "limit":100,
+    "members":[
+        {
+            "user":{
+                "userId":8933531975688,
+                "email":"john.doe@acme.com",
+                "firstName":"John",
+                "lastName":"Doe",
+                "displayName":"John Doe",
+                "company":"Acme",
+                "companyId":130,
+                "isExternal":false
+            },
+            "isOwner":false,
+            "isCreator":false,
+            "joinDate":1485366753320
+        },
+        {
+            "user":{
+                "userId":8933531975689,
+                "firstName":"Alice",
+                "lastName":"Smith",
+                "displayName":"Alice Smith",
+                "company":"Gotham",
+                "companyId":131,
+                "isExternal":true
+            },
+            "isOwner":true,
+            "isCreator":true,
+            "joinDate":1485366753279
+        }
+    ]
+}
