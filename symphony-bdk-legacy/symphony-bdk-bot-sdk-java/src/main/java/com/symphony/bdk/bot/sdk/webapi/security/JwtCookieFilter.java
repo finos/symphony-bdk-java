@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * Filter to pull JWT data from request cookies adding it as authorization
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author Marcus Secato
  *
  */
+@ConditionalOnProperty(prefix = "jwt-cookie", name = "enable", havingValue = "true", matchIfMissing = true)
 public class JwtCookieFilter implements Filter {
   private static final Logger LOGGER = LoggerFactory.getLogger(JwtCookieFilter.class);
   public static final String JWT_COOKIE_NAME = "userJwt";
