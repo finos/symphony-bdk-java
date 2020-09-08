@@ -44,7 +44,7 @@ public class BotTest extends ServerTest {
                     "  ]\r\n" +
                     "}")));
 
-        stubFor(post(urlEqualTo("/login/pubkay/authenticate"))
+        stubFor(post(urlEqualTo("/login/pubkey/authenticate"))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
             .willReturn(aResponse()
                 .withStatus(200)

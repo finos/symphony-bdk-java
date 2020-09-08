@@ -137,7 +137,7 @@ public class UsersClientTest extends BotTest {
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody(readResourceContent("/response_content/user_client/session_user.json"))));
+            .withBody(readResourceContent("/response_content/session/session_user.json"))));
 
     UserInfo userInfo = usersClient.getSessionUser();
     assertNotNull(userInfo);
