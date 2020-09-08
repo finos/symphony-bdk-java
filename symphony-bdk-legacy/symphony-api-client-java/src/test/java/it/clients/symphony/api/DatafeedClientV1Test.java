@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NoContentException;
 
 import model.DatafeedEvent;
 import model.EventPayload;
@@ -23,6 +22,7 @@ import model.InboundMessage;
 import model.Initiator;
 import model.Stream;
 import model.User;
+import model.datafeed.DatafeedV2;
 import model.events.MessageSent;
 import org.junit.Before;
 import org.junit.Test;
@@ -323,4 +323,96 @@ public class DatafeedClientV1Test extends BotTest {
     }
   }
   // End readDatafeed
+
+  // listDatafeedId
+  @Test(expected = UnsupportedOperationException.class)
+  public void listDatafeedIdFailure() {
+    stubFor(get(urlEqualTo(AgentConstants.LISTDATAFEEDV2.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"id\": \"CszQa6uPAA9\","
+                + "\"createdAt\": 1536346282592"
+                + "}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedV2> datafeedEventList = datafeedClient.listDatafeedId();
+  }
+  // End listDatafeedId
+
+  // deleteDatafeed
+  @Test(expected = UnsupportedOperationException.class)
+  public void deleteDatafeedFailure() {
+    stubFor(get(urlEqualTo(AgentConstants.DELETEDATAFEEDV2.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"id\": \"CszQa6uPAA9\","
+                + "\"createdAt\": 1536346282592"
+                + "}")));
+
+    assertNotNull(datafeedClient);
+
+    datafeedClient.deleteDatafeed("1");
+  }
+  // End deleteDatafeed
+
+  // getAckId
+  @Test(expected = UnsupportedOperationException.class)
+  public void getAckIdFailure() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(200)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("[\r\n" +
+                "    {\r\n" +
+                "        \"id\": \"ulPr8a:eFFDL7\",\r\n" +
+                "        \"messageId\": \"CszQa6uPAA9V\",\r\n" +
+                "        \"timestamp\": 1536346282592,\r\n" +
+                "        \"type\": \"MESSAGESENT\",\r\n" +
+                "        \"initiator\": {\r\n" +
+                "            \"user\": {\r\n" +
+                "                \"userId\": 1456852,\r\n" +
+                "                \"displayName\": \"Local Bot01\",\r\n" +
+                "                \"email\": \"bot.user1@test.com\",\r\n" +
+                "                \"username\": \"bot.user1\"\r\n" +
+                "            }\r\n" +
+                "        },\r\n" +
+                "        \"payload\": {\r\n" +
+                "            \"messageSent\": {\r\n" +
+                "                \"message\": {\r\n" +
+                "                    \"messageId\": \"CszQa6uPAA9\",\r\n" +
+                "                    \"timestamp\": 1536346282592,\r\n" +
+                "                    \"message\": \"<div data-format=\\\"PresentationML\\\" data-version=\\\"2.0\\\">Hello World</div>\",\r\n" +
+                "                    \"data\": \"{\\\"entityIdentifier\\\":{\\\"type\\\":\\\"org.symphonyoss.fin.security\\\",\\\"version\\\":\\\"0.1\\\",\\\"id\\\":[{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.isin\\\",\\\"value\\\":\\\"US0378\\\"},{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.cusip\\\",\\\"value\\\":\\\"037\\\"},{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.openfigi\\\",\\\"value\\\":\\\"BBG000\\\"}]}}\",\r\n" +
+                "                    \"user\": {\r\n" +
+                "                        \"userId\": 14568529,\r\n" +
+                "                        \"displayName\": \"Local Bot01\",\r\n" +
+                "                        \"email\": \"bot.user1@ntest.com\",\r\n" +
+                "                        \"username\": \"bot.user1\"\r\n" +
+                "                    },\r\n" +
+                "                    \"stream\": {\r\n" +
+                "                        \"streamId\": \"wTmSDJSNPXgB\",\r\n" +
+                "                        \"streamType\": \"ROOM\"\r\n" +
+                "                    },\r\n" +
+                "                    \"externalRecipients\": false,\r\n" +
+                "                    \"userAgent\": \"Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64\",\r\n" +
+                "                    \"originalFormat\": \"com.symphony.messageml.v2\"\r\n" +
+                "                }\r\n" +
+                "            }\r\n" +
+                "        }\r\n" +
+                "    }\r\n" +
+                "]")));
+
+    assertNotNull(datafeedClient);
+
+    final String ackId = datafeedClient.getAckId();
+  }
+  // End getAckId
 }
