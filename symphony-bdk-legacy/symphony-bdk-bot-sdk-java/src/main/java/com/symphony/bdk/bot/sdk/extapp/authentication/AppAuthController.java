@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,9 @@ import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
 @RequestMapping(value = {"/application", "/applications"})
 public class AppAuthController {
   private static final Logger LOGGER = LoggerFactory.getLogger(AppAuthController.class);
+
+  @Value("${jwt-cookie.enable:true}")
+  private Boolean jwtCookieEnable;
 
   private ExtensionAppAuthClient extAppAuthClient;
   private ConfigClient configClient;
@@ -85,7 +89,9 @@ public class AppAuthController {
     try {
       String jwt = jwtInfo.getJwt();
       Long userId = extAppAuthClient.verifyJWT(jwt);
-      response.addCookie(jwtCookie(jwt, request.getContextPath()));
+      if(jwtCookieEnable) {
+        response.addCookie(jwtCookie(jwt, request.getContextPath()));
+      }
 
       return ResponseEntity.ok(userId);
     } catch (AppAuthenticateException aae) {

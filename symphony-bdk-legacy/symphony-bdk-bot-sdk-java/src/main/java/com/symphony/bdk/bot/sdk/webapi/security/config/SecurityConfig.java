@@ -70,7 +70,7 @@ public class SecurityConfig {
     return registrationBean;
   }
 
-  @Bean
+  @ConditionalOnProperty(prefix = "jwt-cookie", name = "enable")
   public FilterRegistrationBean<JwtCookieFilter> jwtCookieFilter(ConfigClient configClient) {
     FilterRegistrationBean<JwtCookieFilter> registrationBean = new FilterRegistrationBean<>();
     registrationBean.setFilter(new JwtCookieFilter());
