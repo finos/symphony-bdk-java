@@ -33,7 +33,7 @@ import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
 public class AppAuthController {
   private static final Logger LOGGER = LoggerFactory.getLogger(AppAuthController.class);
 
-  @Value("${jwt-cookie.enable:true}")
+  @Value("${jwt-cookie.enable:false}")
   private Boolean jwtCookieEnable;
 
   private ExtensionAppAuthClient extAppAuthClient;

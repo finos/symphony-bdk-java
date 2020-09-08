@@ -30,7 +30,7 @@ public class JwtCookieBeanTest {
   }
 
   @Test
-  public void testShouldBeEnabledWithouProperty() {
-    runner.run(context -> context.assertThat().hasSingleBean(JwtCookieFilter.class));
+  public void testShouldBeDisabledWithouProperty() {
+    runner.run(context -> context.assertThat().doesNotHaveBean(JwtCookieFilter.class));
   }
 }

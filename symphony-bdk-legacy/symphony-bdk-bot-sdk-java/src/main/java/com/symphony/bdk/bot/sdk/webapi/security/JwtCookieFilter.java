@@ -30,7 +30,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
  * @author Marcus Secato
  *
  */
-@ConditionalOnProperty(prefix = "jwt-cookie", name = "enable", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "jwt-cookie", name = "enable", havingValue = "true")
 public class JwtCookieFilter implements Filter {
   private static final Logger LOGGER = LoggerFactory.getLogger(JwtCookieFilter.class);
   public static final String JWT_COOKIE_NAME = "userJwt";
