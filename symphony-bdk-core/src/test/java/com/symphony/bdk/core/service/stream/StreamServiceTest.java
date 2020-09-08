@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class StreamServiceTest {
@@ -69,7 +68,8 @@ public class StreamServiceTest {
   void createIMorMIMTest() {
     this.mockApiClient.onPost(V1_IM_CREATE, "{\"id\": \"xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA\"}");
 
-    Stream stream = this.service.createIMorMIM(Collections.singletonList(7215545078541L));
+    Stream stream = this.service.create(Arrays.asList(7215545078541L, 7215512356741L));
+
     assertEquals(stream.getId(), "xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA");
   }
 
@@ -77,7 +77,23 @@ public class StreamServiceTest {
   void createIMorMIMTestFailed() {
     this.mockApiClient.onPostFailed(400, V1_IM_CREATE, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.createIMorMIM(Collections.singletonList(7215545078541L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.create(Arrays.asList(7215545078541L, 7215512356741L)));
+  }
+
+  @Test
+  void createIMTest() {
+    this.mockApiClient.onPost(V1_IM_CREATE, "{\"id\": \"xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA\"}");
+
+    Stream stream = this.service.create(7215545078541L);
+
+    assertEquals(stream.getId(), "xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA");
+  }
+
+  @Test
+  void createIMTestFailed() {
+    this.mockApiClient.onPostFailed(400, V1_IM_CREATE, "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.create(7215545078541L));
   }
 
   @Test
@@ -85,7 +101,7 @@ public class StreamServiceTest {
     this.mockApiClient.onPost(V3_ROOM_CREATE, ResResponseHelper.readResResponseFromClasspath(
         "/stream/v3_room_detail.json"));
 
-    V3RoomDetail roomDetail = this.service.createRoomChat(new V3RoomAttributes());
+    V3RoomDetail roomDetail = this.service.create(new V3RoomAttributes());
 
     assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
     assertEquals(roomDetail.getRoomAttributes().getDescription(), "Created via the API");
@@ -96,7 +112,7 @@ public class StreamServiceTest {
   void createRoomChatTestFailed() {
     this.mockApiClient.onPostFailed(400, V3_ROOM_CREATE, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.createRoomChat(new V3RoomAttributes()));
+    assertThrows(ApiRuntimeException.class, () -> this.service.create(new V3RoomAttributes()));
   }
 
   @Test
@@ -226,7 +242,7 @@ public class StreamServiceTest {
   void createAdminIMorMIMTest() {
     this.mockApiClient.onPost(V1_IM_CREATE_ADMIN, "{\n\"id\": \"xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA\"\n}");
 
-    Stream stream = this.service.createAdminIMorMIM(Arrays.asList(7215545078541L, 7215545078461L));
+    Stream stream = this.service.createInstantMessageAdmin(Arrays.asList(7215545078541L, 7215545078461L));
 
     assertEquals(stream.getId(), "xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA");
   }
@@ -235,7 +251,7 @@ public class StreamServiceTest {
   void createAdminIMorMIMTestFailed() {
     this.mockApiClient.onPostFailed(400, V1_IM_CREATE_ADMIN, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.createAdminIMorMIM(Arrays.asList(7215545078541L, 7215545078461L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.createInstantMessageAdmin(Arrays.asList(7215545078541L, 7215545078461L)));
   }
 
   @Test

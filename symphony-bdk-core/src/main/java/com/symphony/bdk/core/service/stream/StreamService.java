@@ -25,6 +25,7 @@ import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,12 +68,25 @@ public class StreamService {
    * @return The created IM or MIM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
-  public Stream createIMorMIM(List<Long> uids) {
+  public Stream create(List<Long> uids) {
     try {
       return streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids);
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
     }
+  }
+
+  /**
+   * Create a new single instant message conversation between the caller and specified user.
+   *
+   * The caller is implicitly included in the members of the created chat.
+   *
+   * @param uid User id of the participant
+   * @return The created IM
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
+   */
+  public Stream create(Long uid) {
+    return this.create(Collections.singletonList(uid));
   }
 
   /**
@@ -83,7 +97,7 @@ public class StreamService {
    * @return The created chatroom
    * @see <a href="https://developers.symphony.com/restapi/reference#create-room-v3">Create Room V3</a>
    */
-  public V3RoomDetail createRoomChat(V3RoomAttributes roomAttributes) {
+  public V3RoomDetail create(V3RoomAttributes roomAttributes) {
     try {
       return streamsApi.v3RoomCreatePost(authSession.getSessionToken(), roomAttributes);
     } catch (ApiException apiException) {
@@ -218,7 +232,7 @@ public class StreamService {
    * @return The created IM or MIM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim-admin">Create IM or MIM Non-inclusive</a>
    */
-  public Stream createAdminIMorMIM(List<Long> uids) {
+  public Stream createInstantMessageAdmin(List<Long> uids) {
     try {
       return streamsApi.v1AdminImCreatePost(authSession.getSessionToken(), uids);
     } catch (ApiException apiException) {
