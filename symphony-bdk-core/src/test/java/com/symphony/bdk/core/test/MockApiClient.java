@@ -29,10 +29,10 @@ import javax.ws.rs.core.Response;
 
 public class MockApiClient {
 
+  private static final ObjectMapper MAPPER = new JsonMapper();
   private final Client httpClient;
   private final WebTarget webTarget;
   private final Invocation.Builder invocationBuilder;
-  private static final ObjectMapper MAPPER = new JsonMapper();
 
   public MockApiClient() {
     this.httpClient = mock(Client.class);
@@ -77,11 +77,11 @@ public class MockApiClient {
     this.onRequestWithResponseCode("POST", 200, path, resContent);
   }
 
-  public void onGetFailed(int statusCode, String path, String resContent) {
+  public void onGet(int statusCode, String path, String resContent) {
     this.onRequestWithResponseCode("GET", statusCode, path, resContent);
   }
 
-  public void onPostFailed(int statusCode, String path, String resContent) {
+  public void onPost(int statusCode, String path, String resContent) {
     this.onRequestWithResponseCode("POST", statusCode, path, resContent);
   }
 

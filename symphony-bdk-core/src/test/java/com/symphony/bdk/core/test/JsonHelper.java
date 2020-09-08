@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-public class ResResponseHelper {
+public class JsonHelper {
 
-    public static String readResResponseFromClasspath(String file) throws IOException {
-        InputStream resourceStream = ResResponseHelper.class.getResourceAsStream(file);
+    public static String readFromClasspath(String file) throws IOException {
+        InputStream resourceStream = JsonHelper.class.getResourceAsStream(file);
         return IOUtils.toString(resourceStream, StandardCharsets.UTF_8.name());
     }
 }
