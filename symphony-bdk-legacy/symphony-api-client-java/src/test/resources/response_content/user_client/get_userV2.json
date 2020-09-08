@@ -1,0 +1,21 @@
+{
+    "id": "1",
+    "emailAddress": "bot@symphony.com",
+    "firstName": "Bot",
+    "lastName": "Smith",
+    "displayName": "Bot Smith",
+    "title": "Sales",
+    "company": "Acme",
+    "username": "botusername",
+    "location": "San Francisco",
+    "avatars": [
+        {
+            "size": "original",
+            "url": "../avatars/static/150/default.png"
+        },
+        {
+            "size": "small",
+            "url": "../avatars/static/50/default.png"
+        }
+    ]
+}

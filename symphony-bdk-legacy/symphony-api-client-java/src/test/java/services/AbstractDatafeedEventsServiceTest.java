@@ -5,7 +5,6 @@ import clients.symphony.api.DatafeedClient;
 import configuration.SymConfig;
 import listeners.ConnectionListener;
 import listeners.ElementsListener;
-import listeners.FirehoseListener;
 import listeners.IMListener;
 import listeners.RoomListener;
 import lombok.SneakyThrows;
@@ -55,7 +54,7 @@ public class AbstractDatafeedEventsServiceTest {
     when(datafeedClient.getAckId()).thenReturn("ackId123");
   }
 
-  //region Listerners Test
+  //region Listeners Test
   @Test
   public void addRoomListenersTest() {
     MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
@@ -385,7 +384,7 @@ public class AbstractDatafeedEventsServiceTest {
 
     DatafeedEventsService datafeedEventsService = new DatafeedEventsService(symBotClient);
     ConnectionListener listener = createConnectionListener();
-    datafeedEventsService.addConnectionsListener(listener);
+    datafeedEventsService.addListeners(listener);
     Thread.sleep(150);
 
     verify(listener, atLeastOnce()).onConnectionRequested(user);
