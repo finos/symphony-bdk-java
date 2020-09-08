@@ -123,7 +123,7 @@ public class BdkApiClientsConfig {
 
   @Bean
   public MessageApi messageApi() {
-    return new MessageApi(agentApiClient());
+    return new MessageApi(podApiClient());
   }
 
   @Bean

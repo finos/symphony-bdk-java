@@ -260,7 +260,7 @@ public class MessageService {
    * @return a {@link MessageIdsFromStream} object containing the list of messageIds.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
    */
-  public MessageIdsFromStream getMessageIdsByTimestampV2(@Nonnull String streamId, Long since, Long to, Integer limit, Integer skip) {
+  public MessageIdsFromStream getMessageIdsByTimestamp(@Nonnull String streamId, Long since, Long to, Integer limit, Integer skip) {
     return callAndCatchApiException(() ->
         defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, since, to, limit, skip));
   }

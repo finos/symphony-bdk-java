@@ -80,7 +80,7 @@ public class SymphonyBdk {
   }
 
   public MessageService messages() {
-    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.agentClient),
+    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.podClient),
         new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
         new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), this.botSession);
   }
@@ -92,7 +92,7 @@ public class SymphonyBdk {
     } else {
       oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
     }
-    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.agentClient),
+    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.podClient),
         new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
         new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), oboSession);
   }
