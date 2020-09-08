@@ -3,10 +3,6 @@ package com.symphony.bdk.template.api;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-
 /**
  * Class to ease resolution of a {@link Template} based on a {@link TemplateEngine} and a name,
  * which can be a built-in template name, a path to a resource in the classpath,

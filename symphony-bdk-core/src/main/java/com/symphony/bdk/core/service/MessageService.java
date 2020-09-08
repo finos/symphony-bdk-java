@@ -242,7 +242,7 @@ public class MessageService {
    */
   public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, Long since, Long to, Integer limit,
       Boolean isSortAscending) {
-    final String sortDir = isSortAscending != null && isSortAscending.booleanValue() ? "ASC" : "DESC";
+    final String sortDir = isSortAscending == null || isSortAscending.booleanValue() ? "ASC" : "DESC";
     return callAndCatchApiException(() ->
         streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), since, to, limit, sortDir));
   }
