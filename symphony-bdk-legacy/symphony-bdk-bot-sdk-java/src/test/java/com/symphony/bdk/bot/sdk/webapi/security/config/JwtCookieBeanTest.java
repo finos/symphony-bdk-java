@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-public class JwtCookieDisabledTest {
+public class JwtCookieBeanTest {
 
   private final ApplicationContextRunner runner = new ApplicationContextRunner()
       .withInitializer(new ConditionEvaluationReportLoggingListener())
