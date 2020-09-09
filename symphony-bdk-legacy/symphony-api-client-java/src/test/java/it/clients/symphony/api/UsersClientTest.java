@@ -2,6 +2,10 @@ package it.clients.symphony.api;
 
 import clients.symphony.api.UsersClient;
 import clients.symphony.api.constants.PodConstants;
+import exceptions.APIClientErrorException;
+import exceptions.ForbiddenException;
+import exceptions.ServerErrorException;
+import exceptions.SymClientException;
 import it.commons.BotTest;
 
 import java.io.IOException;
@@ -89,6 +93,7 @@ public class UsersClientTest extends BotTest {
     }
   }
 
+  //region Test GetUsersV3
   @Test
   public void getUsersV3Success() throws IOException {
     stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=15942919536460%2C15942919536461&local=true")))
@@ -109,6 +114,103 @@ public class UsersClientTest extends BotTest {
       fail();
     }
   }
+
+  @Test
+  public void getUsersV3Status204() {
+    stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
+        .withQueryParam("local", equalTo("true"))
+        .willReturn(aResponse()
+            .withStatus(204)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    try {
+      List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
+      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+      assertTrue(userInfoList.isEmpty());
+    } catch (NoContentException e) {
+      fail();
+    }
+  }
+
+  @Test(expected = APIClientErrorException.class)
+  public void getUsersV3Status400() {
+    stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
+        .withQueryParam("local", equalTo("true"))
+        .willReturn(aResponse()
+            .withStatus(400)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    try {
+      List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
+      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+    } catch (NoContentException e) {
+      fail();
+    }
+  }
+
+  @Test(expected = SymClientException.class)
+  public void getUsersV3Status401() throws IOException {
+    stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
+        .withQueryParam("local", equalTo("true"))
+        .willReturn(aResponse()
+            .withStatus(401)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody(readResourceContent("/response_content/error/unauthorized_error.json"))));
+
+    try {
+      List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
+      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+    } catch (NoContentException e) {
+      fail();
+    }
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void getUsersV3Status403() throws IOException {
+    stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
+        .withQueryParam("local", equalTo("true"))
+        .willReturn(aResponse()
+            .withStatus(403)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody(readResourceContent("/response_content/error/forbidden_error.json"))));
+
+    try {
+      List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
+      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+    } catch (NoContentException e) {
+      fail();
+    }
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void getUsersV3Status500() {
+    stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
+        .withQueryParam("local", equalTo("true"))
+        .willReturn(aResponse()
+            .withStatus(500)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    try {
+      List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
+      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+    } catch (NoContentException e) {
+      fail();
+    }
+  }
+  //endregion
 
   @Test
   public void searchUsersSuccess() throws IOException {
