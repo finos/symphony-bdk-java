@@ -54,44 +54,74 @@ public class DatafeedClientV2Test extends BotTest {
         datafeedClient = symBotClient.getDatafeedClient();
     }
 
+    // createDatafeed
   @Test
-  public void createDatafeedSuccess() throws IOException {
-    stubPost(AgentConstants.CREATEDATAFEEDV2,
-        readResourceContent("/response_content/datafeedv2/create_datafeedv2.json"));
+  public void createDatafeedSuccess201() throws IOException {
+    stubPost(AgentConstants.CREATEDATAFEEDV2.replace("{id}", "8e7c8672220723985e8c42485edft85eg9ef7"),
+        readResourceContent("/response_content/datafeedv2/create_datafeedv2.json"), 201);
 
     try {
 
       assertNotNull(datafeedClient);
 
       final String datafeedId = datafeedClient.createDatafeed();
+      assertNotNull(datafeedId);
 
-      assertEquals("21449143d35a86461e254d28697214b4_f", datafeedId);
+      assertEquals("8e7c8672220723985e8c42485edft85eg9ef7", datafeedId);
 
     } catch (SymClientException e) {
       fail();
     }
   }
 
+  @Test(expected = APIClientErrorException.class)
+  public void createDatafeedFailure400() throws IOException {
+    stubPost(AgentConstants.CREATEDATAFEEDV2.replace("{id}", "8e7c8672220723985e8c42485edft85eg9ef7"),
+        readResourceContent("/response_content/datafeedv2/create_datafeedv2.json"), 400);
+
+    assertNotNull(datafeedClient);
+
+    final String datafeed = datafeedClient.createDatafeed();
+  }
+
+  @Test(expected = SymClientException.class)
+  public void createDatafeedFailure401() throws IOException {
+    stubPost(AgentConstants.CREATEDATAFEEDV2.replace("{id}", "8e7c8672220723985e8c42485edft85eg9ef7"),
+        readResourceContent("/response_content/datafeedv2/create_datafeedv2.json"), 401);
+
+    assertNotNull(datafeedClient);
+
+    final String datafeed = datafeedClient.createDatafeed();
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void createDatafeedFailure500() throws IOException {
+    stubPost(AgentConstants.CREATEDATAFEEDV2.replace("{id}", "8e7c8672220723985e8c42485edft85eg9ef7"),
+        readResourceContent("/response_content/datafeedv2/create_datafeedv2.json"), 500);
+
+    assertNotNull(datafeedClient);
+
+    final String datafeed = datafeedClient.createDatafeed();
+  }
+  // End createDatafeed
+
   // readDatafeed
   @Test
-  public void readDatafeedEventSuccess() throws IOException {
+  public void readDatafeedSuccess() throws IOException {
     stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
-        readResourceContent("/response_content/datafeedv2/read_datafeedv2.json"));
+        readResourceContent("/response_content/datafeedv2/read_datafeedv2.json"), 200);
 
     try {
 
       assertNotNull(datafeedClient);
 
       final List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed("21449143d35a86461e254d28697214b4_f");
-
-      assertEquals("ack_id_string", datafeedClient.getAckId());
-
+      assertNotNull(datafeedEvents);
       assertEquals(1, datafeedEvents.size());
 
       final DatafeedEvent event = datafeedEvents.get(0);
       assertNotNull(event);
-      assertEquals("ulPr8a:eFFDL7", event.getId());
-      assertEquals("CszQa6uPAA9V", event.getMessageId());
+      assertEquals("eventId", event.getId());
       assertEquals(1536346282592L, event.getTimestamp().longValue());
       assertEquals("MESSAGESENT", event.getType());
 
@@ -100,9 +130,9 @@ public class DatafeedClientV2Test extends BotTest {
       final User user = initiator.getUser();
       assertNotNull(user);
       assertEquals(1456852L, user.getUserId().longValue());
-      assertEquals("Local Bot01", user.getDisplayName());
-      assertEquals("bot.user1@test.com", user.getEmail());
-      assertEquals("bot.user1", user.getUsername());
+      assertEquals("User 1", user.getDisplayName());
+      assertEquals("user1@test.com", user.getEmail());
+      assertEquals("user1", user.getUsername());
 
       final EventPayload payload = event.getPayload();
       assertNotNull(payload);
@@ -114,13 +144,15 @@ public class DatafeedClientV2Test extends BotTest {
       assertEquals(1536346282592L, message.getTimestamp().longValue());
       final String expectedMessage = "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello World</div>";
       assertEquals(expectedMessage, message.getMessage());
+      final String expectedData = "{\"entityIdentifier\":{\"type\":\"org.symphonyoss.fin.security\",\"version\":\"0.1\",\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.isin\",\"value\":\"US0378\"},{\"type\":\"org.symphonyoss.fin.security.id.cusip\",\"value\":\"037\"},{\"type\":\"org.symphonyoss.fin.security.id.openfigi\",\"value\":\"BBG000\"}]}}";
+      assertEquals(expectedData, message.getData());
 
       final User messageUser = message.getUser();
       assertNotNull(messageUser);
-      assertEquals(14568529L, messageUser.getUserId().longValue());
-      assertEquals("Local Bot01", messageUser.getDisplayName());
-      assertEquals("bot.user1@test.com", messageUser.getEmail());
-      assertEquals("bot.user1", messageUser.getUsername());
+      assertEquals(1456852L, messageUser.getUserId().longValue());
+      assertEquals("User 1", messageUser.getDisplayName());
+      assertEquals("user1@ntest.com", messageUser.getEmail());
+      assertEquals("user1", messageUser.getUsername());
 
       final Stream stream = message.getStream();
       assertNotNull(stream);
@@ -141,11 +173,17 @@ public class DatafeedClientV2Test extends BotTest {
     stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
         "{}", 204);
 
-    assertNotNull(datafeedClient);
+    try {
 
-    final List<DatafeedEvent> events = datafeedClient.readDatafeed("21449143d35a86461e254d28697214b4_f", "ack_id_string");
-    assertNotNull(events);
-    assertTrue(events.isEmpty());
+      assertNotNull(datafeedClient);
+
+      final List<DatafeedEvent> events = datafeedClient.readDatafeed("21449143d35a86461e254d28697214b4_f", "ack_id_string");
+      assertNotNull(events);
+      assertTrue(events.isEmpty());
+
+    } catch (SymClientException e) {
+      fail();
+    }
   }
 
   @Test(expected = APIClientErrorException.class)

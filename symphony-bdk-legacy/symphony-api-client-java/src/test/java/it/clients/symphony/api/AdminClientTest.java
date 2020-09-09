@@ -762,6 +762,8 @@ public class AdminClientTest extends BotTest {
 
     } catch (final NoContentException nce) {
       fail();
+    } catch (final SymClientException e){
+      fail();
     }
   }
 

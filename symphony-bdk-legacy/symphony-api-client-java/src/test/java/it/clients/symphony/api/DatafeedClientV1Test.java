@@ -332,6 +332,7 @@ public class DatafeedClientV1Test extends BotTest {
         .willReturn(aResponse()
             .withStatus(200)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+
             .withBody("{"
                 + "\"id\": \"CszQa6uPAA9\","
                 + "\"createdAt\": 1536346282592"
