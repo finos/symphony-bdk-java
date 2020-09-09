@@ -35,6 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 
 /**
@@ -48,6 +50,9 @@ class MessageServiceTest {
   private static final String STREAM_ID = "streamId";
   private static final String MESSAGE_ID = "messageId";
   private static final String TEMPLATE_NAME = "template";
+
+  public static final Instant SINCE = Instant.now().minus(Duration.ofHours(12));
+  public static final Instant TO = Instant.now();
 
   @Mock
   private MessagesApi messagesApi;
@@ -91,7 +96,7 @@ class MessageServiceTest {
     when(messagesApi.v4StreamSidMessageGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
 
-    assertNotNull(messageService.getMessages(STREAM_ID, 0L, 0, 0));
+    assertNotNull(messageService.getMessages(STREAM_ID, SINCE, 0, 0));
   }
 
   @Test
@@ -187,7 +192,7 @@ class MessageServiceTest {
   void testListAttachmentsWithSortAscendingNull() throws ApiException {
     when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, 0L, 0L, 0, null));
+    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, null));
     verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("ASC"));
   }
 
@@ -195,7 +200,7 @@ class MessageServiceTest {
   void testListAttachmentsWithSortAscendingTrue() throws ApiException {
     when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, 0L, 0L, 0, true));
+    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, true));
     verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("ASC"));
   }
 
@@ -203,7 +208,7 @@ class MessageServiceTest {
   void testListAttachmentsWithSortAscendingFalse() throws ApiException {
     when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, 0L, 0L, 0, false));
+    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, false));
     verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("DESC"));
   }
 
@@ -211,7 +216,7 @@ class MessageServiceTest {
   void testGetMessageIdsByTimestamp() throws ApiException {
     when(defaultApi.v2AdminStreamsStreamIdMessageIdsGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(new MessageIdsFromStream());
-    assertNotNull(messageService.getMessageIdsByTimestamp(STREAM_ID, 0L, 0L, 0, 0));
+    assertNotNull(messageService.getMessageIdsByTimestamp(STREAM_ID, SINCE, TO, 0, 0));
   }
 
   @Test

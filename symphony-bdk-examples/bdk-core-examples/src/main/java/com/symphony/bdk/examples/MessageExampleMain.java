@@ -17,6 +17,8 @@ import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.template.api.TemplateException;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +30,9 @@ public class MessageExampleMain {
   public static final String STREAM_ID = "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA";
   public static final String MESSAGE = "<messageML>Hello, World!</messageML>";
   public static final String MESSAGE_ID = "LE1TxlLArVbpNKn-CXZuZn___ouXdRpnbQ";
+
+  public static final Instant SINCE = Instant.now().minus(Duration.ofHours(1));
+  public static final Instant TO = Instant.now();
 
   public static void main(String[] args)
       throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, TemplateException {
@@ -45,9 +50,9 @@ public class MessageExampleMain {
 
     //retrieve the details of existing messages
     final V4Message message = bdk.messages().getMessage(MESSAGE_ID);
-    final List<V4Message> messages = bdk.messages().getMessages(STREAM_ID, 1599474256000L, null, 2);
+    final List<V4Message> messages = bdk.messages().getMessages(STREAM_ID, SINCE, null, 2);
     final MessageIdsFromStream messageIdsByTimestamp =
-        bdk.messages().getMessageIdsByTimestamp(STREAM_ID, 1599474256000L, 1599494456000L, 2, 0);
+        bdk.messages().getMessageIdsByTimestamp(STREAM_ID, SINCE, TO, 2, 0);
 
     final MessageStatus messageStatus = bdk.messages().getMessageStatus(MESSAGE_ID);
     final MessageReceiptDetailResponse messageReceiptDetailResponse = bdk.messages().listMessageReceipts(MESSAGE_ID);
@@ -56,7 +61,7 @@ public class MessageExampleMain {
     //attachment
     final List<String> attachmentTypes = bdk.messages().getAttachmentTypes();
     final List<StreamAttachmentItem> streamAttachmentItems =
-        bdk.messages().listAttachments(STREAM_ID, 1599481767310L, 1599481767330L, 3, true);
+        bdk.messages().listAttachments(STREAM_ID, SINCE, TO, 3, true);
     final byte[] attachment = bdk.messages().getAttachment(STREAM_ID, MESSAGE_ID, "internal_14568529");
 
     //import a message

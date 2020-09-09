@@ -30,6 +30,7 @@ import com.symphony.bdk.template.api.TemplateResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.time.Instant;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -83,15 +84,14 @@ public class MessageService {
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
    * @param streamId the streamID where to look for messages
-   * @param since timestamp of the earliest possible date of the first message returned.
-   *              A Long integer value representing milliseconds since January 1, 1970.
+   * @param since instant of the earliest possible date of the first message returned.
    * @param skip number of messages to skip. Optional and defaults to 0.
    * @param limit maximum number of messages to return. Optional and defaults to 50.
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
    */
-  public List<V4Message> getMessages(@Nonnull String streamId, @Nonnull Long since, Integer skip, Integer limit) {
-    return callAndCatchApiException(() -> messagesApi.v4StreamSidMessageGet(streamId, since,
+  public List<V4Message> getMessages(@Nonnull String streamId, @Nonnull Instant since, Integer skip, Integer limit) {
+    return callAndCatchApiException(() -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), skip, limit));
   }
 
@@ -230,39 +230,35 @@ public class MessageService {
    * List attachments in a particular stream.
    *
    * @param streamId the stream ID where to look for the attachments
-   * @param since timestamp of the first required attachment.
-   *              This is an optional Long value representing milliseconds since January 1, 1970.
-   * @param to timestamp of the last required attachment.
-   *           This is an optional Long value representing milliseconds since January 1, 1970.
+   * @param since optional instant of the first required attachment.
+   * @param to optional instant of the last required attachment.
    * @param limit maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
    * @param isSortAscending optional sort order, being ascending is set to true, otherwise set to descending.
    *                        The default value is ascending.
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
-  public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, Long since, Long to, Integer limit,
+  public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, Instant since, Instant to, Integer limit,
       Boolean isSortAscending) {
     final String sortDir = isSortAscending == null || isSortAscending.booleanValue() ? "ASC" : "DESC";
     return callAndCatchApiException(() ->
-        streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), since, to, limit, sortDir));
+        streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since), getEpochMillis(to), limit, sortDir));
   }
 
   /**
    * Fetches message ids using timestamp.
    *
    * @param streamId the ID of the stream where to fetch messages.
-   * @param since optional timestamp of the first required messageId.
-   *              A Long integer value representing milliseconds since January 1, 1970.
-   * @param to optional timestamp of the last required messageId.
-   *           A Long integer value representing milliseconds since January 1, 1970.
+   * @param since optional instant of the first required messageId.
+   * @param to optional instant of the last required messageId.
    * @param limit optional maximum number of messageIds to return.
    * @param skip optional number of messageIds to skip.
    * @return a {@link MessageIdsFromStream} object containing the list of messageIds.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
    */
-  public MessageIdsFromStream getMessageIdsByTimestamp(@Nonnull String streamId, Long since, Long to, Integer limit, Integer skip) {
+  public MessageIdsFromStream getMessageIdsByTimestamp(@Nonnull String streamId, Instant since, Instant to, Integer limit, Integer skip) {
     return callAndCatchApiException(() ->
-        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, since, to, limit, skip));
+        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since), getEpochMillis(to), limit, skip));
   }
 
   /**
@@ -291,7 +287,11 @@ public class MessageService {
         authSession.getSessionToken(), ApiUtils.getUserAgent(), messageId));
   }
 
-  private <T> T callAndCatchApiException(SupplierWithApiException<T> supplier) {
+  private static Long getEpochMillis(Instant instant) {
+    return instant == null ? null : instant.toEpochMilli();
+  }
+
+  private static <T> T callAndCatchApiException(SupplierWithApiException<T> supplier) {
     try {
       return supplier.get();
     } catch (ApiException e) {
