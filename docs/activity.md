@@ -103,7 +103,8 @@ public class Example {
 ```
 1. `/hello` is the command name 
 2. `true` means that the bot has to be mentioned
-3. the command callback provides the 
+3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the 
+event, or the event initiator (i.e. user that triggered the command)
 
 ## Form Activity
 A form activity is triggered when an end-user reply or submit to an _Elements_ form. 
@@ -167,6 +168,6 @@ class HelloFormReplyActivity extends FormReplyActivity<FormReplyContext> {
   }
 }
 ```
-1. The `ActivityMatcher` here ensure that activity logic is triggered only when the form "**hello-form**" has been 
-submitted from action button "**submit**"
+1. The `ActivityMatcher` ensures that activity logic is triggered only when the form with `id` "**hello-form**" has been 
+submitted from the action button "**submit**"
 2. The activity context allows to directly retrieve form values. Here the "**name**" `<text-field>` value
