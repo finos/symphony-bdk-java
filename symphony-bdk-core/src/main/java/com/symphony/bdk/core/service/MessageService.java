@@ -1,11 +1,12 @@
 package com.symphony.bdk.core.service;
 
 
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import static com.symphony.bdk.core.api.invoker.util.SupplierWithApiException.callAndCatchApiException;
+
 import com.symphony.bdk.core.api.invoker.util.ApiUtils;
+import com.symphony.bdk.core.api.invoker.util.PaginatedApi;
+import com.symphony.bdk.core.api.invoker.util.PaginatedService;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.api.invoker.util.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -32,10 +33,9 @@ import org.apiguardian.api.API;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
-
-import static com.symphony.bdk.core.api.invoker.util.SupplierWithApiException.callAndCatchApiException;
 
 /**
  * Service class for managing messages.
@@ -95,6 +95,26 @@ public class MessageService {
   public List<V4Message> getMessages(@Nonnull String streamId, @Nonnull Instant since, Integer skip, Integer limit) {
     return callAndCatchApiException(() -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), skip, limit));
+  }
+
+  /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
+   * @param streamId the streamID where to look for messages
+   * @param since instant of the earliest possible date of the first message returned.
+   * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
+   * @param totalSize total maximum number of messages to return. Optional and defaults to 50.
+   * @return a {@link Stream} of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   */
+  public Stream<V4Message> getMessagesStream(@Nonnull String streamId, @Nonnull Instant since, Integer chunkSize, Integer totalSize) {
+    PaginatedApi<V4Message> api = ((offset, limit) -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
+        authSession.getSessionToken(), authSession.getKeyManagerToken(), offset, limit));
+
+    final int actualChunkSize = chunkSize == null ? 50 : chunkSize.intValue();
+    final int actualTotalSize = totalSize == null ? 50 : totalSize.intValue();
+
+    return new PaginatedService<>(api, actualChunkSize, actualTotalSize).stream();
   }
 
   /**
@@ -243,6 +263,7 @@ public class MessageService {
   public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, Instant since, Instant to, Integer limit,
       Boolean isSortAscending) {
     final String sortDir = isSortAscending == null || isSortAscending.booleanValue() ? "ASC" : "DESC";
+
     return callAndCatchApiException(() ->
         streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since), getEpochMillis(to), limit, sortDir));
   }
@@ -262,6 +283,29 @@ public class MessageService {
     return callAndCatchApiException(() ->
         defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since), getEpochMillis(to), limit, skip));
   }
+
+  /**
+   * Fetches message ids using timestamp.
+   *
+   * @param streamId the ID of the stream where to fetch messages.
+   * @param since optional instant of the first required messageId.
+   * @param to optional instant of the last required messageId.
+   * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
+   * @param totalSize total maximum number of messages to return. Optional and defaults to 50.
+   * @return a {@link Stream} containing the messageIds.
+   * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
+   */
+  public Stream<String> getMessageIdsByTimestampStream(@Nonnull String streamId, Instant since, Instant to, Integer chunkSize, Integer totalSize) {
+    PaginatedApi<String> api = ((offset, limit) ->
+        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since), getEpochMillis(to), limit, offset)
+            .getData());
+
+    final int actualChunkSize = chunkSize == null ? 50 : chunkSize.intValue();
+    final int actualTotalSize = totalSize == null ? 50 : totalSize.intValue();
+
+    return new PaginatedService<>(api, actualChunkSize, actualTotalSize).stream();
+  }
+
 
   /**
    * Fetches receipts details from a specific message.

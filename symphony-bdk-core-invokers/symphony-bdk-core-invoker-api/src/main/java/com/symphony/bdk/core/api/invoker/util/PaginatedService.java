@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.api.invoker.util;
 
+import com.symphony.bdk.core.api.invoker.ApiException;
+import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -71,12 +74,20 @@ public class PaginatedService<T> {
       }
 
       //no remaining items in chunk, let's fetch a new one
-      currentChunk = paginatedApi.get(currentOffset, chunkSize);
-      remainingItemsInChunk = currentChunk.size();
-      currentIndexInChunk = -1;
-      currentOffset += chunkSize;
+      fetchNewChunk();
 
       return remainingItemsInChunk != 0;
+    }
+
+    private void fetchNewChunk() {
+      try {
+        currentChunk = paginatedApi.get(currentOffset, chunkSize);
+        remainingItemsInChunk = currentChunk == null ? 0 : currentChunk.size();
+        currentIndexInChunk = -1;
+        currentOffset += chunkSize;
+      } catch (ApiException e) {
+        throw new ApiRuntimeException(e);
+      }
     }
 
     @Override
