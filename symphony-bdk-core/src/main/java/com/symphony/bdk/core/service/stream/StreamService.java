@@ -39,13 +39,12 @@ import java.util.List;
  *
  */
 @Slf4j
-public class StreamService {
+public class StreamService extends OboStreamService {
 
-  private final StreamsApi streamsApi;
   private final AuthSession authSession;
 
   public StreamService(StreamsApi streamsApi, AuthSession authSession) {
-    this.streamsApi = streamsApi;
+    super(streamsApi);
     this.authSession = authSession;
   }
 
@@ -172,11 +171,7 @@ public class StreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
   public List<StreamAttributes> listStreams(StreamFilter filter) {
-    try {
-      return streamsApi.v1StreamsListPost(authSession.getSessionToken(), null, null, filter);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.listStreams(filter, this.authSession);
   }
 
   /**
@@ -187,11 +182,7 @@ public class StreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-info-v2">Stream Info V2</a>
    */
   public V2StreamAttributes getStreamInfo(String streamId) {
-    try {
-      return streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken());
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.getStreamInfo(streamId, this.authSession);
   }
 
   /**
