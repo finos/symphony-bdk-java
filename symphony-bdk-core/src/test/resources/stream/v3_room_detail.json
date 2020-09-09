@@ -1,0 +1,30 @@
+{
+    "roomAttributes": {
+        "name": "API room",
+        "keywords": [
+            {
+                "key": "region",
+                "value": "EMEA"
+            },
+            {
+                "key": "lead",
+                "value": "Bugs Bunny"
+            }
+        ],
+        "description": "Created via the API",
+        "membersCanInvite": true,
+        "discoverable": false,
+        "readOnly": false,
+        "copyProtected": false,
+        "crossPod": false,
+        "viewHistory": false,
+        "multiLateralRoom": false,
+        "public": false
+    },
+    "roomSystemInfo": {
+        "id": "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA",
+        "creationDate": 1547661232368,
+        "createdByUserId": 14362370637825,
+        "active": true
+    }
+}
