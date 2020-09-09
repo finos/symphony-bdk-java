@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -27,6 +28,7 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 
+import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -200,7 +202,7 @@ class MessageServiceTest {
   void testListAttachmentsWithSortAscendingTrue() throws ApiException {
     when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, true));
+    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, AttachmentSort.ASC));
     verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("ASC"));
   }
 
@@ -208,7 +210,7 @@ class MessageServiceTest {
   void testListAttachmentsWithSortAscendingFalse() throws ApiException {
     when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, false));
+    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, AttachmentSort.DESC));
     verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("DESC"));
   }
 

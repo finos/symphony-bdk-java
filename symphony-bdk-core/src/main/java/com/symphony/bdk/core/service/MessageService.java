@@ -7,6 +7,7 @@ import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 import com.symphony.bdk.core.api.invoker.util.PaginatedApi;
 import com.symphony.bdk.core.api.invoker.util.PaginatedService;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -255,14 +256,13 @@ public class MessageService {
    * @param since optional instant of the first required attachment.
    * @param to optional instant of the last required attachment.
    * @param limit maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
-   * @param isSortAscending optional sort order, being ascending is set to true, otherwise set to descending.
-   *                        The default value is ascending.
+   * @param sort Attachment date sort direction : ASC or DESC (default to ASC)
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
   public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, Instant since, Instant to, Integer limit,
-      Boolean isSortAscending) {
-    final String sortDir = isSortAscending == null || isSortAscending.booleanValue() ? "ASC" : "DESC";
+      AttachmentSort sort) {
+    final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
     return callAndCatchApiException(() ->
         streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since), getEpochMillis(to), limit, sortDir));

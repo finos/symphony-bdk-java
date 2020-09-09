@@ -6,6 +6,7 @@ import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
+import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.model.MessageIdsFromStream;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
@@ -71,7 +72,7 @@ public class MessageExampleMain {
     //attachment
     final List<String> attachmentTypes = bdk.messages().getAttachmentTypes();
     final List<StreamAttachmentItem> streamAttachmentItems =
-        bdk.messages().listAttachments(STREAM_ID, SINCE, TO, 3, true);
+        bdk.messages().listAttachments(STREAM_ID, SINCE, TO, 3, AttachmentSort.ASC);
     final byte[] attachment = bdk.messages().getAttachment(STREAM_ID, MESSAGE_ID, "internal_14568529");
 
     //import a message
