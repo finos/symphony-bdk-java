@@ -35,6 +35,8 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import static com.symphony.bdk.core.api.invoker.util.SupplierWithApiException.callAndCatchApiException;
+
 /**
  * Service class for managing messages.
  * See the MESSAGES part of the <a href="https://developers.symphony.com/restapi/reference">REST API reference</a>.
@@ -289,13 +291,5 @@ public class MessageService {
 
   private static Long getEpochMillis(Instant instant) {
     return instant == null ? null : instant.toEpochMilli();
-  }
-
-  private static <T> T callAndCatchApiException(SupplierWithApiException<T> supplier) {
-    try {
-      return supplier.get();
-    } catch (ApiException e) {
-      throw new ApiRuntimeException(e);
-    }
   }
 }
