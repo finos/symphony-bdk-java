@@ -78,7 +78,7 @@ class SlashCommandTest {
   void testVerifyBotInfo() {
     final SlashCommand cmd = new SlashCommand("/test", c -> {});
     final ActivityInfo info = cmd.getInfo();
-    assertEquals(ActivityType.command, info.getType());
+    assertEquals(ActivityType.COMMAND, info.getType());
     assertEquals("Slash command '/test'", info.getName());
   }
 
