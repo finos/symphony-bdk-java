@@ -23,7 +23,7 @@ public class Example {
 
 ## Command Activity
 A command activity is triggered when a message is sent in an `IM`, `MIM` or `Chatroom`. This is the most basic interaction 
-between a end-user and the bot. Here are some command activity examples: 
+between an end-user and the bot. Here are some command activity examples: 
 
 ```
 $ @BotMention /buy                  # (1)
