@@ -18,7 +18,7 @@ import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
-import com.symphony.bdk.core.test.ResResponseHelper;
+import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.RsaTestHelper;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -97,7 +97,7 @@ class UserServiceTest {
 
   @Test
   void getUserDetailByUidTest(final BdkMockServer mockServer) throws IOException {
-    String response = ResResponseHelper.readResResponseFromClasspath("/user/user_detail.json");
+    String response = JsonHelper.readFromClasspath("/user/user_detail.json");
     mockServer.onGet(V2_USER_DETAIL_BY_ID.replace("{uid}", "1234"), res -> res.withBody(response));
 
     V2UserDetail userDetail = this.service.getUserDetailByUid(1234L);
@@ -109,7 +109,7 @@ class UserServiceTest {
 
   @Test
   void listUsersDetailTest(final BdkMockServer mockServer) throws IOException {
-    String responseV2 = ResResponseHelper.readResResponseFromClasspath("/user/list_users_detail_v2.json");
+    String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
     mockServer.onGet(V2_USER_LIST, res -> res.withBody(responseV2));
     List<V2UserDetail> UserDetails = this.service.listUsersDetail();
 
@@ -127,7 +127,7 @@ class UserServiceTest {
 
   @Test
   void listUsersDetailByFilterTest(final BdkMockServer mockServer) throws IOException {
-    String responseV1 = ResResponseHelper.readResResponseFromClasspath("/user/list_users_detail_v1.json");
+    String responseV1 = JsonHelper.readFromClasspath("/user/list_users_detail_v1.json");
 
     mockServer.onPost(USER_FIND, res -> res.withBody(responseV1));
     UserFilter userFilter = new UserFilter();
@@ -419,7 +419,7 @@ class UserServiceTest {
 
   @Test
   void getUserV2Test(final BdkMockServer mockServer) throws IOException {
-    String response = ResResponseHelper.readResResponseFromClasspath("/user/user.json");
+    String response = JsonHelper.readFromClasspath("/user/user.json");
     mockServer.onGet(GET_USER_V2, res -> res.withBody(response));
 
     UserV2 user1 = this.service.getUserById(1234L, true);
@@ -466,7 +466,7 @@ class UserServiceTest {
 
   @Test
   void searchUserV3Test(final BdkMockServer mockServer) throws IOException {
-    String response = ResResponseHelper.readResResponseFromClasspath("/user/users.json");
+    String response = JsonHelper.readFromClasspath("/user/users.json");
     mockServer.onGet(SEARCH_USERS_V3, res -> res.withBody(response));
 
     List<UserV2> users1 = this.service.searchUserByIds(Collections.singletonList(1234L), true);
@@ -508,7 +508,7 @@ class UserServiceTest {
 
   @Test
   void searchUserBySearchQueryTest(final BdkMockServer mockServer) throws IOException {
-    String response = ResResponseHelper.readResResponseFromClasspath("/user/users_by_query.json");
+    String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
     mockServer.onPost(SEARCH_USER_BY_QUERY, res -> res.withBody(response));
 
     UserSearchQuery query = new UserSearchQuery().query("john doe").filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));

@@ -1,0 +1,19 @@
+{
+    "roomAttributes": {
+        "name": "API room",
+        "description": "Updated via the API",
+        "membersCanInvite": true,
+        "discoverable": true
+    },
+    "roomSystemInfo": {
+        "id": "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA",
+        "creationDate": 1461426797875,
+        "createdByUserId": 7078106103809,
+        "active": true
+    },
+    "immutableRoomAttributes": {
+        "readOnly": false,
+        "copyProtected": false,
+        "public": false
+    }
+}
