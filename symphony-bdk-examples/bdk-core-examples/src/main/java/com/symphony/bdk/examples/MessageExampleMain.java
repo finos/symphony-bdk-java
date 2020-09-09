@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * This demonstrates a basic usage of the message service.
@@ -50,10 +51,19 @@ public class MessageExampleMain {
 
     //retrieve the details of existing messages
     final V4Message message = bdk.messages().getMessage(MESSAGE_ID);
+
+    //retrieve a list of messages
     final List<V4Message> messages = bdk.messages().getMessages(STREAM_ID, SINCE, null, 2);
+    final Stream<V4Message> messagesStream = bdk.messages().getMessagesStream(STREAM_ID, SINCE, 2, 6);
+
+    //retrieve a list of messageIds
     final MessageIdsFromStream messageIdsByTimestamp =
         bdk.messages().getMessageIdsByTimestamp(STREAM_ID, SINCE, TO, 2, 0);
 
+    final Stream<String> messageIdsByTimestampStream =
+        bdk.messages().getMessageIdsByTimestampStream(STREAM_ID, SINCE, TO, 2, 6);
+
+    //message status, receipts, relationships
     final MessageStatus messageStatus = bdk.messages().getMessageStatus(MESSAGE_ID);
     final MessageReceiptDetailResponse messageReceiptDetailResponse = bdk.messages().listMessageReceipts(MESSAGE_ID);
     final MessageMetadataResponse messageRelationships = bdk.messages().getMessageRelationships(MESSAGE_ID);
