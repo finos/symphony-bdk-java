@@ -148,7 +148,7 @@ public class UsersClientTest extends BotTest {
 
     try {
       List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
-      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+      usersClient.getUsersV3(null, uids, true);
     } catch (NoContentException e) {
       fail();
     }
@@ -167,7 +167,7 @@ public class UsersClientTest extends BotTest {
 
     try {
       List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
-      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+      usersClient.getUsersV3(null, uids, true);
     } catch (NoContentException e) {
       fail();
     }
@@ -186,7 +186,7 @@ public class UsersClientTest extends BotTest {
 
     try {
       List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
-      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+      usersClient.getUsersV3(null, uids, true);
     } catch (NoContentException e) {
       fail();
     }
@@ -205,22 +205,18 @@ public class UsersClientTest extends BotTest {
 
     try {
       List<Long> uids = Stream.of(7696581394433L, 7696581394434L).collect(Collectors.toList());
-      List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
+      usersClient.getUsersV3(null, uids, true);
     } catch (NoContentException e) {
       fail();
     }
   }
   //endregion
 
+  //region Test searchUsers
   @Test
   public void searchUsersSuccess() throws IOException {
-    stubFor(post(urlEqualTo(PodConstants.SEARCHUSERS.concat("?local=true")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .withQueryParam("local", equalTo("true"))
-        .willReturn(aResponse()
-            .withStatus(200)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody(readResourceContent("/response_content/user_client/search_user.json"))));
+    stubPost(PodConstants.SEARCHUSERS.concat("?local=true"),
+        readResourceContent("/response_content/user_client/search_user.json"), 200);
 
     try {
       UserSearchResult result = usersClient.searchUsers(null, true, 0, 0, null);
@@ -231,6 +227,42 @@ public class UsersClientTest extends BotTest {
       fail();
     }
   }
+
+  @Test(expected = NoContentException.class)
+  public void searchUsersStatus204() throws IOException {
+    stubPost(PodConstants.SEARCHUSERS.concat("?local=true"), null, 204);
+
+    usersClient.searchUsers(null, true, 0, 0, null);
+  }
+
+  @Test(expected = APIClientErrorException.class)
+  public void searchUsersStatus400() throws IOException {
+    stubPost(PodConstants.SEARCHUSERS.concat("?local=true"), null, 400);
+
+    usersClient.searchUsers(null, true, 0, 0, null);
+  }
+
+  @Test(expected = SymClientException.class)
+  public void searchUsersStatus401() throws IOException {
+    stubPost(PodConstants.SEARCHUSERS.concat("?local=true"), null, 401);
+
+    usersClient.searchUsers(null, true, 0, 0, null);
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void searchUsersStatus403() throws IOException {
+    stubPost(PodConstants.SEARCHUSERS.concat("?local=true"), null, 403);
+
+    usersClient.searchUsers(null, true, 0, 0, null);
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void searchUsersStatus500() throws IOException {
+    stubPost(PodConstants.SEARCHUSERS.concat("?local=true"), null, 500);
+
+    usersClient.searchUsers(null, true, 0, 0, null);
+  }
+  //endregion
 
   @Test
   public void getSessionUserSuccess() throws IOException {
