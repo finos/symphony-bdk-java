@@ -9,6 +9,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileOutputStream;
@@ -118,8 +119,8 @@ public class BdkConfigLoaderTest {
         assertEquals(config.getSessionAuth().getContext(), "context");
     }
 
-    //@Test
-    // CircleCI does not allow to create file in the home directory
+    @Test
+    @DisabledIfEnvironmentVariable(named = "CIRCLECI", matches = "true") // cf. https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
     void testLoadConfigFromSymphonyDirectory() throws Exception {
 
       final String tmpConfigFileName = UUID.randomUUID().toString() + "-config.yaml";

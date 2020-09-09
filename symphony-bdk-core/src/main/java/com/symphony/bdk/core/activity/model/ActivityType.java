@@ -10,9 +10,9 @@ public enum ActivityType {
   /**
    * Message sent in the chat.
    */
-  command,
+  COMMAND,
   /**
    * Form submitted.
    */
-  form
+  FORM
 }
