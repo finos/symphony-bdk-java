@@ -1,0 +1,49 @@
+{
+    "creator": {
+        "id": 12987981103694,
+        "name": "bot-name"
+    },
+    "onBehalfOfUser": {
+        "id": null,
+        "name": null
+    },
+    "stream": {
+        "id": "gXFV8vN37dNqjojYS/y2wX///o2KxfmUdA==",
+        "name": "bot-name, John Doe",
+        "streamType": "IM"
+    },
+    "creationDate": 1599481767320,
+    "deliveryReceiptCount": 2,
+    "readReceiptCount": 1,
+    "emailNotificationCount": 1,
+    "downloadReceiptCounts": [],
+    "MessageReceiptDetail": [
+        {
+            "user": {
+                "id": 12987981103694,
+                "username": "bot-name",
+                "firstName": null,
+                "lastName": null,
+                "emailAddress": "fakemail@symphony.com"
+            },
+            "deliveryReceiptTimestamp": 1599571745580,
+            "readReceiptTimestamp": null,
+            "emailNotificationTimestamp": null,
+            "downloadReceiptCounts": []
+        },
+        {
+            "user": {
+                "id": 12987981103693,
+                "username": "john.doe",
+                "firstName": "John",
+                "lastName": "Doe",
+                "emailAddress": "john.doe@symphony.com"
+            },
+            "deliveryReceiptTimestamp": 1599481781458,
+            "readReceiptTimestamp": 1599481783315,
+            "emailNotificationTimestamp": 1599481767672,
+            "downloadReceiptCounts": []
+        }
+    ],
+    "pagination": null
+}

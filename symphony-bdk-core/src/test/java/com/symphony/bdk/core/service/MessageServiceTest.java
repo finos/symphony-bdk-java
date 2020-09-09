@@ -1,16 +1,23 @@
 package com.symphony.bdk.core.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.*;
 
+import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
+import com.symphony.bdk.core.test.JsonHelper;
+import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -20,225 +27,300 @@ import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MessageIdsFromStream;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
+import com.symphony.bdk.gen.api.model.MessageMetadataResponseParent;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
+import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
+import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 
-import org.bouncycastle.jcajce.provider.symmetric.DES;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
-import java.time.Duration;
+import java.io.IOException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-/**
- * Test class for the {@link MessageService}.
- */
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-class MessageServiceTest {
+public class MessageServiceTest {
 
-  private static final String MESSAGE = "message";
+  private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
+  private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
+  private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
+  private static final String V1_MESSAGE_SUPPRESSION = "/pod/v1/admin/messagesuppression/{id}/suppress";
+  private static final String V1_MESSAGE_STATUS = "/pod/v1/message/{mid}/status";
+  private static final String V1_ALLOWED_TYPES = "/pod/v1/files/allowedTypes";
+  private static final String V1_STREAM_ATTACHMENTS = "/pod/v1/streams/{sid}/attachments";
+  private static final String V1_MESSAGE_GET = "/agent/v1/message/{id}";
+  private static final String V2_MESSAGE_IDS = "/pod/v2/admin/streams/{streamId}/messageIds";
+  private static final String V1_MESSAGE_RECEIPTS = "/pod/v1/admin/messages/{messageId}/receipts";
+  private static final String V1_MESSAGE_RELATIONSHIPS = "/pod/v1/admin/messages/{messageId}/metadata/relationships";
+
   private static final String STREAM_ID = "streamId";
   private static final String MESSAGE_ID = "messageId";
+  private static final String MESSAGE = "message";
   private static final String TEMPLATE_NAME = "template";
 
-  public static final Instant SINCE = Instant.now().minus(Duration.ofHours(12));
-  public static final Instant TO = Instant.now();
 
-  @Mock
-  private MessagesApi messagesApi;
-
-  @Mock
-  private MessageApi messageApi;
-
-  @Mock
-  private MessageSuppressionApi messageSuppressionApi;
-
-  @Mock
-  private StreamsApi streamsApi;
-
-  @Mock
-  private PodApi podApi;
-
-  @Mock
-  private AttachmentsApi attachmentsApi;
-
-  @Mock
-  private DefaultApi defaultApi;
-
-  @Mock
-  private AuthSession authSession;
-
-  @Mock
-  private TemplateEngine templateEngine;
-
+  private MockApiClient mockApiClient;
   private MessageService messageService;
+  private TemplateEngine templateEngine;
+  private StreamsApi streamsApi;
+  private AttachmentsApi attachmentsApi;
 
   @BeforeEach
   void setUp() {
-    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
-        attachmentsApi, defaultApi, authSession, templateEngine);
-    when(authSession.getSessionToken()).thenReturn("sessionToken");
-    when(authSession.getKeyManagerToken()).thenReturn("keyManagerToken");
+    AuthSession authSession = mock(AuthSession.class);
+    when(authSession.getSessionToken()).thenReturn("1234");
+    when(authSession.getKeyManagerToken()).thenReturn("1234");
+
+    mockApiClient = new MockApiClient();
+    ApiClient podClient = mockApiClient.getApiClient("/pod");
+    ApiClient agentClient = mockApiClient.getApiClient("/agent");
+
+    templateEngine = mock(TemplateEngine.class);
+    streamsApi = spy(new StreamsApi(podClient));
+    attachmentsApi = spy(new AttachmentsApi(agentClient));
+
+    messageService = new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
+        new MessageSuppressionApi(podClient), streamsApi, new PodApi(podClient),
+        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine);
   }
 
   @Test
-  void testGetMessages() throws ApiException {
-    when(messagesApi.v4StreamSidMessageGet(any(), any(), any(), any(), any(), any()))
-        .thenReturn(Collections.emptyList());
+  void testGetMessages() throws IOException {
+    final String streamId = "streamid";
+    mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", streamId),
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
 
-    assertNotNull(messageService.getMessages(STREAM_ID, SINCE, 0, 0));
+    final List<V4Message> messages = messageService.getMessages(streamId, Instant.now(), null, null);
+
+    assertEquals(2, messages.size());
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
   }
 
   @Test
-  void testSendWithStreamObject() throws ApiException {
-    when(messagesApi.v4StreamSidMessageCreatePost(any(), any(), any(), any(), any(), any(), any(), any()))
-        .thenReturn(new V4Message());
+  void testGetMessagesStream() throws IOException {
+    mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final Stream<V4Message> messages = messageService.getMessagesStream(STREAM_ID, Instant.now(), 2, 2);
+
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testSend() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    final V4Message sentMessage = messageService.send(STREAM_ID, MESSAGE);
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendWithStreamObjectCallsSendWithStreamId() {
+    MessageService service = spy(messageService);
+    doReturn(new V4Message()).when(service).send(anyString(), anyString());
 
     final V4Stream v4Stream = new V4Stream();
     v4Stream.setStreamId(STREAM_ID);
 
-    assertNotNull(messageService.send(v4Stream, MESSAGE));
+    assertNotNull(service.send(v4Stream, MESSAGE));
+    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
   }
 
   @Test
-  void testSendWithTemplateAndStreamObject() throws ApiException, TemplateException {
-    when(messagesApi.v4StreamSidMessageCreatePost(any(), any(), any(), any(), any(), any(), any(), any()))
-        .thenReturn(new V4Message());
+  void testSendWithTemplateAndStreamObjectCallsSendWithCorrectStreamIdAndMessage() throws TemplateException {
+    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(TEMPLATE_NAME));
+    when(templateEngine.newBuiltInTemplate(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
 
-    final String templateName = TEMPLATE_NAME;
-    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(templateName));
-    when(templateEngine.newBuiltInTemplate(eq(templateName))).thenReturn(parameters -> MESSAGE);
+    MessageService service = spy(messageService);
+    doReturn(new V4Message()).when(service).send(anyString(), anyString());
 
     final V4Stream v4Stream = new V4Stream();
     v4Stream.setStreamId(STREAM_ID);
 
-    assertNotNull(messageService.send(v4Stream, templateName, Collections.emptyMap()));
+    assertNotNull(service.send(v4Stream, TEMPLATE_NAME, Collections.emptyMap()));
+    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
   }
 
   @Test
-  void testSendWithTemplate() throws ApiException, TemplateException {
-    when(messagesApi.v4StreamSidMessageCreatePost(any(), any(), any(), any(), any(), any(), any(), any()))
-        .thenReturn(new V4Message());
+  void testSendWithTemplateCallsSendWithCorrectMessage() throws TemplateException {
+    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(TEMPLATE_NAME));
+    when(templateEngine.newBuiltInTemplate(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
 
-    final String templateName = TEMPLATE_NAME;
-    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(templateName));
-    when(templateEngine.newBuiltInTemplate(eq(templateName))).thenReturn(parameters -> MESSAGE);
+    MessageService service = spy(messageService);
+    doReturn(new V4Message()).when(service).send(anyString(), anyString());
 
-    assertNotNull(messageService.send(STREAM_ID, templateName, Collections.emptyMap()));
+    assertNotNull(service.send(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
+    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
   }
 
   @Test
   void testSendWithTemplateThrowingTemplateException() throws TemplateException {
-    final String templateName = TEMPLATE_NAME;
-    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(templateName));
-    when(templateEngine.newBuiltInTemplate(eq(templateName))).thenReturn(parameters -> {
-      throw new TemplateException("error");
-    });
+    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(TEMPLATE_NAME));
+    when(templateEngine.newBuiltInTemplate(eq(TEMPLATE_NAME))).thenThrow(new TemplateException("error"));
 
-    final V4Stream v4Stream = new V4Stream();
-    v4Stream.setStreamId(STREAM_ID);
-
-    assertThrows(TemplateException.class, () -> messageService.send(v4Stream, templateName, Collections.emptyMap()));
+    assertThrows(TemplateException.class, () -> messageService.send(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
   }
 
   @Test
   void testGetAttachment() throws ApiException {
-    when(attachmentsApi.v1StreamSidAttachmentGet(any(), any(), any(), any(), any())).thenReturn(new byte[0]);
-    assertNotNull(messageService.getAttachment(STREAM_ID, MESSAGE_ID, "attachmentId"));
+    final String attachmentId = "attachmentId";
+
+    doReturn(new byte[0]).when(attachmentsApi).v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
+
+    assertNotNull(messageService.getAttachment(STREAM_ID, MESSAGE_ID, attachmentId));
+    verify(attachmentsApi).v1StreamSidAttachmentGet(eq(STREAM_ID), eq(attachmentId), eq(MESSAGE_ID), anyString(), anyString());
   }
 
   @Test
-  void testImportMessages() throws ApiException {
-    when(messagesApi.v4MessageImportPost(any(), any(), any())).thenReturn(Collections.emptyList());
-    assertNotNull(messageService.importMessages(Collections.emptyList()));
+  void testGetAttachmentThrowingApiException() throws ApiException {
+    doThrow(new ApiException(500, "error")).when(attachmentsApi).v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
+
+    assertThrows(ApiRuntimeException.class, () -> messageService.getAttachment(STREAM_ID, MESSAGE_ID, "attachmentId"));
   }
 
   @Test
-  void testSuppressMessage() throws ApiException {
-    when(messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(any(), any()))
-        .thenReturn(new MessageSuppressionResponse());
-    assertNotNull(messageService.suppressMessage(MESSAGE_ID));
+  void testImportMessage() throws IOException {
+    mockApiClient.onPost(V4_MESSAGE_IMPORT, JsonHelper.readFromClasspath("/message/import_message.json"));
+
+    final List<V4ImportResponse> v4ImportResponses = messageService.importMessages(Collections.emptyList());
+    assertEquals(1, v4ImportResponses.size());
+
+    final V4ImportResponse v4ImportResponse = v4ImportResponses.get(0);
+    assertEquals("gfAq8THE-rtVKBAMP6aJPH___ouMxrzTbQ", v4ImportResponse.getMessageId());
+    assertEquals("fooChat", v4ImportResponse.getOriginatingSystemId());
   }
 
   @Test
-  void testGetMessageStatus() throws ApiException {
-    when(messageApi.v1MessageMidStatusGet(any(), any())).thenReturn(new MessageStatus());
-    assertNotNull(messageService.getMessageStatus(MESSAGE_ID));
+  void testSuppressMessage() throws IOException {
+    mockApiClient.onPost(V1_MESSAGE_SUPPRESSION.replace("{id}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/suppress_message.json"));
+
+    final MessageSuppressionResponse messageSuppressionResponse = messageService.suppressMessage(MESSAGE_ID);
+    assertEquals(true, messageSuppressionResponse.getSuppressed());
+    assertEquals("FB2h29Egp6X_r3_K7cuuE3___ouM3iRdbQ", messageSuppressionResponse.getMessageId());
   }
 
   @Test
-  void testGetAttachmentTypes() throws ApiException {
-    when(podApi.v1FilesAllowedTypesGet(any())).thenReturn(Collections.emptyList());
-    assertNotNull(messageService.getAttachmentTypes());
+  void testGetMessageStatus() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_STATUS.replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/get_message_status.json"));
+
+    final MessageStatus messageStatus = messageService.getMessageStatus(MESSAGE_ID);
+    assertNotNull(messageStatus.getAuthor());
+    assertEquals(1, messageStatus.getRead().size());
+    assertEquals(1, messageStatus.getDelivered().size());
+    assertEquals(0, messageStatus.getSent().size());
   }
 
   @Test
-  void testGetMessage() throws ApiException {
-    when(messagesApi.v1MessageIdGet(any(), any(), any())).thenReturn(new V4Message());
-    assertNotNull(messageService.getMessage(MESSAGE_ID));
+  void testGetAttachmentTypes() throws IOException {
+    mockApiClient.onGet(V1_ALLOWED_TYPES,
+        JsonHelper.readFromClasspath("/message/get_attachment_types.json"));
+
+    assertEquals(Arrays.asList(".csv", ".gif"), messageService.getAttachmentTypes());
   }
 
   @Test
-  void testListAttachmentsWithSortAscendingNull() throws ApiException {
-    when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
-        .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, null));
-    verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("ASC"));
+  void testGetMessage() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_GET.replace("{id}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/get_message.json"));
+
+    final V4Message message = messageService.getMessage(MESSAGE_ID);
+    assertEquals("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ", message.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", message.getStream().getStreamId());
   }
 
   @Test
-  void testListAttachmentsWithSortAscendingTrue() throws ApiException {
-    when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
-        .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, AttachmentSort.ASC));
-    verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("ASC"));
+  void testListAttachments() throws IOException {
+    mockApiClient.onGet(V1_STREAM_ATTACHMENTS.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/stream/list_attachments.json"));
+
+    List<StreamAttachmentItem> attachments = messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
+
+    assertEquals(attachments.size(), 2);
   }
 
   @Test
-  void testListAttachmentsWithSortAscendingFalse() throws ApiException {
-    when(streamsApi.v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any()))
-        .thenReturn(Collections.emptyList());
-    assertNotNull(messageService.listAttachments(STREAM_ID, SINCE, TO, 0, AttachmentSort.DESC));
-    verify(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), eq("DESC"));
+  void testListAttachmentWithSortDirAsc() throws ApiException {
+    doReturn(Collections.emptyList()).when(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
+
+    assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC));
+    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("ASC"));
   }
 
   @Test
-  void testGetMessageIdsByTimestamp() throws ApiException {
-    when(defaultApi.v2AdminStreamsStreamIdMessageIdsGet(any(), any(), any(), any(), any(), any()))
-        .thenReturn(new MessageIdsFromStream());
-    assertNotNull(messageService.getMessageIdsByTimestamp(STREAM_ID, SINCE, TO, 0, 0));
+  void testListAttachmentWithSortDirDesc() throws ApiException {
+    doReturn(Collections.emptyList()).when(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
+
+    assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.DESC));
+    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("DESC"));
   }
 
   @Test
-  void testListMessageReceipts() throws ApiException {
-    when(defaultApi.v1AdminMessagesMessageIdReceiptsGet(any(), any(), any(), any()))
-        .thenReturn(new MessageReceiptDetailResponse());
-    assertNotNull(messageService.listMessageReceipts(MESSAGE_ID));
+  void testListAttachmentWithSortDirNull() throws ApiException {
+    doReturn(Collections.emptyList()).when(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
+
+    assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, null));
+    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("ASC"));
   }
 
   @Test
-  void testGetMessageRelationships() throws ApiException {
-    when(defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(any(), any(), any()))
-        .thenReturn(new MessageMetadataResponse());
-    assertNotNull(messageService.getMessageRelationships(MESSAGE_ID));
+  void testGetMessageIdsByTimestamp() throws IOException {
+    mockApiClient.onGet(V2_MESSAGE_IDS.replace("{streamId}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
+
+    final MessageIdsFromStream messageIdsByTimestamp =
+        messageService.getMessageIdsByTimestamp(STREAM_ID, Instant.now(), Instant.now(), null, null);
+    assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.getData());
   }
 
   @Test
-  void testApiCallThrowingApiException() throws ApiException {
-    when(defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(any(), any(), any()))
-        .thenThrow(new ApiException(500, "error"));
-    assertThrows(ApiRuntimeException.class, () -> messageService.getMessageRelationships(MESSAGE_ID));
+  void testGetMessageIdsByTimestampStream() throws IOException {
+    mockApiClient.onGet(V2_MESSAGE_IDS.replace("{streamId}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
+
+    final Stream<String> messageIdsByTimestamp =
+        messageService.getMessageIdsByTimestampStream(STREAM_ID, Instant.now(), Instant.now(), null, null);
+    assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.collect(Collectors.toList()));
   }
+
+  @Test
+  void testListMessageReceipts() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_RECEIPTS.replace("{messageId}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/get_receipt_details.json"));
+
+    final MessageReceiptDetailResponse messageReceiptDetailResponse = messageService.listMessageReceipts(MESSAGE_ID);
+    assertEquals("bot-name", messageReceiptDetailResponse.getCreator().getName());
+    assertEquals("gXFV8vN37dNqjojYS/y2wX///o2KxfmUdA==", messageReceiptDetailResponse.getStream().getId());
+    assertEquals(2, messageReceiptDetailResponse.getDeliveryReceiptCount());
+    assertEquals(2, messageReceiptDetailResponse.getMessageReceiptDetail().size());
+  }
+
+  @Test
+  void testGetMessageRelationships() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_RELATIONSHIPS.replace("{messageId}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/get_message_relationships.json"));
+
+    final MessageMetadataResponse messageRelationships = messageService.getMessageRelationships(MESSAGE_ID);
+    assertEquals("kWpOSc30hEJtOoT89gLinH///ouMyhHwdA==", messageRelationships.getMessageId());
+    assertEquals(MessageMetadataResponseParent.RelationshipTypeEnum.REPLY,
+        messageRelationships.getParent().getRelationshipType());
+    assertEquals("FB2h29Egp6X/r3/K7cuuE3///ouM3iRdbQ==", messageRelationships.getParent().getMessageId());
+  }
+
 }
