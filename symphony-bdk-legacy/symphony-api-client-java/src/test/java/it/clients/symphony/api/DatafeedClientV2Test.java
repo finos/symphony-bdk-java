@@ -5,6 +5,10 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
 import clients.symphony.api.DatafeedClient;
 import clients.symphony.api.constants.AgentConstants;
+import com.github.tomakehurst.wiremock.http.ResponseDefinition;
+import exceptions.APIClientErrorException;
+import exceptions.ForbiddenException;
+import exceptions.ServerErrorException;
 import exceptions.SymClientException;
 import it.commons.BotTest;
 import model.DatafeedEvent;
@@ -14,7 +18,9 @@ import model.Initiator;
 import model.Stream;
 import model.User;
 import model.datafeed.DatafeedV2;
+import model.datafeed.DatafeedV2EventList;
 import model.events.MessageSent;
+import org.eclipse.jetty.util.IO;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NoContentException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,6 +72,156 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
+  // readDatafeed
+  @Test
+  public void readDatafeedEventSuccess() throws IOException {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv2.json"));
+
+    try {
+
+      assertNotNull(datafeedClient);
+
+      final List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed("21449143d35a86461e254d28697214b4_f");
+
+      assertEquals("ack_id_string", datafeedClient.getAckId());
+
+      assertEquals(1, datafeedEvents.size());
+
+      final DatafeedEvent event = datafeedEvents.get(0);
+      assertNotNull(event);
+      assertEquals("ulPr8a:eFFDL7", event.getId());
+      assertEquals("CszQa6uPAA9V", event.getMessageId());
+      assertEquals(1536346282592L, event.getTimestamp().longValue());
+      assertEquals("MESSAGESENT", event.getType());
+
+      final Initiator initiator = event.getInitiator();
+      assertNotNull(initiator);
+      final User user = initiator.getUser();
+      assertNotNull(user);
+      assertEquals(1456852L, user.getUserId().longValue());
+      assertEquals("Local Bot01", user.getDisplayName());
+      assertEquals("bot.user1@test.com", user.getEmail());
+      assertEquals("bot.user1", user.getUsername());
+
+      final EventPayload payload = event.getPayload();
+      assertNotNull(payload);
+      final MessageSent messageSent = payload.getMessageSent();
+      assertNotNull(messageSent);
+      final InboundMessage message = messageSent.getMessage();
+      assertNotNull(message);
+      assertEquals("CszQa6uPAA9", message.getMessageId());
+      assertEquals(1536346282592L, message.getTimestamp().longValue());
+      final String expectedMessage = "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello World</div>";
+      assertEquals(expectedMessage, message.getMessage());
+
+      final User messageUser = message.getUser();
+      assertNotNull(messageUser);
+      assertEquals(14568529L, messageUser.getUserId().longValue());
+      assertEquals("Local Bot01", messageUser.getDisplayName());
+      assertEquals("bot.user1@test.com", messageUser.getEmail());
+      assertEquals("bot.user1", messageUser.getUsername());
+
+      final Stream stream = message.getStream();
+      assertNotNull(stream);
+      assertEquals("wTmSDJSNPXgB", stream.getStreamId());
+      assertEquals("ROOM", stream.getStreamType());
+
+      assertFalse(message.getExternalRecipients());
+      assertEquals("Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64", message.getUserAgent());
+      assertEquals("com.symphony.messageml.v2", message.getOriginalFormat());
+
+    } catch (SymClientException e) {
+      fail();
+    }
+  }
+
+  @Test
+  public void readDatafeedFailure204() {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
+        "{}", 204);
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("21449143d35a86461e254d28697214b4_f", "ack_id_string");
+    assertNotNull(events);
+    assertTrue(events.isEmpty());
+  }
+
+  @Test(expected = APIClientErrorException.class)
+  public void readDatafeedFailure400() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(400)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = SymClientException.class)
+  public void readDatafeedFailure401() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(401)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void readDatafeedFailure403() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(403)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 403,"
+                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void readDatafeedFailure500() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(500)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(datafeedClient);
+
+    final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
+  }
+
+  @Test(expected = javax.ws.rs.ProcessingException.class)
+  public void readDatafeedConnectionTimeout() {
+    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse().withStatus(200).withFixedDelay(10000)));
+
+    try {
+
+      datafeedClient.readDatafeed("1");
+
+    } catch (SymClientException e) {
+      fail();
+    }
+  }
+  // End readDatafeed
+
     @Test
     public void listDatafeedIdsSuccess() throws IOException {
         stubGet(AgentConstants.LISTDATAFEEDV2,
@@ -100,69 +257,6 @@ public class DatafeedClientV2Test extends BotTest {
     }
 
     @Test
-    public void readDatafeedEventSuccess() throws IOException {
-      stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
-              readResourceContent("/response_content/datafeedv2/read_datafeedv2.json"));
-
-      try {
-
-        assertNotNull(datafeedClient);
-
-        final List<DatafeedEvent> datafeedEvents = datafeedClient.readDatafeed("21449143d35a86461e254d28697214b4_f");
-
-        assertEquals("ack_id_string", datafeedClient.getAckId());
-
-        assertEquals(1, datafeedEvents.size());
-
-        final DatafeedEvent event = datafeedEvents.get(0);
-        assertNotNull(event);
-        assertEquals("ulPr8a:eFFDL7", event.getId());
-        assertEquals("CszQa6uPAA9V", event.getMessageId());
-        assertEquals(1536346282592L, event.getTimestamp().longValue());
-        assertEquals("MESSAGESENT", event.getType());
-
-        final Initiator initiator = event.getInitiator();
-        assertNotNull(initiator);
-        final User user = initiator.getUser();
-        assertNotNull(user);
-        assertEquals(1456852L, user.getUserId().longValue());
-        assertEquals("Local Bot01", user.getDisplayName());
-        assertEquals("bot.user1@test.com", user.getEmail());
-        assertEquals("bot.user1", user.getUsername());
-
-        final EventPayload payload = event.getPayload();
-        assertNotNull(payload);
-        final MessageSent messageSent = payload.getMessageSent();
-        assertNotNull(messageSent);
-        final InboundMessage message = messageSent.getMessage();
-        assertNotNull(message);
-        assertEquals("CszQa6uPAA9", message.getMessageId());
-        assertEquals(1536346282592L, message.getTimestamp().longValue());
-        final String expectedMessage = "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello World</div>";
-        assertEquals(expectedMessage, message.getMessage());
-
-        final User messageUser = message.getUser();
-        assertNotNull(messageUser);
-        assertEquals(14568529L, messageUser.getUserId().longValue());
-        assertEquals("Local Bot01", messageUser.getDisplayName());
-        assertEquals("bot.user1@test.com", messageUser.getEmail());
-        assertEquals("bot.user1", messageUser.getUsername());
-
-        final Stream stream = message.getStream();
-        assertNotNull(stream);
-        assertEquals("wTmSDJSNPXgB", stream.getStreamId());
-        assertEquals("ROOM", stream.getStreamType());
-
-        assertFalse(message.getExternalRecipients());
-        assertEquals("Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64", message.getUserAgent());
-        assertEquals("com.symphony.messageml.v2", message.getOriginalFormat());
-
-      } catch (SymClientException e) {
-        fail();
-      }
-    }
-
-    @Test
     public void deleteDatafeedSuccess() {
       stubFor(get(urlEqualTo(AgentConstants.DELETEDATAFEEDV2.replace("{id}", "1")))
           .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
@@ -180,4 +274,6 @@ public class DatafeedClientV2Test extends BotTest {
 
       assertTrue(true);
     }
+
+    // test getAck
 }
