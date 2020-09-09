@@ -75,11 +75,7 @@ public class StreamService {
   }
 
   /**
-   * Create a new single or multi party instant message conversation between the caller and specified user.
-   *
-   * The caller is implicitly included in the members of the created chat.
-   *
-   * If only one user id is given, an IM will be created, otherwise, a MIM will be created.
+   * {@link StreamService#create(List)}
    *
    * @param uids User ids of the participant
    * @return The created IM
