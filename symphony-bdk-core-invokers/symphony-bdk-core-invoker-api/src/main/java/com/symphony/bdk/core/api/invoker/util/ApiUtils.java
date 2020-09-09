@@ -14,6 +14,36 @@ public class ApiUtils {
     String jarVersion = ApiUtils.class.getPackage().getImplementationVersion();
     String bdkVersion = jarVersion == null ? "2.0" : jarVersion;
 
-    return "Symphony BDK/" + bdkVersion + "/java/1.8";
+    return "Symphony BDK/" + getBdkVersion() + "/java/" + getJavaVersion();
+  }
+
+  private static String getBdkVersion() {
+    String jarVersion = ApiUtils.class.getPackage().getImplementationVersion();
+    String bdkVersion = jarVersion == null ? "2.0" : jarVersion;
+
+    int dash = bdkVersion.indexOf("-");
+    if (dash != -1) {
+      // remove the potential "-SNAPSHOT" or "-RELEASE"
+      bdkVersion = bdkVersion.substring(0, dash);
+    }
+
+    return bdkVersion;
+  }
+
+  private static String getJavaVersion() {
+    String version = System.getProperty("java.version");
+    if (version.startsWith("1.")) {
+      // if java.version = 1.x.y_z: will return 1.x
+      // applicable for java version <= 8
+      version = version.substring(0, 3);
+    } else {
+      // if java.version = x.y.z, will return x
+      // applicable for java version >= 9
+      int dot = version.indexOf(".");
+      if (dot != -1) {
+        version = version.substring(0, dot);
+      }
+    }
+    return version;
   }
 }
