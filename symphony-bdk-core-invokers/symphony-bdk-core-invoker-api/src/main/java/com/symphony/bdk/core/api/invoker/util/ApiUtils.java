@@ -3,7 +3,7 @@ package com.symphony.bdk.core.api.invoker.util;
 import org.apiguardian.api.API;
 
 @API(status = API.Status.INTERNAL)
-public class ApiUtils {
+public final class ApiUtils {
 
   /**
    * Creates a user agent string used for the User-Agent header
@@ -42,5 +42,9 @@ public class ApiUtils {
       }
     }
     return version;
+  }
+
+  private ApiUtils() {
+    //to forbid class instantiation
   }
 }

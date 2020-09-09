@@ -11,11 +11,23 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * Retrieve a list of elements given a {@link PaginatedApi}.
+ * Goal is to fetch elements lazily.
+ * @param <T> the type of objects to retrieve
+ */
 public class PaginatedService<T> {
   private PaginatedApi<T> paginatedApi;
-  private int chunkSize; //max number of items to retrieve in one call
-  private int maxSize; //max total number of items to retrieve
+  private int chunkSize;
+  private int maxSize;
 
+  /**
+   * The only constructor
+   *
+   * @param paginatedApi the paginated api used to retrieve the chunks of elements
+   * @param chunkSize the maximum number to retrieve in one call of {@link PaginatedApi#get(int, int)}
+   * @param maxSize the maximum number to retrieve in total
+   */
   public PaginatedService(PaginatedApi<T> paginatedApi, int chunkSize, int maxSize) {
     checkSizes(chunkSize, maxSize);
     this.paginatedApi = paginatedApi;
@@ -32,10 +44,20 @@ public class PaginatedService<T> {
     }
   }
 
+  /**
+   * Returns an iterator of elements with lazy fetching.
+   *
+   * @return an {@link Iterator} which lazily makes calls to the {@link PaginatedApi}.
+   */
   public Iterator<T> iterator() {
     return new PaginatedIterator();
   }
 
+  /**
+   * Returns an stream of elements with lazy fetching.
+   *
+   * @return a {@link Stream} which lazily makes calls to the {@link PaginatedApi}.
+   */
   public Stream<T> stream() {
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED), false);
   }
