@@ -11,7 +11,7 @@ public final class ApiUtils {
    * @return a user agent string containing the current BDK version
    */
   public static String getUserAgent() {
-    return "Symphony BDK/" + getBdkVersion() + "/java/" + getJavaVersion();
+    return "Symphony BDK/" + getBdkVersion() + "/java/" + System.getProperty("java.version");
   }
 
   private static String getBdkVersion() {
@@ -25,23 +25,6 @@ public final class ApiUtils {
     }
 
     return bdkVersion;
-  }
-
-  private static String getJavaVersion() {
-    String version = System.getProperty("java.version");
-    if (version.startsWith("1.")) {
-      // if java.version = 1.x.y_z: will return 1.x
-      // applicable for java version <= 8
-      version = version.substring(0, 3);
-    } else {
-      // if java.version = x.y.z, will return x
-      // applicable for java version >= 9
-      int dot = version.indexOf(".");
-      if (dot != -1) {
-        version = version.substring(0, dot);
-      }
-    }
-    return version;
   }
 
   private ApiUtils() {

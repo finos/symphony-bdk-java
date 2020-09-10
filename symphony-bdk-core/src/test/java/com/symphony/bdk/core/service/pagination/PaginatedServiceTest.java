@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.api.invoker.util;
+package com.symphony.bdk.core.service.pagination;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

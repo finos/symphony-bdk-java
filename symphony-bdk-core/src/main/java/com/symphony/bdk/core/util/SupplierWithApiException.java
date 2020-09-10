@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.api.invoker.util;
+package com.symphony.bdk.core.util;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;

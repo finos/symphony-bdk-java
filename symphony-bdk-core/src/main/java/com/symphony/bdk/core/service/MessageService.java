@@ -1,11 +1,11 @@
 package com.symphony.bdk.core.service;
 
 
-import static com.symphony.bdk.core.api.invoker.util.SupplierWithApiException.callAndCatchApiException;
+import static com.symphony.bdk.core.util.SupplierWithApiException.callAndCatchApiException;
 
 import com.symphony.bdk.core.api.invoker.util.ApiUtils;
-import com.symphony.bdk.core.api.invoker.util.PaginatedApi;
-import com.symphony.bdk.core.api.invoker.util.PaginatedService;
+import com.symphony.bdk.core.service.pagination.PaginatedApi;
+import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.AttachmentsApi;
