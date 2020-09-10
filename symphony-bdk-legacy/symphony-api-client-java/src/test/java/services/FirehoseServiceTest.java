@@ -89,7 +89,7 @@ public class FirehoseServiceTest {
     when(stream.getStreamType()).thenReturn("ROOM");
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -107,7 +107,7 @@ public class FirehoseServiceTest {
     when(stream.getStreamType()).thenReturn("IMTest");
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -124,7 +124,7 @@ public class FirehoseServiceTest {
     when(imCreated.getStream()).thenReturn(stream);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -139,7 +139,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getRoomCreated()).thenReturn(roomCreated);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -154,7 +154,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getRoomUpdated()).thenReturn(roomUpdated);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -169,7 +169,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getRoomDeactivated()).thenReturn(roomDeactivated);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -185,7 +185,7 @@ public class FirehoseServiceTest {
     when(roomReactivated.getStream()).thenReturn(stream);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -200,7 +200,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getUserJoinedRoom()).thenReturn(userJoinedRoom);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -215,7 +215,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getUserLeftRoom()).thenReturn(userLeftRoom);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -230,7 +230,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getRoomMemberPromotedToOwner()).thenReturn(roomMemberPromotedToOwner);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -245,7 +245,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getRoomMemberDemotedFromOwner()).thenReturn(roomMemberDemotedFromOwner);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -261,7 +261,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getConnectionAccepted()).thenReturn(connectionAccepted);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -277,7 +277,7 @@ public class FirehoseServiceTest {
     when(eventPayload.getConnectionRequested()).thenReturn(connectionRequested);
 
     FirehoseService firehoseService = new FirehoseService(symBotClient, "123");
-    FirehoseListener listener = mock(FirehoseListener.class);
+    FirehoseListener listener = createFirehoseListener();
     firehoseService.addListener(listener);
     Thread.sleep(150);
 
@@ -295,4 +295,6 @@ public class FirehoseServiceTest {
     when(firehoseClient.readFirehose("123")).thenReturn(datafeedEventList);
   }
   //endregion
+
+  private FirehoseListener createFirehoseListener() { return mock(FirehoseListener.class); }
 }
