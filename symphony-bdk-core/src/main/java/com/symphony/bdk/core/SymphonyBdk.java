@@ -95,10 +95,22 @@ public class SymphonyBdk {
     return this.activityRegistry;
   }
 
+  /**
+   * OBO Authenticate by using user Id.
+   *
+   * @param id User id
+   * @return Obo authentication session
+   */
   public AuthSession obo(Long id) throws AuthUnauthorizedException {
     return this.getOboAuthenticator().authenticateByUserId(id);
   }
 
+  /**
+   * OBO Authenticate by using username.
+   *
+   * @param username Username
+   * @return Obo authentication session
+   */
   public AuthSession obo(String username) throws AuthUnauthorizedException {
     return this.getOboAuthenticator().authenticateByUsername(username);
   }
