@@ -4,7 +4,6 @@ import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
@@ -37,9 +36,9 @@ public class UserExampleMain {
     log.info("Company: {}", userDetailList.get(0).getUserAttributes().getCompanyName());
     log.info("Role: {}", userDetailList.get(0).getRoles());
 
-    AuthSession oboSession = bdk.obo(Obo.username("hong.le"));
+    AuthSession oboSession = bdk.obo("hong.le");
     StreamFilter streamFilter = new StreamFilter().addStreamTypesItem(new StreamType().type(StreamType.TypeEnum.IM));
-    List<StreamAttributes> streamsList = bdk.streams().listStreams(streamFilter, oboSession);
+    List<StreamAttributes> streamsList = bdk.streams().listStreams(oboSession, streamFilter);
     log.info("Streams List: {}", streamsList);
   }
 }

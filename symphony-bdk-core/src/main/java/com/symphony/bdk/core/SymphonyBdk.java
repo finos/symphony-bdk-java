@@ -9,7 +9,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
-import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -32,7 +31,6 @@ public class SymphonyBdk {
   private final ActivityRegistry activityRegistry;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
-
     ApiClientFactory apiClientFactory = new ApiClientFactory(config);
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
     AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
@@ -93,11 +91,12 @@ public class SymphonyBdk {
     return this.activityRegistry;
   }
 
-  public AuthSession obo(Obo.Handle oboHandle) throws AuthUnauthorizedException {
-    if (oboHandle.hasUsername()) {
-      return this.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
-    }
-    return this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
+  public AuthSession obo(Long id) throws AuthUnauthorizedException {
+    return this.getOboAuthenticator().authenticateByUserId(id);
+  }
+
+  public AuthSession obo(String username) throws AuthUnauthorizedException {
+    return this.getOboAuthenticator().authenticateByUsername(username);
   }
 
   protected OboAuthenticator getOboAuthenticator() {

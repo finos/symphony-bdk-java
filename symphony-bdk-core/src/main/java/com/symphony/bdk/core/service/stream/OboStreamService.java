@@ -18,7 +18,7 @@ class OboStreamService {
     this.streamsApi = streamsApi;
   }
 
-  public V2StreamAttributes getStreamInfo(String streamId, AuthSession oboSession) {
+  public V2StreamAttributes getStreamInfo(AuthSession oboSession, String streamId) {
     try {
       return streamsApi.v2StreamsSidInfoGet(streamId, oboSession.getSessionToken());
     } catch (ApiException apiException) {
@@ -26,7 +26,7 @@ class OboStreamService {
     }
   }
 
-  public List<StreamAttributes> listStreams(StreamFilter filter, AuthSession oboSession) {
+  public List<StreamAttributes> listStreams(AuthSession oboSession, StreamFilter filter) {
     try {
       return streamsApi.v1StreamsListPost(oboSession.getSessionToken(), null, null, filter);
     } catch (ApiException apiException) {

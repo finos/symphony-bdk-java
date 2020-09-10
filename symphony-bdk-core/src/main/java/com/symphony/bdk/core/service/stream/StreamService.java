@@ -171,7 +171,7 @@ public class StreamService extends OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
   public List<StreamAttributes> listStreams(StreamFilter filter) {
-    return this.listStreams(filter, this.authSession);
+    return this.listStreams(this.authSession, filter);
   }
 
   /**
@@ -182,7 +182,7 @@ public class StreamService extends OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-info-v2">Stream Info V2</a>
    */
   public V2StreamAttributes getStreamInfo(String streamId) {
-    return this.getStreamInfo(streamId, this.authSession);
+    return this.getStreamInfo(this.authSession, streamId);
   }
 
   /**
