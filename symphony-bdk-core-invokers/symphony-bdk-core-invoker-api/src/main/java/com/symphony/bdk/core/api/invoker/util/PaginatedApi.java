@@ -2,13 +2,16 @@ package com.symphony.bdk.core.api.invoker.util;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 
+import org.apiguardian.api.API;
+
 import java.util.List;
 
 /**
- * Functional Interface to accomodate for API endpoints with pagination.
+ * Functional Interface to accommodate for API endpoints with pagination.
  * @param <T> the type of objects to retrieve
  */
 @FunctionalInterface
+@API(status = API.Status.INTERNAL)
 public interface PaginatedApi<T> {
   /**
    * This makes a call with the provided offset and limit parameters.

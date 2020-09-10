@@ -3,6 +3,8 @@ package com.symphony.bdk.core.api.invoker.util;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 
+import org.apiguardian.api.API;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.stream.StreamSupport;
  * Goal is to fetch elements lazily.
  * @param <T> the type of objects to retrieve
  */
+@API(status = API.Status.INTERNAL)
 public class PaginatedService<T> {
   private PaginatedApi<T> paginatedApi;
   private int chunkSize;

@@ -4,17 +4,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -95,6 +98,17 @@ public class MessageServiceTest {
   }
 
   @Test
+  void testGetMessagesWithStreamObject() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service).getMessages(anyString(), any(), any(), any());
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+
+    assertNotNull(service.getMessages(v4Stream, null, null, null));
+    verify(service).getMessages(eq(STREAM_ID), isNull(), isNull(), isNull());
+  }
+
+  @Test
   void testGetMessages() throws IOException {
     final String streamId = "streamid";
     mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", streamId),
@@ -119,6 +133,17 @@ public class MessageServiceTest {
   }
 
   @Test
+  void testGetMessagesStreamWithStreamObject() {
+    MessageService service = spy(messageService);
+    doReturn(Stream.empty()).when(service).getMessagesStream(anyString(), any(), any(), any());
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+
+    assertNotNull(service.getMessagesStream(v4Stream, null, null, null));
+    verify(service).getMessagesStream(eq(STREAM_ID), isNull(), isNull(), isNull());
+  }
+
+  @Test
   void testSend() throws IOException {
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
@@ -134,8 +159,7 @@ public class MessageServiceTest {
     MessageService service = spy(messageService);
     doReturn(new V4Message()).when(service).send(anyString(), anyString());
 
-    final V4Stream v4Stream = new V4Stream();
-    v4Stream.setStreamId(STREAM_ID);
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
 
     assertNotNull(service.send(v4Stream, MESSAGE));
     verify(service).send(eq(STREAM_ID), eq(MESSAGE));
@@ -149,8 +173,7 @@ public class MessageServiceTest {
     MessageService service = spy(messageService);
     doReturn(new V4Message()).when(service).send(anyString(), anyString());
 
-    final V4Stream v4Stream = new V4Stream();
-    v4Stream.setStreamId(STREAM_ID);
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
 
     assertNotNull(service.send(v4Stream, TEMPLATE_NAME, Collections.emptyMap()));
     verify(service).send(eq(STREAM_ID), eq(MESSAGE));

@@ -86,6 +86,20 @@ public class MessageService {
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
+   * @param stream the stream where to look for messages
+   * @param since instant of the earliest possible date of the first message returned.
+   * @param skip number of messages to skip. Optional and defaults to 0.
+   * @param limit maximum number of messages to return. Optional and defaults to 50.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   */
+  public List<V4Message> getMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Integer skip, Integer limit) {
+    return getMessages(stream.getStreamId(), since, skip, limit);
+  }
+
+  /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
    * @param streamId the streamID where to look for messages
    * @param since instant of the earliest possible date of the first message returned.
    * @param skip number of messages to skip. Optional and defaults to 0.
@@ -96,6 +110,20 @@ public class MessageService {
   public List<V4Message> getMessages(@Nonnull String streamId, @Nonnull Instant since, Integer skip, Integer limit) {
     return callAndCatchApiException(() -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), skip, limit));
+  }
+
+  /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
+   * @param stream the stream where to look for messages
+   * @param since instant of the earliest possible date of the first message returned.
+   * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
+   * @param totalSize total maximum number of messages to return. Optional and defaults to 50.
+   * @return a {@link Stream} of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   */
+  public Stream<V4Message> getMessagesStream(@Nonnull V4Stream stream, @Nonnull Instant since, Integer chunkSize, Integer totalSize) {
+    return getMessagesStream(stream.getStreamId(), since, chunkSize, totalSize);
   }
 
   /**

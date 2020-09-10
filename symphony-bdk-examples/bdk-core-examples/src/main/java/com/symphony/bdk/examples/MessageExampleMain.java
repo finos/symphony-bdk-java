@@ -3,9 +3,6 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.model.MessageIdsFromStream;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
@@ -16,7 +13,6 @@ import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.template.api.TemplateException;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,13 +27,11 @@ public class MessageExampleMain {
 
   public static final String STREAM_ID = "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA";
   public static final String MESSAGE = "<messageML>Hello, World!</messageML>";
-  public static final String MESSAGE_ID = "LE1TxlLArVbpNKn-CXZuZn___ouXdRpnbQ";
 
   public static final Instant SINCE = Instant.now().minus(Duration.ofHours(1));
   public static final Instant TO = Instant.now();
 
-  public static void main(String[] args)
-      throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, TemplateException {
+  public static void main(String[] args) throws Exception {
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
     //send a regular message
@@ -51,7 +45,7 @@ public class MessageExampleMain {
         .send(STREAM_ID, "customTemplate.ftl", Collections.emptyMap());
 
     //retrieve the details of existing messages
-    final V4Message message = bdk.messages().getMessage(MESSAGE_ID);
+    final V4Message message = bdk.messages().getMessage(regularMessage.getMessageId());
 
     //retrieve a list of messages
     final List<V4Message> messages = bdk.messages().getMessages(STREAM_ID, SINCE, null, 2);
@@ -65,15 +59,15 @@ public class MessageExampleMain {
         bdk.messages().getMessageIdsByTimestampStream(STREAM_ID, SINCE, TO, 2, 6);
 
     //message status, receipts, relationships
-    final MessageStatus messageStatus = bdk.messages().getMessageStatus(MESSAGE_ID);
-    final MessageReceiptDetailResponse messageReceiptDetailResponse = bdk.messages().listMessageReceipts(MESSAGE_ID);
-    final MessageMetadataResponse messageRelationships = bdk.messages().getMessageRelationships(MESSAGE_ID);
+    final MessageStatus messageStatus = bdk.messages().getMessageStatus(message.getMessageId());
+    final MessageReceiptDetailResponse messageReceiptDetailResponse = bdk.messages().listMessageReceipts(message.getMessageId());
+    final MessageMetadataResponse messageRelationships = bdk.messages().getMessageRelationships(message.getMessageId());
 
     //attachment
     final List<String> attachmentTypes = bdk.messages().getAttachmentTypes();
     final List<StreamAttachmentItem> streamAttachmentItems =
         bdk.messages().listAttachments(STREAM_ID, SINCE, TO, 3, AttachmentSort.ASC);
-    final byte[] attachment = bdk.messages().getAttachment(STREAM_ID, MESSAGE_ID, "internal_14568529");
+    final byte[] attachment = bdk.messages().getAttachment(STREAM_ID, message.getMessageId(), message.getAttachments().get(0).getId());
 
     //import a message
     V4ImportedMessage msg = new V4ImportedMessage();
@@ -85,6 +79,6 @@ public class MessageExampleMain {
     final List<V4ImportResponse> v4ImportResponses = bdk.messages().importMessages(Collections.singletonList(msg));
 
     // suppress message
-    final MessageSuppressionResponse messageSuppression = bdk.messages().suppressMessage(MESSAGE_ID);
+    final MessageSuppressionResponse messageSuppression = bdk.messages().suppressMessage(message.getMessageId());
   }
 }
