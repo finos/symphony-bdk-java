@@ -58,16 +58,6 @@ public class SymphonyBdk {
     return this.messageService;
   }
 
-//  public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
-//    AuthSession oboSession;
-//    if (oboHandle.hasUsername()) {
-//      oboSession = this.getOboAuthenticator().authenticateByUsername(oboHandle.getUsername());
-//    } else {
-//      oboSession = this.getOboAuthenticator().authenticateByUserId(oboHandle.getUserId());
-//    }
-//    return new MessageService(new MessagesApi(this.agentClient), oboSession);
-//  }
-
   /**
    * Get the {@link DatafeedService} from a Bdk entry point.
    * The returned datafeed service instance depends on the configuration of datafeed version.

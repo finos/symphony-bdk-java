@@ -16,11 +16,9 @@ import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
-import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
-import com.symphony.bdk.gen.api.model.V2UserList;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -50,15 +48,12 @@ import javax.annotation.Nullable;
  *
  */
 @Slf4j
-public class UserService {
+public class UserService extends OboUserService {
 
-  private final UserApi userApi;
-  private final UsersApi usersApi;
   private final AuthSession authSession;
 
   public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession) {
-    this.userApi = userApi;
-    this.usersApi = usersApi;
+    super(userApi, usersApi);
     this.authSession = authSession;
   }
 
@@ -334,82 +329,6 @@ public class UserService {
   }
 
   /**
-   * Get user by id
-   *
-   * @param uid   User Id
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *              returned. If absent or false then a directory search will be performed and users
-   *              from other pods who are visible to the calling user will also be returned.
-   * @return      User found by uid
-   */
-  public UserV2 getUserById(@NonNull Long uid, @NonNull Boolean local) {
-    try {
-      return usersApi.v2UserGet(authSession.getSessionToken(), uid, null, null, local);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
-  }
-
-  /**
-   * Get user by id
-   *
-   * @param uid User Id
-   * @return    User found by uid
-   */
-  public UserV2 getUserById(@NonNull Long uid) {
-    try {
-      return usersApi.v2UserGet(authSession.getSessionToken(), uid, null, null, false);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
-  }
-
-  /**
-   * Get user by email
-   *
-   * @param email   Email address of the user
-   * @param local   If true then a local DB search will be performed and only local pod users will be
-   *                returned. If absent or false then a directory search will be performed and users
-   *                from other pods who are visible to the calling user will also be returned.
-   * @return        User found by email
-   */
-  public UserV2 getUserByEmail(@NonNull String email, @NonNull Boolean local) {
-    try {
-      return usersApi.v2UserGet(authSession.getSessionToken(), null, email, null, local);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
-  }
-
-  /**
-   * Get user by email
-   *
-   * @param email Email address of the user
-   * @return      User found by email
-   */
-  public UserV2 getUserByEmail(@NonNull String email) {
-    try {
-      return usersApi.v2UserGet(authSession.getSessionToken(), null, email, null, false);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
-  }
-
-  /**
-   * Get user within a local pod by username
-   *
-   * @param username  Username of the user
-   * @return          User found by username
-   */
-  public UserV2 getUserByUsername(@NonNull String username) {
-    try {
-      return usersApi.v2UserGet(authSession.getSessionToken(), null, null, username, true);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
-  }
-
-  /**
    * Search user by list of user ids
    *
    * @param uidList List of user ids
@@ -420,13 +339,7 @@ public class UserService {
    * @see           <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @NonNull Boolean local) {
-    try {
-      String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local);
-      return v2UserList.getUsers();
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.searchUserByIds(this.authSession, uidList, local);
   }
 
   /**
@@ -437,13 +350,7 @@ public class UserService {
    * @see           <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
-    try {
-      String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false);
-      return v2UserList.getUsers();
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.searchUserByIds(this.authSession, uidList);
   }
 
   /**
@@ -457,13 +364,7 @@ public class UserService {
    * @see             <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @NonNull Boolean local) {
-    try {
-      String emails = String.join(",", emailList);
-      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local);
-      return v2UserList.getUsers();
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.searchUserByEmails(this.authSession, emailList, local);
   }
 
   /**
@@ -474,13 +375,7 @@ public class UserService {
    * @see             <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
-    try {
-      String emails = String.join(",", emailList);
-      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false);
-      return v2UserList.getUsers();
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.searchUserByEmails(this.authSession, emailList);
   }
 
   /**
@@ -491,13 +386,7 @@ public class UserService {
    * @see                 <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
   public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
-    try {
-      String usernames = String.join(",", usernameList);
-      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true);
-      return v2UserList.getUsers();
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.searchUserByUsernames(this.authSession, usernameList);
   }
 
   /**
@@ -511,11 +400,6 @@ public class UserService {
    * @see         <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query, @Nullable Boolean local) {
-    try {
-      UserSearchResults results = usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local);
-      return results.getUsers();
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return this.searchUserBySearchQuery(this.authSession, query, local);
   }
 }
