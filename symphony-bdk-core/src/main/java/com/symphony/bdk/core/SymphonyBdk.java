@@ -9,6 +9,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
+import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -27,21 +28,34 @@ public class SymphonyBdk {
 
   private final OboAuthenticator oboAuthenticator;
 
-  private final ServiceFactory serviceFactory;
   private final ActivityRegistry activityRegistry;
+  private final SessionService sessionService;
+  private final StreamService streamService;
+  private final UserService userService;
+  private final MessageService messageService;
+  private final DatafeedService datafeedService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     ApiClientFactory apiClientFactory = new ApiClientFactory(config);
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
     AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
-    this.serviceFactory = new ServiceFactory(apiClientFactory.getPodClient(), apiClientFactory.getAgentClient(), botSession, config);
+    ServiceFactory serviceFactory =
+        new ServiceFactory(apiClientFactory.getPodClient(), apiClientFactory.getAgentClient(), botSession, config);
+
+    // service init
+    this.sessionService = serviceFactory.getSessionService();
+    this.userService = serviceFactory.getUserService();
+    this.streamService = serviceFactory.getStreamService();
+    this.messageService = serviceFactory.getMessageService();
+    this.datafeedService = serviceFactory.getDatafeedService();
+
     // setup activities
-    this.activityRegistry = new ActivityRegistry(this.serviceFactory.getSessionService().getSession(botSession), this.serviceFactory.getDatafeedService()::subscribe);
+    this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(botSession), this.datafeedService::subscribe);
   }
 
   public MessageService messages() {
-    return this.serviceFactory.getMessageService();
+    return this.messageService;
   }
 
 //  public MessageService messages(Obo.Handle oboHandle) throws AuthUnauthorizedException {
@@ -61,7 +75,7 @@ public class SymphonyBdk {
    * @return {@link DatafeedService} datafeed service instance.
    */
   public DatafeedService datafeed() {
-    return this.serviceFactory.getDatafeedService();
+    return this.datafeedService;
   }
 
   /**
@@ -70,7 +84,7 @@ public class SymphonyBdk {
    * @return {@link UserService} user service instance.
    */
   public UserService users() {
-    return this.serviceFactory.getUserService();
+    return this.userService;
   }
 
   /**
@@ -79,7 +93,7 @@ public class SymphonyBdk {
    * @return {@link StreamService} user service instance.
    */
   public StreamService streams() {
-    return this.serviceFactory.getStreamService();
+    return this.streamService;
   }
 
   /**

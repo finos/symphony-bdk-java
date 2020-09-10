@@ -20,42 +20,38 @@ import com.symphony.bdk.gen.api.UsersApi;
 
 class ServiceFactory {
 
-  private final UserService userService;
-  private final StreamService streamService;
-  private final MessageService messageService;
-  private final SessionService sessionService;
-  private final DatafeedService datafeedService;
+  private final ApiClient podClient;
+  private final ApiClient agentClient;
+  private final AuthSession authSession;
+  private final BdkConfig config;
 
   public ServiceFactory(ApiClient podClient, ApiClient agentClient, AuthSession authSession, BdkConfig config) {
-
-    this.userService = new UserService(new UserApi(podClient), new UsersApi(podClient), authSession);
-    this.streamService = new StreamService(new StreamsApi(podClient), authSession);
-    this.messageService = new MessageService(new MessagesApi(agentClient), authSession);
-    this.sessionService = new SessionService(new SessionApi(podClient));
-    if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      this.datafeedService = new DatafeedServiceV2(new DatafeedApi(agentClient), authSession, config);
-    } else {
-      this.datafeedService = new DatafeedServiceV1(new DatafeedApi(agentClient), authSession, config);
-    }
+    this.podClient = podClient;
+    this.agentClient = agentClient;
+    this.authSession = authSession;
+    this.config = config;
   }
 
   public UserService getUserService() {
-    return this.userService;
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession );
   }
 
   public StreamService getStreamService() {
-    return this.streamService;
+    return new StreamService(new StreamsApi(podClient), authSession);
   }
 
   public MessageService getMessageService() {
-    return this.messageService;
+    return new MessageService(new MessagesApi(agentClient), authSession);
   }
 
   public SessionService getSessionService() {
-    return this.sessionService;
+    return new SessionService(new SessionApi(podClient));
   }
 
   public DatafeedService getDatafeedService() {
-    return this.datafeedService;
+    if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
+      return new DatafeedServiceV2(new DatafeedApi(agentClient), authSession, config);
+    }
+    return new DatafeedServiceV1(new DatafeedApi(agentClient), authSession, config);
   }
 }
