@@ -5,7 +5,7 @@
 
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>symphony-bdk-java</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <name>Symphony Java BDK Project</name>
     <description>Symphony Java BDK Parent</description>
     <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
