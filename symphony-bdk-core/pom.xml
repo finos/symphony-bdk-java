@@ -241,7 +241,6 @@
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
                         <!-- Exclude Thibault's temporary classes from coverage -->
-                        <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
                         <exclude>com/symphony/bdk/core/service/MessageService.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo$Handle.class</exclude>

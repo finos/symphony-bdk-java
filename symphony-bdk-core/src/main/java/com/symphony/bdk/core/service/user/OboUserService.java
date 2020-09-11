@@ -30,18 +30,18 @@ class OboUserService {
   /**
    * {@link UserService#searchUserByIds(List, Boolean)}
    *
-   * @param oboSession Obo Session
-   * @param uidList    List of user ids
-   * @param local      If true then a local DB search will be performed and only local pod users will be
-   *                   returned. If absent or false then a directory search will be performed and users
-   *                   from other pods who are visible to the calling user will also be returned.
-   * @return           Users found by user ids
-   * @see              <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   * @param authSession Bot session or Obo Session
+   * @param uidList     List of user ids
+   * @param local       If true then a local DB search will be performed and only local pod users will be
+   *                    returned. If absent or false then a directory search will be performed and users
+   *                    from other pods who are visible to the calling user will also be returned.
+   * @return            Users found by user ids
+   * @see               <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByIds(@NonNull AuthSession oboSession, @NonNull List<Long> uidList, @NonNull Boolean local) {
+  public List<UserV2> searchUserByIds(@NonNull AuthSession authSession, @NonNull List<Long> uidList, @NonNull Boolean local) {
     try {
       String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-      V2UserList v2UserList = usersApi.v3UsersGet(oboSession.getSessionToken(), uids, null, null, local);
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local);
       return v2UserList.getUsers();
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -51,15 +51,15 @@ class OboUserService {
   /**
    * {@link UserService#searchUserByIds(List)}
    *
-   * @param oboSession  Obo Session
+   * @param authSession Bot Session or Obo Session
    * @param uidList     List of user ids
    * @return            Users found by user ids
    * @see               <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByIds(@NonNull AuthSession oboSession, @NonNull List<Long> uidList) {
+  public List<UserV2> searchUserByIds(@NonNull AuthSession authSession, @NonNull List<Long> uidList) {
     try {
       String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-      V2UserList v2UserList = usersApi.v3UsersGet(oboSession.getSessionToken(), uids, null, null, false);
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false);
       return v2UserList.getUsers();
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -69,7 +69,7 @@ class OboUserService {
   /**
    * {@link UserService#searchUserByEmails(List, Boolean)}
    *
-   * @param oboSession  Obo Session
+   * @param authSession Bot Session or Obo Session
    * @param emailList   List of emails
    * @param local       If true then a local DB search will be performed and only local pod users will be
    *                    returned. If absent or false then a directory search will be performed and users
@@ -77,10 +77,10 @@ class OboUserService {
    * @return            Users found by emails.
    * @see               <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByEmails(@NonNull AuthSession oboSession, @NonNull List<String> emailList, @NonNull Boolean local) {
+  public List<UserV2> searchUserByEmails(@NonNull AuthSession authSession, @NonNull List<String> emailList, @NonNull Boolean local) {
     try {
       String emails = String.join(",", emailList);
-      V2UserList v2UserList = usersApi.v3UsersGet(oboSession.getSessionToken(), null, emails, null, local);
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local);
       return v2UserList.getUsers();
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -90,15 +90,15 @@ class OboUserService {
   /**
    * {@link UserService#searchUserByEmails(List)}
    *
-   * @param oboSession  Obo Session
+   * @param authSession Bot Session or Obo Session
    * @param emailList   List of emails
    * @return            Users found by emails
    * @see               <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByEmails(@NonNull AuthSession oboSession, @NonNull List<String> emailList) {
+  public List<UserV2> searchUserByEmails(@NonNull AuthSession authSession, @NonNull List<String> emailList) {
     try {
       String emails = String.join(",", emailList);
-      V2UserList v2UserList = usersApi.v3UsersGet(oboSession.getSessionToken(), null, emails, null, false);
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false);
       return v2UserList.getUsers();
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -108,15 +108,15 @@ class OboUserService {
   /**
    * {@link UserService#searchUserByUsernames(List)}
    *
-   * @param oboSession    Obo Session
+   * @param authSession   Bot Session or Obo Session
    * @param usernameList  List of usernames
    * @return              Users found by usernames
    * @see                 <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByUsernames(@NonNull AuthSession oboSession, @NonNull List<String> usernameList) {
+  public List<UserV2> searchUserByUsernames(@NonNull AuthSession authSession, @NonNull List<String> usernameList) {
     try {
       String usernames = String.join(",", usernameList);
-      V2UserList v2UserList = usersApi.v3UsersGet(oboSession.getSessionToken(), null, null, usernames, true);
+      V2UserList v2UserList = usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true);
       return v2UserList.getUsers();
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
@@ -126,17 +126,17 @@ class OboUserService {
   /**
    * {@link UserService#searchUserBySearchQuery(UserSearchQuery, Boolean)}
    *
-   * @param oboSession    Obo Session
-   * @param query Searching query containing complicated information like title, location, company...
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *              returned. If absent or false then a directory search will be performed and users
-   *              from other pods who are visible to the calling user will also be returned.
-   * @return      List of users found by query
-   * @see         <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
+   * @param authSession   Bot Session or  Obo Session
+   * @param query         Searching query containing complicated information like title, location, company...
+   * @param local         If true then a local DB search will be performed and only local pod users will be
+   *                      returned. If absent or false then a directory search will be performed and users
+   *                      from other pods who are visible to the calling user will also be returned.
+   * @return              List of users found by query
+   * @see                 <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  public List<UserV2> searchUserBySearchQuery(@NonNull AuthSession oboSession, @NonNull UserSearchQuery query, @Nullable Boolean local) {
+  public List<UserV2> searchUserBySearchQuery(@NonNull AuthSession authSession, @NonNull UserSearchQuery query, @Nullable Boolean local) {
     try {
-      UserSearchResults results = usersApi.v1UserSearchPost(oboSession.getSessionToken(), query, null, null, local);
+      UserSearchResults results = usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local);
       return results.getUsers();
     } catch (ApiException apiException) {
       throw new ApiRuntimeException(apiException);
