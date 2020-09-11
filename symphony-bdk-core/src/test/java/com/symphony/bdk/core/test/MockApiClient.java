@@ -2,11 +2,8 @@ package com.symphony.bdk.core.test;
 
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
@@ -31,22 +28,28 @@ public class MockApiClient {
 
   private static final ObjectMapper MAPPER = new JsonMapper();
   private final Client httpClient;
-  private final WebTarget webTarget;
-  private final Invocation.Builder invocationBuilder;
 
   public MockApiClient() {
     this.httpClient = mock(Client.class);
-    this.webTarget = mock(WebTarget.class);
-    this.invocationBuilder = mock(Invocation.Builder.class);
-
-    when(this.webTarget.queryParam(anyString(), any())).thenReturn(this.webTarget);
-    when(this.webTarget.request()).thenReturn(this.invocationBuilder);
-    when(this.invocationBuilder.accept(anyString())).thenReturn(this.invocationBuilder);
-    when(this.invocationBuilder.header(anyString(), any())).thenReturn(this.invocationBuilder);
-    when(this.invocationBuilder.cookie(anyString(), any())).thenReturn(this.invocationBuilder);
+    when(this.httpClient.target(anyString())).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong path"));
   }
 
   public void onRequestWithResponseCode(String method, int statusCode, String path, String resContent)  {
+    WebTarget webTarget = null;
+    try {
+       webTarget = this.httpClient.target(path);
+    } catch (RuntimeException ignored) {
+
+    }
+    if (webTarget == null) {
+      webTarget = this.initMockWebTarget();
+      doReturn(webTarget).when(this.httpClient).target(path);
+    }
+    Invocation.Builder invocationBuilder = webTarget.request();
+    if (invocationBuilder == null) {
+      invocationBuilder = this.initInvocationBuilder();
+      when(webTarget.request()).thenReturn(invocationBuilder);
+    }
 
     final Response httpResponse = Response.status(statusCode).type(MediaType.APPLICATION_JSON).build();
 
@@ -59,14 +62,31 @@ public class MockApiClient {
       return MAPPER.readValue(resContent, (Class<?>) type.getType());
     })).when(response).readEntity(ArgumentMatchers.<GenericType<?>>any());
 
-    when(this.httpClient.target(path)).thenReturn(this.webTarget);
     if ("GET".equals(method)) {
-      when(this.invocationBuilder.get()).thenReturn(response);
+      doReturn(response).when(invocationBuilder).get();
     } else if ("POST".equals(method)) {
-      when(this.invocationBuilder.post(any(Entity.class))).thenReturn(response);
+      doReturn(response).when(invocationBuilder).post(any(Entity.class));
     } else if ("DELETE".equals(method)) {
-      when(this.invocationBuilder.method("DELETE", any(Entity.class))).thenReturn(response);
+      doReturn(response).when(invocationBuilder).method("DELETE", any(Entity.class));
     }
+  }
+
+  private Invocation.Builder initInvocationBuilder() {
+    Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+
+    when(invocationBuilder.accept(anyString())).thenReturn(invocationBuilder);
+    when(invocationBuilder.header(anyString(), any())).thenReturn(invocationBuilder);
+    when(invocationBuilder.cookie(anyString(), any())).thenReturn(invocationBuilder);
+    when(invocationBuilder.get()).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong method"));
+    when(invocationBuilder.post(any(Entity.class))).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong method"));
+    when(invocationBuilder.method(eq("DELETE"), any(Entity.class))).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong method"));
+    return invocationBuilder;
+  }
+
+  private WebTarget initMockWebTarget() {
+    WebTarget webTarget = mock(WebTarget.class);
+    when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
+    return webTarget;
   }
 
   public void onGet(String path, String resContent) {
