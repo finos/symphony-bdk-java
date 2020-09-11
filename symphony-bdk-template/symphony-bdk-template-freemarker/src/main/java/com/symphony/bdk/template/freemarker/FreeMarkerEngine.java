@@ -43,7 +43,7 @@ public class FreeMarkerEngine implements TemplateEngine {
   @Override
   public Template newBuiltInTemplate(String template) throws TemplateException {
     if (!builtInTemplates.containsKey(template)) {
-      throw new TemplateException("Template " + template + " not found", null);
+      throw new TemplateException("Template " + template + " not found");
     }
     return newTemplateFromClasspath(builtInTemplates.get(template));
   }

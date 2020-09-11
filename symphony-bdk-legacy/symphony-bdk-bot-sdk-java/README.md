@@ -120,6 +120,8 @@ Symphony Bot SDK requires two main configuration files, ```application.yaml``` (
 
 It is required to set the path to ```bot-config.json``` in ```application.yaml``` through the ```bot-config``` property, as well as, you must set the path to the RSA private key using ```certs``` property.
 
+It's posible to enable JwtCookie on authentication endpoint adding the jwt-cookie enable property
+
 ```yaml
 server:
   port: 8080
@@ -132,6 +134,8 @@ bot-config: /path/to/bot-config.json
 logging:
   file: /logs/bot-app.log
 
+jwt-cookie:
+  enable: true
 ```
 
 In ```bot-config.json``` it is required to set the path to RSA private key as well (see ```appPrivateKeyPath``` and ```botPrivateKeyPath```):

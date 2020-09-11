@@ -1,4 +1,4 @@
-package com.symphony.template.examples;
+package com.symphony.bdk.examples.template;
 
 import com.symphony.bdk.template.api.Template;
 import com.symphony.bdk.template.api.TemplateEngine;

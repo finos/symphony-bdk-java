@@ -71,6 +71,7 @@ public class SecurityConfig {
   }
 
   @Bean
+  @ConditionalOnProperty(prefix = "jwt-cookie", name = "enable", havingValue = "true")
   public FilterRegistrationBean<JwtCookieFilter> jwtCookieFilter(ConfigClient configClient) {
     FilterRegistrationBean<JwtCookieFilter> registrationBean = new FilterRegistrationBean<>();
     registrationBean.setFilter(new JwtCookieFilter());
