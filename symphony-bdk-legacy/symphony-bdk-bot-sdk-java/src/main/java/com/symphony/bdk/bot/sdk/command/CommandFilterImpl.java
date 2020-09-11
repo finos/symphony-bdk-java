@@ -32,8 +32,13 @@ public class CommandFilterImpl implements CommandFilter {
    */
   @Override
   public void addFilter(String commandName, Predicate<String> filter) {
-    LOGGER.info("Registering filter for command: {}", commandName);
-    commandFilters.put(commandName, filter);
+    if (filter != null) {
+      LOGGER.info("Registering filter for command: {}", commandName);
+      commandFilters.put(commandName, filter);
+    }
+    else {
+      LOGGER.debug("Filter for {} is null. Not registering filter", commandName);
+    }
   }
 
   /**
