@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.ws.rs.ProcessingException;
+
 /**
  * A class for implementing the datafeed v1 service.
  *
@@ -93,7 +95,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
                 ApiException apiException = (ApiException) e;
                 return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
             }
-            return false;
+            return e instanceof ProcessingException;
         }).build();
         Retry retry = this.getRetryInstance("Read Datafeed", config);
         retry.executeCheckedSupplier(() -> {

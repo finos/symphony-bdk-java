@@ -1,6 +1,10 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -52,6 +56,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,6 +64,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.ws.rs.ProcessingException;
 
 public class DatafeedServiceV1Test {
 
@@ -165,6 +172,16 @@ public class DatafeedServiceV1Test {
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
         verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    }
+
+    @Test
+    void startTestFailedSocketTimeoutRead() throws ApiException, AuthUnauthorizedException {
+        when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
+        when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+            .thenThrow(new ProcessingException(new SocketTimeoutException()));
+
+        this.datafeedService.start();
+        verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
     }
 
     @Test

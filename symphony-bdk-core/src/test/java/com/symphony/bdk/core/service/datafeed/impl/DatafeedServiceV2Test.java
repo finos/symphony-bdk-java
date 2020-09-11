@@ -1,5 +1,13 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -11,19 +19,25 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.model.*;
+import com.symphony.bdk.gen.api.model.AckId;
+import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.gen.api.model.V4Payload;
+import com.symphony.bdk.gen.api.model.V5Datafeed;
+import com.symphony.bdk.gen.api.model.V5EventList;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import javax.ws.rs.ProcessingException;
 
 public class DatafeedServiceV2Test {
 
@@ -221,6 +235,17 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).readDatafeed("recreate-df-id", "1234", "1234", ackId);
         verify(datafeedApi, times(1)).createDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
+    }
+
+    @Test
+    void testStartSocketTimeoutReadDatafeed() throws ApiException, AuthUnauthorizedException {
+        AckId ackId = datafeedService.getAckId();
+        when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
+        when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ProcessingException(new SocketTimeoutException()));
+
+        this.datafeedService.start();
+        verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
+        verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
     }
 
     @Test
