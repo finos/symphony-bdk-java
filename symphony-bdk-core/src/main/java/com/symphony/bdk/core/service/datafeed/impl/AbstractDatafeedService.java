@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.ProcessingException;
+
 /**
  * Base class for implementing the datafeed services. A datafeed services can help a bot subscribe or unsubscribe
  * a {@link RealTimeEventListener} and handle the received event by the subscribed listeners.
@@ -44,7 +46,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
                         ApiException apiException = (ApiException) e;
                         return apiException.isServerError() || apiException.isUnauthorized();
                     }
-                    return false;
+                    return e instanceof ProcessingException;
                 })
                 .build();
     }
@@ -101,6 +103,9 @@ abstract class AbstractDatafeedService implements DatafeedService {
         retry.getEventPublisher().onRetry(event -> {
             long intervalInMillis = event.getWaitInterval().toMillis();
             double interval = intervalInMillis / 1000.0;
+            if (event.getLastThrowable() != null) {
+              log.debug("Datafeed service failed due to {}", event.getLastThrowable().getMessage());
+            }
             log.info("Retry in {} secs...", interval);
         });
         return retry;

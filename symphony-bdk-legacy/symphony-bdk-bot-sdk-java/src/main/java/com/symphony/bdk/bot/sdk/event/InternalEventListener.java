@@ -111,15 +111,15 @@ public interface InternalEventListener {
   /**
    * Connection request received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param connectionRequestedEvent
    */
   void onConnectionRequested(ConnectionRequestedEvent connectionRequestedEvent);
   
   /**
    * Accepted connection request event received. Pushes event to EventDispatcher.
    *
-   * @param event
+   * @param connectionAcceptedEvent
    */
-  void onConnectionAccepted(ConnectionAcceptedEvent connectionRequestedEvent);
+  void onConnectionAccepted(ConnectionAcceptedEvent connectionAcceptedEvent);
   
 }

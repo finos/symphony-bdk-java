@@ -6,7 +6,7 @@
     <parent>
         <artifactId>symphony-bdk-core-invokers</artifactId>
         <groupId>com.symphony.platformsolutions</groupId>
-        <version>1.2.0-SNAPSHOT</version>
+        <version>1.2.1.BETA</version>
     </parent>
 
     <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
