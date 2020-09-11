@@ -13,7 +13,7 @@ import java.util.UUID;
 public class FileHelperTest {
 
   @Test
-  public void should_read_file_from_classpath() {
+  public void should_read_file_from_classpath() throws FileNotFoundException {
     assertNotNull(FileHelper.readFile("/avatar.png"));
     assertNotNull(FileHelper.readFile("classpath:/avatar.png"));
   }
@@ -26,7 +26,7 @@ public class FileHelperTest {
   }
 
   @Test(expected = FileNotFoundException.class)
-  public void fail_to_read_file() {
+  public void fail_to_read_file() throws FileNotFoundException {
     FileHelper.readFile(UUID.randomUUID().toString() + ".abc");
   }
 }

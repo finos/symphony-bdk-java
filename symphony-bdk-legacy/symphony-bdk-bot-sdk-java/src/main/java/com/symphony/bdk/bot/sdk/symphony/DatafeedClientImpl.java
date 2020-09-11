@@ -7,6 +7,7 @@ import clients.SymBotClient;
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
+import listeners.ConnectionListener;
 
 @Service
 public class DatafeedClientImpl implements DatafeedClient {
@@ -44,6 +45,15 @@ public class DatafeedClientImpl implements DatafeedClient {
     LOGGER.info("Adding Elements listener");
     symBotClient.getDatafeedEventsService().addElementsListener(
         elementsListener);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void registerConnectionsListener(ConnectionListener connectionsListener) {
+    LOGGER.info("Adding Connections listener");
+    symBotClient.getDatafeedEventsService().addConnectionsListener(connectionsListener);
   }
 
 }

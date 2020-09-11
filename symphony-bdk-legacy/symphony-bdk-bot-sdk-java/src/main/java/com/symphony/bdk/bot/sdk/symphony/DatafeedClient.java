@@ -1,5 +1,6 @@
 package com.symphony.bdk.bot.sdk.symphony;
 
+import listeners.ConnectionListener;
 import listeners.ElementsListener;
 import listeners.IMListener;
 import listeners.RoomListener;
@@ -32,5 +33,12 @@ public interface DatafeedClient {
    * @param elementsListener the elements listener
    */
   void registerElementsListener(ElementsListener elementsListener);
+  
+  /**
+   * Registers a listener for Symphony Connection events
+   *
+   * @param connectionsListener the connections listener
+   */
+  void registerConnectionsListener(ConnectionListener connectionsListener);
 
 }
