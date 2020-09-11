@@ -329,7 +329,6 @@ public class ApiClientJersey2 implements ApiClient {
    * @param formParams Form parameters
    * @param contentType Context type
    * @return Entity
-   * @throws ApiException API exception
    */
   protected Entity<?> serialize(Object obj, Map<String, Object> formParams, String contentType) {
     Entity<?> entity;
