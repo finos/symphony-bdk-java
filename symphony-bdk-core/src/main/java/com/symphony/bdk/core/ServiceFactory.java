@@ -11,8 +11,13 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.DefaultApi;
+import com.symphony.bdk.gen.api.MessageApi;
+import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
+import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
@@ -40,10 +45,6 @@ class ServiceFactory {
     return new StreamService(new StreamsApi(podClient), authSession);
   }
 
-  public MessageService getMessageService() {
-    return new MessageService(new MessagesApi(agentClient), authSession);
-  }
-
   public SessionService getSessionService() {
     return new SessionService(new SessionApi(podClient));
   }
@@ -53,5 +54,11 @@ class ServiceFactory {
       return new DatafeedServiceV2(new DatafeedApi(agentClient), authSession, config);
     }
     return new DatafeedServiceV1(new DatafeedApi(agentClient), authSession, config);
+  }
+
+  public MessageService getMessageService() {
+    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.podClient),
+        new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
+        new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), this.authSession);
   }
 }

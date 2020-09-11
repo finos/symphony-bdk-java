@@ -51,6 +51,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -157,6 +162,11 @@
             <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-freemarker</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -205,7 +215,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${codegen.spec.base}/pod/pod-api-public.yaml</inputSpec>
+                            <inputSpec>${codegen.spec.base}/pod/pod-api-public-deprecated.yaml</inputSpec>
                         </configuration>
                     </execution>
                     <execution>
@@ -241,7 +251,6 @@
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
 
                         <!-- Exclude Thibault's temporary classes from coverage -->
-                        <exclude>com/symphony/bdk/core/service/MessageService.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
                         <exclude>com/symphony/bdk/core/service/Obo$Handle.class</exclude>
 
