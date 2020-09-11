@@ -25,14 +25,18 @@ public class Example {
 A command activity is triggered when a message is sent in an `IM`, `MIM` or `Chatroom`. This is the most basic interaction 
 between an end-user and the bot. Here are some command activity examples: 
 
+- the bot is mentioned followed by a [_slash_](#slash-command) command:
 ```
-$ @BotMention /buy                  # (1)
-$ /buy 1000 goog                    # (2)
-$ I want to say hello to the world  # (3)
+$ @BotMention /buy
 ```
-1. the bot is mentioned followed by a [_slash_](#slash-command) command
-2. a command with parameters, the bot is not mentioned
-3. any message that contains 'hello' can be a command
+- a command with parameters, the bot is not mentioned:
+```
+$ /buy 1000 goog
+```
+- any message that contains 'hello' can be a command:
+```
+$ I want to say hello to the world
+```
 
 ### How to create a Command Activity
 
@@ -92,8 +96,11 @@ public class Example {
     // setup SymphonyBdk facade object
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
-    bdk.activities().register(new SlashCommand("/hello" /*(1)*/, true /*(2)*/, context /*(3)*/ -> {
-      log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName()); // (2)
+    bdk.activities().register(new SlashCommand("/hello",    // (1)
+                                               true,        // (2)
+                                               context -> { // (3)
+
+      log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));
 
     // finally, start the datafeed loop
