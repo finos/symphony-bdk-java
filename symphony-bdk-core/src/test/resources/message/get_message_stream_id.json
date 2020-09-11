@@ -1,0 +1,62 @@
+[
+    {
+        "messageId": "messageId1",
+        "timestamp": 1599656479496,
+        "message": "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello from a built-in template!</div>",
+        "sharedMessage": null,
+        "data": null,
+        "attachments": null,
+        "user": {
+            "userId": 12987981103694,
+            "firstName": null,
+            "lastName": null,
+            "displayName": "bot-name",
+            "email": "fakemail@symphony.com",
+            "username": "bot-name"
+        },
+        "stream": {
+            "streamId": "streamid",
+            "streamType": "IM",
+            "roomName": null,
+            "members": null,
+            "external": null,
+            "crossPod": null
+        },
+        "externalRecipients": null,
+        "diagnostic": null,
+        "userAgent": "Agent",
+        "originalFormat": "com.symphony.messageml.v2",
+        "disclaimer": null,
+        "sid": "52d074f3-b968-4aa2-9f49-2fe32a8b25d6"
+    },
+    {
+        "messageId": "messageId2",
+        "timestamp": 1599656478132,
+        "message": "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello, World!</div>",
+        "sharedMessage": null,
+        "data": null,
+        "attachments": null,
+        "user": {
+            "userId": 12987981103694,
+            "firstName": null,
+            "lastName": null,
+            "displayName": "bot-name",
+            "email": "fakemail@symphony.com",
+            "username": "bot-name"
+        },
+        "stream": {
+            "streamId": "streamid",
+            "streamType": "IM",
+            "roomName": null,
+            "members": null,
+            "external": null,
+            "crossPod": null
+        },
+        "externalRecipients": null,
+        "diagnostic": null,
+        "userAgent": "Agent",
+        "originalFormat": "com.symphony.messageml.v2",
+        "disclaimer": null,
+        "sid": "52d074f3-b968-4aa2-9f49-2fe32a8b25d6"
+    }
+]

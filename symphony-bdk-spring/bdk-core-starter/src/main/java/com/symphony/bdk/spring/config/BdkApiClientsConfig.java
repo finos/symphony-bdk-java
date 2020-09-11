@@ -15,6 +15,7 @@ import com.symphony.bdk.gen.api.DisclaimerApi;
 import com.symphony.bdk.gen.api.DlpPoliciesAndDictionaryManagementApi;
 import com.symphony.bdk.gen.api.InfoBarriersApi;
 import com.symphony.bdk.gen.api.MessageApi;
+import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.PresenceApi;
@@ -122,7 +123,12 @@ public class BdkApiClientsConfig {
 
   @Bean
   public MessageApi messageApi() {
-    return new MessageApi(agentApiClient());
+    return new MessageApi(podApiClient());
+  }
+
+  @Bean
+  public MessageSuppressionApi messageSuppressionApi() {
+    return new MessageSuppressionApi(podApiClient());
   }
 
   @Bean
