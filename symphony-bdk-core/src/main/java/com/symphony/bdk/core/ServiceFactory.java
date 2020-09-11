@@ -23,6 +23,20 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 
+import org.apiguardian.api.API;
+
+/**
+ * Factory responsible for creating BDK service instances for Symphony Bdk entry point.
+ * :
+ * <ul>
+ *   <li>{@link UserService}</li>
+ *   <li>{@link StreamService}</li>
+ *   <li>{@link MessageService}</li>
+ *   <li>{@link DatafeedService}</li>
+ *   <li>{@link SessionService}</li>
+ * </ul>
+ */
+@API(status = API.Status.INTERNAL)
 class ServiceFactory {
 
   private final ApiClient podClient;
@@ -37,18 +51,38 @@ class ServiceFactory {
     this.config = config;
   }
 
+  /**
+   * Returns a fully initialized {@link UserService}.
+   *
+   * @return an new {@link UserService} instance.
+   */
   public UserService getUserService() {
     return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession );
   }
 
+  /**
+   * Returns a fully initialized {@link StreamService}.
+   *
+   * @return an new {@link StreamService} instance.
+   */
   public StreamService getStreamService() {
     return new StreamService(new StreamsApi(podClient), authSession);
   }
 
+  /**
+   * Returns a fully initialized {@link SessionService}.
+   *
+   * @return an new {@link SessionService} instance.
+   */
   public SessionService getSessionService() {
     return new SessionService(new SessionApi(podClient));
   }
 
+  /**
+   * Returns a fully initialized {@link DatafeedService}.
+   *
+   * @return an new {@link DatafeedService} instance.
+   */
   public DatafeedService getDatafeedService() {
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
       return new DatafeedServiceV2(new DatafeedApi(agentClient), authSession, config);
@@ -56,6 +90,11 @@ class ServiceFactory {
     return new DatafeedServiceV1(new DatafeedApi(agentClient), authSession, config);
   }
 
+  /**
+   * Returns a fully initialized {@link MessageService}.
+   *
+   * @return an new {@link MessageService} instance.
+   */
   public MessageService getMessageService() {
     return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.podClient),
         new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
