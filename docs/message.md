@@ -39,19 +39,21 @@ public class Example {
 }
 ```
 
+A more detailed example with all exposed services can be found [here](../symphony-bdk-examples/bdk-core-examples/src/main/java/com/symphony/bdk/examples/MessageExampleMain.java).
+
 ## Send messages with templates
 The Message service also allows you to send messages using templates. So far, we only support [FreeMarker templates](https://freemarker.apache.org/),
 but we may add support for other template engines.
 For instance, if you have the following template file:
 ```
-<MessageML>${message}</MessageML>
+<messageML>${message}</messageML>
 ```
 you will be able to use it when sending message:
 ```java
 final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 final V4Message regularMessage = bdk().message().send(streamId, "path/to/template.ftl", Collections.singletonMap("message", "Hello!"));
 ```
-The above will send the message `<MessageML>Hello!</MessageML>` as expected.
+The above will send the message `<messageML>Hello!</messageML>` as expected.
 Please check the [FreeMarker documentation](https://freemarker.apache.org/docs/pgui_quickstart_createdatamodel.html)
 to know more about the data model you can use in templates and about the corresponding object structure you need to pass as parameter.
 
