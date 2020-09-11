@@ -1,0 +1,30 @@
+{
+    "roomAttributes": {
+        "name": "Room V3",
+        "keywords": [
+            {
+                "key": "region",
+                "value": "Value One"
+            },
+            {
+                "key": "lead",
+                "value": "Value Two"
+            }
+        ],
+        "description": "test iframs",
+        "membersCanInvite": false,
+        "discoverable": false,
+        "readOnly": false,
+        "copyProtected": false,
+        "crossPod": false,
+        "viewHistory": true,
+        "multiLateralRoom": false,
+        "public": false
+    },
+    "roomSystemInfo": {
+        "id": "OaFJ7w1FQcIyftjSaS2oXn___ppvml0-dA",
+        "creationDate": 1535725904577,
+        "createdByUserId": 14362370637865,
+        "active": true
+    }
+}
