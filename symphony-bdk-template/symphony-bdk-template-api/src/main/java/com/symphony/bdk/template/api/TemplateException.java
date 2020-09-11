@@ -11,6 +11,10 @@ import org.apiguardian.api.API;
  */
 @API(status = API.Status.STABLE)
 public class TemplateException extends Exception {
+  public TemplateException(String message) {
+    super(message);
+  }
+
   public TemplateException(String message, Throwable cause) {
     super(message, cause);
   }
