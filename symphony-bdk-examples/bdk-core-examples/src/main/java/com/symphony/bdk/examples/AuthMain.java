@@ -6,7 +6,6 @@ import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
-import com.symphony.bdk.core.service.Obo;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +29,7 @@ public class AuthMain {
     log.info("Regular message sent : {}", regularMessage.getMessageId());
 
     // send OBO message
-    final V4Message oboMessage = bdk.messages(Obo.username("thibault.pensec")).send(STREAM, MESSAGE);
-    log.info("OBO message sent : {}", oboMessage.getMessageId());
+//    final V4Message oboMessage = bdk.messages(Obo.username("thibault.pensec")).send(STREAM, MESSAGE);
+//    log.info("OBO message sent : {}", oboMessage.getMessageId());
   }
 }

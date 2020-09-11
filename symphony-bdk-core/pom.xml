@@ -162,6 +162,11 @@
             <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-freemarker</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -244,11 +249,6 @@
                         <!-- No need to cover models, exceptions and configs, mostly getters and setters -->
                         <exclude>com/symphony/bdk/core/**/*Exception.class</exclude>
                         <exclude>com/symphony/bdk/core/**/model/*.class</exclude>
-
-                        <!-- Exclude Thibault's temporary classes from coverage -->
-                        <exclude>com/symphony/bdk/core/SymphonyBdk.class</exclude>
-                        <exclude>com/symphony/bdk/core/service/Obo.class</exclude>
-                        <exclude>com/symphony/bdk/core/service/Obo$Handle.class</exclude>
 
                         <!-- We don't cover generated code -->
                         <exclude>com/symphony/bdk/gen/**/*</exclude>

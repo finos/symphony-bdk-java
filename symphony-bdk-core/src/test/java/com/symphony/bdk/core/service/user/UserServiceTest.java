@@ -418,53 +418,6 @@ class UserServiceTest {
   }
 
   @Test
-  void getUserV2Test(final BdkMockServer mockServer) throws IOException {
-    String response = JsonHelper.readFromClasspath("/user/user.json");
-    mockServer.onGet(GET_USER_V2, res -> res.withBody(response));
-
-    UserV2 user1 = this.service.getUserById(1234L, true);
-
-    assertEquals(user1.getId(), 1234L);
-    assertEquals(user1.getUsername(), "tibot");
-    assertEquals(user1.getDisplayName(), "Test Bot");
-
-    UserV2 user2 = this.service.getUserByEmail("tibot@symphony.com", true);
-
-    assertEquals(user2.getId(), 1234L);
-    assertEquals(user2.getUsername(), "tibot");
-    assertEquals(user2.getDisplayName(), "Test Bot");
-
-    UserV2 user3 = this.service.getUserByUsername("tibot");
-
-    assertEquals(user3.getId(), 1234L);
-    assertEquals(user3.getUsername(), "tibot");
-    assertEquals(user3.getDisplayName(), "Test Bot");
-
-    UserV2 user4 = this.service.getUserById(1234L);
-
-    assertEquals(user4.getId(), 1234L);
-    assertEquals(user4.getUsername(), "tibot");
-    assertEquals(user4.getDisplayName(), "Test Bot");
-
-    UserV2 user5 = this.service.getUserByEmail("tibot@symphony.com");
-
-    assertEquals(user5.getId(), 1234L);
-    assertEquals(user5.getUsername(), "tibot");
-    assertEquals(user5.getDisplayName(), "Test Bot");
-  }
-
-  @Test
-  void getUserV2TestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, GET_USER_V2, res -> res.withBody("{}"));
-
-    assertThrows(ApiRuntimeException.class, () -> this.service.getUserById(1234L, true));
-    assertThrows(ApiRuntimeException.class, () -> this.service.getUserByEmail("tibot@symphony.com", true));
-    assertThrows(ApiRuntimeException.class, () -> this.service.getUserByUsername("tibot"));
-    assertThrows(ApiRuntimeException.class, () -> this.service.getUserById(1234L));
-    assertThrows(ApiRuntimeException.class, () -> this.service.getUserByEmail("tibot@symphony.com"));
-  }
-
-  @Test
   void searchUserV3Test(final BdkMockServer mockServer) throws IOException {
     String response = JsonHelper.readFromClasspath("/user/users.json");
     mockServer.onGet(SEARCH_USERS_V3, res -> res.withBody(response));
