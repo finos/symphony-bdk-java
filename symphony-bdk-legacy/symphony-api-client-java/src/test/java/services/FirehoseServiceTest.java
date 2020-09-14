@@ -23,6 +23,7 @@ import model.events.RoomUpdated;
 import model.events.UserJoinedRoom;
 import model.events.UserLeftRoom;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
 
+@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class FirehoseServiceTest {
   @Mock private SymBotClient symBotClient;

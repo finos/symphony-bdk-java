@@ -8,6 +8,12 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import model.DatafeedEvent;
+import model.EventPayload;
+import model.InboundMessage;
+import model.Initiator;
+import model.Stream;
+import model.User;
+import model.events.MessageSent;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -22,7 +28,6 @@ public class FirehoseClientTest extends BotTest {
     firehoseClient = new FirehoseClient(symBotClient);
   }
 
-  @Ignore
   @Test
   public void createFirehoseSuccess() {
     stubFor(post(urlEqualTo(AgentConstants.CREATEFIREHOSE))
@@ -43,11 +48,10 @@ public class FirehoseClientTest extends BotTest {
       assertEquals("8e7c8672-220", firehoseId);
 
     } catch (SymClientException e) {
-      e.printStackTrace();
+      fail();
     }
   }
 
-  @Ignore
   @Test
   public void readFirehoseSuccess() {
     stubFor(get(urlEqualTo(AgentConstants.READFIREHOSE.replace("{id}", "1")))
@@ -99,11 +103,54 @@ public class FirehoseClientTest extends BotTest {
 
       assertNotNull(firehoseClient);
 
-      List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+      final List<DatafeedEvent> events = firehoseClient.readFirehose("1");
 
       assertNotNull(events);
       assertEquals(1, events.size());
-      assertEquals("CszQa6uPAA9V", events.get(0).getMessageId());
+
+      final DatafeedEvent event = events.get(0);
+      assertNotNull(event);
+      assertEquals("ulPr8a:eFFDL7", event.getId());
+      assertEquals("CszQa6uPAA9V", event.getMessageId());
+      assertEquals(1536346282592L, event.getTimestamp().longValue());
+      assertEquals("MESSAGESENT", event.getType());
+
+      final Initiator initiator = event.getInitiator();
+      assertNotNull(initiator);
+      final User user = initiator.getUser();
+      assertNotNull(user);
+      assertEquals(1456852L, user.getUserId().longValue());
+      assertEquals("Local Bot01", user.getDisplayName());
+      assertEquals("bot.user1@test.com", user.getEmail());
+      assertEquals("bot.user1", user.getUsername());
+
+      final EventPayload payload = event.getPayload();
+      assertNotNull(payload);
+      final MessageSent messageSent = payload.getMessageSent();
+      assertNotNull(messageSent);
+      final InboundMessage message = messageSent.getMessage();
+      assertNotNull(message);
+      assertEquals("CszQa6uPAA9", message.getMessageId());
+      assertEquals(1536346282592L, message.getTimestamp().longValue());
+      final String expectedMessage = "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello World</div>";
+      assertEquals(expectedMessage, message.getMessage());
+
+      final User messageUser = message.getUser();
+      assertNotNull(messageUser);
+      assertEquals(14568529L, messageUser.getUserId().longValue());
+      assertEquals("Local Bot01", messageUser.getDisplayName());
+      assertEquals("bot.user1@test.com", messageUser.getEmail());
+      assertEquals("bot.user1", messageUser.getUsername());
+
+      final Stream stream = message.getStream();
+      assertNotNull(stream);
+      assertEquals("wTmSDJSNPXgB", stream.getStreamId());
+      assertEquals("ROOM", stream.getStreamType());
+
+      assertFalse(message.getExternalRecipients());
+      assertEquals("Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64", message.getUserAgent());
+      assertEquals("com.symphony.messageml.v2", message.getOriginalFormat());
+
 
     } catch (SymClientException e) {
       fail();
