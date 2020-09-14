@@ -22,6 +22,7 @@ import model.datafeed.DatafeedV2EventList;
 import model.events.MessageSent;
 import org.eclipse.jetty.util.IO;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,6 +171,7 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
+  @Ignore
   @Test
   public void readDatafeedV2Success(){
 //    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
@@ -281,6 +283,7 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
+  @Ignore
   @Test
   public void readDatafeedV5Success() {
 //    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
@@ -389,6 +392,7 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
+  @Ignore
   @Test(expected = APIClientErrorException.class)
   public void readDatafeedFailure400() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
@@ -403,6 +407,7 @@ public class DatafeedClientV2Test extends BotTest {
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
+  @Ignore
   @Test(expected = SymClientException.class)
   public void readDatafeedFailure401() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
@@ -417,6 +422,7 @@ public class DatafeedClientV2Test extends BotTest {
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
+  @Ignore
   @Test(expected = ForbiddenException.class)
   public void readDatafeedFailure403() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
@@ -433,6 +439,7 @@ public class DatafeedClientV2Test extends BotTest {
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
+  @Ignore
   @Test(expected = ServerErrorException.class)
   public void readDatafeedFailure500() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
@@ -447,6 +454,7 @@ public class DatafeedClientV2Test extends BotTest {
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
+  @Ignore
   @Test(expected = javax.ws.rs.ProcessingException.class)
   public void readDatafeedConnectionTimeout() {
     stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
