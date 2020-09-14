@@ -2,16 +2,26 @@ package it.clients.symphony.api;
 
 import clients.symphony.api.FirehoseClient;
 import clients.symphony.api.constants.AgentConstants;
+import exceptions.APIClientErrorException;
+import exceptions.ForbiddenException;
+import exceptions.ServerErrorException;
+import exceptions.SymClientException;
 import it.commons.BotTest;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import model.DatafeedEvent;
+import model.EventPayload;
+import model.InboundMessage;
+import model.Initiator;
+import model.Stream;
+import model.User;
+import model.events.MessageSent;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class FirehoseClientTest extends BotTest {
   private FirehoseClient firehoseClient;
@@ -21,6 +31,7 @@ public class FirehoseClientTest extends BotTest {
     firehoseClient = new FirehoseClient(symBotClient);
   }
 
+  // createFirehose
   @Test
   public void createFirehoseSuccess() {
     stubFor(post(urlEqualTo(AgentConstants.CREATEFIREHOSE))
@@ -32,12 +43,81 @@ public class FirehoseClientTest extends BotTest {
                 "    \"id\": \"8e7c8672-220\"\r\n" +
                 "}")));
 
-    String firehoseId = firehoseClient.createFirehose();
+    try {
 
-    assertNotNull(firehoseId);
-    assertEquals("8e7c8672-220", firehoseId);
+      assertNotNull(firehoseClient);
+
+      final String firehoseId = firehoseClient.createFirehose();
+      assertNotNull(firehoseId);
+      assertEquals("8e7c8672-220", firehoseId);
+
+    } catch (SymClientException e) {
+      fail();
+    }
   }
 
+  @Test(expected = APIClientErrorException.class)
+  public void createFirehoseFailure400() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEFIREHOSE))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(400)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(firehoseClient);
+
+    final String firehoseId = firehoseClient.createFirehose();
+  }
+
+  @Test(expected = SymClientException.class)
+  public void createFirehoseFailure401() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEFIREHOSE))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(401)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 401,"
+                + "\"message\": \"Invalid session\"}")));
+
+    assertNotNull(firehoseClient);
+
+    final String firehoseId = firehoseClient.createFirehose();
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void createFirehoseFailure403() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEFIREHOSE))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(403)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 403,"
+                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
+
+    assertNotNull(firehoseClient);
+
+    final String firehoseId = firehoseClient.createFirehose();
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void createFirehoseFailure500() {
+    stubFor(post(urlEqualTo(AgentConstants.CREATEFIREHOSE))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(500)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(firehoseClient);
+
+    final String firehoseId = firehoseClient.createFirehose();
+  }
+  // End createFirehose
+
+  // readFirehose
   @Test
   public void readFirehoseSuccess() {
     stubFor(get(urlEqualTo(AgentConstants.READFIREHOSE.replace("{id}", "1")))
@@ -85,11 +165,123 @@ public class FirehoseClientTest extends BotTest {
                 "    }\r\n" +
                 "]")));
 
-    List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+    try {
 
-    assertNotNull(events);
-    assertEquals(1, events.size());
-    assertEquals("CszQa6uPAA9V", events.get(0).getMessageId());
+      assertNotNull(firehoseClient);
+
+      final List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+
+      assertNotNull(events);
+      assertEquals(1, events.size());
+
+      final DatafeedEvent event = events.get(0);
+      assertNotNull(event);
+      assertEquals("ulPr8a:eFFDL7", event.getId());
+      assertEquals("CszQa6uPAA9V", event.getMessageId());
+      assertEquals(1536346282592L, event.getTimestamp().longValue());
+      assertEquals("MESSAGESENT", event.getType());
+
+      final Initiator initiator = event.getInitiator();
+      assertNotNull(initiator);
+      final User user = initiator.getUser();
+      assertNotNull(user);
+      assertEquals(1456852L, user.getUserId().longValue());
+      assertEquals("Local Bot01", user.getDisplayName());
+      assertEquals("bot.user1@test.com", user.getEmail());
+      assertEquals("bot.user1", user.getUsername());
+
+      final EventPayload payload = event.getPayload();
+      assertNotNull(payload);
+      final MessageSent messageSent = payload.getMessageSent();
+      assertNotNull(messageSent);
+      final InboundMessage message = messageSent.getMessage();
+      assertNotNull(message);
+      assertEquals("CszQa6uPAA9", message.getMessageId());
+      assertEquals(1536346282592L, message.getTimestamp().longValue());
+      final String expectedMessage = "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello World</div>";
+      assertEquals(expectedMessage, message.getMessage());
+      final String expectedData = "{\"entityIdentifier\":{\"type\":\"org.symphonyoss.fin.security\",\"version\":\"0.1\",\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.isin\",\"value\":\"US0378\"},{\"type\":\"org.symphonyoss.fin.security.id.cusip\",\"value\":\"037\"},{\"type\":\"org.symphonyoss.fin.security.id.openfigi\",\"value\":\"BBG000\"}]}}";
+      assertEquals(expectedData, message.getData());
+
+      final User messageUser = message.getUser();
+      assertNotNull(messageUser);
+      assertEquals(14568529L, messageUser.getUserId().longValue());
+      assertEquals("Local Bot01", messageUser.getDisplayName());
+      assertEquals("bot.user1@ntest.com", messageUser.getEmail());
+      assertEquals("bot.user1", messageUser.getUsername());
+
+      final Stream stream = message.getStream();
+      assertNotNull(stream);
+      assertEquals("wTmSDJSNPXgB", stream.getStreamId());
+      assertEquals("ROOM", stream.getStreamType());
+
+      assertFalse(message.getExternalRecipients());
+      assertEquals("Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64", message.getUserAgent());
+      assertEquals("com.symphony.messageml.v2", message.getOriginalFormat());
+
+    } catch (SymClientException e) {
+      fail();
+    }
   }
 
+  @Test(expected = APIClientErrorException.class)
+  public void readFirehoseFailure400() {
+    stubFor(get(urlEqualTo(AgentConstants.READFIREHOSE.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(400)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(firehoseClient);
+
+    final List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+  }
+
+  @Test(expected = SymClientException.class)
+  public void readFirehoseFailure401() {
+    stubFor(get(urlEqualTo(AgentConstants.READFIREHOSE.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(401)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 401,"
+                + "\"message\": \"Invalid session\"}")));
+
+    assertNotNull(firehoseClient);
+
+    final List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+  }
+
+  @Test(expected = ForbiddenException.class)
+  public void readFirehoseFailure403() {
+    stubFor(get(urlEqualTo(AgentConstants.READFIREHOSE.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(403)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{"
+                + "\"code\": 403,"
+                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
+
+    assertNotNull(firehoseClient);
+
+    final List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+  }
+
+  @Test(expected = ServerErrorException.class)
+  public void readFirehoseFailure500() {
+    stubFor(get(urlEqualTo(AgentConstants.READFIREHOSE.replace("{id}", "1")))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(500)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody("{}")));
+
+    assertNotNull(firehoseClient);
+
+    final List<DatafeedEvent> events = firehoseClient.readFirehose("1");
+  }
+  // End readFirehose
 }

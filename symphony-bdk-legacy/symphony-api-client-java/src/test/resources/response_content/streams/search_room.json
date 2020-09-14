@@ -1,0 +1,65 @@
+{
+    "count": 2,
+    "skip": 0,
+    "limit": 10,
+    "query": {
+        "query": "automobile",
+        "labels": [
+            "industry"
+        ],
+        "active": true,
+        "creator": {
+            "id": 7696581411197
+        }
+    },
+    "rooms": [
+        {
+            "roomAttributes": {
+                "name": "Automobile Industry Room",
+                "description": "Room to discuss car companies",
+                "membersCanInvite": true,
+                "readOnly": false,
+                "copyProtected": false,
+                "crossPod": false,
+                "viewHistory": false,
+                "public": false
+            },
+            "roomSystemInfo": {
+                "id": "tzwvAZIdDMG3ZPRxv+xsgH///qr+JJkWdA==",
+                "creationDate": 1464615003895,
+                "createdByUserId": 7696581411197,
+                "active": true
+            }
+        },
+        {
+            "roomAttributes": {
+                "name": "Tesla Room",
+                "keywords": [
+                    {
+                        "key": "industry",
+                        "value": "automobile"
+                    }
+                ],
+                "description": "Discussions on TSLA",
+                "membersCanInvite": true,
+                "readOnly": false,
+                "copyProtected": false,
+                "crossPod": false,
+                "viewHistory": false,
+                "public": false
+            },
+            "roomSystemInfo": {
+                "id": "o6UkQ1TEmU0Tf/DHUlZrCH///qr+JQowdA==",
+                "creationDate": 1464614974947,
+                "createdByUserId": 7696581411197,
+                "active": true
+            }
+        }
+    ],
+    "facetedMatchCount": [
+        {
+            "facet": "industry",
+            "count": 1
+        }
+    ]
+}
