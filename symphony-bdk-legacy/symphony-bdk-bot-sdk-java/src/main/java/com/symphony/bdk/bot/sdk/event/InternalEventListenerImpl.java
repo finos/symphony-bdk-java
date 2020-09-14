@@ -16,6 +16,8 @@ import com.symphony.bdk.bot.sdk.event.model.RoomUpdatedEvent;
 import com.symphony.bdk.bot.sdk.event.model.SymphonyElementsEvent;
 import com.symphony.bdk.bot.sdk.event.model.UserJoinedRoomEvent;
 import com.symphony.bdk.bot.sdk.event.model.UserLeftRoomEvent;
+import com.symphony.bdk.bot.sdk.event.model.ConnectionAcceptedEvent;
+import com.symphony.bdk.bot.sdk.event.model.ConnectionRequestedEvent;
 
 @Service
 public class InternalEventListenerImpl implements InternalEventListener {
@@ -141,4 +143,16 @@ public class InternalEventListenerImpl implements InternalEventListener {
     eventDispatcher.push(event.getFormId(), event);
   }
 
+  @Override
+  public void onConnectionRequested(ConnectionRequestedEvent event) {
+    LOGGER.debug("Received Connection Request from {}", event.getUserId());
+    eventDispatcher.push(event.getClass().getCanonicalName(), event);
+  }
+
+  @Override
+  public void onConnectionAccepted(ConnectionAcceptedEvent event) {
+    LOGGER.debug("User {} accepted connection request", event.getUserId());
+    eventDispatcher.push(event.getClass().getCanonicalName(), event);
+  }
+  
 }
