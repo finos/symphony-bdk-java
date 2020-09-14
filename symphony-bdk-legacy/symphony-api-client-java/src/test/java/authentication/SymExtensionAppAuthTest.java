@@ -1,15 +1,13 @@
 package authentication;
 
-import it.commons.BotTest;
-import model.AppAuthResponse;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore
+import it.commons.BotTest;
+import model.AppAuthResponse;
+import org.junit.Before;
+import org.junit.Test;
+
 public class SymExtensionAppAuthTest extends BotTest {
     private SymExtensionAppAuth symExtensionAppAuth;
 
