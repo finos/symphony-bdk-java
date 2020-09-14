@@ -3,11 +3,17 @@ package com.symphony.bdk.core.test;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.mockito.ArgumentMatchers;
@@ -30,6 +36,7 @@ public class MockApiClient {
   private final Client httpClient;
 
   public MockApiClient() {
+    MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     this.httpClient = mock(Client.class);
     when(this.httpClient.target(anyString())).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong path"));
   }
@@ -61,13 +68,14 @@ public class MockApiClient {
       }
       return MAPPER.readValue(resContent, (Class<?>) type.getType());
     })).when(response).readEntity(ArgumentMatchers.<GenericType<?>>any());
+    when(response.hasEntity()).thenReturn(true);
 
     if ("GET".equals(method)) {
       doReturn(response).when(invocationBuilder).get();
     } else if ("POST".equals(method)) {
       doReturn(response).when(invocationBuilder).post(any(Entity.class));
     } else if ("DELETE".equals(method)) {
-      doReturn(response).when(invocationBuilder).method("DELETE", any(Entity.class));
+      doReturn(response).when(invocationBuilder).method(eq("DELETE"), any(Entity.class));
     }
   }
 
@@ -97,12 +105,18 @@ public class MockApiClient {
     this.onRequestWithResponseCode("POST", 200, path, resContent);
   }
 
+  public void onDelete(String path, String resContent) {this.onRequestWithResponseCode("DELETE", 200, path, resContent);}
+
   public void onGet(int statusCode, String path, String resContent) {
     this.onRequestWithResponseCode("GET", statusCode, path, resContent);
   }
 
   public void onPost(int statusCode, String path, String resContent) {
     this.onRequestWithResponseCode("POST", statusCode, path, resContent);
+  }
+
+  public void onDelete(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("DELETE", statusCode, path, resContent);
   }
 
   public ApiClient getApiClient(String basePath) {

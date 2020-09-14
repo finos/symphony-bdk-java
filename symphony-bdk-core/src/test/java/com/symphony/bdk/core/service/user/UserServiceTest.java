@@ -4,22 +4,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.BotAuthenticator;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
-import com.symphony.bdk.core.test.BdkMockServer;
-import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.JsonHelper;
-import com.symphony.bdk.core.test.RsaTestHelper;
+import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -39,7 +38,6 @@ import com.symphony.bdk.gen.api.model.V2UserDetail;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -48,7 +46,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
-@ExtendWith(BdkMockServerExtension.class)
 class UserServiceTest {
   private static final String V2_USER_DETAIL_BY_ID = "/pod/v2/admin/user/{uid}";
   private static final String V2_USER_LIST = "/pod/v2/admin/user/list";
@@ -73,32 +70,27 @@ class UserServiceTest {
   private UserService service;
   private UserApi spiedUserApi;
   private UsersApi spiedUsersApi;
+  private MockApiClient mockApiClient;
 
   @BeforeEach
-  void init(final BdkMockServer mockServer) throws AuthUnauthorizedException {
-    mockServer.onPost("/login/pubkey/authenticate",
-        res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
-    mockServer.onPost("/relay/pubkey/authenticate",
-        res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
-    BotAuthenticator authenticator = new BotAuthenticatorRsaImpl(
-        "username",
-        RsaTestHelper.generateKeyPair().getPrivate(),
-        mockServer.newApiClient("/login"),
-        mockServer.newApiClient("/relay")
-    );
-    ApiClient podClient = mockServer.newApiClient("/pod");
-    AuthSession authSession = authenticator.authenticateBot();
+  void init() {
+    this.mockApiClient = new MockApiClient();
+    AuthSession authSession = mock(AuthSession.class);
+    ApiClient podClient = mockApiClient.getApiClient("/pod");
     UserApi userApi = new UserApi(podClient);
     this.spiedUserApi = spy(userApi);
     UsersApi usersApi = new UsersApi(podClient);
     this.spiedUsersApi = spy(usersApi);
     this.service = new UserService(this.spiedUserApi, this.spiedUsersApi, authSession);
+
+    when(authSession.getSessionToken()).thenReturn("1234");
+    when(authSession.getKeyManagerToken()).thenReturn("1234");
   }
 
   @Test
-  void getUserDetailByUidTest(final BdkMockServer mockServer) throws IOException {
+  void getUserDetailByUidTest() throws IOException {
     String response = JsonHelper.readFromClasspath("/user/user_detail.json");
-    mockServer.onGet(V2_USER_DETAIL_BY_ID.replace("{uid}", "1234"), res -> res.withBody(response));
+    this.mockApiClient.onGet(V2_USER_DETAIL_BY_ID.replace("{uid}", "1234"), response);
 
     V2UserDetail userDetail = this.service.getUserDetailByUid(1234L);
 
@@ -108,9 +100,9 @@ class UserServiceTest {
   }
 
   @Test
-  void listUsersDetailTest(final BdkMockServer mockServer) throws IOException {
+  void listUsersDetailTest() throws IOException {
     String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
-    mockServer.onGet(V2_USER_LIST, res -> res.withBody(responseV2));
+    this.mockApiClient.onGet(V2_USER_LIST, responseV2);
     List<V2UserDetail> UserDetails = this.service.listUsersDetail();
 
     assertEquals(UserDetails.size(), 5);
@@ -119,17 +111,17 @@ class UserServiceTest {
   }
 
   @Test
-  void listUsersDetailTestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, V2_USER_LIST, res -> res.withBody("{}"));
+  void listUsersDetailTestFailed() {
+    this.mockApiClient.onGet(400, V2_USER_LIST, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.listUsersDetail());
   }
 
   @Test
-  void listUsersDetailByFilterTest(final BdkMockServer mockServer) throws IOException {
+  void listUsersDetailByFilterTest() throws IOException {
     String responseV1 = JsonHelper.readFromClasspath("/user/list_users_detail_v1.json");
 
-    mockServer.onPost(USER_FIND, res -> res.withBody(responseV1));
+    this.mockApiClient.onPost(USER_FIND, responseV1);
     UserFilter userFilter = new UserFilter();
     List<V2UserDetail> userDetails = this.service.listUsersDetail(userFilter);
 
@@ -139,16 +131,16 @@ class UserServiceTest {
   }
 
   @Test
-  void listUsersDetailByFilterTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, USER_FIND, res -> res.withBody("{}"));
+  void listUsersDetailByFilterTestFailed() {
+    this.mockApiClient.onPost(400, USER_FIND, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.listUsersDetail(new UserFilter()));
   }
 
   @Test
-  void addRoleToUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onPost(ADD_ROLE_TO_USER.replace("{uid}", "1234"),
-        res -> res.withBody("{\"format\": \"TEXT\", \"message\": \"Role added\"}"));
+  void addRoleToUserTest() throws ApiException {
+    this.mockApiClient.onPost(ADD_ROLE_TO_USER.replace("{uid}", "1234"),
+        "{\"format\": \"TEXT\", \"message\": \"Role added\"}");
 
     this.service.addRoleToUser(1234L, RoleId.INDIVIDUAL);
 
@@ -156,16 +148,16 @@ class UserServiceTest {
   }
 
   @Test
-  void addRoleToUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, ADD_ROLE_TO_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void addRoleToUserTestFailed() {
+    this.mockApiClient.onPost(400, ADD_ROLE_TO_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.addRoleToUser(1234L, RoleId.INDIVIDUAL));
   }
 
   @Test
-  void removeRoleFromUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onPost(REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"),
-        res -> res.withBody("{\"format\": \"TEXT\", \"message\": \"Role removed\"}"));
+  void removeRoleFromUserTest() throws ApiException {
+    this.mockApiClient.onPost(REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"),
+        "{\"format\": \"TEXT\", \"message\": \"Role removed\"}");
 
     this.service.removeRoleFromUser(1234L, RoleId.INDIVIDUAL);
 
@@ -173,15 +165,15 @@ class UserServiceTest {
   }
 
   @Test
-  void removeRoleFromUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void removeRoleFromUserTestFailed() {
+    this.mockApiClient.onPost(400, REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.removeRoleFromUser(1234L, RoleId.INDIVIDUAL));
   }
 
   @Test
-  void getAvatarFromUser(final BdkMockServer mockServer) {
-    mockServer.onGet(GET_AVATAR_FROM_USER.replace("{uid}", "1234"), res -> res.withBody("[\n"
+  void getAvatarFromUser() {
+    this.mockApiClient.onGet(GET_AVATAR_FROM_USER.replace("{uid}", "1234"), "[\n"
         + "  {\n"
         + "    \"size\": \"600\",\n"
         + "    \"url\": \"../avatars/acme/600/7215545057281/3gXMhglCCTwLPL9JAprnyHzYn5-PR49-wYDG814n1g8.png\"\n"
@@ -190,7 +182,7 @@ class UserServiceTest {
         + "    \"size\": \"150\",\n"
         + "    \"url\": \"../avatars/acme/150/7215545057281/3gXMhglCCTwLPL9JAprnyHzYn5-PR49-wYDG814n1g8.png\"\n"
         + "  }\n"
-        + "]"));
+        + "]");
 
     List<Avatar> avatars = this.service.getAvatarFromUser(1234L);
 
@@ -200,16 +192,16 @@ class UserServiceTest {
   }
 
   @Test
-  void getAvatarFromUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, GET_AVATAR_FROM_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void getAvatarFromUserTestFailed() {
+    this.mockApiClient.onGet(400, GET_AVATAR_FROM_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getAvatarFromUser(1234L));
   }
 
   @Test
-  void updateAvatarOfUserTest(final BdkMockServer mockServer) throws ApiException, IOException {
-    mockServer.onPost(UPDATE_AVATAR_OF_USER.replace("{uid}", "1234"),
-        res -> res.withBody("{\"format\": \"TEXT\", \"message\": \"OK\"}"));
+  void updateAvatarOfUserTest() throws ApiException, IOException {
+    this.mockApiClient.onPost(UPDATE_AVATAR_OF_USER.replace("{uid}", "1234"),
+        "{\"format\": \"TEXT\", \"message\": \"OK\"}");
     String avatar = "iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s";
     byte[] bytes = avatar.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
@@ -224,8 +216,8 @@ class UserServiceTest {
   }
 
   @Test
-  void updateAvatarOfUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, UPDATE_AVATAR_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void updateAvatarOfUserTestFailed() {
+    this.mockApiClient.onPost(400, UPDATE_AVATAR_OF_USER.replace("{uid}", "1234"), "{}");
     String avatar = "iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s";
     byte[] bytes = avatar.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
@@ -236,8 +228,8 @@ class UserServiceTest {
   }
 
   @Test
-  void getDisclaimerAssignedToUserTest(final BdkMockServer mockServer) {
-    mockServer.onGet(GET_DISCLAIMER_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{\n"
+  void getDisclaimerAssignedToUserTest() {
+    this.mockApiClient.onGet(GET_DISCLAIMER_OF_USER.replace("{uid}", "1234"), "{\n"
         + "  \"id\": \"571d2052e4b042aaf06d2e7a\",\n"
         + "  \"name\": \"Enterprise Disclaimer\",\n"
         + "  \"content\": \"This is a disclaimer for the enterprise.\",\n"
@@ -246,7 +238,7 @@ class UserServiceTest {
         + "  \"isActive\": true,\n"
         + "  \"createdDate\": 1461526610846,\n"
         + "  \"modifiedDate\": 1461526610846\n"
-        + "}"));
+        + "}");
 
     Disclaimer disclaimer = this.service.getDisclaimerAssignedToUser(1234L);
     assertEquals(disclaimer.getName(), "Enterprise Disclaimer");
@@ -255,15 +247,15 @@ class UserServiceTest {
   }
 
   @Test
-  void getDisclaimerAssignedToUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, GET_DISCLAIMER_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void getDisclaimerAssignedToUserTestFailed() {
+    this.mockApiClient.onGet(400, GET_DISCLAIMER_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getDisclaimerAssignedToUser(1234L));
   }
 
   @Test
-  void unAssignDisclaimerFromUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onDelete(UNASSIGN_DISCLAIMER_FROM_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void unAssignDisclaimerFromUserTest() throws ApiException {
+    this.mockApiClient.onDelete(UNASSIGN_DISCLAIMER_FROM_USER.replace("{uid}", "1234"), "{}");
 
     this.service.unAssignDisclaimerFromUser(1234L);
 
@@ -271,15 +263,15 @@ class UserServiceTest {
   }
 
   @Test
-  void unAssignDisclaimerFromUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onDeleteFailed(400, UNASSIGN_DISCLAIMER_FROM_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void unAssignDisclaimerFromUserTestFailed() {
+    this.mockApiClient.onDelete(400, UNASSIGN_DISCLAIMER_FROM_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.unAssignDisclaimerFromUser(1234L));
   }
 
   @Test
-  void assignDisclaimerToUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onPost(ASSIGN_DISCLAIMER_TO_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void assignDisclaimerToUserTest() throws ApiException {
+    this.mockApiClient.onPost(ASSIGN_DISCLAIMER_TO_USER.replace("{uid}", "1234"), "{}");
 
     this.service.assignDisclaimerToUser(1234L, "disclaimer");
 
@@ -287,15 +279,15 @@ class UserServiceTest {
   }
 
   @Test
-  void assignDisclaimerToUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, ASSIGN_DISCLAIMER_TO_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void assignDisclaimerToUserTestFailed() {
+    this.mockApiClient.onPost(400, ASSIGN_DISCLAIMER_TO_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.assignDisclaimerToUser(1234L, "disclaimer"));
   }
 
   @Test
-  void getDelegatesAssignedToUserTest(final BdkMockServer mockServer) {
-    mockServer.onGet(GET_DELEGATE_OF_USER.replace("{uid}", "1234"), res -> res.withBody("[7215545078461]"));
+  void getDelegatesAssignedToUserTest() {
+    this.mockApiClient.onGet(GET_DELEGATE_OF_USER.replace("{uid}", "1234"), "[7215545078461]");
 
     List<Long> delegates = this.service.getDelegatesAssignedToUser(1234L);
 
@@ -304,15 +296,15 @@ class UserServiceTest {
   }
 
   @Test
-  void getDelegatesAssignedToUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, GET_DELEGATE_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void getDelegatesAssignedToUserTestFailed() {
+    this.mockApiClient.onGet(400, GET_DELEGATE_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getDelegatesAssignedToUser(1234L));
   }
 
   @Test
-  void updateDelegatesAssignedToUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onPost(UPDATE_DELEGATE_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void updateDelegatesAssignedToUserTest() throws ApiException {
+    this.mockApiClient.onPost(UPDATE_DELEGATE_OF_USER.replace("{uid}", "1234"), "{}");
 
     this.service.updateDelegatesAssignedToUser(1234L, 1234L, DelegateAction.ActionEnum.ADD);
 
@@ -323,16 +315,16 @@ class UserServiceTest {
   }
 
   @Test
-  void updateDelegatesAssignedToUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, UPDATE_DELEGATE_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void updateDelegatesAssignedToUserTestFailed() {
+    this.mockApiClient.onPost(400, UPDATE_DELEGATE_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class,
         () -> this.service.updateDelegatesAssignedToUser(1234L, 1234L, DelegateAction.ActionEnum.ADD));
   }
 
   @Test
-  void getFeatureEntitlementsOfUserTest(final BdkMockServer mockServer) {
-    mockServer.onGet(GET_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("[\n"
+  void getFeatureEntitlementsOfUserTest() {
+    this.mockApiClient.onGet(GET_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), "[\n"
         + "  {\n"
         + "    \"entitlment\": \"canCreatePublicRoom\",\n"
         + "    \"enabled\": true\n"
@@ -349,7 +341,7 @@ class UserServiceTest {
         + "    \"entitlment\": \"isExternalIMEnabled\",\n"
         + "    \"enabled\": true\n"
         + "  }\n"
-        + "]"));
+        + "]");
 
     List<Feature> features = this.service.getFeatureEntitlementsOfUser(1234L);
 
@@ -359,15 +351,15 @@ class UserServiceTest {
   }
 
   @Test
-  void getFeatureEntitlementsOfUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, GET_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void getFeatureEntitlementsOfUserTestFailed() {
+    this.mockApiClient.onGet(400, GET_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getFeatureEntitlementsOfUser(1234L));
   }
 
   @Test
-  void updateFeatureEntitlementsOfUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onPost(UPDATE_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void updateFeatureEntitlementsOfUserTest() throws ApiException {
+    this.mockApiClient.onPost(UPDATE_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), "{}");
     List<Feature> features = Collections.singletonList(new Feature().entitlment("delegatesEnabled").enabled(true));
 
     this.service.updateFeatureEntitlementsOfUser(1234L, features);
@@ -376,16 +368,16 @@ class UserServiceTest {
   }
 
   @Test
-  void updateFeatureEntitlementsOfUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, UPDATE_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"),
-        res -> res.withBody("{}"));
+  void updateFeatureEntitlementsOfUserTestFailed() {
+    this.mockApiClient.onPost(400, UPDATE_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"),
+        "{}");
     List<Feature> features = Collections.singletonList(new Feature().entitlment("delegatesEnabled").enabled(true));
     assertThrows(ApiRuntimeException.class, () -> this.service.updateFeatureEntitlementsOfUser(1234L, features));
   }
 
   @Test
-  void getStatusOfUserTest(final BdkMockServer mockServer) {
-    mockServer.onGet(GET_STATUS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{\"status\": \"ENABLED\"}"));
+  void getStatusOfUserTest() {
+    this.mockApiClient.onGet(GET_STATUS_OF_USER.replace("{uid}", "1234"), "{\"status\": \"ENABLED\"}");
 
     UserStatus userStatus = this.service.getStatusOfUser(1234L);
 
@@ -393,15 +385,15 @@ class UserServiceTest {
   }
 
   @Test
-  void getStatusOfUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, GET_STATUS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void getStatusOfUserTestFailed() {
+    this.mockApiClient.onGet(400, GET_STATUS_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getStatusOfUser(1234L));
   }
 
   @Test
-  void updateStatusOfUserTest(final BdkMockServer mockServer) throws ApiException {
-    mockServer.onPost(UPDATE_STATUS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void updateStatusOfUserTest() throws ApiException {
+    this.mockApiClient.onPost(UPDATE_STATUS_OF_USER.replace("{uid}", "1234"), "{}");
     UserStatus userStatus = new UserStatus().status(UserStatus.StatusEnum.ENABLED);
 
     this.service.updateStatusOfUser(1234L, userStatus);
@@ -410,17 +402,17 @@ class UserServiceTest {
   }
 
   @Test
-  void updateStatusOfUserTestFailed(final BdkMockServer mockServer) {
-    mockServer.onPostFailed(400, UPDATE_STATUS_OF_USER.replace("{uid}", "1234"), res -> res.withBody("{}"));
+  void updateStatusOfUserTestFailed() {
+    this.mockApiClient.onPost(400, UPDATE_STATUS_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.updateStatusOfUser(1234L,
         new UserStatus().status(UserStatus.StatusEnum.ENABLED)));
   }
 
   @Test
-  void searchUserV3Test(final BdkMockServer mockServer) throws IOException {
+  void searchUserV3Test() throws IOException {
     String response = JsonHelper.readFromClasspath("/user/users.json");
-    mockServer.onGet(SEARCH_USERS_V3, res -> res.withBody(response));
+    this.mockApiClient.onGet(SEARCH_USERS_V3, response);
 
     List<UserV2> users1 = this.service.searchUserByIds(Collections.singletonList(1234L), true);
 
@@ -449,10 +441,11 @@ class UserServiceTest {
   }
 
   @Test
-  void searchUserV3TestFailed(final BdkMockServer mockServer) {
-    mockServer.onGetFailed(400, SEARCH_USERS_V3, res -> res.withBody("{}"));
+  void searchUserV3TestFailed() {
+    this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L), true));
+    this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L)));
@@ -460,9 +453,9 @@ class UserServiceTest {
   }
 
   @Test
-  void searchUserBySearchQueryTest(final BdkMockServer mockServer) throws IOException {
+  void searchUserBySearchQueryTest() throws IOException {
     String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
-    mockServer.onPost(SEARCH_USER_BY_QUERY, res -> res.withBody(response));
+    this.mockApiClient.onPost(SEARCH_USER_BY_QUERY, response);
 
     UserSearchQuery query = new UserSearchQuery().query("john doe").filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
