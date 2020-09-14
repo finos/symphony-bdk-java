@@ -161,6 +161,20 @@
         </profile>
 
         <profile>
+            <id>2.0-no-example</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <modules>
+                <module>symphony-bdk-bom</module>
+                <module>symphony-bdk-core</module>
+                <module>symphony-bdk-core-invokers</module>
+                <module>symphony-bdk-spring</module>
+                <module>symphony-bdk-template</module>
+            </modules>
+        </profile>
+
+        <profile>
             <id>release</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
