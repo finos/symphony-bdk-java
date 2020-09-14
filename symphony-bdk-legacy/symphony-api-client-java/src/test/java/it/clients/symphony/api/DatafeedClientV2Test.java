@@ -329,7 +329,8 @@ public class DatafeedClientV2Test extends BotTest {
                 + "            }\n"
                 + "        }\n"
                 + "    }\n"
-                + "]\n}")));
+                + "]\n"
+                + "}")));
 
     try {
 
