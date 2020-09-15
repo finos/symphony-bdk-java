@@ -2,6 +2,7 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.SessionService;
@@ -44,9 +45,9 @@ class ServiceFactory {
   private final AuthSession authSession;
   private final BdkConfig config;
 
-  public ServiceFactory(ApiClient podClient, ApiClient agentClient, AuthSession authSession, BdkConfig config) {
-    this.podClient = podClient;
-    this.agentClient = agentClient;
+  public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
+    this.podClient = apiClientFactory.getPodClient();
+    this.agentClient = apiClientFactory.getAgentClient();
     this.authSession = authSession;
     this.config = config;
   }
