@@ -39,12 +39,8 @@ jobs:
 
       # run tests!
       - run:
-          name: Verify BDK 2.0
-          command: mvn verify -P2.0
-
-      - run:
-          name: Verify legacy projects
-          command: mvn verify -Plegacy
+          name: Verify
+          command: mvn verify
 
       - run:
           name: Save test results

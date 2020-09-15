@@ -50,6 +50,16 @@
         <url>https://github.com/SymphonyPlatformSolutions/symphony-api-client-java</url>
     </scm>
 
+    <modules>
+        <module>symphony-bdk-legacy</module>
+        <module>symphony-bdk-bom</module>
+        <module>symphony-bdk-core</module>
+        <module>symphony-bdk-core-invokers</module>
+        <module>symphony-bdk-spring</module>
+        <module>symphony-bdk-template</module>
+        <module>symphony-bdk-examples</module>
+    </modules>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -131,45 +141,18 @@
     </build>
 
     <profiles>
-
-        <profile>
-            <id>legacy</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>symphony-bdk-legacy</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>2.0</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>symphony-bdk-bom</module>
-                <module>symphony-bdk-core</module>
-                <module>symphony-bdk-core-invokers</module>
-                <module>symphony-bdk-examples</module>
-                <module>symphony-bdk-spring</module>
-                <module>symphony-bdk-template</module>
-            </modules>
-        </profile>
-
         <profile>
             <id>release</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
+                <module>symphony-bdk-legacy</module>
                 <module>symphony-bdk-bom</module>
                 <module>symphony-bdk-core</module>
                 <module>symphony-bdk-core-invokers</module>
-                <module>symphony-bdk-examples</module>
                 <module>symphony-bdk-spring</module>
                 <module>symphony-bdk-template</module>
-                <module>symphony-bdk-legacy</module>
             </modules>
             <build>
                 <plugins>
