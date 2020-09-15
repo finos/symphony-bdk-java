@@ -91,4 +91,15 @@ public class BotTest extends ServerTest {
                 .withBody(returnedJsonResponse))
         );
     }
+
+  public static StubMapping stubPost(String url, String returnedJsonResponse, int status, int delay) {
+    return stubFor(post(urlEqualTo(url))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(status)
+            .withFixedDelay(delay)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody(returnedJsonResponse))
+    );
+  }
 }

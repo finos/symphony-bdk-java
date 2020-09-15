@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class FirehoseServiceTest {
   @Mock private SymBotClient symBotClient;

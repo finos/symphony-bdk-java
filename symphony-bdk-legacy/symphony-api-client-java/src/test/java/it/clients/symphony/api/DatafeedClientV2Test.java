@@ -31,7 +31,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.NoContentException;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -171,58 +174,10 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
-  @Ignore
   @Test
-  public void readDatafeedV2Success(){
-//    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
-//        readResourceContent("/response_content/datafeedv2/read_datafeedv2.json"), 200);
-    stubFor(post(urlEqualTo(AgentConstants.READDATAFEEDV2.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(200)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{"
-                + "[\n"
-                + "    {\n"
-                + "        \"id\": \"ulPr8a:eFFDL7\",\n"
-                + "        \"messageId\": \"CszQa6uPAA9V\",\n"
-                + "        \"timestamp\": 1536346282592,\n"
-                + "        \"type\": \"MESSAGESENT\",\n"
-                + "        \"initiator\": {\n"
-                + "            \"user\": {\n"
-                + "                \"userId\": 1456852,\n"
-                + "                \"displayName\": \"Local Bot01\",\n"
-                + "                \"email\": \"bot.user1@test.com\",\n"
-                + "                \"username\": \"bot.user1\"\n"
-                + "            }\n"
-                + "        },\n"
-                + "        \"payload\": {\n"
-                + "            \"messageSent\": {\n"
-                + "                \"message\": {\n"
-                + "                    \"messageId\": \"CszQa6uPAA9\",\n"
-                + "                    \"timestamp\": 1536346282592,\n"
-                + "                    \"message\": \"<div data-format=\\\"PresentationML\\\" data-version=\\\"2.0\\\">Hello World</div>\",\n"
-                + "                    \"data\": \"{\\\"entityIdentifier\\\":{\\\"type\\\":\\\"org.symphonyoss.fin.security\\\",\\\"version\\\":\\\"0.1\\\",\\\"id\\\":[{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.isin\\\",\\\"value\\\":\\\"US0378\\\"},{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.cusip\\\",\\\"value\\\":\\\"037\\\"},{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.openfigi\\\",\\\"value\\\":\\\"BBG000\\\"}]}}\",\n"
-                + "                    \"user\": {\n"
-                + "                        \"userId\": 14568529,\n"
-                + "                        \"displayName\": \"Local Bot01\",\n"
-                + "                        \"email\": \"bot.user1@ntest.com\",\n"
-                + "                        \"username\": \"bot.user1\"\n"
-                + "                    },\n"
-                + "                    \"stream\": {\n"
-                + "                        \"streamId\": \"wTmSDJSNPXgB\",\n"
-                + "                        \"streamType\": \"ROOM\"\n"
-                + "                    },\n"
-                + "                    \"externalRecipients\": false,\n"
-                + "                    \"userAgent\": \"Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64\",\n"
-                + "                    \"originalFormat\": \"com.symphony.messageml.v2\",\n"
-                + "                    \"sid\": \"a4d08d18-0729-4b54-9c4568da\"\n"
-                + "                }\n"
-                + "            }\n"
-                + "        }\n"
-                + "    }\n"
-                + "]\n"
-                + "}")));
+  public void readDatafeedV2Success() throws IOException{
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv2.json"), 200);
 
     try {
 
@@ -283,57 +238,10 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
-  @Ignore
   @Test
-  public void readDatafeedV5Success() {
-//    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "21449143d35a86461e254d28697214b4_f"),
-//        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 200);
-
-    stubFor(post(urlEqualTo(AgentConstants.READDATAFEEDV2.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(200)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{"
-                + "[\n"
-                + "    {\n"
-                + "        \"id\": \"eventId\",\n"
-                + "        \"timestamp\": 1536346282592,\n"
-                + "        \"type\": \"MESSAGESENT\",\n"
-                + "        \"initiator\": {\n"
-                + "            \"user\": {\n"
-                + "                \"userId\": 1456852,\n"
-                + "                \"displayName\": \"User 1\",\n"
-                + "                \"email\": \"user1@test.com\",\n"
-                + "                \"username\": \"user1\"\n"
-                + "            }\n"
-                + "        },\n"
-                + "        \"payload\": {\n"
-                + "            \"messageSent\": {\n"
-                + "                \"message\": {\n"
-                + "                    \"messageId\": \"CszQa6uPAA9\",\n"
-                + "                    \"timestamp\": 1536346282592,\n"
-                + "                    \"message\": \"<div data-format=\\\"PresentationML\\\" data-version=\\\"2.0\\\">Hello World</div>\",\n"
-                + "                    \"data\": \"{\\\"entityIdentifier\\\":{\\\"type\\\":\\\"org.symphonyoss.fin.security\\\",\\\"version\\\":\\\"0.1\\\",\\\"id\\\":[{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.isin\\\",\\\"value\\\":\\\"US0378\\\"},{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.cusip\\\",\\\"value\\\":\\\"037\\\"},{\\\"type\\\":\\\"org.symphonyoss.fin.security.id.openfigi\\\",\\\"value\\\":\\\"BBG000\\\"}]}}\",\n"
-                + "                    \"user\": {\n"
-                + "                        \"userId\": 1456852,\n"
-                + "                        \"displayName\": \"User 1\",\n"
-                + "                        \"email\": \"user1@ntest.com\",\n"
-                + "                        \"username\": \"user1\"\n"
-                + "                    },\n"
-                + "                    \"stream\": {\n"
-                + "                        \"streamId\": \"wTmSDJSNPXgB\",\n"
-                + "                        \"streamType\": \"ROOM\"\n"
-                + "                    },\n"
-                + "                    \"externalRecipients\": false,\n"
-                + "                    \"userAgent\": \"Agent-2.2.8-Linux-4.9.77-31.58.amzn1.x86_64\",\n"
-                + "                    \"originalFormat\": \"com.symphony.messageml.v2\"\n"
-                + "                }\n"
-                + "            }\n"
-                + "        }\n"
-                + "    }\n"
-                + "]\n"
-                + "}")));
+  public void readDatafeedV5Success() throws IOException {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 200);
 
     try {
 
@@ -392,78 +300,56 @@ public class DatafeedClientV2Test extends BotTest {
     }
   }
 
-  @Ignore
   @Test(expected = APIClientErrorException.class)
-  public void readDatafeedFailure400() {
-    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(400)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{}")));
+  public void readDatafeedFailure400() throws IOException {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 400);
 
     assertNotNull(datafeedClient);
 
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
-  @Ignore
   @Test(expected = SymClientException.class)
-  public void readDatafeedFailure401() {
-    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(401)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{}")));
+  public void readDatafeedFailure401() throws IOException {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 401);
 
     assertNotNull(datafeedClient);
 
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
-  @Ignore
   @Test(expected = ForbiddenException.class)
-  public void readDatafeedFailure403() {
-    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(403)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{"
-                + "\"code\": 403,"
-                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
+  public void readDatafeedFailure403() throws IOException {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 403);
 
     assertNotNull(datafeedClient);
 
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
-  @Ignore
   @Test(expected = ServerErrorException.class)
-  public void readDatafeedFailure500() {
-    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(500)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{}")));
+  public void readDatafeedFailure500() throws IOException {
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 500);
 
     assertNotNull(datafeedClient);
 
     final List<DatafeedEvent> events = datafeedClient.readDatafeed("1");
   }
 
-  @Ignore
+
   @Test(expected = javax.ws.rs.ProcessingException.class)
-  public void readDatafeedConnectionTimeout() {
-    stubFor(get(urlEqualTo(AgentConstants.READDATAFEED.replace("{id}", "1")))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse().withStatus(200).withFixedDelay(10000)));
+  public void readDatafeedConnectionTimeout() throws IOException{
+    stubPost(AgentConstants.READDATAFEEDV2.replace("{id}", "1"),
+        readResourceContent("/response_content/datafeedv2/read_datafeedv5.json"), 200, 10000);
 
     try {
 
       datafeedClient.readDatafeed("1");
+      assertTrue(true);
 
     } catch (SymClientException e) {
       fail();

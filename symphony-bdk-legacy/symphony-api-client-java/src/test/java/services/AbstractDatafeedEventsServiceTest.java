@@ -30,7 +30,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.atLeastOnce;
 
-@Ignore
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractDatafeedEventsServiceTest {
   @Mock private SymBotClient symBotClient;
