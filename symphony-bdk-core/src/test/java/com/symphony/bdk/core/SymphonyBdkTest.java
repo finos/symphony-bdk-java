@@ -1,18 +1,10 @@
 package com.symphony.bdk.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AuthenticatorFactory;
-import com.symphony.bdk.core.auth.BotAuthenticator;
-import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -20,47 +12,50 @@ import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
-import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
-import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.core.test.JsonHelper;
+import com.symphony.bdk.core.test.MockApiClient;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 public class SymphonyBdkTest {
 
   private SymphonyBdk symphonyBdk;
+  private MockApiClient mockApiClient;
+  private static final String LOGIN_PUBKEY_AUTHENTICATE = "/login/pubkey/authenticate";
+  private static final String LOGIN_PUBKEY_APP_AUTHENTICATE = "/login/pubkey/app/authenticate";
+  private static final String LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE = "/login/pubkey/app/user/{userId}/authenticate";
+  private static final String LOGIN_PUBKEY_OBO_USERNAME_AUTHENTICATE = "/login/pubkey/app/username/{username}/authenticate";
+  private static final String RELAY_PUBKEY_AUTHENTICATE = "/relay/pubkey/authenticate";
+  private static final String V2_SESSION_INFO = "/pod/v2/sessioninfo";
 
   @BeforeEach
-  void setUp() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
+  void setUp() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, IOException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
-    ApiClientFactory apiClientFactory = new ApiClientFactory(config);
+    config.getBot().setPrivateKeyPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().setPrivateKeyPath("./src/test/resources/keys/private-key.pem");
+    this.mockApiClient = new MockApiClient();
+    ApiClientFactory factory = new ApiClientFactory(config);
+    ApiClientFactory apiClientFactory = spy(factory);
 
-    AuthSession authSession = mock(AuthSession.class);
-    doReturn("1234").when(authSession).getSessionToken();
-    doReturn("1234").when(authSession).getKeyManagerToken();
+    doReturn(mockApiClient.getApiClient("/pod")).when(apiClientFactory).getPodClient();
+    doReturn(mockApiClient.getApiClient("/agent")).when(apiClientFactory).getAgentClient();
+    doReturn(mockApiClient.getApiClient("/login")).when(apiClientFactory).getLoginClient();
+    doReturn(mockApiClient.getApiClient("/relay")).when(apiClientFactory).getRelayClient();
+    doReturn(mockApiClient.getApiClient("/sessionauth")).when(apiClientFactory).getSessionAuthClient();
+    doReturn(mockApiClient.getApiClient("/keyauth")).when(apiClientFactory).getKeyAuthClient();
 
-    BotAuthenticator botAuthenticator = mock(BotAuthenticator.class);
-    doReturn(authSession).when(botAuthenticator).authenticateBot();
+    this.mockApiClient.onPost(LOGIN_PUBKEY_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(RELAY_PUBKEY_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"keyManagerToken\" }");
+    this.mockApiClient.onGet(V2_SESSION_INFO, JsonHelper.readFromClasspath("/res_response/bot_info.json"));
 
-    OboAuthenticator oboAuthenticator = mock(OboAuthenticator.class);
-    doReturn(authSession).when(oboAuthenticator).authenticateByUsername(anyString());
-    doReturn(authSession).when(oboAuthenticator).authenticateByUserId(anyLong());
-
-    AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
-    doReturn(botAuthenticator).when(authenticatorFactory).getBotAuthenticator();
-    doReturn(oboAuthenticator).when(authenticatorFactory).getOboAuthenticator();
-
-    ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory.getPodClient(), apiClientFactory.getAgentClient(), authSession, config);
-    ServiceFactory spiedServiceFactory = spy(serviceFactory);
-    SessionService sessionService = mock(SessionService.class);
-    doReturn(new UserV2().id(123L)).when(sessionService).getSession(authSession);
-    doReturn(sessionService).when(spiedServiceFactory).getSessionService();
-
-    this.symphonyBdk = new SymphonyBdk(config, spiedServiceFactory, authenticatorFactory);
+    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory);
   }
 
   @Test
@@ -97,12 +92,16 @@ public class SymphonyBdkTest {
 
   @Test
   void oboAuthenticateTest() throws AuthUnauthorizedException {
+    this.mockApiClient.onPost(LOGIN_PUBKEY_APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+
+    this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
     AuthSession authSessionById = this.symphonyBdk.obo(123456L);
     assertEquals(authSessionById.getSessionToken(), "1234");
-    assertEquals(authSessionById.getKeyManagerToken(), "1234");
+    assertNull(authSessionById.getKeyManagerToken());
 
+    this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERNAME_AUTHENTICATE.replace("{username}", "username"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
     AuthSession authSessionByUsername = this.symphonyBdk.obo("username");
-    assertEquals(authSessionByUsername.getKeyManagerToken(), "1234");
     assertEquals(authSessionByUsername.getSessionToken(), "1234");
+    assertNull(authSessionByUsername.getKeyManagerToken());
   }
 }
