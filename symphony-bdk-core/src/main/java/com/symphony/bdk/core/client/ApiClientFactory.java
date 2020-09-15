@@ -6,9 +6,8 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
 import com.symphony.bdk.core.api.invoker.ApiClientBuilderProvider;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
-import com.symphony.bdk.core.config.model.BdkBotConfig;
+import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 
 import lombok.Generated;
@@ -88,63 +87,48 @@ public class ApiClientFactory {
 
   /**
    * Returns a fully initialized {@link ApiClient} for the SessionAuth API. This only works with a
-   * certificate configured.
+   * certification configured.
    *
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
-    BdkBotConfig botConfig = this.config.getBot();
-
-    if (!botConfig.isCertificateAuthenticationConfigured()) {
-      throw new ApiClientInitializationException("For certificate authentication, " +
-          "certificatePath and certificatePassword must be set");
-    }
-
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", botConfig.getCertificatePath(), botConfig.getCertificatePassword());
+    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getBot());
   }
 
   /**
    * Returns a fully initialized {@link ApiClient} for the SessionAuth API using in Extension App Authentication.
-   * This only works with a extension app authenticate configured
+   * This only works with a extension app authentication configured
    *
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getExtAppSessionAuthClient() {
-    BdkExtAppConfig appConfig = this.config.getApp();
-
-    if (!appConfig.isCertificateAuthenticationConfigured()) {
-      throw new ApiClientInitializationException("For certificate authentication, " +
-          "certificatePath and certificatePassword must be set");
-    }
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", appConfig.getCertificatePath(), appConfig.getCertificatePassword());
+    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getApp());
   }
 
   /**
    * Returns a fully initialized {@link ApiClient} for the KayAuth API. This only works with a
-   * certificate configured.
+   * certification configured.
    *
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getKeyAuthClient() {
-    BdkBotConfig botConfig = this.config.getBot();
-
-    if (!botConfig.isCertificateAuthenticationConfigured()) {
-      throw new ApiClientInitializationException("For certificate authentication, " +
-          "certificatePath and certificatePassword must be set");
-    }
-
-    return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth", botConfig.getCertificatePath(), botConfig.getCertificatePassword());
+    return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth", this.config.getBot());
   }
 
   private ApiClient buildClient(String basePath) {
     return getApiClientBuilder(basePath).build();
   }
 
-  private ApiClient buildClientWithCertificate(String basePath, String certificatePath, String certificatePassword) {
-    byte[] certificateBytes = getBytesFromFile(certificatePath);
+  private ApiClient buildClientWithCertificate(String basePath, BdkAuthenticationConfig config) {
+    if (!config.isCertificateAuthenticationConfigured()) {
+      throw new ApiClientInitializationException("For certificate authentication, " +
+          "certificatePath and certificatePassword must be set");
+    }
+
+    byte[] certificateBytes = getBytesFromFile(config.getCertificatePath());
 
     return getApiClientBuilder(basePath)
-        .withKeyStore(certificateBytes, certificatePassword)
+        .withKeyStore(certificateBytes, config.getCertificatePassword())
         .build();
   }
 

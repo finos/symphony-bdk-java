@@ -37,8 +37,8 @@ public class OboAuthenticatorCertImplTest {
     this.mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{ \"sessionToken\": \"1234\" }");
     final AuthSession session = this.authenticator.authenticateByUsername("username");
     assertNotNull(session);
-    assertEquals(AuthSessionOboCerImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionOboCerImpl) session).getAuthenticator());
+    assertEquals(AuthSessionOboCertImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionOboCertImpl) session).getAuthenticator());
     assertEquals(session.getSessionToken(), "1234");
     assertNull(session.getKeyManagerToken());
   }
@@ -49,8 +49,8 @@ public class OboAuthenticatorCertImplTest {
     this.mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{ \"sessionToken\": \"1234\" }");
     final AuthSession session = this.authenticator.authenticateByUserId(123456L);
     assertNotNull(session);
-    assertEquals(AuthSessionOboCerImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionOboCerImpl) session).getAuthenticator());
+    assertEquals(AuthSessionOboCertImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionOboCertImpl) session).getAuthenticator());
     assertEquals(session.getSessionToken(), "1234");
     assertNull(session.getKeyManagerToken());
   }

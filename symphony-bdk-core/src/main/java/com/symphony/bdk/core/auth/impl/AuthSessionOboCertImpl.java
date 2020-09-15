@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * {@link AuthSession} impl for OBO Certificate authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionOboCerImpl implements AuthSession {
+public class AuthSessionOboCertImpl implements AuthSession {
 
   private final OboAuthenticatorCertImpl authenticator;
   private final Long userId;
@@ -22,13 +22,13 @@ public class AuthSessionOboCerImpl implements AuthSession {
 
   private String sessionToken;
 
-  public AuthSessionOboCerImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull Long userId) {
+  public AuthSessionOboCertImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull Long userId) {
     this.authenticator = authenticator;
     this.userId = userId;
     this.username = null;
   }
 
-  public AuthSessionOboCerImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull String username) {
+  public AuthSessionOboCertImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull String username) {
     this.authenticator = authenticator;
     this.username = username;
     this.userId = null;

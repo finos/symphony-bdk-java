@@ -41,7 +41,7 @@ public class OboAuthenticatorCertImpl implements OboAuthenticator {
   @Nonnull
   @Override
   public AuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException {
-    AuthSession authSession = new AuthSessionOboCerImpl(this, username);
+    AuthSession authSession = new AuthSessionOboCertImpl(this, username);
     authSession.refresh();
     return authSession;
   }
@@ -52,7 +52,7 @@ public class OboAuthenticatorCertImpl implements OboAuthenticator {
   @Nonnull
   @Override
   public AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
-    AuthSession authSession = new AuthSessionOboCerImpl(this, userId);
+    AuthSession authSession = new AuthSessionOboCertImpl(this, userId);
     authSession.refresh();
     return authSession;
   }
