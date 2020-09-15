@@ -162,6 +162,15 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <modules>
+                <module>symphony-bdk-bom</module>
+                <module>symphony-bdk-core</module>
+                <module>symphony-bdk-core-invokers</module>
+                <module>symphony-bdk-examples</module>
+                <module>symphony-bdk-spring</module>
+                <module>symphony-bdk-template</module>
+                <module>symphony-bdk-legacy</module>
+            </modules>
             <build>
                 <plugins>
                     <plugin>
@@ -205,7 +214,28 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
 
+        <profile>
+            <id>ossrh</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
             <distributionManagement>
                 <snapshotRepository>
                     <id>ossrh</id>
@@ -216,7 +246,6 @@
                     <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
                 </repository>
             </distributionManagement>
-
         </profile>
     </profiles>
 </project>

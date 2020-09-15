@@ -8,4 +8,26 @@
             <password>${repo.password}</password>
         </server>
     </servers>
+
+    <profiles>
+        <profile>
+            <id>symphony-repo</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <distributionManagement>
+                <repository>
+                    <id>symphony-repo</id>
+                    <name>Symphony Releases</name>
+                    <url>${sym.releases.url}</url>
+                </repository>
+                <snapshotRepository>
+                    <id>symphony-repo</id>
+                    <name>Symphony Snapshots</name>
+                    <url>${sym.snapshots.url}</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </settings>

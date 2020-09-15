@@ -8,11 +8,6 @@ cicdUtils = new SymphonyCICDUtils()
 
 
 node {
-
-    // default org and branch
-    def org = env.PARAM_REPO_OWNER ?: 'SymphonyPlatformSolutions'
-    def branch = env.PARAM_BUILD_BRANCH ?: 'master'
-
     withCredentials([
         file(credentialsId: 'JAVA_SDK_GPG_KEY', variable: 'KEY'), 
         string(credentialsId: 'JAVA_SDK_GPG_PASSPHRASE', variable: 'PASSPHRASE')
@@ -45,11 +40,11 @@ node {
         
             sh 'find . -type f -regex ".*/target/symphony-api-client-java-.*.jar" -exec gpg --batch --passphrase $PASSPHRASE -ab {} \\;'
             sh 'ls -la ./symphony-bdk-legacy/symphony-api-client-java/target'
-            sh '''
-                cd ./symphony-bdk-legacy/symphony-api-client-java
-                pwd
-                mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
-            '''
+            sh 'mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -P release,symphony-repo ' +
+                    '-Dgpg.passphrase=$PASSPHRASE ' +
+                    '-Drepo.id=symphony-repo -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE ' +
+                    '-Dsym.releases.url=$PARAM_RELEASES_URL -Dsym.snapshots.url=$PARAM_SNAPSHOTS_URL ' +
+                    'clean deploy'
         }
       }
     }
