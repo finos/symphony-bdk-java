@@ -19,6 +19,9 @@ import javax.ws.rs.core.MediaType;
 
 public class SymExtensionAppRSAAuthTest extends BotTest {
 
+  /**
+   *
+   */
   private SymExtensionAppRSAAuth symExtensionAppRSAAuth;
 
   @Before
