@@ -1,61 +1,54 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
+
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
+import lombok.NonNull;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * {@link AuthSession} impl for OBO authentication mode.
+ * {@link AuthSession} impl for OBO Certificate authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionOboImpl implements AuthSession {
+public class AuthSessionOboCerImpl implements AuthSession {
 
-  private final OboAuthenticatorRsaImpl authenticator;
+  private final OboAuthenticatorCertImpl authenticator;
   private final Long userId;
   private final String username;
 
   private String sessionToken;
 
-  /**
-   *
-   * @param authenticator
-   * @param userId
-   */
-  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRsaImpl authenticator, @Nonnull Long userId) {
+  public AuthSessionOboCerImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull Long userId) {
     this.authenticator = authenticator;
     this.userId = userId;
     this.username = null;
   }
 
-  /**
-   *
-   * @param authenticator
-   * @param username
-   */
-  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRsaImpl authenticator, @Nonnull String username) {
+  public AuthSessionOboCerImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull String username) {
     this.authenticator = authenticator;
-    this.userId = null;
     this.username = username;
+    this.userId = null;
   }
 
   /**
    * {@inheritDoc}
    */
+  @Nullable
   @Override
-  public @Nullable String getSessionToken() {
+  public String getSessionToken() {
     return this.sessionToken;
   }
 
   /**
    * {@inheritDoc}
    */
+  @Nullable
   @Override
-  public @Nullable String getKeyManagerToken() {
+  public String getKeyManagerToken() {
     return null;
   }
 
@@ -67,12 +60,11 @@ public class AuthSessionOboImpl implements AuthSession {
     if (this.userId != null) {
       this.sessionToken = this.authenticator.retrieveOboSessionTokenByUserId(this.userId);
     } else if (this.username != null) {
-      this.sessionToken = this.authenticator.retrieveOboSessionTokenByUsername(this.username);
+      this.sessionToken = this.authenticator.retrieveOboSessionTokenByUsername(username);
     } else {
       throw new IllegalStateException("Both userId and username are null. One of them is mandatory to perform OBO authentication refresh.");
     }
   }
-
 
   protected OboAuthenticator getAuthenticator() {
     return authenticator;

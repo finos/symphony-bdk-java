@@ -8,6 +8,7 @@ import com.symphony.bdk.core.api.invoker.ApiClientBuilderProvider;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkBotConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 
 import lombok.Generated;
@@ -96,6 +97,22 @@ public class ApiClientFactory {
   }
 
   /**
+   * Returns a fully initialized {@link ApiClient} for the SessionAuth API using in Extension App Authentication.
+   * This only works with a extension app authenticate configured
+   *
+   * @return a new {@link ApiClient} instance.
+   */
+  public ApiClient getExtAppSessionAuthClient() {
+    BdkExtAppConfig appConfig = this.config.getApp();
+
+    if (!appConfig.isCertificateAuthenticationConfigured()) {
+      throw new ApiClientInitializationException("For certificate authentication, " +
+          "certificatePath and certificatePassword must be set");
+    }
+    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", appConfig.getCertificatePath(), appConfig.getCertificatePassword());
+  }
+
+  /**
    * Returns a fully initialized {@link ApiClient} for the KayAuth API. This only works with a
    * certificate configured.
    *
@@ -117,10 +134,14 @@ public class ApiClientFactory {
           "certificatePath and certificatePassword must be set");
     }
 
-    byte[] certificateBytes = getBytesFromFile(botConfig.getCertificatePath());
+    return buildClientWithCertificate(basePath, botConfig.getCertificatePath(), botConfig.getCertificatePassword());
+  }
+
+  private ApiClient buildClientWithCertificate(String basePath, String certificatePath, String certificatePassword) {
+    byte[] certificateBytes = getBytesFromFile(certificatePath);
 
     return getApiClientBuilder(basePath)
-        .withKeyStore(certificateBytes, botConfig.getCertificatePassword())
+        .withKeyStore(certificateBytes, certificatePassword)
         .build();
   }
 
