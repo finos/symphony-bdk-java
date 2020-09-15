@@ -73,7 +73,9 @@ public class AuthSessionOboImpl implements AuthSession {
     }
   }
 
-
+  /**
+   * This method is only visible for testing.
+   */
   protected OboAuthenticator getAuthenticator() {
     return authenticator;
   }

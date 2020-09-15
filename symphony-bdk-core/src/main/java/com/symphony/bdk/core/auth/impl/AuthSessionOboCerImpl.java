@@ -60,12 +60,15 @@ public class AuthSessionOboCerImpl implements AuthSession {
     if (this.userId != null) {
       this.sessionToken = this.authenticator.retrieveOboSessionTokenByUserId(this.userId);
     } else if (this.username != null) {
-      this.sessionToken = this.authenticator.retrieveOboSessionTokenByUsername(username);
+      this.sessionToken = this.authenticator.retrieveOboSessionTokenByUsername(this.username);
     } else {
       throw new IllegalStateException("Both userId and username are null. One of them is mandatory to perform OBO authentication refresh.");
     }
   }
 
+  /**
+   * This method is only visible for testing.
+   */
   protected OboAuthenticator getAuthenticator() {
     return authenticator;
   }

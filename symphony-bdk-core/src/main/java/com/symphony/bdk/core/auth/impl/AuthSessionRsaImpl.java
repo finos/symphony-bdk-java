@@ -48,6 +48,9 @@ public class AuthSessionRsaImpl implements AuthSession {
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
   }
 
+  /**
+   * This method is only visible for testing.
+   */
   protected BotAuthenticatorRsaImpl getAuthenticator() {
     return this.authenticator;
   }

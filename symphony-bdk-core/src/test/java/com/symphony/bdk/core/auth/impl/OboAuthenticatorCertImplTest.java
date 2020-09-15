@@ -24,17 +24,17 @@ public class OboAuthenticatorCertImplTest {
 
   @BeforeEach
   void init() {
-    mockApiClient = new MockApiClient();
+    this.mockApiClient = new MockApiClient();
     this.authenticator = new OboAuthenticatorCertImpl(
         "appId",
-        mockApiClient.getApiClient("/sessionauth")
+        this.mockApiClient.getApiClient("/sessionauth")
     );
   }
 
   @Test
   void testAuthenticateByUsername() throws AuthUnauthorizedException {
-    mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{ \"sessionToken\": \"1234\" }");
+    this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{ \"sessionToken\": \"1234\" }");
     final AuthSession session = this.authenticator.authenticateByUsername("username");
     assertNotNull(session);
     assertEquals(AuthSessionOboCerImpl.class, session.getClass());
@@ -45,8 +45,8 @@ public class OboAuthenticatorCertImplTest {
 
   @Test
   void testAuthenticateByUserId() throws AuthUnauthorizedException {
-    mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{ \"sessionToken\": \"1234\" }");
+    this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{ \"sessionToken\": \"1234\" }");
     final AuthSession session = this.authenticator.authenticateByUserId(123456L);
     assertNotNull(session);
     assertEquals(AuthSessionOboCerImpl.class, session.getClass());
@@ -57,45 +57,45 @@ public class OboAuthenticatorCertImplTest {
 
   @Test
   void testRetrieveAppSessionTokenUnauthorized() {
-    mockApiClient.onPost(401, APP_AUTHENTICATE, "{}");
+    this.mockApiClient.onPost(401, APP_AUTHENTICATE, "{}");
     assertThrows(AuthUnauthorizedException.class, this.authenticator::retrieveAppSessionToken);
   }
 
   @Test
   void testRetrieveAppSessionTokenApiException() {
-    mockApiClient.onPost(400, APP_AUTHENTICATE, "{}");
+    this.mockApiClient.onPost(400, APP_AUTHENTICATE, "{}");
     assertThrows(ApiRuntimeException.class, this.authenticator::retrieveAppSessionToken);
   }
 
   @Test
   void testAuthenticateByUsernameUnauthorized() {
-    mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    mockApiClient.onPost(401, APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{}");
+    this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(401, APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{}");
     assertThrows(AuthUnauthorizedException.class, () -> this.authenticator.authenticateByUsername("username"));
   }
 
   @Test
   void testAuthenticateByUsernameApiException() {
-    mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    mockApiClient.onPost(400, APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{}");
+    this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(400, APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{}");
     assertThrows(ApiRuntimeException.class, () -> this.authenticator.authenticateByUsername("username"));
-    mockApiClient.onPost(500, APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{}");
+    this.mockApiClient.onPost(500, APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{}");
     assertThrows(ApiRuntimeException.class, () -> this.authenticator.authenticateByUsername("username"));
   }
 
   @Test
   void testAuthenticateByUserIdUnauthorized() {
-    mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    mockApiClient.onPost(401, APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{}");
+    this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(401, APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{}");
     assertThrows(AuthUnauthorizedException.class, () -> this.authenticator.authenticateByUserId(123456L));
   }
 
   @Test
   void testAuthenticateByUserIdApiException() {
-    mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    mockApiClient.onPost(400, APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{}");
+    this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(400, APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{}");
     assertThrows(ApiRuntimeException.class, () -> this.authenticator.authenticateByUserId(123456L));
-    mockApiClient.onPost(500, APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{}");
+    this.mockApiClient.onPost(500, APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{}");
     assertThrows(ApiRuntimeException.class, () -> this.authenticator.authenticateByUserId(123456L));
   }
 }

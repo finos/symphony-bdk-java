@@ -93,7 +93,14 @@ public class ApiClientFactory {
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth");
+    BdkBotConfig botConfig = this.config.getBot();
+
+    if (!botConfig.isCertificateAuthenticationConfigured()) {
+      throw new ApiClientInitializationException("For certificate authentication, " +
+          "certificatePath and certificatePassword must be set");
+    }
+
+    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", botConfig.getCertificatePath(), botConfig.getCertificatePassword());
   }
 
   /**
@@ -119,14 +126,6 @@ public class ApiClientFactory {
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getKeyAuthClient() {
-    return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth");
-  }
-
-  private ApiClient buildClient(String basePath) {
-    return getApiClientBuilder(basePath).build();
-  }
-
-  private ApiClient buildClientWithCertificate(String basePath) {
     BdkBotConfig botConfig = this.config.getBot();
 
     if (!botConfig.isCertificateAuthenticationConfigured()) {
@@ -134,7 +133,11 @@ public class ApiClientFactory {
           "certificatePath and certificatePassword must be set");
     }
 
-    return buildClientWithCertificate(basePath, botConfig.getCertificatePath(), botConfig.getCertificatePassword());
+    return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth", botConfig.getCertificatePath(), botConfig.getCertificatePassword());
+  }
+
+  private ApiClient buildClient(String basePath) {
+    return getApiClientBuilder(basePath).build();
   }
 
   private ApiClient buildClientWithCertificate(String basePath, String certificatePath, String certificatePassword) {
