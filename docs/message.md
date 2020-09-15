@@ -65,3 +65,6 @@ The templates will be looked for in this order:
 * in the classpath
 * in the file system
 * lastly as a URL
+
+----
+[Home :house:](./index.md)

@@ -130,3 +130,6 @@ The legacy configuration using by the Java SDK v1 is also supported in BDK Confi
 
 This legacy configuration can be also read from a file, an inputstream, a classpath and automatically
 translated to `BdkConfig` instance.
+
+----
+[Home :house:](./index.md)

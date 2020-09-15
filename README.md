@@ -1,4 +1,4 @@
-# Symphony Java BDK 
+# Symphony BDK Java 
 [![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java.svg?style=shield)](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java)
 [![Known Vulnerabilities](https://snyk.io/test/github/SymphonyPlatformSolutions/symphony-api-client-java/badge.svg)](https://snyk.io/test/github/SymphonyPlatformSolutions/symphony-api-client-java)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-api-client-java/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-api-client-java)
@@ -9,33 +9,29 @@ The Symphony Java BDK helps you to create Bots and Applications on top of the [S
 
 Documentation about BDK features and usage is available under [docs](./docs/index.md) folder.
 
-## How to Build
+## Build from Source
+The Symphony BDK uses a Maven [build](https://maven.apache.org/) build. The instructions below use the [Maven Wrapper](https://github.com/takari/maven-wrapper)
+from the root of the source treen. The wrapper script serves as a cross-platform, self-contained bootstrap mechanism for
+the build system.
 
-As this project contains modules for the legacy SDK/BDK as well as for the 2.0 ones, some
-Maven are defined to make the build faster depending on which version you are working on.
+### Before you start
+To build you will need [Git](https://docs.github.com/en/github/getting-started-with-github/set-up-git) and [JDK 8 or later](https://adoptopenjdk.net/).
+Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8+` folder extracted from the JDK download.
 
-The BDK can be built and published to your local Maven cache using the [Maven Wrapper](https://github.com/takari/maven-wrapper). 
-
-**Build Legacy Modules**
-
-The `legacy` profile is activated by default so there is no specific argument to define to have
-it part of the build. However, it is also possible to skip legacy modules to be built using argument `-P -legacy`:
-
+### Get the source
 ```shell script
-# build the legacy modules
-./mvnw clean install
-
-# skip building legacy modules
-./mvnw clean install -P -legacy
+git clone git@github.com:SymphonyPlatformSolutions/symphony-api-client-java.git
+cd symphony-api-client-java
 ```
-
-**Build BDK 2.0 Modules**
-
-Still in construction, the 2.0 modules are deactivated by default but can be activated through the Maven profile `2.0` : 
-
+### Build from the Command Line
+To compile, test and build all jars, use:
 ```shell script
-# build the 2.0 modules only, skip the legacy ones
-./mvnw clean install -P2.0,-legacy
+./mvnw clean package
+```
+### Install in local Maven repository
+To install all Symphony BDK jars in your local Maven repository, use:
+```shell script
+./mvnw clean install
 ```
 
 ## License
