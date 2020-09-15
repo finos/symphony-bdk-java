@@ -1,0 +1,4 @@
+{
+    "code": 403,
+    "message": "The user lacks the required entitlement to perform this operation"
+}

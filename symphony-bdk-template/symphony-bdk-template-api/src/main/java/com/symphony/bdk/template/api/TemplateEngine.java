@@ -41,7 +41,7 @@ public interface TemplateEngine {
   /**
    * Create a {@link Template} instance from a file in the classpath
    * @param templatePath full path to a template file in the classpath
-   * @returna a new {@link Template} instantiated from the provided classpath resource
+   * @return a new {@link Template} instantiated from the provided classpath resource
    * @throws TemplateException when template cannot be loaded, e.g. resource not accessible
    */
   Template newTemplateFromClasspath(String templatePath) throws TemplateException;

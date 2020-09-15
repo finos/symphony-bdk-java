@@ -8,6 +8,9 @@ import javax.ws.rs.core.MediaType;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import org.junit.Before;
+
+import java.util.UUID;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class BotTest extends ServerTest {
@@ -40,6 +43,16 @@ public class BotTest extends ServerTest {
                     "     \"USER_PROVISIONING\"\r\n" +
                     "  ]\r\n" +
                     "}")));
+
+        stubFor(post(urlEqualTo("/login/pubkey/authenticate"))
+            .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+                .withBody("{\r\n" +
+                    " \"token\": " + UUID.randomUUID().toString() + ",\r\n" +
+                    "}")));
+
         SymBotRSAAuth auth = new SymBotRSAAuth(config);
         auth.setSessionToken("eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJ0ZXN0LWJvdCIsImlzcyI6InN5bXBob255Iiwic2Vzc2lvbklkIjoiZmRiOTAxMmQzOTgwMGE3NzNkMTJjYWFmZGY5MjU4ZjZjOWEyMTE2MmYyZDU1ODQ3M2Y5ZDU5MDUyNjA0Mjg1ZjU0MWM5Yzg0Mzc5YTE0MjZmODNiZmZkZTljYmQ5NjRjMDAwMDAxNmRmMjMyODIwNTAwMDEzZmYwMDAwMDAxZTgiLCJ1c2VySWQiOiIzNTE3NzUwMDE0MTIwNzIifQ.DlQ_-sAqZLlAcVTr7t_PaYt_Muq_P82yYrtbEEZWMpHMl-7qCciwfi3uXns7oRbc1uvOrhQd603VKQJzQxaZBZBVlUPS-2ysH0tBpCS57ocTS6ZwtQwPLCZYdT-EZ70EzQ95kG6P5TrLENH6UveohgeDdmyzSPOEiwyEUjjmzaXFE8Tu0R3xQDwl-BKbsyUAAgd1X7T0cUDC3WIDl9xaTvyxavep4ZJnZJl4qPc1Tan0yU7JrxtXeD8uwNYlKLudT3UVxduFPMQP_2jyj5Laa-YWGKvRtXkcy2d3hzf4ll1l1wVnyJc1e6hW2EnRlff_Nxge-QCJMcZ_ALrpOUtAyQ");
         symBotClient = SymBotClient.initBot(config, auth);
