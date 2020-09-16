@@ -49,3 +49,5 @@ that is available in BDK is:
 - Datafeed Service: `bdk.datafeed()`
 - Activities Registry: `bdk.activities()`
 
+----
+[Home :house:](./index.md)
