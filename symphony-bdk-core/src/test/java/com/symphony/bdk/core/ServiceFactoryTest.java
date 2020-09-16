@@ -3,9 +3,11 @@ package com.symphony.bdk.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -25,8 +27,7 @@ import org.junit.jupiter.api.Test;
 public class ServiceFactoryTest {
 
   private ServiceFactory serviceFactory;
-  private ApiClient mPodClient;
-  private ApiClient mAgentClient;
+  private ApiClientFactory apiClientFactory;
   private AuthSession mAuthSession;
   private BdkConfig config;
 
@@ -34,9 +35,14 @@ public class ServiceFactoryTest {
   void setUp() throws BdkConfigException {
     this.config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     this.mAuthSession = mock(AuthSession.class);
-    this.mPodClient = mock(ApiClient.class);
-    this.mAgentClient = mock(ApiClient.class);
-    this.serviceFactory = new ServiceFactory(mPodClient, mAgentClient, mAuthSession, config);
+    ApiClient mPodClient = mock(ApiClient.class);
+    ApiClient mAgentClient = mock(ApiClient.class);
+    this.apiClientFactory = mock(ApiClientFactory.class);
+
+    when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);
+    when(this.apiClientFactory.getAgentClient()).thenReturn(mAgentClient);
+
+    this.serviceFactory = new ServiceFactory(this.apiClientFactory, this.mAuthSession, this.config);
   }
 
   @Test
@@ -68,13 +74,13 @@ public class ServiceFactoryTest {
     BdkDatafeedConfig datafeedConfig = this.config.getDatafeed();
     datafeedConfig.setVersion("v1");
 
-    this.serviceFactory = new ServiceFactory(mPodClient, mAgentClient, mAuthSession, config);
+    this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
     DatafeedService datafeedServiceV1 = this.serviceFactory.getDatafeedService();
     assertNotNull(datafeedServiceV1);
     assertEquals(datafeedServiceV1.getClass(), DatafeedServiceV1.class);
 
     datafeedConfig.setVersion("v2");
-    this.serviceFactory = new ServiceFactory(mPodClient, mAgentClient, mAuthSession, config);
+    this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
     DatafeedService datafeedServiceV2 = this.serviceFactory.getDatafeedService();
     assertNotNull(datafeedServiceV2);
     assertEquals(datafeedServiceV2.getClass(), DatafeedServiceV2.class);
