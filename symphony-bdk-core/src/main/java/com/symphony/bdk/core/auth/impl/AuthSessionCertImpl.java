@@ -45,6 +45,9 @@ public class AuthSessionCertImpl implements AuthSession {
     this.keyManagerToken = authenticator.retrieveKeyManagerToken();
   }
 
+  /**
+   * This method is only visible for testing.
+   */
   protected BotAuthenticatorCertImpl getAuthenticator() {
     return authenticator;
   }
