@@ -11,6 +11,7 @@ import com.symphony.bdk.core.api.invoker.jersey2.ApiClientBuilderJersey2;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -121,6 +122,45 @@ class AuthenticatorFactoryTest {
     OboAuthenticator oboAuthenticator = factory.getOboAuthenticator();
     assertNotNull(oboAuthenticator);
     assertEquals(OboAuthenticatorCertImpl.class, oboAuthenticator.getClass());
+  }
+
+  @Test
+  void testGetExtAppAuthenticatorWithValidPrivateKey(@TempDir Path tempDir) throws AuthInitializationException {
+
+    final BdkConfig config = createRsaConfig(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath(RSA_PRIVATE_KEY, privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+    final ExtensionAppAuthenticator botAuth = factory.getExtensionAppAuthenticator();
+    assertNotNull(botAuth);
+    assertEquals(ExtensionAppAuthenticatorRsaImpl.class, botAuth.getClass());
+  }
+
+  @Test
+  void testGetExtAppAuthenticatorWithInvalidPrivateKey(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfig(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath("invalid-private-key-content", privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+  }
+
+  @Test
+  void testGetExtAppAuthenticatorWithNotFoundPrivateKey(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfig(() -> tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem").toAbsolutePath().toString());
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
   }
 
   @SneakyThrows

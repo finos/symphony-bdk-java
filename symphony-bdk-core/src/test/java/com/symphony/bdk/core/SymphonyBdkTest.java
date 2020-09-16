@@ -1,10 +1,14 @@
 package com.symphony.bdk.core;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -32,6 +36,7 @@ public class SymphonyBdkTest {
   private static final String LOGIN_PUBKEY_APP_AUTHENTICATE = "/login/pubkey/app/authenticate";
   private static final String LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE = "/login/pubkey/app/user/{userId}/authenticate";
   private static final String LOGIN_PUBKEY_OBO_USERNAME_AUTHENTICATE = "/login/pubkey/app/username/{username}/authenticate";
+  private static final String LOGIN_PUBKEY_V1_EXTENSION_APP_AUTHENTICATE = "/login/v1/pubkey/app/authenticate/extensionApp";
   private static final String RELAY_PUBKEY_AUTHENTICATE = "/relay/pubkey/authenticate";
   private static final String V2_SESSION_INFO = "/pod/v2/sessioninfo";
 
@@ -103,5 +108,21 @@ public class SymphonyBdkTest {
     AuthSession authSessionByUsername = this.symphonyBdk.obo("username");
     assertEquals(authSessionByUsername.getSessionToken(), "1234");
     assertNull(authSessionByUsername.getKeyManagerToken());
+  }
+
+  @Test
+  void extAppAuthenticateTest() throws AuthUnauthorizedException {
+    this.mockApiClient.onPost(LOGIN_PUBKEY_V1_EXTENSION_APP_AUTHENTICATE,"{\n"
+        + "  \"appId\" : \"APP_ID\",\n"
+        + "  \"appToken\" : \"APP_TOKEN\",\n"
+        + "  \"symphonyToken\" : \"SYMPHONY_TOKEN\",\n"
+        + "  \"expireAt\" : 1539636528288\n"
+        + "}");
+
+    AuthSessionExtensionApp authSession = this.symphonyBdk.app("APP_TOKEN");
+
+    assertEquals(authSession.getSymphonyToken(), "SYMPHONY_TOKEN");
+    assertEquals(authSession.getAppToken(), "APP_TOKEN");
+    assertEquals(authSession.expireAt(), 1539636528288L);
   }
 }
