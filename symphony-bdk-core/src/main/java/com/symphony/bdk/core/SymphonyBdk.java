@@ -14,7 +14,6 @@ import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 
-import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -36,31 +35,17 @@ public class SymphonyBdk {
   private final MessageService messageService;
   private final DatafeedService datafeedService;
 
-  @Generated
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
-    ApiClientFactory apiClientFactory = new ApiClientFactory(config);
+    this(config, new ApiClientFactory(config));
+  }
+
+  protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory)
+      throws AuthInitializationException, AuthUnauthorizedException {
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
     AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     ServiceFactory serviceFactory =
-        new ServiceFactory(apiClientFactory.getPodClient(), apiClientFactory.getAgentClient(), botSession, config);
-
-    // service init
-    this.sessionService = serviceFactory.getSessionService();
-    this.userService = serviceFactory.getUserService();
-    this.streamService = serviceFactory.getStreamService();
-    this.messageService = serviceFactory.getMessageService();
-    this.datafeedService = serviceFactory.getDatafeedService();
-
-    // setup activities
-    this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(botSession), this.datafeedService::subscribe);
-  }
-
-  protected SymphonyBdk(BdkConfig config, ServiceFactory serviceFactory, AuthenticatorFactory authenticatorFactory)
-      throws AuthInitializationException, AuthUnauthorizedException {
-    AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
-    this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
-
+        new ServiceFactory(apiClientFactory, botSession, config);
     // service init
     this.sessionService = serviceFactory.getSessionService();
     this.userService = serviceFactory.getUserService();

@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -67,7 +68,12 @@ public class AuthenticatorFactory {
    * @return a new {@link OboAuthenticator} instance.
    */
   public @Nonnull OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
-
+    if (this.config.getApp().isCertificateAuthenticationConfigured()) {
+      return new OboAuthenticatorCertImpl(
+          this.config.getApp().getAppId(),
+          this.apiClientFactory.getExtAppSessionAuthClient()
+      );
+    }
     return new OboAuthenticatorRsaImpl(
         this.config.getApp().getAppId(),
         this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),

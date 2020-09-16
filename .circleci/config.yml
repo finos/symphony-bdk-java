@@ -39,12 +39,12 @@ jobs:
 
       # run tests!
       - run:
-          name: Check BDK 2.0
-          command: mvn checkstyle:check verify -P2.0
+          name: Verify BDK 2.0
+          command: mvn verify -P2.0
 
       - run:
-          name: Check legacy
-          command: mvn checkstyle:check verify -Plegacy
+          name: Verify legacy projects
+          command: mvn verify -Plegacy
 
       - run:
           name: Save test results

@@ -297,6 +297,30 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <groups>
+                        <group>
+                            <title>Core - Configuration</title>
+                            <packages>com.symphony.bdk.core.config*</packages>
+                        </group>
+                        <group>
+                            <title>Core - Authentication</title>
+                            <packages>com.symphony.bdk.core.auth*</packages>
+                        </group>
+                        <group>
+                            <title>Core - Service</title>
+                            <packages>com.symphony.bdk.core.service*</packages>
+                        </group>
+                        <group>
+                            <title>Core - Activity</title>
+                            <packages>com.symphony.bdk.core.activity*</packages>
+                        </group>
+                    </groups>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
