@@ -10,7 +10,7 @@ in Java. Two different approaches will be detailed here:
 
 For all Symphony BDK applications, you should start with the [Symphony Generator](https://github.com/SymphonyPlatformSolutions/generator-symphony).
 The Symphony Generator offers a fast way to bootstrap your Symphony BDK project in several languages, including Java:
-```shell script
+```
 npm i -g generator-symphony
 yo symphony 2.0
 ```
