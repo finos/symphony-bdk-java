@@ -1,79 +1,53 @@
 # Configuration
 
-The BDK configuration is one of the most basic feature of the BDK project which help
-developers configure their own bot.
+The BDK configuration is one of the most essential feature of the Symphony BDK which allows developers to configure 
+their bot environment.
 
-## Configuration structure
+## Minimal configuration example
+The minimal configuration file that can be provided look like:
+```yaml
+host: acme.symphony.com                                     # (1)
 
-The BDK configuration now includes the following properties:
-- The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
-These global properties can be used by the client configuration by default or can be override if
-user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
-- `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
-the service account using by the bot is created.
-- `agent` contains information like host, port, scheme, context, proxy... of the agent which 
-the bot connects to.
-- `keyManager` contains information like host, port, scheme, context, proxy... of the key 
-manager which manages the key token of the bot.
-- `bot` contains information about the bot like the username, the private key or 
-the certificate for authenticating the service account on pod.
-- `app` contains information about the extension app that the bot will use like 
-the appId, the private key or the certificate for authenticating the extension app.
-- `ssl` contains trustStore and trustStore password for SSL communication.
-- `datafeed` contains information of the datafeed service to be used by the bot.
-- `retry` contains information for retry mechanism to be used by the bot.
+bot: 
+    username: bot-username                                  # (2)
+    privateKeyPath: /path/to/bot/rsa-private-key.pem        # (3)
+```
+1. hostname of your Symphony pod environment
+2. your bot (or service account) username as configured in your pod admin console (https://acme.symphony.com/admin-console)
+3. your bot RSA private key according to the RSA public key upload in your pod admin console (https://acme.symphony.com/admin-console)
 
-### Retry Configuration
-The retry mechanism used by the bot will be configured by these following properties:
-- `maxAttempts`: maximum number of retry attempts that the bot is able to make.
-- `multiplier`: after each attempt, the interval between two attempts will be multiplied by 
-this factor. (Exponential backoff strategy)
-- `initialIntervalMillis`: the initial interval between two attempts.
-- `maxIntervalMillis`: the limit of the interval between two attempts. For example: if the 
-current interval is 1000 millis, multiplier is 2.0 and the maxIntervalMillis is 1500 millis,
-then the interval for next retry will be 1500 millis.
+## How to load configuration
+The Symphony BDK provides a single way to configure your bot environment. 
 
-Each bot will have a global retry configuration to be used in every services with the following
-default value:
-- `maxAttempts`: 10
-- `initialIntervalMillis`: 500
-- `multiplier`: 2
-- `maxIntervalMillis`: 300000 (5 mins)
+```java
+public class Example {
+    
+    public static void main(String[] args) {
+      
+      final BdkConfig config01 = BdkConfigLoader.loadFromFile("/absolute/path/to/config.yaml");             // (1)
+      final BdkConfig config02 = BdkConfigLoader.loadFromClasspath("/config.yaml");                         // (2)
 
-This global retry configuration can be override by each service. We can define a specific retry 
-configuration inside service configuration to override the global one.
+      final InputStream configInputStream = new FileInputStream(new File("/absolute/path/to/config.yaml"));
+      final BdkConfig config03 = BdkConfigLoader.loadFromInputStream(configInputStream);                    // (3)
 
-### DatafeedConfiguration
-The datafeed configuration will contain information about the datafeed service to be used by the bot:
-- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v1
-service. 
-- `idFilePath`: the path to the file which will be used to persist a created datafeed id in case the 
-datafeed service v1 is used.
-- `retry`: the specific retry configuration can be used to override the global retry configuration. If no
-retry configuration is defined, the global one will be used.
+      final BdkConfig config04 = BdkConfigLoader.loadFromSymphonyDir("config.yaml");                        // (4)
+  
+      final BdkConfig config05 = new BdkConfig();                                                           // (5)
+      configAsPojo.setHost("acme.symphony.com");
+      configAsPojo.getBot().setUsername("bot-username");
+      configAsPojo.getBot().setPrivateKeyPath("/path/to/bot/rsa-private-key.pem");
+    }
+}
+```
+1. Load configuration from a system location path
+2. Load configuration from a classpath location
+3. Load configuration from an [`InputStream`](https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html)
+4. Load configuration from the Symphony directory. The Symphony directory is located under your `${user.home}/.symphony` 
+    folder. It can be useful when you don't want to share your own Symphony credentials within your project codebase
+5. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object) 
+    and load it from any external system
 
-## Configuration format
-
-Both of `JSON` and `YAML` formats are supported by BDK configuration. 
-
-## Configuration usage
-
-BDK configuration can be read:
-- From a file: `BdkConfigLoader#loadFromFile` giving the path to the configuration file.
-- From an InputStream: `BdkConfigLoader#loadFromInputStream` giving the input stream
-of the configuration file.
-- From a classpath: `BdkConfigLoader#loadFromClasspath` giving the classpath to the
-configuration file.
-
-The configuration file after being read will be represented by `BdkConfig` class which contains:
-
-- The configuration for `pod`, `agent`, `keyManager`is represented by `BdkClientConfig`.
-- The configuration for `bot` is represented by `BdkBotConfig`.
-- The configuration for `app` is represented by `BdkExtAppConfig`.
-- The configuration for `ssl` is represented by `BdkSslConfig`.
-
-## BDK configuration example
-
+## Full configuration example
 ```yaml
 scheme: https
 host: localhost.symphony.com
@@ -96,7 +70,7 @@ sessionAuth:
 
 bot:
   username: bot-name
-  privateKeyPath: path/to/private-key.pem
+  privateKeyPath: /path/to/bot/rsa-private-key.pem
   certificatePath: /path/to/bot-certificate.p12
   certificatePassword: changeit
 
@@ -121,10 +95,75 @@ retry:
   initialIntervalMillis: 2000
   multiplier: 1.5
   maxIntervalMillis: 10000
-
 ```
 
-## Backward Compatibility with legacy configuration file  
+### Configuration structure
+
+The BDK configuration now includes the following properties:
+- The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
+These global properties can be used by the client configuration by default or can be override if
+user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
+- `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
+the service account using by the bot is created.
+- `agent` contains information like host, port, scheme, context, proxy... of the agent which 
+the bot connects to.
+- `keyManager` contains information like host, port, scheme, context, proxy... of the key 
+manager which manages the key token of the bot.
+- `bot` contains information about the bot like the username, the private key or 
+the certificate for authenticating the service account on pod.
+- `app` contains information about the extension app that the bot will use like 
+the appId, the private key or the certificate for authenticating the extension app.
+- `ssl` contains trustStore and trustStore password for SSL communication.
+- `datafeed` contains information of the datafeed service to be used by the bot.
+- `retry` contains information for retry mechanism to be used by the bot.
+
+#### Retry Configuration
+The retry mechanism used by the bot will be configured by these following properties:
+- `maxAttempts`: maximum number of retry attempts that the bot is able to make.
+- `multiplier`: after each attempt, the interval between two attempts will be multiplied by 
+this factor. (Exponential backoff strategy)
+- `initialIntervalMillis`: the initial interval between two attempts.
+- `maxIntervalMillis`: the limit of the interval between two attempts. For example: if the 
+current interval is 1000 millis, multiplier is 2.0 and the maxIntervalMillis is 1500 millis,
+then the interval for next retry will be 1500 millis.
+
+Each bot will have a global retry configuration to be used in every services with the following
+default value:
+- `maxAttempts`: 10
+- `initialIntervalMillis`: 500
+- `multiplier`: 2
+- `maxIntervalMillis`: 300000 (5 mins)
+
+This global retry configuration can be override by each service. We can define a specific retry 
+configuration inside service configuration to override the global one.
+
+#### DatafeedConfiguration
+The datafeed configuration will contain information about the datafeed service to be used by the bot:
+- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v1
+service. 
+- `idFilePath`: the path to the file which will be used to persist a created datafeed id in case the 
+datafeed service v1 is used.
+- `retry`: the specific retry configuration can be used to override the global retry configuration. If no
+retry configuration is defined, the global one will be used.
+
+## Configuration format
+Both of `JSON` and `YAML` formats are supported by BDK configuration. Using `JSON`, a minimal configuration file would 
+look like: 
+```json
+{
+  "host": "acme.symphony.com",
+  "bot": { 
+    "username": "bot-username",
+    "privateKeyPath": "/path/to/bot/rsa-private-key.pem"
+  }
+}
+``` 
+Reading a `JSON` configuration file is completely transparent: 
+```java
+final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.json")
+```
+
+## Backward Compatibility with legacy configuration file (experimental) 
 
 The legacy configuration using by the Java SDK v1 is also supported in BDK Configuration 2.0.
 
