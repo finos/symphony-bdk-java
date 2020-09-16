@@ -178,3 +178,6 @@ class HelloFormReplyActivity extends FormReplyActivity<FormReplyContext> {
 1. The `ActivityMatcher` ensures that activity logic is triggered only when the form with `id` "**hello-form**" has been 
 submitted from the action button "**submit**"
 2. The activity context allows to directly retrieve form values. Here the "**name**" `<text-field>` value
+
+----
+[Home :house:](./index.md)
