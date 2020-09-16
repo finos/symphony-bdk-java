@@ -80,6 +80,39 @@ class ApiClientFactoryTest {
   }
 
   @Test
+  void testExtAppSessionAuthClient() {
+    BdkConfig bdkConfig = this.createConfig();
+    this.addExtAppCertificateToConfig(bdkConfig);
+    ApiClient extAppSessionAuth = new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient();
+
+    assertEquals(ApiClientJersey2.class, extAppSessionAuth.getClass());
+    assertEquals("https://sa-host:443/sessionauth", extAppSessionAuth.getBasePath());
+  }
+
+  @Test
+  void testExtAppAuthClientWithWrongCertPathShouldFail() {
+    BdkConfig bdkConfig = this.createConfig();
+    this.addExtAppCertificateToConfig(bdkConfig, "./non/existent/file.p12", "password");
+
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
+  }
+
+  @Test
+  void testExtAppAuthClientWithWrongPasswordShouldFail() {
+    BdkConfig bdkConfig = this.createConfig();
+    this.addExtAppCertificateToConfig(bdkConfig, "./src/test/resources/certs/identity.p12", "wrongPassword");
+
+    assertThrows(IllegalStateException.class, () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
+  }
+
+  @Test
+  void testExtAppAuthClientNotConfiguredShouldFail() {
+    BdkConfig bdkConfig = this.createConfig();
+
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
+  }
+
+  @Test
   void testAuthClientWithTrustStore() {
     BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "changeit");
     ApiClient sessionAuth = new ApiClientFactory(configWithTrustStore).getSessionAuthClient();
@@ -131,6 +164,17 @@ class ApiClientFactoryTest {
     config.getBot().setCertificatePassword(password);
 
     return config;
+  }
+
+  private BdkConfig addExtAppCertificateToConfig(BdkConfig config, String certificatePath, String password) {
+    config.getApp().setCertificatePath(certificatePath);
+    config.getApp().setCertificatePassword(password);
+
+    return config;
+  }
+
+  private BdkConfig addExtAppCertificateToConfig(BdkConfig config) {
+    return this.addExtAppCertificateToConfig(config, "./src/test/resources/certs/identity.p12", "password");
   }
 
   private BdkConfig createConfig() {
