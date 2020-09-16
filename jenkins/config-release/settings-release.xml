@@ -20,12 +20,12 @@
                 <repository>
                     <id>symphony-repo</id>
                     <name>Symphony Releases</name>
-                    <url>${sym.releases.url}</url>
+                    <url>${sym.repo.url}/libs-release-local</url>
                 </repository>
                 <snapshotRepository>
                     <id>symphony-repo</id>
                     <name>Symphony Snapshots</name>
-                    <url>${sym.snapshots.url}</url>
+                    <url>${sym.repo.url}/libs-snapshot-local</url>
                 </snapshotRepository>
             </distributionManagement>
         </profile>

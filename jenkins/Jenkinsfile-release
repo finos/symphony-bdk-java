@@ -40,10 +40,10 @@ node {
         
             sh 'find . -type f -regex ".*/target/symphony-api-client-java-.*.jar" -exec gpg --batch --passphrase $PASSPHRASE -ab {} \\;'
             sh 'ls -la ./symphony-bdk-legacy/symphony-api-client-java/target'
-            sh 'mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -P release,symphony-repo ' +
+            sh 'mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -P release,$PARAM_REPO_ID ' +
                     '-Dgpg.passphrase=$PASSPHRASE ' +
-                    '-Drepo.id=symphony-repo -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE ' +
-                    '-Dsym.releases.url=$PARAM_RELEASES_URL -Dsym.snapshots.url=$PARAM_SNAPSHOTS_URL ' +
+                    '-Drepo.id=$PARAM_REPO_ID -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE ' +
+                    '-Dsym.repo.url=$PARAM_SYM_REPO_URL ' +
                     'clean deploy'
         }
       }
