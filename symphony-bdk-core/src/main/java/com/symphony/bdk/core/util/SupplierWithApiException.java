@@ -7,7 +7,7 @@ import org.apiguardian.api.API;
 
 /**
  * Functional interface which supplies a T object and may throw an {@link ApiException}.
- * @param <T> the type returned by the suuplier.
+ * @param <T> the type returned by the supplier.
  */
 @FunctionalInterface
 @API(status = API.Status.INTERNAL)

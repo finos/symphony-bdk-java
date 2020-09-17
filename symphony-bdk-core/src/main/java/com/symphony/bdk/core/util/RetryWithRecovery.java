@@ -10,6 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.function.Predicate;
 
+/**
+ * This class aims to implement a retry mechanism (on top of a{@link Retry})
+ * with different recovery strategies based on predicates.
+ * @param <T> the type of the object returned by {@link #execute()}
+ */
 @Slf4j
 public class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
@@ -17,12 +22,34 @@ public class RetryWithRecovery<T> {
   private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
   private Retry retry;
 
+  /**
+   * Constructor with no predicate on when to ignore an {@link ApiException},
+   * i.e. ApiExceptions will never be ignored.
+   * @param name the name of the {@link Retry} service.
+   * @param bdkRetryConfig the retry configuration to be used.
+   * @param supplier the supplier responsible to provide the object of param type T and which may throw an {@link ApiException}.
+   * @param retryOnExceptionPredicate predicate on a thrown {@link ApiException} to know if call should be retried.
+   * @param recoveryStrategies mapping between {@link Predicate<ApiException>} and the corresponding recovery functions to be executed before retrying.
+   *                           If several predicates match, all corresponding consumers will be executed.
+   */
   public RetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
       Predicate<Throwable> retryOnExceptionPredicate,
       Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
     this(name, bdkRetryConfig, supplier, retryOnExceptionPredicate, (e) -> false, recoveryStrategies);
   }
 
+  /**
+   * Constructor with a predicate on when to ignore an {@link ApiException},
+   * i.e. ApiExceptions will be ignored if the predicate matches.
+   * @param name the name of the {@link Retry} service.
+   * @param bdkRetryConfig the retry configuration to be used.
+   * @param supplier the supplier responsible to provide the object of param type T and which may throw an {@link ApiException}.
+   * @param retryOnExceptionPredicate predicate on a thrown {@link ApiException} to know if call should be retried.
+   * @param ignoreApiException predicate on a thrown {@link ApiException} to know if exception should be ignored,
+   *                           which means no subsequent retry will be made and null value will be returned.
+   * @param recoveryStrategies mapping between {@link Predicate<ApiException>} and the corresponding recovery functions to be executed before retrying.
+   *                           If several predicates match, all corresponding consumers will be executed.
+   */
   public RetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
       Predicate<Throwable> retryOnExceptionPredicate, Predicate<ApiException> ignoreApiException,
       Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
@@ -32,8 +59,13 @@ public class RetryWithRecovery<T> {
     this.retry = createRetry(name, bdkRetryConfig, retryOnExceptionPredicate);
   }
 
+  /**
+   * Executes the retry mechanism by calling the {@link RetryWithRecovery#supplier},
+   * executing the potential matching recovery functions and retrying if needed.
+   * @return an object of param type T
+   * @throws Throwable
+   */
   public T execute() throws Throwable {
-    log.debug("RetryWithRecovery::execute");
     return this.retry.executeCheckedSupplier(this::executeMainAndRecoveryStrategies);
   }
 
