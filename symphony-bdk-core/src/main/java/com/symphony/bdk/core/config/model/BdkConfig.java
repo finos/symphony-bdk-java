@@ -30,4 +30,8 @@ public class BdkConfig {
     public boolean isOboConfigured() {
       return app.isConfigured();
     }
+
+    public BdkRetryConfig getDatafeedRetryConfig() {
+      return datafeed.getRetry() == null ? retry : datafeed.getRetry();
+    }
 }

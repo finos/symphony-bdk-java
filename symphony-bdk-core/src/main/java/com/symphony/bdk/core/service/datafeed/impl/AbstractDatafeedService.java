@@ -37,11 +37,12 @@ abstract class AbstractDatafeedService implements DatafeedService {
         this.listeners = new ArrayList<>();
         this.authSession = authSession;
         this.bdkConfig = config;
-        BdkRetryConfig bdkRetryConfig = this.bdkConfig.getDatafeed().getRetry() == null ? this.bdkConfig.getRetry() : this.bdkConfig.getDatafeed().getRetry();
+        BdkRetryConfig bdkRetryConfig = this.bdkConfig.getDatafeedRetryConfig();
         this.retryConfig = RetryConfig.custom()
                 .maxAttempts(bdkRetryConfig.getMaxAttempts())
                 .intervalFunction(BdkExponentialFunction.ofExponentialBackoff(bdkRetryConfig))
                 .retryOnException(e -> {
+                  //TODO
                     if (e instanceof ApiException) {
                         ApiException apiException = (ApiException) e;
                         return apiException.isServerError() || apiException.isUnauthorized();

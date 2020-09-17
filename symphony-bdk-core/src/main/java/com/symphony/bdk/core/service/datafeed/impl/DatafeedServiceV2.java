@@ -93,6 +93,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
             try {
                 return this.datafeedApi.createDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken());
             } catch (ApiException e) {
+              //TODO
                 if (e.isUnauthorized()) {
                     log.info("Re-authenticate and try again");
                     authSession.refresh();
@@ -111,6 +112,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
             try {
                 return this.datafeedApi.listDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken());
             } catch (ApiException e) {
+              //TODO
                 if (e.isUnauthorized()) {
                     log.info("Re-authenticate and try again");
                     authSession.refresh();
@@ -130,6 +132,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
         log.debug("Reading datafeed events from datafeed {}", datafeed.getId());
         RetryConfig config = RetryConfig.from(this.retryConfig)
                 .retryOnException(e -> {
+                  //TODO
                     if (e instanceof ApiException && e.getSuppressed().length == 0) {
                         ApiException apiException = (ApiException) e;
                         return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
@@ -150,12 +153,13 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
                     this.handleV4EventList(events);
                 }
             } catch (ApiException e) {
+              //TODO
                 if (e.isUnauthorized()) {
                     log.info("Re-authenticate and try again");
                     authSession.refresh();
                 } else {
                     log.error("Error {}: {}", e.getCode(), e.getMessage());
-                    if (e.isClientError()) {
+                    if (e.isClientError()) { // recreate DF if 400 BAD REQUEST
                         try {
                             log.info("Try to delete the faulty datafeed");
                             this.deleteDatafeed();
@@ -180,6 +184,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
                 this.datafeedApi.deleteDatafeed(datafeed.getId(), authSession.getSessionToken(), authSession.getKeyManagerToken());
                 this.datafeed = null;
             } catch (ApiException e) {
+              //TODO
                 if (e.isClientError()) {
                     log.debug("The datafeed doesn't exist or is already removed");
                 } else {
