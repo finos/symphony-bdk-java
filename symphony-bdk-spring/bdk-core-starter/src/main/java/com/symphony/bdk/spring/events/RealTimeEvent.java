@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationEvent;
  * Specific {@link ApplicationEvent} used to wrap Real Time Events that are then dispatched by the {@link RealTimeEventsDispatcher}.
  */
 @Getter
-public class RealTimeEvent<T> {
+public class RealTimeEvent<T> extends ApplicationEvent {
 
   /** Event initiator, or user that triggered it */
   private final V4Initiator initiator;
@@ -17,7 +17,7 @@ public class RealTimeEvent<T> {
   private final T source;
 
   public RealTimeEvent(V4Initiator initiator, T source) {
-    //super(source);
+    super(source);
     this.initiator = initiator;
     this.source = source;
   }
