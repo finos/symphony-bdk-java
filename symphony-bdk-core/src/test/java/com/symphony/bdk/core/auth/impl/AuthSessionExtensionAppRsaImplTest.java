@@ -6,7 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 
@@ -32,7 +32,7 @@ public class AuthSessionExtensionAppRsaImplTest {
     final ExtensionAppAuthenticatorRsaImpl auth = mock(ExtensionAppAuthenticatorRsaImpl.class);
     when(auth.retrieveExtensionAppSession(appToken)).thenReturn(appTokens);
 
-    final AuthSessionExtensionApp session = new AuthSessionExtensionAppRsaImpl(auth, appToken);
+    final AppAuthSession session = new AppAuthSessionRsaImpl(auth, appToken);
     session.refresh();
 
     assertEquals(symphonyToken, session.getSymphonyToken());

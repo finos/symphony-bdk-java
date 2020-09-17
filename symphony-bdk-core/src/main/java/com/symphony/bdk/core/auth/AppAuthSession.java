@@ -7,14 +7,14 @@ import org.apiguardian.api.API;
 import javax.annotation.Nullable;
 
 /**
- * Extension App Authentication session handle. The {@link AuthSessionExtensionApp#refresh()} will trigger a re-auth against the API endpoints.
+ * Extension App Authentication session handle. The {@link AppAuthSession#refresh()} will trigger a re-auth against the API endpoints.
  * <p>
- *   You should keep using the same Symphony token. This token will expire at {@link AuthSessionExtensionApp#expireAt()},
+ *   You should keep using the same Symphony token. This token will expire at {@link AppAuthSession#expireAt()},
  *   at which you should re-authenticate and get a new Symphony token for a new session.
  * </p>
  */
 @API(status = API.Status.STABLE)
-public interface AuthSessionExtensionApp {
+public interface AppAuthSession {
 
   /**
    * Symphony token for extension app session.

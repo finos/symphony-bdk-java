@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
-import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.core.test.RsaTestHelper;
@@ -37,10 +37,10 @@ public class ExtensionAppAuthenticatorRsaImplTest {
         + "  \"expireAt\" : 1539636528288\n"
         + "}");
 
-    final AuthSessionExtensionApp session = this.authenticator.authenticateExtensionApp("APP_TOKEN");
+    final AppAuthSession session = this.authenticator.authenticateExtensionApp("APP_TOKEN");
 
-    assertEquals(AuthSessionExtensionAppRsaImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionExtensionAppRsaImpl) session).getAuthenticator());
+    assertEquals(AppAuthSessionRsaImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AppAuthSessionRsaImpl) session).getAuthenticator());
     assertEquals(session.getAppToken(), "APP_TOKEN");
     assertEquals(session.getSymphonyToken(), "SYMPHONY_TOKEN");
     assertEquals(session.expireAt(), 1539636528288L);

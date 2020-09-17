@@ -2,7 +2,7 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
@@ -133,7 +133,7 @@ public class SymphonyBdk {
    * @param appToken App Token
    * @return Extension App authentication session
    */
-  public AuthSessionExtensionApp app(String appToken) throws AuthUnauthorizedException {
+  public AppAuthSession app(String appToken) throws AuthUnauthorizedException {
     return this.getExtensionAppAuthenticator().authenticateExtensionApp(appToken);
   }
 

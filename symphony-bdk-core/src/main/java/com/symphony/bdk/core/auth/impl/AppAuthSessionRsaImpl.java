@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
@@ -8,16 +8,16 @@ import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 import javax.annotation.Nullable;
 
 /**
- * {@link AuthSessionExtensionApp} impl for rsa extension app authentication mode.
+ * {@link AppAuthSession} impl for rsa extension app authentication mode.
  */
-public class AuthSessionExtensionAppRsaImpl implements AuthSessionExtensionApp {
+public class AppAuthSessionRsaImpl implements AppAuthSession {
 
   private final ExtensionAppAuthenticatorRsaImpl authenticator;
   private String symphonySessionToken;
   private String appToken;
   private Long expireAt;
 
-  public AuthSessionExtensionAppRsaImpl(ExtensionAppAuthenticatorRsaImpl authenticator, String appToken) {
+  public AppAuthSessionRsaImpl(ExtensionAppAuthenticatorRsaImpl authenticator, String appToken) {
     this.authenticator = authenticator;
     this.appToken = appToken;
   }

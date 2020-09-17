@@ -3,7 +3,7 @@ package com.symphony.bdk.core.auth.impl;
 import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
-import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
@@ -42,9 +42,9 @@ public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticat
    */
   @Nonnull
   @Override
-  public AuthSessionExtensionApp authenticateExtensionApp(@Nonnull String appToken)
+  public AppAuthSession authenticateExtensionApp(@Nonnull String appToken)
       throws AuthUnauthorizedException {
-    AuthSessionExtensionApp authSession = new AuthSessionExtensionAppRsaImpl(this, appToken);
+    AppAuthSession authSession = new AppAuthSessionRsaImpl(this, appToken);
     authSession.refresh();
     return authSession;
   }

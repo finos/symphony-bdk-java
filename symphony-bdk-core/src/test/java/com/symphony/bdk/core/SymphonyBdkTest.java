@@ -8,7 +8,7 @@ import static org.mockito.Mockito.spy;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AuthSessionExtensionApp;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -119,7 +119,7 @@ public class SymphonyBdkTest {
         + "  \"expireAt\" : 1539636528288\n"
         + "}");
 
-    AuthSessionExtensionApp authSession = this.symphonyBdk.app("APP_TOKEN");
+    AppAuthSession authSession = this.symphonyBdk.app("APP_TOKEN");
 
     assertEquals(authSession.getSymphonyToken(), "SYMPHONY_TOKEN");
     assertEquals(authSession.getAppToken(), "APP_TOKEN");
