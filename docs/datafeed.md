@@ -13,12 +13,20 @@ For instance:
 ```java
 public class Example {
 
-  public static void main(String[] args) {
+    public static void main(String[] args) {
 
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 
-    final DatafeedService datafeedService = bdk.datafeed();
-  }
+        bdk.datafeed().subscribe(new RealTimeEventListener() {                                 // (2)
+    
+            @Override
+            public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
+                bdk.messages().send(event.getMessage().getStream(), "<messageML>Hello, World!</messageML>");
+            }
+        });
+
+        bdk.datafeed().start();  
+    }
 }
 ```
 
