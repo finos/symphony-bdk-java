@@ -9,22 +9,22 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 @Slf4j
 public class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
-  private Map<Predicate<ApiException>, VoidSupplierWithThrowable> recoveryStrategies;
+  private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
   private Retry retry;
 
   public RetryWithRecovery(String name, SupplierWithApiException<T> supplier, Predicate<Throwable> retryOnExceptionPredicate,
-      BdkRetryConfig bdkRetryConfig, Map<Predicate<ApiException>, VoidSupplierWithThrowable> recoveryStrategies) {
+      BdkRetryConfig bdkRetryConfig, Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
     this.supplier = supplier;
     this.recoveryStrategies = recoveryStrategies;
     this.retry = createRetry(name, bdkRetryConfig, retryOnExceptionPredicate);
   }
 
   public T execute() throws Throwable {
+    log.debug("RetryWithRecovery::execute");
     return this.retry.executeCheckedSupplier(this::executeMainAndRecoveryStrategies);
   }
 
@@ -32,9 +32,10 @@ public class RetryWithRecovery<T> {
     try {
       return supplier.get();
     } catch (ApiException e) {
-      for (Map.Entry<Predicate<ApiException>, VoidSupplierWithThrowable> entry : recoveryStrategies.entrySet()) {
+      log.error("Error {}: {}", e.getCode(), e.getMessage());
+      for (Map.Entry<Predicate<ApiException>, ConsumerWithThrowable> entry : recoveryStrategies.entrySet()) {
         if(entry.getKey().test(e)) {
-          entry.getValue().get();
+          entry.getValue().get(e);
         }
       }
       throw e;

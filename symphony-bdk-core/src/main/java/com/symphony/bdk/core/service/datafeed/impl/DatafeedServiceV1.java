@@ -6,18 +6,20 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.core.util.RetryWithRecovery;
+import com.symphony.bdk.core.util.ConsumerWithThrowable;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
-import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 import javax.ws.rs.ProcessingException;
 
@@ -47,7 +49,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     private final AtomicBoolean started = new AtomicBoolean();
     private final DatafeedIdRepository datafeedRepository;
     private String datafeedId;
-    private RetryWithRecovery<List<V4Event>> readDatafeedRetry;
+    private RetryWithRecovery<Void> readDatafeedRetry;
     private RetryWithRecovery<String> createDatafeedRetry;
 
     public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
@@ -60,16 +62,15 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
       this.datafeedId = null;
       this.datafeedRepository = repository;
 
-//      this.readDatafeedRetry = new RetryWithRecovery<>("Read Datafeedv1", () -> datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null),
-//          e -> {
-//        if (e instanceof ApiException && e.getSuppressed().length == 0) {
-//          ApiException apiException = (ApiException) e;
-//          return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
-//        }
-//        return e instanceof ProcessingException;},
-//          config.getDatafeedRetryConfig(), Collections.singletonMap(e -> e.isUnauthorized(), {
-//            log.info("Re-authenticate and try again"); this.authSession.refresh();}));
+      Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>();
+      readRecoveryStrategy.put(ApiException::isUnauthorized, e -> refresh());
+      readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
+
+      this.readDatafeedRetry = new RetryWithRecovery<>("Read Datafeedv1", () -> {readAndHandleEvents(); return null;},
+          this::retryReadOnException, this.bdkConfig.getDatafeedRetryConfig(), readRecoveryStrategy);
     }
+
+
 
     /**
      * {@inheritDoc}
@@ -104,42 +105,39 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         this.started.set(false);
     }
 
+    private boolean retryReadOnException(Throwable t) {
+      if (t instanceof ApiException && t.getSuppressed().length == 0) {
+        ApiException apiException = (ApiException) t;
+        return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
+      }
+      return t instanceof ProcessingException;
+    }
+
+    private void readAndHandleEvents() throws ApiException {
+      log.debug("Read DFv1 with RetryWithRecovery");
+      List<V4Event> events = datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null);
+      if (events != null && !events.isEmpty()) {
+        handleV4EventList(events);
+      }
+    }
+
+    private void refresh() throws AuthUnauthorizedException {
+      log.info("Re-authenticate and try again");
+      authSession.refresh();
+    }
+
+    private void recreateDatafeed(ApiException e) {
+      log.info("Recreate a new datafeed and try again");
+      try {
+        datafeedId = this.createDatafeed();
+      } catch (Throwable throwable) {
+        e.addSuppressed(throwable);
+      }
+    }
+
     private void readDatafeed() throws Throwable {
-        RetryConfig config = RetryConfig.from(this.retryConfig).retryOnException(e -> {
-          //TODO
-            if (e instanceof ApiException && e.getSuppressed().length == 0) {
-                ApiException apiException = (ApiException) e;
-                return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
-            }
-            return e instanceof ProcessingException;
-        }).build();
-        Retry retry = this.getRetryInstance("Read Datafeed", config);
-        retry.executeCheckedSupplier(() -> {
-            try {
-                List<V4Event> events = datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null);
-                if (events != null && !events.isEmpty()) {
-                    handleV4EventList(events);
-                }
-            } catch (ApiException e) {
-              //TODO
-                if (e.isUnauthorized()) {
-                    log.info("Re-authenticate and try again");
-                    authSession.refresh();
-                } else {
-                    log.error("Error {}: {}", e.getCode(), e.getMessage());
-                    if (e.isClientError()) {
-                        log.info("Recreate a new datafeed and try again"); //recreate in case of 400 BAD REQUEST
-                        try {
-                            datafeedId = this.createDatafeed();
-                        } catch (Throwable throwable) {
-                            e.addSuppressed(throwable);
-                        }
-                    }
-                }
-                throw e;
-            }
-            return null;
-        });
+      log.debug("Read DFv1, calling RetryWithRecovery");
+      this.readDatafeedRetry.execute();
     }
 
     protected String createDatafeed() throws Throwable {
