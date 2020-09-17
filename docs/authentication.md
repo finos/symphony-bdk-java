@@ -15,7 +15,7 @@ public class Example {
     
     public static void main(String[] args) {
         // Initialize the BDK entry point
-        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("config.yaml"));
+        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
         // OBO authentication
         AuthSession oboSession = bdk.obo("user.name");
         // Running service in Obo mode

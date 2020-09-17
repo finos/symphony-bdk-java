@@ -5,18 +5,37 @@ For each interaction of a user within the IM, MIM or Room chat, an event will be
 The bot can create a datafeed, list all created datafeeds or retrieve all the Real Time events within a datafeed through Datafeed API.
 The Datafeed Service is a Core service built on top of the Datafeed API and provide a dedicated contract to bot developers to work with datafeed. 
 
+## How to use
+The central component for the contract between bot developers and  the Datafeed API is the `DatafeedService`.
+This service is accessible from the `SymphonyBdk` object by calling the `datafeed()` method.
+For instance:
+
+```java
+public class Example {
+
+  public static void main(String[] args) {
+
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+
+    final DatafeedService datafeedService = bdk.datafeed();
+  }
+}
+```
+
+A more detailed example of the usage of the Datafeed service can be found [here](../symphony-bdk-examples/bdk-core-examples/src/main/java/com/symphony/bdk/examples/DatafeedExampleMain.java).
+
 ## Datafeed Configuration
 
 Datafeed Service can be configured by the datafeed field in the configuration file:
 
 ```yaml
 datafeed:
-  version: 'v1' # or 'v2'
+  version: 'v1' # specify datafeed version 'v1' or 'v2'
   retry:
-    maxAttempts: 6
-    initialIntervalMillis: 2000
-    multiplier: 1.5
-    maxIntervalMillis: 10000
+    maxAttempts: 6 # maximum number of retry attempts
+    initialIntervalMillis: 2000 # initial interval between two attempts
+    multiplier: 1.5 # interval multiplier after each attempt
+    maxIntervalMillis: 10000 # limit of the interval between two attempts
 ```
 
 The minimal configuration for the datafeed service is the version of the datafeed which will be chosen to be use in the bdk.
@@ -27,29 +46,9 @@ Bot developers can also configure a dedicated retry mechanism which will be used
 Basically, the datafeed service retry configuration has the field same as the global retry configuration with the fields for implementing 
 the exponential backoff mechanism.
 
-## How to use
-The central component for the contract between bot developers and  the Datafeed API is the `DatafeedService`.
-This service is accessible from the `SymphonyBdk` object by calling the `datafeed()` method.
-For instance:
-
-```java
-import com.symphony.bdk.core.SymphonyBdk;
-public class Example {
-
-  public static void main(String[] args) {
-
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("config.yaml"));
-
-    final DatafeedService datafeedService = bdk.datafeed();
-  }
-}
-```
-
-A more detailed example of the usage of the Datafeed service can be found [here](../symphony-bdk-examples/bdk-core-examples/src/main/java/com/symphony/bdk/examples/DatafeedExampleMain.java).
-
 ## Subscribe/Unsubscribe RealTimeEventListener
 
-[RealTimeEventListener](../symphony-bdk-core/src/main/java/com/symphony/bdk/core/service/datafeed/RealTimeEventListener.java) is an interface definition for a callback to be invoked when a real-time event is received from the datafeed.
+[RealTimeEventListener](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/service/datafeed/RealTimeEventListener.html) is an interface definition for a callback to be invoked when a real-time event is received from the datafeed.
 This real-time event can be one of these following event types:
 
 - Message Sent
@@ -76,7 +75,7 @@ The Datafeed Service can subscribe/unsubscribe one or many `RealTimeEventListene
 public class Example {
     
     public static void main(String[] args) {
-        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("config.yaml"));
+        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
         final RealTimeEventListener listener = new RealTimeEventListener() {
         @Override
             public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
@@ -87,6 +86,8 @@ public class Example {
         bdk.datafeed().subscribe(listener);
         // unsubscribe a listener
         bdk.datafeed().unsubscribe(listener);
+        // start the datafeed service
+        bdk.datafeed().start();
     }
 }
 ```
@@ -105,7 +106,7 @@ For instance:
 public class Example {
     
     public static void main(String[] args) {
-        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("config.yaml"));
+        final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
         final RealTimeEventListener listener = new RealTimeEventListener() {
         @Override
             public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
