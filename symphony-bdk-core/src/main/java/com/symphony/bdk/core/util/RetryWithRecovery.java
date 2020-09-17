@@ -16,7 +16,8 @@ public class RetryWithRecovery<T> {
   private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
   private Retry retry;
 
-  public RetryWithRecovery(String name, SupplierWithApiException<T> supplier, Predicate<Throwable> retryOnExceptionPredicate,
+  public RetryWithRecovery(String name, SupplierWithApiException<T> supplier,
+      Predicate<Throwable> retryOnExceptionPredicate,
       BdkRetryConfig bdkRetryConfig, Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
     this.supplier = supplier;
     this.recoveryStrategies = recoveryStrategies;
@@ -24,7 +25,6 @@ public class RetryWithRecovery<T> {
   }
 
   public T execute() throws Throwable {
-    log.debug("RetryWithRecovery::execute");
     return this.retry.executeCheckedSupplier(this::executeMainAndRecoveryStrategies);
   }
 
@@ -32,17 +32,28 @@ public class RetryWithRecovery<T> {
     try {
       return supplier.get();
     } catch (ApiException e) {
-      log.error("Error {}: {}", e.getCode(), e.getMessage());
-      for (Map.Entry<Predicate<ApiException>, ConsumerWithThrowable> entry : recoveryStrategies.entrySet()) {
-        if(entry.getKey().test(e)) {
-          entry.getValue().get(e);
-        }
-      }
+      handleRecovery(e);
       throw e;
     }
   }
 
-  private Retry createRetry(String name, BdkRetryConfig bdkRetryConfig, Predicate<Throwable> retryOnExceptionPredicate) {
+  private void handleRecovery(ApiException e) throws Throwable {
+    boolean recoveryTriggered = false;
+
+    for (Map.Entry<Predicate<ApiException>, ConsumerWithThrowable> entry : recoveryStrategies.entrySet()) {
+      if (entry.getKey().test(e)) {
+        recoveryTriggered = true;
+        entry.getValue().consume(e);
+      }
+    }
+
+    if (!recoveryTriggered) {
+      log.error("Error {}: {}", e.getCode(), e.getMessage());
+    }
+  }
+
+  private Retry createRetry(String name, BdkRetryConfig bdkRetryConfig,
+      Predicate<Throwable> retryOnExceptionPredicate) {
     final RetryConfig retryConfig = RetryConfig.custom()
         .maxAttempts(bdkRetryConfig.getMaxAttempts())
         .intervalFunction(BdkExponentialFunction.ofExponentialBackoff(bdkRetryConfig))
