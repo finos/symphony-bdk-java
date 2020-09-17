@@ -52,7 +52,7 @@ public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticat
   protected ExtensionAppTokens retrieveExtensionAppSession(String appToken) throws AuthUnauthorizedException {
     log.debug("Start authenticating extension app with id : {} ...", this.appId);
 
-    final String jwt = this.jwtHelper.createSignedJwt(this.appId, 30_000, this.appPrivateKey);
+    final String jwt = this.jwtHelper.createSignedJwt(this.appId, JwtHelper.JWT_EXPIRATION_MILLIS, this.appPrivateKey);
     final AuthenticateExtensionAppRequest req = new AuthenticateExtensionAppRequest();
     req.authToken(jwt);
     req.appToken(appToken);

@@ -135,7 +135,7 @@ class AuthenticatorFactoryTest {
 
     final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
     final ExtensionAppAuthenticator botAuth = factory.getExtensionAppAuthenticator();
-    assertNotNull(botAuth);
+
     assertEquals(ExtensionAppAuthenticatorRsaImpl.class, botAuth.getClass());
   }
 
