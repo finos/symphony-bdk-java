@@ -8,9 +8,15 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
+import com.symphony.bdk.spring.events.RealTimeEvent;
+import com.symphony.bdk.spring.events.RealTimeEventsDispatcher;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.ApplicationEventMulticaster;
+import org.springframework.context.event.SimpleApplicationEventMulticaster;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.List;
 
@@ -39,8 +45,23 @@ public class BdkDatafeedConfig {
     return new DatafeedServiceV1(datafeedApi, botSession, properties);
   }
 
+  @Bean
+  public RealTimeEventsDispatcher realTimeEventsDispatcher(ApplicationEventPublisher publisher) {
+    return new RealTimeEventsDispatcher(publisher);
+  }
+
   @Bean(initMethod = "start", destroyMethod = "stop")
   public DatafeedAsyncLauncherService datafeedAsyncLauncherService(final DatafeedService datafeedService, List<RealTimeEventListener> realTimeEventListeners) {
     return new DatafeedAsyncLauncherService(datafeedService, realTimeEventListeners);
+  }
+
+  /**
+   * Allows to publish application {@link RealTimeEvent} asynchronously from {@link RealTimeEventsDispatcher}.
+   */
+  @Bean(name = "applicationEventMulticaster")
+  public ApplicationEventMulticaster simpleApplicationEventMulticaster() {
+    final SimpleApplicationEventMulticaster eventMulticaster = new SimpleApplicationEventMulticaster();
+    eventMulticaster.setTaskExecutor(new SimpleAsyncTaskExecutor());
+    return eventMulticaster;
   }
 }

@@ -1,9 +1,9 @@
 package com.symphony.bdk.examples;
 
+import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.activity.command.SlashCommand;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -24,7 +24,7 @@ public class DatafeedExampleMain {
       }
     });
 
-    bdk.activities().register(new SlashCommand("/hello", context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>")));
+    bdk.activities().register(slash("/hello", context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>")));
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       log.info("Stopping Datafeed...");

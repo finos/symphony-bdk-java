@@ -96,9 +96,9 @@ public class Example {
     // setup SymphonyBdk facade object
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
-    bdk.activities().register(new SlashCommand("/hello",    // (1)
-                                               true,        // (2)
-                                               context -> { // (3)
+    bdk.activities().register(SlashCommand.slash("/hello",    // (1)
+                                                 true,        // (2)
+                                                 context -> { // (3)
 
       log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));

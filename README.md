@@ -21,7 +21,7 @@ public class BotApplication {
       
         final SymphonyBdk bdk = new SymphonyBdk(BdkConfigLoader.loadFromSymphonyDir("config.yaml"));
       
-        bdk.activities().register(new SlashCommand("/hello", context -> {
+        bdk.activities().register(slash("/hello", context -> {
             bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>");
         }));
         
