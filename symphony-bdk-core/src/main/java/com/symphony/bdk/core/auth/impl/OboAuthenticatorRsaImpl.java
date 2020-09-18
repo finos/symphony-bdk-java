@@ -10,11 +10,13 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
 import java.security.PrivateKey;
+
+import javax.annotation.Nonnull;
 
 /**
  * OBO authenticator RSA implementation.
@@ -88,7 +90,7 @@ public class OboAuthenticatorRsaImpl implements OboAuthenticator {
   protected String retrieveAppSessionToken() throws AuthUnauthorizedException {
     log.debug("Start authenticating app with id : {} ...", this.appId);
 
-    final String jwt = this.jwtHelper.createSignedJwt(this.appId, 30_000, this.appPrivateKey);
+    final String jwt = this.jwtHelper.createSignedJwt(this.appId, JwtHelper.JWT_EXPIRATION_MILLIS, this.appPrivateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
