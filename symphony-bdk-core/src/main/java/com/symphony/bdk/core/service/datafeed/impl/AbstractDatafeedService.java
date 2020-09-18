@@ -90,7 +90,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected boolean isNetworkOrServerOrUnauthorizedOrClientError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
+      return apiException.isTemporaryServerError() || apiException.isUnauthorized() || apiException.isClientError();
     }
     return t instanceof ProcessingException;
   }
@@ -98,7 +98,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected boolean isNetworkOrServerOrUnauthorizedError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized();
+      return apiException.isTemporaryServerError() || apiException.isUnauthorized();
     }
     return t instanceof ProcessingException;
   }

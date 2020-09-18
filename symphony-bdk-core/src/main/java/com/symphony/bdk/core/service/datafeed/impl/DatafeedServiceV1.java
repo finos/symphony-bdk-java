@@ -45,8 +45,6 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
 
   private final AtomicBoolean started = new AtomicBoolean();
   private final DatafeedIdRepository datafeedRepository;
-  private final RetryWithRecovery<Void> readDatafeedRetry;
-  private final RetryWithRecovery<String> createDatafeedRetry;
   private String datafeedId;
 
   public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
@@ -59,15 +57,6 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     this.started.set(false);
     this.datafeedId = null;
     this.datafeedRepository = repository;
-
-    Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>(getSessionRefreshStrategy());
-    readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
-
-    this.readDatafeedRetry = new RetryWithRecovery<>("Read Datafeed V1", this.bdkConfig.getDatafeedRetryConfig(),
-        this::readAndHandleEvents, this::isNetworkOrServerOrUnauthorizedOrClientError, readRecoveryStrategy);
-
-    this.createDatafeedRetry = new RetryWithRecovery<>("Create Datafeed V1", this.bdkConfig.getDatafeedRetryConfig(),
-        this::createDatafeedAndPersist, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy());
   }
 
   /**
@@ -85,7 +74,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
       log.debug("Start reading events from datafeed {}", datafeedId);
       this.started.set(true);
       do {
-        readDatafeedRetry.execute();
+        readDatafeed();
       } while (this.started.get());
     } catch (AuthUnauthorizedException | ApiException exception) {
       throw exception;
@@ -105,11 +94,20 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
 
   private Void readAndHandleEvents() throws ApiException {
     List<V4Event> events =
-        datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(), null);
+        datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(),
+            null);
     if (events != null && !events.isEmpty()) {
       handleV4EventList(events);
     }
     return null;
+  }
+
+  private void readDatafeed() throws Throwable {
+    Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>(getSessionRefreshStrategy());
+    readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
+
+    new RetryWithRecovery<>("Read Datafeed V1", this.bdkConfig.getDatafeedRetryConfig(),
+        this::readAndHandleEvents, this::isNetworkOrServerOrUnauthorizedOrClientError, readRecoveryStrategy).execute();
   }
 
   private void recreateDatafeed() {
@@ -123,7 +121,9 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
 
   protected String createDatafeed() throws Throwable {
     log.debug("Start creating a new datafeed and persisting it");
-    return createDatafeedRetry.execute();
+    return new RetryWithRecovery<>("Create Datafeed V1", this.bdkConfig.getDatafeedRetryConfig(),
+        this::createDatafeedAndPersist, this::isNetworkOrServerOrUnauthorizedError,
+        getSessionRefreshStrategy()).execute();
   }
 
   private String createDatafeedAndPersist() throws ApiException {

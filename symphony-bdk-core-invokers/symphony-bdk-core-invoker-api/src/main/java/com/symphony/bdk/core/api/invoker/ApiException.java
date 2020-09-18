@@ -3,8 +3,10 @@ package com.symphony.bdk.core.api.invoker;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.GenericType;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -81,5 +83,14 @@ public class ApiException extends Exception {
      */
     public boolean isServerError() {
         return this.code >= HttpURLConnection.HTTP_INTERNAL_ERROR;
+    }
+
+  /**
+   * Check if response is Bad Gateway, Service Unavailable or Gateway Timeout
+   *
+   * @return true if response status is 502, 503 or 504
+   */
+  public boolean isTemporaryServerError() {
+      return this.code >= HttpsURLConnection.HTTP_BAD_GATEWAY && this.code <= HttpsURLConnection.HTTP_GATEWAY_TIMEOUT;
     }
 }

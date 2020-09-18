@@ -45,33 +45,10 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
   private final AtomicBoolean started = new AtomicBoolean();
   private final AckId ackId;
   private V5Datafeed datafeed;
-  private final RetryWithRecovery<V5Datafeed> retrieveDatafeedRetry;
-  private final RetryWithRecovery<Void> deleteDatafeedRetry;
-  private final RetryWithRecovery<V5Datafeed> createDatafeedRetry;
-  private final RetryWithRecovery<Void> readDatafeedRetry;
-
 
   public DatafeedServiceV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     super(datafeedApi, authSession, config);
     this.ackId = new AckId().ackId("");
-
-    this.retrieveDatafeedRetry =
-        new RetryWithRecovery<>("Retrieve Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-            this::tryRetrieveDatafeed, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy());
-
-    this.deleteDatafeedRetry =
-        new RetryWithRecovery<>("Delete Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-            this::tryDeleteDatafeed, this::isNetworkOrServerOrUnauthorizedError, ApiException::isClientError, getSessionRefreshStrategy());
-
-    this.createDatafeedRetry =
-        new RetryWithRecovery<>("Create Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-            this::tryCreateDatafeed, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy());
-
-    Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>(getSessionRefreshStrategy());
-    readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
-
-    this.readDatafeedRetry = new RetryWithRecovery<>("Read Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-        this::readAndHandleEvents, this::isNetworkOrServerOrUnauthorizedOrClientError, readRecoveryStrategy);
   }
 
   /**
@@ -113,7 +90,8 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private V5Datafeed createDatafeed() throws Throwable {
     log.debug("Start creating datafeed from agent");
-    return createDatafeedRetry.execute();
+    return new RetryWithRecovery<>("Create Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
+        this::tryCreateDatafeed, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy()).execute();
   }
 
   private V5Datafeed tryCreateDatafeed() throws ApiException {
@@ -122,7 +100,8 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private V5Datafeed retrieveDatafeed() throws Throwable {
     log.debug("Start retrieving datafeed from agent");
-    return retrieveDatafeedRetry.execute();
+    return new RetryWithRecovery<>("Retrieve Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
+        this::tryRetrieveDatafeed, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy()).execute();
   }
 
   private V5Datafeed tryRetrieveDatafeed() throws ApiException {
@@ -137,7 +116,11 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private void readDatafeed() throws Throwable {
     log.debug("Reading datafeed events from datafeed {}", datafeed.getId());
-    this.readDatafeedRetry.execute();
+    Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>(getSessionRefreshStrategy());
+    readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
+
+    new RetryWithRecovery<>("Read Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
+        this::readAndHandleEvents, this::isNetworkOrServerOrUnauthorizedOrClientError, readRecoveryStrategy).execute();
   }
 
   private Void readAndHandleEvents() throws ApiException {
@@ -167,7 +150,9 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private void deleteDatafeed() throws Throwable {
     log.debug("Start deleting a faulty datafeed");
-    deleteDatafeedRetry.execute();
+    new RetryWithRecovery<>("Delete Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(), this::tryDeleteDatafeed,
+        this::isNetworkOrServerOrUnauthorizedError, ApiException::isClientError, getSessionRefreshStrategy())
+        .execute();
   }
 
   private Void tryDeleteDatafeed() throws ApiException {
