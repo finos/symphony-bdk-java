@@ -6,8 +6,10 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
-import com.symphony.bdk.core.util.function.RetryWithRecovery;
+import com.symphony.bdk.core.util.function.Resilience4jRetryWithRecovery;
 import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.RetryWithRecovery;
+import com.symphony.bdk.core.util.function.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
@@ -103,11 +105,13 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
   }
 
   private void readDatafeed() throws Throwable {
-    Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>(getSessionRefreshStrategy());
-    readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
-
-    new RetryWithRecovery<>("Read Datafeed V1", this.bdkConfig.getDatafeedRetryConfig(),
-        this::readAndHandleEvents, this::isNetworkOrServerOrUnauthorizedOrClientError, readRecoveryStrategy).execute();
+    final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Read Datafeed V1")
+        .supplier(this::readAndHandleEvents)
+        .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedOrClientError)
+        .build();
+    retry.execute();
   }
 
   private void recreateDatafeed() {
@@ -121,9 +125,12 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
 
   protected String createDatafeed() throws Throwable {
     log.debug("Start creating a new datafeed and persisting it");
-    return new RetryWithRecovery<>("Create Datafeed V1", this.bdkConfig.getDatafeedRetryConfig(),
-        this::createDatafeedAndPersist, this::isNetworkOrServerOrUnauthorizedError,
-        getSessionRefreshStrategy()).execute();
+    final RetryWithRecovery<String> retry = RetryWithRecoveryBuilder.<String>from(retryWithRecoveryBuilder)
+        .name("Create Datafeed V1")
+        .supplier(this::createDatafeedAndPersist)
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
+        .build();
+    return retry.execute();
   }
 
   private String createDatafeedAndPersist() throws ApiException {

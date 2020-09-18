@@ -7,6 +7,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
@@ -30,6 +31,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected final AuthSession authSession;
   protected final BdkConfig bdkConfig;
   protected final List<RealTimeEventListener> listeners;
+  protected final RetryWithRecoveryBuilder retryWithRecoveryBuilder;
   protected DatafeedApi datafeedApi;
 
   public AbstractDatafeedService(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
@@ -37,6 +39,9 @@ abstract class AbstractDatafeedService implements DatafeedService {
     this.listeners = new ArrayList<>();
     this.authSession = authSession;
     this.bdkConfig = config;
+    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+        .retryConfig(config.getDatafeedRetryConfig())
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
   }
 
   /**
@@ -80,17 +85,15 @@ abstract class AbstractDatafeedService implements DatafeedService {
   }
 
   private boolean isSelfGeneratedEvent(V4Event event) {
-    return event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
-  }
-
-  protected Map<Predicate<ApiException>, ConsumerWithThrowable> getSessionRefreshStrategy() {
-    return Collections.singletonMap(ApiException::isUnauthorized, this::refresh);
+    return event.getInitiator() != null && event.getInitiator().getUser() != null
+        && event.getInitiator().getUser().getUsername() != null
+        && event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
   }
 
   protected boolean isNetworkOrServerOrUnauthorizedOrClientError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isTemporaryServerError() || apiException.isUnauthorized() || apiException.isClientError();
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
     }
     return t instanceof ProcessingException;
   }
@@ -98,7 +101,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected boolean isNetworkOrServerOrUnauthorizedError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isTemporaryServerError() || apiException.isUnauthorized();
+      return apiException.isServerError() || apiException.isUnauthorized();
     }
     return t instanceof ProcessingException;
   }

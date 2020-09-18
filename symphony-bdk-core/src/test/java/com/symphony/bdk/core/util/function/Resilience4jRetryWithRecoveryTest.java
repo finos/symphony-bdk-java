@@ -21,9 +21,9 @@ import org.mockito.InOrder;
 import java.util.Collections;
 
 /**
- * Test class for {@link RetryWithRecovery}
+ * Test class for {@link Resilience4jRetryWithRecovery}
  */
-class RetryWithRecoveryTest {
+class Resilience4jRetryWithRecoveryTest {
 
   //to be able to use Mockito mocks around lambdas. Otherwise, does not work, even with mockito-inline
   private static class ConcreteSupplier implements SupplierWithApiException<String> {
@@ -56,7 +56,7 @@ class RetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenReturn(value);
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> false,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> false,
         Collections.emptyMap());
 
     assertEquals(value, r.execute());
@@ -72,7 +72,7 @@ class RetryWithRecoveryTest {
         .thenThrow(new ApiException(400, "error"))
         .thenReturn(value);
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isClientError(),
         Collections.emptyMap());
 
@@ -85,7 +85,7 @@ class RetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> false, Collections.emptyMap());
 
     assertThrows(ApiException.class, () -> r.execute());
@@ -99,7 +99,7 @@ class RetryWithRecoveryTest {
 
     final BdkRetryConfig retryConfig = getRetryConfig();
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", retryConfig, supplier, (t) -> true,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", retryConfig, supplier, (t) -> true,
         Collections.emptyMap());
 
     assertThrows(ApiException.class, () -> r.execute());
@@ -111,7 +111,7 @@ class RetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isServerError(),
         Collections.emptyMap());
 
@@ -124,7 +124,7 @@ class RetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> true,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> true,
         (e) -> true, Collections.emptyMap());
 
     assertNull(r.execute());
@@ -140,7 +140,7 @@ class RetryWithRecoveryTest {
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> true,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> true,
         Collections.singletonMap(e -> true, consumer));
 
     assertEquals(value, r.execute());
@@ -161,7 +161,7 @@ class RetryWithRecoveryTest {
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> true,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier, (t) -> true,
         Collections.singletonMap(e -> e.isClientError(), consumer));
 
     assertEquals(value, r.execute());
@@ -180,7 +180,7 @@ class RetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> t instanceof ApiException, Collections.singletonMap(ApiException::isClientError, consumer));
 
     assertThrows(IndexOutOfBoundsException.class, () -> r.execute());
@@ -202,7 +202,7 @@ class RetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
-    RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> true, Collections.singletonMap(ApiException::isClientError, consumer));
 
     assertEquals(value, r.execute());

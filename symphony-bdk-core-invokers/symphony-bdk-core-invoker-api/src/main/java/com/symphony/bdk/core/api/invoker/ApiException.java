@@ -77,20 +77,11 @@ public class ApiException extends Exception {
     }
 
     /**
-     * Check if response status is server error or not
+     * Check if response status is server error and not an internal server error
      *
-     * @return true if response status equals or greater than 500, false otherwise
+     * @return true if response status strictly greater than 500, false otherwise
      */
     public boolean isServerError() {
-        return this.code >= HttpURLConnection.HTTP_INTERNAL_ERROR;
-    }
-
-  /**
-   * Check if response is Bad Gateway, Service Unavailable or Gateway Timeout
-   *
-   * @return true if response status is 502, 503 or 504
-   */
-  public boolean isTemporaryServerError() {
-      return this.code >= HttpsURLConnection.HTTP_BAD_GATEWAY && this.code <= HttpsURLConnection.HTTP_GATEWAY_TIMEOUT;
+        return this.code > HttpURLConnection.HTTP_INTERNAL_ERROR;
     }
 }

@@ -6,7 +6,9 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.Resilience4jRetryWithRecovery;
 import com.symphony.bdk.core.util.function.RetryWithRecovery;
+import com.symphony.bdk.core.util.function.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -69,7 +71,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
       do {
         this.readDatafeed();
       } while (this.started.get());
-    } catch (AuthUnauthorizedException | ApiException exception) {
+    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
       log.error("Unknown error", throwable);
@@ -90,8 +92,14 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private V5Datafeed createDatafeed() throws Throwable {
     log.debug("Start creating datafeed from agent");
-    return new RetryWithRecovery<>("Create Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-        this::tryCreateDatafeed, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy()).execute();
+
+    final RetryWithRecovery<V5Datafeed> retry = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
+        .name("Create Datafeed V2")
+        .supplier(this::tryCreateDatafeed)
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
+        .build();
+
+    return retry.execute();
   }
 
   private V5Datafeed tryCreateDatafeed() throws ApiException {
@@ -100,8 +108,14 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private V5Datafeed retrieveDatafeed() throws Throwable {
     log.debug("Start retrieving datafeed from agent");
-    return new RetryWithRecovery<>("Retrieve Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-        this::tryRetrieveDatafeed, this::isNetworkOrServerOrUnauthorizedError, getSessionRefreshStrategy()).execute();
+
+    final RetryWithRecovery<V5Datafeed> retry = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
+        .name("Retrieve Datafeed V2")
+        .supplier(this::tryRetrieveDatafeed)
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
+        .build();
+
+    return retry.execute();
   }
 
   private V5Datafeed tryRetrieveDatafeed() throws ApiException {
@@ -116,11 +130,15 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private void readDatafeed() throws Throwable {
     log.debug("Reading datafeed events from datafeed {}", datafeed.getId());
-    Map<Predicate<ApiException>, ConsumerWithThrowable> readRecoveryStrategy = new HashMap<>(getSessionRefreshStrategy());
-    readRecoveryStrategy.put(ApiException::isClientError, this::recreateDatafeed);
 
-    new RetryWithRecovery<>("Read Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(),
-        this::readAndHandleEvents, this::isNetworkOrServerOrUnauthorizedOrClientError, readRecoveryStrategy).execute();
+    final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Read Datafeed V2")
+        .supplier(this::readAndHandleEvents)
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedOrClientError)
+        .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
+        .build();
+
+    retry.execute();
   }
 
   private Void readAndHandleEvents() throws ApiException {
@@ -150,9 +168,15 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private void deleteDatafeed() throws Throwable {
     log.debug("Start deleting a faulty datafeed");
-    new RetryWithRecovery<>("Delete Datafeed V2", this.bdkConfig.getDatafeedRetryConfig(), this::tryDeleteDatafeed,
-        this::isNetworkOrServerOrUnauthorizedError, ApiException::isClientError, getSessionRefreshStrategy())
-        .execute();
+
+    final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Delete Datafeed V2")
+        .supplier(this::tryDeleteDatafeed)
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
+        .ignoreException(ApiException::isClientError)
+        .build();
+
+    retry.execute();
   }
 
   private Void tryDeleteDatafeed() throws ApiException {
