@@ -11,8 +11,8 @@
     </parent>
 
     <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
-    <name>Symphony Java BDK Core Spring Boot Starter</name>
-    <description>SpringBoot Wrapper for the Symphony BDK Core module</description>
+    <name>Symphony Java BDK - Core Spring Boot Starter</name>
+    <description>SpringBoot Starter for creating Bot application</description>
 
     <dependencyManagement>
         <dependencies>
