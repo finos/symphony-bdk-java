@@ -1,11 +1,9 @@
-package com.symphony.bdk.core.util;
+package com.symphony.bdk.core.util.function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -38,7 +36,7 @@ class RetryWithRecoveryTest {
 
   private static class ConcreteConsumer implements ConsumerWithThrowable {
     @Override
-    public void consume(ApiException e) throws Throwable {
+    public void consume() throws Throwable {
       return;
     }
   }
@@ -149,7 +147,7 @@ class RetryWithRecoveryTest {
 
     InOrder inOrder = inOrder(supplier, consumer);
     inOrder.verify(supplier).get();
-    inOrder.verify(consumer).consume(any());
+    inOrder.verify(consumer).consume();
     inOrder.verify(supplier).get();
     verifyNoMoreInteractions(supplier, consumer);
   }
@@ -180,7 +178,7 @@ class RetryWithRecoveryTest {
     when(supplier.get()).thenThrow(error).thenReturn(value);
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
-    doThrow(new IndexOutOfBoundsException()).when(consumer).consume(any());
+    doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
     RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> t instanceof ApiException, Collections.singletonMap(ApiException::isClientError, consumer));
@@ -189,7 +187,7 @@ class RetryWithRecoveryTest {
 
     InOrder inOrder = inOrder(supplier, consumer);
     inOrder.verify(supplier).get();
-    inOrder.verify(consumer).consume(eq(error));
+    inOrder.verify(consumer).consume();
     verifyNoMoreInteractions(supplier, consumer);
   }
 
@@ -202,7 +200,7 @@ class RetryWithRecoveryTest {
     when(supplier.get()).thenThrow(error).thenReturn(value);
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
-    doThrow(new IndexOutOfBoundsException()).when(consumer).consume(any());
+    doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
     RetryWithRecovery<String> r = new RetryWithRecovery<>("name", getRetryConfig(), supplier,
         (t) -> true, Collections.singletonMap(ApiException::isClientError, consumer));
@@ -211,7 +209,7 @@ class RetryWithRecoveryTest {
 
     InOrder inOrder = inOrder(supplier, consumer);
     inOrder.verify(supplier).get();
-    inOrder.verify(consumer).consume(eq(error));
+    inOrder.verify(consumer).consume();
     inOrder.verify(supplier).get();
     verifyNoMoreInteractions(supplier, consumer);
   }

@@ -4,21 +4,16 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.core.util.BdkExponentialFunction;
-import com.symphony.bdk.core.util.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -85,17 +80,15 @@ abstract class AbstractDatafeedService implements DatafeedService {
   }
 
   private boolean isSelfGeneratedEvent(V4Event event) {
-    return event.getInitiator() != null && event.getInitiator().getUser() != null
-        && event.getInitiator().getUser().getUsername() != null
-        && event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
+    return event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
   }
 
   protected Map<Predicate<ApiException>, ConsumerWithThrowable> getSessionRefreshStrategy() {
-    return Collections.singletonMap(ApiException::isUnauthorized, e -> refresh());
+    return Collections.singletonMap(ApiException::isUnauthorized, this::refresh);
   }
 
   protected boolean isNetworkOrServerOrUnauthorizedOrClientError(Throwable t) {
-    if (t instanceof ApiException && t.getSuppressed().length == 0) {
+    if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
       return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
     }

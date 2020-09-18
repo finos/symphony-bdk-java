@@ -1,7 +1,9 @@
-package com.symphony.bdk.core.util;
+package com.symphony.bdk.core.util.function;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+
+import com.symphony.bdk.core.util.BdkExponentialFunction;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
@@ -108,7 +110,7 @@ public class RetryWithRecovery<T> {
     for (Map.Entry<Predicate<ApiException>, ConsumerWithThrowable> entry : recoveryStrategies.entrySet()) {
       if (entry.getKey().test(e)) {
         recoveryTriggered = true;
-        entry.getValue().consume(e);
+        entry.getValue().consume();
       }
     }
 

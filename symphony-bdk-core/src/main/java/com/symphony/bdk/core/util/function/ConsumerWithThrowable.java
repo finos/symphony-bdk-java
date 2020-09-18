@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.util;
+package com.symphony.bdk.core.util.function;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 
@@ -8,5 +8,5 @@ import com.symphony.bdk.core.api.invoker.ApiException;
  */
 @FunctionalInterface
 public interface ConsumerWithThrowable {
-  void consume(ApiException e) throws Throwable;
+  void consume() throws Throwable;
 }

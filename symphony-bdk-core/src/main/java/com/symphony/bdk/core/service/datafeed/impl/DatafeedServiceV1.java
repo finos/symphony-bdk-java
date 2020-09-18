@@ -5,14 +5,14 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
-import com.symphony.bdk.core.util.RetryWithRecovery;
-import com.symphony.bdk.core.util.ConsumerWithThrowable;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
+import com.symphony.bdk.core.util.function.RetryWithRecovery;
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,12 +112,12 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     return null;
   }
 
-  private void recreateDatafeed(ApiException e) {
+  private void recreateDatafeed() {
     log.info("Recreate a new datafeed and try again");
     try {
       datafeedId = createDatafeed();
     } catch (Throwable throwable) {
-      e.addSuppressed(throwable);
+      throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }
 

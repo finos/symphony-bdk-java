@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.service;
 
 
-import static com.symphony.bdk.core.util.SupplierWithApiException.callAndCatchApiException;
+import static com.symphony.bdk.core.util.function.SupplierWithApiException.callAndCatchApiException;
 
 import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;

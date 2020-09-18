@@ -4,8 +4,9 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.util.ConsumerWithThrowable;
-import com.symphony.bdk.core.util.RetryWithRecovery;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.RetryWithRecovery;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -153,14 +154,14 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     return null;
   }
 
-  private void recreateDatafeed(ApiException e) {
+  private void recreateDatafeed() {
     try {
       log.info("Try to delete the faulty datafeed");
       this.deleteDatafeed();
       log.info("Recreate a new datafeed and try again");
       this.datafeed = this.createDatafeed();
     } catch (Throwable throwable) {
-      e.addSuppressed(throwable);
+      throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }
 
