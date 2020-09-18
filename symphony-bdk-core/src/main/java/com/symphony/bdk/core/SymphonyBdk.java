@@ -2,7 +2,9 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -27,6 +29,7 @@ import java.util.Optional;
 public class SymphonyBdk {
 
   private final OboAuthenticator oboAuthenticator;
+  private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
   private final ActivityRegistry activityRegistry;
   private final SessionService sessionService;
@@ -44,6 +47,7 @@ public class SymphonyBdk {
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
     AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
+    this.extensionAppAuthenticator = config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
     ServiceFactory serviceFactory =
         new ServiceFactory(apiClientFactory, botSession, config);
     // service init
@@ -122,6 +126,20 @@ public class SymphonyBdk {
    */
   public AuthSession obo(String username) throws AuthUnauthorizedException {
     return this.getOboAuthenticator().authenticateByUsername(username);
+  }
+
+  /**
+   * Extension App Authenticate by app token
+   * @param appToken App Token
+   * @return Extension App authentication session
+   */
+  public AppAuthSession app(String appToken) throws AuthUnauthorizedException {
+    return this.getExtensionAppAuthenticator().authenticateExtensionApp(appToken);
+  }
+
+  protected ExtensionAppAuthenticator getExtensionAppAuthenticator() {
+    return Optional.ofNullable(this.extensionAppAuthenticator)
+        .orElseThrow(() -> new IllegalStateException("Extension app is not configured."));
   }
 
   protected OboAuthenticator getOboAuthenticator() {

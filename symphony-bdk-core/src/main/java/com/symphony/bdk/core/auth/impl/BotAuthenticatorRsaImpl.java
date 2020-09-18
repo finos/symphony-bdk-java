@@ -69,7 +69,7 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
   }
 
   protected String doRetrieveToken(ApiClient client) throws AuthUnauthorizedException {
-    final String jwt = this.jwtHelper.createSignedJwt(this.username, 30_000, this.privateKey);
+    final String jwt = this.jwtHelper.createSignedJwt(this.username, JwtHelper.JWT_EXPIRATION_MILLIS, this.privateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
