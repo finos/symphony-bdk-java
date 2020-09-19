@@ -1,8 +1,8 @@
 package com.symphony.bdk.spring.slash;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 
@@ -25,8 +25,11 @@ public class SlashAnnotationProcessorTest {
 
   @Test
   void slashMethodShouldBeRegistered() {
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(1);
-    final AbstractActivity<?, ?> activity = this.activityRegistry.getActivityList().get(0);
-    assertThat(activity.getClass()).isEqualTo(SlashCommand.class);
+
+    // 2 activities should be registered: slash cmd and form reply
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(2);
+
+    assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(SlashCommand.class)));
+    assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(TestFormReplyActivity.class)));
   }
 }

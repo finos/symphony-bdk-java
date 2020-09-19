@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * Simple bean that contains a slash method.
  */
 @Component
-public class SlashBean {
+public class TestSlashCommand {
 
   @Slash("/test")
   public void onTest(CommandContext context) {
