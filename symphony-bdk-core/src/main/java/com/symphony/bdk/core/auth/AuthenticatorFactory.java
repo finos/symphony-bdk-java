@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
@@ -78,6 +79,19 @@ public class AuthenticatorFactory {
       );
     }
     return new OboAuthenticatorRsaImpl(
+        this.config.getApp().getAppId(),
+        this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
+        this.apiClientFactory.getLoginClient()
+    );
+  }
+
+  /**
+   * Creates a new instance of an {@link ExtensionAppAuthenticator} service.
+   *
+   * @return a new {@link ExtensionAppAuthenticator} instance.
+   */
+  public @Nonnull ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
+    return new ExtensionAppAuthenticatorRsaImpl(
         this.config.getApp().getAppId(),
         this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
         this.apiClientFactory.getLoginClient()

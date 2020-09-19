@@ -28,7 +28,7 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     // Create BDK entry point
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
     // Get the MessageService object
     final MessageService messageService = bdk.message();
 
@@ -50,7 +50,7 @@ For instance, if you have the following template file:
 ```
 you will be able to use it when sending message:
 ```java
-final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 final V4Message regularMessage = bdk().message().send(streamId, "path/to/template.ftl", Collections.singletonMap("message", "Hello!"));
 ```
 The above will send the message `<messageML>Hello!</messageML>` as expected.
