@@ -28,7 +28,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.keyManager.host=localhost",
 
             "bdk.bot.username=tibot",
-            "bdk.bot.privateKeyPath=classpath:/privateKey.pem"
+            "bdk.bot.privateKeyPath=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
