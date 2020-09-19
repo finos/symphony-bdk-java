@@ -102,7 +102,7 @@ public class AuthenticatorFactory {
     log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
     try {
       return this.jwtHelper.parseRsaPrivateKey(
-          IOUtils.toString(this.loadPrivateKeyContent(privateKeyPath), StandardCharsets.UTF_8)
+          IOUtils.toString(loadPrivateKey(privateKeyPath), StandardCharsets.UTF_8)
       );
     } catch (GeneralSecurityException e) {
       final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
@@ -115,11 +115,13 @@ public class AuthenticatorFactory {
     }
   }
 
-  private InputStream loadPrivateKeyContent(String privateKeyPath) throws IOException {
+  private static InputStream loadPrivateKey(String privateKeyPath) throws IOException {
+    log.debug("Loading private key from : {}", privateKeyPath);
 
     // useful when for testing when private key is located into the resources
     if (privateKeyPath.startsWith("classpath:")) {
-      return this.getClass().getResourceAsStream(privateKeyPath.replace("classpath:", ""));
+      log.warn("Warning: Keeping RSA private keys is project resources is dangerous. Please consider another location.");
+      return AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
     }
 
     return new FileInputStream(privateKeyPath);

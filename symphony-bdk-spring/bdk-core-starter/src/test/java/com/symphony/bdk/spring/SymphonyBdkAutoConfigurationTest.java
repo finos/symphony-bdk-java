@@ -8,6 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
+/**
+ * This class allows to verify is the SpringContext has successfully been initialized and all expected beans loaded.
+ */
 class SymphonyBdkAutoConfigurationTest {
 
   @Test
