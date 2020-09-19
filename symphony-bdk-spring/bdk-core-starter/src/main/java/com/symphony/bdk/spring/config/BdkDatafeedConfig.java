@@ -12,6 +12,7 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.spring.events.RealTimeEventsDispatcher;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -26,11 +27,13 @@ import java.util.List;
 public class BdkDatafeedConfig {
 
   @Bean
+  @ConditionalOnMissingBean
   public DatafeedVersion datafeedVersion(SymphonyBdkCoreProperties properties) {
     return DatafeedVersion.of(properties.getDatafeed().getVersion());
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public DatafeedService datafeedService(
       SymphonyBdkCoreProperties properties,
       DatafeedApi datafeedApi,
@@ -46,11 +49,13 @@ public class BdkDatafeedConfig {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public RealTimeEventsDispatcher realTimeEventsDispatcher(ApplicationEventPublisher publisher) {
     return new RealTimeEventsDispatcher(publisher);
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")
+  @ConditionalOnMissingBean
   public DatafeedAsyncLauncherService datafeedAsyncLauncherService(final DatafeedService datafeedService, List<RealTimeEventListener> realTimeEventListeners) {
     return new DatafeedAsyncLauncherService(datafeedService, realTimeEventListeners);
   }

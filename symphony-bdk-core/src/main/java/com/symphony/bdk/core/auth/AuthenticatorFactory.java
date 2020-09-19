@@ -15,6 +15,7 @@ import org.apiguardian.api.API;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -47,7 +48,8 @@ public class AuthenticatorFactory {
    *
    * @return a new {@link BotAuthenticator} instance.
    */
-  public @Nonnull BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
+  public @Nonnull
+  BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
     if (this.config.getBot().isCertificateAuthenticationConfigured()) {
       return new BotAuthenticatorCertImpl(
           this.apiClientFactory.getSessionAuthClient(),
@@ -67,7 +69,8 @@ public class AuthenticatorFactory {
    *
    * @return a new {@link OboAuthenticator} instance.
    */
-  public @Nonnull OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
+  public @Nonnull
+  OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
     if (this.config.getApp().isCertificateAuthenticationConfigured()) {
       return new OboAuthenticatorCertImpl(
           this.config.getApp().getAppId(),
@@ -84,7 +87,9 @@ public class AuthenticatorFactory {
   private PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
     log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
     try {
-      return this.jwtHelper.parseRsaPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
+      return this.jwtHelper.parseRsaPrivateKey(
+          IOUtils.toString(this.loadPrivateKeyContent(privateKeyPath), StandardCharsets.UTF_8)
+      );
     } catch (GeneralSecurityException e) {
       final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
       log.error(message, e);
@@ -94,5 +99,15 @@ public class AuthenticatorFactory {
       log.error(message, e);
       throw new AuthInitializationException(message, e);
     }
+  }
+
+  private InputStream loadPrivateKeyContent(String privateKeyPath) throws IOException {
+
+    // useful when for testing when private key is located into the resources
+    if (privateKeyPath.startsWith("classpath:")) {
+      return this.getClass().getResourceAsStream(privateKeyPath.replace("classpath:", ""));
+    }
+
+    return new FileInputStream(privateKeyPath);
   }
 }

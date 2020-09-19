@@ -218,6 +218,17 @@
                 <artifactId>spring-boot-configuration-processor</artifactId>
                 <version>${spring-boot-configuration-processor.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot-starter.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
             <!-- MapStruct -->
             <dependency>

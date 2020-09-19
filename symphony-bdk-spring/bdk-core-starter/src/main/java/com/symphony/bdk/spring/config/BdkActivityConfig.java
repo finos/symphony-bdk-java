@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -33,6 +34,7 @@ import java.util.List;
  * </ul>
  */
 @Slf4j
+@ConditionalOnBean(BdkDatafeedConfig.class)
 public class BdkActivityConfig {
 
   @Bean
@@ -65,11 +67,9 @@ public class BdkActivityConfig {
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
 
       for (final String beanName : applicationContext.getBeanDefinitionNames()) {
-
         final Object bean = applicationContext.getBean(beanName);
 
         for (final Method m : getClass(bean).getDeclaredMethods()) {
-
           final Slash annotation = AnnotationUtils.getAnnotation(m, Slash.class);
 
           if (annotation != null && isMethodPrototypeValid(m)) {
