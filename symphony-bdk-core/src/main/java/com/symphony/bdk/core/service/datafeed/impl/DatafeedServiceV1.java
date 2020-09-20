@@ -128,7 +128,6 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     final RetryWithRecovery<String> retry = RetryWithRecoveryBuilder.<String>from(retryWithRecoveryBuilder)
         .name("Create Datafeed V1")
         .supplier(this::createDatafeedAndPersist)
-        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
         .build();
     return retry.execute();
   }

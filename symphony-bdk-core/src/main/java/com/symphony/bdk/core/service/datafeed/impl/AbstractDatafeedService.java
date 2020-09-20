@@ -41,6 +41,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
     this.bdkConfig = config;
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
+        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
   }
 
@@ -93,7 +94,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected boolean isNetworkOrServerOrUnauthorizedOrClientError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isClientError();
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError() || apiException.isClientError();
     }
     return t instanceof ProcessingException;
   }
@@ -101,7 +102,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected boolean isNetworkOrServerOrUnauthorizedError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized();
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
     }
     return t instanceof ProcessingException;
   }

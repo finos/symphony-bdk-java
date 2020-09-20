@@ -84,4 +84,8 @@ public class ApiException extends Exception {
     public boolean isServerError() {
         return this.code > HttpURLConnection.HTTP_INTERNAL_ERROR;
     }
+
+    public boolean isTooManyRequestsError() {
+      return this.code == 429;
+    }
 }

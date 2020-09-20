@@ -96,7 +96,6 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     final RetryWithRecovery<V5Datafeed> retry = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
         .name("Create Datafeed V2")
         .supplier(this::tryCreateDatafeed)
-        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
         .build();
 
     return retry.execute();
@@ -112,7 +111,6 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     final RetryWithRecovery<V5Datafeed> retry = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
         .name("Retrieve Datafeed V2")
         .supplier(this::tryRetrieveDatafeed)
-        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
         .build();
 
     return retry.execute();
@@ -172,7 +170,6 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
         .name("Delete Datafeed V2")
         .supplier(this::tryDeleteDatafeed)
-        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
         .ignoreException(ApiException::isClientError)
         .build();
 
