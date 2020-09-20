@@ -9,7 +9,7 @@ import com.symphony.bdk.core.activity.model.ActivityType;
 import org.springframework.stereotype.Component;
 
 /**
- * Simple bean that contains a slash method.
+ * Simple form reply activity component.
  */
 @Component
 public class TestFormReplyActivity extends FormReplyActivity<FormReplyContext> {

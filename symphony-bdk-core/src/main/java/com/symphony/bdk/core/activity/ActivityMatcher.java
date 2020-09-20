@@ -20,7 +20,7 @@ public interface ActivityMatcher<C extends ActivityContext<?>> {
   /**
    * Returns a matcher that always returns true.
    *
-   * @param <C> the type of the
+   * @param <C> the type of the activity context
    * @return a matcher that always returns true.
    */
   static <C extends ActivityContext<?>> ActivityMatcher<C> always() {
