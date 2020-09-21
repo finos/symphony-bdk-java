@@ -9,6 +9,10 @@ javaPlatform {
     allowDependencies()
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     // import Spring Boot's BOM
     api platform('org.springframework.boot:spring-boot-dependencies:2.3.3.RELEASE')

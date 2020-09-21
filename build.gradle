@@ -15,9 +15,7 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     apply plugin: 'maven-publish'
 
     repositories {
-        maven {
-            url = uri('https://repo.maven.apache.org/maven2')
-        }
+        mavenCentral()
     }
 
     publishing {
