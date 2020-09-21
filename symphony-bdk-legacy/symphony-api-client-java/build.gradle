@@ -10,9 +10,9 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'COVEREDRATIO'
-                minimum = 0.42
+                minimum = 0.5
             }
-            element = 'CLASS'
+            element = 'BUNDLE'
             excludes = ['*.*Adapter', '*.*Type', '*.*Config', '*.*Exception', 'model.*']
         }
     }
