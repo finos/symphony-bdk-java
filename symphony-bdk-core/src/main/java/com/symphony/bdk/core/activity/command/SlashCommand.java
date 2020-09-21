@@ -73,10 +73,9 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    final ActivityInfo info = ActivityInfo.of(ActivityType.COMMAND);
-    info.setName("Slash command '" + this.slashCommandName + "'");
-    info.setDescription("Usage: " + (this.requiresBotMention ? "@BotMention " : "") + this.slashCommandName);
-    return info;
+    return new ActivityInfo().type(ActivityType.COMMAND)
+      .name("Slash command '" + this.slashCommandName + "'")
+      .description("Usage: " + (this.requiresBotMention ? "@BotMention " : "") + this.slashCommandName);
   }
 
   @Override

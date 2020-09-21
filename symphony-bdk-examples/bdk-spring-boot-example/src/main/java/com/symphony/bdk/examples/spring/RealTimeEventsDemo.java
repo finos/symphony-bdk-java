@@ -10,7 +10,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 /**
- * TODO: add description here
+ * Demo class showing how to subscribe to a specific {@link RealTimeEvent}.
  */
 @Slf4j
 @Component

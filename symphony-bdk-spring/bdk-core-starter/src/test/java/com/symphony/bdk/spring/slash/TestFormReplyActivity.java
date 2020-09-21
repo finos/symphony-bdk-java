@@ -26,6 +26,6 @@ public class TestFormReplyActivity extends FormReplyActivity<FormReplyContext> {
 
   @Override
   protected ActivityInfo info() {
-    return ActivityInfo.of(ActivityType.FORM);
+    return new ActivityInfo().type(ActivityType.FORM);
   }
 }

@@ -70,16 +70,22 @@ public class BdkActivityConfig {
         final Object bean = applicationContext.getBean(beanName);
 
         for (final Method m : getClass(bean).getDeclaredMethods()) {
+
           final Slash annotation = AnnotationUtils.getAnnotation(m, Slash.class);
 
-          if (annotation != null && isMethodPrototypeValid(m)) {
-            this.registry.register(slash(annotation.value(), annotation.mentionBot(), c -> {
-              try {
-                m.invoke(bean, c);
-              } catch (IllegalAccessException | InvocationTargetException e) {
-                log.error("Unable to invoke @Slash method {} from bean {}", m.getName(), bean.getClass(), e);
-              }
-            }));
+          if (annotation != null) {
+            if (isMethodPrototypeValid(m)) {
+              this.registry.register(slash(annotation.value(), annotation.mentionBot(), c -> {
+                try {
+                  m.invoke(bean, c);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                  log.error("Unable to invoke @Slash method {} from bean {}", m.getName(), bean.getClass(), e);
+                }
+              }));
+            } else {
+              log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
+                  + "It must accept a single argument of type '{}'", m, CommandContext.class);
+            }
           }
         }
       }

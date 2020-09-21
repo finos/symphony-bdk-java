@@ -15,4 +15,9 @@ public class TestSlashCommand {
   public void onTest(CommandContext context) {
     // nothing to be done here
   }
+
+  @Slash("/hello")
+  public void illegalPrototype() {
+    //
+  }
 }
