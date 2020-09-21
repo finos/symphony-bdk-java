@@ -115,7 +115,7 @@ public class BotApplication {
     
     public static void main(String[] args) {
       
-        final SymphonyBdk bdk = new SymphonyBdk(BdkConfigLoader.loadFromSymphonyDir("config.yaml"));        // (1)
+        final SymphonyBdk bdk = new SymphonyBdk(BdkConfigLoader.loadFromClasspath("/config.yaml"));        // (1)
       
         bdk.datafeed().subscribe(new RealTimeEventListener() {                                              // (2)
 
