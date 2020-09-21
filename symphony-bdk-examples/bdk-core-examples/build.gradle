@@ -3,8 +3,9 @@ description = 'Symphony Java BDK Examples - Core'
 dependencies {
     implementation project(':symphony-bdk-core')
     implementation project(':symphony-bdk-template:symphony-bdk-template-api')
-    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
-    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     implementation 'org.slf4j:slf4j-api'
     runtimeOnly 'ch.qos.logback:logback-classic'
@@ -16,5 +17,7 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.glassfish.jersey.media:jersey-media-json-jackson'
 }
 

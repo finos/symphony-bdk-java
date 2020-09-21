@@ -28,7 +28,7 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
-    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
     implementation project(':symphony-bdk-template:symphony-bdk-template-api')
 
     compileOnly 'org.projectlombok:lombok'
@@ -37,7 +37,7 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.3.1.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
 
-    implementation 'org.apiguardian:apiguardian-api'
+    compile 'org.apiguardian:apiguardian-api'
     implementation 'org.slf4j:slf4j-api'
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
@@ -51,7 +51,7 @@ dependencies {
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'org.glassfish.jersey.core:jersey-client'
 
-    testImplementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+    testImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
     testRuntimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     testCompileOnly 'org.projectlombok:lombok'
@@ -97,7 +97,7 @@ apisToGenerate.each { api, path ->
         generateApiDocumentation = false
         apiPackage = 'com.symphony.bdk.gen.api'
         modelPackage = 'com.symphony.bdk.gen.api.model'
-        invokerPackage = 'com.symphony.bdk.core.api.invoker'
+        invokerPackage = 'com.symphony.bdk.http.api'
         templateDir = "${rootDir}/templates"
         globalProperties = [
                 models         : "",

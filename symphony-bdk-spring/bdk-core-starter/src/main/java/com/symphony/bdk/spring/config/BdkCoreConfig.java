@@ -1,6 +1,6 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.api.invoker.jersey2.ApiClientBuilderProviderJersey2;
+import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;

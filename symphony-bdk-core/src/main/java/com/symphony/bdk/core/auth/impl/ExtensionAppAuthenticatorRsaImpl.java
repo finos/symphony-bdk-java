@@ -1,8 +1,8 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;

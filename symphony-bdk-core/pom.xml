@@ -47,7 +47,7 @@
 
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
-            <artifactId>symphony-bdk-core-invoker-api</artifactId>
+            <artifactId>symphony-bdk-http-api</artifactId>
         </dependency>
 
         <dependency>
@@ -159,7 +159,7 @@
         </dependency>
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
-            <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
+            <artifactId>symphony-bdk-http-jersey2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -188,7 +188,7 @@
                     <generateSupportingFiles>false</generateSupportingFiles>
                     <apiPackage>${codegen.base.package}</apiPackage>
                     <modelPackage>${codegen.base.package}.model</modelPackage>
-                    <invokerPackage>com.symphony.bdk.core.api.invoker</invokerPackage>
+                    <invokerPackage>com.symphony.bdk.http.api</invokerPackage>
                     <templateDirectory>${maven.multiModuleProjectDirectory}/templates</templateDirectory>
                     <configOptions>
                         <hideGenerationTimestamp>true</hideGenerationTimestamp>

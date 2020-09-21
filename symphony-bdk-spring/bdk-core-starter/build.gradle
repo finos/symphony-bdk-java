@@ -6,8 +6,8 @@ description = 'Spring Boot Wrapper for the Symphony BDK Core module'
 
 dependencies {
     api project(':symphony-bdk-core')
-    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
-    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

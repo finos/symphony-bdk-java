@@ -3,8 +3,8 @@ package com.symphony.bdk.core.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.jersey2.ApiClientJersey2;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 

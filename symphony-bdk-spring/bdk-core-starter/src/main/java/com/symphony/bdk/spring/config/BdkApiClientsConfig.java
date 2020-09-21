@@ -1,6 +1,6 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Bean;
  * Injection of all available raw-APIs generated from the official Symphony Swagger specifications.
  *
  * <p>
- * Please note that each raw-API requires a particular {@link com.symphony.bdk.core.api.invoker.ApiClient} as unique
+ * Please note that each raw-API requires a particular {@link ApiClient} as unique
  * constructor parameter, depending on which component it targets:
  *   <ul>
  *     <li>Pod</li>

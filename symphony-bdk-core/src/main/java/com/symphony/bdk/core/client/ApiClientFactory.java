@@ -2,25 +2,21 @@ package com.symphony.bdk.core.client;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.ApiClientBuilder;
-import com.symphony.bdk.core.api.invoker.ApiClientBuilderProvider;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
+import com.symphony.bdk.core.util.ProviderLoader;
 
-import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import javax.annotation.Nonnull;
 
@@ -41,7 +37,7 @@ public class ApiClientFactory {
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
   public ApiClientFactory(@Nonnull BdkConfig config) {
-    this(config, findApiClientBuilderProvider());
+    this(config, ProviderLoader.findApiClientBuilderProvider());
   }
 
   public ApiClientFactory(@Nonnull BdkConfig config, @Nonnull ApiClientBuilderProvider apiClientBuilderProvider) {
@@ -153,32 +149,5 @@ public class ApiClientFactory {
     } catch (IOException e) {
       throw new ApiClientInitializationException("Could not read file " + filePath, e);
     }
-  }
-
-  /**
-   * Load {@link ApiClient} implementation class using {@link ServiceLoader}.
-   *
-   * @return an {@link ApiClientBuilderProvider}.
-   */
-  @Generated
-  // exclude from code coverage as it is very difficult to mock the ServiceLoader class (which is
-  // final)
-  private static ApiClientBuilderProvider findApiClientBuilderProvider() {
-
-    final ServiceLoader<ApiClientBuilderProvider> apiClientServiceLoader =
-        ServiceLoader.load(ApiClientBuilderProvider.class);
-
-    final List<ApiClientBuilderProvider> apiClientProviders =
-        StreamSupport.stream(apiClientServiceLoader.spliterator(), false)
-            .collect(Collectors.toList());
-
-    if (apiClientProviders.isEmpty()) {
-      throw new IllegalStateException("No ApiClientProvider implementation found in classpath.");
-    } else if (apiClientProviders.size() > 1) {
-      log.warn("More than 1 ApiClientProvider implementation found in classpath, will use : {}",
-          apiClientProviders.stream().findFirst().get());
-    }
-
-    return apiClientProviders.stream().findFirst().get();
   }
 }
