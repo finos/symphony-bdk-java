@@ -132,7 +132,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
     final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
         .name("Read Datafeed V2")
         .supplier(this::readAndHandleEvents)
-        .retryOnException(this::isNetworkOrServerOrUnauthorizedOrClientError)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrServerOrUnauthorizedOrClientError)
         .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
         .build();
 

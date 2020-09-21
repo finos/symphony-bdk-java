@@ -6,7 +6,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -14,12 +13,7 @@ import com.symphony.bdk.gen.api.model.V4Event;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-
-import javax.ws.rs.ProcessingException;
 
 /**
  * Base class for implementing the datafeed services. A datafeed services can help a bot subscribe or unsubscribe
@@ -41,7 +35,6 @@ abstract class AbstractDatafeedService implements DatafeedService {
     this.bdkConfig = config;
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
-        .retryOnException(this::isNetworkOrServerOrUnauthorizedError)
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
   }
 
@@ -89,22 +82,6 @@ abstract class AbstractDatafeedService implements DatafeedService {
     return event.getInitiator() != null && event.getInitiator().getUser() != null
         && event.getInitiator().getUser().getUsername() != null
         && event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
-  }
-
-  protected boolean isNetworkOrServerOrUnauthorizedOrClientError(Throwable t) {
-    if (t instanceof ApiException) {
-      ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError() || apiException.isClientError();
-    }
-    return t instanceof ProcessingException;
-  }
-
-  protected boolean isNetworkOrServerOrUnauthorizedError(Throwable t) {
-    if (t instanceof ApiException) {
-      ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
-    }
-    return t instanceof ProcessingException;
   }
 
   protected void refresh() throws AuthUnauthorizedException {

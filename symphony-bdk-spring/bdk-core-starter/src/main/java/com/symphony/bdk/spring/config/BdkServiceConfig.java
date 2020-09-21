@@ -1,6 +1,7 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
@@ -26,8 +27,9 @@ public class BdkServiceConfig {
 
   @Bean
   public MessageService messageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi, AuthSession botSession) {
+      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi, AuthSession botSession,
+      BdkConfig config) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, botSession);
+        defaultApi, botSession, config.getRetry());
   }
 }

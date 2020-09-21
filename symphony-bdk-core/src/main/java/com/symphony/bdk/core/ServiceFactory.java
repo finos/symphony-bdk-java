@@ -58,7 +58,7 @@ class ServiceFactory {
    * @return an new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession );
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession, config.getRetry());
   }
 
   /**
@@ -67,7 +67,7 @@ class ServiceFactory {
    * @return an new {@link StreamService} instance.
    */
   public StreamService getStreamService() {
-    return new StreamService(new StreamsApi(podClient), authSession);
+    return new StreamService(new StreamsApi(podClient), authSession, config.getRetry());
   }
 
   /**
@@ -76,7 +76,7 @@ class ServiceFactory {
    * @return an new {@link SessionService} instance.
    */
   public SessionService getSessionService() {
-    return new SessionService(new SessionApi(podClient));
+    return new SessionService(new SessionApi(podClient), config.getRetry());
   }
 
   /**
@@ -99,6 +99,6 @@ class ServiceFactory {
   public MessageService getMessageService() {
     return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.podClient),
         new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
-        new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), this.authSession);
+        new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), this.authSession, this.config.getRetry());
   }
 }

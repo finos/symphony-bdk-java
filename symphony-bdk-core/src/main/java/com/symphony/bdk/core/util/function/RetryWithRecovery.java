@@ -2,6 +2,11 @@ package com.symphony.bdk.core.util.function;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 
+import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import com.symphony.bdk.core.auth.AuthSession;
+
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -12,6 +17,24 @@ public abstract class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<ApiException> ignoreApiException;
   private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
+
+  public static <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, BdkRetryConfig retryConfig,
+      AuthSession authSession) {
+    RetryWithRecovery<T> retry = new RetryWithRecoveryBuilder<T>()
+        .name(name)
+        .supplier(supplier)
+        .retryConfig(retryConfig)
+        .recoveryStrategy(e -> e.isUnauthorized(), () -> authSession.refresh())
+        .build();
+
+    try {
+      return retry.execute();
+    } catch (ApiException e) {
+      throw new ApiRuntimeException(e);
+    } catch (Throwable t) {
+      throw new RuntimeException(t);
+    }
+  }
 
   public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<ApiException> ignoreApiException,
       Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {

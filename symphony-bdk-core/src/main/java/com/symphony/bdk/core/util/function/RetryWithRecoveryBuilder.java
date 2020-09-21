@@ -3,6 +3,8 @@ package com.symphony.bdk.core.util.function;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 
+import javax.ws.rs.ProcessingException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -26,8 +28,27 @@ public class RetryWithRecoveryBuilder<T> {
     return copy;
   }
 
+  //TODO rename
+  public static boolean isNetworkOrServerOrUnauthorizedError(Throwable t) {
+    if (t instanceof ApiException) {
+      ApiException apiException = (ApiException) t;
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
+    }
+    return t instanceof ProcessingException;
+  }
+
+  //TODO rename
+  public static boolean isNetworkOrServerOrUnauthorizedOrClientError(Throwable t) {
+    if (t instanceof ApiException) {
+      ApiException apiException = (ApiException) t;
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError() || apiException.isClientError();
+    }
+    return t instanceof ProcessingException;
+  }
+
   public RetryWithRecoveryBuilder() {
     this.ignoreException = (e) -> false;
+    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrServerOrUnauthorizedError;
     this.recoveryStrategies = new HashMap<>();
   }
 

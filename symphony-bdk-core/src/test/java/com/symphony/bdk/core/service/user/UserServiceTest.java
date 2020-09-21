@@ -14,6 +14,7 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
@@ -63,7 +64,6 @@ class UserServiceTest {
   private static final String UPDATE_FEATURE_ENTITLEMENTS_OF_USER = "/pod/v1/admin/user/{uid}/features/update";
   private static final String GET_STATUS_OF_USER = "/pod/v1/admin/user/{uid}/status";
   private static final String UPDATE_STATUS_OF_USER = "/pod/v1/admin/user/{uid}/status/update";
-  private static final String GET_USER_V2 = "/pod/v2/user";
   private static final String SEARCH_USERS_V3 = "/pod/v3/users";
   private static final String SEARCH_USER_BY_QUERY = "/pod/v1/user/search";
 
@@ -81,7 +81,7 @@ class UserServiceTest {
     this.spiedUserApi = spy(userApi);
     UsersApi usersApi = new UsersApi(podClient);
     this.spiedUsersApi = spy(usersApi);
-    this.service = new UserService(this.spiedUserApi, this.spiedUsersApi, authSession);
+    this.service = new UserService(this.spiedUserApi, this.spiedUsersApi, authSession, new BdkRetryConfig());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
