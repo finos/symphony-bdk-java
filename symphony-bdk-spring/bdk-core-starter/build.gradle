@@ -29,6 +29,7 @@ dependencies {
     api project(':symphony-bdk-template:symphony-bdk-template-api')
     implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 

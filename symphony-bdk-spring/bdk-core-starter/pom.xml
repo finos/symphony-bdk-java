@@ -41,6 +41,10 @@
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-template-freemarker</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-freemarker</artifactId>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>
