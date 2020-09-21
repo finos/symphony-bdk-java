@@ -84,7 +84,11 @@ abstract class AbstractDatafeedService implements DatafeedService {
             try {
                 RealTimeEventType eventType = RealTimeEventType.valueOf(event.getType());
                 for (RealTimeEventListener listener : listeners) {
-                    eventType.dispatch(listener, event);
+                    try {
+                      eventType.dispatch(listener, event);
+                    } catch (Exception ex) {
+                      log.debug("An error has occurred while dispatching event {}", event, ex);
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 log.warn("Receive events with unknown type: {}", event.getType());

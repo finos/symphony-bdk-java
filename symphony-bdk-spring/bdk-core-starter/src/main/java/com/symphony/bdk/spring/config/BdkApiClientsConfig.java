@@ -1,8 +1,6 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -31,8 +29,8 @@ import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.UtilApi;
 import com.symphony.bdk.gen.api.ViolationsApi;
 
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
 /**
@@ -58,157 +56,164 @@ import org.springframework.context.annotation.Bean;
  */
 public class BdkApiClientsConfig {
 
-  @Autowired
-  private ApiClientFactory clientFactory;
-
   @Bean
-  public AppEntitlementApi appEntitlementApi() {
-    return new AppEntitlementApi(podApiClient());
+  @ConditionalOnMissingBean
+  public AppEntitlementApi appEntitlementApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new AppEntitlementApi(podApiClient);
   }
 
   @Bean
-  public ApplicationApi applicationApi() {
-    return new ApplicationApi(podApiClient());
+  @ConditionalOnMissingBean
+  public ApplicationApi applicationApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new ApplicationApi(podApiClient);
   }
 
   @Bean
-  public AttachmentsApi attachmentsApi() {
-    return new AttachmentsApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public AttachmentsApi attachmentsApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new AttachmentsApi(agentApiClient);
   }
 
   @Bean
-  public AuditTrailApi auditTrailApi() {
-    return new AuditTrailApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public AuditTrailApi auditTrailApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new AuditTrailApi(agentApiClient);
   }
 
   @Bean
-  public CertificatePodApi certificatePodApi() {
-    return new CertificatePodApi(podApiClient());
+  @ConditionalOnMissingBean
+  public CertificatePodApi certificatePodApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new CertificatePodApi(podApiClient);
   }
 
   @Bean
-  public ConnectionApi connectionApi() {
-    return new ConnectionApi(podApiClient());
+  @ConditionalOnMissingBean
+  public ConnectionApi connectionApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new ConnectionApi(podApiClient);
   }
 
   @Bean
-  public DatafeedApi datafeedApi() {
-    return new DatafeedApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public DatafeedApi datafeedApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new DatafeedApi(agentApiClient);
   }
 
   @Bean
-  public DefaultApi defaultApi() {
-    return new DefaultApi(podApiClient());
+  @ConditionalOnMissingBean
+  public DefaultApi defaultApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new DefaultApi(podApiClient);
   }
 
   @Bean
-  public DisclaimerApi disclaimerApi() {
-    return new DisclaimerApi(podApiClient());
+  @ConditionalOnMissingBean
+  public DisclaimerApi disclaimerApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new DisclaimerApi(podApiClient);
   }
 
   @Bean
-  public DlpPoliciesAndDictionaryManagementApi dlpPoliciesAndDictionaryManagementApi() {
-    return new DlpPoliciesAndDictionaryManagementApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public DlpPoliciesAndDictionaryManagementApi dlpPoliciesAndDictionaryManagementApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new DlpPoliciesAndDictionaryManagementApi(agentApiClient);
   }
 
   @Bean
-  public InfoBarriersApi infoBarriersApi() {
-    return new InfoBarriersApi(podApiClient());
+  @ConditionalOnMissingBean
+  public InfoBarriersApi infoBarriersApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new InfoBarriersApi(podApiClient);
   }
 
   @Bean
-  public MessagesApi messagesApi() {
-    return new MessagesApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public MessagesApi messagesApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new MessagesApi(agentApiClient);
   }
 
   @Bean
-  public MessageApi messageApi() {
-    return new MessageApi(podApiClient());
+  @ConditionalOnMissingBean
+  public MessageApi messageApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new MessageApi(agentApiClient);
   }
 
   @Bean
-  public MessageSuppressionApi messageSuppressionApi() {
-    return new MessageSuppressionApi(podApiClient());
+  @ConditionalOnMissingBean
+  public MessageSuppressionApi messageSuppressionApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new MessageSuppressionApi(podApiClient);
   }
 
   @Bean
-  public PodApi podApi() {
-    return new PodApi(podApiClient());
+  public PodApi podApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new PodApi(podApiClient);
   }
 
   @Bean
-  public PresenceApi presenceApi() {
-    return new PresenceApi(podApiClient());
+  @ConditionalOnMissingBean
+  public PresenceApi presenceApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new PresenceApi(podApiClient);
   }
 
   @Bean
-  public RoomMembershipApi roomMembershipApi() {
-    return new RoomMembershipApi(podApiClient());
+  @ConditionalOnMissingBean
+  public RoomMembershipApi roomMembershipApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new RoomMembershipApi(podApiClient);
   }
 
   @Bean
-  public SessionApi sessionApi() {
-    return new SessionApi(podApiClient());
+  @ConditionalOnMissingBean
+  public SessionApi sessionApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new SessionApi(podApiClient);
   }
 
   @Bean
-  public SecurityApi securityApi() {
-    return new SecurityApi(podApiClient());
+  @ConditionalOnMissingBean
+  public SecurityApi securityApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new SecurityApi(podApiClient);
   }
 
   @Bean
-  public ShareApi shareApi() {
-    return new ShareApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public ShareApi shareApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new ShareApi(agentApiClient);
   }
 
   @Bean
-  public SignalsApi signalsApi() {
-    return new SignalsApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public SignalsApi signalsApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new SignalsApi(agentApiClient);
   }
 
   @Bean
-  public StreamsApi streamsApi() {
-    return new StreamsApi(podApiClient());
+  @ConditionalOnMissingBean
+  public StreamsApi streamsApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new StreamsApi(podApiClient);
   }
 
   @Bean
-  public SystemApi systemApi() {
-    return new SystemApi(podApiClient());
+  @ConditionalOnMissingBean
+  public SystemApi systemApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new SystemApi(podApiClient);
   }
 
   @Bean
-  public UserApi userApi() {
-    return new UserApi(podApiClient());
+  @ConditionalOnMissingBean
+  public UserApi userApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new UserApi(podApiClient);
   }
 
   @Bean
-  public UsersApi usersApi() {
-    return new UsersApi(podApiClient());
+  @ConditionalOnMissingBean
+  public UsersApi usersApi(@Qualifier("podApiClient") ApiClient podApiClient) {
+    return new UsersApi(podApiClient);
   }
 
   @Bean
-  public UtilApi utilApi() {
-    return new UtilApi(agentApiClient());
+  @ConditionalOnMissingBean
+  public UtilApi utilApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new UtilApi(agentApiClient);
   }
 
   @Bean
-  public ViolationsApi violationsApi() {
-    return new ViolationsApi(agentApiClient());
-  }
-
-  private ApiClient agentApiClient() {
-    try {
-      return this.clientFactory.getAgentClient();
-    } catch (ApiClientInitializationException e) {
-      throw new BeanCreationException("Unable to build Agent's ApiClient", e);
-    }
-  }
-
-  private ApiClient podApiClient() {
-    try {
-      return this.clientFactory.getPodClient();
-    } catch (ApiClientInitializationException e) {
-      throw new BeanCreationException("Unable to build Agent's ApiClient", e);
-    }
+  @ConditionalOnMissingBean
+  public ViolationsApi violationsApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new ViolationsApi(agentApiClient);
   }
 }

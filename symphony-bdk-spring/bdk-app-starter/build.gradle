@@ -1,0 +1,24 @@
+plugins {
+    id 'java-library'
+}
+
+description = 'Spring Boot Starter that ease Application developments'
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+            excludes = []
+        }
+    }
+}
+
+dependencies {
+
+}
+

@@ -12,6 +12,7 @@ import com.symphony.bdk.gen.api.model.AuthenticateExtensionAppRequest;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.security.PrivateKey;
 
@@ -23,6 +24,7 @@ import javax.annotation.Nonnull;
  * @see <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">Application Authentication</a>
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticator {
 
   private final JwtHelper jwtHelper = new JwtHelper();
