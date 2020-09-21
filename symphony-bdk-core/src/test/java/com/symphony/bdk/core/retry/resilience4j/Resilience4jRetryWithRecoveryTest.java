@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.util.function;
+package com.symphony.bdk.core.retry.resilience4j;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -14,6 +14,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;

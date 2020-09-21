@@ -1,7 +1,12 @@
-package com.symphony.bdk.core.util.function;
+package com.symphony.bdk.core.retry;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.resilience4j.Resilience4jRetryWithRecovery;
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
+
+import org.apiguardian.api.API;
 
 import javax.ws.rs.ProcessingException;
 
@@ -14,6 +19,7 @@ import java.util.function.Predicate;
  *
  * @param <T> the type to be returned by {@link RetryWithRecovery#execute()}.
  */
+@API(status = API.Status.INTERNAL)
 public class RetryWithRecoveryBuilder<T> {
   private String name;
   private BdkRetryConfig retryConfig;

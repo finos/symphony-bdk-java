@@ -48,8 +48,7 @@ public class SymphonyBdk {
     AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator = config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
-    ServiceFactory serviceFactory =
-        new ServiceFactory(apiClientFactory, botSession, config);
+    ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, botSession, config);
     // service init
     this.sessionService = serviceFactory.getSessionService();
     this.userService = serviceFactory.getUserService();

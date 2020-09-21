@@ -2,7 +2,7 @@ package com.symphony.bdk.core.service.user;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.util.function.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;

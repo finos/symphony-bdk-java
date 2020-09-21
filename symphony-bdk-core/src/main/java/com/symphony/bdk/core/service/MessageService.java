@@ -7,7 +7,7 @@ import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
-import com.symphony.bdk.core.util.function.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;

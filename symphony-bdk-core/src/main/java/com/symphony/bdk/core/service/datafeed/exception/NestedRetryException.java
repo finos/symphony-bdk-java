@@ -1,7 +1,9 @@
 package com.symphony.bdk.core.service.datafeed.exception;
 
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+
 /**
- * Exception thrown when recovery strategy in a {@link com.symphony.bdk.core.util.function.RetryWithRecovery} failed.
+ * Exception thrown when recovery strategy in a {@link RetryWithRecovery} failed.
  * Especially used in DataFeed services.
  */
 public class NestedRetryException extends RuntimeException {

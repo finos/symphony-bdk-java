@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.util.function;
+package com.symphony.bdk.core.retry;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 
@@ -7,7 +7,11 @@ import com.symphony.bdk.core.auth.AuthSession;
 
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
+
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -18,6 +22,7 @@ import java.util.function.Predicate;
  * @param <T> the type of the object to be eventually returned by the {@link #supplier}
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public abstract class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<ApiException> ignoreApiException;

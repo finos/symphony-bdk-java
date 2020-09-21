@@ -1,13 +1,18 @@
-package com.symphony.bdk.core.util.function;
+package com.symphony.bdk.core.retry.resilience4j;
 
 import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 
+import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.util.BdkExponentialFunction;
+
+import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.Map;
 import java.util.function.Predicate;
@@ -18,6 +23,7 @@ import java.util.function.Predicate;
  * @param <T> the type of the object returned by {@link #execute()}
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
   private final Retry retry;
 
