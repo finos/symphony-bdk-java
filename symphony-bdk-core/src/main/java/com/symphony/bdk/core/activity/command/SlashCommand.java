@@ -2,6 +2,8 @@ package com.symphony.bdk.core.activity.command;
 
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
+import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4MessageSent;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
@@ -27,8 +29,8 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
    * @param slashCommandName Identifier of the command (ex: '/gif' or 'gif').
    * @param callback Callback to be processed when command is detected.
    */
-  public SlashCommand(@Nonnull String slashCommandName, @Nonnull Consumer<CommandContext> callback) {
-    this(slashCommandName, true, callback);
+  public static SlashCommand slash(@Nonnull String slashCommandName, @Nonnull Consumer<CommandContext> callback) {
+    return slash(slashCommandName, true, callback);
   }
 
   /**
@@ -40,7 +42,15 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
    *
    * @throws IllegalArgumentException if command name if empty.
    */
-  public SlashCommand(@Nonnull String slashCommandName, boolean requiresBotMention, @Nonnull Consumer<CommandContext> callback) {
+  public static SlashCommand slash(@Nonnull String slashCommandName, boolean requiresBotMention, @Nonnull Consumer<CommandContext> callback) {
+    return new SlashCommand(slashCommandName, requiresBotMention, callback);
+  }
+
+  /**
+   * Default private constructor, new instances from static methods only.
+   */
+  private SlashCommand(@Nonnull String slashCommandName, boolean requiresBotMention, @Nonnull Consumer<CommandContext> callback) {
+
     if (StringUtils.isEmpty(slashCommandName)) {
       throw new IllegalArgumentException("The slash command name cannot be empty.");
     }
@@ -63,9 +73,13 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    final ActivityInfo info = ActivityInfo.of(ActivityType.COMMAND);
-    info.setName("Slash command '" + this.slashCommandName + "'");
-    info.setDescription("Usage: " + (this.requiresBotMention ? "@BotMention " : "") + this.slashCommandName);
-    return info;
+    return new ActivityInfo().type(ActivityType.COMMAND)
+      .name("Slash command '" + this.slashCommandName + "'")
+      .description("Usage: " + (this.requiresBotMention ? "@BotMention " : "") + this.slashCommandName);
+  }
+
+  @Override
+  protected CommandContext createContextInstance(V4Initiator initiator, V4MessageSent event) {
+    return new CommandContext(initiator, event);
   }
 }
