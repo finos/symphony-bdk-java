@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+}
+
+description = 'Spring Boot Wrapper for the Symphony BDK Core module'
+
+dependencies {
+    api project(':symphony-bdk-core')
+    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
+    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.apiguardian:apiguardian-api'
+
+    api 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+}
+

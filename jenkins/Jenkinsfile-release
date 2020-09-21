@@ -32,7 +32,7 @@ node {
         }
         
         stage('Build project') {
-            cicdUtils.maven({ cmd = "-f pom.xml clean package" })
+            sh './gradlew clean build'
         }
         
         stage('Check jar file') {
@@ -42,13 +42,13 @@ node {
         
         stage('Deploy') {
             sh "gpg --batch --passphrase $PASSPHRASE --import $KEY"    
-        
-            sh 'find . -type f -regex ".*/target/symphony-api-client-java-.*.jar" -exec gpg --batch --passphrase $PASSPHRASE -ab {} \\;'
-            sh 'ls -la ./symphony-bdk-legacy/symphony-api-client-java/target'
+
+            // To remove?
+            // sh 'find . -type f -regex ".*/build/libs/symphony-api-client-java-.*.jar" -exec gpg --batch --passphrase $PASSPHRASE -ab {} \\;'
             sh '''
                 cd ./symphony-bdk-legacy/symphony-api-client-java
-                pwd
-                mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
+                // New version? ./gradlew sign publish
+                // mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
             '''
         }
       }

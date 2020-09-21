@@ -31,7 +31,7 @@ public class BotApplication {
 ```
 
 ## Build from Source
-The Symphony BDK uses a [Maven](https://maven.apache.org/) build. The instructions below use the [Maven Wrapper](https://github.com/takari/maven-wrapper)
+The Symphony BDK uses a [Gradle](https://docs.gradle.org/) build. The instructions below use the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html)
 from the root of the source tree. The wrapper script serves as a cross-platform, self-contained bootstrap mechanism for
 the build system.
 
@@ -42,12 +42,12 @@ Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8+` folde
 ### Build from the Command Line
 To compile, test and build all jars, use:
 ```shell script
-./mvnw clean package
+./gradlew
 ```
 ### Install in local Maven repository
 To install all Symphony BDK jars in your local Maven repository, use:
 ```shell script
-./mvnw clean install
+./gradlew publishToMavenLocal
 ```
 
 ## License
