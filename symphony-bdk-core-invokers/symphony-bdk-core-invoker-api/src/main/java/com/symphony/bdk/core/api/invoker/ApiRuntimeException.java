@@ -3,7 +3,6 @@ package com.symphony.bdk.core.api.invoker;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

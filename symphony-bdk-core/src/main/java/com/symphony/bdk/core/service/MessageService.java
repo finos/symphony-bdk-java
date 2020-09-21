@@ -1,8 +1,6 @@
 package com.symphony.bdk.core.service;
 
 
-import static com.symphony.bdk.core.util.function.SupplierWithApiException.callAndCatchApiException;
-
 import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;

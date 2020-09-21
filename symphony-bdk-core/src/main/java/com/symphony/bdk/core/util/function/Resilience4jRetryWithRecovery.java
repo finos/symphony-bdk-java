@@ -57,10 +57,7 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
   }
 
   /**
-   * Executes the retry mechanism by calling the provided supplier,
-   * executing the potential matching recovery functions and retrying if needed.
-   * @return an object of param type T
-   * @throws Throwable
+   * {@inheritDoc}
    */
   public T execute() throws Throwable {
     return this.retry.executeCheckedSupplier(this::executeOnce);

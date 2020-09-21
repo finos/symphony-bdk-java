@@ -6,8 +6,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
-import com.symphony.bdk.core.util.function.Resilience4jRetryWithRecovery;
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.RetryWithRecovery;
 import com.symphony.bdk.core.util.function.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.DatafeedApi;
@@ -15,12 +13,9 @@ import com.symphony.bdk.gen.api.model.V4Event;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 
 /**
  * A class for implementing the datafeed v1 service.
@@ -109,7 +104,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
         .name("Read Datafeed V1")
         .supplier(this::readAndHandleEvents)
         .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
-        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrServerOrUnauthorizedOrClientError)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrMinorErrorOrClientError)
         .build();
     retry.execute();
   }
