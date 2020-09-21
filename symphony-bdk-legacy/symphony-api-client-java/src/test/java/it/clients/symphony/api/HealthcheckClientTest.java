@@ -12,8 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class HealthcheckClientTest extends BotTest {
   private HealthcheckClient healthCheckClient;
@@ -35,10 +34,18 @@ public class HealthcheckClientTest extends BotTest {
         "\"ceServiceUser\": true\r\n" +
         "}");
 
-    HealthcheckResponse response = healthCheckClient.performHealthCheck();
+    assertNotNull(healthCheckClient);
 
+    final HealthcheckResponse response = healthCheckClient.performHealthCheck();
     assertNotNull(response);
-    assertEquals(true, response.getPodConnectivity());
+
+    assertTrue(response.getPodConnectivity());
+    assertTrue(response.getKeyManagerConnectivity());
+    assertTrue(response.getEncryptDecryptSuccess());
+    assertEquals("1.54.1", response.getPodVersion());
+    assertEquals("2.54.0", response.getAgentVersion());
+    assertTrue(response.getAgentServiceUser());
+    assertTrue(response.getCeServiceUser());
   }
 
   @Test
@@ -54,9 +61,16 @@ public class HealthcheckClientTest extends BotTest {
         "\"unknownField\": \"a value\"\r\n" +
         "}");
 
-    HealthcheckResponse response = healthCheckClient.performHealthCheck();
-
+    final HealthcheckResponse response = healthCheckClient.performHealthCheck();
     assertNotNull(response);
-    assertEquals(true, response.getPodConnectivity());
+
+    assertTrue(response.getPodConnectivity());
+    assertTrue(response.getKeyManagerConnectivity());
+    assertTrue(response.getEncryptDecryptSuccess());
+    assertEquals("1.54.1", response.getPodVersion());
+    assertEquals("2.54.0", response.getAgentVersion());
+    assertTrue(response.getAgentServiceUser());
+    assertTrue(response.getCeServiceUser());
+    //assertEquals("a value", response.get);
   }
 }
