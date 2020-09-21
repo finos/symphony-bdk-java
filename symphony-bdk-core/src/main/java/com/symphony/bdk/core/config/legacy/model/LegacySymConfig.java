@@ -3,13 +3,23 @@ package com.symphony.bdk.core.config.legacy.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+import org.apiguardian.api.API;
 
 import java.io.File;
 import java.util.ArrayList;
 
+/**
+ * Legacy config model.
+ *
+ * <p>
+ *   This class will have to be removed in the future.
+ * </p>
+ */
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Deprecated
+@API(status = API.Status.DEPRECATED)
 public class LegacySymConfig {
 
     private static final int DEFAULT_CONNECTION_TIMEOUT = 10_000;

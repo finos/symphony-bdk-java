@@ -3,6 +3,17 @@ package com.symphony.bdk.core.config.legacy;
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
 import com.symphony.bdk.core.config.model.*;
 
+import org.apiguardian.api.API;
+
+/**
+ * Legacy config mapper.
+ *
+ * <p>
+ *   This class will have to be removed in the future.
+ * </p>
+ */
+@Deprecated
+@API(status = API.Status.DEPRECATED)
 public class LegacyConfigMapper {
 
     public static BdkConfig map(LegacySymConfig legacySymConfig) {

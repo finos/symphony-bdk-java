@@ -101,9 +101,7 @@ public class AuthenticatorFactory {
   private PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
     log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
     try {
-      return this.jwtHelper.parseRsaPrivateKey(
-          IOUtils.toString(loadPrivateKey(privateKeyPath), StandardCharsets.UTF_8)
-      );
+      return this.jwtHelper.parseRsaPrivateKey(loadPrivateKey(privateKeyPath));
     } catch (GeneralSecurityException e) {
       final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
       log.error(message, e);
@@ -115,15 +113,20 @@ public class AuthenticatorFactory {
     }
   }
 
-  private static InputStream loadPrivateKey(String privateKeyPath) throws IOException {
+  private static String loadPrivateKey(String privateKeyPath) throws IOException {
     log.debug("Loading private key from : {}", privateKeyPath);
+    InputStream is;
 
-    // useful when for testing when private key is located into the resources
+    // useful for testing when private key is located into resources
     if (privateKeyPath.startsWith("classpath:")) {
-      log.warn("Warning: Keeping RSA private keys is project resources is dangerous. Please consider another location.");
-      return AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
+      log.warn("Warning: Keeping RSA private keys into project resources is dangerous. "
+          + "You should consider another location for production.");
+      is = AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
+    }
+    else {
+      is = new FileInputStream(privateKeyPath);
     }
 
-    return new FileInputStream(privateKeyPath);
+    return IOUtils.toString(is, StandardCharsets.UTF_8);
   }
 }
