@@ -1,0 +1,17 @@
+bdk:
+  pod:
+    scheme: http
+    host: localhost
+
+  agent:
+    scheme: http
+    host: localhost
+
+  keyManager:
+    scheme: http
+    host: localhost
+
+  bot:
+    username: tibot
+    privateKeyPath: classpath:/privatekey.pem
+

@@ -1,4 +1,4 @@
-# Java Maven CircleCI 2.0 configuration file
+# Java Gradle CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-java/ for more details
 #
@@ -6,66 +6,42 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: maven:3.6-amazoncorretto-8
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+      - image: cimg/openjdk:8.0
 
     working_directory: ~/repo
 
     environment:
-      # Customize the JVM maximum heap limit
-      MAVEN_OPTS: -Xmx3200m
 
     steps:
       - checkout
 
-      # Download and cache dependencies
+      - restore_cache:
+          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "pom.xml" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: mvn compile dependency:go-offline
-
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v1-dependencies-{{ checksum "pom.xml" }}
-
-      # run tests!
+            # when lock file changes, use increasingly general patterns to restore cache
+            - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle" }}
+            - gradle-repo-v1-{{ .Branch }}-
+            - gradle-repo-v1-
+          # run tests!
       - run:
-          name: Verify BDK 2.0
-          command: mvn verify -P2.0
-
-      - run:
-          name: Verify legacy projects
-          command: mvn verify -Plegacy
+          name: Build
+          # Jacoco does not support incremental build so we don't run it automatically with check
+          command: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
 
       - run:
           name: Save test results
           command: |
             mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
           when: always
 
       - run:
-          name: Save code coverage BDK 2.0
+          name: Save code coverage
           command: |
-            mkdir -p ~/code-coverage/jacoco/symphony-bdk-core/
-            find . -type f -regex ".*/symphony-bdk-core/target/jacoco.exec" -exec cp {} ~/code-coverage/jacoco/symphony-bdk-core/ \;
-            find . -type d -regex ".*/symphony-bdk-core/target/jacoco-report" -exec cp -r {} ~/code-coverage/jacoco/symphony-bdk-core/ \;
-
-      - run:
-          name: Save code coverage Legacy SDK
-          command: |
-            mkdir -p ~/code-coverage/jacoco/symphony-api-client-java/
-            find . -type f -regex ".*/symphony-api-client-java/target/jacoco.exec" -exec cp {} ~/code-coverage/jacoco/symphony-api-client-java/ \;
-            find . -type d -regex ".*/symphony-api-client-java/target/jacoco-report" -exec cp -r {} ~/code-coverage/jacoco/symphony-api-client-java/ \;
+            mkdir -p ~/code-coverage/jacoco/
+            find . -type d -regex ".*/build/reports/jacoco/test/html" -exec cp --parents -r {} ~/code-coverage/jacoco/ \;
+          when: always
 
       - store_test_results:
           path: ~/test-results
@@ -76,3 +52,11 @@ jobs:
       - store_artifacts:
           path: ~/code-coverage/jacoco
 
+      - save_cache:
+          paths:
+            - ~/.gradle/wrapper
+          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle" }}
