@@ -37,7 +37,7 @@ public class ApiClientFactory {
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
   public ApiClientFactory(@Nonnull BdkConfig config) {
-    this(config, ProviderLoader.findApiClientBuilderProvider());
+    this(config, ProviderLoader.lookupSingleService(ApiClientBuilderProvider.class));
   }
 
   public ApiClientFactory(@Nonnull BdkConfig config, @Nonnull ApiClientBuilderProvider apiClientBuilderProvider) {

@@ -1,11 +1,11 @@
 package com.symphony.bdk.http.api;
 
+import com.symphony.bdk.http.api.util.GenericClass;
+
 import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.Map;
-
-import javax.ws.rs.core.GenericType;
 
 /**
  * Interface used to perform HTTP requests performed by the generated Swagger code.
@@ -42,7 +42,7 @@ public interface ApiClient {
       String accept,
       String contentType,
       String[] authNames,
-      GenericType<T> returnType
+      GenericClass<T> returnType
   ) throws ApiException;
 
   /**

@@ -2,13 +2,16 @@ package com.symphony.bdk.examples;
 
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
-import com.symphony.bdk.core.HttpClient;
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.util.ProviderLoader;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.HttpClient;
+import com.symphony.bdk.http.api.util.GenericClass;
 
 import org.apache.commons.io.IOUtils;
 
@@ -17,8 +20,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
-
-import javax.ws.rs.core.GenericType;
 
 public class HttpClientExampleMain {
 
@@ -35,10 +36,10 @@ public class HttpClientExampleMain {
     req.setToken(jwt);
 
     Token
-        token = HttpClient.builder()
+        token = HttpClient.builder(ProviderLoader.lookupSingleService(ApiClientBuilderProvider.class))
         .path("https://devx1.symphony.com/login/pubkey/authenticate")
         .body(req)
-        .post(new GenericType<Token>() {});
+        .post(new GenericClass<Token>() {});
     System.out.println(token);
   }
 }

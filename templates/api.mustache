@@ -4,8 +4,7 @@ import {{invokerPackage}}.ApiException;
 import {{invokerPackage}}.ApiClient;
 import {{invokerPackage}}.ApiResponse;
 import {{invokerPackage}}.Pair;
-
-import javax.ws.rs.core.GenericType; // TODO remove this
+import {{invokerPackage}}.util.GenericClass;
 
 {{#imports}}
 import {{import}};
@@ -150,7 +149,7 @@ public class {{classname}} {
     String[] localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
 
     {{#returnType}}
-    GenericType<{{{returnType}}}> localVarReturnType = new GenericType<{{{returnType}}}>() {};
+    GenericClass<{{{returnType}}}> localVarReturnType = new GenericClass<{{{returnType}}}>() {};
 
     {{/returnType}}
     return apiClient.invokeAPI(localVarPath, "{{httpMethod}}", localVarQueryParams, localVarPostBody,

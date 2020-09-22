@@ -1,43 +1,36 @@
 package com.symphony.bdk.core.util;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiClientBuilderProvider;
-
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
-import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-@API(status = API.Status.INTERNAL)
 @Slf4j
 @Generated
 public class ProviderLoader {
 
   /**
-   * Load {@link ApiClient} implementation class using {@link ServiceLoader}.
+   * Load a service implementation class using {@link ServiceLoader}.
    *
-   * @return an {@link ApiClientBuilderProvider}.
+   * @return a service implementation class.
    */
-  public static ApiClientBuilderProvider findApiClientBuilderProvider() {
+  public static <T> T lookupSingleService(Class<T> clz) {
 
-    final ServiceLoader<ApiClientBuilderProvider> apiClientServiceLoader =
-        ServiceLoader.load(ApiClientBuilderProvider.class);
+    final ServiceLoader<T> classServiceLoader = ServiceLoader.load(clz);
 
-    final List<ApiClientBuilderProvider> apiClientProviders =
-        StreamSupport.stream(apiClientServiceLoader.spliterator(), false)
+    final List<T> services = StreamSupport.stream(classServiceLoader.spliterator(), false)
             .collect(Collectors.toList());
 
-    if (apiClientProviders.isEmpty()) {
-      throw new IllegalStateException("No ApiClientProvider implementation found in classpath.");
-    } else if (apiClientProviders.size() > 1) {
-      log.warn("More than 1 ApiClientProvider implementation found in classpath, will use : {}",
-          apiClientProviders.stream().findFirst().get());
+    if (services.isEmpty()) {
+      throw new IllegalStateException("No service implementation found in classpath.");
+    } else if (services.size() > 1) {
+      log.warn("More than 1 service implementation found in classpath, will use : {}",
+          services.stream().findFirst().get());
     }
 
-    return apiClientProviders.stream().findFirst().get();
+    return services.stream().findFirst().get();
   }
 }

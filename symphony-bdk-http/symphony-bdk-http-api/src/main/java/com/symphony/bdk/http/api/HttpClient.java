@@ -1,38 +1,19 @@
-package com.symphony.bdk.core;
+package com.symphony.bdk.http.api;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiClientBuilder;
-import com.symphony.bdk.http.api.ApiClientBuilderProvider;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiResponse;
-import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.core.util.ProviderLoader;
+import com.symphony.bdk.http.api.util.GenericClass;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.GenericType;
-
-@Slf4j
 public class HttpClient {
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  protected HttpClient() {
-
+  public static Builder builder(ApiClientBuilderProvider provider) {
+    return new Builder(provider);
   }
 
   public static class Builder {
-
     private ApiClientBuilderProvider provider;
     private final Map<String, String> headers = new HashMap<>();
     private final Map<String, String> cookies = new HashMap<>();
@@ -43,13 +24,13 @@ public class HttpClient {
     private Object body;
     private String accept = "";
     private String contentType = "";
-    private String keyStorePath = "";
+    private byte[] keyStore = null;
     private String keyStorePassword = "";
-    private String trustStorePath = "";
+    private byte[] trustStore = null;
     private String trustStorePassword = "";
 
-    protected Builder() {
-      this.provider = ProviderLoader.findApiClientBuilderProvider();
+    protected Builder(ApiClientBuilderProvider provider) {
+      this.provider = provider;
     }
 
     public Builder basePath(String basePath) {
@@ -97,14 +78,14 @@ public class HttpClient {
       return this;
     }
 
-    public Builder keyStore(String keyStorePath, String keyStorePassword) {
-      this.keyStorePath = keyStorePath;
+    public Builder keyStore(byte[] keyStore, String keyStorePassword) {
+      this.keyStore = keyStore;
       this.keyStorePassword = keyStorePassword;
       return this;
     }
 
-    public Builder trustStore(String trustStorePath, String trustStorePassword) {
-      this.trustStorePath = trustStorePath;
+    public Builder trustStore(byte[] trustStore, String trustStorePassword) {
+      this.trustStore = trustStore;
       this.trustStorePassword = trustStorePassword;
       return this;
     }
@@ -114,15 +95,15 @@ public class HttpClient {
       return this;
     }
 
-    public <T> T method(String method, GenericType<T> type) throws ApiException, IOException {
+    public <T> T method(String method, GenericClass<T> type) throws ApiException {
       ApiClientBuilder builder = provider.newInstance();
       builder.withBasePath(this.basePath);
 
-      if (!"".equals(this.keyStorePath)) {
-          builder.withKeyStore(Files.readAllBytes(new File(this.keyStorePath).toPath()), this.keyStorePassword);
+      if (this.keyStore != null) {
+        builder.withKeyStore(this.keyStore, this.keyStorePassword);
       }
-      if (!"".equals(this.trustStorePath)) {
-        builder.withTrustStore(Files.readAllBytes(new File(this.trustStorePath).toPath()), this.trustStorePassword);
+      if (this.trustStore != null) {
+        builder.withTrustStore(this.trustStore, this.trustStorePassword);
       }
 
       if (contentType.equals("")) {
@@ -135,15 +116,15 @@ public class HttpClient {
       return apiResponse.getData();
     }
 
-    public <T> T get(GenericType<T> type) throws ApiException, IOException {
+    public <T> T get(GenericClass<T> type) throws ApiException {
       return this.method("GET", type);
     }
 
-    public <T> T post(GenericType<T> type) throws ApiException, IOException {
+    public <T> T post(GenericClass<T> type) throws ApiException {
       return this.method("POST", type);
     }
 
-    public <T> T delete(GenericType<T> type) throws ApiException, IOException {
+    public <T> T delete(GenericClass<T> type) throws ApiException {
       return this.method("DELETE", type);
     }
   }

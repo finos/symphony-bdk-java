@@ -17,7 +17,5 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
-
-    implementation 'org.glassfish.jersey.media:jersey-media-json-jackson'
 }
 

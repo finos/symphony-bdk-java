@@ -5,6 +5,8 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
 
+import com.symphony.bdk.http.api.util.GenericClass;
+
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -69,7 +71,7 @@ public class ApiClientJersey2 implements ApiClient {
       final String accept,
       final String contentType,
       final String[] authNames,
-      final GenericType<T> returnType
+      final GenericClass<T> returnType
   ) throws ApiException {
 
     // Not using `.target(this.basePath).path(path)` below,
@@ -138,13 +140,18 @@ public class ApiClientJersey2 implements ApiClient {
       int statusCode = response.getStatusInfo().getStatusCode();
       Map<String, List<String>> responseHeaders = buildResponseHeaders(response);
 
+      GenericType<T> genericReturnType = null;
+      if (returnType != null) {
+        genericReturnType = new GenericType<>(returnType.getType());
+      }
+
       if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
         return new ApiResponse<>(statusCode, responseHeaders);
       } else if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
-        if (returnType == null) {
+        if (genericReturnType == null) {
           return new ApiResponse<>(statusCode, responseHeaders);
         } else {
-          return new ApiResponse<>(statusCode, responseHeaders, deserialize(response, returnType));
+          return new ApiResponse<>(statusCode, responseHeaders, deserialize(response, genericReturnType));
         }
       } else {
         String message = "error";
