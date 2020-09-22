@@ -1,8 +1,10 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;

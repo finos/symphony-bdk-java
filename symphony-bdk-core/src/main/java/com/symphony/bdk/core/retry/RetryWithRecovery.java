@@ -33,22 +33,18 @@ public abstract class RetryWithRecovery<T> {
    * It retries on the conditions defined by {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}
    * and refreshes the authSession if we get an unauthorized error.
    *
+   * @param baseRetryBuilder the {@link RetryWithRecoveryBuilder} containing the base settings for the retry mechanism.
    * @param name the name of the retry, can be any string but should specific to the function neing retried.
    * @param supplier the supplier returning the desired object which may fail with an exception.
-   * @param retryConfig the retry configuration to be used. So far, only exponentional backoff is supported.
-   * @param authSession the session to the refreshed on unauthorized errors.
    * @param <T> the type of the object to be returned by the supplier.
    * @return the object returned by the supplier
    * @throws ApiRuntimeException if a non-handled {@link ApiException} thrown or if the max number of retries has been reached.
    * @throws RuntimeException if any other exception thrown.
    */
-  public static <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, BdkRetryConfig retryConfig,
-      AuthSession authSession) {
-    RetryWithRecovery<T> retry = new RetryWithRecoveryBuilder<T>()
+  public static <T> T executeAndRetry(RetryWithRecoveryBuilder baseRetryBuilder, String name, SupplierWithApiException<T> supplier) {
+    RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
         .supplier(supplier)
-        .retryConfig(retryConfig)
-        .recoveryStrategy(e -> e.isUnauthorized(), () -> authSession.refresh())
         .build();
 
     try {

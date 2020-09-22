@@ -1,9 +1,12 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
@@ -44,12 +47,16 @@ class ServiceFactory {
   private final ApiClient agentClient;
   private final AuthSession authSession;
   private final BdkConfig config;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.authSession = authSession;
     this.config = config;
+    this.retryBuilder = new RetryWithRecoveryBuilder<>()
+        .retryConfig(config.getRetry())
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   /**
@@ -58,7 +65,7 @@ class ServiceFactory {
    * @return an new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession, config.getRetry());
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession, retryBuilder);
   }
 
   /**
@@ -67,7 +74,7 @@ class ServiceFactory {
    * @return an new {@link StreamService} instance.
    */
   public StreamService getStreamService() {
-    return new StreamService(new StreamsApi(podClient), authSession, config.getRetry());
+    return new StreamService(new StreamsApi(podClient), authSession, retryBuilder);
   }
 
   /**
@@ -76,7 +83,7 @@ class ServiceFactory {
    * @return an new {@link SessionService} instance.
    */
   public SessionService getSessionService() {
-    return new SessionService(new SessionApi(podClient), config.getRetry());
+    return new SessionService(new SessionApi(podClient), retryBuilder);
   }
 
   /**
@@ -97,8 +104,8 @@ class ServiceFactory {
    * @return an new {@link MessageService} instance.
    */
   public MessageService getMessageService() {
-    return new MessageService(new MessagesApi(this.agentClient), new MessageApi(this.podClient),
-        new MessageSuppressionApi(this.podClient), new StreamsApi(this.podClient), new PodApi(this.podClient),
-        new AttachmentsApi(this.agentClient), new DefaultApi(this.podClient), this.authSession, this.config.getRetry());
+    return new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
+        new MessageSuppressionApi(podClient), new StreamsApi(podClient), new PodApi(podClient),
+        new AttachmentsApi(agentClient), new DefaultApi(podClient), authSession, retryBuilder);
   }
 }

@@ -1,8 +1,10 @@
 package com.symphony.bdk.core.service.stream;
 
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
@@ -14,11 +16,11 @@ import java.util.List;
 class OboStreamService {
 
   protected final StreamsApi streamsApi;
-  protected final BdkRetryConfig retryConfig;
+  protected final RetryWithRecoveryBuilder retryBuilder;
 
-  protected OboStreamService(StreamsApi streamsApi, BdkRetryConfig retryConfig) {
+  protected OboStreamService(StreamsApi streamsApi, RetryWithRecoveryBuilder retryBuilder) {
     this.streamsApi = streamsApi;
-    this.retryConfig = retryConfig;
+    this.retryBuilder = retryBuilder;
   }
 
   /**
@@ -48,6 +50,9 @@ class OboStreamService {
   }
 
   protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, AuthSession authSession) {
-    return RetryWithRecovery.executeAndRetry(name, supplier, retryConfig, authSession);
+    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }

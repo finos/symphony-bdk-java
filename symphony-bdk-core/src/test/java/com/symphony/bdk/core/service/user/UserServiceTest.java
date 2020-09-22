@@ -15,6 +15,7 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
@@ -81,7 +82,7 @@ class UserServiceTest {
     this.spiedUserApi = spy(userApi);
     UsersApi usersApi = new UsersApi(podClient);
     this.spiedUsersApi = spy(usersApi);
-    this.service = new UserService(this.spiedUserApi, this.spiedUsersApi, authSession, new BdkRetryConfig());
+    this.service = new UserService(this.spiedUserApi, this.spiedUsersApi, authSession, new RetryWithRecoveryBuilder());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");

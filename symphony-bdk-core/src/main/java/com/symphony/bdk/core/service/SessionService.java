@@ -1,8 +1,11 @@
 package com.symphony.bdk.core.service;
 
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 
@@ -17,7 +20,7 @@ import org.apiguardian.api.API;
 public class SessionService {
 
   private final SessionApi sessionApi;
-  private final BdkRetryConfig retryConfig;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
   /**
    * Retrieves the {@link UserV2} session from the pod using an {@link AuthSession} holder.
@@ -26,7 +29,14 @@ public class SessionService {
    * @return Bot session info.
    */
   public UserV2 getSession(AuthSession authSession) {
-    return RetryWithRecovery.executeAndRetry("getSession",
-        () -> sessionApi.v2SessioninfoGet(authSession.getSessionToken()), retryConfig, authSession);
+    return executeAndRetry("getSession",
+        () -> sessionApi.v2SessioninfoGet(authSession.getSessionToken()), authSession);
+  }
+
+  protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, AuthSession authSession) {
+    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }

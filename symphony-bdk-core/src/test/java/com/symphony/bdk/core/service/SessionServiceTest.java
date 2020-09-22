@@ -9,6 +9,7 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 
@@ -41,7 +42,7 @@ class SessionServiceTest {
     retryConfig.setMultiplier(1);
     retryConfig.setInitialIntervalMillis(10);
 
-    this.service = new SessionService(this.sessionApi, retryConfig);
+    this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder().retryConfig(retryConfig));
   }
 
   @Test

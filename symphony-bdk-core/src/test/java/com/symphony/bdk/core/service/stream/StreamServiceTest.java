@@ -9,6 +9,7 @@ import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.core.test.JsonHelper;
@@ -59,7 +60,7 @@ public class StreamServiceTest {
     this.mockApiClient = new MockApiClient();
     AuthSession authSession = mock(AuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
-    this.service = new StreamService(new StreamsApi(podClient), authSession, new BdkRetryConfig());
+    this.service = new StreamService(new StreamsApi(podClient), authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");

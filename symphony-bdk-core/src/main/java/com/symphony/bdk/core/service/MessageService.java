@@ -3,11 +3,11 @@ package com.symphony.bdk.core.service;
 
 import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
@@ -56,27 +56,25 @@ public class MessageService {
   private final DefaultApi defaultApi;
   private final AuthSession authSession;
   private final TemplateResolver templateResolver;
-  private final BdkRetryConfig retryConfig;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
   public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, BdkRetryConfig retryConfig) {
+      AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
     this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
-        new TemplateResolver(), retryConfig);
+        new TemplateResolver(), retryBuilder);
   }
 
   public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession,
-      TemplateEngine templateEngine, BdkRetryConfig retryConfig) {
+      AuthSession authSession, TemplateEngine templateEngine, RetryWithRecoveryBuilder retryBuilder) {
     this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
-        new TemplateResolver(templateEngine), retryConfig);
+        new TemplateResolver(templateEngine), retryBuilder);
   }
 
   private MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession,
-      TemplateResolver templateResolver, BdkRetryConfig retryConfig) {
+      AuthSession authSession, TemplateResolver templateResolver, RetryWithRecoveryBuilder retryBuilder) {
     this.messagesApi = messagesApi;
     this.messageApi = messageApi;
     this.messageSuppressionApi = messageSuppressionApi;
@@ -86,7 +84,7 @@ public class MessageService {
     this.authSession = authSession;
     this.templateResolver = templateResolver;
     this.defaultApi = defaultApi;
-    this.retryConfig = retryConfig;
+    this.retryBuilder = retryBuilder;
   }
 
   /**
@@ -380,6 +378,6 @@ public class MessageService {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(name, supplier, retryConfig, authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

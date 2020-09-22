@@ -82,9 +82,10 @@ public class RetryWithRecoveryBuilder<T> {
    * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}.
    */
   public RetryWithRecoveryBuilder() {
-    this.ignoreException = (e) -> false;
-    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrMinorError;
     this.recoveryStrategies = new HashMap<>();
+    this.ignoreException = e -> false;
+    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrMinorError;
+    this.retryConfig = new BdkRetryConfig();
   }
 
   /**
@@ -155,6 +156,11 @@ public class RetryWithRecoveryBuilder<T> {
    */
   public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition, ConsumerWithThrowable recovery) {
     this.recoveryStrategies.put(condition, recovery);
+    return this;
+  }
+
+  public RetryWithRecoveryBuilder<T> clearRecoveryStrategies() {
+    this.recoveryStrategies.clear();
     return this;
   }
 

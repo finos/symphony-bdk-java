@@ -1,7 +1,8 @@
 package com.symphony.bdk.core.service.user;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
@@ -52,8 +53,8 @@ public class UserService extends OboUserService {
 
   private final AuthSession authSession;
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession, BdkRetryConfig retryConfig) {
-    super(userApi, usersApi, retryConfig);
+  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
+    super(userApi, usersApi, retryBuilder);
     this.authSession = authSession;
   }
 
@@ -358,6 +359,6 @@ public class UserService extends OboUserService {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return executeAndRetry(name, supplier, authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

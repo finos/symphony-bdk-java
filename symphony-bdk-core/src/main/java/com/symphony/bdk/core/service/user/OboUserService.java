@@ -1,8 +1,9 @@
 package com.symphony.bdk.core.service.user;
 
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -22,12 +23,12 @@ class OboUserService {
 
   protected final UserApi userApi;
   protected final UsersApi usersApi;
-  protected final BdkRetryConfig retryConfig;
+  protected final RetryWithRecoveryBuilder retryBuilder;
 
-  protected OboUserService(UserApi userApi, UsersApi usersApi, BdkRetryConfig retryConfig) {
+  protected OboUserService(UserApi userApi, UsersApi usersApi, RetryWithRecoveryBuilder retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
-    this.retryConfig = retryConfig;
+    this.retryBuilder = retryBuilder;
   }
 
   /**
@@ -132,6 +133,9 @@ class OboUserService {
   }
 
   protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, AuthSession authSession) {
-    return RetryWithRecovery.executeAndRetry(name, supplier, retryConfig, authSession);
+    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }

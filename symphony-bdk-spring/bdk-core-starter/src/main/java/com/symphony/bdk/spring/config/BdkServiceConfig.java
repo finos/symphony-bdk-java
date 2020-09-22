@@ -1,7 +1,9 @@
 package com.symphony.bdk.spring.config;
 
+import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
@@ -29,7 +31,11 @@ public class BdkServiceConfig {
   public MessageService messageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi, AuthSession botSession,
       BdkConfig config) {
+    final RetryWithRecoveryBuilder<Object> retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+        .retryConfig(config.getRetry())
+        .recoveryStrategy(ApiException::isUnauthorized, botSession::refresh);
+
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, botSession, config.getRetry());
+        defaultApi, botSession, retryWithRecoveryBuilder);
   }
 }

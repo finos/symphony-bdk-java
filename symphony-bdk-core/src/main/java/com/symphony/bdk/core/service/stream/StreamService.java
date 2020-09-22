@@ -4,6 +4,8 @@ import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.StreamsApi;
@@ -44,8 +46,8 @@ public class StreamService extends OboStreamService {
 
   private final AuthSession authSession;
 
-  public StreamService(StreamsApi streamsApi, AuthSession authSession, BdkRetryConfig retryConfig) {
-    super(streamsApi, retryConfig);
+  public StreamService(StreamsApi streamsApi, AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
+    super(streamsApi, retryBuilder);
     this.authSession = authSession;
   }
 
@@ -247,6 +249,6 @@ public class StreamService extends OboStreamService {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return executeAndRetry(name, supplier, authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }
