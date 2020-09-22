@@ -13,7 +13,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore
 public class SymExtensionAppRSAAuthTest extends BotTest {
 
   private SymExtensionAppRSAAuth symExtensionAppRSAAuth;
