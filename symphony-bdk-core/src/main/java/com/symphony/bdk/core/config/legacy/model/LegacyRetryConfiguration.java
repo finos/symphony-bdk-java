@@ -7,6 +7,10 @@ import org.apiguardian.api.API;
 
 /**
  * Sub-configuration class for Retry parametrization. Experimental, the contract might change in the future.
+ *
+ * <p>
+ *   This class will have to be removed in the future.
+ * </p>
  */
 @ToString
 @Getter @Setter

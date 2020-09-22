@@ -1,11 +1,11 @@
 package com.symphony.bdk.examples.activity;
 
+import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.activity.command.SlashCommand;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 
 import lombok.SneakyThrows;
@@ -46,7 +46,7 @@ public class GifActivityMain {
     bdk.activities().register(new GifCommand());
 
     // displays the Gif form on /gif command with no params
-    bdk.activities().register(new SlashCommand("/gif", true, context ->
+    bdk.activities().register(slash("/gif", true, context ->
         // send message contains Elements form to select a gif category
         bdk.messages().send(context.getStreamId(), loadGifElementsForm())
     ));
@@ -71,9 +71,9 @@ public class GifActivityMain {
     log.info("-- ACTIVITIES REPORT --");
     for (ActivityInfo info : infos) {
       log.info("--");
-      log.info("TYPE: {}", info.getType());
-      log.info("NAME: {}", info.getName());
-      log.info("DESC: {}", info.getDescription());
+      log.info("TYPE: {}", info.type());
+      log.info("NAME: {}", info.name());
+      log.info("DESC: {}", info.description());
     }
     log.info("--");
   }

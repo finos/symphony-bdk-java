@@ -1,0 +1,116 @@
+plugins {
+    // beta version provides incremental build support
+    id "org.openapi.generator" version "5.0.0-beta2"
+    id "de.undercouch.download" version "4.1.1"
+}
+
+description = 'Symphony Java BDK Core'
+
+javadoc {
+    options.group 'Core - Configuration', 'com.symphony.bdk.core.config*'
+    options.group 'Core - Authentication', 'com.symphony.bdk.core.auth*'
+    options.group 'Core - Service', 'com.symphony.bdk.core.service*'
+    options.group 'Core - Activity', 'com.symphony.bdk.core.activity*'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+            excludes = ['com.symphony.bdk.core.*.model.*', 'com.symphony.bdk.gen.api.*',]
+        }
+    }
+}
+
+dependencies {
+    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
+    implementation project(':symphony-bdk-template:symphony-bdk-template-api')
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.mapstruct:mapstruct:1.3.1.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
+
+    implementation 'org.apiguardian:apiguardian-api'
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'commons-io:commons-io'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'com.brsanthu:migbase64'
+    implementation 'io.jsonwebtoken:jjwt'
+    implementation 'org.bouncycastle:bcpkix-jdk15on'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    implementation 'io.github.resilience4j:resilience4j-retry'
+    implementation 'io.swagger:swagger-annotations'
+    implementation 'com.google.code.findbugs:jsr305'
+    implementation 'org.glassfish.jersey.core:jersey-client'
+
+    testImplementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+    testRuntimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic'
+    testImplementation 'org.mock-server:mockserver-netty'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+}
+
+// OpenAPI code generation
+def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/master"
+def generatedFolder = "$buildDir/generated/openapi"
+def apisToGenerate = [
+        Agent: 'agent/agent-api-public.yaml',
+        Pod  : 'pod/pod-api-public-deprecated.yaml',
+        Auth : 'authenticator/authenticator-api-public.yaml',
+        Login: 'login/login-api-public.yaml',
+]
+
+sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
+
+apisToGenerate.each { api, path ->
+    def downloadTask = tasks.create(name: "download$api", type: Download) {
+        src "$apiBaseUrl/$path"
+        dest "$buildDir"
+        overwrite false
+    }
+
+    def generateTask = tasks.create(name: "generate$api",
+            type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask,
+            dependsOn: downloadTask) {
+        generatorName = 'java'
+        library = 'jersey2'
+        outputDir = generatedFolder
+        inputSpec = "$buildDir/${path.split("/")[1]}"
+        skipOverwrite = true
+        generateApiTests = false
+        generateModelTests = false
+        generateModelDocumentation = false
+        generateApiDocumentation = false
+        apiPackage = 'com.symphony.bdk.gen.api'
+        modelPackage = 'com.symphony.bdk.gen.api.model'
+        invokerPackage = 'com.symphony.bdk.core.api.invoker'
+        templateDir = "${rootDir}/templates"
+        globalProperties = [
+                models         : "",
+                apis           : "",
+                supportingFiles: "false"
+        ]
+        configOptions = [
+                dateLibrary: "java8"
+        ]
+    }
+
+    compileJava.dependsOn generateTask
+}
+
+// Duplicated AuthRequest class, we need the one from auth API, so task order matters here
+tasks.generateAuth.dependsOn tasks.generateLogin

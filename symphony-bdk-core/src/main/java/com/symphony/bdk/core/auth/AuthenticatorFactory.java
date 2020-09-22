@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
@@ -15,6 +16,7 @@ import org.apiguardian.api.API;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -47,7 +49,8 @@ public class AuthenticatorFactory {
    *
    * @return a new {@link BotAuthenticator} instance.
    */
-  public @Nonnull BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
+  public @Nonnull
+  BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
     if (this.config.getBot().isCertificateAuthenticationConfigured()) {
       return new BotAuthenticatorCertImpl(
           this.apiClientFactory.getSessionAuthClient(),
@@ -67,7 +70,8 @@ public class AuthenticatorFactory {
    *
    * @return a new {@link OboAuthenticator} instance.
    */
-  public @Nonnull OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
+  public @Nonnull
+  OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
     if (this.config.getApp().isCertificateAuthenticationConfigured()) {
       return new OboAuthenticatorCertImpl(
           this.config.getApp().getAppId(),
@@ -81,10 +85,23 @@ public class AuthenticatorFactory {
     );
   }
 
+  /**
+   * Creates a new instance of an {@link ExtensionAppAuthenticator} service.
+   *
+   * @return a new {@link ExtensionAppAuthenticator} instance.
+   */
+  public @Nonnull ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
+    return new ExtensionAppAuthenticatorRsaImpl(
+        this.config.getApp().getAppId(),
+        this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
+        this.apiClientFactory.getLoginClient()
+    );
+  }
+
   private PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
     log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
     try {
-      return this.jwtHelper.parseRsaPrivateKey(IOUtils.toString(new FileInputStream(privateKeyPath), StandardCharsets.UTF_8));
+      return this.jwtHelper.parseRsaPrivateKey(loadPrivateKey(privateKeyPath));
     } catch (GeneralSecurityException e) {
       final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
       log.error(message, e);
@@ -94,5 +111,22 @@ public class AuthenticatorFactory {
       log.error(message, e);
       throw new AuthInitializationException(message, e);
     }
+  }
+
+  private static String loadPrivateKey(String privateKeyPath) throws IOException {
+    log.debug("Loading private key from : {}", privateKeyPath);
+    InputStream is;
+
+    // useful for testing when private key is located into resources
+    if (privateKeyPath.startsWith("classpath:")) {
+      log.warn("Warning: Keeping RSA private keys into project resources is dangerous. "
+          + "You should consider another location for production.");
+      is = AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
+    }
+    else {
+      is = new FileInputStream(privateKeyPath);
+    }
+
+    return IOUtils.toString(is, StandardCharsets.UTF_8);
   }
 }

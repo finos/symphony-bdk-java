@@ -1,0 +1,17 @@
+plugins {
+    id 'org.springframework.boot' version "2.3.3.RELEASE"
+}
+
+description = 'Symphony Java BDK Examples for the SpringBoot integration'
+
+dependencies {
+
+    implementation project(':symphony-bdk-spring:bdk-core-starter')
+
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+

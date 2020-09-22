@@ -14,7 +14,7 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     // Create BDK entry point
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
     // Access to the registry for activities
     final ActivityRegistry registry = bdk.activities();
   }
@@ -45,7 +45,7 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     // setup SymphonyBdk facade object
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
     // register Hello Command within the registry
     bdk.activities().register(new HelloCommandActivity());
     // finally, start the datafeed loop
@@ -94,11 +94,11 @@ public class Example {
   public static void main(String[] args) throws Exception {
 
     // setup SymphonyBdk facade object
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 
-    bdk.activities().register(new SlashCommand("/hello",    // (1)
-                                               true,        // (2)
-                                               context -> { // (3)
+    bdk.activities().register(SlashCommand.slash("/hello",    // (1)
+                                                 true,        // (2)
+                                                 context -> { // (3)
 
       log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));
@@ -140,7 +140,7 @@ public class Example {
 
   public static void main(String[] args) throws Exception {
     // setup SymphonyBdk facade object
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
     // register Hello FormReply Activity within the registry
     bdk.activities().register(new HelloFormReplyActivity(bdk.messages()));
     // finally, start the datafeed loop
