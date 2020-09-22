@@ -1,4 +1,4 @@
-# BDK2.0 SpringBoot Starter
+# BDK2.0 Core SpringBoot Starter
 The Symphony BDK2.0 SpringBoot Starter is (for now) still an experimental project. 
 The development team has decided to create this module as earlier than possible in the development process in order 
 to observe `Core`'s modification impacts and side effects on this module.
