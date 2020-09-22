@@ -35,7 +35,6 @@ public class SessionService {
 
   protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, AuthSession authSession) {
     final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies() // to remove refresh on bot session put by default
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
     return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }

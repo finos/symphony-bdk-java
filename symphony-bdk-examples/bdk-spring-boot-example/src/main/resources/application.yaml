@@ -2,14 +2,21 @@ domain: devx1.symphony.com
 
 bdk:
   pod:
+    scheme: https
     host: ${domain}
 
   agent:
+    scheme: https
     host: ${domain}
 
   keyManager:
+    scheme: https
     host: ${domain}
 
   bot:
     username: tibot
     privateKeyPath: ${user.home}/local/conf/agent/privateKey.pem
+
+logging:
+  level:
+    com.symphony: debug

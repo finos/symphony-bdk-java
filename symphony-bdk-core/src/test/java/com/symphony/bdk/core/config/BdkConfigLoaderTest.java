@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -125,6 +126,7 @@ public class BdkConfigLoaderTest {
 
       final String tmpConfigFileName = UUID.randomUUID().toString() + "-config.yaml";
       final Path tmpConfigPath = Paths.get(System.getProperty("user.home"), ".symphony", tmpConfigFileName);
+      FileUtils.forceMkdirParent(tmpConfigPath.toFile());
       final InputStream configInputStream = this.getClass().getResourceAsStream("/config/config.yaml");
       IOUtils.copy(configInputStream, new FileOutputStream(tmpConfigPath.toFile()));
 

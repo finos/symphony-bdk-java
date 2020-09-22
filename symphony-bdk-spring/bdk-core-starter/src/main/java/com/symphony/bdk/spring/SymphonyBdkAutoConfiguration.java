@@ -1,5 +1,6 @@
 package com.symphony.bdk.spring;
 
+import com.symphony.bdk.spring.config.BdkActivityConfig;
 import com.symphony.bdk.spring.config.BdkApiClientsConfig;
 import com.symphony.bdk.spring.config.BdkCoreConfig;
 import com.symphony.bdk.spring.config.BdkDatafeedConfig;
@@ -15,7 +16,8 @@ import org.springframework.context.annotation.Import;
     BdkCoreConfig.class,
     BdkApiClientsConfig.class,
     BdkDatafeedConfig.class,
-    BdkServiceConfig.class
+    BdkServiceConfig.class,
+    BdkActivityConfig.class
 })
 @EnableConfigurationProperties(SymphonyBdkCoreProperties.class)
 public class SymphonyBdkAutoConfiguration {}

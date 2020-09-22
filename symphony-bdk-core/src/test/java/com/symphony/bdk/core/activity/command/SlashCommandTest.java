@@ -26,7 +26,7 @@ class SlashCommandTest {
 
   @Test
   void testIllegalSlashCommandCreation() {
-    assertThrows(IllegalArgumentException.class, () -> new SlashCommand("", c -> {}));
+    assertThrows(IllegalArgumentException.class, () -> SlashCommand.slash("", c -> {}));
   }
 
   @Test
@@ -36,7 +36,7 @@ class SlashCommandTest {
     final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    final SlashCommand cmd = new SlashCommand("/test", handler);
+    final SlashCommand cmd = SlashCommand.slash("/test", handler);
     cmd.setBotDisplayName("BotMention");
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
@@ -51,7 +51,7 @@ class SlashCommandTest {
     final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    final SlashCommand cmd = new SlashCommand("/test", false, handler);
+    final SlashCommand cmd = SlashCommand.slash("/test", false, handler);
     cmd.setBotDisplayName("BotMention");
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
@@ -66,7 +66,7 @@ class SlashCommandTest {
     final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    final SlashCommand cmd = new SlashCommand("/test", handler);
+    final SlashCommand cmd = SlashCommand.slash("/test", handler);
     cmd.setBotDisplayName("BotMention");
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
@@ -76,10 +76,10 @@ class SlashCommandTest {
 
   @Test
   void testVerifyBotInfo() {
-    final SlashCommand cmd = new SlashCommand("/test", c -> {});
+    final SlashCommand cmd = SlashCommand.slash("/test", c -> {});
     final ActivityInfo info = cmd.getInfo();
-    assertEquals(ActivityType.COMMAND, info.getType());
-    assertEquals("Slash command '/test'", info.getName());
+    assertEquals(ActivityType.COMMAND, info.type());
+    assertEquals("Slash command '/test'", info.name());
   }
 
   private static class RealTimeEventsProvider {

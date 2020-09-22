@@ -33,9 +33,9 @@ public class Example {
       final BdkConfig config04 = BdkConfigLoader.loadFromSymphonyDir("config.yaml");                        // (4)
   
       final BdkConfig config05 = new BdkConfig();                                                           // (5)
-      configAsPojo.setHost("acme.symphony.com");
-      configAsPojo.getBot().setUsername("bot-username");
-      configAsPojo.getBot().setPrivateKeyPath("/path/to/bot/rsa-private-key.pem");
+      config05.setHost("acme.symphony.com");
+      config05.getBot().setUsername("bot-username");
+      config05.getBot().setPrivateKeyPath("/path/to/bot/rsa-private-key.pem");
     }
 }
 ```
@@ -160,7 +160,13 @@ look like:
 ``` 
 Reading a `JSON` configuration file is completely transparent: 
 ```java
-final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.json")
+public class Example {
+    
+    public static void main(String[] args) {
+      
+      final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config.json");
+    }
+}
 ```
 
 ## Backward Compatibility with legacy configuration file (experimental) 

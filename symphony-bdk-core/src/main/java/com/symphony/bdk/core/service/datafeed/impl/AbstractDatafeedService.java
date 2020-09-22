@@ -92,5 +92,4 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected void setDatafeedApi(DatafeedApi datafeedApi) {
     this.datafeedApi = datafeedApi;
   }
-
 }

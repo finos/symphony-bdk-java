@@ -10,10 +10,20 @@ import org.apiguardian.api.API;
 public interface ActivityMatcher<C extends ActivityContext<?>> {
 
   /**
-   * Matches the {@link ActivityContext} to decide whether an {@link Activity} can be executed or not.
+   * Matches the {@link ActivityContext} to decide whether an {@link AbstractActivity} can be executed or not.
    *
    * @param context Current activity context.
-   * @return true if {@link Activity#onActivity(ActivityContext)} can be triggered, false otherwise.
+   * @return true if {@link AbstractActivity#onActivity(ActivityContext)} can be triggered, false otherwise.
    */
   boolean matches(C context);
+
+  /**
+   * Returns a matcher that always returns true.
+   *
+   * @param <C> the type of the activity context
+   * @return a matcher that always returns true.
+   */
+  static <C extends ActivityContext<?>> ActivityMatcher<C> always() {
+    return context -> true;
+  }
 }
