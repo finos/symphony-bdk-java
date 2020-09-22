@@ -16,7 +16,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 
-import com.symphony.bdk.core.util.ProviderLoader;
+import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import com.symphony.bdk.http.api.HttpClient;
 
@@ -72,7 +72,7 @@ public class SymphonyBdk {
    * @return {@link HttpClient.Builder} HttpClient builder instance.
    */
   public HttpClient.Builder http() {
-    return HttpClient.builder(ProviderLoader.lookupSingleService(ApiClientBuilderProvider.class));
+    return HttpClient.builder(ServiceLookup.lookupSingleService(ApiClientBuilderProvider.class));
   }
 
   /**

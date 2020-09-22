@@ -9,7 +9,7 @@ import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
-import com.symphony.bdk.core.util.ProviderLoader;
+import com.symphony.bdk.core.util.ServiceLookup;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -37,7 +37,7 @@ public class ApiClientFactory {
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
   public ApiClientFactory(@Nonnull BdkConfig config) {
-    this(config, ProviderLoader.lookupSingleService(ApiClientBuilderProvider.class));
+    this(config, ServiceLookup.lookupSingleService(ApiClientBuilderProvider.class));
   }
 
   public ApiClientFactory(@Nonnull BdkConfig config, @Nonnull ApiClientBuilderProvider apiClientBuilderProvider) {

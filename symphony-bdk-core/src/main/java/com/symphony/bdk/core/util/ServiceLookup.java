@@ -12,7 +12,7 @@ import java.util.stream.StreamSupport;
 @Slf4j
 @Generated
 @API(status = API.Status.INTERNAL)
-public class ProviderLoader {
+public class ServiceLookup {
 
   /**
    * Load a service implementation class using {@link ServiceLoader}.
