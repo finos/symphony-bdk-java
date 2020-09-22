@@ -2,6 +2,7 @@ package com.symphony.bdk.core.util;
 
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.ServiceLoader;
@@ -10,6 +11,7 @@ import java.util.stream.StreamSupport;
 
 @Slf4j
 @Generated
+@API(status = API.Status.INTERNAL)
 public class ProviderLoader {
 
   /**
