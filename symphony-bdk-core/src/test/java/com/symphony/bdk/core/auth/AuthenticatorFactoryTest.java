@@ -11,6 +11,7 @@ import com.symphony.bdk.core.api.invoker.jersey2.ApiClientBuilderJersey2;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
@@ -137,6 +138,18 @@ class AuthenticatorFactoryTest {
     final ExtensionAppAuthenticator botAuth = factory.getExtensionAppAuthenticator();
 
     assertEquals(ExtensionAppAuthenticatorRsaImpl.class, botAuth.getClass());
+  }
+
+  @Test
+  void testGetExtAppAuthenticatorWithValidCertificatePath(@TempDir Path tempDir) throws AuthInitializationException {
+    final BdkConfig config = new BdkConfig();
+    config.getApp().setCertificatePath("/path/to/cert/file.p12");
+    config.getApp().setCertificatePassword("password");
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+    final ExtensionAppAuthenticator extAppAuthenticator = factory.getExtensionAppAuthenticator();
+
+    assertEquals(ExtensionAppAuthenticatorCertImpl.class, extAppAuthenticator.getClass());
   }
 
   @Test
