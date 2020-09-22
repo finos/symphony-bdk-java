@@ -1,0 +1,64 @@
+allprojects {
+    group = 'com.symphony.platformsolutions'
+    version = '1.2.0-SNAPSHOT'
+
+    defaultTasks 'build'
+}
+
+subprojects {
+    apply plugin: 'signing'
+}
+
+configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'maven-publish'
+
+    repositories {
+        mavenCentral()
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                from(components.java)
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.maven
+    }
+
+    sourceCompatibility = '1.8'
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    javadoc {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    jar {
+        manifest {
+            attributes("Implementation-Title": project.name,
+                    "Implementation-Version": project.version)
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    dependencies {
+        implementation platform(project(':symphony-bdk-bom'))
+        annotationProcessor platform(project(':symphony-bdk-bom'))
+        testAnnotationProcessor platform(project(':symphony-bdk-bom'))
+    }
+}

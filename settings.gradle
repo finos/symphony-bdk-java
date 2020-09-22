@@ -1,0 +1,21 @@
+rootProject.name = 'symphony-api-client-java-parent'
+
+include(':symphony-bdk-bom')
+
+include(':symphony-bdk-core')
+include(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
+include(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+
+include(':symphony-bdk-template:symphony-bdk-template-api')
+include(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+include(':symphony-bdk-spring:bdk-core-starter')
+include(':symphony-bdk-spring:bdk-app-starter')
+
+include(':symphony-bdk-examples:bdk-core-examples')
+include(':symphony-bdk-examples:bdk-spring-boot-example')
+include(':symphony-bdk-examples:bdk-template-examples')
+
+include(':symphony-bdk-legacy:symphony-bdk-bot-sdk-java')
+include(':symphony-bdk-legacy:symphony-api-client-java')
+include(':symphony-bdk-legacy:sms-sdk-renderer-java')
