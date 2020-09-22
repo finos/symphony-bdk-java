@@ -125,4 +125,9 @@ public class SymphonyBdkTest {
     assertEquals(authSession.getAppToken(), "APP_TOKEN");
     assertEquals(authSession.expireAt(), 1539636528288L);
   }
+
+  @Test
+  void botSessionTest() {
+    assertNotNull(this.symphonyBdk.botSession());
+  }
 }

@@ -28,6 +28,8 @@ import java.util.Optional;
 @API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdk {
 
+  private final AuthSession botSession;
+
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
@@ -45,11 +47,11 @@ public class SymphonyBdk {
   protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory)
       throws AuthInitializationException, AuthUnauthorizedException {
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
-    AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+    this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator = config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
     ServiceFactory serviceFactory =
-        new ServiceFactory(apiClientFactory, botSession, config);
+        new ServiceFactory(apiClientFactory, this.botSession, config);
     // service init
     this.sessionService = serviceFactory.getSessionService();
     this.userService = serviceFactory.getUserService();
@@ -58,7 +60,7 @@ public class SymphonyBdk {
     this.datafeedService = serviceFactory.getDatafeedService();
 
     // setup activities
-    this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(botSession), this.datafeedService::subscribe);
+    this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(this.botSession), this.datafeedService::subscribe);
   }
 
   /**
@@ -135,6 +137,15 @@ public class SymphonyBdk {
    */
   public AppAuthSession app(String appToken) throws AuthUnauthorizedException {
     return this.getExtensionAppAuthenticator().authenticateExtensionApp(appToken);
+  }
+
+  /**
+   * Returns the Bot session.
+   *
+   * @return the bot {@link AuthSession}
+   */
+  public AuthSession botSession() {
+    return this.botSession;
   }
 
   protected ExtensionAppAuthenticator getExtensionAppAuthenticator() {
