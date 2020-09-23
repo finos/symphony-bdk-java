@@ -7,7 +7,6 @@ import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
-import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +42,10 @@ public class ExtensionAppAuthenticatorCertImpl implements ExtensionAppAuthentica
   protected ExtensionAppTokens retrieveExtensionAppSession(String appToken) throws AuthUnauthorizedException {
     log.debug("Start certificate authentication of extension app with id : {} ...", this.appId);
 
-    final AuthenticateRequest authRequest = new AuthenticateRequest().token(appToken);
+    final ExtensionAppAuthenticateRequest authRequest = new ExtensionAppAuthenticateRequest().appToken(appToken);
 
     try {
-      final ExtensionAppTokens extensionAppTokens =
-          this.certificateAuthenticationApi.v1AuthenticateExtensionAppPost(authRequest);
-      return extensionAppTokens;
+      return this.certificateAuthenticationApi.v1AuthenticateExtensionAppPost(authRequest);
     } catch (ApiException e) {
       if (e.isUnauthorized()) {
         throw new AuthUnauthorizedException("Unable to authenticate app with ID : " + this.appId + ". "
