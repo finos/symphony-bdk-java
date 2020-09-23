@@ -5,7 +5,7 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
 
-import com.symphony.bdk.http.api.util.GenericClass;
+import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -71,7 +71,7 @@ public class ApiClientJersey2 implements ApiClient {
       final String accept,
       final String contentType,
       final String[] authNames,
-      final GenericClass<T> returnType
+      final TypeReference<T> returnType
   ) throws ApiException {
 
     // Not using `.target(this.basePath).path(path)` below,

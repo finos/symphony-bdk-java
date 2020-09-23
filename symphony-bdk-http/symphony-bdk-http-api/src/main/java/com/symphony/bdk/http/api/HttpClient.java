@@ -1,6 +1,6 @@
 package com.symphony.bdk.http.api;
 
-import com.symphony.bdk.http.api.util.GenericClass;
+import com.symphony.bdk.http.api.util.TypeReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -176,12 +176,12 @@ public class HttpClient {
      * Build a request and execute it using an arbitrary request method name.
      *
      * @param method request method name.
-     * @param type the {@link GenericClass} object representing a generic Java type the response should convert to.
+     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
      * @param <T> generic response type.
      * @return Response entity
      * @throws ApiException if there are problems with the Api client request.
      */
-    public <T> T method(String method, GenericClass<T> type) throws ApiException {
+    public <T> T method(String method, TypeReference<T> type) throws ApiException {
       ApiClientBuilder builder = provider.newInstance();
       builder.withBasePath(this.basePath);
 
@@ -205,36 +205,36 @@ public class HttpClient {
     /**
      * Build a get request and execute it.
      *
-     * @param type the {@link GenericClass} object representing a generic Java type the response should convert to.
+     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
      * @param <T> generic response type.
      * @return Response entity.
      * @throws ApiException if there are problems with the Api client request.
      */
-    public <T> T get(GenericClass<T> type) throws ApiException {
+    public <T> T get(TypeReference<T> type) throws ApiException {
       return this.method("GET", type);
     }
 
     /**
      * Build a post request and execute it.
      *
-     * @param type the {@link GenericClass} object representing a generic Java type the response should convert to.
+     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
      * @param <T> generic response type.
      * @return Response entity.
      * @throws ApiException if there are problems with the Api client request.
      */
-    public <T> T post(GenericClass<T> type) throws ApiException {
+    public <T> T post(TypeReference<T> type) throws ApiException {
       return this.method("POST", type);
     }
 
     /**
      * Build a delete request and execute it.
      *
-     * @param type the {@link GenericClass} object representing a generic Java type the response should convert to.
+     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
      * @param <T> generic response type.
      * @return Response entity.
      * @throws ApiException if there are problems with the Api client request.
      */
-    public <T> T delete(GenericClass<T> type) throws ApiException {
+    public <T> T delete(TypeReference<T> type) throws ApiException {
       return this.method("DELETE", type);
     }
   }

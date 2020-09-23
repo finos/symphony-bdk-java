@@ -4,7 +4,7 @@ import {{invokerPackage}}.ApiException;
 import {{invokerPackage}}.ApiClient;
 import {{invokerPackage}}.ApiResponse;
 import {{invokerPackage}}.Pair;
-import {{invokerPackage}}.util.GenericClass;
+import {{invokerPackage}}.util.TypeReference;
 
 {{#imports}}
 import {{import}};
@@ -149,7 +149,7 @@ public class {{classname}} {
     String[] localVarAuthNames = new String[] { {{#authMethods}}"{{name}}"{{#hasMore}}, {{/hasMore}}{{/authMethods}} };
 
     {{#returnType}}
-    GenericClass<{{{returnType}}}> localVarReturnType = new GenericClass<{{{returnType}}}>() {};
+    TypeReference<{{{returnType}}}> localVarReturnType = new TypeReference<{{{returnType}}}>() {};
 
     {{/returnType}}
     return apiClient.invokeAPI(localVarPath, "{{httpMethod}}", localVarQueryParams, localVarPostBody,

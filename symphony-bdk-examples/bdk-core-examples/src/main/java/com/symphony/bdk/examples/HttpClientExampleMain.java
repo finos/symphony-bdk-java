@@ -11,8 +11,9 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.util.GenericClass;
+import com.symphony.bdk.http.api.util.TypeReference;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
@@ -21,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 
+@Slf4j
 public class HttpClientExampleMain {
 
   public static void main(String[] args) throws BdkConfigException, IOException, GeneralSecurityException,
@@ -39,7 +41,7 @@ public class HttpClientExampleMain {
     Token token = bdk.http()
         .path("https://devx1.symphony.com/login/pubkey/authenticate")
         .body(req)
-        .post(new GenericClass<Token>() {});
-    System.out.println(token);
+        .post(new TypeReference<Token>() {});
+    log.info(token.getToken());
   }
 }

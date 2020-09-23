@@ -1,6 +1,6 @@
 package com.symphony.bdk.http.api;
 
-import com.symphony.bdk.http.api.util.GenericClass;
+import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
 
@@ -42,7 +42,7 @@ public interface ApiClient {
       String accept,
       String contentType,
       String[] authNames,
-      GenericClass<T> returnType
+      TypeReference<T> returnType
   ) throws ApiException;
 
   /**
