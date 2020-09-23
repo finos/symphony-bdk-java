@@ -14,6 +14,7 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     apply plugin: 'jacoco'
     apply plugin: 'maven-publish'
 
+
     repositories {
         mavenCentral()
     }
@@ -60,5 +61,21 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
         implementation platform(project(':symphony-bdk-bom'))
         annotationProcessor platform(project(':symphony-bdk-bom'))
         testAnnotationProcessor platform(project(':symphony-bdk-bom'))
+    }
+}
+
+configure(subprojects.findAll { !it.name.contains('example') }) {
+    apply plugin: 'maven-publish'
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username repoUser
+                    password repoPassword
+                }
+                url repoUrl
+            }
+        }
     }
 }
