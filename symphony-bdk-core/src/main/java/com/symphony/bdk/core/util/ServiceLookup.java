@@ -30,9 +30,9 @@ public class ServiceLookup {
       throw new IllegalStateException("No service implementation found in classpath.");
     } else if (services.size() > 1) {
       log.warn("More than 1 service implementation found in classpath, will use : {}",
-          services.stream().findFirst().get());
+          services.get(0));
     }
 
-    return services.stream().findFirst().get();
+    return services.get(0);
   }
 }
