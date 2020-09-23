@@ -47,30 +47,4 @@ public class HealthcheckClientTest extends BotTest {
     assertTrue(response.getAgentServiceUser());
     assertTrue(response.getCeServiceUser());
   }
-
-  @Test
-  public void performHealthCheckSuccessWithUnknownField() {
-    stubGet(AgentConstants.HEALTHCHECK, "{\r\n" +
-        "\"podConnectivity\": true,\r\n" +
-        "\"keyManagerConnectivity\": true,\r\n" +
-        "\"encryptDecryptSuccess\": true,\r\n" +
-        "\"podVersion\": \"1.54.1\",\r\n" +
-        "\"agentVersion\": \"2.54.0\",\r\n" +
-        "\"agentServiceUser\": true,\r\n" +
-        "\"ceServiceUser\": true\r\n," +
-        "\"unknownField\": \"a value\"\r\n" +
-        "}");
-
-    final HealthcheckResponse response = healthCheckClient.performHealthCheck();
-    assertNotNull(response);
-
-    assertTrue(response.getPodConnectivity());
-    assertTrue(response.getKeyManagerConnectivity());
-    assertTrue(response.getEncryptDecryptSuccess());
-    assertEquals("1.54.1", response.getPodVersion());
-    assertEquals("2.54.0", response.getAgentVersion());
-    assertTrue(response.getAgentServiceUser());
-    assertTrue(response.getCeServiceUser());
-    //assertEquals("a value", response.get);
-  }
 }
