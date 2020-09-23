@@ -2,8 +2,11 @@ package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
+import com.symphony.bdk.gen.api.model.PodCertificate;
 
 /**
  * {@link AppAuthSession} implementation for certificate extension app authentication mode.
@@ -59,5 +62,9 @@ public class AppAuthSessionCertImpl implements AppAuthSession {
    */
   protected ExtensionAppAuthenticator getAuthenticator() {
     return authenticator;
+  }
+
+  public Object validateJwt(String jwt) throws AuthInitializationException {
+    return JwtHelper.validateJwt(jwt, authenticator.getPodCertificate().getCertificate());
   }
 }

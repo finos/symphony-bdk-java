@@ -2,7 +2,9 @@ package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 
 import org.apiguardian.api.API;
@@ -68,5 +70,9 @@ public class AppAuthSessionRsaImpl implements AppAuthSession {
    */
   protected ExtensionAppAuthenticator getAuthenticator() {
     return authenticator;
+  }
+
+  public Object validateJwt(String jwt) throws AuthInitializationException {
+    return JwtHelper.validateJwt(jwt, authenticator.getPodCertificate().getCertificate());
   }
 }

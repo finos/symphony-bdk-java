@@ -31,6 +31,7 @@ dependencies {
         api 'com.brsanthu:migbase64:2.2'
         api 'io.jsonwebtoken:jjwt:0.9.1'
         api 'org.bouncycastle:bcpkix-jdk15on:1.64'
+        api 'org.bitbucket.b_c:jose4j:0.7.2'
         api 'com.google.code.findbugs:jsr305:3.0.2'
         api 'io.github.resilience4j:resilience4j-retry:1.4.0'
 

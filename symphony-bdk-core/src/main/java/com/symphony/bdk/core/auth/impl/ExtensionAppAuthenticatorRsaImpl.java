@@ -8,8 +8,11 @@ import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.AuthenticationApi;
+import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.model.AuthenticateExtensionAppRequest;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
+
+import com.symphony.bdk.gen.api.model.PodCertificate;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -32,11 +35,13 @@ public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticat
   private final String appId;
   private final PrivateKey appPrivateKey;
   private final AuthenticationApi authenticationApi;
+  private final PodApi podApi;
 
-  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
+  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient, ApiClient podApiClient) {
     this.appId = appId;
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);
+    this.podApi = new PodApi(podApiClient);
   }
 
   /**
@@ -70,6 +75,18 @@ public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticat
       } else {
         throw new ApiRuntimeException(e);
       }
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PodCertificate getPodCertificate() {
+    try {
+      return this.podApi.v1PodcertGet();
+    } catch (ApiException e) {
+      throw new ApiRuntimeException(e);
     }
   }
 }

@@ -1,5 +1,9 @@
 package com.symphony.bdk.core.auth.jwt;
 
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apiguardian.api.API;
@@ -9,6 +13,11 @@ import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.jose4j.jwt.consumer.InvalidJwtException;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.keys.X509Util;
+import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -18,6 +27,7 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
@@ -42,6 +52,13 @@ public class JwtHelper {
 
 	// PKCS#1 format
 	private static final String PEM_RSA_PRIVATE_START = "-----BEGIN RSA PRIVATE KEY-----";
+
+	// X509 certificate
+  private static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
+  private static final String END_CERTIFICATE = "-----END CERTIFICATE-----";
+
+  private static final ObjectMapper mapper = new ObjectMapper();
+
 
 	/**
 	 * Creates a JWT with the provided user name and expiration date, signed with the provided private key.
@@ -84,6 +101,29 @@ public class JwtHelper {
 		}
 	}
 
+  /**
+   * Validates a jwt against a certificate.
+   * @param jwt
+   * @param certificate string of the X.509 certificate content in pem format.
+   * @return the content of jwt clain "user" if jwt is successfully validated.
+   * @throws AuthInitializationException if certificate or jwt are invalid.
+   */
+  public static UserClaim validateJwt(String jwt, String certificate) throws AuthInitializationException {
+    final X509Certificate x509Certificate = parseX509Certificate(certificate);
+
+    JwtConsumer jwtConsumer = new JwtConsumerBuilder()
+        .setVerificationKey(x509Certificate.getPublicKey())
+        .setSkipAllValidators()
+        .build();
+
+    try {
+      final String user = jwtConsumer.processToClaims(jwt).getClaimValueAsString("user");
+      return mapper.readValue(user, UserClaim.class);
+    } catch (InvalidJwtException | JsonProcessingException e) {
+      throw new AuthInitializationException("Unable to validate jwt", e);
+    }
+  }
+
 	private static PrivateKey parsePKCS1PrivateKey(String pemPrivateKey) throws GeneralSecurityException {
 		try (final PemReader pemReader = new PemReader(new StringReader(pemPrivateKey))) {
 			final PemObject privateKeyObject = pemReader.readPemObject();
@@ -117,4 +157,17 @@ public class JwtHelper {
 
 		return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
 	}
+
+  protected static X509Certificate parseX509Certificate(String certificate) throws AuthInitializationException {
+    try {
+      String sanitizedBase64Der = certificate
+          .replace(BEGIN_CERTIFICATE, "")
+          .replace(END_CERTIFICATE, "")
+          .replaceAll("\\s", "");
+
+      return new X509Util().fromBase64Der(sanitizedBase64Der);
+    } catch (JoseException e) {
+      throw new AuthInitializationException("Unable to parse certificate", e);
+    }
+  }
 }

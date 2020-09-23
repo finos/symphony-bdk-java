@@ -101,7 +101,8 @@ public class AuthenticatorFactory {
     return new ExtensionAppAuthenticatorRsaImpl(
         this.config.getApp().getAppId(),
         this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
-        this.apiClientFactory.getLoginClient()
+        this.apiClientFactory.getLoginClient(),
+        this.apiClientFactory.getPodClient()
     );
   }
 

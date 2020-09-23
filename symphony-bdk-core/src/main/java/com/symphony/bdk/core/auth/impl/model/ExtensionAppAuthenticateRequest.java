@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.auth.impl;
+package com.symphony.bdk.core.auth.impl.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 public class ExtensionAppAuthenticatorRsaImplTest {
 
   private static final String V1_EXTENSION_APP_AUTHENTICATE = "/login/v1/pubkey/app/authenticate/extensionApp";
+  public static final String V1_POD_CERT = "/pod/v1/podcert";
 
   private ExtensionAppAuthenticatorRsaImpl authenticator;
   private MockApiClient mockApiClient;
@@ -25,7 +26,8 @@ public class ExtensionAppAuthenticatorRsaImplTest {
     this.authenticator = new ExtensionAppAuthenticatorRsaImpl(
         "appId",
         RsaTestHelper.generateKeyPair().getPrivate(),
-        mockApiClient.getApiClient("/login"));
+        mockApiClient.getApiClient("/login"),
+        mockApiClient.getApiClient("/pod"));
   }
 
   @Test
@@ -58,5 +60,19 @@ public class ExtensionAppAuthenticatorRsaImplTest {
     mockApiClient.onPost(400, V1_EXTENSION_APP_AUTHENTICATE, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.authenticator.authenticateExtensionApp("APP_TOKEN"));
+  }
+
+  @Test
+  void testGetPodCertificate() {
+    mockApiClient.onGet(200, V1_POD_CERT, "{ \"certificate\" : \"PEM_content\"}");
+
+    assertEquals("PEM_content", this.authenticator.getPodCertificate().getCertificate());
+  }
+
+  @Test
+  void testGetPodCertificateFailure() {
+    mockApiClient.onGet(500, V1_POD_CERT, "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.authenticator.getPodCertificate().getCertificate());
   }
 }

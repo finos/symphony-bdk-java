@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 public class ExtensionAppAuthenticatorCertImplTest {
   private static final String V1_EXTENSION_APP_AUTHENTICATE = "/sessionauth/v1/authenticate/extensionApp";
+  public static final String V1_APP_POD_CERTIFICATE = "/sessionauth/v1/app/pod/certificate";
 
   private ExtensionAppAuthenticatorCertImpl authenticator;
   private MockApiClient mockApiClient;
@@ -55,5 +56,19 @@ public class ExtensionAppAuthenticatorCertImplTest {
     mockApiClient.onPost(400, V1_EXTENSION_APP_AUTHENTICATE, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.authenticator.authenticateExtensionApp("APP_TOKEN"));
+  }
+
+  @Test
+  void testGetPodCertificate() {
+    mockApiClient.onGet(200, V1_APP_POD_CERTIFICATE, "{ \"certificate\" : \"PEM_content\"}");
+
+    assertEquals("PEM_content", this.authenticator.getPodCertificate().getCertificate());
+  }
+
+  @Test
+  void testGetPodCertificateFailure() {
+    mockApiClient.onGet(500, V1_APP_POD_CERTIFICATE, "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.authenticator.getPodCertificate().getCertificate());
   }
 }

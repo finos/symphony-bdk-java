@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth;
 
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import org.apiguardian.api.API;
@@ -44,4 +45,6 @@ public interface AppAuthSession {
    * Trigger re-authentication to refresh tokens.
    */
   void refresh() throws AuthUnauthorizedException;
+
+  Object validateJwt(String jwt) throws AuthInitializationException;
 }
