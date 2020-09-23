@@ -45,6 +45,8 @@ public class AbstractDatafeedEventsServiceTest {
   @Mock private InboundMessage message;
   @Mock private Stream stream;
 
+  private MyAbstractDatafeedEventsService service;
+
   @Before
   public void initClient() {
     SymConfig config = mock(SymConfig.class);
@@ -73,7 +75,10 @@ public class AbstractDatafeedEventsServiceTest {
   //region Listeners Test
   @Test
   public void addRoomListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final int initialSize = service.getRoomListeners().size();
     int newSize;
 
@@ -90,7 +95,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void addConnectionListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final int initialSize = service.getConnectionListeners().size();
     int newSize;
 
@@ -107,7 +115,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void addElementsListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final int initialSize = service.getElementsListener().size();
     int newSize;
 
@@ -124,7 +135,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void addIMListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final int initialSize = service.getIMListener().size();
     int newSize;
 
@@ -141,7 +155,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void removeRoomListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener roomListener1 = this.createRoomListener();
     final RoomListener roomListener2 = this.createRoomListener();
     final RoomListener roomListener3 = this.createRoomListener();
@@ -162,7 +179,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void removeConnectionListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final ConnectionListener connectionListener1 = this.createConnectionListener();
     final ConnectionListener connectionListener2 = this.createConnectionListener();
     final ConnectionListener connectionListener3 = this.createConnectionListener();
@@ -183,7 +203,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void removeElementsListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final ElementsListener elementsListener1 = this.createElementsListener();
     final ElementsListener elementsListener2 = this.createElementsListener();
     final ElementsListener elementsListener3 = this.createElementsListener();
@@ -204,7 +227,10 @@ public class AbstractDatafeedEventsServiceTest {
 
   @Test
   public void removeIMListenersTest() {
-    final MyAbstractDatafeedEventsService service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final IMListener imListener1 = this.createIMListener();
     final IMListener imListener2 = this.createIMListener();
     final IMListener imListener3 = this.createIMListener();
@@ -234,13 +260,16 @@ public class AbstractDatafeedEventsServiceTest {
     when(message.getStream()).thenReturn(stream);
     when(stream.getStreamType()).thenReturn("ROOM");
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = this.createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomMessage(message);
   }
@@ -254,13 +283,16 @@ public class AbstractDatafeedEventsServiceTest {
     when(message.getStream()).thenReturn(stream);
     when(stream.getStreamType()).thenReturn("IMTest");
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final IMListener listener = this.createIMListener();
-    datafeedEventsService.addIMListener(listener);
+    service.addIMListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onIMMessage(message);
   }
@@ -273,13 +305,16 @@ public class AbstractDatafeedEventsServiceTest {
     when(eventPayload.getInstantMessageCreated()).thenReturn(imCreated);
     when(imCreated.getStream()).thenReturn(stream);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final IMListener listener = this.createIMListener();
-    datafeedEventsService.addIMListener(listener);
+    service.addIMListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onIMCreated(stream);
   }
@@ -291,13 +326,16 @@ public class AbstractDatafeedEventsServiceTest {
     final RoomCreated roomCreated = mock(RoomCreated.class);
     when(eventPayload.getRoomCreated()).thenReturn(roomCreated);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomCreated(roomCreated);
   }
@@ -309,13 +347,16 @@ public class AbstractDatafeedEventsServiceTest {
     final RoomUpdated roomUpdated = mock(RoomUpdated.class);
     when(eventPayload.getRoomUpdated()).thenReturn(roomUpdated);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomUpdated(roomUpdated);
   }
@@ -327,13 +368,16 @@ public class AbstractDatafeedEventsServiceTest {
     final RoomDeactivated roomDeactivated = mock(RoomDeactivated.class);
     when(eventPayload.getRoomDeactivated()).thenReturn(roomDeactivated);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomDeactivated(roomDeactivated);
   }
@@ -346,13 +390,16 @@ public class AbstractDatafeedEventsServiceTest {
     when(eventPayload.getRoomReactivated()).thenReturn(roomReactivated);
     when(roomReactivated.getStream()).thenReturn(stream);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomReactivated(stream);
   }
@@ -364,13 +411,16 @@ public class AbstractDatafeedEventsServiceTest {
     final UserJoinedRoom userJoinedRoom = mock(UserJoinedRoom.class);
     when(eventPayload.getUserJoinedRoom()).thenReturn(userJoinedRoom);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onUserJoinedRoom(userJoinedRoom);
   }
@@ -382,13 +432,16 @@ public class AbstractDatafeedEventsServiceTest {
     final UserLeftRoom userLeftRoom = mock(UserLeftRoom.class);
     when(eventPayload.getUserLeftRoom()).thenReturn(userLeftRoom);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onUserLeftRoom(userLeftRoom);
   }
@@ -400,13 +453,16 @@ public class AbstractDatafeedEventsServiceTest {
     final RoomMemberPromotedToOwner roomMemberPromotedToOwner = mock(RoomMemberPromotedToOwner.class);
     when(eventPayload.getRoomMemberPromotedToOwner()).thenReturn(roomMemberPromotedToOwner);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomMemberPromotedToOwner(roomMemberPromotedToOwner);
   }
@@ -418,13 +474,16 @@ public class AbstractDatafeedEventsServiceTest {
     final RoomMemberDemotedFromOwner roomMemberDemotedFromOwner = mock(RoomMemberDemotedFromOwner.class);
     when(eventPayload.getRoomMemberDemotedFromOwner()).thenReturn(roomMemberDemotedFromOwner);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final RoomListener listener = createRoomListener();
-    datafeedEventsService.addRoomListener(listener);
+    service.addRoomListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onRoomMemberDemotedFromOwner(roomMemberDemotedFromOwner);
   }
@@ -434,13 +493,16 @@ public class AbstractDatafeedEventsServiceTest {
   public void handleEventsConnectionAcceptedTest() {
     configEventType("CONNECTIONACCEPTED");
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final ConnectionListener listener = createConnectionListener();
-    datafeedEventsService.addConnectionsListener(listener);
+    service.addConnectionsListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onConnectionAccepted(user);
   }
@@ -450,13 +512,16 @@ public class AbstractDatafeedEventsServiceTest {
   public void handleEventsConnectionRequestedTest() {
     configEventType("CONNECTIONREQUESTED");
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final ConnectionListener listener = createConnectionListener();
-    datafeedEventsService.addListeners(listener);
+    service.addListeners(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onConnectionRequested(user);
   }
@@ -468,13 +533,16 @@ public class AbstractDatafeedEventsServiceTest {
     final SymphonyElementsAction symphonyElementsAction = mock(SymphonyElementsAction.class);
     when(eventPayload.getSymphonyElementsAction()).thenReturn(symphonyElementsAction);
 
-    final MyAbstractDatafeedEventsService datafeedEventsService = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(symBotClient);
+    service = new MyAbstractDatafeedEventsService(symBotClient);
+    assertNotNull(service);
+
     final ElementsListener listener = createElementsListener();
-    datafeedEventsService.addElementsListener(listener);
+    service.addElementsListener(listener);
 
     final ArrayList<DatafeedEvent> datafeedEventList = new ArrayList<DatafeedEvent>();
     datafeedEventList.add(datafeedEvent);
-    datafeedEventsService.handleEvents(datafeedEventList);
+    service.handleEvents(datafeedEventList);
 
     verify(listener, atLeastOnce()).onElementsAction(user, symphonyElementsAction);
   }
