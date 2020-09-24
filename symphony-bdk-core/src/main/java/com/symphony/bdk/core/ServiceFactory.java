@@ -83,7 +83,7 @@ class ServiceFactory {
    * @return an new {@link SessionService} instance.
    */
   public SessionService getSessionService() {
-    return new SessionService(new SessionApi(podClient), retryBuilder);
+    return new SessionService(new SessionApi(podClient), new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   /**
