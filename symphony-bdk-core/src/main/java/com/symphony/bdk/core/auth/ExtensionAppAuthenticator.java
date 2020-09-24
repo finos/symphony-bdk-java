@@ -31,4 +31,12 @@ public interface ExtensionAppAuthenticator {
    */
   PodCertificate getPodCertificate();
 
+  /**
+   * Validates if appToken and symphonyToken corresponds to an existing session
+   *
+   * @param appToken the appToken
+   * @param symphonyToken the symphonyToken
+   * @return true if symphonyToken associated to a previous session initiated with appToken
+   */
+  boolean validateTokens(String appToken, String symphonyToken);
 }

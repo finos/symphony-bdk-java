@@ -59,13 +59,17 @@ public class AppAuthSessionCertImpl implements AppAuthSession {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public UserClaim validateJwt(String jwt) throws AuthInitializationException {
+    return JwtHelper.validateJwt(jwt, authenticator.getPodCertificate().getCertificate());
+  }
+
+  /**
    * This method is only visible for testing.
    */
   protected ExtensionAppAuthenticator getAuthenticator() {
     return authenticator;
-  }
-
-  public UserClaim validateJwt(String jwt) throws AuthInitializationException {
-    return JwtHelper.validateJwt(jwt, authenticator.getPodCertificate().getCertificate());
   }
 }

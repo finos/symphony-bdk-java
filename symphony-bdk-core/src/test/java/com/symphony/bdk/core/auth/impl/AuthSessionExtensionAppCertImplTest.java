@@ -39,6 +39,7 @@ public class AuthSessionExtensionAppCertImplTest {
     assertEquals(appToken, session.getAppToken());
     assertEquals(expireAt, session.expireAt());
 
+
     verify(auth, times(1)).retrieveExtensionAppSession(appToken);
   }
 }

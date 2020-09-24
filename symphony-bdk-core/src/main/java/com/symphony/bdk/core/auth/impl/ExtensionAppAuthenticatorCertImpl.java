@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.model.ExtensionAppAuthenticateRequest;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
@@ -22,14 +22,20 @@ import org.apiguardian.api.API;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class ExtensionAppAuthenticatorCertImpl implements ExtensionAppAuthenticator {
+public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthenticator{
 
-  private final String appId;
   private final CertificateAuthenticationApi certificateAuthenticationApi;
   private final CertificatePodApi certificatePodApi;
 
   public ExtensionAppAuthenticatorCertImpl(String appId, ApiClient sessionAuthClient) {
-    this.appId = appId;
+    super(appId);
+    this.certificateAuthenticationApi = new CertificateAuthenticationApi(sessionAuthClient);
+    this.certificatePodApi = new CertificatePodApi(sessionAuthClient);
+  }
+
+  public ExtensionAppAuthenticatorCertImpl(String appId, ApiClient sessionAuthClient,
+      ExtensionAppTokensRepository tokensRepository) {
+    super(appId, tokensRepository);
     this.certificateAuthenticationApi = new CertificateAuthenticationApi(sessionAuthClient);
     this.certificatePodApi = new CertificatePodApi(sessionAuthClient);
   }
@@ -44,21 +50,10 @@ public class ExtensionAppAuthenticatorCertImpl implements ExtensionAppAuthentica
     return authSession;
   }
 
-  protected ExtensionAppTokens retrieveExtensionAppSession(String appToken) throws AuthUnauthorizedException {
-    log.debug("Start certificate authentication of extension app with id : {} ...", this.appId);
-
+  @Override
+  protected ExtensionAppTokens retrieveExtAppTokens(String appToken) throws ApiException {
     final ExtensionAppAuthenticateRequest authRequest = new ExtensionAppAuthenticateRequest().appToken(appToken);
-
-    try {
-      return this.certificateAuthenticationApi.v1AuthenticateExtensionAppPost(authRequest);
-    } catch (ApiException e) {
-      if (e.isUnauthorized()) {
-        throw new AuthUnauthorizedException("Unable to authenticate app with ID : " + this.appId + ". "
-            + "It usually happens when the app has not been configured or is not activated.", e);
-      } else {
-        throw new ApiRuntimeException(e);
-      }
-    }
+    return this.certificateAuthenticationApi.v1AuthenticateExtensionAppPost(authRequest);
   }
 
   /**
