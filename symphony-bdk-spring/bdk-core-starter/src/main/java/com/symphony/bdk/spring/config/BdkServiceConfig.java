@@ -1,6 +1,5 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -18,6 +17,7 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 

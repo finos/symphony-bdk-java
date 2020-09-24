@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.util.function;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+
+import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
 

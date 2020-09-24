@@ -1,11 +1,8 @@
 package com.symphony.bdk.core;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.SessionService;
@@ -26,6 +23,9 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.http.api.ApiClient;
+
+import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
 

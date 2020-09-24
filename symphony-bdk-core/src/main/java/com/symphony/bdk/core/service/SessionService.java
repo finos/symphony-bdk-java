@@ -1,13 +1,12 @@
 package com.symphony.bdk.core.service;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.RequiredArgsConstructor;
 import org.apiguardian.api.API;

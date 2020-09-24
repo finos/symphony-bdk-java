@@ -1,8 +1,7 @@
 package com.symphony.bdk.core.service.stream;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
+
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
@@ -10,6 +9,7 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
+import com.symphony.bdk.http.api.ApiException;
 
 import java.util.List;
 

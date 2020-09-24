@@ -35,7 +35,11 @@
         </dependency>
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
-            <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
+            <artifactId>symphony-bdk-http-jersey2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-freemarker</artifactId>
         </dependency>
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>

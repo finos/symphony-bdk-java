@@ -23,12 +23,12 @@ jacocoTestCoverageVerification {
 
 dependencies {
     api project(':symphony-bdk-core')
-
-    api project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-api')
-    implementation project(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
+    api project(':symphony-bdk-http:symphony-bdk-http-api')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
 
     api project(':symphony-bdk-template:symphony-bdk-template-api')
     implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

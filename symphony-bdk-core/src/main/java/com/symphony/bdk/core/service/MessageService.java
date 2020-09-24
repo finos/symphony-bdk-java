@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.service;
 
 
-import com.symphony.bdk.core.api.invoker.util.ApiUtils;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -26,6 +25,7 @@ import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 import com.symphony.bdk.template.api.TemplateResolver;

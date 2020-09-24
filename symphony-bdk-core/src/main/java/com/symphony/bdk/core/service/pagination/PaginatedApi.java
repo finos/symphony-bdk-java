@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.pagination;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
+import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
 

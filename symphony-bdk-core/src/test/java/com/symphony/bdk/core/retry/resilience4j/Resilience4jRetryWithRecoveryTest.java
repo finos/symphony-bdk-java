@@ -12,10 +12,10 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
