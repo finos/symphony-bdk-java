@@ -58,6 +58,15 @@ public class ApiException extends Exception {
     }
 
     /**
+     * Indicates if the error is not a fatal one and if the api call can be subsequently retried.
+     *
+     * @return true if it error code is 401 unauthorized or 429 too many requests or 5xx greater than 500.
+     */
+    public boolean isMinorError() {
+        return isServerError() || isUnauthorized() || isTooManyRequestsError();
+    }
+
+    /**
      * Check if response status is unauthorized or not.
      *
      * @return true if response status is 401, false otherwise
@@ -76,11 +85,20 @@ public class ApiException extends Exception {
     }
 
     /**
-     * Check if response status is server error or not
+     * Check if response status is a server error (5xx) but not an internal server error (500)
      *
-     * @return true if response status equals or greater than 500, false otherwise
+     * @return true if response status strictly greater than 500, false otherwise
      */
     public boolean isServerError() {
-        return this.code >= HttpURLConnection.HTTP_INTERNAL_ERROR;
+        return this.code > HttpURLConnection.HTTP_INTERNAL_ERROR;
+    }
+
+    /**
+     * Check if response status corresponds to a too many requests error (429)
+     *
+     * @return true if error code is 429
+     */
+    public boolean isTooManyRequestsError() {
+        return this.code == 429;
     }
 }

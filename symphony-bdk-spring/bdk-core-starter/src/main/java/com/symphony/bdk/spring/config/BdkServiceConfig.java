@@ -1,6 +1,8 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.stream.StreamService;
@@ -15,6 +17,7 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 
@@ -30,20 +33,20 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public SessionService sessionService(SessionApi sessionApi) {
-    return new SessionService(sessionApi);
+  public SessionService sessionService(SessionApi sessionApi, BdkConfig config) {
+    return new SessionService(sessionApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public StreamService streamService(StreamsApi streamsApi, AuthSession botSession) {
-    return new StreamService(streamsApi, botSession);
+  public StreamService streamService(StreamsApi streamsApi, AuthSession botSession, BdkConfig config) {
+    return new StreamService(streamsApi, botSession, getRetryBuilder(config, botSession));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public UserService userService(UserApi userApi, UsersApi usersApi, AuthSession botSession) {
-    return new UserService(userApi, usersApi, botSession);
+  public UserService userService(UserApi userApi, UsersApi usersApi, AuthSession botSession, BdkConfig config) {
+    return new UserService(userApi, usersApi, botSession, getRetryBuilder(config, botSession));
   }
 
   @Bean
@@ -63,9 +66,16 @@ public class BdkServiceConfig {
       final AttachmentsApi attachmentsApi,
       final DefaultApi defaultApi,
       final AuthSession botSession,
-      final TemplateEngine templateEngine
+      final TemplateEngine templateEngine,
+      final BdkConfig config
   ) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, botSession, templateEngine);
+        defaultApi, botSession, templateEngine, getRetryBuilder(config, botSession));
+  }
+
+  private RetryWithRecoveryBuilder getRetryBuilder(BdkConfig config, AuthSession botSession) {
+    return new RetryWithRecoveryBuilder<>()
+        .retryConfig(config.getRetry())
+        .recoveryStrategy(ApiException::isUnauthorized, botSession::refresh);
   }
 }

@@ -18,6 +18,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -161,7 +162,7 @@ public class DatafeedServiceV2Test {
 
     @Test
     void testStartServerErrorListDatafeed() throws ApiException {
-        when(datafeedApi.listDatafeed("1234", "1234")).thenThrow(new ApiException(500, "server-error"));
+        when(datafeedApi.listDatafeed("1234", "1234")).thenThrow(new ApiException(502, "server-error"));
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(2)).listDatafeed("1234", "1234");
@@ -170,15 +171,10 @@ public class DatafeedServiceV2Test {
     @Test
     void testStartErrorListDatafeedThenRetrySuccess() throws ApiException, AuthUnauthorizedException {
         AtomicInteger count = new AtomicInteger(0);
-        when(datafeedApi.listDatafeed("1234", "1234")).thenAnswer(invocationOnMock -> {
-            if (count.getAndIncrement() == 0) {
-                throw new ApiException(500, "server-error");
-            } else {
-                List<V5Datafeed> datafeeds = new ArrayList<>();
-                datafeeds.add(new V5Datafeed().id("test-id"));
-                return datafeeds;
-            }
-        });
+        when(datafeedApi.listDatafeed("1234", "1234"))
+            .thenThrow(new ApiException(502, "server-error"))
+            .thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
+
         AckId ackId = datafeedService.getAckId();
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
                 .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
@@ -213,7 +209,7 @@ public class DatafeedServiceV2Test {
     @Test
     void testStartServerErrorCreateDatafeed() throws ApiException {
         when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.emptyList());
-        when(datafeedApi.createDatafeed("1234", "1234")).thenThrow(new ApiException(500, "server-error"));
+        when(datafeedApi.createDatafeed("1234", "1234")).thenThrow(new ApiException(502, "server-error"));
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
@@ -265,7 +261,29 @@ public class DatafeedServiceV2Test {
     void testStartServerErrorReadDatafeed() throws ApiException {
         AckId ackId = datafeedService.getAckId();
         when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
+        when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(502, "client-error"));
+
+        assertThrows(ApiException.class, this.datafeedService::start);
+        verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
+        verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
+    }
+
+    @Test
+    void testStartInternalServerErrorReadDatafeedShouldNotBeRetried() throws ApiException {
+        AckId ackId = datafeedService.getAckId();
+        when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(500, "client-error"));
+
+        assertThrows(ApiException.class, this.datafeedService::start);
+        verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
+        verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
+    }
+
+    @Test
+    void testStartTooManyRequestsReadDatafeedShouldBeRetried() throws ApiException {
+        AckId ackId = datafeedService.getAckId();
+        when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
+        when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(429, "too-many-requests"));
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
@@ -297,9 +315,9 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
         when(datafeedApi.createDatafeed("1234", "1234")).thenReturn(new V5Datafeed().id("recreate-df-id"));
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(400, "client-error"));
-        when(datafeedApi.deleteDatafeed("test-id", "1234", "1234")).thenThrow(new ApiException(500, "client-error"));
+        when(datafeedApi.deleteDatafeed("test-id", "1234", "1234")).thenThrow(new ApiException(502, "client-error"));
 
-        assertThrows(ApiException.class, this.datafeedService::start);
+        assertThrows(NestedRetryException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
         verify(datafeedApi, times(2)).deleteDatafeed("test-id", "1234", "1234");
@@ -314,7 +332,7 @@ public class DatafeedServiceV2Test {
         when(datafeedApi.deleteDatafeed("test-id", "1234", "1234")).thenThrow(new ApiException(401, "client-error"));
         doThrow(AuthUnauthorizedException.class).when(authSession).refresh();
 
-        assertThrows(ApiException.class, this.datafeedService::start);
+        assertThrows(NestedRetryException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
         verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
