@@ -14,7 +14,7 @@ import java.util.Objects;
 
 /**
  * Request body for extension app authentication
- * Temporary class until swagger specs are fixed (PLAT-9557)
+ * FIXME Temporary class until swagger specs are fixed (PLAT-9557)
  */
 @ApiModel(description = "Request body for extension app authentication")
 @JsonPropertyOrder({
