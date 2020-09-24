@@ -1,13 +1,17 @@
 package com.symphony.bdk.core.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.migcomponents.migbase64.Base64;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -15,29 +19,19 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.jose4j.jws.AlgorithmIdentifiers;
-import org.jose4j.jws.JsonWebSignature;
-import org.jose4j.jwt.JwtClaims;
-import org.jose4j.lang.JoseException;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Date;
 
 /**
  * Test class for the {@link JwtHelper}.
@@ -138,22 +132,19 @@ class JwtHelperTest {
 
   @SneakyThrows
   private String generateJwt(Key key, UserClaim userClaim) {
-    JwtClaims claims = new JwtClaims();
-    claims.setIssuer("Issuer");
-    claims.setAudience("Audience");
-    claims.setExpirationTimeMinutesInTheFuture(10);
-    claims.setGeneratedJwtId();
-    claims.setIssuedAtToNow();
-    claims.setNotBeforeMinutesInThePast(2);
-    claims.setSubject("subject");
-    claims.setClaim("email","mail@example.com");
-    claims.setClaim("user", new ObjectMapper().writeValueAsString(userClaim));
+    Date notBefore = new Date(new Date().getTime() - (365 * 1000 * 3600 * 24));
+    Date expiration = new Date(new Date().getTime() + (365 * 1000 * 3600 * 24));
 
-    JsonWebSignature jws = new JsonWebSignature();
-    jws.setKey(key);
-    jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
-    jws.setPayload(claims.toJson());
-
-    return jws.getCompactSerialization();
+    return Jwts.builder()
+        .setIssuer("me")
+        .setSubject("Bob")
+        .setAudience("you")
+        .setExpiration(expiration)
+        .setNotBefore(notBefore)
+        .setIssuedAt(new Date())
+        .claim("user", userClaim)
+        .signWith(SignatureAlgorithm.RS256, key)
+        .setId("123")
+        .compact();
   }
 }

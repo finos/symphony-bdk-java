@@ -2,8 +2,9 @@ package com.symphony.bdk.core.auth.jwt;
 
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apiguardian.api.API;
@@ -13,12 +14,8 @@ import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
-import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.jwt.consumer.JwtConsumer;
-import org.jose4j.jwt.consumer.JwtConsumerBuilder;
-import org.jose4j.keys.X509Util;
-import org.jose4j.lang.JoseException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +24,9 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
@@ -103,23 +102,20 @@ public class JwtHelper {
 
   /**
    * Validates a jwt against a certificate.
+   *
    * @param jwt
    * @param certificate string of the X.509 certificate content in pem format.
    * @return the content of jwt clain "user" if jwt is successfully validated.
    * @throws AuthInitializationException if certificate or jwt are invalid.
    */
   public static UserClaim validateJwt(String jwt, String certificate) throws AuthInitializationException {
-    final X509Certificate x509Certificate = parseX509Certificate(certificate);
-
-    JwtConsumer jwtConsumer = new JwtConsumerBuilder()
-        .setVerificationKey(x509Certificate.getPublicKey())
-        .setSkipAllValidators()
-        .build();
+    final Certificate x509Certificate = parseX509Certificate(certificate);
 
     try {
-      final String user = jwtConsumer.processToClaims(jwt).getClaimValueAsString("user");
-      return mapper.readValue(user, UserClaim.class);
-    } catch (InvalidJwtException | JsonProcessingException e) {
+      final Claims body = Jwts.parser().setSigningKey(x509Certificate.getPublicKey()).parseClaimsJws(jwt).getBody();
+
+      return mapper.convertValue(body.get("user"), UserClaim.class);
+    } catch (JwtException e) {
       throw new AuthInitializationException("Unable to validate jwt", e);
     }
   }
@@ -158,15 +154,17 @@ public class JwtHelper {
 		return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
 	}
 
-  protected static X509Certificate parseX509Certificate(String certificate) throws AuthInitializationException {
+  protected static Certificate parseX509Certificate(String certificate) throws AuthInitializationException {
     try {
       String sanitizedBase64Der = certificate
           .replace(BEGIN_CERTIFICATE, "")
           .replace(END_CERTIFICATE, "")
           .replaceAll("\\s", "");
 
-      return new X509Util().fromBase64Der(sanitizedBase64Der);
-    } catch (JoseException e) {
+      byte [] decoded = Base64.getDecoder().decode(sanitizedBase64Der);
+
+      return CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(decoded));
+    } catch (CertificateException e) {
       throw new AuthInitializationException("Unable to parse certificate", e);
     }
   }

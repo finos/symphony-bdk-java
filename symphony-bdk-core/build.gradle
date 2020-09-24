@@ -43,7 +43,6 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.brsanthu:migbase64'
     implementation 'io.jsonwebtoken:jjwt'
-    implementation 'org.bitbucket.b_c:jose4j'
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
