@@ -23,6 +23,8 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
 
+import com.symphony.bdk.http.api.HttpClient;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -93,6 +95,12 @@ public class SymphonyBdkTest {
   void getMessageServiceTest() {
     MessageService messageService = this.symphonyBdk.messages();
     assertNotNull(messageService);
+  }
+
+  @Test
+  void getHttpClientBuilderTest() {
+    HttpClient.Builder builder = this.symphonyBdk.http();
+    assertNotNull(builder);
   }
 
   @Test

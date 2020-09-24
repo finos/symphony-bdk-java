@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 
@@ -35,7 +37,12 @@ class SessionServiceTest {
 
   @BeforeEach
   void setUp() {
-    this.service = new SessionService(this.sessionApi);
+    final BdkRetryConfig retryConfig = new BdkRetryConfig();
+    retryConfig.setMaxAttempts(2);
+    retryConfig.setMultiplier(1);
+    retryConfig.setInitialIntervalMillis(10);
+
+    this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder().retryConfig(retryConfig));
   }
 
   @Test

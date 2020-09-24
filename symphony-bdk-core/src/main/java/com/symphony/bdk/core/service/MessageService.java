@@ -1,13 +1,13 @@
 package com.symphony.bdk.core.service;
 
 
-import static com.symphony.bdk.core.util.SupplierWithApiException.callAndCatchApiException;
-
-import com.symphony.bdk.core.api.invoker.util.ApiUtils;
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
-import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -25,6 +25,7 @@ import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 import com.symphony.bdk.template.api.TemplateResolver;
@@ -55,23 +56,25 @@ public class MessageService {
   private final DefaultApi defaultApi;
   private final AuthSession authSession;
   private final TemplateResolver templateResolver;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
   public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi, AuthSession authSession) {
+      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
+      AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
     this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
-        new TemplateResolver());
+        new TemplateResolver(), retryBuilder);
   }
 
   public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi, AuthSession authSession,
-      TemplateEngine templateEngine) {
+      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
+      AuthSession authSession, TemplateEngine templateEngine, RetryWithRecoveryBuilder retryBuilder) {
     this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
-        new TemplateResolver(templateEngine));
+        new TemplateResolver(templateEngine), retryBuilder);
   }
 
   private MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi, AuthSession authSession,
-      TemplateResolver templateResolver) {
+      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
+      AuthSession authSession, TemplateResolver templateResolver, RetryWithRecoveryBuilder retryBuilder) {
     this.messagesApi = messagesApi;
     this.messageApi = messageApi;
     this.messageSuppressionApi = messageSuppressionApi;
@@ -81,15 +84,16 @@ public class MessageService {
     this.authSession = authSession;
     this.templateResolver = templateResolver;
     this.defaultApi = defaultApi;
+    this.retryBuilder = retryBuilder;
   }
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
    * @param stream the stream where to look for messages
-   * @param since instant of the earliest possible date of the first message returned.
-   * @param skip number of messages to skip. Optional and defaults to 0.
-   * @param limit maximum number of messages to return. Optional and defaults to 50.
+   * @param since  instant of the earliest possible date of the first message returned.
+   * @param skip   number of messages to skip. Optional and defaults to 0.
+   * @param limit  maximum number of messages to return. Optional and defaults to 50.
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
    */
@@ -101,44 +105,45 @@ public class MessageService {
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
    * @param streamId the streamID where to look for messages
-   * @param since instant of the earliest possible date of the first message returned.
-   * @param skip number of messages to skip. Optional and defaults to 0.
-   * @param limit maximum number of messages to return. Optional and defaults to 50.
+   * @param since    instant of the earliest possible date of the first message returned.
+   * @param skip     number of messages to skip. Optional and defaults to 0.
+   * @param limit    maximum number of messages to return. Optional and defaults to 50.
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
    */
   public List<V4Message> getMessages(@Nonnull String streamId, @Nonnull Instant since, Integer skip, Integer limit) {
-    return callAndCatchApiException(() -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
+    return executeAndRetry("getMessages", () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), skip, limit));
   }
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
-   * @param stream the stream where to look for messages
-   * @param since instant of the earliest possible date of the first message returned.
+   * @param stream    the stream where to look for messages
+   * @param since     instant of the earliest possible date of the first message returned.
    * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
    * @param totalSize total maximum number of messages to return. Optional and defaults to 50.
    * @return a {@link Stream} of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
    */
-  public Stream<V4Message> getMessagesStream(@Nonnull V4Stream stream, @Nonnull Instant since, Integer chunkSize, Integer totalSize) {
+  public Stream<V4Message> getMessagesStream(@Nonnull V4Stream stream, @Nonnull Instant since, Integer chunkSize,
+      Integer totalSize) {
     return getMessagesStream(stream.getStreamId(), since, chunkSize, totalSize);
   }
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
-   * @param streamId the streamID where to look for messages
-   * @param since instant of the earliest possible date of the first message returned.
+   * @param streamId  the streamID where to look for messages
+   * @param since     instant of the earliest possible date of the first message returned.
    * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
    * @param totalSize total maximum number of messages to return. Optional and defaults to 50.
    * @return a {@link Stream} of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
    */
-  public Stream<V4Message> getMessagesStream(@Nonnull String streamId, @Nonnull Instant since, Integer chunkSize, Integer totalSize) {
-    PaginatedApi<V4Message> api = ((offset, limit) -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
-        authSession.getSessionToken(), authSession.getKeyManagerToken(), offset, limit));
+  public Stream<V4Message> getMessagesStream(@Nonnull String streamId, @Nonnull Instant since, Integer chunkSize,
+      Integer totalSize) {
+    PaginatedApi<V4Message> api = ((offset, limit) -> getMessages(streamId, since, offset, limit));
 
     final int actualChunkSize = chunkSize == null ? 50 : chunkSize.intValue();
     final int actualTotalSize = totalSize == null ? 50 : totalSize.intValue();
@@ -167,7 +172,8 @@ public class MessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull String template, Object parameters) throws TemplateException {
+  public V4Message send(@Nonnull V4Stream stream, @Nonnull String template, Object parameters)
+      throws TemplateException {
     return send(stream.getStreamId(), templateResolver.resolve(template).process(parameters));
   }
 
@@ -180,7 +186,8 @@ public class MessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @throws TemplateException
    */
-  public V4Message send(@Nonnull String streamId, @Nonnull String template, Object parameters) throws TemplateException {
+  public V4Message send(@Nonnull String streamId, @Nonnull String template, Object parameters)
+      throws TemplateException {
     return send(streamId, templateResolver.resolve(template).process(parameters));
   }
 
@@ -193,7 +200,7 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
-    return callAndCatchApiException(() -> messagesApi.v4StreamSidMessageCreatePost(
+    return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
         streamId,
         authSession.getSessionToken(),
         authSession.getKeyManagerToken(),
@@ -208,15 +215,16 @@ public class MessageService {
   /**
    * Downloads the attachment body by the stream ID, message ID and attachment ID.
    *
-   * @param streamId the stream ID where to look for the attachment
-   * @param messageId the ID of the message containing the attachment
+   * @param streamId     the stream ID where to look for the attachment
+   * @param messageId    the ID of the message containing the attachment
    * @param attachmentId the ID of the attachment
    * @return a byte array of attachment encoded in base 64
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
   public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
-    return callAndCatchApiException(() -> attachmentsApi.v1StreamSidAttachmentGet(streamId, attachmentId, messageId,
-        authSession.getSessionToken(), authSession.getKeyManagerToken()));
+    return executeAndRetry("getAttachment",
+        () -> attachmentsApi.v1StreamSidAttachmentGet(streamId, attachmentId, messageId,
+            authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
   /**
@@ -227,7 +235,7 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#import-message-v4">Import Message</a>
    */
   public List<V4ImportResponse> importMessages(List<V4ImportedMessage> messages) {
-    return callAndCatchApiException(() -> messagesApi.v4MessageImportPost(authSession.getSessionToken(),
+    return executeAndRetry("importMessages", () -> messagesApi.v4MessageImportPost(authSession.getSessionToken(),
         authSession.getKeyManagerToken(), messages));
   }
 
@@ -239,7 +247,7 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#suppress-message">Suppress Message</a>
    */
   public MessageSuppressionResponse suppressMessage(@Nonnull String messageId) {
-    return callAndCatchApiException(() ->
+    return executeAndRetry("suppressMessage", () ->
         messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(messageId, authSession.getSessionToken()));
   }
 
@@ -252,7 +260,8 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#message-status">Message Status</a>
    */
   public MessageStatus getMessageStatus(@Nonnull String messageId) {
-    return callAndCatchApiException(() -> messageApi.v1MessageMidStatusGet(messageId, authSession.getSessionToken()));
+    return executeAndRetry("getMessageStatus",
+        () -> messageApi.v1MessageMidStatusGet(messageId, authSession.getSessionToken()));
   }
 
   /**
@@ -262,7 +271,7 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
    */
   public List<String> getAttachmentTypes() {
-    return callAndCatchApiException(() -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
+    return executeAndRetry("getAttachmentTypes", () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
   }
 
   /**
@@ -273,7 +282,7 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
    */
   public V4Message getMessage(@Nonnull String messageId) {
-    return callAndCatchApiException(() -> messagesApi.v1MessageIdGet(authSession.getSessionToken(),
+    return executeAndRetry("getMessage", () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(),
         authSession.getKeyManagerToken(), messageId));
   }
 
@@ -281,10 +290,10 @@ public class MessageService {
    * List attachments in a particular stream.
    *
    * @param streamId the stream ID where to look for the attachments
-   * @param since optional instant of the first required attachment.
-   * @param to optional instant of the last required attachment.
-   * @param limit maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
-   * @param sort Attachment date sort direction : ASC or DESC (default to ASC)
+   * @param since    optional instant of the first required attachment.
+   * @param to       optional instant of the last required attachment.
+   * @param limit    maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
+   * @param sort     Attachment date sort direction : ASC or DESC (default to ASC)
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
@@ -292,41 +301,44 @@ public class MessageService {
       AttachmentSort sort) {
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
-    return callAndCatchApiException(() ->
-        streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since), getEpochMillis(to), limit, sortDir));
+    return executeAndRetry("listAttachments", () ->
+        streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since),
+            getEpochMillis(to), limit, sortDir));
   }
 
   /**
    * Fetches message ids using timestamp.
    *
    * @param streamId the ID of the stream where to fetch messages.
-   * @param since optional instant of the first required messageId.
-   * @param to optional instant of the last required messageId.
-   * @param limit optional maximum number of messageIds to return.
-   * @param skip optional number of messageIds to skip.
+   * @param since    optional instant of the first required messageId.
+   * @param to       optional instant of the last required messageId.
+   * @param limit    optional maximum number of messageIds to return.
+   * @param skip     optional number of messageIds to skip.
    * @return a {@link MessageIdsFromStream} object containing the list of messageIds.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
    */
-  public MessageIdsFromStream getMessageIdsByTimestamp(@Nonnull String streamId, Instant since, Instant to, Integer limit, Integer skip) {
-    return callAndCatchApiException(() ->
-        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since), getEpochMillis(to), limit, skip));
+  public MessageIdsFromStream getMessageIdsByTimestamp(@Nonnull String streamId, Instant since, Instant to,
+      Integer limit, Integer skip) {
+    return executeAndRetry("getMessageIdsByTimestamp", () ->
+        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since),
+            getEpochMillis(to), limit, skip));
   }
 
   /**
    * Fetches message ids using timestamp.
    *
-   * @param streamId the ID of the stream where to fetch messages.
-   * @param since optional instant of the first required messageId.
-   * @param to optional instant of the last required messageId.
+   * @param streamId  the ID of the stream where to fetch messages.
+   * @param since     optional instant of the first required messageId.
+   * @param to        optional instant of the last required messageId.
    * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
    * @param totalSize total maximum number of messages to return. Optional and defaults to 50.
    * @return a {@link Stream} containing the messageIds.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
    */
-  public Stream<String> getMessageIdsByTimestampStream(@Nonnull String streamId, Instant since, Instant to, Integer chunkSize, Integer totalSize) {
+  public Stream<String> getMessageIdsByTimestampStream(@Nonnull String streamId, Instant since, Instant to,
+      Integer chunkSize, Integer totalSize) {
     PaginatedApi<String> api = ((offset, limit) ->
-        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since), getEpochMillis(to), limit, offset)
-            .getData());
+        getMessageIdsByTimestamp(streamId, since, to, limit, offset).getData());
 
     final int actualChunkSize = chunkSize == null ? 50 : chunkSize.intValue();
     final int actualTotalSize = totalSize == null ? 50 : totalSize.intValue();
@@ -343,7 +355,7 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#list-message-receipts">List Message Receipts</a>
    */
   public MessageReceiptDetailResponse listMessageReceipts(@Nonnull String messageId) {
-    return callAndCatchApiException(() ->
+    return executeAndRetry("listMessageReceipts", () ->
         defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), messageId, null, null));
   }
 
@@ -357,11 +369,15 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#message-metadata-relationship">Message Metadata</a>
    */
   public MessageMetadataResponse getMessageRelationships(@Nonnull String messageId) {
-    return callAndCatchApiException(() -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
+    return executeAndRetry("getMessageRelationships", () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
         authSession.getSessionToken(), ApiUtils.getUserAgent(), messageId));
   }
 
   private static Long getEpochMillis(Instant instant) {
     return instant == null ? null : instant.toEpochMilli();
+  }
+
+  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }
