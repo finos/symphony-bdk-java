@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.service;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;

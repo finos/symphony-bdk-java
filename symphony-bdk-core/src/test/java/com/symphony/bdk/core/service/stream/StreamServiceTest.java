@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.MockApiClient;

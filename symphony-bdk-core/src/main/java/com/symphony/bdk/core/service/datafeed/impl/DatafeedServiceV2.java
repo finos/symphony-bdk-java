@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
