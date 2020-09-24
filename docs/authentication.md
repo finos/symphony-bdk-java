@@ -32,7 +32,7 @@ bot:
     certificatePassword: YourCertificatePassword
 ```
 
-### Authentication deep-dive
+### Bot authentication deep-dive
 The code snippet below explains how to manually retrieve your bot authentication session. However, note that in most of 
 the cases those operations are done behind the scene through the `SymphpnyBdk` entry point.
 ```java
@@ -74,6 +74,10 @@ app:
     certificatePath: /path/to/certificate.cer
     certificatePassword: YourCertificatePassword
 ```
+
+### App authentication deep-dive
+
+
 
 ### OBO (On Behalf Of) authentication
 > Read more about OBO authentication [here](https://developers.symphony.com/symphony-developer/docs/obo-overview)

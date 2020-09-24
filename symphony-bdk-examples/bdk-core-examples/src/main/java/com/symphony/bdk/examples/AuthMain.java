@@ -3,6 +3,7 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
@@ -27,6 +28,8 @@ public class AuthMain {
     // send regular message using the Bot service account
     final V4Message regularMessage = bdk.messages().send(STREAM, MESSAGE);
     log.info("Regular message sent : {}", regularMessage.getMessageId());
+
+    final AppAuthSession appAuthSession = bdk.app("your-app-token");
 
     // send OBO message
 //    final V4Message oboMessage = bdk.messages(Obo.username("thibault.pensec")).send(STREAM, MESSAGE);

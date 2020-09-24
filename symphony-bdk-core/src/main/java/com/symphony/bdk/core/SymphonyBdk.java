@@ -18,6 +18,7 @@ import com.symphony.bdk.core.service.user.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.util.Optional;
 
