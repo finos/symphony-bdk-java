@@ -20,4 +20,3 @@ include(':symphony-bdk-examples:bdk-template-examples')
 include(':symphony-bdk-legacy:symphony-bdk-bot-sdk-java')
 include(':symphony-bdk-legacy:symphony-api-client-java')
 include(':symphony-bdk-legacy:sms-sdk-renderer-java')
-
