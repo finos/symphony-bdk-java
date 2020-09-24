@@ -14,8 +14,8 @@ bdk:
     host: ${domain}
 
   bot:
-    username: tibot
-    privateKeyPath: ${user.home}/local/conf/agent/privateKey.pem
+    username: fxbot-hong
+    privateKeyPath: ${user.home}/dev/fxBot/rsa/rsa-private-fxBot.pem
 
 logging:
   level:

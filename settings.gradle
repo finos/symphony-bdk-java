@@ -5,6 +5,7 @@ include(':symphony-bdk-bom')
 include(':symphony-bdk-core')
 include(':symphony-bdk-http:symphony-bdk-http-api')
 include(':symphony-bdk-http:symphony-bdk-http-jersey2')
+include(':symphony-bdk-http:symphony-bdk-http-webclient')
 
 include(':symphony-bdk-template:symphony-bdk-template-api')
 include(':symphony-bdk-template:symphony-bdk-template-freemarker')
@@ -19,3 +20,4 @@ include(':symphony-bdk-examples:bdk-template-examples')
 include(':symphony-bdk-legacy:symphony-bdk-bot-sdk-java')
 include(':symphony-bdk-legacy:symphony-api-client-java')
 include(':symphony-bdk-legacy:sms-sdk-renderer-java')
+
