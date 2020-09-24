@@ -274,14 +274,6 @@ public class DatafeedServiceV1Test {
     }
 
     @Test
-    void getRetryInstanceTest() {
-        Retry retry = this.datafeedService.getRetryInstance("Test retry");
-        assertNotNull(retry);
-        assertEquals("Test retry", retry.getName());
-        assertEquals(2, retry.getRetryConfig().getMaxAttempts());
-    }
-
-    @Test
     void handleV4EventTest() {
         List<V4Event> events = new ArrayList<>();
         events.add(null);
