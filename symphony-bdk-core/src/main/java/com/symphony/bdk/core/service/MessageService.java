@@ -3,7 +3,7 @@ package com.symphony.bdk.core.service;
 
 import static com.symphony.bdk.core.util.SupplierWithApiException.callAndCatchApiException;
 
-import com.symphony.bdk.core.api.invoker.util.ApiUtils;
+import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.auth.AuthSession;

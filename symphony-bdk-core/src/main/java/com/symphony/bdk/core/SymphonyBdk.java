@@ -16,6 +16,10 @@ import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 
+import com.symphony.bdk.core.util.ServiceLookup;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
+import com.symphony.bdk.http.api.HttpClient;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -59,6 +63,16 @@ public class SymphonyBdk {
 
     // setup activities
     this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(botSession), this.datafeedService::subscribe);
+  }
+
+  /**
+   * Get the {@link HttpClient.Builder} from a Bdk entry point.
+   * The returned HttpClient builder instance depends on which {@link ApiClientBuilderProvider} is implemented.
+   *
+   * @return {@link HttpClient.Builder} HttpClient builder instance.
+   */
+  public HttpClient.Builder http() {
+    return HttpClient.builder(ServiceLookup.lookupSingleService(ApiClientBuilderProvider.class));
   }
 
   /**

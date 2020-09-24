@@ -1,6 +1,6 @@
 package com.symphony.bdk.core;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;

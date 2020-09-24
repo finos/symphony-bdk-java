@@ -18,6 +18,7 @@ target/
 build/
 .gradle/
 !gradle/wrapper/gradle-wrapper.jar
+out/
 
 .DS_Store
 settings.xml
