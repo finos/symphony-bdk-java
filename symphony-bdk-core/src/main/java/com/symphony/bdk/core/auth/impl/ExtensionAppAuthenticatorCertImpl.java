@@ -1,8 +1,5 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -10,8 +7,10 @@ import com.symphony.bdk.core.auth.impl.model.ExtensionAppAuthenticateRequest;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.CertificatePodApi;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
-
 import com.symphony.bdk.gen.api.model.PodCertificate;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;

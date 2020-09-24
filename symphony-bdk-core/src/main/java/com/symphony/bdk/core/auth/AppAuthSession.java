@@ -3,6 +3,8 @@ package com.symphony.bdk.core.auth;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
+import com.symphony.bdk.core.auth.jwt.UserClaim;
+
 import org.apiguardian.api.API;
 
 import javax.annotation.Nullable;
@@ -46,5 +48,5 @@ public interface AppAuthSession {
    */
   void refresh() throws AuthUnauthorizedException;
 
-  Object validateJwt(String jwt) throws AuthInitializationException;
+  UserClaim validateJwt(String jwt) throws AuthInitializationException;
 }
