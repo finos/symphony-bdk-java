@@ -6,6 +6,7 @@ import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.util.TypeReference;
 
+import org.apiguardian.api.API;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -25,7 +26,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * Spring WebClient implementation for the {@link ApiClient} interface called by generated code.
+ */
+@API(status = API.Status.EXPERIMENTAL)
 public class ApiClientWebClient implements ApiClient {
 
   protected WebClient webClient;
@@ -38,6 +44,9 @@ public class ApiClientWebClient implements ApiClient {
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public <T> ApiResponse<T> invokeAPI(
@@ -100,7 +109,7 @@ public class ApiClientWebClient implements ApiClient {
     }
 
     if (formParams != null) {
-      if (contentType.startsWith("multipart/form-data")) {
+      if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA_VALUE)) {
         MultiValueMap<String, Object> formValueMap = new LinkedMultiValueMap<>();
         for (Map.Entry<String, Object> param : formParams.entrySet()) {
           if (param.getValue() instanceof File) {
@@ -111,7 +120,7 @@ public class ApiClientWebClient implements ApiClient {
           }
         }
         requestBodySpec.body(BodyInserters.fromMultipartData(formValueMap));
-      } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
+      } else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
         MultiValueMap<String, String> formValueMap = new LinkedMultiValueMap<>();
         for (Map.Entry<String, Object> param : formParams.entrySet()) {
           formValueMap.add(param.getKey(), parameterToString(param.getValue()));
@@ -125,7 +134,13 @@ public class ApiClientWebClient implements ApiClient {
 
     Mono<ClientResponse> mono = requestBodySpec.exchange();
     ClientResponse response = mono.block();
-    Map<String, List<String>> headers = new HashMap<>();
+    Map<String, List<String>> headers = response
+        .headers().asHttpHeaders().entrySet()
+        .stream()
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue
+        ));
     for (Map.Entry<String, List<String>> entry : response.headers().asHttpHeaders().entrySet()) {
       headers.put(entry.getKey(), entry.getValue());
     }
@@ -161,11 +176,17 @@ public class ApiClientWebClient implements ApiClient {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getBasePath() {
     return this.basePath;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String parameterToString(Object param) {
     if (param == null) {
@@ -184,6 +205,9 @@ public class ApiClientWebClient implements ApiClient {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public List<Pair> parameterToPairs(String collectionFormat, String name, Object value) {
     List<Pair> params = new ArrayList<Pair>();
@@ -245,6 +269,9 @@ public class ApiClientWebClient implements ApiClient {
     return params;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String selectHeaderAccept(String[] accepts) {
     if (accepts.length == 0) {
@@ -263,6 +290,9 @@ public class ApiClientWebClient implements ApiClient {
     return mime != null && (mime.matches(jsonMime) || mime.equals("*/*"));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String selectHeaderContentType(String[] contentTypes) {
     if (contentTypes.length == 0) {
@@ -276,6 +306,9 @@ public class ApiClientWebClient implements ApiClient {
     return contentTypes[0];
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String escapeString(String str) {
     try {

@@ -5,5 +5,5 @@ dependencies {
 
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
+    implementation 'org.projectreactor:reactor-spring'
 }

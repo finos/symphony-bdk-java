@@ -44,8 +44,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     trustStoreBytes = null;
     trustStorePassword = null;
     defaultHeaders = new HashMap<>();
-    connectionTimeout = 15000;
-    readTimeout = 60000;
+    connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
+    readTimeout = DEFAULT_READ_TIMEOUT;
     temporaryFolderPath = null;
     withUserAgent(ApiUtils.getUserAgent());
   }

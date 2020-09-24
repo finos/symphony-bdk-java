@@ -8,6 +8,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.apiguardian.api.API;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
@@ -25,6 +26,10 @@ import java.util.Map;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+/**
+ * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientWebClient}.
+ */
+@API(status = API.Status.EXPERIMENTAL)
 public class ApiClientBuilderWebClient implements ApiClientBuilder {
 
   private final Map<String, String> defaultHeaders;
@@ -39,30 +44,26 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
 
   public ApiClientBuilderWebClient() {
     basePath = "";
-    keyStoreBytes = null;
-    keyStorePassword = null;
-    trustStoreBytes = null;
-    trustStorePassword = null;
     defaultHeaders = new HashMap<>();
-    connectionTimeout = 15000;
-    readTimeout = 60000;
-    temporaryFolderPath = null;
+    connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
+    readTimeout = DEFAULT_READ_TIMEOUT;
     withUserAgent(ApiUtils.getUserAgent());
   }
 
+  /**
+   * Specific implementation of {@link ApiClientBuilder#build()} which returns an {@link ApiClientWebClient} instance.
+   */
   @Override
   public ApiClient build() {
     WebClient.Builder builder = WebClient.builder();
     SslContext sslContext = this.createSSLContext();
-    if (sslContext != null) {
-      HttpClient httpConnector =
-          HttpClient.create().secure(t -> t.sslContext(sslContext)).tcpConfiguration(tcpClient -> tcpClient.option(
-              ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectionTimeout)
-              .doOnConnected(connection -> connection.addHandlerLast(
-                  new ReadTimeoutHandler(this.readTimeout / 1000))));
+    HttpClient httpConnector =
+        HttpClient.create().secure(t -> t.sslContext(sslContext)).tcpConfiguration(tcpClient -> tcpClient.option(
+            ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectionTimeout)
+            .doOnConnected(connection -> connection.addHandlerLast(
+                new ReadTimeoutHandler(this.readTimeout / 1000))));
 
-      builder.clientConnector(new ReactorClientHttpConnector(httpConnector));
-    }
+    builder.clientConnector(new ReactorClientHttpConnector(httpConnector));
     return new ApiClientWebClient(builder.baseUrl(this.basePath).build(), this.basePath, this.defaultHeaders);
   }
 
@@ -159,7 +160,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
       }
       return builder.build();
     } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
-      return null;
+      throw new RuntimeException(e);
     }
   }
 }

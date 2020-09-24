@@ -4,7 +4,7 @@ dependencies {
     implementation project(':symphony-bdk-core')
     implementation project(':symphony-bdk-template:symphony-bdk-template-api')
     implementation project(':symphony-bdk-http:symphony-bdk-http-api')
-    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-webclient')
     implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     implementation 'org.slf4j:slf4j-api'
