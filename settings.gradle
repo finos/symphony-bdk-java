@@ -9,8 +9,8 @@ include(':symphony-bdk-core-invokers:symphony-bdk-core-invoker-jersey2')
 include(':symphony-bdk-template:symphony-bdk-template-api')
 include(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
-include(':symphony-bdk-spring:bdk-core-starter')
-include(':symphony-bdk-spring:bdk-app-starter')
+include(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
+include(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
 
 include(':symphony-bdk-examples:bdk-core-examples')
 include(':symphony-bdk-examples:bdk-spring-boot-example')
