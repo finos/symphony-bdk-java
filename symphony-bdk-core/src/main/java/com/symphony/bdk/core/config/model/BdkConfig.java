@@ -13,15 +13,16 @@ public class BdkConfig {
   private static final String DEFAULT_SCHEME = "https";
   private static final int DEFAULT_HTTPS_PORT = 443;
 
+  // the targeted URLs can be defined globally here and overridden for each agent, pod, keyManager, sessionAuth config
   private String scheme = DEFAULT_SCHEME;
   private String host;
   private Integer port = DEFAULT_HTTPS_PORT;
   private String context = "";
 
-  private BdkClientConfig agent = new BdkClientConfig();
-  private BdkClientConfig pod = new BdkClientConfig();
-  private BdkClientConfig keyManager = new BdkClientConfig();
-  private BdkClientConfig sessionAuth = new BdkClientConfig();
+  private BdkClientConfig agent = new BdkClientConfig(this);
+  private BdkClientConfig pod = new BdkClientConfig(this);
+  private BdkClientConfig keyManager = new BdkClientConfig(this);
+  private BdkClientConfig sessionAuth = new BdkClientConfig(this);
 
   private BdkBotConfig bot = new BdkBotConfig();
   private BdkExtAppConfig app = new BdkExtAppConfig();
@@ -46,5 +47,26 @@ public class BdkConfig {
    */
   public BdkRetryConfig getDatafeedRetryConfig() {
     return datafeed.getRetry() == null ? retry : datafeed.getRetry();
+  }
+
+  public void setAgent(BdkClientConfig agent) {
+    this.agent = attachParent(agent);
+  }
+
+  public void setPod(BdkClientConfig pod) {
+    this.pod = attachParent(pod);
+  }
+
+  public void setKeyManager(BdkClientConfig keyManager) {
+    this.keyManager = attachParent(keyManager);
+  }
+
+  public void setSessionAuth(BdkClientConfig sessionAuth) {
+    this.sessionAuth = attachParent(sessionAuth);
+  }
+
+  private BdkClientConfig attachParent(BdkClientConfig config) {
+    config.setParentConfig(this);
+    return config;
   }
 }
