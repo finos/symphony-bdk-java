@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 class SymphonyBdkAutoConfigurationTest {
 
   @Test
-  public void shouldLoadContextWithSuccess() {
+  void shouldLoadContextWithSuccess() {
 
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
@@ -42,6 +42,28 @@ class SymphonyBdkAutoConfigurationTest {
       // verify that beans for cert auth have not been injected
       assertThat(context).doesNotHaveBean("keyAuthApiClient");
       assertThat(context).doesNotHaveBean("sessionAuthApiClient");
+    });
+  }
+
+  @Test
+  void shouldLoadParentConfigurationIfSet() {
+
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.scheme=http",
+            "bdk.host=localhost",
+            "bdk.context=context",
+
+            "bdk.bot.username=tibot",
+            "bdk.bot.privateKeyPath=classpath:/privatekey.pem"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      final SymphonyBdkCoreProperties config = context.getBean(SymphonyBdkCoreProperties.class);
+
+      assertThat(config.getAgent().getBasePath()).isEqualTo("http://localhost:443/context");
     });
   }
 }
