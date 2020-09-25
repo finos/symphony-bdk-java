@@ -12,7 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
@@ -271,14 +271,6 @@ public class DatafeedServiceV1Test {
 
         Optional<String> datafeedId = this.datafeedService.retrieveDatafeed();
         assertFalse(datafeedId.isPresent());
-    }
-
-    @Test
-    void getRetryInstanceTest() {
-        Retry retry = this.datafeedService.getRetryInstance("Test retry");
-        assertNotNull(retry);
-        assertEquals("Test retry", retry.getName());
-        assertEquals(2, retry.getRetryConfig().getMaxAttempts());
     }
 
     @Test

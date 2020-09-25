@@ -1,10 +1,10 @@
 package com.symphony.bdk.spring;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.http.api.ApiClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
