@@ -1,15 +1,17 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.AuthenticationApi;
+import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.model.AuthenticateExtensionAppRequest;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
+import com.symphony.bdk.gen.api.model.PodCertificate;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -25,18 +27,25 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticator {
+public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthenticator {
 
-  private final JwtHelper jwtHelper = new JwtHelper();
-
-  private final String appId;
   private final PrivateKey appPrivateKey;
   private final AuthenticationApi authenticationApi;
+  private final PodApi podApi;
 
-  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
-    this.appId = appId;
+  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient, ApiClient podApiClient) {
+    super(appId);
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);
+    this.podApi = new PodApi(podApiClient);
+  }
+
+  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient, ApiClient podApiClient,
+      ExtensionAppTokensRepository tokensRepository) {
+    super(appId, tokensRepository);
+    this.appPrivateKey = appPrivateKey;
+    this.authenticationApi = new AuthenticationApi(loginApiClient);
+    this.podApi = new PodApi(podApiClient);
   }
 
   /**
@@ -51,25 +60,26 @@ public class ExtensionAppAuthenticatorRsaImpl implements ExtensionAppAuthenticat
     return authSession;
   }
 
-  protected ExtensionAppTokens retrieveExtensionAppSession(String appToken) throws AuthUnauthorizedException {
-    log.debug("Start authenticating extension app with id : {} ...", this.appId);
 
-    final String jwt = this.jwtHelper.createSignedJwt(this.appId, JwtHelper.JWT_EXPIRATION_MILLIS, this.appPrivateKey);
+  @Override
+  protected ExtensionAppTokens retrieveExtAppTokens(String appToken) throws ApiException {
+    final String jwt = JwtHelper.createSignedJwt(this.appId, JwtHelper.JWT_EXPIRATION_MILLIS, this.appPrivateKey);
     final AuthenticateExtensionAppRequest req = new AuthenticateExtensionAppRequest();
     req.authToken(jwt);
     req.appToken(appToken);
 
+    return this.authenticationApi.v1PubkeyAppAuthenticateExtensionAppPost(req);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public PodCertificate getPodCertificate() {
     try {
-      final ExtensionAppTokens extensionAppTokens = this.authenticationApi.v1PubkeyAppAuthenticateExtensionAppPost(req);
-      log.debug("App with ID '{}' successfully authenticated.", this.appId);
-      return extensionAppTokens;
+      return this.podApi.v1PodcertGet();
     } catch (ApiException e) {
-      if (e.isUnauthorized()) {
-        throw new AuthUnauthorizedException("Unable to authenticate app with ID : " + this.appId + ". "
-            + "It usually happens when the app has not been configured or is not activated.", e);
-      } else {
-        throw new ApiRuntimeException(e);
-      }
+      throw new ApiRuntimeException(e);
     }
   }
 }

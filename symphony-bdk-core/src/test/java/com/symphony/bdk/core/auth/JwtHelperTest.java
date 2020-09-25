@@ -1,10 +1,17 @@
 package com.symphony.bdk.core.auth;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.auth.jwt.UserClaim;
 
 import com.migcomponents.migbase64.Base64;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -14,17 +21,26 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.util.Date;
 
 /**
  * Test class for the {@link JwtHelper}.
  */
 @Slf4j
 class JwtHelperTest {
+
+  public static final String CERT_PASSWORD = "changeit";
+  public static final String CERT_ALIAS = "1";
 
   @Test
   void loadPkcs8PrivateKey() throws GeneralSecurityException {
@@ -36,6 +52,42 @@ class JwtHelperTest {
   void loadPkcs1PrivateKey() throws GeneralSecurityException {
     final PrivateKey privateKey = new JwtHelper().parseRsaPrivateKey(generatePkcs1RsaPrivateKey());
     assertNotNull(privateKey);
+  }
+
+  @Test
+  @SneakyThrows
+  public void testValidateJwt() {
+
+    final UserClaim inputUserClaim = new UserClaim();
+    inputUserClaim.setId("app-id");
+    inputUserClaim.setCompanyId("companyID");
+
+    final KeyStore keyStore = getKeyStoreFromFile();
+    final Certificate certificate = keyStore.getCertificate(CERT_ALIAS);
+    final String certificatePem = java.util.Base64.getEncoder().encodeToString(certificate.getEncoded());
+
+    String jwt = generateJwt(keyStore.getKey(CERT_ALIAS, CERT_PASSWORD.toCharArray()), inputUserClaim);
+
+    assertEquals(inputUserClaim, JwtHelper.validateJwt(jwt, certificatePem));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testValidateJwtWithInvalidCertificate() {
+    final KeyStore keyStore = getKeyStoreFromFile();
+    String jwt = generateJwt(keyStore.getKey(CERT_ALIAS, CERT_PASSWORD.toCharArray()), new UserClaim());
+
+    assertThrows(AuthInitializationException.class, () -> JwtHelper.validateJwt(jwt, "invalid pem"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testValidateJwtWithInvalidJwt() {
+    final KeyStore keyStore = getKeyStoreFromFile();
+    final Certificate certificate = keyStore.getCertificate(CERT_ALIAS);
+    final String certificatePem = java.util.Base64.getEncoder().encodeToString(certificate.getEncoded());
+
+    assertThrows(AuthInitializationException.class, () -> JwtHelper.validateJwt("invalid jwt", certificatePem));
   }
 
   @SneakyThrows
@@ -66,5 +118,33 @@ class JwtHelperTest {
     pemWriter.close();
 
     return stringWriter.toString();
+  }
+
+  @SneakyThrows
+  private KeyStore getKeyStoreFromFile() {
+    FileInputStream fm = new FileInputStream(new File("./src/test/resources/certs/extapp-cert.p12"));
+
+    KeyStore ks = KeyStore.getInstance("PKCS12");
+    ks.load(fm, CERT_PASSWORD.toCharArray());
+
+    return ks;
+  }
+
+  @SneakyThrows
+  private String generateJwt(Key key, UserClaim userClaim) {
+    Date notBefore = new Date(new Date().getTime() - (365 * 1000 * 3600 * 24));
+    Date expiration = new Date(new Date().getTime() + (365 * 1000 * 3600 * 24));
+
+    return Jwts.builder()
+        .setIssuer("me")
+        .setSubject("Bob")
+        .setAudience("you")
+        .setExpiration(expiration)
+        .setNotBefore(notBefore)
+        .setIssuedAt(new Date())
+        .claim("user", userClaim)
+        .signWith(SignatureAlgorithm.RS256, key)
+        .setId("123")
+        .compact();
   }
 }

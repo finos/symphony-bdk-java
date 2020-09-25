@@ -1,24 +1,9 @@
-domain: localhost.symphony.com
 
 bdk:
-  pod:
-    scheme: https
-    host: ${domain}
-    port: 8443
-
-  agent:
-    scheme: https
-    host: ${domain}
-    port: 9443
-
-  keyManager:
-    scheme: https
-    host: ${domain}
-    port: 8443
-
+  host: devx1.symphony.com
   bot:
     username: tibot
-    privateKeyPath: ${user.home}/local/conf/agent/privatekey.pem
+    privateKeyPath: ${user.home}/local/conf/agent/privateKey.pem
 
 logging:
   level:
