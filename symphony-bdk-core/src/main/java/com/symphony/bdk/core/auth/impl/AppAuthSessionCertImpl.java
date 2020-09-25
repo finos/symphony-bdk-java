@@ -7,23 +7,18 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
-
-import org.apiguardian.api.API;
-
-import javax.annotation.Nullable;
+import com.symphony.bdk.gen.api.model.PodCertificate;
 
 /**
- * {@link AppAuthSession} impl for rsa extension app authentication mode.
+ * {@link AppAuthSession} implementation for certificate extension app authentication mode.
  */
-@API(status = API.Status.INTERNAL)
-public class AppAuthSessionRsaImpl implements AppAuthSession {
-
-  private final ExtensionAppAuthenticatorRsaImpl authenticator;
+public class AppAuthSessionCertImpl implements AppAuthSession {
+  private final ExtensionAppAuthenticatorCertImpl authenticator;
   private String symphonySessionToken;
   private String appToken;
   private Long expireAt;
 
-  public AppAuthSessionRsaImpl(ExtensionAppAuthenticatorRsaImpl authenticator, String appToken) {
+  public AppAuthSessionCertImpl(ExtensionAppAuthenticatorCertImpl authenticator, String appToken) {
     this.authenticator = authenticator;
     this.appToken = appToken;
   }
@@ -31,7 +26,6 @@ public class AppAuthSessionRsaImpl implements AppAuthSession {
   /**
    * {@inheritDoc}
    */
-  @Nullable
   @Override
   public String getSymphonyToken() {
     return this.symphonySessionToken;
@@ -40,7 +34,6 @@ public class AppAuthSessionRsaImpl implements AppAuthSession {
   /**
    * {@inheritDoc}
    */
-  @Nullable
   @Override
   public String getAppToken() {
     return this.appToken;
@@ -49,7 +42,6 @@ public class AppAuthSessionRsaImpl implements AppAuthSession {
   /**
    * {@inheritDoc}
    */
-  @Nullable
   @Override
   public Long expireAt() {
     return this.expireAt;

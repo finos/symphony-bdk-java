@@ -4,23 +4,23 @@ import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.test.MockApiClient;
-import com.symphony.bdk.core.test.RsaTestHelper;
+
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-public class ExtensionAppAuthenticatorRsaImplTest {
+public class ExtensionAppAuthenticatorCertImplTest {
+  private static final String V1_EXTENSION_APP_AUTHENTICATE = "/sessionauth/v1/authenticate/extensionApp";
+  public static final String V1_APP_POD_CERTIFICATE = "/sessionauth/v1/app/pod/certificate";
 
-  private static final String V1_EXTENSION_APP_AUTHENTICATE = "/login/v1/pubkey/app/authenticate/extensionApp";
-  public static final String V1_POD_CERT = "/pod/v1/podcert";
-
-  private ExtensionAppAuthenticatorRsaImpl authenticator;
+  private ExtensionAppAuthenticatorCertImpl authenticator;
   private MockApiClient mockApiClient;
   private ExtensionAppTokensRepository tokensRepository;
 
@@ -28,11 +28,9 @@ public class ExtensionAppAuthenticatorRsaImplTest {
   void init() {
     mockApiClient = new MockApiClient();
     tokensRepository = spy(new InMemoryTokensRepository());
-    authenticator = new ExtensionAppAuthenticatorRsaImpl(
+    authenticator = new ExtensionAppAuthenticatorCertImpl(
         "appId",
-        RsaTestHelper.generateKeyPair().getPrivate(),
-        mockApiClient.getApiClient("/login"),
-        mockApiClient.getApiClient("/pod"),
+        mockApiClient.getApiClient("/sessionauth"),
         tokensRepository);
   }
 
@@ -50,8 +48,8 @@ public class ExtensionAppAuthenticatorRsaImplTest {
 
     final AppAuthSession session = authenticator.authenticateExtensionApp(appToken);
 
-    assertEquals(AppAuthSessionRsaImpl.class, session.getClass());
-    assertEquals(authenticator, ((AppAuthSessionRsaImpl) session).getAuthenticator());
+    assertEquals(AppAuthSessionCertImpl.class, session.getClass());
+    assertEquals(authenticator, ((AppAuthSessionCertImpl) session).getAuthenticator());
     assertEquals(session.getAppToken(), appToken);
     assertEquals(session.getSymphonyToken(), symphonyToken);
     assertEquals(session.expireAt(), 1539636528288L);
@@ -78,14 +76,14 @@ public class ExtensionAppAuthenticatorRsaImplTest {
 
   @Test
   void testGetPodCertificate() {
-    mockApiClient.onGet(200, V1_POD_CERT, "{ \"certificate\" : \"PEM_content\"}");
+    mockApiClient.onGet(200, V1_APP_POD_CERTIFICATE, "{ \"certificate\" : \"PEM_content\"}");
 
     assertEquals("PEM_content", authenticator.getPodCertificate().getCertificate());
   }
 
   @Test
   void testGetPodCertificateFailure() {
-    mockApiClient.onGet(500, V1_POD_CERT, "{}");
+    mockApiClient.onGet(500, V1_APP_POD_CERTIFICATE, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.getPodCertificate().getCertificate());
   }
