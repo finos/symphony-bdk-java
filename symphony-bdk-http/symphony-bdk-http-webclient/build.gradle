@@ -1,9 +1,28 @@
 description = 'Symphony Java BDK Core Http Spring WebClient'
 
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+        }
+    }
+}
+
 dependencies {
     implementation project(':symphony-bdk-http:symphony-bdk-http-api')
 
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.projectreactor:reactor-spring'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic'
+    testImplementation 'org.mock-server:mockserver-netty'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
 }

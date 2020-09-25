@@ -80,27 +80,31 @@ public class ApiClientWebClient implements ApiClient {
           return uriBuilder.build();
         }).contentType(MediaType.parseMediaType(contentType));
 
-    if (!"".equals(accept)) {
+    if (!"".equals(accept) && accept != null) {
       requestBodySpec.accept(MediaType.valueOf(accept));
     }
 
-    for (Map.Entry<String, String> headerParam : headerParams.entrySet()) {
-      String value = headerParam.getValue();
-      if (value != null) {
-        requestBodySpec = requestBodySpec.header(headerParam.getKey(), headerParam.getValue());
+    if (headerParams != null) {
+      for (Map.Entry<String, String> headerParam : headerParams.entrySet()) {
+        String value = headerParam.getValue();
+        if (value != null) {
+          requestBodySpec = requestBodySpec.header(headerParam.getKey(), headerParam.getValue());
+        }
       }
     }
 
-    for (Map.Entry<String, String> cookieParam : cookieParams.entrySet()) {
-      String value = cookieParam.getValue();
-      if (value != null) {
-        requestBodySpec = requestBodySpec.cookie(cookieParam.getKey(), cookieParam.getValue());
+    if (cookieParams != null) {
+      for (Map.Entry<String, String> cookieParam : cookieParams.entrySet()) {
+        String value = cookieParam.getValue();
+        if (value != null) {
+          requestBodySpec = requestBodySpec.cookie(cookieParam.getKey(), cookieParam.getValue());
+        }
       }
     }
 
     for (Map.Entry<String, String> defaultHeaderParam : this.defaultHeaderMap.entrySet()) {
       String key = defaultHeaderParam.getKey();
-      if (!headerParams.containsKey(key)) {
+      if (headerParams != null && !headerParams.containsKey(key)) {
         String value = defaultHeaderParam.getValue();
         if (value != null) {
           requestBodySpec = requestBodySpec.header(key, value);
@@ -125,7 +129,7 @@ public class ApiClientWebClient implements ApiClient {
         for (Map.Entry<String, Object> param : formParams.entrySet()) {
           formValueMap.add(param.getKey(), parameterToString(param.getValue()));
         }
-        requestBodySpec.body(BodyInserters.fromFormData(formValueMap));
+        requestBodySpec.bodyValue(formValueMap);
       }
     }
     if (body != null) {
