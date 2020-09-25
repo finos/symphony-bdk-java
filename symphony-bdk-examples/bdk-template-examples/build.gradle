@@ -11,3 +11,4 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 }
 
+uploadArchives.enabled = false
