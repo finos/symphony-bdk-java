@@ -2,6 +2,8 @@ package com.symphony.bdk.core.auth;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
+import com.symphony.bdk.gen.api.model.PodCertificate;
+
 import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
@@ -22,4 +24,19 @@ public interface ExtensionAppAuthenticator {
   @Nonnull
   AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException;
 
+  /**
+   * Retrieves the pod certificate. Useful when validating JWT tokens.
+   *
+   * @return the pod certificate
+   */
+  PodCertificate getPodCertificate();
+
+  /**
+   * Validates if appToken and symphonyToken corresponds to an existing session
+   *
+   * @param appToken the appToken
+   * @param symphonyToken the symphonyToken
+   * @return true if symphonyToken associated to a previous session initiated with appToken
+   */
+  boolean validateTokens(String appToken, String symphonyToken);
 }

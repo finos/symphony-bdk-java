@@ -6,7 +6,7 @@ description = 'Symphony Java BDK Examples for the SpringBoot integration'
 
 dependencies {
 
-    implementation project(':symphony-bdk-spring:bdk-core-starter')
+    implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.springframework.boot:spring-boot-starter'
@@ -15,3 +15,4 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 }
 
+uploadArchives.enabled = false

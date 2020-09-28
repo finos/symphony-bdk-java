@@ -1,5 +1,10 @@
 package com.symphony.bdk.core.auth.jwt;
 
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.apiguardian.api.API;
@@ -10,6 +15,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +24,9 @@ import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
@@ -43,6 +52,13 @@ public class JwtHelper {
 	// PKCS#1 format
 	private static final String PEM_RSA_PRIVATE_START = "-----BEGIN RSA PRIVATE KEY-----";
 
+	// X509 certificate
+  private static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
+  private static final String END_CERTIFICATE = "-----END CERTIFICATE-----";
+
+  private static final ObjectMapper mapper = new ObjectMapper();
+
+
 	/**
 	 * Creates a JWT with the provided user name and expiration date, signed with the provided private key.
 	 * @param user the username to authenticate; will be verified by the pod
@@ -53,7 +69,7 @@ public class JwtHelper {
 	 * the public key stored for the user
 	 * @return a signed JWT for a specific user (or subject)
 	 */
-	public String createSignedJwt(String user, long expiration, Key privateKey) {
+	public static String createSignedJwt(String user, long expiration, Key privateKey) {
 		return Jwts.builder()
 			.setSubject(user)
 			.setExpiration(new Date(System.currentTimeMillis() + expiration))
@@ -68,7 +84,7 @@ public class JwtHelper {
 	 * @return a {@link PrivateKey} instance
 	 * @throws GeneralSecurityException On invalid Private Key
 	 */
-	public PrivateKey parseRsaPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
+	public static PrivateKey parseRsaPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
 
 		// PKCS#8 format
 		if (pemPrivateKey.contains(PEM_PRIVATE_START)) {
@@ -83,6 +99,26 @@ public class JwtHelper {
 			throw new GeneralSecurityException("Invalid private key. Header not recognized.");
 		}
 	}
+
+  /**
+   * Validates a jwt against a certificate.
+   *
+   * @param jwt
+   * @param certificate string of the X.509 certificate content in pem format.
+   * @return the content of jwt clain "user" if jwt is successfully validated.
+   * @throws AuthInitializationException if certificate or jwt are invalid.
+   */
+  public static UserClaim validateJwt(String jwt, String certificate) throws AuthInitializationException {
+    final Certificate x509Certificate = parseX509Certificate(certificate);
+
+    try {
+      final Claims body = Jwts.parser().setSigningKey(x509Certificate.getPublicKey()).parseClaimsJws(jwt).getBody();
+
+      return mapper.convertValue(body.get("user"), UserClaim.class);
+    } catch (JwtException e) {
+      throw new AuthInitializationException("Unable to validate jwt", e);
+    }
+  }
 
 	private static PrivateKey parsePKCS1PrivateKey(String pemPrivateKey) throws GeneralSecurityException {
 		try (final PemReader pemReader = new PemReader(new StringReader(pemPrivateKey))) {
@@ -117,4 +153,19 @@ public class JwtHelper {
 
 		return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
 	}
+
+  protected static Certificate parseX509Certificate(String certificate) throws AuthInitializationException {
+    try {
+      String sanitizedBase64Der = certificate
+          .replace(BEGIN_CERTIFICATE, "")
+          .replace(END_CERTIFICATE, "")
+          .replaceAll("\\s", "");
+
+      byte [] decoded = Base64.getDecoder().decode(sanitizedBase64Der);
+
+      return CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(decoded));
+    } catch (CertificateException e) {
+      throw new AuthInitializationException("Unable to parse certificate", e);
+    }
+  }
 }

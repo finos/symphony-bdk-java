@@ -7,6 +7,11 @@ import org.apiguardian.api.API;
  */
 @API(status = API.Status.STABLE)
 public interface ApiClientBuilder {
+
+  int DEFAULT_READ_TIMEOUT = 60_000;
+  int DEFAULT_CONNECT_TIMEOUT = 15_000;
+
+
   /**
    * @return a new {@link ApiClient} based on the previously called methods below.
    */
