@@ -1,9 +1,27 @@
+ext.projectVersion = project.properties['projectVersion'] ?: '1.2.0-SNAPSHOT'
+
+ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'Symphony repository URL'
+ext.symphonyRepoUser = project.hasProperty('symphonyRepoUser') ? project.getProperty('symphonyRepoUser') : 'Symphony artifactory user'
+ext.symphonyRepoPassword = project.hasProperty('symphonyRepoPassword') ? project.getProperty('symphonyRepoPassword') : 'Symphony artifactory password'
+
 allprojects {
     group = 'com.symphony.platformsolutions'
-    version = '1.2.0-SNAPSHOT'
+    version = projectVersion
 
     defaultTasks 'build'
 }
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
+    }
+}
+
+apply plugin: 'io.codearte.nexus-staging'
 
 subprojects {
     apply plugin: 'signing'
@@ -60,5 +78,58 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
         implementation platform(project(':symphony-bdk-bom'))
         annotationProcessor platform(project(':symphony-bdk-bom'))
         testAnnotationProcessor platform(project(':symphony-bdk-bom'))
+    }
+}
+
+configure(subprojects.findAll { !it.name.contains('example') }) {
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.bmuschko.nexus'
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username rootProject.ext.symphonyRepoUser
+                    password rootProject.ext.symphonyRepoPassword
+                }
+                url rootProject.ext.symphonyRepoUrl
+            }
+        }
+    }
+
+    modifyPom {
+        project {
+            name = project.name
+            description = project.description
+            url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+            licenses {
+                license {
+                    name = 'MIT License'
+                    url = 'http://www.opensource.org/licenses/mit-license.php'
+                }
+            }
+            developers {
+                developer {
+                    name = 'Symphony Platform Solutions'
+                    email = 'platformsolutions@symphony.com'
+                    organization = 'Symphony Communication Services'
+                    organizationUrl = 'https://symphony.com/'
+                }
+            }
+            scm {
+                connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+                developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+                url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+            }
+        }
+    }
+
+    extraArchive {
+        sources = false
+        javadoc = false
+    }
+
+    nexus {
+        sign = true
     }
 }

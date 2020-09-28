@@ -55,12 +55,12 @@
             </dependency>
             <dependency>
                 <groupId>com.symphony.platformsolutions</groupId>
-                <artifactId>symphony-bdk-core-invoker-api</artifactId>
+                <artifactId>symphony-bdk-http-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.symphony.platformsolutions</groupId>
-                <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
+                <artifactId>symphony-bdk-http-jersey2</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -14,10 +14,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -94,7 +96,7 @@ public class MessageServiceTest {
 
     messageService = new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
         new MessageSuppressionApi(podClient), streamsApi, new PodApi(podClient),
-        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine);
+        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine, new RetryWithRecoveryBuilder());
   }
 
   @Test
