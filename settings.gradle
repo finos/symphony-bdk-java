@@ -1,4 +1,4 @@
-rootProject.name = 'symphony-bdk'
+rootProject.name = 'symphony-api-client-java-parent'
 
 include(':symphony-bdk-bom')
 
