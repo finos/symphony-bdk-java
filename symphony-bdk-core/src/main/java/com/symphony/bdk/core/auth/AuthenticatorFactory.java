@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
@@ -90,11 +91,18 @@ public class AuthenticatorFactory {
    *
    * @return a new {@link ExtensionAppAuthenticator} instance.
    */
-  public @Nonnull ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
+  public @Nonnull
+  ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
+    if (this.config.getApp().isCertificateAuthenticationConfigured()) {
+      return new ExtensionAppAuthenticatorCertImpl(
+          this.config.getApp().getAppId(),
+          this.apiClientFactory.getExtAppSessionAuthClient());
+    }
     return new ExtensionAppAuthenticatorRsaImpl(
         this.config.getApp().getAppId(),
         this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
-        this.apiClientFactory.getLoginClient()
+        this.apiClientFactory.getLoginClient(),
+        this.apiClientFactory.getPodClient()
     );
   }
 
@@ -122,8 +130,7 @@ public class AuthenticatorFactory {
       log.warn("Warning: Keeping RSA private keys into project resources is dangerous. "
           + "You should consider another location for production.");
       is = AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
-    }
-    else {
+    } else {
       is = new FileInputStream(privateKeyPath);
     }
 

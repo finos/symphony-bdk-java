@@ -1,10 +1,12 @@
 package com.symphony.bdk.core.service;
 
-import com.symphony.bdk.core.api.invoker.ApiException;
-import com.symphony.bdk.core.api.invoker.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.RequiredArgsConstructor;
 import org.apiguardian.api.API;
@@ -17,6 +19,7 @@ import org.apiguardian.api.API;
 public class SessionService {
 
   private final SessionApi sessionApi;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
   /**
    * Retrieves the {@link UserV2} session from the pod using an {@link AuthSession} holder.
@@ -25,10 +28,13 @@ public class SessionService {
    * @return Bot session info.
    */
   public UserV2 getSession(AuthSession authSession) {
-    try {
-      return this.sessionApi.v2SessioninfoGet(authSession.getSessionToken()) ;
-    } catch (ApiException ex) {
-      throw new ApiRuntimeException(ex);
-    }
+    return executeAndRetry("getSession",
+        () -> sessionApi.v2SessioninfoGet(authSession.getSessionToken()), authSession);
+  }
+
+  protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, AuthSession authSession) {
+    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }

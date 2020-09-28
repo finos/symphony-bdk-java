@@ -47,6 +47,8 @@ dependencies {
         api 'org.glassfish.jersey.media:jersey-media-json-jackson:2.29.1'
         api 'org.glassfish.jersey.connectors:jersey-apache-connector:2.29.1'
 
+        api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
+
         api 'org.freemarker:freemarker:2.3.30'
         api 'org.reflections:reflections:0.9.12'
 

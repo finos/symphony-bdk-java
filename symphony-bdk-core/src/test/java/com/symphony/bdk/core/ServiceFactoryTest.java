@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.api.invoker.ApiClient;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;

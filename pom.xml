@@ -150,7 +150,7 @@
             <modules>
                 <module>symphony-bdk-bom</module>
                 <module>symphony-bdk-core</module>
-                <module>symphony-bdk-core-invokers</module>
+                <module>symphony-bdk-http</module>
                 <module>symphony-bdk-examples</module>
                 <module>symphony-bdk-spring</module>
                 <module>symphony-bdk-template</module>
