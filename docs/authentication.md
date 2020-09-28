@@ -30,7 +30,7 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 bot:
     username: bot-username
-    certificatePath: /path/to/certificate.cer
+    certificatePath: /path/to/certificate.p12
     certificatePassword: YourCertificatePassword
 ```
 
@@ -99,7 +99,7 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 app:
     appId: app-id
-    certificatePath: /path/to/certificate.cer
+    certificatePath: /path/to/certificate.p12
     certificatePassword: YourCertificatePassword
 ```
 
