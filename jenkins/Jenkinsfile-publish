@@ -20,10 +20,7 @@ node {
     ]) {
     
       withEnv([
-        "PROJECT_TYPE=java",
-        "USE_OPENJDK11=false",
-        "DISABLE_SONAR=true",
-        "GIT_BRANCH=$PARAM_BUILD_BRANCH", 
+        "GIT_BRANCH=$PARAM_BUILD_BRANCH",
         "GIT_ORG=$PARAM_REPO_OWNER", 
         "GIT_REPO=symphony-api-client-java"
       ]) {
