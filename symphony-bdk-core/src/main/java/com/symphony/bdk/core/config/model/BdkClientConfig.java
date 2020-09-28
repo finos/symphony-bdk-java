@@ -2,11 +2,13 @@ package com.symphony.bdk.core.config.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apiguardian.api.API;
 
 import java.util.function.Supplier;
 
 @Getter
 @Setter
+@API(status = API.Status.STABLE)
 public class BdkClientConfig {
 
   private BdkConfig parentConfig;

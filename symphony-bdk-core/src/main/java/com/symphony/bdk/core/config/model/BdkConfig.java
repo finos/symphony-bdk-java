@@ -2,12 +2,14 @@ package com.symphony.bdk.core.config.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apiguardian.api.API;
 
 /**
  * Class holding the whole BDK configuration
  */
 @Getter
 @Setter
+@API(status = API.Status.STABLE)
 public class BdkConfig {
 
   private static final String DEFAULT_SCHEME = "https";

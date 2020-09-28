@@ -3,12 +3,15 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Event;
 
+import org.apiguardian.api.API;
+
 import java.util.function.BiConsumer;
 
 /**
  * Enumeration of possible types of Real Time Events that can be retrieved from the DataFeed.
  * More information : https://rest-api.symphony.com/reference#real-time-events-v4
  */
+@API(status = API.Status.INTERNAL)
 enum RealTimeEventType {
 
     MESSAGESENT((listener, event) -> {

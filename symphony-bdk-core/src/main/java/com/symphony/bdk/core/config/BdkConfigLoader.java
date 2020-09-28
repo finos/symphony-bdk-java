@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Slf4j
+@API(status = API.Status.STABLE)
 public class BdkConfigLoader {
 
   private static final ObjectMapper JSON_MAPPER = new JsonMapper();
