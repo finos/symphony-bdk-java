@@ -3,9 +3,11 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
+import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,5 +29,8 @@ public class AuthMain {
     // send regular message using the Bot service account
     final V4Message regularMessage = bdk.messages().send(STREAM, MESSAGE);
     log.info("Regular message sent : {}", regularMessage.getMessageId());
+
+    AuthSession oboSession = bdk.obo("user.name");
+    bdk.streams().listStreams(oboSession, new StreamFilter());
   }
 }

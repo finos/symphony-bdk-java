@@ -42,7 +42,7 @@ Configuring both RSA and certificate authentication isn't recommended.
 
 ### Bot authentication deep-dive
 The code snippet below explains how to manually retrieve your bot authentication session. However, note that by default 
-those operations are done behind the scene through the `SymphpnyBdk` entry point.
+those operations are done behind the scene through the `SymphonyBdk` entry point.
 ```java
 public class Example {
 
@@ -63,7 +63,7 @@ public class Example {
 ### Multiple bot instances
 By design, the `SymphonyBdk` object contains a single bot session. However, you might want to create an application that
 has to handle multiple bot sessions, potentially using different authentication modes. This is possible by creating 
-multiple instances of `SymphpnyBdk` using different configurations:
+multiple instances of `SymphonyBdk` using different configurations:
 ```java
 public class Example {
 
@@ -104,7 +104,7 @@ app:
 ```
 
 ### Circle Of Trust
-> Read more about OBO authentication [here](https://developers.symphony.com/extension/docs/application-authentication#section-application-authentication-sequence)
+> Read more about Circle Of Trust [here](https://developers.symphony.com/extension/docs/application-authentication#section-application-authentication-sequence)
 
 ```java
 public class Example {
@@ -138,6 +138,9 @@ public class Example {
     
     final AuthSession oboSessionUsername = bdk.obo("user.name");
     final AuthSession oboSessionUserId = bdk.obo(123456789L);
+    
+    // list streams OBO user "user.name"
+    bdk.streams().listStreams(oboSessionUsername, new StreamFilter());
   }
 }
 ```
