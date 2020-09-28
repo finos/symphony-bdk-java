@@ -1,8 +1,8 @@
 ext.projectVersion = project.properties['projectVersion'] ?: '1.2.0-SNAPSHOT'
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'Symphony repository URL'
-ext.symphonyRepoUser = project.hasProperty('symphonyRepoUser') ? project.getProperty('symphonyRepoUser') : 'Symphony artifactory user'
-ext.symphonyRepoPassword = project.hasProperty('symphonyRepoPassword') ? project.getProperty('symphonyRepoPassword') : 'Symphony artifactory password'
+ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
+ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
 
 allprojects {
     group = 'com.symphony.platformsolutions'
@@ -55,6 +55,7 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     }
 
     javadoc {
+        options.encoding = 'UTF-8'
         options.addStringOption('Xdoclint:none', '-quiet')
     }
 
