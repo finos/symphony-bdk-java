@@ -1,8 +1,8 @@
 ext.projectVersion = project.properties['projectVersion'] ?: '1.2.0-SNAPSHOT'
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'Symphony repository URL'
-ext.symphonyRepoUser = project.hasProperty('symphonyRepoUser') ? project.getProperty('symphonyRepoUser') : 'Symphony artifactory user'
-ext.symphonyRepoPassword = project.hasProperty('symphonyRepoPassword') ? project.getProperty('symphonyRepoPassword') : 'Symphony artifactory password'
+ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
+ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
 
 allprojects {
     group = 'com.symphony.platformsolutions'
@@ -45,6 +45,11 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     }
 
     signing {
+        if (System.env['ORG_GRADLE_PROJECT_KEY'] != null && System.env['ORG_GRADLE_PROJECT_PASSPHRASE'] != null) {
+            def signingKey = findProperty('ORG_GRADLE_PROJECT_KEY')
+            def signingPassword = findProperty('ORG_GRADLE_PROJECT_PASSPHRASE')
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        }
         sign publishing.publications.maven
     }
 
