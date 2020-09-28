@@ -28,6 +28,10 @@ jacocoTestCoverageVerification {
     }
 }
 
+test {
+    finalizedBy jacocoTestReport
+}
+
 dependencies {
     implementation project(':symphony-bdk-http:symphony-bdk-http-api')
     implementation project(':symphony-bdk-template:symphony-bdk-template-api')

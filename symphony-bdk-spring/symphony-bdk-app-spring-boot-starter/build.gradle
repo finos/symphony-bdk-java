@@ -18,6 +18,10 @@ jacocoTestCoverageVerification {
     }
 }
 
+test {
+    finalizedBy jacocoTestReport
+}
+
 dependencies {
 
 }
