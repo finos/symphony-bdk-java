@@ -2,6 +2,8 @@ description = '[legacy] Symphony API Client'
 
 test {
     useJUnit()
+
+    finalizedBy jacocoTestReport
 }
 
 jacocoTestCoverageVerification {
