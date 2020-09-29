@@ -1,9 +1,12 @@
 package com.symphony.bdk.core.service.user.constant;
 
+import org.apiguardian.api.API;
+
 /**
  * Static roles that have special logic attached to them.
  * @see <a href="https://developers.symphony.com/restapi/docs/permissions">Symphony Roles</a>
  */
+@API(status = API.Status.STABLE)
 public enum RoleId {
   ADMINISTRATOR,
   SUPER_ADMINISTRATOR,
