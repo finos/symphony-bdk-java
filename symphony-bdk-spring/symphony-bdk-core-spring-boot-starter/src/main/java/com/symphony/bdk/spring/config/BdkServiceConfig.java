@@ -13,7 +13,9 @@ import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
+import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
+import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -39,8 +41,9 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public StreamService streamService(StreamsApi streamsApi, AuthSession botSession, BdkConfig config) {
-    return new StreamService(streamsApi, botSession, getRetryBuilder(config, botSession));
+  public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi,
+      AuthSession botSession, BdkConfig config) {
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, botSession, getRetryBuilder(config, botSession));
   }
 
   @Bean

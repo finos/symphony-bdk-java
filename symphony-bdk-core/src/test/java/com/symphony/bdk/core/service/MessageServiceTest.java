@@ -14,11 +14,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
@@ -40,6 +36,9 @@ import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 
@@ -346,6 +345,26 @@ public class MessageServiceTest {
     assertEquals(MessageMetadataResponseParent.RelationshipTypeEnum.REPLY,
         messageRelationships.getParent().getRelationshipType());
     assertEquals("FB2h29Egp6X/r3/K7cuuE3///ouM3iRdbQ==", messageRelationships.getParent().getMessageId());
+  }
+
+
+  @Test
+  void listAttachmentsTest() throws IOException {
+    this.mockApiClient.onGet(V1_STREAM_ATTACHMENTS.replace("{sid}", "1234"), JsonHelper.readFromClasspath("/stream/list_attachments.json"));
+
+    List<StreamAttachmentItem> attachments = messageService.listAttachments("1234", null, null, AttachmentSort.ASC);
+
+    assertEquals(attachments.size(), 2);
+    assertEquals(attachments.get(0).getMessageId(), "PYLHNm/1K6ppeOpj+FbQ");
+    assertEquals(attachments.get(0).getIngestionDate(), 1548089933946L);
+    assertEquals(attachments.get(1).getMessageId(), "KpjYuzMLR+JK1co7QBfukX///peOpZmdbQ==");
+  }
+
+  @Test
+  void listAttachmentsTestFailed() {
+    this.mockApiClient.onGet(400, V1_STREAM_ATTACHMENTS.replace("{sid}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> messageService.listAttachments("1234", null, null, AttachmentSort.ASC));
   }
 
 }
