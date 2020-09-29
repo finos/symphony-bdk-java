@@ -1,10 +1,13 @@
 package com.symphony.bdk.core.service.user.constant;
 
+import org.apiguardian.api.API;
+
 /**
  * The list of available user features.
  *
  * @see <a href="https://developers.symphony.com/restapi/reference#list-features">List Features</a>
  */
+@API(status = API.Status.STABLE)
 public enum UserFeature {
   /**
    * Allows the user to read wall posts.

@@ -26,6 +26,7 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +45,7 @@ import java.util.List;
  * </ul></p>
  */
 @Slf4j
+@API(status = API.Status.STABLE)
 public class StreamService extends OboStreamService {
 
   private final AuthSession authSession;

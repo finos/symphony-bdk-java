@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.service.stream;
 
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -16,8 +15,11 @@ import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.http.api.ApiException;
 
+import org.apiguardian.api.API;
+
 import java.util.List;
 
+@API(status = API.Status.STABLE)
 class OboStreamService {
 
   protected final StreamsApi streamsApi;

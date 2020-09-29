@@ -11,6 +11,7 @@ import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
  * a {@link RealTimeEventListener} and handle the received event by the subscribed listeners.
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 abstract class AbstractDatafeedService implements DatafeedService {
 
   protected final AuthSession authSession;

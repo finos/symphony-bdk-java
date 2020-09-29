@@ -1,14 +1,14 @@
 package com.symphony.bdk.core.auth.impl.model;
 
+import com.symphony.bdk.gen.api.model.AuthenticateRequest;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import com.symphony.bdk.gen.api.model.AuthenticateRequest;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apiguardian.api.API;
 
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ import java.util.Objects;
 @JsonPropertyOrder({
     ExtensionAppAuthenticateRequest.JSON_PROPERTY_APP_TOKEN
 })
-
+@API(status = API.Status.INTERNAL)
 public class ExtensionAppAuthenticateRequest extends AuthenticateRequest {
   public static final String JSON_PROPERTY_APP_TOKEN = "appToken";
   private String appToken;

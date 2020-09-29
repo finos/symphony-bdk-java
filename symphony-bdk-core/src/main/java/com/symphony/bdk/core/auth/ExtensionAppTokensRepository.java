@@ -1,10 +1,13 @@
 package com.symphony.bdk.core.auth;
 
+import org.apiguardian.api.API;
+
 import java.util.Optional;
 
 /**
  * Repository to store (appToken, symphonyToken) entries corresponding to extensionApp authentications.
  */
+@API(status = API.Status.STABLE)
 public interface ExtensionAppTokensRepository {
   /**
    * Saves an extensionApp authentication
