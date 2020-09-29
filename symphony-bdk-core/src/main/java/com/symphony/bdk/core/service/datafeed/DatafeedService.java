@@ -3,9 +3,12 @@ package com.symphony.bdk.core.service.datafeed;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
+import org.apiguardian.api.API;
+
 /**
  * Interface definition for a service to be used for handling the datafeed API.
  */
+@API(status = API.Status.STABLE)
 public interface DatafeedService {
 
     /**
