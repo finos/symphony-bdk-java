@@ -17,7 +17,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
@@ -35,19 +34,15 @@ public class DataProviderTest {
   }
 
   @Test
-  public void getUserPresentationByEmailTest() {
+  public void getUserPresentationByEmailTest() throws InvalidInputException {
     when(config.getSupportedUriSchemes()).thenReturn(new ArrayList<>());
     DataProvider dataProvider = new DataProvider(symBotClient);
     dataProvider.setUserPresentation(12345L, "Test User", "testUser", "testuser@email.com");
-    try {
-      IUserPresentation user = dataProvider.getUserPresentation("testuser@email.com");
-      assertEquals(user.getId(), 12345L);
-      assertEquals(user.getScreenName(), "Test User");
-      assertEquals(user.getPrettyName(), "testUser");
-      assertEquals(user.getEmail(), "testuser@email.com");
-    } catch (InvalidInputException e) {
-      fail();
-    }
+    IUserPresentation user = dataProvider.getUserPresentation("testuser@email.com");
+    assertEquals(user.getId(), 12345L);
+    assertEquals(user.getScreenName(), "Test User");
+    assertEquals(user.getPrettyName(), "testUser");
+    assertEquals(user.getEmail(), "testuser@email.com");
   }
 
   @Test(expected = InvalidInputException.class)
@@ -75,14 +70,10 @@ public class DataProviderTest {
     when(symBotClient.getUsersClient()).thenReturn(usersClient);
 
     DataProvider dataProvider = new DataProvider(symBotClient);
-    try {
-      IUserPresentation user = dataProvider.getUserPresentation(12345L);
-      assertEquals(user.getId(), 12345L);
-      assertEquals(user.getScreenName(), "testUser");
-      assertEquals(user.getPrettyName(), "testUser");
-    } catch (InvalidInputException e) {
-      fail();
-    }
+    IUserPresentation user = dataProvider.getUserPresentation(12345L);
+    assertEquals(user.getId(), 12345L);
+    assertEquals(user.getScreenName(), "testUser");
+    assertEquals(user.getPrettyName(), "testUser");
   }
 
   @Test(expected = InvalidInputException.class)
