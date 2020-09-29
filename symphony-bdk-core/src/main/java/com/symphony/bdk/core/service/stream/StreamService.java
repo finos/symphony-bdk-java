@@ -1,9 +1,6 @@
 package com.symphony.bdk.core.service.stream;
 
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
@@ -22,8 +19,11 @@ import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +42,7 @@ import java.util.List;
  * </ul></p>
  */
 @Slf4j
+@API(status = API.Status.STABLE)
 public class StreamService extends OboStreamService {
 
   private final AuthSession authSession;

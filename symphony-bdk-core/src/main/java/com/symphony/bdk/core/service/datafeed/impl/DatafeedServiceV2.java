@@ -14,6 +14,7 @@ import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5EventList;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,6 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * really stopped
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public class DatafeedServiceV2 extends AbstractDatafeedService {
 
   private final AtomicBoolean started = new AtomicBoolean();

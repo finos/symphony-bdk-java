@@ -2,9 +2,11 @@ package com.symphony.bdk.core.config.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apiguardian.api.API;
 
 @Getter
 @Setter
+@API(status = API.Status.STABLE)
 public class BdkRetryConfig {
 
     public static final int DEFAULT_MAX_ATTEMPTS = 10;

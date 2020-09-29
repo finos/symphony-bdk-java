@@ -5,12 +5,15 @@ import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
+import org.apiguardian.api.API;
+
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
  * Utility class used to attach a method call (defined by a {@link BiConsumer}) to a specific real-time event.
  */
+@API(status = API.Status.INTERNAL)
 public class RealTimeEventsBinder {
 
   public RealTimeEventsBinder() {

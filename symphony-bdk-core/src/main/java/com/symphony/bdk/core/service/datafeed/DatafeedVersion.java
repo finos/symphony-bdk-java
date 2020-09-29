@@ -1,8 +1,11 @@
 package com.symphony.bdk.core.service.datafeed;
 
+import org.apiguardian.api.API;
+
 /**
  * Options of datafeed version can be used.
  */
+@API(status = API.Status.INTERNAL)
 public enum DatafeedVersion {
     V1, V2;
 
