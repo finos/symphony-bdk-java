@@ -8,6 +8,8 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.BdkConfigLoader;
+import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.MessageService;
 import com.symphony.bdk.core.service.SessionService;
@@ -186,4 +188,8 @@ public class SymphonyBdk {
         .orElseThrow(() -> new IllegalStateException("OBO is not configured."));
   }
 
+  public static SymphonyBdk fromSymphonyDir(String relConfigPath)
+      throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
+    return new SymphonyBdk(BdkConfigLoader.loadFromSymphonyDir(relConfigPath));
+  }
 }
