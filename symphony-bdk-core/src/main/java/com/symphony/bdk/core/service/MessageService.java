@@ -56,25 +56,25 @@ public class MessageService {
   private final DefaultApi defaultApi;
   private final AuthSession authSession;
   private final TemplateResolver templateResolver;
-  private final RetryWithRecoveryBuilder<?> retryBuilder;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
   public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+      AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
     this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
         new TemplateResolver(), retryBuilder);
   }
 
   public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, TemplateEngine templateEngine, RetryWithRecoveryBuilder<?> retryBuilder) {
+      AuthSession authSession, TemplateEngine templateEngine, RetryWithRecoveryBuilder retryBuilder) {
     this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
         new TemplateResolver(templateEngine), retryBuilder);
   }
 
   private MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
       StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, TemplateResolver templateResolver, RetryWithRecoveryBuilder<?> retryBuilder) {
+      AuthSession authSession, TemplateResolver templateResolver, RetryWithRecoveryBuilder retryBuilder) {
     this.messagesApi = messagesApi;
     this.messageApi = messageApi;
     this.messageSuppressionApi = messageSuppressionApi;
@@ -371,23 +371,6 @@ public class MessageService {
   public MessageMetadataResponse getMessageRelationships(@Nonnull String messageId) {
     return executeAndRetry("getMessageRelationships", () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
         authSession.getSessionToken(), ApiUtils.getUserAgent(), messageId));
-  }
-
-  /**
-   * List attachments in a particular stream.
-   *
-   * @param streamId      The stream id
-   * @param sinceInMillis Timestamp in millis of first required attachment
-   * @param toInMillis    Timestamp in millis of last required attachment
-   * @param sort          Attachment date sort direction : ASC or DESC (default to ASC)
-   * @return List of attachments in the stream with the given stream id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
-   */
-  public List<StreamAttachmentItem> listAttachments(String streamId, Long sinceInMillis, Long toInMillis,
-      AttachmentSort sort) {
-    return executeAndRetry("getAttachmentsOfStream",
-        () -> streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), sinceInMillis, toInMillis,
-            null, sort.name()));
   }
 
   private static Long getEpochMillis(Instant instant) {
