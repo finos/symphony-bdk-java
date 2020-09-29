@@ -1,7 +1,7 @@
 # Symphony BDK for Java 
 [![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java.svg?style=shield)](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java)
 [![Known Vulnerabilities](https://snyk.io/test/github/SymphonyPlatformSolutions/symphony-api-client-java/badge.svg)](https://snyk.io/test/github/SymphonyPlatformSolutions/symphony-api-client-java)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-bdk-bom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-api-client-java)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-bdk-bom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-bdk-bom)
 [![javadoc](https://javadoc.io/badge2/com.symphony.platformsolutions/symphony-bdk-core/javadoc.svg)](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 [![Email](https://img.shields.io/static/v1?label=contact&message=email&color=darkgoldenrod)](mailto:platformsolutions@symphony.com?subject=Java%20SDK)

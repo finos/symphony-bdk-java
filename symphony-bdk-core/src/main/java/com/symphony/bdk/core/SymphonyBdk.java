@@ -2,7 +2,6 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
@@ -15,8 +14,8 @@ import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
-
 import com.symphony.bdk.core.util.ServiceLookup;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import com.symphony.bdk.http.api.HttpClient;
 
@@ -31,6 +30,9 @@ import java.util.Optional;
 @Slf4j
 @API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdk {
+
+  private final AuthSession botSession;
+  private final UserV2 botInfo;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
@@ -48,20 +50,25 @@ public class SymphonyBdk {
 
   protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory)
       throws AuthInitializationException, AuthUnauthorizedException {
+
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
-    AuthSession botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+    this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator = config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
-    ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, botSession, config);
+
     // service init
+    final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
     this.sessionService = serviceFactory.getSessionService();
     this.userService = serviceFactory.getUserService();
     this.streamService = serviceFactory.getStreamService();
     this.messageService = serviceFactory.getMessageService();
     this.datafeedService = serviceFactory.getDatafeedService();
 
+    // retrieve bot session info
+    this.botInfo = this.sessionService.getSession(this.botSession);
+
     // setup activities
-    this.activityRegistry = new ActivityRegistry(this.sessionService.getSession(botSession), this.datafeedService::subscribe);
+    this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);
   }
 
   /**
@@ -142,12 +149,31 @@ public class SymphonyBdk {
   }
 
   /**
-   * Extension App Authenticate by app token
-   * @param appToken App Token
-   * @return Extension App authentication session
+   * Returns the {@link ExtensionAppAuthenticator}.
+   *
+   * @return the {@link ExtensionAppAuthenticator}
    */
-  public AppAuthSession app(String appToken) throws AuthUnauthorizedException {
-    return this.getExtensionAppAuthenticator().authenticateExtensionApp(appToken);
+  public ExtensionAppAuthenticator appAuthenticator() {
+    return this.getExtensionAppAuthenticator();
+  }
+
+  /**
+   * Returns the Bot session.
+   *
+   * @return the bot {@link AuthSession}
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public AuthSession botSession() {
+    return this.botSession;
+  }
+  /**
+   * Returns the bot information.
+   *
+   * @return bot information.
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public UserV2 botInfo() {
+    return this.botInfo;
   }
 
   protected ExtensionAppAuthenticator getExtensionAppAuthenticator() {
