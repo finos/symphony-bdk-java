@@ -7,11 +7,13 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
-import com.symphony.bdk.gen.api.model.PodCertificate;
+
+import org.apiguardian.api.API;
 
 /**
  * {@link AppAuthSession} implementation for certificate extension app authentication mode.
  */
+@API(status = API.Status.INTERNAL)
 public class AppAuthSessionCertImpl implements AppAuthSession {
   private final ExtensionAppAuthenticatorCertImpl authenticator;
   private String symphonySessionToken;

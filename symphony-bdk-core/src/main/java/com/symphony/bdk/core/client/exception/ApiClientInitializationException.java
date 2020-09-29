@@ -2,6 +2,8 @@ package com.symphony.bdk.core.client.exception;
 
 import com.symphony.bdk.http.api.ApiClient;
 
+import org.apiguardian.api.API;
+
 /**
  * Exception thrown when initializing the {@link ApiClient}. This can be triggered
  * when in several situation such as:
@@ -13,6 +15,7 @@ import com.symphony.bdk.http.api.ApiClient;
  *   Note: This is an unchecked since this kind of error can only happen when the application starts.
  * </p>
  */
+@API(status = API.Status.STABLE)
 public class ApiClientInitializationException extends RuntimeException {
 
   public ApiClientInitializationException(String message) {

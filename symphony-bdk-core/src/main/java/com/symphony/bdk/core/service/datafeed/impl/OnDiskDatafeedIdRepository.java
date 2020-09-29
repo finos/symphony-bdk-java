@@ -5,6 +5,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apiguardian.api.API;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * The implementation of {@link DatafeedIdRepository} interface for persisting a datafeed id on disk.
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public class OnDiskDatafeedIdRepository implements DatafeedIdRepository {
 
   private static final String DATAFEED_ID_FILE = "datafeed.id";

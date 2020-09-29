@@ -4,9 +4,11 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apiguardian.api.API;
 
 @Getter
 @Setter
+@API(status = API.Status.STABLE)
 public class BdkAuthenticationConfig {
 
   protected String privateKeyPath;
