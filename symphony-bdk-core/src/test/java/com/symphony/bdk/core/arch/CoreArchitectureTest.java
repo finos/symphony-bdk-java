@@ -2,6 +2,7 @@ package com.symphony.bdk.core.arch;
 
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.GeneralCodingRules.*;
 
@@ -67,6 +68,7 @@ public class CoreArchitectureTest {
 
   public static final ArchCondition<JavaClass> USE_GUAVA =
       dependOnClassesThat(resideInAPackage("com.google.guava"))
+          .and(resideInAnyPackage("com.google.common"))
           .as("use Guava");
 
   @ArchTest
