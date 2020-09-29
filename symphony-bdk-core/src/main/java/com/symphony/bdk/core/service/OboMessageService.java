@@ -10,8 +10,11 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateException;
 import com.symphony.bdk.template.api.TemplateResolver;
 
+import org.apiguardian.api.API;
+
 import javax.annotation.Nonnull;
 
+@API(status = API.Status.STABLE)
 public class OboMessageService {
 
   protected final MessagesApi messagesApi;
