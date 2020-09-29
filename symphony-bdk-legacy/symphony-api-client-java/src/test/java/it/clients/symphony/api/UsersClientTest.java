@@ -941,8 +941,6 @@ public class UsersClientTest extends BotTest {
 
     } catch (NoContentException nce) {
       fail();
-    } catch (SymClientException sce){
-      fail();
     }
   }
 
@@ -971,15 +969,13 @@ public class UsersClientTest extends BotTest {
 
     } catch (NoContentException nce) {
       fail();
-    } catch (SymClientException sce){
-      fail();
     }
   }
 
   @Test(expected = ForbiddenException.class)
   public void getUsersFromEmailListFailure403() {
     stubFor(get(urlEqualTo(
-        PodConstants.GETUSERSV3.concat("?email=test_1%40symphony.com%2Ctest_1%40symphony.com&local=true")))
+        PodConstants.GETUSERSV3.concat("?email=test_1%40symphony.com%2Ctest_2%40symphony.com&local=true")))
         .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
         .withQueryParam("email", equalTo("test_1@symphony.com,test_2@symphony.com"))
         .withQueryParam("local", equalTo("true"))
@@ -1000,8 +996,6 @@ public class UsersClientTest extends BotTest {
       final List<UserInfo> userInfoList = usersClient.getUsersFromEmailList(emails, true);
 
     } catch (NoContentException nce) {
-      fail();
-    } catch (SymClientException sce){
       fail();
     }
   }
@@ -1027,8 +1021,6 @@ public class UsersClientTest extends BotTest {
       final List<UserInfo> userInfoList = usersClient.getUsersFromEmailList(emails, true);
 
     } catch (NoContentException nce) {
-      fail();
-    } catch (SymClientException sce){
       fail();
     }
   }
@@ -1184,13 +1176,11 @@ public class UsersClientTest extends BotTest {
 
     } catch (NoContentException e) {
       fail();
-    } catch (SymClientException sce){
-      fail();
     }
   }
 
   @Test(expected = SymClientException.class)
-  public void getUsersV3Status401() throws IOException {
+  public void getUsersV3Status401() {
     stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
         .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
         .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
@@ -1198,7 +1188,10 @@ public class UsersClientTest extends BotTest {
         .willReturn(aResponse()
             .withStatus(401)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody(readResourceContent("/response_content/error/unauthorized_error.json"))));
+            .withBody("{"
+                + "\"code\": 401,"
+                + "\"message\": \"Invalid session\""
+                + "}")));
 
     try {
 
@@ -1209,13 +1202,11 @@ public class UsersClientTest extends BotTest {
 
     } catch (NoContentException e) {
       fail();
-    } catch (SymClientException sce){
-      fail();
     }
   }
 
   @Test(expected = ForbiddenException.class)
-  public void getUsersV3Status403() throws IOException {
+  public void getUsersV3Status403() {
     stubFor(get(urlEqualTo(PodConstants.GETUSERSV3.concat("?uid=7696581394433%2C7696581394434&local=true")))
         .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
         .withQueryParam("uid", equalTo("7696581394433,7696581394434"))
@@ -1223,7 +1214,9 @@ public class UsersClientTest extends BotTest {
         .willReturn(aResponse()
             .withStatus(403)
             .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody(readResourceContent("/response_content/error/forbidden_error.json"))));
+            .withBody("{"
+                + "\"code\": 403,"
+                + "\"message\": \"The user lacks the required entitlement to perform this operation\"}")));
 
     try {
 
@@ -1233,8 +1226,6 @@ public class UsersClientTest extends BotTest {
       final List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
 
     } catch (NoContentException e) {
-      fail();
-    } catch (SymClientException sce){
       fail();
     }
   }
@@ -1258,8 +1249,6 @@ public class UsersClientTest extends BotTest {
       final List<UserInfo> userInfoList = usersClient.getUsersV3(null, uids, true);
 
     } catch (NoContentException e) {
-      fail();
-    } catch (SymClientException sce){
       fail();
     }
   }
@@ -1445,20 +1434,6 @@ public class UsersClientTest extends BotTest {
 
     final String role3 = jsonNodeRoles.get(2).asText();
     assertEquals("USER_PROVISIONING", role3);
-  }
-
-  @Test(expected = NoContentException.class)
-  public void getSessionUserFailure204() {
-    stubFor(get(urlEqualTo(PodConstants.GETSESSIONUSER))
-        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
-        .willReturn(aResponse()
-            .withStatus(204)
-            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-            .withBody("{}")));
-
-    assertNotNull(usersClient);
-
-    final UserInfo userInfo = usersClient.getSessionUser();
   }
 
   @Test(expected = APIClientErrorException.class)
