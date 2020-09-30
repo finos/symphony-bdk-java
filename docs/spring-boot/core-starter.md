@@ -1,4 +1,4 @@
-# BDK Core SpringBoot Starter
+# BDK Core Spring Boot Starter
 The Symphony BDK for Java provides a _Starter_ module that aims to ease bot developments within a 
 [Spring Boot](https://spring.io/projects/spring-boot) application. 
 
@@ -11,7 +11,7 @@ The Symphony BDK for Java provides a _Starter_ module that aims to ease bot deve
 
 ## Installation
 
-The following listing shows the `pom.xml` file that is created when you choose Maven:
+The following listing shows the `pom.xml` file that has to be created when using Maven:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -33,7 +33,7 @@ The following listing shows the `pom.xml` file that is created when you choose M
     </dependencies>
 </project>
 ```
-The following listing shows the `build.gradle` file that is created when you choose Gradle:
+The following listing shows the `build.gradle` file that has to be created when using Gradle:
 ```groovy
 plugins {
     id 'org.springframework.boot' version "2.3.3.RELEASE"
@@ -77,7 +77,7 @@ public class HelloBot {
 
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
-    this.messageService.send(event.getSource().getMessage().getStream(),"<messageML>Hello!</messageML>");
+    this.messageService.send(event.getSource().getMessage().getStream(), "<messageML>Hello!</messageML>");
   }
 }
 ``` 
@@ -173,9 +173,6 @@ public class CoreServices {
     private ActivityRegistry activityRegistry;
 }
 ```
-> Please note that field injection is not recommended, you should consider using 
-> [_Constructor-based DI_](https://docs.spring.io/spring-framework/docs/4.2.x/spring-framework-reference/html/beans.html#beans-constructor-injection) 
-> instead.
 
 ## Slash Command
 You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to 
