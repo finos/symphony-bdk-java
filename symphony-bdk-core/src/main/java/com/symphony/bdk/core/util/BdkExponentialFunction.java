@@ -3,6 +3,7 @@ package com.symphony.bdk.core.util;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import io.github.resilience4j.core.IntervalFunction;
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 /**
  * Custom BdkExponentialFunction class to be used in Bdk Retry mechanism.
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
  * is greater than this value, it will not be multiplied any more and set to BdkRetryConfig#maxIntervalMillis.
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public class BdkExponentialFunction {
 
     /**

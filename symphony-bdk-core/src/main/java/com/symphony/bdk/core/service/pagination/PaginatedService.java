@@ -65,6 +65,7 @@ public class PaginatedService<T> {
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED), false);
   }
 
+  @API(status = API.Status.INTERNAL)
   private class PaginatedIterator implements Iterator<T> {
 
     private List<T> currentChunk;
