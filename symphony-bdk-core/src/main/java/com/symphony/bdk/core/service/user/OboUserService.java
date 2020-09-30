@@ -13,12 +13,14 @@ import com.symphony.bdk.gen.api.model.V2UserList;
 import com.symphony.bdk.http.api.ApiException;
 
 import lombok.NonNull;
+import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+@API(status = API.Status.INTERNAL)
 class OboUserService {
 
   protected final UserApi userApi;

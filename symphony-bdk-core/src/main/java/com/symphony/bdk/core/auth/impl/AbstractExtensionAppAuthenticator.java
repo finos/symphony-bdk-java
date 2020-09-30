@@ -8,6 +8,7 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ import java.util.Optional;
  * Abstract class to factorize the {@link ExtensionAppAuthenticator} logic between RSA and certificate.
  */
 @Slf4j
+@API(status = API.Status.INTERNAL)
 public abstract class AbstractExtensionAppAuthenticator implements ExtensionAppAuthenticator {
   protected final String appId;
   protected final ExtensionAppTokensRepository tokensRepository;

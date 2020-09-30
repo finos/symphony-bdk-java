@@ -2,6 +2,7 @@ package com.symphony.bdk.core.auth.jwt;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import org.apiguardian.api.API;
 
 /**
  * Class to represent the claim "user" in the
@@ -10,6 +11,7 @@ import lombok.Data;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
+@API(status = API.Status.STABLE)
 public class UserClaim {
   private String id;
   private String emailAddress;

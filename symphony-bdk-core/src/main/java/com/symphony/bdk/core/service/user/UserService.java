@@ -24,6 +24,7 @@ import com.symphony.bdk.gen.api.model.V2UserDetail;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apiguardian.api.API;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,6 +50,7 @@ import javax.annotation.Nullable;
  * </ul></p>
  */
 @Slf4j
+@API(status = API.Status.STABLE)
 public class UserService extends OboUserService {
 
   private final AuthSession authSession;
