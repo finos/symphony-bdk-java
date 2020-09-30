@@ -19,7 +19,9 @@ import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
+import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
+import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -74,7 +76,8 @@ class ServiceFactory {
    * @return an new {@link StreamService} instance.
    */
   public StreamService getStreamService() {
-    return new StreamService(new StreamsApi(podClient), authSession, retryBuilder);
+    return new StreamService(new StreamsApi(podClient), new RoomMembershipApi(podClient), new ShareApi(agentClient),
+        authSession, retryBuilder);
   }
 
   /**
@@ -83,7 +86,8 @@ class ServiceFactory {
    * @return an new {@link SessionService} instance.
    */
   public SessionService getSessionService() {
-    return new SessionService(new SessionApi(podClient), new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+    return new SessionService(new SessionApi(podClient),
+        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   /**

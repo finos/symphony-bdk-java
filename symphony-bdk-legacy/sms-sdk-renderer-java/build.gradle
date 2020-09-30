@@ -5,14 +5,12 @@ test {
 }
 
 dependencies {
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.slf4j:slf4j-log4j12'
-    implementation 'com.github.jknack:handlebars:4.0.5'
-    implementation 'com.github.jknack:handlebars-jackson2:4.0.5'
-    implementation 'com.github.jknack:handlebars-guava-cache:4.0.5'
+    implementation 'com.github.jknack:handlebars:4.2.0'
+    implementation 'com.github.jknack:handlebars-jackson2:4.2.0'
+    implementation 'com.github.jknack:handlebars-guava-cache:4.2.0'
     implementation 'com.googlecode.json-simple:json-simple:1.1.1'
 
     testImplementation 'junit:junit'
