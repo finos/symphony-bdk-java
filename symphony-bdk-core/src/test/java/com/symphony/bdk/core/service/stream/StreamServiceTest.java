@@ -1,33 +1,35 @@
 package com.symphony.bdk.core.service.stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
-import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.core.test.JsonHelper;
+import com.symphony.bdk.core.test.MockApiClient;
+import com.symphony.bdk.gen.api.RoomMembershipApi;
+import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
+import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
+import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
-import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.StreamType;
+import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
+import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,24 +45,35 @@ public class StreamServiceTest {
   private static final String V1_ROOM_SET_ACTIVE = "/pod/v1/room/{id}/setActive";
   private static final String V1_ROOM_SET_ACTIVE_ADMIN = "/pod/v1/admin/room/{id}/setActive";
   private static final String V1_STREAM_LIST = "/pod/v1/streams/list";
-  private static final String V1_STREAM_ATTACHMENTS = "/pod/v1/streams/{sid}/attachments";
+  private static final String V1_ADD_MEMBER_TO_ROOM = "/pod/v1/room/{id}/membership/add";
+  private static final String V1_REMOVE_MEMBER_FROM_ROOM = "/pod/v1/room/{id}/membership/remove";
   private static final String V1_STREAM_MEMBERS = "/pod/v1/admin/stream/{id}/membership/list";
+  private static final String V1_PROMOTE_MEMBER = "/pod/v1/room/{id}/membership/promoteOwner";
+  private static final String V1_DEMOTE_MEMBER = "/pod/v1/room/{id}/membership/demoteOwner";
   private static final String V2_STREAM_INFO = "/pod/v2/streams/{sid}/info";
   private static final String V2_STREAM_LIST_ADMIN = "/pod/v2/admin/streams/list";
+  private static final String V2_ROOM_MEMBERS = "/pod/v2/room/{id}/membership/list";
   private static final String V3_ROOM_CREATE = "/pod/v3/room/create";
   private static final String V3_ROOM_SEARCH = "/pod/v3/room/search";
   private static final String V3_ROOM_INFO = "/pod/v3/room/{id}/info";
   private static final String V3_ROOM_UPDATE = "/pod/v3/room/{id}/update";
+  private static final String V3_SHARE = "/agent/v3/stream/{sid}/share";
 
   private StreamService service;
   private MockApiClient mockApiClient;
+  private RoomMembershipApi spyRoomMembershipApi;
 
   @BeforeEach
   void setUp() {
     this.mockApiClient = new MockApiClient();
     AuthSession authSession = mock(AuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
-    this.service = new StreamService(new StreamsApi(podClient), authSession, new RetryWithRecoveryBuilder<>());
+    ApiClient agentClient = mockApiClient.getApiClient("/agent");
+    RoomMembershipApi roomMembershipApi = new RoomMembershipApi(podClient);
+    this.spyRoomMembershipApi = spy(roomMembershipApi);
+    this.service =
+        new StreamService(new StreamsApi(podClient), this.spyRoomMembershipApi, new ShareApi(agentClient),
+            authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
@@ -136,7 +149,8 @@ public class StreamServiceTest {
 
   @Test
   void getRoomInfoTest() throws IOException {
-    this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+    this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
 
     V3RoomDetail roomDetail = this.service.getRoomInfo("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
 
@@ -154,7 +168,8 @@ public class StreamServiceTest {
 
   @Test
   void setRoomActiveTest() throws IOException {
-    this.mockApiClient.onPost(V1_ROOM_SET_ACTIVE.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"), JsonHelper.readFromClasspath("/stream/room_detail.json"));
+    this.mockApiClient.onPost(V1_ROOM_SET_ACTIVE.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"),
+        JsonHelper.readFromClasspath("/stream/room_detail.json"));
 
     RoomDetail roomDetail = this.service.setRoomActive("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true);
 
@@ -165,12 +180,14 @@ public class StreamServiceTest {
   void setRoomActiveTestFailed() {
     this.mockApiClient.onPost(400, V1_ROOM_SET_ACTIVE.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.setRoomActive("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.setRoomActive("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true));
   }
 
   @Test
   void updateRoomTest() throws IOException {
-    this.mockApiClient.onPost(V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+    this.mockApiClient.onPost(V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
 
     V3RoomDetail roomDetail = this.service.updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", new V3RoomAttributes());
 
@@ -183,15 +200,17 @@ public class StreamServiceTest {
   void updateRoomTestFailed() {
     this.mockApiClient.onPost(400, V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", new V3RoomAttributes()));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", new V3RoomAttributes()));
   }
 
   @Test
   void listStreamsTest() throws IOException {
     this.mockApiClient.onPost(V1_STREAM_LIST, JsonHelper.readFromClasspath("/stream/list_stream.json"));
 
-    List<StreamAttributes> streams = this.service.listStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
-        StreamType.TypeEnum.IM)));
+    List<StreamAttributes> streams =
+        this.service.listStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
+            StreamType.TypeEnum.IM)));
 
     assertEquals(streams.size(), 1);
     assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
@@ -206,7 +225,8 @@ public class StreamServiceTest {
 
   @Test
   void getStreamInfoTest() throws IOException {
-    this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
+    this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"),
+        JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
 
     V2StreamAttributes stream = this.service.getStreamInfo("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
@@ -222,25 +242,6 @@ public class StreamServiceTest {
   }
 
   @Test
-  void getAttachmentsOfStreamTest() throws IOException {
-    this.mockApiClient.onGet(V1_STREAM_ATTACHMENTS.replace("{sid}", "1234"), JsonHelper.readFromClasspath("/stream/list_attachments.json"));
-
-    List<StreamAttachmentItem> attachments = this.service.getAttachmentsOfStream("1234", null, null, AttachmentSort.ASC);
-
-    assertEquals(attachments.size(), 2);
-    assertEquals(attachments.get(0).getMessageId(), "PYLHNm/1K6ppeOpj+FbQ");
-    assertEquals(attachments.get(0).getIngestionDate(), 1548089933946L);
-    assertEquals(attachments.get(1).getMessageId(), "KpjYuzMLR+JK1co7QBfukX///peOpZmdbQ==");
-  }
-
-  @Test
-  void getAttachmentsOfStreamTestFailed() {
-    this.mockApiClient.onGet(400, V1_STREAM_ATTACHMENTS.replace("{sid}", "1234"), "{}");
-
-    assertThrows(ApiRuntimeException.class, () -> this.service.getAttachmentsOfStream("1234", null, null, AttachmentSort.ASC));
-  }
-
-  @Test
   void createAdminIMorMIMTest() {
     this.mockApiClient.onPost(V1_IM_CREATE_ADMIN, "{\n\"id\": \"xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA\"\n}");
 
@@ -253,7 +254,8 @@ public class StreamServiceTest {
   void createAdminIMorMIMTestFailed() {
     this.mockApiClient.onPost(400, V1_IM_CREATE_ADMIN, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.createInstantMessageAdmin(Arrays.asList(7215545078541L, 7215545078461L)));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.createInstantMessageAdmin(Arrays.asList(7215545078541L, 7215545078461L)));
   }
 
   @Test
@@ -268,9 +270,11 @@ public class StreamServiceTest {
 
   @Test
   void setRoomActiveAdminTestFailed() {
-    this.mockApiClient.onPost(400, V1_ROOM_SET_ACTIVE_ADMIN.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"), "{}");
+    this.mockApiClient.onPost(400, V1_ROOM_SET_ACTIVE_ADMIN.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"),
+        "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.setRoomActiveAdmin("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.setRoomActiveAdmin("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true));
   }
 
   @Test
@@ -294,7 +298,8 @@ public class StreamServiceTest {
 
   @Test
   void listStreamMembersTest() throws IOException {
-    this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"), JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
+    this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
+        JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
 
     V2MembershipList membersList = this.service.listStreamMembers("1234");
 
@@ -308,5 +313,113 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(400, V1_STREAM_MEMBERS.replace("{id}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.listStreamMembers("1234"));
+  }
+
+  @Test
+  void listRoomMemberTest() {
+    this.mockApiClient.onGet(V2_ROOM_MEMBERS.replace("{id}", "1234"), "[\n"
+        + "  {\n"
+        + "    \"id\": 7078106103900,\n"
+        + "    \"owner\": false,\n"
+        + "    \"joinDate\": 1461430710531\n"
+        + "  },\n"
+        + "  {\n"
+        + "    \"id\": 7078106103809,\n"
+        + "    \"owner\": true,\n"
+        + "    \"joinDate\": 1461426797875\n"
+        + "  }\n"
+        + "]");
+
+    List<MemberInfo> memberInfos = this.service.listRoomMembers("1234");
+
+    assertEquals(memberInfos.size(), 2);
+    assertEquals(memberInfos.get(0).getId(), 7078106103900L);
+    assertFalse(memberInfos.get(0).getOwner());
+    assertEquals(memberInfos.get(1).getId(), 7078106103809L);
+    assertTrue(memberInfos.get(1).getOwner());
+  }
+
+  @Test
+  void listRoomMemberTestFailed() {
+    this.mockApiClient.onGet(400, V2_ROOM_MEMBERS.replace("{id}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.listRoomMembers("1234"));
+  }
+
+  @Test
+  void addMemberToRoomTest() throws ApiException {
+    this.mockApiClient.onPost(V1_ADD_MEMBER_TO_ROOM.replace("{id}", "1234"), "{}");
+
+    this.service.addMemberToRoom(12345L, "1234");
+
+    verify(this.spyRoomMembershipApi).v1RoomIdMembershipAddPost(eq("1234"), eq("1234"), eq(new UserId().id(12345L)));
+  }
+
+  @Test
+  void addMemberToRoomTestFailed() {
+    this.mockApiClient.onPost(400, V1_ADD_MEMBER_TO_ROOM.replace("{id}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.addMemberToRoom(12345L, "1234"));
+  }
+
+  @Test
+  void removeMemberFromRoomTest() throws ApiException {
+    this.mockApiClient.onPost(V1_REMOVE_MEMBER_FROM_ROOM.replace("{id}", "1234"), "{}");
+
+    this.service.removeMemberFromRoom(12345L, "1234");
+
+    verify(this.spyRoomMembershipApi).v1RoomIdMembershipRemovePost(eq("1234"), eq("1234"), eq(new UserId().id(12345L)));
+  }
+
+  @Test
+  void removeMemberFromRoomTestFailed() {
+    this.mockApiClient.onPost(400, V1_REMOVE_MEMBER_FROM_ROOM.replace("{id}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.removeMemberFromRoom(12345L, "1234"));
+  }
+
+  @Test
+  void shareTest() throws IOException {
+    this.mockApiClient.onPost(V3_SHARE.replace("{sid}", "1234"), JsonHelper.readFromClasspath("/stream/v3_share.json"));
+
+    V2Message message = this.service.share("1234", new ShareContent());
+
+    assertEquals(message.getId(), "HsaTBf7ClJRWvzNWaCp_4H___qlrh4WVdA");
+    assertEquals(message.getFromUserId(), 7696581430532L);
+    assertEquals(message.getStreamId(), "7w68A8sAG_qv1GwVc9ODzX___ql_RJ6zdA");
+  }
+
+  @Test
+  void shareTestFailed() {
+    this.mockApiClient.onPost(400, V3_SHARE.replace("{sid}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.share("1234", new ShareContent()));
+  }
+
+  @Test
+  void demoteUserTest() throws ApiException {
+    this.mockApiClient.onPost(V1_DEMOTE_MEMBER.replace("{id}", "1234"), "{}");
+
+    this.service.demoteUserToRoomParticipant(12345L, "1234");
+
+    verify(this.spyRoomMembershipApi).v1RoomIdMembershipDemoteOwnerPost(eq("1234"), eq("1234"),
+        eq(new UserId().id(12345L)));
+  }
+
+  @Test
+  void demoteUserTestFailed() {
+    this.mockApiClient.onPost(400, V1_DEMOTE_MEMBER.replace("{id}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.demoteUserToRoomParticipant(12345L, "1234"));
+  }
+
+  @Test
+  void promoteUserTest() throws ApiException {
+    this.mockApiClient.onPost(V1_PROMOTE_MEMBER.replace("{id}", "1234"), "{}");
+
+    this.service.promoteUserToRoomOwner(12345L, "1234");
+
+    verify(this.spyRoomMembershipApi).v1RoomIdMembershipPromoteOwnerPost(eq("1234"), eq("1234"),
+        eq(new UserId().id(12345L)));
   }
 }
