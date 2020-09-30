@@ -50,6 +50,7 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     }
 
     signing {
+        required { rootProject.isReleaseVersion }
         sign publishing.publications.maven
     }
 
