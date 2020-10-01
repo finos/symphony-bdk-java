@@ -1,0 +1,7 @@
+<form id="form_id">
+    <select name="test_dropdown" required="true">
+        <option value="test1" selected="true">Test 1</option>
+        <option value="test2" selected="false">Test 2</option>
+        <option value="test3" selected="false">Test 3</option>
+    </select>
+</form>
