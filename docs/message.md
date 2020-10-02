@@ -17,54 +17,71 @@ More precisely:
 
 ## How to use
 The central component for the Message API is the `MessageService`.
-It exposes all the services mentioned above and is accessible from the `SymphonyBdk` object by calling the `messages()` method.
-For instance:
-
+It exposes all the services mentioned above and is accessible from the `SymphonyBdk` object by calling the `messages()` method:
 ```java
-import com.symphony.bdk.core.MessageService;
-
 public class Example {
   public static final String STREAM_ID = "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA";
 
   public static void main(String[] args) throws Exception {
     // Create BDK entry point
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
-    // Get the MessageService object
-    final MessageService messageService = bdk.message();
-
-    //send a regular message
-    final V4Message regularMessage = messageService.send(STREAM_ID, "<messageML>Hello, World!</messageML>");
-    System.out.println("Message sent, id: " + regularMessage.getMessageId());
+    // send a regular message
+    final V4Message regularMessage = bdk.message().send(STREAM_ID, "<messageML>Hello, World!</messageML>");
+    log.info("Message sent, id: " + regularMessage.getMessageId());
   }
 }
 ```
 
-A more detailed example with all exposed services can be found [here](../symphony-bdk-examples/bdk-core-examples/src/main/java/com/symphony/bdk/examples/MessageExampleMain.java).
+## Using templates
+The `MessageService` also allows you to send messages using templates. So far, the BDK supports two different template
+engine implementations: 
+- [FreeMarker](https://freemarker.apache.org/) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-freemarker`)
+- [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-handlebars`)
 
-## Send messages with templates
-The Message service also allows you to send messages using templates. So far, we only support [FreeMarker templates](https://freemarker.apache.org/),
-but we may add support for other template engines.
-For instance, if you have the following template file:
+### How to send a message from a template
+First you need to define your message template file. Here `src/main/resources/templates/simple.ftl`:
 ```
-<messageML>${message}</messageML>
+<messageML>Hello, ${message}!</messageML>
 ```
 you will be able to use it when sending message:
 ```java
-final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
-final V4Message regularMessage = bdk().message().send(streamId, "path/to/template.ftl", Collections.singletonMap("message", "Hello!"));
-```
-The above will send the message `<messageML>Hello!</messageML>` as expected.
-Please check the [FreeMarker documentation](https://freemarker.apache.org/docs/pgui_quickstart_createdatamodel.html)
-to know more about the data model you can use in templates and about the corresponding object structure you need to pass as parameter.
+public class Example {
+  public static final String STREAM_ID = "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA";
 
-The template name passed as parameter can be the name of a built-in template
-(only ["simpleMML"](../symphony-bdk-template/symphony-bdk-template-freemarker/src/main/resources/com/symphony/bdk/template/freemarker/simpleMML.ftl)
-available so far), the path to a template file or a URL to a template file.
-The templates will be looked for in this order:
-* in built-in templates
-* in the classpath
-* in the file system
-* lastly as a URL
+  public static void main(String[] args) {
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+
+    final V4Message regularMessage = bdk().message().send(streamId, "/templates/simple.ftl", Collections.singletonMap("name", "User"));
+  }
+}
+```
+The above will send the message `<messageML>Hello, User!</messageML>` as expected.
+
+> Please note that the `MessageService` will try fetch template from different locations ordered by:
+> 1. classpath
+> 2. file system
+
+It is also possible to get direct access to the `TemplateEngine` through the `MessageService`: 
+```java
+public class Example {
+
+  public static void main(String[] args) {
+
+    // load TemplateEngine implementation using SPI
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+
+    // load template from classpath location
+    final Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-message.ftl");
+
+    // process template with some vars and retrieve content
+    // any POJO can also be processed by the template
+    final String content = template.process(Collections.singletonMap("name", "Freemarker"));
+
+    // display processed template content
+    log.info(content);
+  }
+}
+```
 
 ----
 [Home :house:](./index.md)
