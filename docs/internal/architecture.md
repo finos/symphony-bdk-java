@@ -1,7 +1,40 @@
 # BDK Architecture Presentation
 The Symphony BDK for Java is a multi-module library that uses [Gradle](https://gradle.org/) as build system. 
-This page will help new contributors to clearly understand how the library has been designed.
+This page will help to clearly understand how the library has been designed. This can be also useful for new contributors
+aiming to provide additional features or implementations. 
 
 ## Architecture Overview
+The following diagram aims to give an overview of the different layers and modules provided by the BDK library.
+![Architecture Overview Diagram](architecture.svg)
 
-![Architecture Overview Diagram](./arch.svg)
+### symphony-bdk-http
+The `symphony-bdk-http-api` module defines a generic interface for performing HTTP calls. Along with this interface, it
+also provides a utility `com.symphony.bdk.http.api.HttpClient` class helping developers to perform calls to external systems.
+> :warning: It is important to notice that interface `com.symphony.bdk.http.api.ApiClient` is used by generated code. 
+> Changing contract would break the build.
+> [Code Generation](#code-generation) will be detailed later in this page.
+
+At the moment, two different implementations have been created for the `com.symphony.bdk.http.api.ApiClient` interface:
+- `com.symphony.bdk.http.jersey2.ApiClientJersey2` contained in module `symphony-bdk-http-jersey2` (default implementation for [Core](#symphony-bdk-core))
+- `com.symphony.bdk.http.webclient.ApiClientWebClient` contained in module `symphony-bdk-http-webclient` (default implementation for [Spring Boot](#symphony-bdk-spring))  
+
+### symphony-bdk-template
+The `symphony-bdk-template-api` module defines a set of interfaces that allows developers to load and fill text files with 
+data. This API is especially useful for complex MessageML templating.
+
+At the moment, two different module implementations have been created: 
+- `symphony-bdk-template-freemarker`
+- `symphony-bdk-template-handlebars`
+
+### symphony-bdk-core
+
+#### Code Generation
+The [symphony-bdk-core](#symphony-bdk-core) module relies on the [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-maven-plugin/README.md)
+to generate API clients and models from [Swagger specifications](https://github.com/symphonyoss/symphony-api-spec).
+The plugin has been configured to not generate supporting files including `ApiClient` that is provided by this module.
+
+### symphony-bdk-spring
+
+#### symphony-bdk-core-spring-boot-starter
+
+#### symphony-bdk-app-spring-boot-starter
