@@ -39,6 +39,8 @@ engine implementations:
 - [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-handlebars`)
 
 ### How to send a message from a template
+> In the code examples below, we will assume that FreeMarker as been selected as template engine implementation
+
 First you need to define your message template file. Here `src/main/resources/templates/simple.ftl`:
 ```
 <messageML>Hello, ${message}!</messageML>
@@ -51,7 +53,7 @@ public class Example {
   public static void main(String[] args) {
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 
-    final V4Message regularMessage = bdk().message().send(streamId, "/templates/simple.ftl", Collections.singletonMap("name", "User"));
+    final V4Message regularMessage = bdk.message().send(streamId, "/templates/simple.ftl", Collections.singletonMap("name", "User"));
   }
 }
 ```
