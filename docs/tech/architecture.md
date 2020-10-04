@@ -7,6 +7,20 @@ aiming to provide additional features or implementations.
 The following diagram aims to give an overview of the different layers and modules provided by the BDK library.
 ![Architecture Overview Diagram](architecture.svg)
 
+### symphony-bdk-core
+The `symphony-bdk-core` is the main module that allows developers to write bots from a pure Java main application. It contains
+all necessary BDK features such as: 
+- [configuration](../configuration.md) 
+- [authentication](../authentication.md)
+- [datafeed](../datafeed.md)
+- services
+- [activity API](../activity-api.md)
+
+#### Code Generation
+The `symphony-bdk-core` module relies on the [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-maven-plugin/README.md)
+to generate API clients and models from official Symphony's [Swagger specifications](https://github.com/symphonyoss/symphony-api-spec).
+API's clients are located under package `com.symphony.bdk.gen.api` and models under `com.symphony.bdk.gen.api.model`.
+
 ### symphony-bdk-http
 The `symphony-bdk-http-api` module defines a generic interface for performing HTTP calls. Along with this interface, it
 also provides a utility `com.symphony.bdk.http.api.HttpClient` class helping developers to perform calls to external systems.
@@ -26,15 +40,7 @@ At the moment, two different module implementations have been created:
 - `symphony-bdk-template-freemarker`
 - `symphony-bdk-template-handlebars`
 
-### symphony-bdk-core
-
-#### Code Generation
-The [symphony-bdk-core](#symphony-bdk-core) module relies on the [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-maven-plugin/README.md)
-to generate API clients and models from [Swagger specifications](https://github.com/symphonyoss/symphony-api-spec).
-The plugin has been configured to not generate supporting files including `ApiClient` that is provided by this module.
-
 ### symphony-bdk-spring
-
-#### symphony-bdk-core-spring-boot-starter
-
-#### symphony-bdk-app-spring-boot-starter
+The Symphony BDK comes also with two starter modules to ease integration with Spring Boot framework: 
+- `symphony-bdk-core-spring-boot-starter` that is basically a wrapper around the [symphony-bdk-core](#symphony-bdk-core) module
+- `symphony-bdk-app-spring-boot-starter` that is a foundation for Extension Application backend development
