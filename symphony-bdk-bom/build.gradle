@@ -19,6 +19,17 @@ dependencies {
 
     // define all our dependencies versions
     constraints {
+        // Internal modules dependencies (Keep them first)
+        api "com.symphony.platformsolutions:symphony-bdk-core:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-http-api:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-http-jersey2:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-http-webclient:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-core-spring-boot-starter:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-app-spring-boot-starter:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-template-api:$project.version"
+        api "com.symphony.platformsolutions:symphony-bdk-template-freemarker:$project.version"
+
+        // External dependencies
         api 'org.projectlombok:lombok:1.18.12'
 
         api 'org.apiguardian:apiguardian-api:1.1.0'
@@ -74,5 +85,6 @@ publishing {
 }
 
 signing {
+    required { rootProject.isReleaseVersion }
     sign publishing.publications.symphonyBdk
 }
