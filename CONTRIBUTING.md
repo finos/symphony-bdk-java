@@ -17,7 +17,7 @@ New feature requests on the legacy SDK will not be accepted.
 This repository contains both the legacy Java SDK under the [symphony-bdk-legacy module](symphony-bdk-legacy) 
 and the BDK2.0 under all other root modules.
 Please check the [legacy module readme file](symphony-bdk-legacy/README.md) and the 
-[BDK2.0 architecture file](docs/internal/bdk-architecture.md) for more information.
+[BDK architecture](docs/tech/architecture.md) documentation for more information.
 
 ## Testing
 

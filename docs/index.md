@@ -21,3 +21,5 @@ The reference documentation consists of the following sections:
 Getting Started guides are also available for Spring Boot:
 - [Core Starter](./spring-boot/core-starter.md)
 
+### Technical Documentation
+You can find an overview of the BDK Architecture [here](./tech/architecture.md).
