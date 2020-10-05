@@ -1,22 +1,20 @@
 description = 'Symphony Java BDK Examples - Core'
 
 dependencies {
+
     implementation project(':symphony-bdk-core')
-    implementation project(':symphony-bdk-template:symphony-bdk-template-api')
-    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
-    implementation project(':symphony-bdk-http:symphony-bdk-http-webclient')
-    implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-webclient')
+    runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+    runtimeOnly 'ch.qos.logback:logback-classic'
 
     implementation 'org.slf4j:slf4j-api'
-    runtimeOnly 'ch.qos.logback:logback-classic'
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 uploadArchives.enabled = false
