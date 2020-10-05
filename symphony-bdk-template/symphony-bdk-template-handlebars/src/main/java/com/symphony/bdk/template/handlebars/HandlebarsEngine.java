@@ -1,12 +1,11 @@
 package com.symphony.bdk.template.handlebars;
 
-import com.symphony.bdk.template.api.Template;
-import com.symphony.bdk.template.api.TemplateEngine;
-import com.symphony.bdk.template.api.TemplateException;
-
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
+import com.symphony.bdk.template.api.Template;
+import com.symphony.bdk.template.api.TemplateEngine;
+import com.symphony.bdk.template.api.TemplateException;
 import org.apache.commons.io.FilenameUtils;
 import org.apiguardian.api.API;
 

@@ -1,10 +1,7 @@
 package com.symphony.bdk.template.handlebars;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.symphony.bdk.template.api.Template;
 import com.symphony.bdk.template.api.TemplateException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -12,6 +9,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HandlebarsEngineTest {
 

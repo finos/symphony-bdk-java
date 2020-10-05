@@ -1,9 +1,8 @@
 package com.symphony.bdk.template.handlebars;
 
+import com.github.jknack.handlebars.Handlebars;
 import com.symphony.bdk.template.api.Template;
 import com.symphony.bdk.template.api.TemplateException;
-
-import com.github.jknack.handlebars.Handlebars;
 import org.apiguardian.api.API;
 
 import java.io.IOException;
