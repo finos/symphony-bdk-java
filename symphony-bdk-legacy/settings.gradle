@@ -1,0 +1,5 @@
+rootProject.name = 'symphony-bdk-legacy'
+
+include(':symphony-bdk-bot-sdk-java')
+include(':symphony-api-client-java')
+include(':sms-sdk-renderer-java')
