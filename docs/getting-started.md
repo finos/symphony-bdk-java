@@ -38,7 +38,7 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
             <dependency>
                 <groupId>com.symphony.platformsolutions</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
-                <version>1.2.1.BETA</version>
+                <version>1.3.1.BETA</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -86,7 +86,7 @@ repositories {
 dependencies {
 
     // import a BOM
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.2.1.BETA')
+    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.1.BETA')
 
     // define dependencies without versions
     implementation 'com.symphony.platformsolutions:symphony-bdk-core'
