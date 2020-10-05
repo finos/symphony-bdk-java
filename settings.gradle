@@ -9,6 +9,7 @@ include(':symphony-bdk-http:symphony-bdk-http-webclient')
 
 include(':symphony-bdk-template:symphony-bdk-template-api')
 include(':symphony-bdk-template:symphony-bdk-template-freemarker')
+include(':symphony-bdk-template:symphony-bdk-template-handlebars')
 
 include(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 include(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
