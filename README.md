@@ -40,8 +40,13 @@ To build you will need [Git](https://docs.github.com/en/github/getting-started-w
 Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8+` folder extracted from the JDK download.
 
 ### Build from the Command Line
-To compile, test and build all jars, use:
+To compile, test and build all BDK2.0 jars, use:
 ```shell script
+./gradlew
+```
+To compile, test and build legacy jars:
+```shell script
+cd symphony-bdk-legacy
 ./gradlew
 ```
 ### Install in local Maven repository
