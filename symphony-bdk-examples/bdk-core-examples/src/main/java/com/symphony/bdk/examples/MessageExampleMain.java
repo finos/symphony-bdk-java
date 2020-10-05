@@ -38,11 +38,9 @@ public class MessageExampleMain {
     final V4Message regularMessage = bdk.messages().send(STREAM_ID, MESSAGE);
 
     //use templates
-    final V4Message sentWithBuiltInTemplate = bdk.messages().send(STREAM_ID, "simpleMML",
-        Collections.singletonMap("message", "Hello from a built-in template!"));
 
     final V4Message sendWithCustomTemplate = bdk.messages()
-        .send(STREAM_ID, "customTemplate.ftl", Collections.emptyMap());
+        .send(STREAM_ID, "/complex-message.ftl", Collections.singletonMap("name", "Freemarker"));
 
     //retrieve the details of existing messages
     final V4Message message = bdk.messages().getMessage(regularMessage.getMessageId());

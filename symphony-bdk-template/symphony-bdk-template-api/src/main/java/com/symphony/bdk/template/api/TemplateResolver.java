@@ -30,47 +30,22 @@ public class TemplateResolver {
   }
 
   /**
-   * Looks for a template in this order : in the built-in templates, in the classpath, in the filesystem and from a URL.
-   * @param template can be the name of a built-in template, a path to a template file in the classpath or in the file system
-   *                 or a URL to a template file
+   * Looks for a template in this order : in the classpath, in the filesystem.
+   * @param template can be the name of a file in the classpath or in the file system
    * @return a new {@link Template} instance corresponding to the template parameter
    * @throws TemplateException if no template has been found.
    */
   public Template resolve(String template) throws TemplateException {
-    Template resolved = null;
-    if (isBuiltInTemplate(template)) {
-      resolved = tryFetchBuiltInTemplate(template);
-    }
-
-    if (resolved == null) {
-      resolved = tryFetchTemplateFromClasspath(template);
-    }
+    Template resolved = tryFetchTemplateFromClasspath(template);
 
     if (resolved == null) {
       resolved = tryFetchTemplateFromFileSystem(template);
     }
 
     if (resolved == null) {
-      resolved = tryFetchTemplateFromUrl(template);
-    }
-
-    if (resolved == null) {
       throw new TemplateException("Template " + template + " not found");
     }
     return resolved;
-  }
-
-  private boolean isBuiltInTemplate(String template) {
-    return this.templateEngine.getBuiltInTemplates().contains(template);
-  }
-
-  private Template tryFetchBuiltInTemplate(String template) {
-    try {
-      return this.templateEngine.newBuiltInTemplate(template);
-    } catch (TemplateException e) {
-      log.debug("{} is not a built-in template", template);
-    }
-    return null;
   }
 
   private Template tryFetchTemplateFromClasspath(String template) {
@@ -87,15 +62,6 @@ public class TemplateResolver {
       return this.templateEngine.newTemplateFromFile(template);
     } catch (TemplateException e) {
       log.debug("{} is not found on file system", template);
-    }
-    return null;
-  }
-
-  private Template tryFetchTemplateFromUrl(String template) {
-    try {
-      return this.templateEngine.newTemplateFromUrl(template);
-    } catch (TemplateException e) {
-      log.debug("{} is not found from URL", template);
     }
     return null;
   }
