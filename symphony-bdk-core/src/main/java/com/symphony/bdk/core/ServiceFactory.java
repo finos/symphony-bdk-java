@@ -29,6 +29,8 @@ import com.symphony.bdk.http.api.ApiClient;
 
 import com.symphony.bdk.http.api.ApiException;
 
+import com.symphony.bdk.template.api.TemplateEngine;
+
 import org.apiguardian.api.API;
 
 /**
@@ -49,13 +51,15 @@ class ServiceFactory {
   private final ApiClient agentClient;
   private final AuthSession authSession;
   private final BdkConfig config;
-  private final RetryWithRecoveryBuilder retryBuilder;
+  private final TemplateEngine templateEngine;
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.authSession = authSession;
     this.config = config;
+    this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getRetry())
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
@@ -108,8 +112,17 @@ class ServiceFactory {
    * @return an new {@link MessageService} instance.
    */
   public MessageService getMessageService() {
-    return new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
-        new MessageSuppressionApi(podClient), new StreamsApi(podClient), new PodApi(podClient),
-        new AttachmentsApi(agentClient), new DefaultApi(podClient), authSession, retryBuilder);
+    return new MessageService(
+        new MessagesApi(this.agentClient),
+        new MessageApi(this.podClient),
+        new MessageSuppressionApi(this.podClient),
+        new StreamsApi(this.podClient),
+        new PodApi(this.podClient),
+        new AttachmentsApi(this.agentClient),
+        new DefaultApi(this.podClient),
+        this.authSession,
+        this.templateEngine,
+        this.retryBuilder
+    );
   }
 }

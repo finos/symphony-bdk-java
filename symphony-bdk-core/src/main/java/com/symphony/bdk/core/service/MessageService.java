@@ -55,26 +55,22 @@ public class MessageService {
   private final AttachmentsApi attachmentsApi;
   private final DefaultApi defaultApi;
   private final AuthSession authSession;
+  private final TemplateEngine templateEngine;
   private final TemplateResolver templateResolver;
-  private final RetryWithRecoveryBuilder retryBuilder;
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
-    this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
-        new TemplateResolver(), retryBuilder);
-  }
-
-  public MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, TemplateEngine templateEngine, RetryWithRecoveryBuilder retryBuilder) {
-    this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi, authSession,
-        new TemplateResolver(templateEngine), retryBuilder);
-  }
-
-  private MessageService(MessagesApi messagesApi, MessageApi messageApi, MessageSuppressionApi messageSuppressionApi,
-      StreamsApi streamsApi, PodApi podApi, AttachmentsApi attachmentsApi, DefaultApi defaultApi,
-      AuthSession authSession, TemplateResolver templateResolver, RetryWithRecoveryBuilder retryBuilder) {
+  public MessageService(
+      final MessagesApi messagesApi,
+      final MessageApi messageApi,
+      final MessageSuppressionApi messageSuppressionApi,
+      final StreamsApi streamsApi,
+      final PodApi podApi,
+      final AttachmentsApi attachmentsApi,
+      final DefaultApi defaultApi,
+      final AuthSession authSession,
+      final TemplateEngine templateEngine,
+      final RetryWithRecoveryBuilder<?> retryBuilder
+  ) {
     this.messagesApi = messagesApi;
     this.messageApi = messageApi;
     this.messageSuppressionApi = messageSuppressionApi;
@@ -82,9 +78,19 @@ public class MessageService {
     this.podApi = podApi;
     this.attachmentsApi = attachmentsApi;
     this.authSession = authSession;
-    this.templateResolver = templateResolver;
+    this.templateEngine = templateEngine;
+    this.templateResolver = new TemplateResolver(templateEngine);
     this.defaultApi = defaultApi;
     this.retryBuilder = retryBuilder;
+  }
+
+  /**
+   * Returns the {@link TemplateEngine} that can be used to load templates from classpath or file system.
+   *
+   * @return the template engine
+   */
+  public TemplateEngine templates() {
+    return templateEngine;
   }
 
   /**
