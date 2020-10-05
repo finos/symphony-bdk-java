@@ -1,5 +1,5 @@
-ext.projectVersion = project.properties['projectVersion'] ?: '1.3.0-SNAPSHOT'
-ext.isReleaseVersion = !ext.projectVersion.endsWith("SNAPSHOT")
+ext.projectVersion = project.properties['projectVersion'] ?: '1.3.0.BETA'
+ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'Symphony repository URL'
 ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'

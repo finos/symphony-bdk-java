@@ -18,15 +18,17 @@ node {
                 gitCheckout()
             }
 
-            stage('Build BDK 2.0 project') {
-                sh './gradlew ' + releaseParamVersion
-            }
+            dir("symphony-bdk-legacy") {
+                stage('Build legacy BDK project') {
+                    sh './gradlew ' + releaseParamVersion
+                }
 
-            stage('Deploy BDK2.0 on Nexus and Maven Central') {
-                sh './gradlew -PnexusUsername=symphony-platform-solutions -PnexusPassword=$PASSPHRASE ' +
-                        '-Psigning.keyId=3C09C6D3 -Psigning.secretKeyRingFile=$KEYRING_FILE -Psigning.password=$PASSPHRASE ' +
-                        releaseParamVersion +
-                        'uploadArchives closeAndReleaseRepository'
+                stage('Deploy legacy BDK on Nexus and Maven Central') {
+                    sh './gradlew -PnexusUsername=symphony-platform-solutions -PnexusPassword=$PASSPHRASE ' +
+                            '-Psigning.keyId=3C09C6D3 -Psigning.secretKeyRingFile=$KEYRING_FILE -Psigning.password=$PASSPHRASE ' +
+                            releaseParamVersion +
+                            'uploadArchives closeAndReleaseRepository'
+                }
             }
         }
     }
