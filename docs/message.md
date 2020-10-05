@@ -39,11 +39,12 @@ engine implementations:
 - [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-handlebars`)
 
 ### How to send a message from a template
-> In the code examples below, we will assume that FreeMarker as been selected as template engine implementation
+> In the code examples below, we will assume that FreeMarker as been selected as template engine implementation.
+> See [how to select the template engine implementation](#select-your-template-engine-implementation).
 
 First you need to define your message template file. Here `src/main/resources/templates/simple.ftl`:
 ```
-<messageML>Hello, ${message}!</messageML>
+<messageML>Hello, ${name}!</messageML>
 ```
 you will be able to use it when sending message:
 ```java
@@ -68,9 +69,7 @@ It is also possible to get direct access to the `TemplateEngine` through the `Me
 public class Example {
 
   public static void main(String[] args) {
-
-    // load TemplateEngine implementation using SPI
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 
     // load template from classpath location
     final Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-message.ftl");
@@ -84,6 +83,37 @@ public class Example {
   }
 }
 ```
+
+#### Select your template engine implementation
+Developers are free to select the underlying template engine implementation. This can be done importing the right 
+dependency in your classpath. 
+
+With [Maven](./getting-started.md#maven-based-project): 
+```xml
+<dependencies>
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-freemarker</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- or -->
+        <dependency>
+            <groupId>com.symphony.platformsolutions</groupId>
+            <artifactId>symphony-bdk-template-handlebars</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+</dependencies>
+```
+With [Gradle](./getting-started.md#gradle-based-project): 
+```groovy
+dependencies {
+    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-freemarker'
+    // or
+    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-handlebars'
+}
+```
+> :warning: If multiple implementations found in classpath, an exception is throw in order to help you to define which one
+> your project really needs to use.
 
 ----
 [Home :house:](./index.md)
