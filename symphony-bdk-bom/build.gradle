@@ -85,5 +85,6 @@ publishing {
 }
 
 signing {
+    required { rootProject.isReleaseVersion }
     sign publishing.publications.symphonyBdk
 }
