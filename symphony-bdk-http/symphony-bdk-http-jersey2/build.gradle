@@ -1,7 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
 description = 'Symphony Java BDK Core Http Jersey2'
 
 dependencies {
-    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
+    api project(':symphony-bdk-http:symphony-bdk-http-api')
 
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'io.jsonwebtoken:jjwt'

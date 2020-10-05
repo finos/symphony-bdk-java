@@ -1,6 +1,6 @@
 description = 'Symphony Java BDK Legacy Module'
 
-ext.projectVersion = project.properties['projectVersion'] ?: '1.3.0'
+ext.projectVersion = project.properties['projectVersion'] ?: '1.3.1'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 allprojects {
