@@ -23,24 +23,59 @@ The following listing shows the `pom.xml` file that has to be created when using
     <artifactId>bdk-core-spring-boot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>bdk-core-spring-boot</name>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.symphony.platformsolutions</groupId>
+                <artifactId>symphony-bdk-bom</artifactId>
+                <version>1.3.2.BETA</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
-            <version>1.3.0.BETA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>2.3.4.RELEASE</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>
 ```
 The following listing shows the `build.gradle` file that has to be created when using Gradle:
 ```groovy
 plugins {
-    id 'org.springframework.boot' version "2.3.4.RELEASE"
+    id 'java-library'
+    id 'org.springframework.boot' version '2.3.4.RELEASE'
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter:1.3.2.BETA'
+    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.2.BETA')
+    
+    implementation 'com.symphony.platformsolutions:symphony-bdk-core-spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter'
 }
 ```
 
