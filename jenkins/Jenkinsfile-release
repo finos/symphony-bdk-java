@@ -18,11 +18,11 @@ node {
                 gitCheckout()
             }
 
-            stage('Build project') {
+            stage('Build BDK 2.0 project') {
                 sh './gradlew ' + releaseParamVersion
             }
 
-            stage('Deploy on OSSRH') {
+            stage('Deploy BDK2.0 on Nexus and Maven Central') {
                 sh './gradlew -PnexusUsername=symphony-platform-solutions -PnexusPassword=$PASSPHRASE ' +
                         '-Psigning.keyId=3C09C6D3 -Psigning.secretKeyRingFile=$KEYRING_FILE -Psigning.password=$PASSPHRASE ' +
                         releaseParamVersion +

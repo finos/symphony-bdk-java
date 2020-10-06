@@ -9,8 +9,6 @@ import com.symphony.bdk.template.api.TemplateException;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,7 +61,7 @@ public class FreeMarkerTemplateTest {
   }
 
   @Test
-  public void testFromClasspatWithInclude() throws TemplateException {
+  public void testFromClasspathWithInclude() throws TemplateException {
     Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("/subFolder/testWithInclude.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate, new HashMap<>(),
         "Template with include\nHello from included file!\n");
@@ -74,49 +72,11 @@ public class FreeMarkerTemplateTest {
     assertThrows(TemplateException.class, () -> new FreeMarkerEngine().newTemplateFromClasspath("./not/found.ftl"));
   }
 
-  @Test
-  public void testFromUrl() throws TemplateException {
-    URL baseUrl = getClass().getResource("/subFolder/test.ftl");
-
-    Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromUrl(baseUrl.toString());
-    assertTemplateProducesOutput(freeMarkerTemplate);
-  }
-
-  @Test
-  public void testFromUrlWithInclude() throws TemplateException {
-    URL baseUrl = getClass().getResource("/subFolder/testWithInclude.ftl");
-
-    Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromUrl(baseUrl.toString());
-    assertTemplateProducesOutput(freeMarkerTemplate, new HashMap<>(),
-        "Template with include\nHello from included file!\n");
-  }
-
-  @Test
-  public void testFromUrlWithNotFoundResource() {
-    assertThrows(TemplateException.class, () -> new FreeMarkerEngine().newTemplateFromUrl("file:/not/found/file.ftl"));
-  }
-
   private void assertTemplateProducesOutput(Template freeMarkerTemplate) throws TemplateException {
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("message", "Hello World!");
 
     assertTemplateProducesOutput(freeMarkerTemplate, parameters, "<messageML>Hello World!</messageML>\n");
-  }
-
-  @Test
-  public void testgetBuiltInTemplates() {
-    assertEquals(Collections.singleton("simpleMML"), new FreeMarkerEngine().getBuiltInTemplates());
-  }
-
-  @Test
-  public void testFromBuiltInTemplate() throws TemplateException {
-    final Template simpleMML = new FreeMarkerEngine().newBuiltInTemplate("simpleMML");
-    assertTemplateProducesOutput(simpleMML);
-  }
-
-  @Test
-  public void testFromNonExistingBuiltInTemplate() {
-    assertThrows(TemplateException.class, () -> new FreeMarkerEngine().newBuiltInTemplate("notFound"));
   }
 
   private void assertTemplateProducesOutput(Template freeMarkerTemplate, Object parameters, String expectedOutput)

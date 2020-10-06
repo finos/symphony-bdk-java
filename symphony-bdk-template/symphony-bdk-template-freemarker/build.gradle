@@ -10,7 +10,6 @@ dependencies {
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'org.freemarker:freemarker'
     implementation 'commons-io:commons-io'
-    implementation 'org.reflections:reflections'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
