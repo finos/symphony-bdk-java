@@ -203,6 +203,35 @@ Any service or component class that extends [`FormReplyActivity`](https://javado
 or [`CommandActivity`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html) 
 will be automatically registered within the [ActivityRegistry](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/activity/ActivityRegistry.html).
 
+### Example of a `CommandActivity` in Spring Boot
+The following example has been described in section [Activity API documentation](../activity-api.md#how-to-create-a-command-activity).
+Note here that with Spring Boot you simply have to annotate your `CommandActivity` class with `@Component` to make it 
+automatically registered in the `ActivityRegistry`,
+```java
+@Slf4j
+@Component
+public class HelloCommandActivity extends CommandActivity<CommandContext> {
+
+  @Override
+  protected ActivityMatcher<CommandContext> matcher() {
+    return c -> c.getTextContent().contains("hello");
+  }
+
+  @Override
+  protected void onActivity(CommandContext context) {
+    log.info("Hello command triggered by user {}", context.getInitiator().getUser().getDisplayName());
+  }
+
+  @Override
+  protected ActivityInfo info() {
+    final ActivityInfo info = ActivityInfo.of(ActivityType.COMMAND);
+    info.setName("Hello Command");
+    return info;
+  }
+}
+```
+
+### Example of a `FormReplyActivity` in Spring Boot
 The following example demonstrates how to send an Elements form on `@BotMention /gif` slash command. The Elements form 
 located in `src/main/resources/templates/gif.ftl` contains:
 ```xml
