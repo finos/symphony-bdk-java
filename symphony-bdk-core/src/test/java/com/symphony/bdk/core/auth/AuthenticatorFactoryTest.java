@@ -73,7 +73,6 @@ class AuthenticatorFactoryTest {
     final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
     final BotAuthenticator botAuth = factory.getBotAuthenticator();
 
-    assertNotNull(botAuth);
     assertEquals(BotAuthenticatorRsaImpl.class, botAuth.getClass());
   }
 

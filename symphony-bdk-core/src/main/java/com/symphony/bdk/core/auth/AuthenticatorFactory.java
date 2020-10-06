@@ -77,7 +77,7 @@ public class AuthenticatorFactory {
           this.apiClientFactory.getRelayClient()
       );
     }
-    throw new AuthInitializationException("Neither rsa private key nor certificate is configured");
+    throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
   }
 
   /**
@@ -108,7 +108,7 @@ public class AuthenticatorFactory {
           this.apiClientFactory.getLoginClient()
       );
     }
-    throw new AuthInitializationException("Neither rsa private key nor certificate is configured");
+    throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
   }
 
   /**
@@ -139,7 +139,7 @@ public class AuthenticatorFactory {
           this.apiClientFactory.getPodClient()
       );
     }
-    throw new AuthInitializationException("Neither rsa private key nor certificate is configured");
+    throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
   }
 
   private PrivateKey loadPrivateKeyFromAuthenticationConfig(BdkAuthenticationConfig config)
