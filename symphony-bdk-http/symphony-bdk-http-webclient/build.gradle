@@ -1,3 +1,7 @@
+plugins {
+    id 'java-library'
+}
+
 description = 'Symphony Java BDK Core Http Spring WebClient'
 
 jacocoTestCoverageVerification {
@@ -14,7 +18,7 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
-    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
+    api project(':symphony-bdk-http:symphony-bdk-http-api')
 
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
