@@ -1,6 +1,5 @@
 plugins {
     id 'java-platform'
-    id 'maven-publish'
 }
 
 description = 'Symphony Java BDK Bom (Bill Of Materials)'
@@ -79,13 +78,14 @@ dependencies {
 
 publishing {
     publications {
-        symphonyBdk(MavenPublication) {
+        bom(MavenPublication) {
             from components.javaPlatform
+            pom(rootProject.ext.pomDefinition(project))
         }
     }
 }
 
 signing {
     required { rootProject.isReleaseVersion }
-    sign publishing.publications.symphonyBdk
+    sign publishing.publications.bom
 }

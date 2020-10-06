@@ -24,10 +24,10 @@ node {
                 }
 
                 stage('Deploy legacy BDK on Nexus and Maven Central') {
-                    sh './gradlew -PnexusUsername=symphony-platform-solutions -PnexusPassword=$PASSPHRASE ' +
+                    sh './gradlew -PsymphonyRepoUser=symphony-platform-solutions -PsymphonyRepoPassword=$PASSPHRASE ' +
                             '-Psigning.keyId=3C09C6D3 -Psigning.secretKeyRingFile=$KEYRING_FILE -Psigning.password=$PASSPHRASE ' +
                             releaseParamVersion +
-                            'uploadArchives closeAndReleaseRepository'
+                            'publish closeAndReleaseRepository'
                 }
             }
         }
