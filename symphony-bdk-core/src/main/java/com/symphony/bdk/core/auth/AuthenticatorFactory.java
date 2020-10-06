@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.auth;
 
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
@@ -9,6 +11,7 @@ import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,17 +56,28 @@ public class AuthenticatorFactory {
   public @Nonnull
   BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
     if (this.config.getBot().isCertificateAuthenticationConfigured()) {
+      if (!this.config.getBot().isCertificateConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of certificate path or content should be configured for bot authentication.");
+      }
       return new BotAuthenticatorCertImpl(
           this.apiClientFactory.getSessionAuthClient(),
           this.apiClientFactory.getKeyAuthClient()
       );
     }
-    return new BotAuthenticatorRsaImpl(
-        this.config.getBot().getUsername(),
-        this.loadPrivateKeyFromPath(this.config.getBot().getPrivateKeyPath()),
-        this.apiClientFactory.getLoginClient(),
-        this.apiClientFactory.getRelayClient()
-    );
+    if (this.config.getBot().isRsaAuthenticationConfigured()) {
+      if (!this.config.getBot().isRsaConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of private key path or content should be configured for bot authentication.");
+      }
+      return new BotAuthenticatorRsaImpl(
+          this.config.getBot().getUsername(),
+          this.loadPrivateKeyFromAuthenticationConfig(this.config.getBot()),
+          this.apiClientFactory.getLoginClient(),
+          this.apiClientFactory.getRelayClient()
+      );
+    }
+    throw new AuthInitializationException("Neither rsa private key nor certificate is configured");
   }
 
   /**
@@ -74,16 +88,27 @@ public class AuthenticatorFactory {
   public @Nonnull
   OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
     if (this.config.getApp().isCertificateAuthenticationConfigured()) {
+      if (!this.config.getApp().isCertificateConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of certificate path or content should be configured for app authentication.");
+      }
       return new OboAuthenticatorCertImpl(
           this.config.getApp().getAppId(),
           this.apiClientFactory.getExtAppSessionAuthClient()
       );
     }
-    return new OboAuthenticatorRsaImpl(
-        this.config.getApp().getAppId(),
-        this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
-        this.apiClientFactory.getLoginClient()
-    );
+    if (this.config.getApp().isRsaAuthenticationConfigured()) {
+      if (!this.config.getApp().isRsaConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of private key path or content should be configured for app authentication.");
+      }
+      return new OboAuthenticatorRsaImpl(
+          this.config.getApp().getAppId(),
+          this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
+          this.apiClientFactory.getLoginClient()
+      );
+    }
+    throw new AuthInitializationException("Neither rsa private key nor certificate is configured");
   }
 
   /**
@@ -94,28 +119,47 @@ public class AuthenticatorFactory {
   public @Nonnull
   ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
     if (this.config.getApp().isCertificateAuthenticationConfigured()) {
+      if (!this.config.getApp().isCertificateConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of certificate path or content should be configured for app authentication.");
+      }
       return new ExtensionAppAuthenticatorCertImpl(
           this.config.getApp().getAppId(),
           this.apiClientFactory.getExtAppSessionAuthClient());
     }
-    return new ExtensionAppAuthenticatorRsaImpl(
-        this.config.getApp().getAppId(),
-        this.loadPrivateKeyFromPath(this.config.getApp().getPrivateKeyPath()),
-        this.apiClientFactory.getLoginClient(),
-        this.apiClientFactory.getPodClient()
-    );
+    if (this.config.getApp().isRsaAuthenticationConfigured()) {
+      if (!this.config.getApp().isRsaConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of private key path or content should be configured for app authentication.");
+      }
+      return new ExtensionAppAuthenticatorRsaImpl(
+          this.config.getApp().getAppId(),
+          this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
+          this.apiClientFactory.getLoginClient(),
+          this.apiClientFactory.getPodClient()
+      );
+    }
+    throw new AuthInitializationException("Neither rsa private key nor certificate is configured");
   }
 
-  private PrivateKey loadPrivateKeyFromPath(String privateKeyPath) throws AuthInitializationException {
-    log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
+  private PrivateKey loadPrivateKeyFromAuthenticationConfig(BdkAuthenticationConfig config)
+      throws AuthInitializationException {
     try {
-      return this.jwtHelper.parseRsaPrivateKey(loadPrivateKey(privateKeyPath));
+      String privateKey;
+      if (isNotEmpty(config.getPrivateKeyContent())) {
+        privateKey = new String(config.getPrivateKeyContent());
+      } else {
+        String privateKeyPath = config.getPrivateKeyPath();
+        log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
+        privateKey = loadPrivateKey(privateKeyPath);
+      }
+      return JwtHelper.parseRsaPrivateKey(privateKey);
     } catch (GeneralSecurityException e) {
-      final String message = "Unable to parse RSA Private Key located at " + privateKeyPath;
+      final String message = "Unable to parse RSA Private Key";
       log.error(message, e);
       throw new AuthInitializationException(message, e);
     } catch (IOException e) {
-      final String message = "Unable to read or find RSA Private Key from path " + privateKeyPath;
+      final String message = "Unable to read or find RSA Private Key from path " + config.getPrivateKeyPath();
       log.error(message, e);
       throw new AuthInitializationException(message, e);
     }

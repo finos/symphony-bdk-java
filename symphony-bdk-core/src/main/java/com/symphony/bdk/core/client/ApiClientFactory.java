@@ -121,7 +121,12 @@ public class ApiClientFactory {
           "certificatePath and certificatePassword must be set");
     }
 
-    byte[] certificateBytes = getBytesFromFile(config.getCertificatePath());
+    byte[] certificateBytes;
+    if (isNotEmpty(config.getCertificateContent())) {
+      certificateBytes = config.getCertificateContent();
+    } else {
+      certificateBytes = getBytesFromFile(config.getCertificatePath());
+    }
 
     return getApiClientBuilder(basePath)
         .withKeyStore(certificateBytes, config.getCertificatePassword())
