@@ -1,56 +1,33 @@
-// used by https://warpdrive-lab.dev.symphony.com/jenkins/view/DevX-Basilic/job/bdk-deploy-java/
-
 @Library(['sym-pipeline']) _
 
-import com.symphony.cicd.SymphonyCICDUtils
-
-cicdUtils = new SymphonyCICDUtils()
-
-
 node {
-
-    // default org and branch
-    def org = env.PARAM_REPO_OWNER ?: 'SymphonyPlatformSolutions'
-    def branch = env.PARAM_BUILD_BRANCH ?: 'master'
-
     withCredentials([
-        file(credentialsId: 'JAVA_SDK_GPG_KEY', variable: 'KEY'), 
-        string(credentialsId: 'JAVA_SDK_GPG_PASSPHRASE', variable: 'PASSPHRASE')
+            file(credentialsId: 'JAVA_SDK_KEYRING', variable: 'KEYRING_FILE'),
+            string(credentialsId: 'JAVA_SDK_GPG_PASSPHRASE', variable: 'PASSPHRASE')
     ]) {
-    
-      withEnv([
-        "PROJECT_TYPE=java",
-        "USE_OPENJDK11=false",
-        "DISABLE_SONAR=true",
-        "GIT_BRANCH=$PARAM_BUILD_BRANCH", 
-        "GIT_ORG=$PARAM_REPO_OWNER", 
-        "GIT_REPO=symphony-api-client-java"
-      ]) {
-    
-        stage('Git Checkout') {
-            gitCheckout()
-        }
-        
-        stage('Build project') {
-            sh './gradlew clean build'
-        }
-        
-        stage('Check jar file') {
-            sh 'ls -la ./symphony-bdk-legacy/symphony-api-client-java/target'
-            sh 'find . -type f -regex ".*/target/symphony-api-client-java-.*.jar" -exec echo {} \\;'
-        }
-        
-        stage('Deploy') {
-            sh "gpg --batch --passphrase $PASSPHRASE --import $KEY"    
 
-            // To remove?
-            // sh 'find . -type f -regex ".*/build/libs/symphony-api-client-java-.*.jar" -exec gpg --batch --passphrase $PASSPHRASE -ab {} \\;'
-            sh '''
-                cd ./symphony-bdk-legacy/symphony-api-client-java
-                // New version? ./gradlew sign publish
-                // mvn --batch-mode --settings ../../jenkins/config-release/settings-release.xml -Dgpg.passphrase=$PASSPHRASE -Drepo.id=ossrh -Drepo.username=symphony-platform-solutions -Drepo.password=$PASSPHRASE clean deploy
-            '''
+        withEnv([
+                "GIT_BRANCH=$PARAM_BUILD_BRANCH",
+                "GIT_ORG=$PARAM_REPO_OWNER",
+                "GIT_REPO=symphony-api-client-java"
+        ]) {
+            def isVersionOverriden = env.PARAM_RELEASE_VERSION?.trim()
+            def releaseParamVersion = isVersionOverriden ? '-PprojectVersion=$PARAM_RELEASE_VERSION ' : ''
+
+            stage('Git Checkout') {
+                gitCheckout()
+            }
+
+            stage('Build BDK 2.0 project') {
+                sh './gradlew ' + releaseParamVersion
+            }
+
+            stage('Deploy BDK2.0 on Nexus and Maven Central') {
+                sh './gradlew -PnexusUsername=symphony-platform-solutions -PnexusPassword=$PASSPHRASE ' +
+                        '-Psigning.keyId=3C09C6D3 -Psigning.secretKeyRingFile=$KEYRING_FILE -Psigning.password=$PASSPHRASE ' +
+                        releaseParamVersion +
+                        'uploadArchives closeAndReleaseRepository'
+            }
         }
-      }
     }
 }

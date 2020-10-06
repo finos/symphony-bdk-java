@@ -53,11 +53,13 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
         </dependency>
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
-            <artifactId>symphony-bdk-core-invoker-jersey2</artifactId>
+            <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.symphony.platformsolutions</groupId>
-            <artifactId>symphony-bdk-template-freemarker</artifactId>
+            <artifactId>symphony-bdk-template-freemarker</artifactId>  <!-- or symphony-bdk-http-handlebars -->
+            <scope>runtime</scope>
         </dependency>
         <!-- Logger implementation -->
         <dependency>
@@ -88,8 +90,8 @@ dependencies {
 
     // define dependencies without versions
     implementation 'com.symphony.platformsolutions:symphony-bdk-core'
-    implementation 'com.symphony.platformsolutions:symphony-bdk-core-invoker-jersey2'
-    implementation 'com.symphony.platformsolutions:symphony-bdk-template-freemarker'
+    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-http-jersey2' //  or symphony-bdk-http-webclient
+    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-freemarker' // or symphony-bdk-http-handlebars
 
     implementation 'ch.qos.logback:logback-classic'
 }

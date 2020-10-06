@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -15,20 +14,6 @@ import java.util.stream.StreamSupport;
  */
 @API(status = API.Status.STABLE)
 public interface TemplateEngine {
-
-  /**
-   * Returns the names of built-in templates which can be retrieved by calling {@link #newBuiltInTemplate(String)}
-   * @return the names of available built-in templates
-   */
-  Set<String> getBuiltInTemplates();
-
-  /**
-   * Creates a new {@link Template} from the built-in template name.
-   * @param template the name of one of the built-in templates returned by {@link #getBuiltInTemplates()}
-   * @return a new {@link Template} instantiated from the provided template name
-   * @throws TemplateException if template not found
-   */
-  Template newBuiltInTemplate(String template) throws TemplateException;
 
   /**
    * Create a {@link Template} instance from a file on the file system
@@ -45,14 +30,6 @@ public interface TemplateEngine {
    * @throws TemplateException when template cannot be loaded, e.g. resource not accessible
    */
   Template newTemplateFromClasspath(String templatePath) throws TemplateException;
-
-  /**
-   * Creates a template from a URL to a template file
-   * @param url the url where to fetch the template file
-   * @return a new {@link Template} instantiated from the provided url, should be a valid {@link java.net.URL} string.
-   * @throws TemplateException when template cannot be loaded, e.g. url not accessible
-   */
-  Template newTemplateFromUrl(String url) throws TemplateException;
 
   static TemplateEngine getDefaultImplementation() {
     final ServiceLoader<TemplateEngine> engineServiceLoader = ServiceLoader.load(TemplateEngine.class);
