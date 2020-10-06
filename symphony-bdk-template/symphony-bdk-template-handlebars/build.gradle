@@ -1,0 +1,17 @@
+plugins {
+    id 'java-library'
+}
+
+description = 'Symphony Java BDK Template Handlebars Module'
+
+dependencies {
+    api project(':symphony-bdk-template:symphony-bdk-template-api')
+
+    implementation 'org.apiguardian:apiguardian-api'
+
+    implementation 'com.github.jknack:handlebars:4.2.0'
+    implementation 'commons-io:commons-io'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic'
+}
