@@ -5,30 +5,26 @@ ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sona
 ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
 ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
 
-ext.pomDefinition = { p ->
-    { it ->
-        name = p.name
-        description = p.description
+ext.pomDefinition = {
+    url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+    licenses {
+        license {
+            name = 'MIT License'
+            url = 'http://www.opensource.org/licenses/mit-license.php'
+        }
+    }
+    developers {
+        developer {
+            name = 'Symphony Platform Solutions'
+            email = 'platformsolutions@symphony.com'
+            organization = 'Symphony Communication Services'
+            organizationUrl = 'https://symphony.com/'
+        }
+    }
+    scm {
+        connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+        developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
         url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
-        licenses {
-            license {
-                name = 'MIT License'
-                url = 'http://www.opensource.org/licenses/mit-license.php'
-            }
-        }
-        developers {
-            developer {
-                name = 'Symphony Platform Solutions'
-                email = 'platformsolutions@symphony.com'
-                organization = 'Symphony Communication Services'
-                organizationUrl = 'https://symphony.com/'
-            }
-        }
-        scm {
-            connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-            developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-            url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
-        }
     }
 }
 
@@ -76,7 +72,15 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
         publications {
             maven(MavenPublication) {
                 from(components.java)
-                pom(rootProject.ext.pomDefinition(project))
+                pom(rootProject.ext.pomDefinition)
+                pom.withXml {
+                    // otherwise project description is evaluated too early
+                    asNode().children().first().plus {
+                        setResolveStrategy(Closure.DELEGATE_FIRST)
+                        'name' project.name
+                        'description' project.description
+                    }
+                }
             }
         }
     }

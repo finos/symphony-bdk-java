@@ -80,7 +80,11 @@ publishing {
     publications {
         bom(MavenPublication) {
             from components.javaPlatform
-            pom(rootProject.ext.pomDefinition(project))
+            pom(rootProject.ext.pomDefinition)
+            pom {
+                name = project.name
+                description = project.description
+            }
         }
     }
 }
