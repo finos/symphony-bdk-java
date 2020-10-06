@@ -1,10 +1,10 @@
 description = 'Symphony Java BDK Core Http API'
 
 dependencies {
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.apiguardian:apiguardian-api'
-    implementation 'org.glassfish.jersey.core:jersey-client'
 }
 

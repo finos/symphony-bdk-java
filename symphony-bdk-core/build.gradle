@@ -29,8 +29,8 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
-    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
-    implementation project(':symphony-bdk-template:symphony-bdk-template-api')
+    api project(':symphony-bdk-http:symphony-bdk-http-api')
+    api project(':symphony-bdk-template:symphony-bdk-template-api')
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
