@@ -5,7 +5,6 @@ import clients.SymBotClient;
 import clients.symphony.api.constants.PodConstants;
 import clients.symphony.api.DatafeedClient;
 import clients.symphony.api.constants.AgentConstants;
-import com.github.tomakehurst.wiremock.http.ResponseDefinition;
 import exceptions.APIClientErrorException;
 import exceptions.ForbiddenException;
 import exceptions.ServerErrorException;
@@ -18,18 +17,14 @@ import model.Initiator;
 import model.Stream;
 import model.User;
 import model.datafeed.DatafeedV2;
-import model.datafeed.DatafeedV2EventList;
 import model.events.MessageSent;
-import org.eclipse.jetty.util.IO;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.NoContentException;
 
 import java.io.File;
 import java.io.IOException;

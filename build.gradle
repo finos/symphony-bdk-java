@@ -63,6 +63,7 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     javadoc {
         options.encoding = 'UTF-8'
         options.addStringOption('Xdoclint:none', '-quiet')
+        options.encoding = 'UTF-8'
     }
 
     java {
