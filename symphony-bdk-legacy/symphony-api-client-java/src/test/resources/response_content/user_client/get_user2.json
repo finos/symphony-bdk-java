@@ -1,0 +1,35 @@
+{
+    "users": [
+        {
+            "id": 15942919536461,
+            "emailAddress": "test_2@symphony.com",
+            "firstName": "test_2",
+            "lastName": "test",
+            "displayName": "test_2 test",
+            "title": "Technical Writer",
+            "company": "pod232",
+            "username": "test_2",
+            "location": "location",
+            "avatars": [
+                {
+                    "size": "original",
+                    "url": "../avatars/static/150/default.png"
+                },
+                {
+                    "size": "small",
+                    "url": "../avatars/static/50/default.png"
+                }
+            ]
+        }
+    ],
+    "errors": [
+        {
+            "error": "invalid.format",
+            "email": "notavalidemail"
+        },
+        {
+            "error": "invalid.format",
+            "id": 654321
+        }
+    ]
+}

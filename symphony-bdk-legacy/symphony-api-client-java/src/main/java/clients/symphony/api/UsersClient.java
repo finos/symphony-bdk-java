@@ -220,7 +220,7 @@ public class UsersClient extends APIClient {
             if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
                 try {
                     handleError(response, botClient);
-                } catch (SymClientException ex) {
+                } catch (UnauthorizedException ex) {
                     return getSessionUser();
                 }
                 return null;

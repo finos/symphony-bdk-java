@@ -1,0 +1,12 @@
+{
+    "errors": [
+        {
+            "error": "invalid.format",
+            "email": "test_2@.symphony.com"
+        },
+        {
+            "error": "invalid.format",
+            "id": 654321
+        }
+    ]
+}
