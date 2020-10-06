@@ -14,11 +14,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
@@ -40,6 +36,9 @@ import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 
@@ -169,8 +168,7 @@ public class MessageServiceTest {
 
   @Test
   void testSendWithTemplateAndStreamObjectCallsSendWithCorrectStreamIdAndMessage() throws TemplateException {
-    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(TEMPLATE_NAME));
-    when(templateEngine.newBuiltInTemplate(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
+    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
 
     MessageService service = spy(messageService);
     doReturn(new V4Message()).when(service).send(anyString(), anyString());
@@ -183,8 +181,7 @@ public class MessageServiceTest {
 
   @Test
   void testSendWithTemplateCallsSendWithCorrectMessage() throws TemplateException {
-    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(TEMPLATE_NAME));
-    when(templateEngine.newBuiltInTemplate(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
+    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
 
     MessageService service = spy(messageService);
     doReturn(new V4Message()).when(service).send(anyString(), anyString());
@@ -195,8 +192,7 @@ public class MessageServiceTest {
 
   @Test
   void testSendWithTemplateThrowingTemplateException() throws TemplateException {
-    when(templateEngine.getBuiltInTemplates()).thenReturn(Collections.singleton(TEMPLATE_NAME));
-    when(templateEngine.newBuiltInTemplate(eq(TEMPLATE_NAME))).thenThrow(new TemplateException("error"));
+    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenThrow(new TemplateException("error"));
 
     assertThrows(TemplateException.class, () -> messageService.send(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
   }
