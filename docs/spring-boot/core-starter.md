@@ -36,11 +36,11 @@ The following listing shows the `pom.xml` file that has to be created when using
 The following listing shows the `build.gradle` file that has to be created when using Gradle:
 ```groovy
 plugins {
-    id 'org.springframework.boot' version "2.3.3.RELEASE"
+    id 'org.springframework.boot' version "2.3.4.RELEASE"
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter:1.3.0.BETA'
+    implementation 'org.springframework.boot:spring-boot-starter:1.3.2.BETA'
 }
 ```
 
