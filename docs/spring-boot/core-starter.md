@@ -224,9 +224,7 @@ public class HelloCommandActivity extends CommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    final ActivityInfo info = ActivityInfo.of(ActivityType.COMMAND);
-    info.setName("Hello Command");
-    return info;
+    return new ActivityInfo().type(ActivityType.COMMAND).name("Hello Command");
   }
 }
 ```
