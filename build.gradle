@@ -1,4 +1,4 @@
-ext.projectVersion = project.properties['projectVersion'] ?: '1.4.0-SNAPSHOT'
+ext.projectVersion = '1.4.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
@@ -99,7 +99,6 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     javadoc {
         options.encoding = 'UTF-8'
         options.addStringOption('Xdoclint:none', '-quiet')
-        options.encoding = 'UTF-8'
     }
 
     java {
