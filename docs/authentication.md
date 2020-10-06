@@ -61,8 +61,9 @@ public class Example {
 ```
 
 ### Authentication using private key and certificate content
-Instead of configuring the path of private key or certificate in config file, you can also authenticate the bot and 
-extension app by using directly the private key or certificate content. The code snippet below will give you an example showing
+Instead of configuring the path of RSA private key or certificate in config file, you can also authenticate the bot and 
+extension app by using directly the private key or certificate content. This feature is useful when either RSA private key 
+or certificate are fetched from an external secrets storage. The code snippet below will give you an example showing 
 how to set directly the private key content to the Bdk configuration for authenticating the bot.
 ```java
 public class Example {
