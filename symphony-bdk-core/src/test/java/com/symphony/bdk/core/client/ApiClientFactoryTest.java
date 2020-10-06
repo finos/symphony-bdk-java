@@ -3,12 +3,16 @@ package com.symphony.bdk.core.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Test class for the {@link ApiClientFactory}.
@@ -77,6 +81,29 @@ class ApiClientFactoryTest {
 
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(bdkConfig).getSessionAuthClient());
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(bdkConfig).getKeyAuthClient());
+  }
+
+  @Test
+  void testAuthClientWithCertificateContent() throws IOException {
+    InputStream is = ApiClientFactoryTest.class.getResourceAsStream("/certs/identity.p12");
+
+    BdkConfig config = createConfig();
+    config.getBot().setCertificateContent(IOUtils.toByteArray(is));
+    config.getBot().setCertificatePassword("password");
+
+    ApiClient sessionAuth = new ApiClientFactory(config).getSessionAuthClient();
+
+    assertEquals(ApiClientJersey2.class, sessionAuth.getClass());
+    assertEquals("https://sa-host:443/sessionauth", sessionAuth.getBasePath());
+  }
+
+  @Test
+  void testAuthClientWithInvalidCertificateContent() {
+    BdkConfig config = createConfig();
+    config.getBot().setCertificateContent("invalid certificate".getBytes());
+    config.getBot().setCertificatePassword("password");
+
+    assertThrows(IllegalStateException .class, () -> new ApiClientFactory(config).getSessionAuthClient());
   }
 
   @Test

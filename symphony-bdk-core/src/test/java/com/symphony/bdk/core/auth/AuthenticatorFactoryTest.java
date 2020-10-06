@@ -6,18 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorCertImpl;
-import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.RsaTestHelper;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2;
 
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
@@ -62,6 +62,29 @@ class AuthenticatorFactoryTest {
     final BotAuthenticator botAuth = factory.getBotAuthenticator();
     assertNotNull(botAuth);
     assertEquals(BotAuthenticatorRsaImpl.class, botAuth.getClass());
+  }
+
+  @Test
+  void testGetAuthenticatorWithValidPrivateKeyContent() throws AuthInitializationException {
+
+    final BdkConfig config = new BdkConfig();
+    config.getBot().setPrivateKeyContent(RSA_PRIVATE_KEY.getBytes());
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+    final BotAuthenticator botAuth = factory.getBotAuthenticator();
+
+    assertEquals(BotAuthenticatorRsaImpl.class, botAuth.getClass());
+  }
+
+  @Test
+  void testGetAuthenticatorWithInvalidPrivateKeyContent() {
+
+    final BdkConfig config = new BdkConfig();
+    config.getBot().setPrivateKeyContent("invalid-key".getBytes());
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
   }
 
   @Test
@@ -153,6 +176,36 @@ class AuthenticatorFactoryTest {
   }
 
   @Test
+  void testGetAuthenticatorWithBothCertificatePathAndContentConfigured() {
+    final BdkConfig config = new BdkConfig();
+    config.getBot().setCertificatePath("/path/to/cert/file.p12");
+    config.getBot().setCertificatePassword("password");
+    config.getBot().setCertificateContent("certificate-content".getBytes());
+    config.getApp().setCertificatePath("/path/to/cert/file.p12");
+    config.getApp().setCertificatePassword("password");
+    config.getApp().setCertificateContent("certificate-content".getBytes());
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+  }
+
+  @Test
+  void testGetAuthenticatorWithBothPrivateKeyPathAndContentConfigured() {
+    final BdkConfig config = new BdkConfig();
+    config.getBot().setPrivateKeyPath("/path/to/cert/privatekey.pem");
+    config.getBot().setPrivateKeyContent("privatekey-content".getBytes());
+    config.getApp().setPrivateKeyPath("/path/to/cert/privatekey.pem");
+    config.getApp().setPrivateKeyContent("privatekey-content".getBytes());
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+  }
+
+  @Test
   void testGetExtAppAuthenticatorWithInvalidPrivateKey(@TempDir Path tempDir) {
 
     final BdkConfig config = createRsaConfig(() -> {
@@ -173,6 +226,18 @@ class AuthenticatorFactoryTest {
 
     final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
 
+    assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+  }
+
+  @Test
+  void testGetAuthenticationRsaAndCertificateNotConfigured() {
+
+    final BdkConfig config = new BdkConfig();
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
   }
 
