@@ -1,9 +1,36 @@
 ext.projectVersion = project.properties['projectVersion'] ?: '1.4.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
-ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'Symphony repository URL'
+ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
 ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
+
+ext.pomDefinition = { p ->
+    { it ->
+        name = p.name
+        description = p.description
+        url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+        licenses {
+            license {
+                name = 'MIT License'
+                url = 'http://www.opensource.org/licenses/mit-license.php'
+            }
+        }
+        developers {
+            developer {
+                name = 'Symphony Platform Solutions'
+                email = 'platformsolutions@symphony.com'
+                organization = 'Symphony Communication Services'
+                organizationUrl = 'https://symphony.com/'
+            }
+        }
+        scm {
+            connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+            developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+            url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+        }
+    }
+}
 
 allprojects {
     group = 'com.symphony.platformsolutions'
@@ -17,7 +44,6 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
     }
 }
@@ -30,6 +56,11 @@ subprojects {
 
 tasks.withType(Sign) {
     onlyIf { ext.isReleaseVersion }
+}
+
+nexusStaging {
+    username = rootProject.ext.symphonyRepoUser
+    password = rootProject.ext.symphonyRepoPassword
 }
 
 configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
@@ -45,6 +76,7 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
         publications {
             maven(MavenPublication) {
                 from(components.java)
+                pom(rootProject.ext.pomDefinition(project))
             }
         }
     }
@@ -89,9 +121,9 @@ configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
     }
 }
 
+// do not publish example modules
 configure(subprojects.findAll { !it.name.contains('example') }) {
     apply plugin: 'maven-publish'
-    apply plugin: 'com.bmuschko.nexus'
 
     publishing {
         repositories {
@@ -103,41 +135,5 @@ configure(subprojects.findAll { !it.name.contains('example') }) {
                 url rootProject.ext.symphonyRepoUrl
             }
         }
-    }
-
-    modifyPom {
-        project {
-            name = project.name
-            description = project.description
-            url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
-            licenses {
-                license {
-                    name = 'MIT License'
-                    url = 'http://www.opensource.org/licenses/mit-license.php'
-                }
-            }
-            developers {
-                developer {
-                    name = 'Symphony Platform Solutions'
-                    email = 'platformsolutions@symphony.com'
-                    organization = 'Symphony Communication Services'
-                    organizationUrl = 'https://symphony.com/'
-                }
-            }
-            scm {
-                connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-                developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-                url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
-            }
-        }
-    }
-
-    extraArchive {
-        sources = false
-        javadoc = false
-    }
-
-    nexus {
-        sign = isReleaseVersion
     }
 }
