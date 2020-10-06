@@ -3,6 +3,33 @@ description = 'Symphony Java BDK Legacy Module'
 ext.projectVersion = project.properties['projectVersion'] ?: '1.3.1'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
+ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
+ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
+
+ext.pomDefinition = {
+    url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+    licenses {
+        license {
+            name = 'MIT License'
+            url = 'http://www.opensource.org/licenses/mit-license.php'
+        }
+    }
+    developers {
+        developer {
+            name = 'Symphony Platform Solutions'
+            email = 'platformsolutions@symphony.com'
+            organization = 'Symphony Communication Services'
+            organizationUrl = 'https://symphony.com/'
+        }
+    }
+    scm {
+        connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+        developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
+        url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+    }
+}
+
 allprojects {
     group = 'com.symphony.platformsolutions'
     version = projectVersion
@@ -15,19 +42,22 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
         classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
     }
 }
 
 apply plugin: 'io.codearte.nexus-staging'
 
+nexusStaging {
+    username = rootProject.ext.symphonyRepoUser
+    password = rootProject.ext.symphonyRepoPassword
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
-    apply plugin: 'com.bmuschko.nexus'
 
     repositories {
         mavenCentral()
@@ -111,44 +141,17 @@ subprojects {
         publications {
             maven(MavenPublication) {
                 from(components.java)
-            }
-        }
-    }
-
-    modifyPom {
-        project {
-            name = project.name
-            description = project.description
-            url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
-            licenses {
-                license {
-                    name = 'MIT License'
-                    url = 'http://www.opensource.org/licenses/mit-license.php'
+                pom(rootProject.ext.pomDefinition)
+                pom.withXml {
+                    // otherwise project description is evaluated too early
+                    asNode().children().first().plus {
+                        setResolveStrategy(Closure.DELEGATE_FIRST)
+                        'name' project.name
+                        'description' project.description
+                    }
                 }
             }
-            developers {
-                developer {
-                    name = 'Symphony Platform Solutions'
-                    email = 'platformsolutions@symphony.com'
-                    organization = 'Symphony Communication Services'
-                    organizationUrl = 'https://symphony.com/'
-                }
-            }
-            scm {
-                connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-                developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-                url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
-            }
         }
-    }
-
-    extraArchive {
-        sources = false
-        javadoc = false
-    }
-
-    nexus {
-        sign = isReleaseVersion
     }
 }
 
