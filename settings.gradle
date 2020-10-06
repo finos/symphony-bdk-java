@@ -16,7 +16,4 @@ include(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
 
 include(':symphony-bdk-examples:bdk-core-examples')
 include(':symphony-bdk-examples:bdk-spring-boot-example')
-
-include(':symphony-bdk-legacy:symphony-bdk-bot-sdk-java')
-include(':symphony-bdk-legacy:symphony-api-client-java')
-include(':symphony-bdk-legacy:sms-sdk-renderer-java')
+include(':symphony-bdk-examples:bdk-template-examples')
