@@ -10,8 +10,8 @@ The Symphony BDK for Java helps you to create production-grade Chat Bots and Ext
 top of the [Symphony REST APIs](https://developers.symphony.com/restapi/reference). 
 
 ## Installation and Getting Started
-The [reference documentation](./docs/index.md) includes detailed installation instructions as well as a comprehensive 
-[getting started](./docs/getting-started.md) guide.
+The [reference documentation](https://symphonyplatformsolutions.github.io/symphony-api-client-java) includes detailed installation instructions as well as a comprehensive 
+[getting started](https://symphonyplatformsolutions.github.io/symphony-api-client-java/getting-started.html) guide.
 
 Here is a quick teaser of a complete Symphony BDK application in Java:
 ```java
