@@ -21,8 +21,6 @@ import java.util.Map;
 
 public class SymMessageParserTest {
 
-  private  static  final Logger logger = LoggerFactory.getLogger(SymMessageParser.class);
-
   private static InboundMessage mMessage;
   private static List<Long> mentions;
   private static List<String> hashtags;
