@@ -36,7 +36,7 @@ class TemplateResolverTest {
 
   @Test
   @DisplayName("Template is in file system but absent from classpath")
-  void no_cp_in_fs() throws TemplateException {
+  void no_cp_in_fs() {
     when(templateEngine.newTemplateFromClasspath(anyString())).thenThrow(new TemplateException(""));
     when(templateEngine.newTemplateFromFile(anyString())).thenReturn(TEMPLATE);
 
@@ -48,7 +48,7 @@ class TemplateResolverTest {
 
   @Test
   @DisplayName("Template is in classpath but absent from file system")
-  void no_fs_in_cp() throws TemplateException {
+  void no_fs_in_cp() {
     when(templateEngine.newTemplateFromClasspath(anyString())).thenReturn(TEMPLATE);
 
     assertEquals(TEMPLATE, templateResolver.resolve(TEMPLATE_NAME));
@@ -57,7 +57,7 @@ class TemplateResolverTest {
   }
 
   @Test
-  void testTemplateNotFound() throws TemplateException {
+  void testTemplateNotFound() {
     when(templateEngine.newTemplateFromClasspath(anyString())).thenThrow(new TemplateException(""));
     when(templateEngine.newTemplateFromFile(anyString())).thenThrow(new TemplateException(""));
     assertThrows(TemplateException.class, () -> templateResolver.resolve(TEMPLATE_NAME));

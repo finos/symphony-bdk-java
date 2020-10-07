@@ -17,5 +17,5 @@ public interface Template {
    * @return the generated string where each parameter is replaced by its value provided in the map
    * @throws TemplateException in case of issues during the string generation, e.g. missing parameter
    */
-  String process(Object parameters) throws TemplateException;
+  String process(Object parameters);
 }

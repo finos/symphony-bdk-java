@@ -29,7 +29,7 @@ public class HandlebarsEngine implements TemplateEngine {
    * {@inheritDoc}
    */
   @Override
-  public Template newTemplateFromFile(String templatePath) throws TemplateException {
+  public Template newTemplateFromFile(String templatePath) {
     final String basedir = FilenameUtils.getFullPathNoEndSeparator(templatePath);
     final String file = FilenameUtils.getName(templatePath);
     // for thread-safety, we need to create a specific Handlebars object
@@ -46,7 +46,7 @@ public class HandlebarsEngine implements TemplateEngine {
    * {@inheritDoc}
    */
   @Override
-  public Template newTemplateFromClasspath(String templatePath) throws TemplateException {
+  public Template newTemplateFromClasspath(String templatePath) {
     try {
       return new HandlebarsTemplate(HANDLEBARS.compile(templatePath));
     } catch (IOException e) {

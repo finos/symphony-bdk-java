@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -42,10 +43,14 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -167,7 +172,7 @@ public class MessageServiceTest {
   }
 
   @Test
-  void testSendWithTemplateAndStreamObjectCallsSendWithCorrectStreamIdAndMessage() throws TemplateException {
+  void testSendWithTemplateAndStreamObjectCallsSendWithCorrectStreamIdAndMessage() {
     when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
 
     MessageService service = spy(messageService);
@@ -175,26 +180,76 @@ public class MessageServiceTest {
 
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
 
-    assertNotNull(service.send(v4Stream, TEMPLATE_NAME, Collections.emptyMap()));
+    assertNotNull(service.sendWithTemplate(v4Stream, TEMPLATE_NAME, Collections.emptyMap()));
     verify(service).send(eq(STREAM_ID), eq(MESSAGE));
   }
 
   @Test
-  void testSendWithTemplateCallsSendWithCorrectMessage() throws TemplateException {
+  void testSendWithTemplateCallsSendWithCorrectMessage() {
     when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
 
     MessageService service = spy(messageService);
     doReturn(new V4Message()).when(service).send(anyString(), anyString());
 
-    assertNotNull(service.send(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
+    assertNotNull(service.sendWithTemplate(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
     verify(service).send(eq(STREAM_ID), eq(MESSAGE));
   }
 
   @Test
-  void testSendWithTemplateThrowingTemplateException() throws TemplateException {
+  void testSendWithTemplateThrowingTemplateException() {
     when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenThrow(new TemplateException("error"));
 
-    assertThrows(TemplateException.class, () -> messageService.send(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
+    assertThrows(TemplateException.class,
+        () -> messageService.sendWithTemplate(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
+  }
+
+  @Test
+  void testSendWithTemplateObjectEmptyToStream() {
+    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
+    MessageService service = spy(messageService);
+    doReturn(new V4Message()).when(service).send(anyString(), anyString());
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+
+    assertNotNull(service.sendWithTemplate(v4Stream, TEMPLATE_NAME));
+    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
+  }
+
+  @Test
+  void testSendWithTemplateObjectEmptyToStreamId() {
+    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
+    MessageService service = spy(messageService);
+    doReturn(new V4Message()).when(service).send(anyString(), anyString());
+
+    assertNotNull(service.sendWithTemplate(STREAM_ID, TEMPLATE_NAME));
+    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
+  }
+
+  @Test
+  void testSendWithAttachmentToStream(@TempDir Path tmpDir) throws IOException {
+    Path tempFilePath = tmpDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    final V4Message sentMessage =
+        messageService.send(new V4Stream().streamId(STREAM_ID), MESSAGE, null, tempFilePath.toFile());
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendWithAttachmentToStreamId(@TempDir Path tmpDir) throws IOException {
+    Path tempFilePath = tmpDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    final V4Message sentMessage = messageService.send(STREAM_ID, MESSAGE, null, tempFilePath.toFile());
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
   }
 
   @Test
@@ -204,12 +259,14 @@ public class MessageServiceTest {
     doReturn(new byte[0]).when(attachmentsApi).v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
 
     assertNotNull(messageService.getAttachment(STREAM_ID, MESSAGE_ID, attachmentId));
-    verify(attachmentsApi).v1StreamSidAttachmentGet(eq(STREAM_ID), eq(attachmentId), eq(MESSAGE_ID), anyString(), anyString());
+    verify(attachmentsApi).v1StreamSidAttachmentGet(eq(STREAM_ID), eq(attachmentId), eq(MESSAGE_ID), anyString(),
+        anyString());
   }
 
   @Test
   void testGetAttachmentThrowingApiException() throws ApiException {
-    doThrow(new ApiException(500, "error")).when(attachmentsApi).v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
+    doThrow(new ApiException(500, "error")).when(attachmentsApi)
+        .v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
 
     assertThrows(ApiRuntimeException.class, () -> messageService.getAttachment(STREAM_ID, MESSAGE_ID, "attachmentId"));
   }
@@ -271,14 +328,16 @@ public class MessageServiceTest {
     mockApiClient.onGet(V1_STREAM_ATTACHMENTS.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/stream/list_attachments.json"));
 
-    List<StreamAttachmentItem> attachments = messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
+    List<StreamAttachmentItem> attachments =
+        messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
 
     assertEquals(attachments.size(), 2);
   }
 
   @Test
   void testListAttachmentWithSortDirAsc() throws ApiException {
-    doReturn(Collections.emptyList()).when(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
+    doReturn(Collections.emptyList()).when(streamsApi)
+        .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
 
     assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC));
     verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("ASC"));
@@ -286,7 +345,8 @@ public class MessageServiceTest {
 
   @Test
   void testListAttachmentWithSortDirDesc() throws ApiException {
-    doReturn(Collections.emptyList()).when(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
+    doReturn(Collections.emptyList()).when(streamsApi)
+        .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
 
     assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.DESC));
     verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("DESC"));
@@ -294,7 +354,8 @@ public class MessageServiceTest {
 
   @Test
   void testListAttachmentWithSortDirNull() throws ApiException {
-    doReturn(Collections.emptyList()).when(streamsApi).v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
+    doReturn(Collections.emptyList()).when(streamsApi)
+        .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
 
     assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, null));
     verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("ASC"));

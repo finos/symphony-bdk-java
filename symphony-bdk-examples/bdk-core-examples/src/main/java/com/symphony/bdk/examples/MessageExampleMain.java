@@ -40,7 +40,7 @@ public class MessageExampleMain {
     //use templates
 
     final V4Message sendWithCustomTemplate = bdk.messages()
-        .send(STREAM_ID, "/complex-message.ftl", Collections.singletonMap("name", "Freemarker"));
+        .sendWithTemplate(STREAM_ID, "/complex-message.ftl", Collections.singletonMap("name", "Freemarker"));
 
     //retrieve the details of existing messages
     final V4Message message = bdk.messages().getMessage(regularMessage.getMessageId());

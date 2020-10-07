@@ -24,13 +24,13 @@ public class FreeMarkerTemplateTest {
   }
 
   @Test
-  public void testFromFile() throws TemplateException {
+  public void testFromFile() {
     Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromFile("./src/test/resources/subFolder/test.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate);
   }
 
   @Test
-  public void testFromFileWithInclude() throws TemplateException {
+  public void testFromFileWithInclude() {
     Template freeMarkerTemplate = new FreeMarkerEngine()
         .newTemplateFromFile("./src/test/resources/subFolder/testWithInclude.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate, new HashMap<>(),
@@ -43,25 +43,25 @@ public class FreeMarkerTemplateTest {
   }
 
   @Test
-  public void testFromClasspath() throws TemplateException {
+  public void testFromClasspath() {
     Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("/subFolder/test.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate);
   }
 
   @Test
-  public void testFromClasspathRelativePath() throws TemplateException {
+  public void testFromClasspathRelativePath() {
     Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("subFolder/test.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate);
   }
 
   @Test
-  public void testFromClasspathRelativePathNoSlash() throws TemplateException {
+  public void testFromClasspathRelativePathNoSlash() {
     Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("subFolder/test.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate);
   }
 
   @Test
-  public void testFromClasspathWithInclude() throws TemplateException {
+  public void testFromClasspathWithInclude() {
     Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("/subFolder/testWithInclude.ftl");
     assertTemplateProducesOutput(freeMarkerTemplate, new HashMap<>(),
         "Template with include\nHello from included file!\n");
@@ -72,7 +72,7 @@ public class FreeMarkerTemplateTest {
     assertThrows(TemplateException.class, () -> new FreeMarkerEngine().newTemplateFromClasspath("./not/found.ftl"));
   }
 
-  private void assertTemplateProducesOutput(Template freeMarkerTemplate) throws TemplateException {
+  private void assertTemplateProducesOutput(Template freeMarkerTemplate) {
     Map<String, Object> parameters = new HashMap<>();
     parameters.put("message", "Hello World!");
 
@@ -80,7 +80,7 @@ public class FreeMarkerTemplateTest {
   }
 
   private void assertTemplateProducesOutput(Template freeMarkerTemplate, Object parameters, String expectedOutput)
-      throws TemplateException {
+      {
     assertEquals(FreeMarkerTemplate.class, freeMarkerTemplate.getClass());
     assertEquals(expectedOutput, freeMarkerTemplate.process(parameters));
   }

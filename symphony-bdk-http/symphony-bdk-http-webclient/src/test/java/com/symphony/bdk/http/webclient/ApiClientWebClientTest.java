@@ -3,7 +3,7 @@ package com.symphony.bdk.http.webclient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockserver.model.StringBody.subString;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
@@ -13,6 +13,7 @@ import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.http.webclient.test.BdkMockServer;
 import com.symphony.bdk.http.webclient.test.BdkMockServerExtension;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,8 @@ import org.mockserver.model.Parameter;
 import org.mockserver.model.ParameterBody;
 import org.springframework.http.MediaType;
 
-import java.io.UnsupportedEncodingException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -71,7 +73,7 @@ public class ApiClientWebClientTest {
   }
 
   @Test
-  void testInvokeApiExceptionTest(final BdkMockServer mockServer) throws ApiException {
+  void testInvokeApiExceptionTest(final BdkMockServer mockServer) {
     mockServer.onRequestModifierWithResponse(400,
         httpRequest -> httpRequest
             .withMethod("GET")
@@ -211,15 +213,17 @@ public class ApiClientWebClientTest {
   }
 
   @Test
-  void testInvokeApiWithFormValueTest(final BdkMockServer mockServer, @TempDir Path tempDir) throws ApiException {
+  void testInvokeApiWithFormValueTest(final BdkMockServer mockServer, @TempDir Path tempDir)
+      throws ApiException, IOException {
     Path tempFilePath = tempDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
     mockServer.onRequestModifierWithResponse(200,
         httpRequest -> httpRequest
             .withMethod("POST")
             .withPath("/test-api")
             .withHeader(Header.header("Content-Type", "multipart/form-data;boundary=.*;charset=UTF-8"))
             .withHeader(Header.header("sessionToken", "test-token"))
-            .withBody(subString(tempFilePath.toString()))
+            .withBody(anyString())
             .withCookie("cookie", "test-cookie"),
         httpResponse -> httpResponse
             .withBody("{\"code\": 200, \"message\": \"success\"}"));
@@ -289,7 +293,7 @@ public class ApiClientWebClientTest {
   }
 
   @Test
-  void escapeStringTest() throws UnsupportedEncodingException {
+  void escapeStringTest() {
     String url = "http://localhost/search?q=hello+world";
 
     assertEquals("http%3A%2F%2Flocalhost%2Fsearch%3Fq%3Dhello%2Bworld", this.apiClient.escapeString(url));

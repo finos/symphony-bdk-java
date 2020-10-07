@@ -10,7 +10,7 @@ import org.apiguardian.api.API;
  * if template is malformed or if some parameters are missing when calling {@link Template#process(Object)}
  */
 @API(status = API.Status.STABLE)
-public class TemplateException extends Exception {
+public class TemplateException extends RuntimeException {
   public TemplateException(String message) {
     super(message);
   }

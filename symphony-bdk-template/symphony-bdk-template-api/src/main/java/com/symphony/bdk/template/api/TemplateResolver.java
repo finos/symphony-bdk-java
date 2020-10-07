@@ -35,7 +35,7 @@ public class TemplateResolver {
    * @return a new {@link Template} instance corresponding to the template parameter
    * @throws TemplateException if no template has been found.
    */
-  public Template resolve(String template) throws TemplateException {
+  public Template resolve(String template) {
     Template resolved = tryFetchTemplateFromClasspath(template);
 
     if (resolved == null) {

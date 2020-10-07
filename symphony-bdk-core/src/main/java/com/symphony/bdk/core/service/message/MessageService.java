@@ -1,5 +1,7 @@
-package com.symphony.bdk.core.service;
+package com.symphony.bdk.core.service.message;
 
+
+import static java.util.Collections.emptyMap;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
@@ -33,6 +35,7 @@ import com.symphony.bdk.template.api.TemplateResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
@@ -178,9 +181,20 @@ public class MessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull String template, Object parameters)
-      throws TemplateException {
+  public V4Message sendWithTemplate(@Nonnull V4Stream stream, @Nonnull String template, Object parameters) {
     return send(stream.getStreamId(), templateResolver.resolve(template).process(parameters));
+  }
+
+  /**
+   * Sends a templated to the stream ID of the passed {@link V4Stream} object.
+   *
+   * @param stream     the stream to send the message to
+   * @param template   the template name to be used to produce the message
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @throws TemplateException
+   */
+  public V4Message sendWithTemplate(@Nonnull V4Stream stream, @Nonnull String template) {
+    return sendWithTemplate(stream, template, emptyMap());
   }
 
   /**
@@ -192,9 +206,20 @@ public class MessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @throws TemplateException
    */
-  public V4Message send(@Nonnull String streamId, @Nonnull String template, Object parameters)
-      throws TemplateException {
+  public V4Message sendWithTemplate(@Nonnull String streamId, @Nonnull String template, Object parameters) {
     return send(streamId, templateResolver.resolve(template).process(parameters));
+  }
+
+  /**
+   * Sends a templated to the stream ID passed in parameter.
+   *
+   * @param streamId   the ID of the stream to send the message to
+   * @param template   the template name to be used to produce the message
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @throws TemplateException
+   */
+  public V4Message sendWithTemplate(@Nonnull String streamId, @Nonnull String template) {
+    return sendWithTemplate(streamId, template, emptyMap());
   }
 
   /**
@@ -206,16 +231,44 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
+    return send(streamId, message, null, null);
+  }
+
+  /**
+   * Sends a message to the stream ID passed in parameter.
+   *
+   * @param streamId    the ID of the stream to send the message to
+   * @param message     the message payload in MessageML
+   * @param data        the data to be send with the message
+   * @param attachment  the attachment of the message
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   */
+  public V4Message send(@Nonnull String streamId, @Nonnull String message, String data, File attachment) {
     return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
         streamId,
         authSession.getSessionToken(),
         authSession.getKeyManagerToken(),
         message,
+        data,
         null,
-        null,
-        null,
+        attachment,
         null
     ));
+  }
+
+  /**
+   * Sends a message to the stream ID passed in parameter.
+   *
+   * @param stream      the stream to send the message to
+   * @param message     the message payload in MessageML
+   * @param data        the data to be send with the message
+   * @param attachment  the attachment of the message
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   */
+  public V4Message send(@Nonnull V4Stream stream, @Nonnull String message, String data, File attachment) {
+    return send(stream.getStreamId(), message, data, attachment);
   }
 
   /**

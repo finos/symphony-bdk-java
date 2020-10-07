@@ -8,9 +8,8 @@ import com.symphony.bdk.core.activity.form.FormReplyActivity;
 import com.symphony.bdk.core.activity.form.FormReplyContext;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
-import com.symphony.bdk.core.service.MessageService;
+import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.spring.annotation.Slash;
-import com.symphony.bdk.template.api.TemplateException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,8 +31,8 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
   private MessageService messageService;
 
   @Slash("/gif")
-  public void displayGifForm(CommandContext context) throws TemplateException {
-    this.messageService.send(context.getStreamId(), "/templates/gif.ftl", emptyMap());
+  public void displayGifForm(CommandContext context) {
+    this.messageService.sendWithTemplate(context.getStreamId(), "/templates/gif.ftl", emptyMap());
   }
 
   @Override
