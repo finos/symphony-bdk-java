@@ -40,8 +40,10 @@ public class TagBuilderTest {
 
     final String build = tagBuilder.build();
     Assert.assertEquals("<Test 1 New field 3=\"New value 3\" New field 2=\"New value 2\" New field 1=\"New value 1\">Test content</Test 1>", build);
+  }
 
-
+  @Test
+  public void emptyBuildTest() {
     final String emptyTagBuilderName = "Empty tagBuilder";
     final TagBuilder emptyTagBuilder = new TagBuilder(emptyTagBuilderName);
     emptyTagBuilder.setContents("void content");
