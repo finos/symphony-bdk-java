@@ -60,6 +60,35 @@ public class Example {
 }
 ```
 
+### Authentication using private key and certificate content
+Instead of configuring the path of RSA private key or certificate in config file, you can also authenticate the bot and 
+extension app by using directly the private key or certificate content. This feature is useful when either RSA private key 
+or certificate are fetched from an external secrets storage. The code snippet below will give you an example showing 
+how to set directly the private key content to the Bdk configuration for authenticating the bot.
+```java
+public class Example {
+
+    public static void main(String[] args) throws Exception { 
+        // Loading the configuration
+        BdkConfig config = loadFromClasspath("/config.yaml");
+        byte[] privateKeyContent = FileUtils.readFileToByteArray(new File("path/to/privatekey.pem"));
+        config.getBot().setPrivateKeyContent(privateKeyContent);
+        // create bdk entry point
+        final SymphonyBdk bdk = new SymphonyBdk(config);
+        // at this point your bot is already authenticated
+        // here's how to retrieve the authentication session
+        final AuthSession botSession = bdk.botSession();
+        log.info("sessionToken: {}", botSession.getSessionToken());
+        log.info("keyManagerToken: {}", botSession.getKeyManagerToken());
+        // if session has expired (e.g. an API endpoint returns 401), you can manually trigger a re-auth
+        botSession.refresh();
+    }
+}
+```
+
+At the same time, only one of path and the content of private key or certificate are allowed to be configured. If both of
+them are configured, an `AuthInitializationException` will be thrown.
+
 ### Multiple bot instances
 By design, the `SymphonyBdk` object contains a single bot session. However, you might want to create an application that
 has to handle multiple bot sessions, potentially using different authentication modes. This is possible by creating 

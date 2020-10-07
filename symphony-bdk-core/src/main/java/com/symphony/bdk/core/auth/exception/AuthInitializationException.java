@@ -10,6 +10,10 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.STABLE)
 public class AuthInitializationException extends Exception {
 
+  public AuthInitializationException(@Nonnull String message) {
+    super(message);
+  }
+
   public AuthInitializationException(@Nonnull String message, @Nonnull Throwable source) {
     super(message, source);
   }

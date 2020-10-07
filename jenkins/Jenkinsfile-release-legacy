@@ -11,23 +11,19 @@ node {
                 "GIT_ORG=$PARAM_REPO_OWNER",
                 "GIT_REPO=symphony-api-client-java"
         ]) {
-            def isVersionOverriden = env.PARAM_RELEASE_VERSION?.trim()
-            def releaseParamVersion = isVersionOverriden ? '-PprojectVersion=$PARAM_RELEASE_VERSION ' : ''
-
             stage('Git Checkout') {
                 gitCheckout()
             }
 
             dir("symphony-bdk-legacy") {
                 stage('Build legacy BDK project') {
-                    sh './gradlew ' + releaseParamVersion
+                    sh './gradlew'
                 }
 
                 stage('Deploy legacy BDK on Nexus and Maven Central') {
-                    sh './gradlew -PnexusUsername=symphony-platform-solutions -PnexusPassword=$PASSPHRASE ' +
+                    sh './gradlew -PsymphonyRepoUser=symphony-platform-solutions -PsymphonyRepoPassword=$PASSPHRASE ' +
                             '-Psigning.keyId=3C09C6D3 -Psigning.secretKeyRingFile=$KEYRING_FILE -Psigning.password=$PASSPHRASE ' +
-                            releaseParamVersion +
-                            'uploadArchives closeAndReleaseRepository'
+                            'publish closeAndReleaseRepository'
                 }
             }
         }

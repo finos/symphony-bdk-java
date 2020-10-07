@@ -38,7 +38,7 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
             <dependency>
                 <groupId>com.symphony.platformsolutions</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
-                <version>1.2.1.BETA</version>
+                <version>1.3.2.BETA</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -61,10 +61,15 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
             <artifactId>symphony-bdk-template-freemarker</artifactId>  <!-- or symphony-bdk-http-handlebars -->
             <scope>runtime</scope>
         </dependency>
-        <!-- Logger implementation -->
+        <!-- Logger Configuration -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
@@ -77,7 +82,7 @@ plugins {
 }
 
 group = 'com.example'
-version = '1.0.0-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -86,14 +91,16 @@ repositories {
 dependencies {
 
     // import a BOM
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.2.1.BETA')
+    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.2.BETA')
 
     // define dependencies without versions
     implementation 'com.symphony.platformsolutions:symphony-bdk-core'
     runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-http-jersey2' //  or symphony-bdk-http-webclient
     runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-freemarker' // or symphony-bdk-http-handlebars
 
-    implementation 'ch.qos.logback:logback-classic'
+    // logger configuration
+    implementation 'org.slf4j:slf4j-api'
+    runtimeOnly 'ch.qos.logback:logback-classic'
 }
 ```
 

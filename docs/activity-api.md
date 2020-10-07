@@ -67,9 +67,7 @@ class HelloCommandActivity extends CommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    final ActivityInfo info = ActivityInfo.of(ActivityType.COMMAND); // (3)
-    info.setName("Hello Command");
-    return info;
+    return new ActivityInfo().type(ActivityType.COMMAND).name("Hello Command"); // (3)
   }
 }
 ```
@@ -169,9 +167,7 @@ class HelloFormReplyActivity extends FormReplyActivity<FormReplyContext> {
 
   @Override
   protected ActivityInfo info() {
-    final ActivityInfo info = ActivityInfo.of(ActivityType.FORM);
-    info.setName("Hello Form Reply Activity");
-    return info;
+    return new ActivityInfo().type(ActivityType.FORM).name("Hello Form Reply Activity");
   }
 }
 ```
