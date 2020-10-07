@@ -1,2 +1,2 @@
-# BDK2.0 Extension App SpringBoot Starter
-SpringBoot Starter that ease Extension App Backend development.
+# BDK Extension Application - Spring Boot Starter
+Spring Boot Starter that ease Extension Application Backend development.
