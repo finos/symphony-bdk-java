@@ -1,0 +1,8 @@
+# Theme
+theme: jekyll-theme-cayman
+# Site settings
+name: Symphony BDK for Java
+description: Symphony BDK (Bot Developer Kit) for Java developers
+# Plugins
+plugins:
+  - jemoji # https://docs.github.com/en/enterprise/2.13/user/articles/emoji-on-github-pages
