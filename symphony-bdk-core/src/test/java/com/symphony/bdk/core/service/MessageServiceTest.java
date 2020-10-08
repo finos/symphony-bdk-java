@@ -17,6 +17,9 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.model.Attachment;
+import com.symphony.bdk.core.service.message.model.AttachmentType;
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -48,8 +51,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
@@ -232,8 +237,11 @@ public class MessageServiceTest {
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
+    InputStream inputStream = new FileInputStream(tempFilePath.toString());
+    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
+
     final V4Message sentMessage =
-        messageService.send(new V4Stream().streamId(STREAM_ID), MESSAGE, null, tempFilePath.toFile());
+        messageService.send(new V4Stream().streamId(STREAM_ID), MESSAGE, null, attachment);
 
     assertEquals(MESSAGE_ID, sentMessage.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
@@ -246,7 +254,44 @@ public class MessageServiceTest {
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
-    final V4Message sentMessage = messageService.send(STREAM_ID, MESSAGE, null, tempFilePath.toFile());
+    InputStream inputStream = new FileInputStream(tempFilePath.toString());
+    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
+
+    final V4Message sentMessage = messageService.send(STREAM_ID, MESSAGE, null, attachment);
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendPassingMessageInstanceToStreamId(@TempDir Path tmpDir) throws IOException {
+    Path tempFilePath = tmpDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    InputStream inputStream = new FileInputStream(tempFilePath.toString());
+    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
+    Message message = Message.fromMessageMl(MESSAGE).attachment(attachment);
+
+    final V4Message sentMessage = messageService.send(STREAM_ID, message);
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendPassingMessageInstanceToStream(@TempDir Path tmpDir) throws IOException {
+    Path tempFilePath = tmpDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    InputStream inputStream = new FileInputStream(tempFilePath.toString());
+    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
+    Message message = Message.fromMessageMl(MESSAGE).attachment(attachment);
+
+    final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
 
     assertEquals(MESSAGE_ID, sentMessage.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());

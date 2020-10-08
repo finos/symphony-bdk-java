@@ -6,6 +6,8 @@ import static java.util.Collections.emptyMap;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.message.model.Attachment;
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
@@ -33,11 +35,14 @@ import com.symphony.bdk.template.api.TemplateException;
 import com.symphony.bdk.template.api.TemplateResolver;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.apiguardian.api.API;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -231,7 +236,16 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
-    return send(streamId, message, null, null);
+    return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
+        streamId,
+        authSession.getSessionToken(),
+        authSession.getKeyManagerToken(),
+        message,
+        null,
+        null,
+        null,
+        null
+    ));
   }
 
   /**
@@ -240,11 +254,15 @@ public class MessageService {
    * @param streamId    the ID of the stream to send the message to
    * @param message     the message payload in MessageML
    * @param data        the data to be send with the message
-   * @param attachment  the attachment of the message
+   * @param attachment  the input stream of the attachment of the message
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
-  public V4Message send(@Nonnull String streamId, @Nonnull String message, String data, File attachment) {
+  public V4Message send(@Nonnull String streamId, @Nonnull String message, String data, Attachment attachment)
+      throws IOException {
+    File tempFile = File.createTempFile(UUID.randomUUID().toString(), attachment.attachmentType().type());
+    tempFile.deleteOnExit();
+    FileUtils.copyInputStreamToFile(attachment.inputStream(), tempFile);
     return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
         streamId,
         authSession.getSessionToken(),
@@ -252,7 +270,7 @@ public class MessageService {
         message,
         data,
         null,
-        attachment,
+        tempFile,
         null
     ));
   }
@@ -263,12 +281,57 @@ public class MessageService {
    * @param stream      the stream to send the message to
    * @param message     the message payload in MessageML
    * @param data        the data to be send with the message
-   * @param attachment  the attachment of the message
+   * @param attachment  the input stream of the attachment of the message
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull String message, String data, File attachment) {
+  public V4Message send(@Nonnull V4Stream stream, @Nonnull String message, String data, Attachment attachment)
+      throws IOException {
     return send(stream.getStreamId(), message, data, attachment);
+  }
+
+  /**
+   * Sends a message to the stream ID passed in parameter.
+   *
+   * @param streamId    the ID of the stream to send the message to
+   * @param message     the message to send to the stream
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @throws IOException if the attachment file cannot be created.
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   */
+  public V4Message send(@Nonnull String streamId, @Nonnull Message message) throws IOException {
+    File tempFile;
+    Attachment attachment = message.attachment();
+    if (attachment != null) {
+      tempFile = File.createTempFile(UUID.randomUUID().toString(), attachment.attachmentType().type());
+      tempFile.deleteOnExit();
+      FileUtils.copyInputStreamToFile(attachment.inputStream(), tempFile);
+    } else {
+      tempFile = null;
+    }
+    return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
+        streamId,
+        authSession.getSessionToken(),
+        authSession.getKeyManagerToken(),
+        message.content(),
+        message.data(),
+        null,
+        tempFile,
+        null
+    ));
+  }
+
+  /**
+   * Sends a message to the stream ID passed in parameter.
+   *
+   * @param stream    the stream to send the message to
+   * @param message   the message to send to the stream
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @throws IOException if the attachment file cannot be created.
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   */
+  public V4Message send(@Nonnull V4Stream stream, @Nonnull Message message) throws IOException {
+    return send(stream.getStreamId(), message);
   }
 
   /**
