@@ -1,11 +1,10 @@
 package com.symphony.bdk.core.service.message;
 
 
-import static java.util.Collections.emptyMap;
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
@@ -31,7 +30,6 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.template.api.TemplateEngine;
-import com.symphony.bdk.template.api.TemplateException;
 import com.symphony.bdk.template.api.TemplateResolver;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -173,58 +170,9 @@ public class MessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
+  @Deprecated
   public V4Message send(@Nonnull V4Stream stream, @Nonnull String message) {
     return send(stream.getStreamId(), message);
-  }
-
-  /**
-   * Sends a templated to the stream ID of the passed {@link V4Stream} object.
-   *
-   * @param stream     the stream to send the message to
-   * @param template   the template name to be used to produce the message
-   * @param parameters the parameters to pass to the template to produce the message to be sent
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   */
-  public V4Message sendWithTemplate(@Nonnull V4Stream stream, @Nonnull String template, Object parameters) {
-    return send(stream.getStreamId(), templateResolver.resolve(template).process(parameters));
-  }
-
-  /**
-   * Sends a templated to the stream ID of the passed {@link V4Stream} object.
-   *
-   * @param stream     the stream to send the message to
-   * @param template   the template name to be used to produce the message
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @throws TemplateException
-   */
-  public V4Message sendWithTemplate(@Nonnull V4Stream stream, @Nonnull String template) {
-    return sendWithTemplate(stream, template, emptyMap());
-  }
-
-  /**
-   * Sends a templated to the stream ID passed in parameter.
-   *
-   * @param streamId   the ID of the stream to send the message to
-   * @param template   the template name to be used to produce the message
-   * @param parameters the parameters to pass to the template to produce the message to be sent
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @throws TemplateException
-   */
-  public V4Message sendWithTemplate(@Nonnull String streamId, @Nonnull String template, Object parameters) {
-    return send(streamId, templateResolver.resolve(template).process(parameters));
-  }
-
-  /**
-   * Sends a templated to the stream ID passed in parameter.
-   *
-   * @param streamId   the ID of the stream to send the message to
-   * @param template   the template name to be used to produce the message
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @throws TemplateException
-   */
-  public V4Message sendWithTemplate(@Nonnull String streamId, @Nonnull String template) {
-    return sendWithTemplate(streamId, template, emptyMap());
   }
 
   /**
@@ -235,6 +183,7 @@ public class MessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
+  @Deprecated
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
     return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
         streamId,
@@ -252,69 +201,18 @@ public class MessageService {
    * Sends a message to the stream ID passed in parameter.
    *
    * @param streamId    the ID of the stream to send the message to
-   * @param message     the message payload in MessageML
-   * @param data        the data to be send with the message
-   * @param attachment  the input stream of the attachment of the message
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   */
-  public V4Message send(@Nonnull String streamId, @Nonnull String message, String data, Attachment attachment)
-      throws IOException {
-    File tempFile = File.createTempFile(UUID.randomUUID().toString(), attachment.attachmentType().type());
-    tempFile.deleteOnExit();
-    FileUtils.copyInputStreamToFile(attachment.inputStream(), tempFile);
-    return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
-        streamId,
-        authSession.getSessionToken(),
-        authSession.getKeyManagerToken(),
-        message,
-        data,
-        null,
-        tempFile,
-        null
-    ));
-  }
-
-  /**
-   * Sends a message to the stream ID passed in parameter.
-   *
-   * @param stream      the stream to send the message to
-   * @param message     the message payload in MessageML
-   * @param data        the data to be send with the message
-   * @param attachment  the input stream of the attachment of the message
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   */
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull String message, String data, Attachment attachment)
-      throws IOException {
-    return send(stream.getStreamId(), message, data, attachment);
-  }
-
-  /**
-   * Sends a message to the stream ID passed in parameter.
-   *
-   * @param streamId    the ID of the stream to send the message to
    * @param message     the message to send to the stream
    * @return a {@link V4Message} object containing the details of the sent message
-   * @throws IOException if the attachment file cannot be created.
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
-  public V4Message send(@Nonnull String streamId, @Nonnull Message message) throws IOException {
-    File tempFile;
-    Attachment attachment = message.attachment();
-    if (attachment != null) {
-      tempFile = File.createTempFile(UUID.randomUUID().toString(), attachment.attachmentType().type());
-      tempFile.deleteOnExit();
-      FileUtils.copyInputStreamToFile(attachment.inputStream(), tempFile);
-    } else {
-      tempFile = null;
-    }
+  public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
+    File tempFile = this.createTemporaryAttachmentFile(message.getAttachment());
     return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
         streamId,
         authSession.getSessionToken(),
         authSession.getKeyManagerToken(),
-        message.content(),
-        message.data(),
+        message.getContent(),
+        message.getData(),
         null,
         tempFile,
         null
@@ -327,10 +225,9 @@ public class MessageService {
    * @param stream    the stream to send the message to
    * @param message   the message to send to the stream
    * @return a {@link V4Message} object containing the details of the sent message
-   * @throws IOException if the attachment file cannot be created.
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull Message message) throws IOException {
+  public V4Message send(@Nonnull V4Stream stream, @Nonnull Message message) {
     return send(stream.getStreamId(), message);
   }
 
@@ -501,5 +398,23 @@ public class MessageService {
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
     return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+  }
+  
+  private File createTemporaryAttachmentFile(Attachment attachment) {
+    if (attachment == null) {
+      return null;
+    }
+    try {
+      String[] fileNameArrays = attachment.fileName().split("\\.");
+      if (fileNameArrays.length < 2) {
+        throw new MessageCreationException("Invalid attachment's file name.");
+      }
+      File tempFile = File.createTempFile(fileNameArrays[0], "." + fileNameArrays[fileNameArrays.length - 1]);
+      tempFile.deleteOnExit();
+      FileUtils.copyInputStreamToFile(attachment.inputStream(), tempFile);
+      return tempFile;
+    } catch (IOException e) {
+      throw new MessageCreationException("Cannot create attachment.", e);
+    }
   }
 }

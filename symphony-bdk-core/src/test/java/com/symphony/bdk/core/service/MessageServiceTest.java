@@ -17,9 +17,10 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Attachment;
-import com.symphony.bdk.core.service.message.model.AttachmentType;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.message.model.MessageBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -44,7 +45,6 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.template.api.TemplateEngine;
-import com.symphony.bdk.template.api.TemplateException;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -177,93 +177,6 @@ public class MessageServiceTest {
   }
 
   @Test
-  void testSendWithTemplateAndStreamObjectCallsSendWithCorrectStreamIdAndMessage() {
-    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
-
-    MessageService service = spy(messageService);
-    doReturn(new V4Message()).when(service).send(anyString(), anyString());
-
-    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
-
-    assertNotNull(service.sendWithTemplate(v4Stream, TEMPLATE_NAME, Collections.emptyMap()));
-    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
-  }
-
-  @Test
-  void testSendWithTemplateCallsSendWithCorrectMessage() {
-    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
-
-    MessageService service = spy(messageService);
-    doReturn(new V4Message()).when(service).send(anyString(), anyString());
-
-    assertNotNull(service.sendWithTemplate(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
-    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
-  }
-
-  @Test
-  void testSendWithTemplateThrowingTemplateException() {
-    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenThrow(new TemplateException("error"));
-
-    assertThrows(TemplateException.class,
-        () -> messageService.sendWithTemplate(STREAM_ID, TEMPLATE_NAME, Collections.emptyMap()));
-  }
-
-  @Test
-  void testSendWithTemplateObjectEmptyToStream() {
-    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
-    MessageService service = spy(messageService);
-    doReturn(new V4Message()).when(service).send(anyString(), anyString());
-
-    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
-
-    assertNotNull(service.sendWithTemplate(v4Stream, TEMPLATE_NAME));
-    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
-  }
-
-  @Test
-  void testSendWithTemplateObjectEmptyToStreamId() {
-    when(templateEngine.newTemplateFromClasspath(eq(TEMPLATE_NAME))).thenReturn(parameters -> MESSAGE);
-    MessageService service = spy(messageService);
-    doReturn(new V4Message()).when(service).send(anyString(), anyString());
-
-    assertNotNull(service.sendWithTemplate(STREAM_ID, TEMPLATE_NAME));
-    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
-  }
-
-  @Test
-  void testSendWithAttachmentToStream(@TempDir Path tmpDir) throws IOException {
-    Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
-    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
-        JsonHelper.readFromClasspath("/message/send_message.json"));
-
-    InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
-
-    final V4Message sentMessage =
-        messageService.send(new V4Stream().streamId(STREAM_ID), MESSAGE, null, attachment);
-
-    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
-    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
-  }
-
-  @Test
-  void testSendWithAttachmentToStreamId(@TempDir Path tmpDir) throws IOException {
-    Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
-    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
-        JsonHelper.readFromClasspath("/message/send_message.json"));
-
-    InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
-
-    final V4Message sentMessage = messageService.send(STREAM_ID, MESSAGE, null, attachment);
-
-    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
-    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
-  }
-
-  @Test
   void testSendPassingMessageInstanceToStreamId(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
     IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
@@ -271,8 +184,8 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
-    Message message = Message.fromMessageMl(MESSAGE).attachment(attachment);
+    Attachment attachment = new Attachment().inputStream(inputStream).fileName("test.png");
+    Message message = MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).build();
 
     final V4Message sentMessage = messageService.send(STREAM_ID, message);
 
@@ -288,13 +201,39 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().fileInputStream(inputStream).attachmentType(AttachmentType.PNG);
-    Message message = Message.fromMessageMl(MESSAGE).attachment(attachment);
+    Attachment attachment = new Attachment().inputStream(inputStream).fileName("test.png");
+    Message message = MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).build();
 
     final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
 
     assertEquals(MESSAGE_ID, sentMessage.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendPassingMessageInstanceToStreamWrongAttachmentName(@TempDir Path tmpDir) throws IOException {
+    Path tempFilePath = tmpDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    InputStream inputStream = new FileInputStream(tempFilePath.toString());
+    Attachment attachment = new Attachment().inputStream(inputStream).fileName("wrong-name");
+    Message message = MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).build();
+
+    assertThrows(MessageCreationException.class,
+        () -> messageService.send(new V4Stream().streamId(STREAM_ID), message));
+  }
+
+  @Test
+  void testMessageCreationFailed(@TempDir Path tmpDir) throws IOException {
+    Path tempFilePath = tmpDir.resolve("tempFile");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+
+    InputStream inputStream = new FileInputStream(tempFilePath.toString());
+    Attachment attachment = new Attachment().inputStream(inputStream).fileName("wrong-name");
+    assertThrows(MessageCreationException.class,
+        () -> MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).data(new MockObject("wrong object")).build());
   }
 
   @Test
@@ -448,6 +387,14 @@ public class MessageServiceTest {
     assertEquals(MessageMetadataResponseParent.RelationshipTypeEnum.REPLY,
         messageRelationships.getParent().getRelationshipType());
     assertEquals("FB2h29Egp6X/r3/K7cuuE3///ouM3iRdbQ==", messageRelationships.getParent().getMessageId());
+  }
+
+  class MockObject {
+    private String content;
+
+    MockObject(String content) {
+      this.content = content;
+    }
   }
 
 }
