@@ -17,22 +17,16 @@ public class CertificateUtilsTest {
   private static final Logger logger = LoggerFactory.getLogger(CertificateUtils.class);
 
   @Test
-  public void testParseX509Certificate() throws IOException {
+  public void testParseX509Certificate() throws IOException, CertificateException {
     final String currentPath = System.getProperty("user.dir");
     final String megabotPath = currentPath + "/src/test/resources/megabot-ca.crt";
     final String textCertificate = new String(Files.readAllBytes(Paths.get(megabotPath)));
     assertNotNull(textCertificate);
 
-    try {
+    final X509Certificate x509Certificate = CertificateUtils.parseX509Certificate(textCertificate);
+    x509Certificate.checkValidity();
 
-      final X509Certificate x509Certificate = CertificateUtils.parseX509Certificate(textCertificate);
-      x509Certificate.checkValidity();
-
-      assertTrue(true);
-
-    } catch (final CertificateException e) {
-      fail();
-    }
+    assertTrue(true);
   }
 
   @Test
@@ -44,9 +38,7 @@ public class CertificateUtilsTest {
 
     try {
 
-      final X509Certificate x509Certificate = CertificateUtils.parseX509Certificate(textCertificate);
-      x509Certificate.checkValidity();
-      assertTrue(true);
+      CertificateUtils.parseX509Certificate(textCertificate);
 
     } catch (final CertificateException e) {
       assertTrue(e.getMessage().contains("Could not parse certificate"));
