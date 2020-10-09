@@ -14,5 +14,5 @@ import java.io.InputStream;
 public class Attachment {
 
   private InputStream inputStream;
-  private String fileName;
+  private String filename;
 }

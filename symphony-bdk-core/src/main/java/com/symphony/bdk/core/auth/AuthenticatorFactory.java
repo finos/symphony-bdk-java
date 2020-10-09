@@ -147,7 +147,7 @@ public class AuthenticatorFactory {
     try {
       String privateKey;
       if (isNotEmpty(config.getPrivateKeyContent())) {
-        privateKey = new String(config.getPrivateKeyContent());
+        privateKey = new String(config.getPrivateKeyContent(), StandardCharsets.UTF_8);
       } else {
         String privateKeyPath = config.getPrivateKeyPath();
         log.debug("Loading RSA privateKey from path : {}", privateKeyPath);

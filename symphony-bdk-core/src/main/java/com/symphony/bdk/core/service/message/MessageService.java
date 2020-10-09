@@ -7,6 +7,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.message.model.MessageBuilder;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
@@ -98,6 +99,10 @@ public class MessageService {
     return templateEngine;
   }
 
+  public MessageBuilder builder() {
+    return new MessageBuilder(this);
+  }
+
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
    *
@@ -169,6 +174,7 @@ public class MessageService {
    * @param message the message payload in MessageML
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * @deprecated this method will be replaced by {@link MessageService#send(V4Stream, Message)}
    */
   @Deprecated
   public V4Message send(@Nonnull V4Stream stream, @Nonnull String message) {
@@ -182,6 +188,7 @@ public class MessageService {
    * @param message  the message payload in MessageML
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * @deprecated this method will be replaced by {@link MessageService#send(String, Message)}
    */
   @Deprecated
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
@@ -405,7 +412,7 @@ public class MessageService {
       return null;
     }
     try {
-      String[] fileNameArrays = attachment.fileName().split("\\.");
+      String[] fileNameArrays = attachment.filename().split("\\.");
       if (fileNameArrays.length < 2) {
         throw new MessageCreationException("Invalid attachment's file name.");
       }

@@ -5,9 +5,6 @@ import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.core.service.message.model.Attachment;
-import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.core.service.message.model.MessageBuilder;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.template.api.Template;
@@ -25,17 +22,14 @@ public class ComplexMessageExampleMain {
 
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
-    Attachment attachment =
-        new Attachment().inputStream(IOUtils.toInputStream("This is string", StandardCharsets.UTF_8))
-            .fileName("test.doc");
-    Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-message.ftl");
-    Message message = MessageBuilder.fromTemplate(template, Collections.singletonMap("name", "Freemarker"))
-        .attachment(attachment)
-        .build();
+    Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-template.ftl");
     bdk.datafeed().subscribe(new RealTimeEventListener() {
       @Override
       public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
-        bdk.messages().send(event.getMessage().getStream(), message);
+        bdk.messages().builder()
+            .template(template,Collections.singletonMap("name", event.getMessage().getUser().getUsername()))
+            .attachment(IOUtils.toInputStream("This is string", StandardCharsets.UTF_8), "test.doc")
+            .send(event.getMessage().getStream());
       }
     });
 

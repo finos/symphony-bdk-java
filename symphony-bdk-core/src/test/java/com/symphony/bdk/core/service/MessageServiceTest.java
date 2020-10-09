@@ -18,7 +18,6 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
-import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.message.model.MessageBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
@@ -55,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
@@ -184,8 +184,10 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().inputStream(inputStream).fileName("test.png");
-    Message message = MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).build();
+    Message message = new MessageBuilder(this.messageService)
+        .messageML(MESSAGE)
+        .attachment(inputStream, "test.png")
+        .build();
 
     final V4Message sentMessage = messageService.send(STREAM_ID, message);
 
@@ -201,8 +203,10 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().inputStream(inputStream).fileName("test.png");
-    Message message = MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).build();
+    Message message = new MessageBuilder(this.messageService)
+        .messageML(MESSAGE)
+        .attachment(inputStream, "test.png")
+        .build();
 
     final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
 
@@ -218,8 +222,10 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().inputStream(inputStream).fileName("wrong-name");
-    Message message = MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).build();
+        Message message = new MessageBuilder(this.messageService)
+        .messageML(MESSAGE)
+        .attachment(inputStream, "wrong-name")
+        .build();
 
     assertThrows(MessageCreationException.class,
         () -> messageService.send(new V4Stream().streamId(STREAM_ID), message));
@@ -231,9 +237,21 @@ public class MessageServiceTest {
     IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Attachment attachment = new Attachment().inputStream(inputStream).fileName("wrong-name");
     assertThrows(MessageCreationException.class,
-        () -> MessageBuilder.fromMessageMl(MESSAGE).attachment(attachment).data(new MockObject("wrong object")).build());
+        () -> new MessageBuilder(this.messageService)
+            .messageML(MESSAGE)
+            .attachment(inputStream, "test.png")
+            .data(new MockObject("wrong object")).build());
+  }
+
+  @Test
+  void testMessageCreationSuccess() {
+    InputStream inputStream = IOUtils.toInputStream("test string", StandardCharsets.UTF_8);
+    Message message = new MessageBuilder(this.messageService).messageML(MESSAGE).attachment(inputStream, "test.doc").build();
+
+    assertEquals(message.getVersion(), "2.0");
+    assertEquals(message.getContent(), MESSAGE);
+    assertEquals(message.getAttachment().filename(), "test.doc");
   }
 
   @Test
