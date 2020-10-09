@@ -47,7 +47,7 @@ public class MessageBuilder {
    * @param   message    messageML.
    * @return  this builder with the content configured.
    */
-  public MessageBuilder messageML(String message) {
+  public MessageBuilder content(String message) {
     this.content = message;
     return this;
   }
@@ -103,8 +103,14 @@ public class MessageBuilder {
     }
   }
 
+  /**
+   * Add attachment to the message.
+   * @param inputStream Input stream of the attachment content.
+   * @param filename    Filename of the attachment.
+   * @return  this builder with the data configured.
+   */
   public MessageBuilder attachment(InputStream inputStream, String filename) {
-    this.attachment = new Attachment().inputStream(inputStream).filename(filename);
+    this.attachment = new Attachment(inputStream, filename);
     return this;
   }
 

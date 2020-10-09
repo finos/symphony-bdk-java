@@ -185,7 +185,7 @@ public class MessageServiceTest {
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     Message message = new MessageBuilder(this.messageService)
-        .messageML(MESSAGE)
+        .content(MESSAGE)
         .attachment(inputStream, "test.png")
         .build();
 
@@ -204,7 +204,7 @@ public class MessageServiceTest {
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     Message message = new MessageBuilder(this.messageService)
-        .messageML(MESSAGE)
+        .content(MESSAGE)
         .attachment(inputStream, "test.png")
         .build();
 
@@ -222,13 +222,15 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-        Message message = new MessageBuilder(this.messageService)
-        .messageML(MESSAGE)
-        .attachment(inputStream, "wrong-name")
-        .build();
 
     assertThrows(MessageCreationException.class,
-        () -> messageService.send(new V4Stream().streamId(STREAM_ID), message));
+        () -> {
+          Message message = new MessageBuilder(this.messageService)
+              .content(MESSAGE)
+              .attachment(inputStream, "wrong-name")
+              .build();
+          messageService.send(new V4Stream().streamId(STREAM_ID), message);
+        });
   }
 
   @Test
@@ -239,7 +241,7 @@ public class MessageServiceTest {
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     assertThrows(MessageCreationException.class,
         () -> new MessageBuilder(this.messageService)
-            .messageML(MESSAGE)
+            .content(MESSAGE)
             .attachment(inputStream, "test.png")
             .data(new MockObject("wrong object")).build());
   }
@@ -247,11 +249,12 @@ public class MessageServiceTest {
   @Test
   void testMessageCreationSuccess() {
     InputStream inputStream = IOUtils.toInputStream("test string", StandardCharsets.UTF_8);
-    Message message = new MessageBuilder(this.messageService).messageML(MESSAGE).attachment(inputStream, "test.doc").build();
+    Message message =
+        new MessageBuilder(this.messageService).content(MESSAGE).attachment(inputStream, "test.doc").build();
 
     assertEquals(message.getVersion(), "2.0");
     assertEquals(message.getContent(), MESSAGE);
-    assertEquals(message.getAttachment().filename(), "test.doc");
+    assertEquals(message.getAttachment().getFilename(), "test.doc");
   }
 
   @Test

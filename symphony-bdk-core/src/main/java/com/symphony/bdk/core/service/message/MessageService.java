@@ -39,6 +39,7 @@ import org.apiguardian.api.API;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
@@ -99,6 +100,11 @@ public class MessageService {
     return templateEngine;
   }
 
+  /**
+   * Returns the {@link MessageBuilder} that can be used to build a {@link Message} to be sent.
+   *
+   * @return the message builder
+   */
   public MessageBuilder builder() {
     return new MessageBuilder(this);
   }
@@ -214,16 +220,25 @@ public class MessageService {
    */
   public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
     File tempFile = this.createTemporaryAttachmentFile(message.getAttachment());
-    return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
-        streamId,
-        authSession.getSessionToken(),
-        authSession.getKeyManagerToken(),
-        message.getContent(),
-        message.getData(),
-        null,
-        tempFile,
-        null
-    ));
+    try {
+      return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
+          streamId,
+          authSession.getSessionToken(),
+          authSession.getKeyManagerToken(),
+          message.getContent(),
+          message.getData(),
+          message.getVersion(),
+          tempFile,
+          null
+          )
+      );
+    } finally {
+      try {
+        Files.deleteIfExists(tempFile.toPath());
+      } catch (IOException ignored) {
+
+      }
+    }
   }
 
   /**
@@ -412,13 +427,9 @@ public class MessageService {
       return null;
     }
     try {
-      String[] fileNameArrays = attachment.filename().split("\\.");
-      if (fileNameArrays.length < 2) {
-        throw new MessageCreationException("Invalid attachment's file name.");
-      }
-      File tempFile = File.createTempFile(fileNameArrays[0], "." + fileNameArrays[fileNameArrays.length - 1]);
-      tempFile.deleteOnExit();
-      FileUtils.copyInputStreamToFile(attachment.inputStream(), tempFile);
+      String tempDir = System.getProperty("java.io.tmpdir");
+      File tempFile = new File(tempDir + File.separator + attachment.getFilename());
+      FileUtils.copyInputStreamToFile(attachment.getInputStream(), tempFile);
       return tempFile;
     } catch (IOException e) {
       throw new MessageCreationException("Cannot create attachment.", e);
