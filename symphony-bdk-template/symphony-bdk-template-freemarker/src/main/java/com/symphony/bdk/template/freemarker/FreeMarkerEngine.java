@@ -26,7 +26,7 @@ public class FreeMarkerEngine implements TemplateEngine {
    * {@inheritDoc}
    */
   @Override
-  public Template newTemplateFromFile(String templatePath) throws TemplateException {
+  public Template newTemplateFromFile(String templatePath) {
     try {
       final String directory = FilenameUtils.getFullPathNoEndSeparator(templatePath);
       final String file = FilenameUtils.getName(templatePath);
@@ -42,7 +42,7 @@ public class FreeMarkerEngine implements TemplateEngine {
    * {@inheritDoc}
    */
   @Override
-  public Template newTemplateFromClasspath(String templatePath) throws TemplateException {
+  public Template newTemplateFromClasspath(String templatePath) {
     try {
       final Configuration configuration = createConfiguration(); // for thread-safety, we need to re-create configuration
       configuration.setClassForTemplateLoading(this.getClass(), "/");

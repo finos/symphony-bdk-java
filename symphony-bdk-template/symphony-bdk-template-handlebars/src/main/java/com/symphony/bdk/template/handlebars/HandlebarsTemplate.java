@@ -24,7 +24,7 @@ public class HandlebarsTemplate implements Template {
    * {@inheritDoc}
    */
   @Override
-  public String process(Object parameters) throws TemplateException {
+  public String process(Object parameters) {
     try {
       return this.template.apply(parameters);
     } catch (IOException e) {

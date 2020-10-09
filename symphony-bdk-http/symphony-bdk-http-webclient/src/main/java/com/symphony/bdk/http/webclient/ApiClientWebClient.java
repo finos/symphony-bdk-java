@@ -8,6 +8,7 @@ import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -118,7 +119,7 @@ public class ApiClientWebClient implements ApiClient {
         for (Map.Entry<String, Object> param : formParams.entrySet()) {
           if (param.getValue() instanceof File) {
             File file = (File) param.getValue();
-            formValueMap.add(param.getKey(), file);
+            formValueMap.add(param.getKey(), new FileSystemResource(file));
           } else {
             formValueMap.add(param.getKey(), parameterToString(param.getValue()));
           }

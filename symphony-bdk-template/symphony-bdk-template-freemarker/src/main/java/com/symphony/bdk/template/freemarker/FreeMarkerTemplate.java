@@ -9,7 +9,6 @@ import org.apiguardian.api.API;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Map;
 
 /**
  * FreeMarker specific implementation of {@link Template}
@@ -32,7 +31,7 @@ public class FreeMarkerTemplate implements Template {
    * @throws TemplateException in case of issues during the string generation, e.g. missing parameter
    */
   @Override
-  public String process(Object parameters) throws TemplateException {
+  public String process(Object parameters) {
     try {
       Writer out = new StringWriter();
       template.process(parameters, out);
