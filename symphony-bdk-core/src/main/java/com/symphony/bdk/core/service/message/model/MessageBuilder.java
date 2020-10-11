@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apiguardian.api.API;
@@ -18,13 +19,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
- * Builder for {@link Message}.
- * Allows configuring the field of the messages before constructing them with build()
+ * {@link Message} class builder. Accessible via {@link Message#builder()}.
  */
 @Getter
 @Setter
 @Accessors(fluent = true)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
 @API(status = API.Status.STABLE)
 public class MessageBuilder {
 
@@ -42,7 +45,7 @@ public class MessageBuilder {
    * @param   message    messageML.
    * @return  this builder with the content configured.
    */
-  public MessageBuilder content(String message) {
+  public MessageBuilder content(@Nonnull String message) {
     this.content = message;
     return this;
   }
@@ -54,7 +57,7 @@ public class MessageBuilder {
    * @param   parameters  parameters to be used in the template.
    * @return  this builder with the content configured.
    */
-  public MessageBuilder template(Template template, Object parameters) {
+  public MessageBuilder template(@Nonnull Template template, @Nonnull Object parameters) {
     this.content = template.process(parameters);
     return this;
   }
@@ -65,9 +68,8 @@ public class MessageBuilder {
    * @param   template a custom or built-in template.
    * @return  this builder with the content configured.
    */
-  public MessageBuilder template(Template template) {
-    this.content = template.process(emptyMap());
-    return this;
+  public MessageBuilder template(@Nonnull Template template) {
+    return this.template(template, emptyMap());
   }
 
   /**
@@ -75,7 +77,7 @@ public class MessageBuilder {
    * @param   data Serializable data object.
    * @return  this builder with the data configured.
    */
-  public MessageBuilder data(Object data) {
+  public MessageBuilder data(@Nonnull Object data) {
     try {
       this.data = MAPPER.writeValueAsString(data);
       return this;
@@ -90,19 +92,19 @@ public class MessageBuilder {
    * @param filename Filename of the attachment.
    * @return  this builder with the data configured.
    */
-  public MessageBuilder addAttachment(InputStream content, String filename) {
+  public MessageBuilder addAttachment(@Nonnull InputStream content, @Nonnull String filename) {
     this.attachments.add(new Attachment(content, filename));
     return this;
   }
 
   /**
-   * Add attachment to the message.
+   * Add attachment (with preview) to the message.
    * @param attachment Input stream of the attachment content.
    * @param preview Optional attachment preview.
    * @param filename Filename of the attachment.
    * @return  this builder with the data configured.
    */
-  public MessageBuilder addAttachment(InputStream attachment, InputStream preview, String filename) {
+  public MessageBuilder addAttachment(@Nonnull InputStream attachment, @Nonnull InputStream preview, @Nonnull String filename) {
     this.attachments.add(new Attachment(attachment, filename));
     this.previews.add(new Attachment(preview, "preview-" + filename));
     return this;

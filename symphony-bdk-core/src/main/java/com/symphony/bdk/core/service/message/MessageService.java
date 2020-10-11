@@ -6,7 +6,6 @@ import static java.util.Collections.emptyMap;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
@@ -30,15 +29,15 @@ import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiClientPartAttachment;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.template.api.TemplateEngine;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -191,62 +190,7 @@ public class MessageService {
   @Deprecated
   @API(status = API.Status.DEPRECATED)
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
-    return executeAndRetry("send", () -> messagesApi.v4StreamSidMessageCreatePost(
-        streamId,
-        authSession.getSessionToken(),
-        authSession.getKeyManagerToken(),
-        message,
-        null,
-        null,
-        null,
-        null
-    ));
-  }
-
-  /**
-   * Sends a message to the stream ID passed in parameter.
-   *
-   * @param streamId    the ID of the stream to send the message to
-   * @param message     the message to send to the stream
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   */
-  @SneakyThrows
-  public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
-
-    final ApiClient apiClient = this.messagesApi.getApiClient();
-    final Map<String, Object> form = new HashMap<>();
-    form.put("message", message.getContent());
-    form.put("data", message.getData());
-    form.put("version", message.getVersion());
-    form.put("attachment", toApiClientPartAttachments(message.getAttachments()));
-    form.put("preview", toApiClientPartAttachments(message.getPreviews()));
-
-    final Map<String, String> headers = new HashMap<>();
-    headers.put("sessionToken", apiClient.parameterToString(this.authSession.getSessionToken()));
-    headers.put("keyManagerToken", apiClient.parameterToString(this.authSession.getKeyManagerToken()));
-
-    return apiClient.invokeAPI(
-        "/v4/stream/" + apiClient.escapeString(streamId) + "/message/create",
-        "POST",
-        emptyList(),
-        null, // multipart/form-data so body can be null
-        headers,
-        emptyMap(),
-        form,
-        apiClient.selectHeaderAccept("application/json"),
-        apiClient.selectHeaderContentType("multipart/form-data"),
-        new String[0],
-        new TypeReference<V4Message>() {}
-    ).getData();
-  }
-
-  private static ApiClientPartAttachment[] toApiClientPartAttachments(List<Attachment> attachments) {
-    final ApiClientPartAttachment[] result = new ApiClientPartAttachment[attachments.size()];
-    for (int i = 0; i < attachments.size(); i++) {
-      result[i] = new ApiClientPartAttachment(attachments.get(i).getContent(), attachments.get(i).getFilename());
-    }
-    return result;
+    return this.send(streamId, Message.builder().content(message).build());
   }
 
   /**
@@ -258,7 +202,53 @@ public class MessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
   public V4Message send(@Nonnull V4Stream stream, @Nonnull Message message) {
-    return send(stream.getStreamId(), message);
+    return this.send(stream.getStreamId(), message);
+  }
+
+  /**
+   * Sends a message to the stream ID passed in parameter.
+   *
+   * @param streamId    the ID of the stream to send the message to
+   * @param message     the message to send to the stream
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   */
+  public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
+    return this.executeAndRetry("send", () ->
+        this.doSend(streamId, message, this.authSession.getSessionToken(), this.authSession.getKeyManagerToken())
+    );
+  }
+
+  /**
+   * The generated {@link MessagesApi#v4StreamSidMessageCreatePost(String, String, String, String, String, String, File, File)}
+   * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
+   */
+  private V4Message doSend(String streamId, Message message, String sessionToken, String keyManagerToken) throws ApiException {
+    final ApiClient apiClient = this.messagesApi.getApiClient();
+    final Map<String, Object> form = new HashMap<>();
+    form.put("message", message.getContent());
+    form.put("data", message.getData());
+    form.put("version", message.getVersion());
+    form.put("attachment", message.getPartAttachments());
+    form.put("preview", message.getPartPreviews());
+
+    final Map<String, String> headers = new HashMap<>();
+    headers.put("sessionToken", apiClient.parameterToString(sessionToken));
+    headers.put("keyManagerToken", apiClient.parameterToString(keyManagerToken));
+
+    return apiClient.invokeAPI(
+        "/v4/stream/" + apiClient.escapeString(streamId) + "/message/create",
+        "POST",
+        emptyList(),
+        null, // for 'multipart/form-data', body can be null
+        headers,
+        emptyMap(),
+        form,
+        apiClient.selectHeaderAccept("application/json"),
+        apiClient.selectHeaderContentType("multipart/form-data"),
+        new String[0],
+        new TypeReference<V4Message>() {}
+    ).getData();
   }
 
   /**

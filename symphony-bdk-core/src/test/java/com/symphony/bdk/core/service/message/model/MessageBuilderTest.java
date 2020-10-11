@@ -1,0 +1,21 @@
+package com.symphony.bdk.core.service.message.model;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.symphony.bdk.core.service.message.exception.MessageCreationException;
+
+import org.junit.jupiter.api.Test;
+
+class MessageBuilderTest {
+
+  @Test
+  void cannotCreateMessageWithNoContent() {
+    assertThrows(MessageCreationException.class, Message.builder()::build);
+  }
+
+  @Test
+  void checkDefaultVersion() {
+    assertEquals("2.0", Message.builder().content("foobar").build().getVersion());
+  }
+}

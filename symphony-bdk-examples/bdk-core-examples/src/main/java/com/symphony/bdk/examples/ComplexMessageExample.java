@@ -1,6 +1,6 @@
 package com.symphony.bdk.examples;
 
-import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
+import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static java.util.Collections.singletonMap;
 
 import com.symphony.bdk.core.SymphonyBdk;
@@ -9,14 +9,11 @@ import com.symphony.bdk.template.api.Template;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.InputStream;
-
 @Slf4j
-public class ComplexMessageExampleMain {
+public class ComplexMessageExample extends BdkExample {
 
-  public static void main(String[] args) throws Exception {
-
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+  @Override
+  protected void run(final SymphonyBdk bdk) throws Exception {
 
     final Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-template.ftl");
 
@@ -34,10 +31,11 @@ public class ComplexMessageExampleMain {
         )
         .build();
 
-    bdk.messages().send("jQGvjAVdoo9kXXz_KwijC3___orpavPPdA", message);
+    bdk.activities().register(slash("/lenna", false, c -> bdk.messages().send(c.getStreamId(), message)));
+    bdk.datafeed().start();
   }
 
-  private static InputStream loadAttachment(String path) {
-    return ComplexMessageExampleMain.class.getResourceAsStream(path);
+  public static void main(String[] args) {
+    BdkExample.run(ComplexMessageExample.class);
   }
 }
