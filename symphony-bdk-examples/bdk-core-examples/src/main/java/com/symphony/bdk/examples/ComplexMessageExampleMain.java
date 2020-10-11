@@ -1,19 +1,15 @@
 package com.symphony.bdk.examples;
 
-import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
+import static java.util.Collections.singletonMap;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.gen.api.model.V4Initiator;
-import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.template.api.Template;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.io.InputStream;
 
 @Slf4j
 public class ComplexMessageExampleMain {
@@ -22,26 +18,26 @@ public class ComplexMessageExampleMain {
 
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
-    Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-template.ftl");
-    bdk.datafeed().subscribe(new RealTimeEventListener() {
-      @Override
-      public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
-        bdk.messages().builder()
-            .template(template,Collections.singletonMap("name", event.getMessage().getUser().getUsername()))
-            .attachment(IOUtils.toInputStream("This is string", StandardCharsets.UTF_8), "test.doc")
-            .send(event.getMessage().getStream());
-      }
-    });
+    final Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-template.ftl");
 
-    bdk.activities()
-        .register(slash("/hello",
-            context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>")));
+    final Message message = Message.builder()
+        .template(template, singletonMap("name", "Lenna"))
+        .addAttachment(
+            loadAttachment("/lenna.png"),
+            loadAttachment("/lenna-preview.png"),
+            "lenna.png"
+        )
+        .addAttachment(
+            loadAttachment("/lenna.png"),
+            loadAttachment("/lenna-preview.png"),
+            "lenna-2.png"
+        )
+        .build();
 
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      log.info("Stopping Datafeed...");
-      bdk.datafeed().stop();
-    }));
+    bdk.messages().send("jQGvjAVdoo9kXXz_KwijC3___orpavPPdA", message);
+  }
 
-    bdk.datafeed().start();
+  private static InputStream loadAttachment(String path) {
+    return ComplexMessageExampleMain.class.getResourceAsStream(path);
   }
 }

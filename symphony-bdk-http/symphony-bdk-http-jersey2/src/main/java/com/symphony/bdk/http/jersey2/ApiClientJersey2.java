@@ -1,16 +1,18 @@
 package com.symphony.bdk.http.jersey2;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientPartAttachment;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
-
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import java.io.File;
 import java.io.IOException;
@@ -341,27 +343,45 @@ public class ApiClientJersey2 implements ApiClient {
    */
   protected Entity<?> serialize(Object obj, Map<String, Object> formParams, String contentType) {
     Entity<?> entity;
-    if (contentType.startsWith("multipart/form-data")) {
-      MultiPart multiPart = new MultiPart();
-      for (Entry<String, Object> param : formParams.entrySet()) {
+
+    if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA_TYPE.toString())) {
+      FormDataMultiPart multiPart = new FormDataMultiPart();
+
+      for (final Entry<String, Object> param : formParams.entrySet()) {
+        // if part is a File
         if (param.getValue() instanceof File) {
-          File file = (File) param.getValue();
-          FormDataContentDisposition contentDisp = FormDataContentDisposition.name(param.getKey())
-              .fileName(file.getName()).size(file.length()).build();
-          multiPart.bodyPart(new FormDataBodyPart(contentDisp, file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
-        } else {
-          FormDataContentDisposition contentDisp = FormDataContentDisposition.name(param.getKey()).build();
-          multiPart.bodyPart(new FormDataBodyPart(contentDisp, parameterToString(param.getValue())));
+          final File file = (File) param.getValue();
+          final FormDataContentDisposition contentDisposition = FormDataContentDisposition
+              .name(param.getKey())
+              .fileName(file.getName())
+              .size(file.length())
+              .build();
+          final FormDataBodyPart streamPart = new FormDataBodyPart(
+              contentDisposition,
+              file,
+              MediaType.APPLICATION_OCTET_STREAM_TYPE
+          );
+          multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
+        }
+        // if part is a ApiClientPartAttachment[]
+        else if (param.getValue() instanceof ApiClientPartAttachment[]) {
+          for (ApiClientPartAttachment attachment : (ApiClientPartAttachment[]) param.getValue()) {
+            final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
+            multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
+          }
+        }
+        else {
+          multiPart = multiPart.field(param.getKey(), this.parameterToString(param.getValue()));
         }
       }
-      entity = Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
-    } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
-      Form form = new Form();
-      for (Entry<String, Object> param : formParams.entrySet()) {
-        form.param(param.getKey(), parameterToString(param.getValue()));
-      }
+      entity = Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
+    }
+    else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED_TYPE.toString())) {
+      final Form form = new Form();
+      formParams.forEach((key, value) -> form.param(key, parameterToString(value)));
       entity = Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-    } else {
+    }
+    else {
       // We let jersey handle the serialization
       entity = Entity.entity(obj, contentType);
     }

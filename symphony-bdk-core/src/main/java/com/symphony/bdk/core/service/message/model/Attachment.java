@@ -11,14 +11,14 @@ import java.io.InputStream;
  * Attachment model to be used in {@link MessageBuilder} to attach a file to a {@link Message}
  */
 @Getter
-@API(status = API.Status.EXPERIMENTAL)
+@API(status = API.Status.STABLE)
 public class Attachment {
 
-  private final InputStream inputStream;
+  private final InputStream content;
   private final String filename;
 
-  public Attachment(InputStream inputStream, String filename) {
-    this.inputStream = inputStream;
+  public Attachment(InputStream content, String filename) {
+    this.content = content;
     if (filename.split("\\.").length < 2 ) {
       throw new MessageCreationException("Invalid attachment's file name.");
     }

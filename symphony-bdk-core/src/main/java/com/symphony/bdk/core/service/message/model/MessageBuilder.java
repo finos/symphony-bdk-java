@@ -2,22 +2,21 @@ package com.symphony.bdk.core.service.message.model;
 
 import static java.util.Collections.emptyMap;
 
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
-import com.symphony.bdk.gen.api.model.V4Message;
-import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.Template;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apiguardian.api.API;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Builder for {@link Message}.
@@ -26,20 +25,16 @@ import java.io.InputStream;
 @Getter
 @Setter
 @Accessors(fluent = true)
-@API(status = API.Status.EXPERIMENTAL)
+@API(status = API.Status.STABLE)
 public class MessageBuilder {
 
   private static final ObjectMapper MAPPER = new JsonMapper();
 
-  private final MessageService messageService;
   private String version = "2.0";
   private String content;
   private String data;
-  private Attachment attachment;
-
-  public MessageBuilder(MessageService messageService) {
-    this.messageService = messageService;
-  }
+  private List<Attachment> attachments = new ArrayList<>();
+  @Setter(value = AccessLevel.PRIVATE) private List<Attachment> previews = new ArrayList<>();
 
   /**
    * Add messageML content to the message.
@@ -90,27 +85,26 @@ public class MessageBuilder {
   }
 
   /**
-   * Add data to the message.
-   * @param   data Data json node.
+   * Add attachment to the message.
+   * @param content Attachment content.
+   * @param filename Filename of the attachment.
    * @return  this builder with the data configured.
    */
-  public MessageBuilder data(JsonNode data) {
-    try {
-      this.data = MAPPER.writeValueAsString(data);
-      return this;
-    } catch (JsonProcessingException e) {
-      throw new MessageCreationException("Failed to parse data to Json string", e);
-    }
+  public MessageBuilder addAttachment(InputStream content, String filename) {
+    this.attachments.add(new Attachment(content, filename));
+    return this;
   }
 
   /**
    * Add attachment to the message.
-   * @param inputStream Input stream of the attachment content.
-   * @param filename    Filename of the attachment.
+   * @param attachment Input stream of the attachment content.
+   * @param preview Optional attachment preview.
+   * @param filename Filename of the attachment.
    * @return  this builder with the data configured.
    */
-  public MessageBuilder attachment(InputStream inputStream, String filename) {
-    this.attachment = new Attachment(inputStream, filename);
+  public MessageBuilder addAttachment(InputStream attachment, InputStream preview, String filename) {
+    this.attachments.add(new Attachment(attachment, filename));
+    this.previews.add(new Attachment(preview, "preview-" + filename));
     return this;
   }
 
@@ -121,25 +115,4 @@ public class MessageBuilder {
   public Message build() {
     return new Message(this);
   }
-
-  /**
-   * Build and send a {@link Message} using the {@link MessageService}.
-   *
-   * @param stream the stream where the message is sent to.
-   * @return a {@link V4Message} object containing the details of the sent message.
-   */
-  public V4Message send(V4Stream stream) {
-    return this.messageService.send(stream, this.build());
-  }
-
-  /**
-   * Build and send a {@link Message} using the {@link MessageService}.
-   *
-   * @param streamId the id of the stream where the message is sent to.
-   * @return a {@link V4Message} object containing the details of the sent message.
-   */
-  public V4Message send(String streamId) {
-    return this.messageService.send(streamId, this.build());
-  }
-
 }

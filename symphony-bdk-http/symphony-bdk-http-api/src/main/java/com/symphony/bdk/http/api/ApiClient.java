@@ -78,7 +78,7 @@ public interface ApiClient {
    * @return The Accept header to use. If the given array is empty, null will be returned (not to
    * set the Accept header explicitly).
    */
-  String selectHeaderAccept(String[] accepts);
+  String selectHeaderAccept(String... accepts);
 
   /**
    * Select the Content-Type header's value from the given array: if JSON exists in the given array,
@@ -87,7 +87,7 @@ public interface ApiClient {
    * @param contentTypes The Content-Type array to select from
    * @return The Content-Type header to use. If the given array is empty, JSON will be used.
    */
-  String selectHeaderContentType(String[] contentTypes);
+  String selectHeaderContentType(String... contentTypes);
 
   /**
    * Escape the given string to be used as URL query value.
