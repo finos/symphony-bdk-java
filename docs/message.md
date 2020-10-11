@@ -26,7 +26,7 @@ public class Example {
     // Create BDK entry point
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
     // send a regular message
-    final V4Message regularMessage = bdk.message().send(STREAM_ID, "<messageML>Hello, World!</messageML>");
+    final V4Message regularMessage = bdk.message().send(STREAM_ID, Message.builder().content("<messageML>Hello, World!</messageML>").build());
     log.info("Message sent, id: " + regularMessage.getMessageId());
   }
 }

@@ -20,7 +20,7 @@ public class Attachment {
   public Attachment(InputStream content, String filename) {
     this.content = content;
     if (filename.split("\\.").length < 2 ) {
-      throw new MessageCreationException("Invalid attachment's file name.");
+      throw new MessageCreationException("Invalid attachment's filename, extension is missing.");
     }
     this.filename = filename;
   }

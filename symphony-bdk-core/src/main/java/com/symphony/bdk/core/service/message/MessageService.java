@@ -6,6 +6,7 @@ import static java.util.Collections.emptyMap;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
@@ -29,6 +30,7 @@ import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.http.api.util.TypeReference;
@@ -229,8 +231,8 @@ public class MessageService {
     form.put("message", message.getContent());
     form.put("data", message.getData());
     form.put("version", message.getVersion());
-    form.put("attachment", message.getPartAttachments());
-    form.put("preview", message.getPartPreviews());
+    form.put("attachment", toApiClientBodyParts(message.getAttachments()));
+    form.put("preview", toApiClientBodyParts(message.getPreviews()));
 
     final Map<String, String> headers = new HashMap<>();
     headers.put("sessionToken", apiClient.parameterToString(sessionToken));
@@ -249,6 +251,14 @@ public class MessageService {
         new String[0],
         new TypeReference<V4Message>() {}
     ).getData();
+  }
+
+  private static ApiClientBodyPart[] toApiClientBodyParts(List<Attachment> attachments) {
+    final ApiClientBodyPart[] result = new ApiClientBodyPart[attachments.size()];
+    for (int i = 0; i < attachments.size(); i++) {
+      result[i] = new ApiClientBodyPart(attachments.get(i).getContent(), attachments.get(i).getFilename());
+    }
+    return result;
   }
 
   /**

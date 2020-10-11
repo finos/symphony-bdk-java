@@ -3,8 +3,6 @@ package com.symphony.bdk.core.service.message.model;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.gen.api.model.V4Stream;
 
-import com.symphony.bdk.http.api.ApiClientBodyPart;
-
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
@@ -51,22 +49,6 @@ public class Message {
     this.data = builder.data();
     this.attachments = builder.attachments();
     this.previews = builder.previews();
-  }
-
-  public ApiClientBodyPart[] getPartAttachments() {
-    final ApiClientBodyPart[] result = new ApiClientBodyPart[attachments.size()];
-    for (int i = 0; i < attachments.size(); i++) {
-      result[i] = new ApiClientBodyPart(attachments.get(i).getContent(), attachments.get(i).getFilename());
-    }
-    return result;
-  }
-
-  public ApiClientBodyPart[] getPartPreviews() {
-    final ApiClientBodyPart[] result = new ApiClientBodyPart[attachments.size()];
-    for (int i = 0; i < attachments.size(); i++) {
-      result[i] = new ApiClientBodyPart(attachments.get(i).getContent(), attachments.get(i).getFilename());
-    }
-    return result;
   }
 
   /**
