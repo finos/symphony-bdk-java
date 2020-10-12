@@ -1,5 +1,6 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.File;
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ public class OutboundMessage {
         this.contentAttachment = contentAttachment;
     }
 
+    @JsonIgnore
     public void setContentAttachment(ContentAttachment... contentAttachment) {
         this.contentAttachment = Arrays.asList(contentAttachment);
     }
