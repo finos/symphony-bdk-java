@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.service;
+package com.symphony.bdk.core.service.message;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
