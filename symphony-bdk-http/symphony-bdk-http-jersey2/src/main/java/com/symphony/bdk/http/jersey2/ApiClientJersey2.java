@@ -342,10 +342,10 @@ public class ApiClientJersey2 implements ApiClient {
    * @return Entity
    */
   protected Entity<?> serialize(Object obj, Map<String, Object> formParams, String contentType) {
-    if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA_TYPE.toString())) {
+    if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
       return this.serializeMultiPartFormDataEntity(formParams);
     }
-    else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED_TYPE.toString())) {
+    else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED)) {
       final Form form = new Form();
       formParams.forEach((key, value) -> form.param(key, parameterToString(value)));
       return Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
