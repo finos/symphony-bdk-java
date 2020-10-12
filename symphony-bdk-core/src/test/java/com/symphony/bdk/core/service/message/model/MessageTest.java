@@ -7,7 +7,7 @@ import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 
 import org.junit.jupiter.api.Test;
 
-class MessageBuilderTest {
+class MessageTest {
 
   @Test
   void cannotCreateMessageWithNoContent() {

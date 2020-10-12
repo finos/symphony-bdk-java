@@ -254,11 +254,9 @@ public class MessageService {
   }
 
   private static ApiClientBodyPart[] toApiClientBodyParts(List<Attachment> attachments) {
-    final ApiClientBodyPart[] result = new ApiClientBodyPart[attachments.size()];
-    for (int i = 0; i < attachments.size(); i++) {
-      result[i] = new ApiClientBodyPart(attachments.get(i).getContent(), attachments.get(i).getFilename());
-    }
-    return result;
+    return attachments.stream()
+        .map(a -> new ApiClientBodyPart(a.getContent(), a.getFilename()))
+        .toArray(ApiClientBodyPart[]::new);
   }
 
   /**
