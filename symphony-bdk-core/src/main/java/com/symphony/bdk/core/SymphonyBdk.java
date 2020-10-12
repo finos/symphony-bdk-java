@@ -9,9 +9,9 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.util.ServiceLookup;
@@ -31,6 +31,7 @@ import java.util.Optional;
 @API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdk {
 
+  private final BdkConfig config;
   private final AuthSession botSession;
   private final UserV2 botInfo;
 
@@ -50,11 +51,13 @@ public class SymphonyBdk {
 
   protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory)
       throws AuthInitializationException, AuthUnauthorizedException {
+    this.config = config;
 
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
     this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
-    this.extensionAppAuthenticator = config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
+    this.extensionAppAuthenticator =
+        config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
 
     // service init
     final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
@@ -149,6 +152,16 @@ public class SymphonyBdk {
   }
 
   /**
+   * Get an {@link OboServicesFacade} gathering all OBO enabled services
+   *
+   * @param oboSession the OBO session to use
+   * @return an {@link OboServicesFacade} instance using the provided OBO session
+   */
+  public OboServicesFacade obo(AuthSession oboSession) {
+    return new OboServicesFacade(config, oboSession);
+  }
+
+  /**
    * Returns the {@link ExtensionAppAuthenticator}.
    *
    * @return the {@link ExtensionAppAuthenticator}
@@ -166,6 +179,7 @@ public class SymphonyBdk {
   public AuthSession botSession() {
     return this.botSession;
   }
+
   /**
    * Returns the bot information.
    *

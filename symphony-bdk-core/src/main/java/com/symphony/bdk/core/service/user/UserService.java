@@ -1,11 +1,9 @@
 package com.symphony.bdk.core.service.user;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -16,9 +14,7 @@ import com.symphony.bdk.gen.api.model.Feature;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
-import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserStatus;
-import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 
 import lombok.NonNull;
@@ -31,8 +27,6 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
 
 
 /**
@@ -53,11 +47,8 @@ import javax.annotation.Nullable;
 @API(status = API.Status.STABLE)
 public class UserService extends OboUserService {
 
-  private final AuthSession authSession;
-
   public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
-    super(userApi, usersApi, retryBuilder);
-    this.authSession = authSession;
+    super(userApi, usersApi, authSession, retryBuilder);
   }
 
   /**
@@ -283,84 +274,5 @@ public class UserService extends OboUserService {
   public void updateStatusOfUser(@NonNull Long uid, @NonNull UserStatus status) {
     executeAndRetry("updateStatusOfUser",
         () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), uid, status));
-  }
-
-  /**
-   * Search user by list of user ids
-   *
-   * @param uidList List of user ids
-   * @param local   If true then a local DB search will be performed and only local pod users will be
-   *                returned. If absent or false then a directory search will be performed and users
-   *                from other pods who are visible to the calling user will also be returned.
-   * @return Users found by user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @NonNull Boolean local) {
-    return this.searchUserByIds(this.authSession, uidList, local);
-  }
-
-  /**
-   * Search user by list of user ids
-   *
-   * @param uidList List of user ids
-   * @return Users found by user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
-    return this.searchUserByIds(this.authSession, uidList);
-  }
-
-  /**
-   * Search user by list of email addresses.
-   *
-   * @param emailList List of email addresses
-   * @param local     If true then a local DB search will be performed and only local pod users will be
-   *                  returned. If absent or false then a directory search will be performed and users
-   *                  from other pods who are visible to the calling user will also be returned.
-   * @return Users found by emails.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @NonNull Boolean local) {
-    return this.searchUserByEmails(this.authSession, emailList, local);
-  }
-
-  /**
-   * Search user by list of email addresses.
-   *
-   * @param emailList List of email addresses
-   * @return Users found by emails.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
-    return this.searchUserByEmails(this.authSession, emailList);
-  }
-
-  /**
-   * Search user by list of usernames.
-   *
-   * @param usernameList List of usernames
-   * @return Users found by usernames
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
-    return this.searchUserByUsernames(this.authSession, usernameList);
-  }
-
-  /**
-   * Search user by a complicated search query.
-   *
-   * @param query Searching query containing complicated information like title, location, company...
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *              returned. If absent or false then a directory search will be performed and users
-   *              from other pods who are visible to the calling user will also be returned.
-   * @return List of users found by query
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
-   */
-  public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query, @Nullable Boolean local) {
-    return this.searchUserBySearchQuery(this.authSession, query, local);
-  }
-
-  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

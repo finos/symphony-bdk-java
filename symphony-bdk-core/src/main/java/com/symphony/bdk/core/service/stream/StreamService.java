@@ -1,24 +1,17 @@
 package com.symphony.bdk.core.service.stream;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
-import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
-import com.symphony.bdk.gen.api.model.StreamAttributes;
-import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
-import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
-import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
@@ -48,12 +41,9 @@ import java.util.List;
 @API(status = API.Status.STABLE)
 public class StreamService extends OboStreamService {
 
-  private final AuthSession authSession;
-
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
       AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
-    super(streamsApi, membershipApi, shareApi, retryBuilder);
-    this.authSession = authSession;
+    super(streamsApi, membershipApi, shareApi, authSession, retryBuilder);
   }
 
   /**
@@ -156,29 +146,6 @@ public class StreamService extends OboStreamService {
   }
 
   /**
-   * Retrieve a list of all streams of which the requesting user is a member,
-   * sorted by creation date (ascending).
-   *
-   * @param filter The stream searching criteria
-   * @return The list of streams retrieved according to the searching criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
-   */
-  public List<StreamAttributes> listStreams(StreamFilter filter) {
-    return this.listStreams(this.authSession, filter);
-  }
-
-  /**
-   * Get information about a particular stream.
-   *
-   * @param streamId The stream id
-   * @return The information about the stream with the given id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#stream-info-v2">Stream Info V2</a>
-   */
-  public V2StreamAttributes getStreamInfo(String streamId) {
-    return this.getStreamInfo(this.authSession, streamId);
-  }
-
-  /**
    * Create a new single or multi party instant message conversation.
    * At least two user IDs must be provided or an error response will be sent.
    * <p>
@@ -246,66 +213,5 @@ public class StreamService extends OboStreamService {
   public List<MemberInfo> listRoomMembers(String roomId) {
     return executeAndRetry("listRoomMembers",
         () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
-  }
-
-  /**
-   * Adds a new member to an existing room.
-   *
-   * @param userId The id of the user to be added to the given room
-   * @param roomId The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#add-member">Add Member</a>
-   */
-  public void addMemberToRoom(Long userId, String roomId) {
-    this.addMemberToRoom(this.authSession, userId, roomId);
-  }
-
-  /**
-   * Removes an existing member from an existing room.
-   *
-   * @param userId The id of the user to be removed from the given room
-   * @param roomId The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#remove-member">Remove Member</a>
-   */
-  public void removeMemberFromRoom(Long userId, String roomId) {
-    this.removeMemberFromRoom(this.authSession, userId, roomId);
-  }
-
-  /**
-   * Share third-party content, such as a news article, into the specified stream.
-   * The stream can be a chat room, an IM, or an MIM.
-   *
-   * @param streamId The stream id.
-   * @param content  The third-party {@link ShareContent} to be shared.
-   * @return Message contains share content
-   * @see <a href="https://developers.symphony.com/restapi/reference#share-v3">Share</a>
-   */
-  public V2Message share(String streamId, ShareContent content) {
-    return this.share(this.authSession, streamId, content);
-  }
-
-  /**
-   * Promotes user to owner of the chat room.
-   *
-   * @param userId The id of the user to be promoted to room owner.
-   * @param roomId The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#promote-owner">Promote Owner</a>
-   */
-  public void promoteUserToRoomOwner(Long userId, String roomId) {
-    this.promoteUserToRoomOwner(this.authSession, userId, roomId);
-  }
-
-  /**
-   * Demotes room owner to a participant in the chat room.
-   *
-   * @param userId The id of the user to be demoted to room participant.
-   * @param roomId The room id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#demote-owner">Demote Owner</a>
-   */
-  public void demoteUserToRoomParticipant(Long userId, String roomId) {
-    this.demoteUserToRoomParticipant(this.authSession, userId, roomId);
-  }
-
-  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

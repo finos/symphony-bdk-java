@@ -4,12 +4,12 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -25,11 +25,6 @@ import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
-import com.symphony.bdk.http.api.ApiClient;
-
-import com.symphony.bdk.http.api.ApiException;
-
-import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
 
@@ -45,30 +40,16 @@ import org.apiguardian.api.API;
  * </ul>
  */
 @API(status = API.Status.INTERNAL)
-class ServiceFactory {
-
-  private final ApiClient podClient;
-  private final ApiClient agentClient;
-  private final AuthSession authSession;
-  private final BdkConfig config;
-  private final TemplateEngine templateEngine;
-  private final RetryWithRecoveryBuilder<?> retryBuilder;
+class ServiceFactory extends OboServiceFactory {
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
-    this.podClient = apiClientFactory.getPodClient();
-    this.agentClient = apiClientFactory.getAgentClient();
-    this.authSession = authSession;
-    this.config = config;
-    this.templateEngine = TemplateEngine.getDefaultImplementation();
-    this.retryBuilder = new RetryWithRecoveryBuilder<>()
-        .retryConfig(config.getRetry())
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    super(apiClientFactory, authSession, config);
   }
 
   /**
    * Returns a fully initialized {@link UserService}.
    *
-   * @return an new {@link UserService} instance.
+   * @return a new {@link UserService} instance.
    */
   public UserService getUserService() {
     return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession, retryBuilder);
@@ -77,7 +58,7 @@ class ServiceFactory {
   /**
    * Returns a fully initialized {@link StreamService}.
    *
-   * @return an new {@link StreamService} instance.
+   * @return a new {@link StreamService} instance.
    */
   public StreamService getStreamService() {
     return new StreamService(new StreamsApi(podClient), new RoomMembershipApi(podClient), new ShareApi(agentClient),
@@ -87,7 +68,7 @@ class ServiceFactory {
   /**
    * Returns a fully initialized {@link SessionService}.
    *
-   * @return an new {@link SessionService} instance.
+   * @return a new {@link SessionService} instance.
    */
   public SessionService getSessionService() {
     return new SessionService(new SessionApi(podClient),
@@ -97,7 +78,7 @@ class ServiceFactory {
   /**
    * Returns a fully initialized {@link DatafeedService}.
    *
-   * @return an new {@link DatafeedService} instance.
+   * @return a new {@link DatafeedService} instance.
    */
   public DatafeedService getDatafeedService() {
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
@@ -109,7 +90,7 @@ class ServiceFactory {
   /**
    * Returns a fully initialized {@link MessageService}.
    *
-   * @return an new {@link MessageService} instance.
+   * @return a new {@link MessageService} instance.
    */
   public MessageService getMessageService() {
     return new MessageService(
