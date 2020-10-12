@@ -130,7 +130,7 @@ public class Message {
         this.data = MAPPER.writeValueAsString(data);
         return this;
       } catch (JsonProcessingException e) {
-        throw new MessageCreationException("Failed to parse data to Json string", e);
+        throw new MessageCreationException("Failed to serialize data (" + data.getClass() + ") to Json string", e);
       }
     }
 
