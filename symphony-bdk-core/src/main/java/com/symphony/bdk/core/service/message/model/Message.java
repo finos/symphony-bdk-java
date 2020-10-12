@@ -76,6 +76,7 @@ public class Message {
   @Setter
   @Accessors(fluent = true)
   @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @API(status = API.Status.STABLE)
   public static class MessageBuilder {
 
     private static final ObjectMapper MAPPER = new JsonMapper();
