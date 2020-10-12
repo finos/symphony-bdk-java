@@ -3,7 +3,6 @@ package com.symphony.bdk.template.handlebars;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.symphony.bdk.template.api.Template;
-import com.symphony.bdk.template.api.TemplateException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ class HandlebarsEngineTest {
   }
 
   @Test
-  void should_load_template_from_classpath() throws TemplateException {
+  void should_load_template_from_classpath() {
     final Template template = this.engine.newTemplateFromClasspath("/test");
     final String content = template.process(Collections.singletonMap("message", "hello"));
     assertEquals(EXPECTED_TEST_HBS, content);

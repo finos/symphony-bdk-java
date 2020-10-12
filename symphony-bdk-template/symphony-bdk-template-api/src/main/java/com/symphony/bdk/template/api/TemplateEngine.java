@@ -21,7 +21,7 @@ public interface TemplateEngine {
    * @return a new {@link Template} instantiated from the provided file
    * @throws TemplateException when template cannot be loaded, e.g. file not accessible
    */
-  Template newTemplateFromFile(String templatePath) throws TemplateException;
+  Template newTemplateFromFile(String templatePath) ;
 
   /**
    * Create a {@link Template} instance from a file in the classpath
@@ -29,7 +29,7 @@ public interface TemplateEngine {
    * @return a new {@link Template} instantiated from the provided classpath resource
    * @throws TemplateException when template cannot be loaded, e.g. resource not accessible
    */
-  Template newTemplateFromClasspath(String templatePath) throws TemplateException;
+  Template newTemplateFromClasspath(String templatePath) ;
 
   static TemplateEngine getDefaultImplementation() {
     final ServiceLoader<TemplateEngine> engineServiceLoader = ServiceLoader.load(TemplateEngine.class);

@@ -8,7 +8,7 @@ import com.symphony.bdk.core.activity.form.FormReplyActivity;
 import com.symphony.bdk.core.activity.form.FormReplyContext;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
-import com.symphony.bdk.core.service.MessageService;
+import com.symphony.bdk.core.service.message.MessageService;
 
 import lombok.extern.slf4j.Slf4j;
 
