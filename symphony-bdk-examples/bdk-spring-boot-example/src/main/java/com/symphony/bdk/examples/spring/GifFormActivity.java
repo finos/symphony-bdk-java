@@ -7,6 +7,7 @@ import com.symphony.bdk.core.activity.form.FormReplyContext;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.spring.annotation.Slash;
 import com.symphony.bdk.template.api.Template;
 
@@ -32,7 +33,8 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
   @Slash("/gif")
   public void displayGifForm(CommandContext context) {
     Template template = this.messageService.templates().newTemplateFromClasspath("/templates/gif.ftl");
-    this.messageService.builder().template(template).send(context.getStreamId());
+    Message message = Message.builder().template(template).build();
+    this.messageService.send(context.getStreamId(), message);
   }
 
   @Override

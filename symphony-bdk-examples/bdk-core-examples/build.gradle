@@ -4,7 +4,7 @@ dependencies {
 
     implementation project(':symphony-bdk-core')
 
-    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-webclient')
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey2')
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     runtimeOnly 'ch.qos.logback:logback-classic'

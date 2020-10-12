@@ -8,11 +8,11 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE)
 public class MessageCreationException extends RuntimeException {
 
-  public MessageCreationException(String message, Exception e) {
-    super(message, e);
-  }
-
   public MessageCreationException(String message) {
     super(message);
+  }
+
+  public MessageCreationException(String message, Exception e) {
+    super(message, e);
   }
 }

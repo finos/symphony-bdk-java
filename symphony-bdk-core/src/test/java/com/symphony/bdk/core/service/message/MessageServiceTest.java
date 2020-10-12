@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.service;
+package com.symphony.bdk.core.service.message;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,10 +16,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.core.service.message.model.MessageBuilder;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -80,12 +78,9 @@ public class MessageServiceTest {
   private static final String STREAM_ID = "streamId";
   private static final String MESSAGE_ID = "messageId";
   private static final String MESSAGE = "message";
-  private static final String TEMPLATE_NAME = "template";
-
 
   private MockApiClient mockApiClient;
   private MessageService messageService;
-  private TemplateEngine templateEngine;
   private StreamsApi streamsApi;
   private AttachmentsApi attachmentsApi;
 
@@ -99,7 +94,7 @@ public class MessageServiceTest {
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
 
-    templateEngine = mock(TemplateEngine.class);
+    TemplateEngine templateEngine = mock(TemplateEngine.class);
     streamsApi = spy(new StreamsApi(podClient));
     attachmentsApi = spy(new AttachmentsApi(agentClient));
 
@@ -184,9 +179,9 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Message message = new MessageBuilder(this.messageService)
+    Message message = Message.builder()
         .content(MESSAGE)
-        .attachment(inputStream, "test.png")
+        .addAttachment(inputStream, "test.png")
         .build();
 
     final V4Message sentMessage = messageService.send(STREAM_ID, message);
@@ -203,9 +198,9 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Message message = new MessageBuilder(this.messageService)
+    Message message = Message.builder()
         .content(MESSAGE)
-        .attachment(inputStream, "test.png")
+        .addAttachment(inputStream, "test.png")
         .build();
 
     final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
@@ -225,9 +220,9 @@ public class MessageServiceTest {
 
     assertThrows(MessageCreationException.class,
         () -> {
-          Message message = new MessageBuilder(this.messageService)
+          final Message message = Message.builder()
               .content(MESSAGE)
-              .attachment(inputStream, "wrong-name")
+              .addAttachment(inputStream, "wrong-name")
               .build();
           messageService.send(new V4Stream().streamId(STREAM_ID), message);
         });
@@ -240,21 +235,20 @@ public class MessageServiceTest {
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     assertThrows(MessageCreationException.class,
-        () -> new MessageBuilder(this.messageService)
+        () -> Message.builder()
             .content(MESSAGE)
-            .attachment(inputStream, "test.png")
+            .addAttachment(inputStream, "test.png")
             .data(new MockObject("wrong object")).build());
   }
 
   @Test
   void testMessageCreationSuccess() {
-    InputStream inputStream = IOUtils.toInputStream("test string", StandardCharsets.UTF_8);
-    Message message =
-        new MessageBuilder(this.messageService).content(MESSAGE).attachment(inputStream, "test.doc").build();
+    final InputStream inputStream = IOUtils.toInputStream("test string", StandardCharsets.UTF_8);
+    final Message message = Message.builder().content(MESSAGE).addAttachment(inputStream, "test.doc").build();
 
     assertEquals(message.getVersion(), "2.0");
     assertEquals(message.getContent(), MESSAGE);
-    assertEquals(message.getAttachment().getFilename(), "test.doc");
+    assertEquals(message.getAttachments().get(0).getFilename(), "test.doc");
   }
 
   @Test

@@ -1,16 +1,18 @@
 package com.symphony.bdk.http.jersey2;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
-
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 import java.io.File;
 import java.io.IOException;
@@ -340,32 +342,59 @@ public class ApiClientJersey2 implements ApiClient {
    * @return Entity
    */
   protected Entity<?> serialize(Object obj, Map<String, Object> formParams, String contentType) {
-    Entity<?> entity;
-    if (contentType.startsWith("multipart/form-data")) {
-      MultiPart multiPart = new MultiPart();
-      for (Entry<String, Object> param : formParams.entrySet()) {
-        if (param.getValue() instanceof File) {
-          File file = (File) param.getValue();
-          FormDataContentDisposition contentDisp = FormDataContentDisposition.name(param.getKey())
-              .fileName(file.getName()).size(file.length()).build();
-          multiPart.bodyPart(new FormDataBodyPart(contentDisp, file, MediaType.APPLICATION_OCTET_STREAM_TYPE));
-        } else {
-          FormDataContentDisposition contentDisp = FormDataContentDisposition.name(param.getKey()).build();
-          multiPart.bodyPart(new FormDataBodyPart(contentDisp, parameterToString(param.getValue())));
+    if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
+      return this.serializeMultiPartFormDataEntity(formParams);
+    }
+    else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED)) {
+      final Form form = new Form();
+      formParams.forEach((key, value) -> form.param(key, parameterToString(value)));
+      return Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
+    }
+    else {
+      // We let jersey handle the serialization
+      return Entity.entity(obj, contentType);
+    }
+  }
+
+  private Entity<?> serializeMultiPartFormDataEntity(Map<String, Object> formParams) {
+
+    FormDataMultiPart multiPart = new FormDataMultiPart();
+
+    for (final Entry<String, Object> param : formParams.entrySet()) {
+      // if part is a File
+      if (param.getValue() instanceof File) {
+        final File file = (File) param.getValue();
+        final FormDataContentDisposition contentDisposition = FormDataContentDisposition
+            .name(param.getKey())
+            .fileName(file.getName())
+            .size(file.length())
+            .build();
+        final FormDataBodyPart streamPart = new FormDataBodyPart(
+            contentDisposition,
+            file,
+            MediaType.APPLICATION_OCTET_STREAM_TYPE
+        );
+        multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
+      }
+      // if part is a ApiClientBodyPart[]
+      else if (param.getValue() instanceof ApiClientBodyPart[]) {
+        for (ApiClientBodyPart attachment : (ApiClientBodyPart[]) param.getValue()) {
+          final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
+          multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
         }
       }
-      entity = Entity.entity(multiPart, MediaType.MULTIPART_FORM_DATA_TYPE);
-    } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
-      Form form = new Form();
-      for (Entry<String, Object> param : formParams.entrySet()) {
-        form.param(param.getKey(), parameterToString(param.getValue()));
+      // if part is a single ApiClientBodyPart
+      else if (param.getValue() instanceof ApiClientBodyPart) {
+        final ApiClientBodyPart part = (ApiClientBodyPart) param.getValue();
+        final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename());
+        multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
       }
-      entity = Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-    } else {
-      // We let jersey handle the serialization
-      entity = Entity.entity(obj, contentType);
+      else {
+        multiPart = multiPart.field(param.getKey(), this.parameterToString(param.getValue()));
+      }
     }
-    return entity;
+
+    return Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
   }
 
   /**
