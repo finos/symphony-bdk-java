@@ -26,6 +26,11 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 
+import com.symphony.bdk.http.api.ApiClient;
+
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.template.api.TemplateEngine;
+
 import org.apiguardian.api.API;
 
 /**
@@ -40,10 +45,24 @@ import org.apiguardian.api.API;
  * </ul>
  */
 @API(status = API.Status.INTERNAL)
-class ServiceFactory extends OboServiceFactory {
+class ServiceFactory {
+
+  private final ApiClient podClient;
+  private final ApiClient agentClient;
+  private final AuthSession authSession;
+  private final TemplateEngine templateEngine;
+  private final BdkConfig config;
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
-    super(apiClientFactory, authSession, config);
+    this.podClient = apiClientFactory.getPodClient();
+    this.agentClient = apiClientFactory.getAgentClient();
+    this.authSession = authSession;
+    this.templateEngine = TemplateEngine.getDefaultImplementation();
+    this.config = config;
+    this.retryBuilder = new RetryWithRecoveryBuilder<>()
+        .retryConfig(config.getRetry())
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   /**

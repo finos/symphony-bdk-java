@@ -9,7 +9,7 @@ import org.apiguardian.api.API;
  *
  * @param <S> type returned by the {@link #obo(AuthSession)} function.
  */
-@API(status = API.Status.INTERNAL)
+@API(status = API.Status.STABLE)
 public interface OboService<S> {
 
   /**

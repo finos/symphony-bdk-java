@@ -10,7 +10,6 @@ import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.model.OboAuthResponse;
 import com.symphony.bdk.gen.api.model.Token;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -57,7 +56,7 @@ public class OboAuthenticatorCertImpl implements OboAuthenticator {
     return authSession;
   }
 
-  protected String retrieveOboSessionTokenByUserId(@NonNull Long userId) throws AuthUnauthorizedException {
+  protected String retrieveOboSessionTokenByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
     final String appSessionToken = this.retrieveAppSessionToken();
     try {
       OboAuthResponse oboAuthResponse = this.authenticationApi.v1AppUserUidAuthenticatePost(userId, appSessionToken);
@@ -72,7 +71,7 @@ public class OboAuthenticatorCertImpl implements OboAuthenticator {
     }
   }
 
-  protected String retrieveOboSessionTokenByUsername(@NonNull String username) throws AuthUnauthorizedException {
+  protected String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthUnauthorizedException {
     final String appSessionToken = this.retrieveAppSessionToken();
     try {
       OboAuthResponse oboAuthResponse = this.authenticationApi.v1AppUsernameUsernameAuthenticatePost(username, appSessionToken);
