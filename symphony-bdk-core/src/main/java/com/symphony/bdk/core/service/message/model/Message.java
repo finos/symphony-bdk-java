@@ -135,17 +135,6 @@ public class Message {
     }
 
     /**
-     * Add attachment to the message.
-     * @param content Attachment content.
-     * @param filename Filename of the attachment.
-     * @return  this builder with the data configured.
-     */
-    public MessageBuilder addAttachment(@Nonnull InputStream content, @Nonnull String filename) {
-      this.attachments.add(new Attachment(content, filename));
-      return this;
-    }
-
-    /**
      * Add attachment (with preview) to the message.
      * @param attachment Input stream of the attachment content.
      * @param preview Optional attachment preview.
@@ -164,7 +153,6 @@ public class Message {
      * @throws MessageCreationException if mandatory content is empty.
      */
     public Message build() {
-
       if (StringUtils.isEmpty(this.content)) {
         throw new MessageCreationException("Message content is mandatory.");
       }
