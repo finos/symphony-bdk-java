@@ -66,6 +66,9 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   }
 
   @Override
+  /**
+   * {@inheritDoc}
+   */
   public OboStreamService obo(AuthSession oboSession) {
     return new StreamService(streamsApi, roomMembershipApi, shareApi, oboSession, retryBuilder);
   }
