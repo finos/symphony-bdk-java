@@ -9,7 +9,6 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
 import com.migcomponents.migbase64.Base64;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.SneakyThrows;
@@ -59,7 +58,7 @@ class JwtHelperTest {
   public void testValidateJwt() {
 
     final UserClaim inputUserClaim = new UserClaim();
-    inputUserClaim.setId("app-id");
+    inputUserClaim.setId(1234L);
     inputUserClaim.setCompanyId("companyID");
 
     final KeyStore keyStore = getKeyStoreFromFile();

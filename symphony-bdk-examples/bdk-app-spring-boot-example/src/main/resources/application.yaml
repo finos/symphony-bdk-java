@@ -1,0 +1,15 @@
+
+bdk:
+  host: devx1.symphony.com
+  bot:
+    username: fxbot-hong
+    privateKeyPath: ${user.home}/.symphony/keys/rsa-private-bot.pem
+
+  app:
+    auth.enabled: true
+    appId: testapp-hongle
+    privateKeyPath: ${user.home}/.symphony/keys/app_privatekey.pem
+
+logging:
+  level:
+    com.symphony: debug
