@@ -9,28 +9,28 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class OboServicesFacadeTest {
+public class OboServicesTest {
 
-  private OboServicesFacade oboServicesFacade;
+  private OboServices oboServices;
 
   @BeforeEach
   void setUp() {
-    oboServicesFacade = new OboServicesFacade(new BdkConfig(), mock(AuthSession.class));
-    Assertions.assertNotNull(oboServicesFacade.messages());
+    oboServices = new OboServices(new BdkConfig(), mock(AuthSession.class));
+    Assertions.assertNotNull(oboServices.messages());
   }
 
   @Test
   void testOboStreams() {
-    Assertions.assertNotNull(oboServicesFacade.streams());
+    Assertions.assertNotNull(oboServices.streams());
   }
 
   @Test
   void testOboUsers() {
-    Assertions.assertNotNull(oboServicesFacade.users());
+    Assertions.assertNotNull(oboServices.users());
   }
 
   @Test
   void testOboMessages() {
-    Assertions.assertNotNull(oboServicesFacade.messages());
+    Assertions.assertNotNull(oboServices.messages());
   }
 }

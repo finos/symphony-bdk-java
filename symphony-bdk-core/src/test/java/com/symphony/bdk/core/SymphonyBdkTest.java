@@ -107,7 +107,7 @@ public class SymphonyBdkTest {
     this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
 
     AuthSession oboSession = this.symphonyBdk.obo(123456L);
-    final OboServicesFacade obo = this.symphonyBdk.obo(oboSession);
+    final OboServices obo = this.symphonyBdk.obo(oboSession);
 
     assertNotNull(obo);
   }

@@ -152,13 +152,13 @@ public class SymphonyBdk {
   }
 
   /**
-   * Get an {@link OboServicesFacade} gathering all OBO enabled services
+   * Get an {@link OboServices} gathering all OBO enabled services
    *
    * @param oboSession the OBO session to use
-   * @return an {@link OboServicesFacade} instance using the provided OBO session
+   * @return an {@link OboServices} instance using the provided OBO session
    */
-  public OboServicesFacade obo(AuthSession oboSession) {
-    return new OboServicesFacade(config, oboSession);
+  public OboServices obo(AuthSession oboSession) {
+    return new OboServices(config, oboSession);
   }
 
   /**

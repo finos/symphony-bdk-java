@@ -13,13 +13,13 @@ import org.apiguardian.api.API;
  * Entry point for OBO-enabled services.
  */
 @API(status = API.Status.EXPERIMENTAL)
-public class OboServicesFacade {
+public class OboServices {
 
   private final OboStreamService oboStreamService;
   private final OboUserService oboUserService;
   private final OboMessageService oboMessageService;
 
-  public OboServicesFacade(BdkConfig config, AuthSession oboSession) {
+  public OboServices(BdkConfig config, AuthSession oboSession) {
     final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config);
 
     oboStreamService = serviceFactory.getStreamService();
