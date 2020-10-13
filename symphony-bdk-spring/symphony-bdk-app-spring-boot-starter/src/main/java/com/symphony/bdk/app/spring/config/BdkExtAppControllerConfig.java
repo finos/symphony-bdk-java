@@ -1,14 +1,25 @@
 package com.symphony.bdk.app.spring.config;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.stereotype.Controller;
+import com.symphony.bdk.app.spring.auth.AppAuthController;
+import com.symphony.bdk.app.spring.exception.GlobalControllerExceptionHandler;
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 
-@Configuration
-@ComponentScan(value = "com.symphony.bdk.app.spring.controller",
-    includeFilters = {
-        @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class)
-    })
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+
 public class BdkExtAppControllerConfig {
+
+  @Bean
+  @ConditionalOnProperty(name = "bdk.app.auth.enabled", havingValue = "true")
+  public AppAuthController appAuthController(ExtensionAppAuthenticator extensionAppAuthenticator) {
+    return new AppAuthController(extensionAppAuthenticator);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public GlobalControllerExceptionHandler globalControllerExceptionHandler() {
+    return new GlobalControllerExceptionHandler();
+  }
+
 }

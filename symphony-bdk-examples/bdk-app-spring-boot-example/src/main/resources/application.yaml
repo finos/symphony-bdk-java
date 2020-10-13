@@ -7,6 +7,9 @@ bdk:
 
   app:
     auth.enabled: true
+    auth.jwt-cookie:
+      enabled: true
+      expire-in: 43200
     appId: testapp-hongle
     privateKeyPath: ${user.home}/.symphony/keys/app_privatekey.pem
 
