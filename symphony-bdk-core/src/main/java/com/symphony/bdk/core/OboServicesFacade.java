@@ -20,11 +20,11 @@ public class OboServicesFacade {
   private final OboMessageService oboMessageService;
 
   public OboServicesFacade(BdkConfig config, AuthSession oboSession) {
-    final OboServiceFactory serviceFactory = new OboServiceFactory(new ApiClientFactory(config), oboSession, config);
+    final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config);
 
-    oboStreamService = serviceFactory.getOboStreamService();
-    oboUserService = serviceFactory.getObUserService();
-    oboMessageService = serviceFactory.getOboMessageService();
+    oboStreamService = serviceFactory.getStreamService();
+    oboUserService = serviceFactory.getUserService();
+    oboMessageService = serviceFactory.getMessageService();
   }
 
   /**

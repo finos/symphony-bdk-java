@@ -1,9 +1,12 @@
 package com.symphony.bdk.core.service.user;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -14,8 +17,13 @@ import com.symphony.bdk.gen.api.model.Feature;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
+import com.symphony.bdk.gen.api.model.UserSearchQuery;
+import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.gen.api.model.V2UserList;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +35,8 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 
 /**
@@ -45,10 +55,92 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @API(status = API.Status.STABLE)
-public class UserService extends OboUserService {
+public class UserService implements OboUserService, OboService<OboUserService> {
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
-    super(userApi, usersApi, authSession, retryBuilder);
+  private final UserApi userApi;
+  private final UsersApi usersApi;
+  private final AuthSession authSession;
+  private final RetryWithRecoveryBuilder retryBuilder;
+
+  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession,
+      RetryWithRecoveryBuilder retryBuilder) {
+    this.userApi = userApi;
+    this.usersApi = usersApi;
+    this.authSession = authSession;
+    this.retryBuilder = retryBuilder;
+  }
+
+  @Override
+  public OboUserService obo(AuthSession oboSession) {
+    return new UserService(userApi, usersApi, oboSession, retryBuilder);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList,
+      @NonNull Boolean local) {
+    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
+    V2UserList v2UserList = executeAndRetry("searchUserByIds",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
+    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
+    V2UserList v2UserList = executeAndRetry("searchUserByIds",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList,
+      @NonNull Boolean local) {
+    String emails = String.join(",", emailList);
+    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
+    String emails = String.join(",", emailList);
+    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
+    String usernames = String.join(",", usernameList);
+    V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query,
+      @Nullable Boolean local) {
+    UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
+        () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local));
+    return results.getUsers();
   }
 
   /**
@@ -274,5 +366,12 @@ public class UserService extends OboUserService {
   public void updateStatusOfUser(@NonNull Long uid, @NonNull UserStatus status) {
     executeAndRetry("updateStatusOfUser",
         () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), uid, status));
+  }
+
+  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }

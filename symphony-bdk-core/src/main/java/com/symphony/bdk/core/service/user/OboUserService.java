@@ -1,42 +1,20 @@
 package com.symphony.bdk.core.service.user;
 
-import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
-import com.symphony.bdk.gen.api.UserApi;
-import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
-import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserV2;
-import com.symphony.bdk.gen.api.model.V2UserList;
-import com.symphony.bdk.http.api.ApiException;
 
 import lombok.NonNull;
 import org.apiguardian.api.API;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 /**
- * Service class for managing users. This exposes OBO-enabled endpoints only.
+ * Service interface exposing OBO-enabled endpoints to manage users.
  */
-@API(status = API.Status.INTERNAL)
-public class OboUserService {
-
-  protected final UserApi userApi;
-  protected final UsersApi usersApi;
-  protected final AuthSession authSession;
-  protected final RetryWithRecoveryBuilder retryBuilder;
-
-  public OboUserService(UserApi userApi, UsersApi usersApi,AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
-    this.userApi = userApi;
-    this.usersApi = usersApi;
-    this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
-  }
+@API(status = API.Status.STABLE)
+public interface OboUserService {
 
   /**
    * {@link UserService#searchUserByIds(List, Boolean)}
@@ -48,13 +26,7 @@ public class OboUserService {
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList,
-      @NonNull Boolean local) {
-    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-    V2UserList v2UserList = executeAndRetry("searchUserByIds",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local));
-    return v2UserList.getUsers();
-  }
+  List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @NonNull Boolean local);
 
   /**
    * {@link UserService#searchUserByIds(List)}
@@ -63,12 +35,7 @@ public class OboUserService {
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
-    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-    V2UserList v2UserList = executeAndRetry("searchUserByIds",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false));
-    return v2UserList.getUsers();
-  }
+  List<UserV2> searchUserByIds(@NonNull List<Long> uidList);
 
   /**
    * {@link UserService#searchUserByEmails(List, Boolean)}
@@ -80,13 +47,7 @@ public class OboUserService {
    * @return Users found by emails.
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList,
-      @NonNull Boolean local) {
-    String emails = String.join(",", emailList);
-    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local));
-    return v2UserList.getUsers();
-  }
+  List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @NonNull Boolean local);
 
   /**
    * {@link UserService#searchUserByEmails(List)}
@@ -95,12 +56,7 @@ public class OboUserService {
    * @return Users found by emails
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
-    String emails = String.join(",", emailList);
-    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false));
-    return v2UserList.getUsers();
-  }
+  List<UserV2> searchUserByEmails(@NonNull List<String> emailList);
 
   /**
    * {@link UserService#searchUserByUsernames(List)}
@@ -109,12 +65,7 @@ public class OboUserService {
    * @return Users found by usernames
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
-    String usernames = String.join(",", usernameList);
-    V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true));
-    return v2UserList.getUsers();
-  }
+  List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList);
 
   /**
    * {@link UserService#searchUserBySearchQuery(UserSearchQuery, Boolean)}
@@ -126,17 +77,5 @@ public class OboUserService {
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query,
-      @Nullable Boolean local) {
-    UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
-        () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local));
-    return results.getUsers();
-  }
-
-  protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies() // to remove refresh on bot session put by default
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
-  }
+  List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query, @Nullable Boolean local);
 }

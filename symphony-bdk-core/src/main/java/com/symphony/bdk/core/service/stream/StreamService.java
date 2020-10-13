@@ -1,17 +1,26 @@
 package com.symphony.bdk.core.service.stream;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.OboService;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
+import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
+import com.symphony.bdk.gen.api.model.StreamAttributes;
+import com.symphony.bdk.gen.api.model.StreamFilter;
+import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
+import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
+import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
@@ -39,11 +48,86 @@ import java.util.List;
  */
 @Slf4j
 @API(status = API.Status.STABLE)
-public class StreamService extends OboStreamService {
+public class StreamService implements OboStreamService, OboService<OboStreamService> {
+
+  private final StreamsApi streamsApi;
+  private final RoomMembershipApi roomMembershipApi;
+  private final ShareApi shareApi;
+  private final AuthSession authSession;
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
       AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
-    super(streamsApi, membershipApi, shareApi, authSession, retryBuilder);
+    this.streamsApi = streamsApi;
+    this.roomMembershipApi = membershipApi;
+    this.shareApi = shareApi;
+    this.authSession = authSession;
+    this.retryBuilder = retryBuilder;
+  }
+
+  @Override
+  public OboStreamService obo(AuthSession oboSession) {
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, oboSession, retryBuilder);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public V2StreamAttributes getStreamInfo(String streamId) {
+    return executeAndRetry("getStreamInfo",
+        () -> streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken()));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<StreamAttributes> listStreams(StreamFilter filter) {
+    return executeAndRetry("listStreams",
+        () -> streamsApi.v1StreamsListPost(authSession.getSessionToken(), null, null, filter));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void addMemberToRoom( Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("addMemberToRoom",
+        () -> roomMembershipApi.v1RoomIdMembershipAddPost(roomId, authSession.getSessionToken(), user));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void removeMemberFromRoom(Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("removeMemberFrom",
+        () -> roomMembershipApi.v1RoomIdMembershipRemovePost(roomId, authSession.getSessionToken(), user));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public V2Message share(String streamId, ShareContent content) {
+    return executeAndRetry("share",
+        () -> shareApi.v3StreamSidSharePost(streamId, authSession.getSessionToken(), content, authSession.getKeyManagerToken()));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void promoteUserToRoomOwner(Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("promoteUserToOwner",
+        () -> roomMembershipApi.v1RoomIdMembershipPromoteOwnerPost(roomId, authSession.getSessionToken(), user));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void demoteUserToRoomParticipant(Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("demoteUserToParticipant",
+        () -> roomMembershipApi.v1RoomIdMembershipDemoteOwnerPost(roomId, authSession.getSessionToken(), user));
   }
 
   /**
@@ -213,5 +297,12 @@ public class StreamService extends OboStreamService {
   public List<MemberInfo> listRoomMembers(String roomId) {
     return executeAndRetry("listRoomMembers",
         () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
+  }
+
+  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }
