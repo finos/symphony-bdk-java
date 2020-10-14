@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -75,5 +76,24 @@ class BdkCoreConfigTest {
 
     when(authenticatorFactory.getExtensionAppAuthenticator()).thenThrow(AuthInitializationException.class);
     assertThrows(BeanInitializationException.class, () -> config.extensionAppAuthenticator(authenticatorFactory));
+  }
+
+  @Test
+  void shouldCreateOboAuthenticator() throws AuthInitializationException {
+    final BdkCoreConfig config = new BdkCoreConfig();
+    final AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
+    final OboAuthenticator oboAuthenticator = mock(OboAuthenticator.class);
+
+    when(authenticatorFactory.getOboAuthenticator()).thenReturn(oboAuthenticator);
+    assertNotNull(config.oboAuthenticator(authenticatorFactory));
+  }
+
+  @Test
+  void shouldFailCreateOboAuthenticator() throws AuthInitializationException {
+    final BdkCoreConfig config = new BdkCoreConfig();
+    final AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
+
+    when(authenticatorFactory.getOboAuthenticator()).thenThrow(AuthInitializationException.class);
+    assertThrows(BeanInitializationException.class, () -> config.oboAuthenticator(authenticatorFactory));
   }
 }

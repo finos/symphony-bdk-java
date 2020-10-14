@@ -1,15 +1,12 @@
 package com.symphony.bdk.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
-import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
