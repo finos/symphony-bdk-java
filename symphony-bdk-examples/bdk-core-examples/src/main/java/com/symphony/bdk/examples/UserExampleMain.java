@@ -38,7 +38,7 @@ public class UserExampleMain {
 
     AuthSession oboSession = bdk.obo("hong.le");
     StreamFilter streamFilter = new StreamFilter().addStreamTypesItem(new StreamType().type(StreamType.TypeEnum.IM));
-    List<StreamAttributes> streamsList = bdk.streams().listStreams(oboSession, streamFilter);
+    List<StreamAttributes> streamsList = bdk.obo(oboSession).streams().listStreams(streamFilter);
     log.info("Streams List: {}", streamsList);
   }
 }

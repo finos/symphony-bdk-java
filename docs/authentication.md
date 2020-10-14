@@ -156,7 +156,8 @@ public class Example {
 ### OBO (On Behalf Of) authentication
 > Read more about OBO authentication [here](https://developers.symphony.com/symphony-developer/docs/obo-overview)
 
-The following example shows how to retrieve OBO sessions using `username` (type `String`) or `userId` (type `Long`):
+The following example shows how to retrieve OBO sessions using `username` (type `String`) or `userId` (type `Long`)
+and to call services which have OBO endpoints (users, streams and messages so far):
 ```java
 public class Example {
 
@@ -169,7 +170,11 @@ public class Example {
     final AuthSession oboSessionUserId = bdk.obo(123456789L);
     
     // list streams OBO user "user.name"
-    bdk.streams().listStreams(oboSessionUsername, new StreamFilter());
+    bdk.obo(oboSessionUsername).streams().listStreams(new StreamFilter());
+
+    // or send a message OBO:
+    Message message = Message.builder().content("<messageML>Hello, World</messageML>").build();
+    bdk.obo(oboSessionUserId).messages().send("streamID", message);
   }
 }
 ```

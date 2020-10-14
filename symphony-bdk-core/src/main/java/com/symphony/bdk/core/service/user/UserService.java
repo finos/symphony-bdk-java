@@ -3,6 +3,7 @@ package com.symphony.bdk.core.service.user;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
@@ -17,11 +18,14 @@ import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
+import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.gen.api.model.V2UserList;
+import com.symphony.bdk.http.api.ApiException;
 
-import lombok.NonNull;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apiguardian.api.API;
@@ -32,6 +36,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 
@@ -51,13 +56,90 @@ import javax.annotation.Nullable;
  */
 @Slf4j
 @API(status = API.Status.STABLE)
-public class UserService extends OboUserService {
+public class UserService implements OboUserService, OboService<OboUserService> {
 
+  private final UserApi userApi;
+  private final UsersApi usersApi;
   private final AuthSession authSession;
+  private final RetryWithRecoveryBuilder retryBuilder;
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession, RetryWithRecoveryBuilder retryBuilder) {
-    super(userApi, usersApi, retryBuilder);
+  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession,
+      RetryWithRecoveryBuilder retryBuilder) {
+    this.userApi = userApi;
+    this.usersApi = usersApi;
     this.authSession = authSession;
+    this.retryBuilder = retryBuilder;
+  }
+
+  @Override
+  public OboUserService obo(AuthSession oboSession) {
+    return new UserService(userApi, usersApi, oboSession, retryBuilder);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, @Nonnull Boolean local) {
+    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
+    V2UserList v2UserList = executeAndRetry("searchUserByIds",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList) {
+    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
+    V2UserList v2UserList = executeAndRetry("searchUserByIds",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByEmails(@Nonnull List<String> emailList,
+      @Nonnull Boolean local) {
+    String emails = String.join(",", emailList);
+    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByEmails(@Nonnull List<String> emailList) {
+    String emails = String.join(",", emailList);
+    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList) {
+    String usernames = String.join(",", usernameList);
+    V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
+    UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
+        () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local));
+    return results.getUsers();
   }
 
   /**
@@ -67,7 +149,7 @@ public class UserService extends OboUserService {
    * @return Details of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    */
-  public V2UserDetail getUserDetailByUid(@NonNull Long uid) {
+  public V2UserDetail getUserDetailByUid(@Nonnull Long uid) {
     return executeAndRetry("getUserDetailByUid", () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), uid));
   }
 
@@ -90,7 +172,7 @@ public class UserService extends OboUserService {
    * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
    */
-  public List<V2UserDetail> listUsersDetail(@NonNull UserFilter filter) {
+  public List<V2UserDetail> listUsersDetail(@Nonnull UserFilter filter) {
     List<UserDetail> userDetailList = executeAndRetry("listUsersDetail",
         () -> userApi.v1AdminUserFindPost(authSession.getSessionToken(), filter, null, null));
     return userDetailList.stream()
@@ -105,7 +187,7 @@ public class UserService extends OboUserService {
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
-  public void addRoleToUser(@NonNull Long uid, @NonNull RoleId roleId) {
+  public void addRoleToUser(@Nonnull Long uid, @Nonnull RoleId roleId) {
     StringId stringId = new StringId().id(roleId.name());
     executeAndRetry("addRoleToUser",
         () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), uid, stringId));
@@ -118,7 +200,7 @@ public class UserService extends OboUserService {
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
-  public void removeRoleFromUser(@NonNull Long uid, @NonNull RoleId roleId) {
+  public void removeRoleFromUser(@Nonnull Long uid, @Nonnull RoleId roleId) {
     StringId stringId = new StringId().id(roleId.name());
     executeAndRetry("removeRoleFromUser",
         () -> userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), uid, stringId));
@@ -131,7 +213,7 @@ public class UserService extends OboUserService {
    * @return List of avatar urls of the user
    * @see <a href="https://developers.symphony.com/restapi/reference#user-avatar">User Avatar</a>
    */
-  public List<Avatar> getAvatarFromUser(@NonNull Long uid) {
+  public List<Avatar> getAvatarFromUser(@Nonnull Long uid) {
     return executeAndRetry("getAvatarFromUser",
         () -> userApi.v1AdminUserUidAvatarGet(authSession.getSessionToken(), uid));
   }
@@ -143,7 +225,7 @@ public class UserService extends OboUserService {
    * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@NonNull Long uid, @NonNull String image) {
+  public void updateAvatarOfUser(@Nonnull Long uid, @Nonnull String image) {
     AvatarUpdate avatarUpdate = new AvatarUpdate().image(image);
     executeAndRetry("updateAvatarOfUser",
         () -> userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate));
@@ -156,7 +238,7 @@ public class UserService extends OboUserService {
    * @param image The avatar image in bytes array for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@NonNull Long uid, @NonNull byte[] image) {
+  public void updateAvatarOfUser(@Nonnull Long uid, @Nonnull byte[] image) {
     String imageBase64 = Base64.getEncoder().encodeToString(image);
     this.updateAvatarOfUser(uid, imageBase64);
   }
@@ -168,7 +250,7 @@ public class UserService extends OboUserService {
    * @param imageStream The avatar image input stream for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@NonNull Long uid, @NonNull InputStream imageStream) throws IOException {
+  public void updateAvatarOfUser(@Nonnull Long uid, @Nonnull InputStream imageStream) throws IOException {
     byte[] bytes = IOUtils.toByteArray(imageStream);
     this.updateAvatarOfUser(uid, bytes);
   }
@@ -180,7 +262,7 @@ public class UserService extends OboUserService {
    * @return Disclaimer assigned to the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-disclaimer">User Disclaimer</a>
    */
-  public Disclaimer getDisclaimerAssignedToUser(@NonNull Long uid) {
+  public Disclaimer getDisclaimerAssignedToUser(@Nonnull Long uid) {
     return executeAndRetry("getDisclaimerAssignedToUser",
         () -> userApi.v1AdminUserUidDisclaimerGet(authSession.getSessionToken(), uid));
   }
@@ -191,7 +273,7 @@ public class UserService extends OboUserService {
    * @param uid User Id
    * @see <a href="https://developers.symphony.com/restapi/reference#unassign-user-disclaimer">Unassign User Disclaimer</a>
    */
-  public void unAssignDisclaimerFromUser(@NonNull Long uid) {
+  public void unAssignDisclaimerFromUser(@Nonnull Long uid) {
     executeAndRetry("unAssignDisclaimerFromUser",
         () -> userApi.v1AdminUserUidDisclaimerDelete(authSession.getSessionToken(), uid));
   }
@@ -203,7 +285,7 @@ public class UserService extends OboUserService {
    * @param disclaimerId Disclaimer to be assigned
    * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    */
-  public void assignDisclaimerToUser(@NonNull Long uid, @NonNull String disclaimerId) {
+  public void assignDisclaimerToUser(@Nonnull Long uid, @Nonnull String disclaimerId) {
     StringId stringId = new StringId().id(disclaimerId);
     executeAndRetry("assignDisclaimerToUser",
         () -> userApi.v1AdminUserUidDisclaimerUpdatePost(authSession.getSessionToken(), uid, stringId));
@@ -217,7 +299,7 @@ public class UserService extends OboUserService {
    * @return List of delegates assigned to an user.
    * @see <a href="https://developers.symphony.com/restapi/reference#delegates">User Delegates</a>
    */
-  public List<Long> getDelegatesAssignedToUser(@NonNull Long uid) {
+  public List<Long> getDelegatesAssignedToUser(@Nonnull Long uid) {
     return executeAndRetry("getDelegatesAssignedToUser",
         () -> userApi.v1AdminUserUidDelegatesGet(authSession.getSessionToken(), uid));
   }
@@ -230,8 +312,8 @@ public class UserService extends OboUserService {
    * @param actionEnum      Action to be performed
    * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
    */
-  public void updateDelegatesAssignedToUser(@NonNull Long uid, @NonNull Long delegatedUserId,
-      @NonNull DelegateAction.ActionEnum actionEnum) {
+  public void updateDelegatesAssignedToUser(@Nonnull Long uid, @Nonnull Long delegatedUserId,
+      @Nonnull DelegateAction.ActionEnum actionEnum) {
     DelegateAction delegateAction = new DelegateAction().action(actionEnum).userId(delegatedUserId);
     executeAndRetry("updateDelegatesAssignedToUser",
         () -> userApi.v1AdminUserUidDelegatesUpdatePost(authSession.getSessionToken(), uid, delegateAction));
@@ -244,7 +326,7 @@ public class UserService extends OboUserService {
    * @return List of feature entitlements of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#features">User Features</a>
    */
-  public List<Feature> getFeatureEntitlementsOfUser(@NonNull Long uid) {
+  public List<Feature> getFeatureEntitlementsOfUser(@Nonnull Long uid) {
     return executeAndRetry("getFeatureEntitlementsOfUser",
         () -> userApi.v1AdminUserUidFeaturesGet(authSession.getSessionToken(), uid));
   }
@@ -256,7 +338,7 @@ public class UserService extends OboUserService {
    * @param features List of feature entitlements to be updated
    * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    */
-  public void updateFeatureEntitlementsOfUser(@NonNull Long uid, @NonNull List<Feature> features) {
+  public void updateFeatureEntitlementsOfUser(@Nonnull Long uid, @Nonnull List<Feature> features) {
     executeAndRetry("updateFeatureEntitlementsOfUser",
         () -> userApi.v1AdminUserUidFeaturesUpdatePost(authSession.getSessionToken(), uid, features));
   }
@@ -268,7 +350,7 @@ public class UserService extends OboUserService {
    * @return Status of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-status">User Status</a>
    */
-  public UserStatus getStatusOfUser(@NonNull Long uid) {
+  public UserStatus getStatusOfUser(@Nonnull Long uid) {
     return executeAndRetry("getStatusOfUser",
         () -> userApi.v1AdminUserUidStatusGet(authSession.getSessionToken(), uid));
   }
@@ -280,87 +362,15 @@ public class UserService extends OboUserService {
    * @param status Status to be updated to the user
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    */
-  public void updateStatusOfUser(@NonNull Long uid, @NonNull UserStatus status) {
+  public void updateStatusOfUser(@Nonnull Long uid, @Nonnull UserStatus status) {
     executeAndRetry("updateStatusOfUser",
         () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), uid, status));
   }
 
-  /**
-   * Search user by list of user ids
-   *
-   * @param uidList List of user ids
-   * @param local   If true then a local DB search will be performed and only local pod users will be
-   *                returned. If absent or false then a directory search will be performed and users
-   *                from other pods who are visible to the calling user will also be returned.
-   * @return Users found by user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList, @NonNull Boolean local) {
-    return this.searchUserByIds(this.authSession, uidList, local);
-  }
-
-  /**
-   * Search user by list of user ids
-   *
-   * @param uidList List of user ids
-   * @return Users found by user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByIds(@NonNull List<Long> uidList) {
-    return this.searchUserByIds(this.authSession, uidList);
-  }
-
-  /**
-   * Search user by list of email addresses.
-   *
-   * @param emailList List of email addresses
-   * @param local     If true then a local DB search will be performed and only local pod users will be
-   *                  returned. If absent or false then a directory search will be performed and users
-   *                  from other pods who are visible to the calling user will also be returned.
-   * @return Users found by emails.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList, @NonNull Boolean local) {
-    return this.searchUserByEmails(this.authSession, emailList, local);
-  }
-
-  /**
-   * Search user by list of email addresses.
-   *
-   * @param emailList List of email addresses
-   * @return Users found by emails.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByEmails(@NonNull List<String> emailList) {
-    return this.searchUserByEmails(this.authSession, emailList);
-  }
-
-  /**
-   * Search user by list of usernames.
-   *
-   * @param usernameList List of usernames
-   * @return Users found by usernames
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
-   */
-  public List<UserV2> searchUserByUsernames(@NonNull List<String> usernameList) {
-    return this.searchUserByUsernames(this.authSession, usernameList);
-  }
-
-  /**
-   * Search user by a complicated search query.
-   *
-   * @param query Searching query containing complicated information like title, location, company...
-   * @param local If true then a local DB search will be performed and only local pod users will be
-   *              returned. If absent or false then a directory search will be performed and users
-   *              from other pods who are visible to the calling user will also be returned.
-   * @return List of users found by query
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
-   */
-  public List<UserV2> searchUserBySearchQuery(@NonNull UserSearchQuery query, @Nullable Boolean local) {
-    return this.searchUserBySearchQuery(this.authSession, query, local);
-  }
-
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }
