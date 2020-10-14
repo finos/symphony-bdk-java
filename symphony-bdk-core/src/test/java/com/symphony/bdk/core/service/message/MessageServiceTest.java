@@ -177,14 +177,14 @@ public class MessageServiceTest {
   @Test
   void testSendPassingMessageInstanceToStreamId(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     Message message = Message.builder()
         .content(MESSAGE)
-        .addAttachment(inputStream, inputStream, "test.png")
+        .addAttachment(inputStream, "test.png")
         .build();
 
     final V4Message sentMessage = messageService.send(STREAM_ID, message);
@@ -196,14 +196,14 @@ public class MessageServiceTest {
   @Test
   void testSendPassingMessageInstanceToStream(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     Message message = Message.builder()
         .content(MESSAGE)
-        .addAttachment(inputStream, inputStream, "test.png")
+        .addAttachment(inputStream, "test.png")
         .build();
 
     final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
@@ -215,7 +215,7 @@ public class MessageServiceTest {
   @Test
   void testSendPassingMessageInstanceToStreamWrongAttachmentName(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
@@ -225,7 +225,7 @@ public class MessageServiceTest {
         () -> {
           final Message message = Message.builder()
               .content(MESSAGE)
-              .addAttachment(inputStream, inputStream, "wrong-name")
+              .addAttachment(inputStream, "wrong-name")
               .build();
           messageService.send(new V4Stream().streamId(STREAM_ID), message);
         });
@@ -234,13 +234,27 @@ public class MessageServiceTest {
   @Test
   void testMessageCreationFailed(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), "utf-8");
+    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
 
     InputStream inputStream = new FileInputStream(tempFilePath.toString());
     assertThrows(MessageCreationException.class,
         () -> Message.builder()
             .content(MESSAGE)
-            .addAttachment(inputStream, inputStream, "test.png")
+            .addAttachment(inputStream, "test.png")
+            .data(new MockObject("wrong object")).build());
+  }
+
+  @Test
+  void testMessageCreationFailsIfPreviewsNotAsManyAsAttachments() {
+    final InputStream firstAttachment = IOUtils.toInputStream("First attachment", StandardCharsets.UTF_8);
+    final InputStream secondAttachment = IOUtils.toInputStream("Second Attachment", StandardCharsets.UTF_8);
+    final InputStream preview = IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8);
+
+    assertThrows(MessageCreationException.class,
+        () -> Message.builder()
+            .content(MESSAGE)
+            .addAttachment(firstAttachment, "test1.txt")
+            .addAttachment(secondAttachment, preview, "test2.txt")
             .data(new MockObject("wrong object")).build());
   }
 
@@ -248,7 +262,7 @@ public class MessageServiceTest {
   void testMessageCreationSuccess() {
     final InputStream inputStream = IOUtils.toInputStream("test string", StandardCharsets.UTF_8);
     final Message message =
-        Message.builder().content(MESSAGE).addAttachment(inputStream, inputStream, "test.doc").build();
+        Message.builder().content(MESSAGE).addAttachment(inputStream, "test.doc").build();
 
     assertEquals(message.getVersion(), "2.0");
     assertEquals(message.getContent(), MESSAGE);
@@ -423,13 +437,25 @@ public class MessageServiceTest {
   void testDoSendWithAttachment(final BdkMockServer mockServer) throws IOException, ApiException {
     final Message message = Message.builder()
         .content("<MessageML>Hello world</MessageML>")
-        .addAttachment(IOUtils.toInputStream("Attached file", "utf-8"), IOUtils.toInputStream("Preview file", "utf-8"),
-            "file.txt")
+        .addAttachment(IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8), "file.txt")
+        .build();
+
+    assertInvokeApiCalledWithCorrectParams(mockServer, message,
+        Collections.singletonList("file.txt"), Collections.emptyList());
+
+  }
+
+  @Test
+  @ExtendWith(BdkMockServerExtension.class)
+  void testDoSendWithAttachmentAndPreview(final BdkMockServer mockServer) throws IOException, ApiException {
+    final Message message = Message.builder()
+        .content("<MessageML>Hello world</MessageML>")
+        .addAttachment(IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8),
+            IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8), "file.txt")
         .build();
 
     assertInvokeApiCalledWithCorrectParams(mockServer, message,
         Collections.singletonList("file.txt"), Collections.singletonList("preview-file.txt"));
-
   }
 
   private void assertInvokeApiCalledWithCorrectParams(final BdkMockServer mockServer, Message message,
