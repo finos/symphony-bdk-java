@@ -1,6 +1,7 @@
 package com.symphony.bdk.http.webclient;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
@@ -9,9 +10,11 @@ import com.symphony.bdk.http.api.util.TypeReference;
 import org.apiguardian.api.API;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -115,16 +118,7 @@ public class ApiClientWebClient implements ApiClient {
 
     if (formParams != null) {
       if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA_VALUE)) {
-        MultiValueMap<String, Object> formValueMap = new LinkedMultiValueMap<>();
-        for (Map.Entry<String, Object> param : formParams.entrySet()) {
-          if (param.getValue() instanceof File) {
-            File file = (File) param.getValue();
-            formValueMap.add(param.getKey(), new FileSystemResource(file));
-          } else {
-            formValueMap.add(param.getKey(), parameterToString(param.getValue()));
-          }
-        }
-        requestBodySpec.body(BodyInserters.fromMultipartData(formValueMap));
+        requestBodySpec.body(BodyInserters.fromMultipartData(serializeMultiPartData(formParams)));
       } else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
         MultiValueMap<String, String> formValueMap = new LinkedMultiValueMap<>();
         for (Map.Entry<String, Object> param : formParams.entrySet()) {
@@ -179,6 +173,43 @@ public class ApiClientWebClient implements ApiClient {
           headers,
           respBody);
     }
+  }
+
+  private MultiValueMap<String, Object> serializeMultiPartData(Map<String, Object> formParams) {
+    MultiValueMap<String, Object> formValueMap = new LinkedMultiValueMap<>();
+    for (Map.Entry<String, Object> param : formParams.entrySet()) {
+      serializeMultiPartDataEntry(param.getKey(), param.getValue(), formValueMap);
+    }
+
+    return formValueMap;
+  }
+
+  private void serializeMultiPartDataEntry(String paramKey, Object paramValue,
+      MultiValueMap<String, Object> formValueMap) {
+    if (paramValue instanceof File) {
+      File file = (File) paramValue;
+      formValueMap.add(paramKey, new FileSystemResource(file));
+    } else if (paramValue instanceof ApiClientBodyPart[]) {
+      for (ApiClientBodyPart bodyPart : (ApiClientBodyPart[]) paramValue) {
+        serializeApiClientBodyPart(paramKey, bodyPart, formValueMap);
+      }
+    } else if (paramValue instanceof ApiClientBodyPart) {
+      serializeApiClientBodyPart(paramKey, (ApiClientBodyPart) paramValue, formValueMap);
+    }
+    else {
+      formValueMap.add(paramKey, parameterToString(paramValue));
+    }
+  }
+
+  private void serializeApiClientBodyPart(String paramKey, ApiClientBodyPart bodyPart,
+      MultiValueMap<String, Object> formValueMap) {
+
+    final MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+    multipartBodyBuilder
+        .part(paramKey, new InputStreamResource(bodyPart.getContent()))
+        .filename(bodyPart.getFilename());
+
+    multipartBodyBuilder.build().forEach((k, l) -> formValueMap.addAll(k, l));
   }
 
   /**
