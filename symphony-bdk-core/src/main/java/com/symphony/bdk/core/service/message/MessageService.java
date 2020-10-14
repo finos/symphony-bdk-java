@@ -6,6 +6,7 @@ import static java.util.Collections.emptyMap;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
@@ -55,7 +56,7 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.STABLE)
-public class MessageService {
+public class MessageService implements OboMessageService, OboService<OboMessageService> {
 
   private final MessagesApi messagesApi;
   private final MessageApi messageApi;
@@ -92,11 +93,16 @@ public class MessageService {
     this.retryBuilder = retryBuilder;
   }
 
+  @Override
+  public OboMessageService obo(AuthSession oboSession) {
+    return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
+        defaultApi, oboSession, templateEngine, retryBuilder);
+  }
+
   /**
-   * Returns the {@link TemplateEngine} that can be used to load templates from classpath or file system.
-   *
-   * @return the template engine
+   * {@inheritDoc}
    */
+  @Override
   public TemplateEngine templates() {
     return this.templateEngine;
   }
@@ -166,55 +172,33 @@ public class MessageService {
   }
 
   /**
-   * Sends a message to the stream ID of the passed {@link V4Stream} object.
-   *
-   * @param stream  the stream to send the message to
-   * @param message the message payload in MessageML
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   * @deprecated this method will be replaced by {@link MessageService#send(V4Stream, Message)}
+   * {@inheritDoc}
    */
-  @Deprecated
-  @API(status = API.Status.DEPRECATED)
+  @Override
   public V4Message send(@Nonnull V4Stream stream, @Nonnull String message) {
     return send(stream.getStreamId(), message);
   }
 
   /**
-   * Sends a message to the stream ID passed in parameter.
-   *
-   * @param streamId the ID of the stream to send the message to
-   * @param message  the message payload in MessageML
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   * @deprecated this method will be replaced by {@link MessageService#send(String, Message)}
+   * {@inheritDoc}
    */
-  @Deprecated
-  @API(status = API.Status.DEPRECATED)
+  @Override
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
     return this.send(streamId, Message.builder().content(message).build());
   }
 
   /**
-   * Sends a message to the stream ID passed in parameter.
-   *
-   * @param stream    the stream to send the message to
-   * @param message   the message to send to the stream
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * {@inheritDoc}
    */
+  @Override
   public V4Message send(@Nonnull V4Stream stream, @Nonnull Message message) {
     return this.send(stream.getStreamId(), message);
   }
 
   /**
-   * Sends a message to the stream ID passed in parameter.
-   *
-   * @param streamId    the ID of the stream to send the message to
-   * @param message     the message to send to the stream
-   * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * {@inheritDoc}
    */
+  @Override
   public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
     return this.executeAndRetry("send", () ->
         this.doSend(streamId, message, this.authSession.getSessionToken(), this.authSession.getKeyManagerToken())
