@@ -1,6 +1,7 @@
 package com.symphony.bdk.app.spring.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -59,14 +60,10 @@ public class CircleOfTrustControllerTest {
     AppAuthSession appAuthSession = mock(AppAuthSession.class);
     when(appAuthSession.getAppToken()).thenReturn("test-token");
     when(appAuthSession.getSymphonyToken()).thenReturn("test-symphony-token");
-    when(authenticator.authenticateExtensionApp("test-token")).thenReturn(appAuthSession);
+    when(authenticator.authenticateExtensionApp(anyString())).thenReturn(appAuthSession);
 
     String response =  mockMvc.perform(
-        post("/bdk/v1/app/auth")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\n"
-                + "    \"appToken\": \"test-token\"\n"
-                + "}"))
+        post("/bdk/v1/app/auth"))
         .andExpect(status().isOk())
         .andReturn().getResponse().getContentAsString();
     AppToken appToken = MAPPER.readValue(response, AppToken.class);
@@ -76,14 +73,10 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void authenticateFailed() throws Exception {
-    when(authenticator.authenticateExtensionApp("test-token")).thenThrow(AuthUnauthorizedException.class);
+    when(authenticator.authenticateExtensionApp(anyString())).thenThrow(AuthUnauthorizedException.class);
 
     String response =  mockMvc.perform(
-        post("/bdk/v1/app/auth")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content("{\n"
-                + "    \"appToken\": \"test-token\"\n"
-                + "}"))
+        post("/bdk/v1/app/auth"))
         .andExpect(status().isUnauthorized())
         .andReturn().getResponse().getContentAsString();
     BdkAppError error = MAPPER.readValue(response, BdkAppError.class);

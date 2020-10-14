@@ -1,7 +1,6 @@
 package com.symphony.bdk.app.spring.auth;
 
 import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
-import com.symphony.bdk.app.spring.auth.model.AppInfo;
 import com.symphony.bdk.app.spring.auth.model.AppToken;
 import com.symphony.bdk.app.spring.auth.model.JwtInfo;
 import com.symphony.bdk.app.spring.auth.model.TokenPair;
@@ -16,11 +15,14 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.security.SecureRandom;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -35,6 +37,8 @@ import javax.validation.Valid;
 @RequestMapping("/bdk/v1/app")
 public class CircleOfTrustController {
 
+  private final SecureRandom secureRandom = new SecureRandom();
+
   private final SymphonyBdkAppProperties properties;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
@@ -44,11 +48,12 @@ public class CircleOfTrustController {
   }
 
   @PostMapping("/auth")
-  public AppToken authenticate(@Valid @RequestBody AppInfo appInfo) {
+  public AppToken authenticate() {
     log.debug("App auth step 1: Initializing extension app authentication");
 
     try {
-      AppAuthSession authSession = extensionAppAuthenticator.authenticateExtensionApp(appInfo.getAppToken());
+      String token = this.generateAppToken();
+      AppAuthSession authSession = extensionAppAuthenticator.authenticateExtensionApp(token);
       AppToken appToken = new AppToken();
       appToken.setAppToken(authSession.getAppToken());
 
@@ -96,6 +101,12 @@ public class CircleOfTrustController {
     jwtCookie.setPath(path);
 
     return jwtCookie;
+  }
+
+  private String generateAppToken() {
+    byte[] randBytes = new byte[64];
+    secureRandom.nextBytes(randBytes);
+    return Hex.encodeHexString(randBytes);
   }
 
 }
