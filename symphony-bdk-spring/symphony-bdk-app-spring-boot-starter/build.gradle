@@ -13,7 +13,7 @@ jacocoTestCoverageVerification {
                 minimum = 0.9
             }
             element = 'CLASS'
-            excludes = []
+            excludes = ['com.symphony.bdk.app.spring.*.model.*', 'com.symphony.bdk.app.spring.exception.*']
         }
     }
 }

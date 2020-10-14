@@ -44,13 +44,10 @@ public class CircleOfTrustController {
   public AppToken authenticate(@Valid @RequestBody AppInfo appInfo) {
     log.debug("App auth step 1: Initializing extension app authentication");
 
-    log.debug(properties.getAuth().getJwtCookie().getMaxAge().toString());
-
     try {
       AppAuthSession authSession = extensionAppAuthenticator.authenticateExtensionApp(appInfo.getAppToken());
       AppToken appToken = new AppToken();
       appToken.setAppToken(authSession.getAppToken());
-      log.debug(authSession.getSymphonyToken());
 
       return appToken;
     } catch (AuthUnauthorizedException e) {

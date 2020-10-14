@@ -1,0 +1,24 @@
+bdk:
+  pod:
+    scheme: http
+    host: localhost
+
+  agent:
+    scheme: http
+    host: localhost
+
+  keyManager:
+    scheme: http
+    host: localhost
+
+  bot:
+    username: tibot
+    privateKeyPath: classpath:/privatekey.pem
+
+  app:
+    auth.enabled: true
+    auth.jwtCookie:
+      enabled: true
+      expireIn: 43200
+    appId: testapp
+    privateKeyPath: classpath:/privatekey.pem
