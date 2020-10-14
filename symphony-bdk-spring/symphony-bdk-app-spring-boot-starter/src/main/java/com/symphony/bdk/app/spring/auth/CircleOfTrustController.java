@@ -1,5 +1,6 @@
 package com.symphony.bdk.app.spring.auth;
 
+import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.auth.model.AppInfo;
 import com.symphony.bdk.app.spring.auth.model.AppToken;
 import com.symphony.bdk.app.spring.auth.model.JwtInfo;
@@ -15,7 +16,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,21 +32,19 @@ import javax.validation.Valid;
 @RequestMapping("/bdk/v1/app")
 public class CircleOfTrustController {
 
-  @Value("${bdk.app.auth.jwtCookie.enabled:false}")
-  private Boolean jwtCookieEnable;
-
-  @Value("${bdk.app.auth.jwtCookie.maxAge:86400}")
-  private Integer jwtCookieMaxAgeInSec;
-
+  private final SymphonyBdkAppProperties properties;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
-  public CircleOfTrustController(ExtensionAppAuthenticator extensionAppAuthenticator) {
+  public CircleOfTrustController(SymphonyBdkAppProperties properties, ExtensionAppAuthenticator extensionAppAuthenticator) {
+    this.properties = properties;
     this.extensionAppAuthenticator = extensionAppAuthenticator;
   }
 
   @PostMapping("/auth")
   public AppToken authenticate(@Valid @RequestBody AppInfo appInfo) {
     log.debug("App auth step 1: Initializing extension app authentication");
+
+    log.debug(properties.getAuth().getJwtCookie().getMaxAge().toString());
 
     try {
       AppAuthSession authSession = extensionAppAuthenticator.authenticateExtensionApp(appInfo.getAppToken());
@@ -78,7 +76,7 @@ public class CircleOfTrustController {
       String jwt = jwtInfo.getJwt();
       UserClaim userClaim = extensionAppAuthenticator.validateJwt(jwtInfo.getJwt());
       Long userId = userClaim.getId();
-      if (jwtCookieEnable) {
+      if (properties.getAuth().getJwtCookie().getEnabled()) {
         response.addCookie(jwtCookie(jwt, request.getContextPath()));
       }
       UserId id = new UserId();
@@ -92,7 +90,7 @@ public class CircleOfTrustController {
   private Cookie jwtCookie(String jwt, String path) {
     Cookie jwtCookie = new Cookie("userJwt", jwt);
 
-    jwtCookie.setMaxAge(jwtCookieMaxAgeInSec);
+    jwtCookie.setMaxAge(properties.getAuth().getJwtCookie().getMaxAge());
     jwtCookie.setSecure(true);
     jwtCookie.setHttpOnly(true);
     jwtCookie.setPath(path);

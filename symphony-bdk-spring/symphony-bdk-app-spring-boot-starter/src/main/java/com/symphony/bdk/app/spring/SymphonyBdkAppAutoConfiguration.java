@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Import;
 @Import({
     BdkExtAppControllerConfig.class
 })
-@EnableConfigurationProperties(SymphonyBdkCoreProperties.class)
+@EnableConfigurationProperties({
+    SymphonyBdkCoreProperties.class,
+    SymphonyBdkAppProperties.class
+})
 public class SymphonyBdkAppAutoConfiguration {
 }
