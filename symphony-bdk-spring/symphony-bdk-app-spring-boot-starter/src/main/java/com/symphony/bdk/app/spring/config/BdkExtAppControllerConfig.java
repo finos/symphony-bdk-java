@@ -1,6 +1,6 @@
 package com.symphony.bdk.app.spring.config;
 
-import com.symphony.bdk.app.spring.auth.AppAuthController;
+import com.symphony.bdk.app.spring.auth.CircleOfTrustController;
 import com.symphony.bdk.app.spring.exception.GlobalControllerExceptionHandler;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 
@@ -12,8 +12,8 @@ public class BdkExtAppControllerConfig {
 
   @Bean
   @ConditionalOnProperty(name = "bdk.app.auth.enabled", havingValue = "true")
-  public AppAuthController appAuthController(ExtensionAppAuthenticator extensionAppAuthenticator) {
-    return new AppAuthController(extensionAppAuthenticator);
+  public CircleOfTrustController circleOfTrustController(ExtensionAppAuthenticator extensionAppAuthenticator) {
+    return new CircleOfTrustController(extensionAppAuthenticator);
   }
 
   @Bean

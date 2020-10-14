@@ -1,8 +1,7 @@
 package com.symphony.bdk.app.spring.exception;
 
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
-
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.app.spring.auth.model.BdkAppError;
+import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -14,38 +13,49 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
-  public GlobalControllerExceptionHandler() {
-    super();
+  @ExceptionHandler({AppAuthException.class})
+  public ResponseEntity<Object> handleUnauthorizedException(Exception e, WebRequest request) {
+    BdkAppError error = new BdkAppError();
+    error.setStatus(HttpStatus.UNAUTHORIZED.value());
+    error.setCode(BdkAppErrorCode.UNAUTHORIZED);
+    error.setMessage(Collections.singletonList(e.getMessage()));
+
+    return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
   }
 
-  @ExceptionHandler({
-      AuthInitializationException.class,
-      AuthUnauthorizedException.class
-  })
-  public ResponseEntity<Object> handleUnauthorizedException(Exception e, WebRequest request) {
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("timestamp", LocalDateTime.now());
-    body.put("status", HttpStatus.UNAUTHORIZED.value());
-    body.put("message", e.getMessage());
+  @ExceptionHandler({InvalidTokenException.class})
+  public ResponseEntity<Object> handleInvalidTokenException(Exception e, WebRequest request) {
+    BdkAppError error = new BdkAppError();
+    error.setStatus(HttpStatus.UNAUTHORIZED.value());
+    error.setCode(BdkAppErrorCode.INVALID_TOKEN);
+    error.setMessage(Collections.singletonList(e.getMessage()));
 
-    return handleExceptionInternal(e, body, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+    return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+  }
+
+  @ExceptionHandler({InvalidJwtException.class})
+  public ResponseEntity<Object> handleInvalidJwtException(Exception e, WebRequest request) {
+    BdkAppError error = new BdkAppError();
+    error.setStatus(HttpStatus.UNAUTHORIZED.value());
+    error.setCode(BdkAppErrorCode.INVALID_JWT);
+    error.setMessage(Collections.singletonList(e.getMessage()));
+
+    return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
   }
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
       HttpStatus status, WebRequest request) {
-    Map<String, Object> body = new LinkedHashMap<>();
-    body.put("timestamp", LocalDateTime.now());
-    body.put("status", status.value());
+    BdkAppError error = new BdkAppError();
+    error.setStatus(status.value());
+    error.setCode(BdkAppErrorCode.MISSING_FIELDS);
 
     List<String> errors = ex.getBindingResult()
         .getFieldErrors()
@@ -53,7 +63,7 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
         .collect(Collectors.toList());
 
-    body.put("errors", errors);
-    return handleExceptionInternal(ex, body, headers, HttpStatus.BAD_REQUEST, request);
+    error.setMessage(errors);
+    return handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
   }
 }

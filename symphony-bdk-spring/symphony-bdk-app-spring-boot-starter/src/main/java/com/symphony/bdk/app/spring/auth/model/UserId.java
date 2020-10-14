@@ -3,7 +3,7 @@ package com.symphony.bdk.app.spring.auth.model;
 import lombok.Data;
 
 @Data
-public class AppToken {
+public class UserId {
 
-  private String appToken;
+  private Long userId;
 }

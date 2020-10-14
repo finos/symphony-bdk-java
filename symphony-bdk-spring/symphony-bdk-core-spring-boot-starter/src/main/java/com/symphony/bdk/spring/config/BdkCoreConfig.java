@@ -77,7 +77,7 @@ public class BdkCoreConfig {
   }
 
   @Bean
-  @ConditionalOnProperty("bdk.app")
+  @ConditionalOnProperty("bdk.app.appId")
   public ExtensionAppAuthenticator extensionAppAuthenticator(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getExtensionAppAuthenticator();
