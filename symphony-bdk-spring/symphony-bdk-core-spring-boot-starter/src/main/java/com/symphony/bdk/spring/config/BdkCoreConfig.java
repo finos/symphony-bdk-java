@@ -1,6 +1,7 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
@@ -83,6 +84,16 @@ public class BdkCoreConfig {
       return authenticatorFactory.getExtensionAppAuthenticator();
     } catch (AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate app", e);
+    }
+  }
+
+  @Bean
+  @ConditionalOnProperty(name = "bdk.app.appId")
+  public OboAuthenticator oboAuthenticator(AuthenticatorFactory authenticatorFactory) {
+    try {
+      return authenticatorFactory.getOboAuthenticator();
+    } catch (AuthInitializationException e) {
+      throw new BeanInitializationException("Unable to use OBO authentication", e);
     }
   }
 }

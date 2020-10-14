@@ -1,8 +1,6 @@
 package com.symphony.bdk.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -101,6 +99,17 @@ public class SymphonyBdkTest {
   void getHttpClientBuilderTest() {
     HttpClient.Builder builder = this.symphonyBdk.http();
     assertNotNull(builder);
+  }
+
+  @Test
+  void getOboServiceFacade() throws AuthUnauthorizedException {
+    this.mockApiClient.onPost(LOGIN_PUBKEY_APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+
+    AuthSession oboSession = this.symphonyBdk.obo(123456L);
+    final OboServices obo = this.symphonyBdk.obo(oboSession);
+
+    assertNotNull(obo);
   }
 
   @Test
