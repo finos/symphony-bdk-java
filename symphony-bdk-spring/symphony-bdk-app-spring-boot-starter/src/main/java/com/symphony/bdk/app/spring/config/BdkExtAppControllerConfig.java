@@ -9,6 +9,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * Configuration and injection of the main rest controllers for extension app APIs as beans within the Spring application context.
+ */
 public class BdkExtAppControllerConfig {
 
   @Bean

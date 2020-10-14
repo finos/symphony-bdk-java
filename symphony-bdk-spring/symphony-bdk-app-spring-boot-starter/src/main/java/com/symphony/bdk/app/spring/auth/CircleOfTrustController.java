@@ -27,6 +27,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+/**
+ * Rest controller defining Apis for Extension App Authentication's Circle Of Trust.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/bdk/v1/app")
