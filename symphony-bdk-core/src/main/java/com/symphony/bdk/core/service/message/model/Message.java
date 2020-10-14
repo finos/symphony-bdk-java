@@ -164,9 +164,12 @@ public class Message {
      * @throws MessageCreationException if mandatory content is empty.
      */
     public Message build() {
-
       if (StringUtils.isEmpty(this.content)) {
         throw new MessageCreationException("Message content is mandatory.");
+      }
+      // check done below because it will rejected by the agent otherwise
+      if (!this.previews.isEmpty() && this.previews.size() != this.attachments().size()) {
+        throw new MessageCreationException("Message should contain either no preview or as many previews as attachments");
       }
 
       return new Message(this);

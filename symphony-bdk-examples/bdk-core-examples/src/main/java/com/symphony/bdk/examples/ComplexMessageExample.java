@@ -21,7 +21,13 @@ public class ComplexMessageExample {
 
     final Template template = bdk.messages().templates().newTemplateFromClasspath("/complex-template.ftl");
 
-    final Message message = Message.builder()
+    bdk.activities().register(slash("/lenna", false, c ->
+      bdk.messages().send(c.getStreamId(), buildMessage(template))));
+    bdk.datafeed().start();
+  }
+
+  private static Message buildMessage(Template template) {
+    return Message.builder()
         .template(template, singletonMap("name", "Lenna"))
         .addAttachment(
             loadAttachment("/lenna.png"),
@@ -34,9 +40,6 @@ public class ComplexMessageExample {
             "lenna-2.png"
         )
         .build();
-
-    bdk.activities().register(slash("/lenna", false, c -> bdk.messages().send(c.getStreamId(), message)));
-    bdk.datafeed().start();
   }
 
   protected static InputStream loadAttachment(String path) {
