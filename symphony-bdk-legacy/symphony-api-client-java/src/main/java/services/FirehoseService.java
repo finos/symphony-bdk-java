@@ -20,17 +20,17 @@ public class FirehoseService {
   private String firehoseId;
   private ExecutorService pool;
   private AtomicBoolean stop = new AtomicBoolean();
-  private IActionFirehose action;
+  private ActionFirehose action;
 
   public FirehoseService(SymBotClient client) {
     this(client, client.getFirehoseClient().createFirehose());
   }
 
   public FirehoseService(SymBotClient client, String firehoseId) {
-    this(client, firehoseId, new ActionFirehose(client));
+    this(client, firehoseId, new ActionFirehoseImpl(client));
   }
 
-  protected FirehoseService(SymBotClient client, String firehoseId, IActionFirehose actionFireHose) {
+  protected FirehoseService(SymBotClient client, String firehoseId, ActionFirehose actionFireHose) {
     this.botClient = client;
     listeners = new ArrayList<>();
     firehoseClient = this.botClient.getFirehoseClient();
@@ -67,7 +67,7 @@ public class FirehoseService {
     });
   }
 
-  protected CompletableFuture<Object> getFirehoseHandleEventFuture(IActionFirehose action, Executor pool) {
+  protected CompletableFuture<Object> getFirehoseHandleEventFuture(ActionFirehose action, Executor pool) {
     return CompletableFuture.supplyAsync(() -> action.actionReadFirehose(this.firehoseClient, this.firehoseId), pool)
       .exceptionally((ex) -> {
         handleError(ex);

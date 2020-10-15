@@ -39,7 +39,7 @@ public class FirehoseServiceTest {
   @SneakyThrows
   @Test
   public void getFirehoseHandleEventFutureTest() {
-    IActionFirehose actionFirehose = mock(ActionFirehose.class);
+    ActionFirehose actionFirehose = mock(ActionFirehoseImpl.class);
     List<DatafeedEvent> datafeedEventList = new ArrayList<>();
     DatafeedEvent datafeedEvent = mock(DatafeedEvent.class);
     datafeedEventList.add(datafeedEvent);

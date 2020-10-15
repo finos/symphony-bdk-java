@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ActionFirehoseTest {
+public class ActionFirehoseImplTest {
   @Mock private SymBotClient symBotClient;
   @Mock private FirehoseClient firehoseClient;
   @Mock private DatafeedEvent datafeedEvent;
@@ -45,8 +45,8 @@ public class ActionFirehoseTest {
     datafeedEvents.add(datafeedEvent);
     datafeedEvents.add(datafeedEvent);
     when(firehoseClient.readFirehose("123")).thenReturn(datafeedEvents);
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> receivedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> receivedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
 
     assertEquals(receivedEvents.size(), 3);
   }
@@ -54,16 +54,16 @@ public class ActionFirehoseTest {
   @Test(expected = RuntimeException.class)
   public void actionReadFirehoseFailedTest() {
     when(firehoseClient.readFirehose("123")).thenThrow(SymClientException.class);
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    actionFirehose.actionReadFirehose(firehoseClient, "123");
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
   }
 
   @Test
   public void actionHandleEventsEmptyTest() {
     ArrayList<DatafeedEvent> datafeedEvents = new ArrayList<>();
     ArrayList<FirehoseListener> firehoseListeners = new ArrayList<>();
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    CompletableFuture<List<DatafeedEvent>> ac = actionFirehose.actionHandleEvents(datafeedEvents, firehoseListeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    CompletableFuture<List<DatafeedEvent>> ac = actionFirehoseImpl.actionHandleEvents(datafeedEvents, firehoseListeners);
     assertNull(ac);
   }
 
@@ -77,9 +77,9 @@ public class ActionFirehoseTest {
     when(message.getStream()).thenReturn(stream);
     when(stream.getStreamType()).thenReturn("ROOM");
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomMessage(message);
     verify(listeners.get(0), never()).onIMMessage(message);
@@ -94,9 +94,9 @@ public class ActionFirehoseTest {
     when(message.getStream()).thenReturn(stream);
     when(stream.getStreamType()).thenReturn("IMTest");
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onIMMessage(message);
     verify(listeners.get(0), never()).onRoomMessage(message);
@@ -110,9 +110,9 @@ public class ActionFirehoseTest {
     when(eventPayload.getInstantMessageCreated()).thenReturn(imCreated);
     when(imCreated.getStream()).thenReturn(stream);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onIMCreated(stream);
   }
@@ -124,9 +124,9 @@ public class ActionFirehoseTest {
     RoomCreated roomCreated = mock(RoomCreated.class);
     when(eventPayload.getRoomCreated()).thenReturn(roomCreated);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomCreated(roomCreated);
   }
@@ -138,9 +138,9 @@ public class ActionFirehoseTest {
     RoomUpdated roomUpdated = mock(RoomUpdated.class);
     when(eventPayload.getRoomUpdated()).thenReturn(roomUpdated);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomUpdated(roomUpdated);
   }
@@ -152,9 +152,9 @@ public class ActionFirehoseTest {
     RoomDeactivated roomDeactivated = mock(RoomDeactivated.class);
     when(eventPayload.getRoomDeactivated()).thenReturn(roomDeactivated);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomDeactivated(roomDeactivated);
   }
@@ -167,9 +167,9 @@ public class ActionFirehoseTest {
     when(eventPayload.getRoomReactivated()).thenReturn(roomReactivated);
     when(roomReactivated.getStream()).thenReturn(stream);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomReactivated(stream);
   }
@@ -181,9 +181,9 @@ public class ActionFirehoseTest {
     UserJoinedRoom userJoinedRoom = mock(UserJoinedRoom.class);
     when(eventPayload.getUserJoinedRoom()).thenReturn(userJoinedRoom);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onUserJoinedRoom(userJoinedRoom);
   }
@@ -195,9 +195,9 @@ public class ActionFirehoseTest {
     UserLeftRoom userLeftRoom = mock(UserLeftRoom.class);
     when(eventPayload.getUserLeftRoom()).thenReturn(userLeftRoom);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onUserLeftRoom(userLeftRoom);
   }
@@ -209,9 +209,9 @@ public class ActionFirehoseTest {
     RoomMemberPromotedToOwner roomMemberPromotedToOwner = mock(RoomMemberPromotedToOwner.class);
     when(eventPayload.getRoomMemberPromotedToOwner()).thenReturn(roomMemberPromotedToOwner);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomMemberPromotedToOwner(roomMemberPromotedToOwner);
   }
@@ -223,9 +223,9 @@ public class ActionFirehoseTest {
     RoomMemberDemotedFromOwner roomMemberDemotedFromOwner = mock(RoomMemberDemotedFromOwner.class);
     when(eventPayload.getRoomMemberDemotedFromOwner()).thenReturn(roomMemberDemotedFromOwner);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onRoomMemberDemotedFromOwner(roomMemberDemotedFromOwner);
   }
@@ -238,9 +238,9 @@ public class ActionFirehoseTest {
     when(connectionAccepted.getFromUser()).thenReturn(user);
     when(eventPayload.getConnectionAccepted()).thenReturn(connectionAccepted);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onConnectionAccepted(user);
   }
@@ -253,9 +253,9 @@ public class ActionFirehoseTest {
     when(connectionRequested.getToUser()).thenReturn(user);
     when(eventPayload.getConnectionRequested()).thenReturn(connectionRequested);
 
-    ActionFirehose actionFirehose = new ActionFirehose(symBotClient);
-    List<DatafeedEvent> datafeedEvents = actionFirehose.actionReadFirehose(firehoseClient, "123");
-    actionFirehose.actionHandleEvents(datafeedEvents, listeners);
+    ActionFirehoseImpl actionFirehoseImpl = new ActionFirehoseImpl(symBotClient);
+    List<DatafeedEvent> datafeedEvents = actionFirehoseImpl.actionReadFirehose(firehoseClient, "123");
+    actionFirehoseImpl.actionHandleEvents(datafeedEvents, listeners);
 
     verify(listeners.get(0), atLeastOnce()).onConnectionRequested(user);
   }
