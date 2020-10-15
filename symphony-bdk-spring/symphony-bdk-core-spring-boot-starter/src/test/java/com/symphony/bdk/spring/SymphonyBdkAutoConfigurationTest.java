@@ -1,10 +1,15 @@
 package com.symphony.bdk.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.symphony.bdk.core.auth.OboAuthenticator;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
@@ -42,6 +47,54 @@ class SymphonyBdkAutoConfigurationTest {
       // verify that beans for cert auth have not been injected
       assertThat(context).doesNotHaveBean("keyAuthApiClient");
       assertThat(context).doesNotHaveBean("sessionAuthApiClient");
+
+      //verify that bean for OBO authentication has not been injected
+      assertThat(context).doesNotHaveBean("oboAuthenticator");
+    });
+  }
+
+  @Test
+  void shouldInitializeOboAuthenticatorIfAppIdSet() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.scheme=http",
+            "bdk.host=localhost",
+            "bdk.context=context",
+
+            "bdk.bot.username=tibot",
+            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+
+            "bdk.app.appId=tibapp",
+            "bdk.app.privateKeyPath=classpath:/privatekey.pem"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      assertThat(context).hasBean("oboAuthenticator");
+      assertThat(context).hasSingleBean(OboAuthenticator.class);
+    });
+  }
+
+  @Test
+  void shouldFailOnOboAuthenticatorInitializationIfNotProperlyConfigured() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.scheme=http",
+            "bdk.host=localhost",
+            "bdk.context=context",
+
+            "bdk.bot.username=tibot",
+            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+
+            "bdk.app.appId=tibapp"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasRootCauseInstanceOf(AuthInitializationException.class);
     });
   }
 
