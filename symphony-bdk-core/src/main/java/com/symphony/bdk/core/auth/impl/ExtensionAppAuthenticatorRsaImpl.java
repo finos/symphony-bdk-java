@@ -4,6 +4,9 @@ import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.model.AuthenticateExtensionAppRequest;
@@ -33,16 +36,24 @@ public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthen
   private final AuthenticationApi authenticationApi;
   private final PodApi podApi;
 
-  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient, ApiClient podApiClient) {
-    super(appId);
+  public ExtensionAppAuthenticatorRsaImpl(BdkRetryConfig retryConfig,
+      String appId,
+      PrivateKey appPrivateKey,
+      ApiClient loginApiClient,
+      ApiClient podApiClient) {
+    super(retryConfig, appId);
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);
     this.podApi = new PodApi(podApiClient);
   }
 
-  public ExtensionAppAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient, ApiClient podApiClient,
+  public ExtensionAppAuthenticatorRsaImpl(BdkRetryConfig retryConfig,
+      String appId,
+      PrivateKey appPrivateKey,
+      ApiClient loginApiClient,
+      ApiClient podApiClient,
       ExtensionAppTokensRepository tokensRepository) {
-    super(appId, tokensRepository);
+    super(retryConfig, appId, tokensRepository);
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);
     this.podApi = new PodApi(podApiClient);
@@ -53,16 +64,14 @@ public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthen
    */
   @Nonnull
   @Override
-  public AppAuthSession authenticateExtensionApp(@Nonnull String appToken)
-      throws AuthUnauthorizedException {
+  public AppAuthSession authenticateExtensionApp(@Nonnull String appToken) throws AuthUnauthorizedException {
     AppAuthSession authSession = new AppAuthSessionRsaImpl(this, appToken);
     authSession.refresh();
     return authSession;
   }
 
-
   @Override
-  protected ExtensionAppTokens retrieveExtAppTokens(String appToken) throws ApiException {
+  protected ExtensionAppTokens authenticateAndRetrieveTokens(String appToken) throws ApiException {
     final String jwt = JwtHelper.createSignedJwt(this.appId, JwtHelper.JWT_EXPIRATION_MILLIS, this.appPrivateKey);
     final AuthenticateExtensionAppRequest req = new AuthenticateExtensionAppRequest();
     req.authToken(jwt);
@@ -71,15 +80,8 @@ public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthen
     return this.authenticationApi.v1PubkeyAppAuthenticateExtensionAppPost(req);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public PodCertificate getPodCertificate() {
-    try {
-      return this.podApi.v1PodcertGet();
-    } catch (ApiException e) {
-      throw new ApiRuntimeException(e);
-    }
+  protected PodCertificate callGetPodCertificate() throws ApiException {
+    return this.podApi.v1PodcertGet();
   }
 }

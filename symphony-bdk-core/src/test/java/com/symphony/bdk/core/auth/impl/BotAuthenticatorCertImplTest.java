@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -26,6 +27,7 @@ public class BotAuthenticatorCertImplTest {
   @BeforeEach
   void init(final BdkMockServer mockServer) {
     this.authenticator = new BotAuthenticatorCertImpl(
+        BdkRetryConfig.ofMinimalInterval(1),
         mockServer.newApiClient("/sessionauth"),
         mockServer.newApiClient("/keyauth"));
 

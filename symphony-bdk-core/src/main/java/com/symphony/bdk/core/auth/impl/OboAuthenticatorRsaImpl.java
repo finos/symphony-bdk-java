@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -25,16 +26,15 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class OboAuthenticatorRsaImpl implements OboAuthenticator {
+public class OboAuthenticatorRsaImpl extends AbstractOboAuthenticator {
 
   private final AuthenticationApi authenticationApi;
-  private final String appId;
   private final PrivateKey appPrivateKey;
 
   private final JwtHelper jwtHelper = new JwtHelper();
 
-  public OboAuthenticatorRsaImpl(String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
-    this.appId = appId;
+  public OboAuthenticatorRsaImpl(BdkRetryConfig retryConfig, String appId, PrivateKey appPrivateKey, ApiClient loginApiClient) {
+    super(retryConfig, appId);
     this.appPrivateKey = appPrivateKey;
     this.authenticationApi = new AuthenticationApi(loginApiClient);
   }
@@ -59,52 +59,21 @@ public class OboAuthenticatorRsaImpl implements OboAuthenticator {
     return authSession;
   }
 
-  protected String retrieveOboSessionTokenByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
-    final String appSessionToken = this.retrieveAppSessionToken();
-    try {
-      return this.authenticationApi.pubkeyAppUserUserIdAuthenticatePost(appSessionToken, userId).getToken();
-    } catch (ApiException e) {
-      if (e.isUnauthorized()) {
-        throw new AuthUnauthorizedException("Unable to authenticate on-behalf-of user with ID '" + userId + "'. "
-            + "It usually happens when the user has not installed the app with ID : " + this.appId, e);
-      } else {
-         throw new ApiRuntimeException(e);
-      }
-    }
+  protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
+      @Nonnull Long userId) throws ApiException {
+    return this.authenticationApi.pubkeyAppUserUserIdAuthenticatePost(appSessionToken, userId).getToken();
   }
 
-  protected String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthUnauthorizedException {
-    final String appSessionToken = this.retrieveAppSessionToken();
-    try {
-      return this.authenticationApi.pubkeyAppUsernameUsernameAuthenticatePost(appSessionToken, username).getToken();
-    } catch (ApiException e) {
-      if (e.isUnauthorized()) {
-        throw new AuthUnauthorizedException("Unable to authenticate on-behalf-of user with username '" + username + "'. "
-            + "It usually happens when the user has not installed the app with ID : " + this.appId, e);
-      } else {
-        throw new ApiRuntimeException(e);
-      }
-    }
+  protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
+      @Nonnull String username) throws ApiException {
+    return this.authenticationApi.pubkeyAppUsernameUsernameAuthenticatePost(appSessionToken, username).getToken();
   }
 
-  protected String retrieveAppSessionToken() throws AuthUnauthorizedException {
-    log.debug("Start authenticating app with id : {} ...", this.appId);
-
-    final String jwt = this.jwtHelper.createSignedJwt(this.appId, JwtHelper.JWT_EXPIRATION_MILLIS, this.appPrivateKey);
+  protected String authenticateAndRetrieveAppSessionToken() throws ApiException {
+    final String jwt = jwtHelper.createSignedJwt(appId, JwtHelper.JWT_EXPIRATION_MILLIS, appPrivateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
-    try {
-      final Token token = this.authenticationApi.pubkeyAppAuthenticatePost(req);
-      log.debug("App with ID '{}' successfully authenticated.", this.appId);
-      return token.getToken();
-    } catch (ApiException e) {
-      if (e.isUnauthorized()) {
-        throw new AuthUnauthorizedException("Unable to authenticate app with ID : " + this.appId + ". "
-            + "It usually happens when the app has not been configured or is not activated.", e);
-      } else {
-        throw new ApiRuntimeException(e);
-      }
-    }
+    return this.authenticationApi.pubkeyAppAuthenticatePost(req).getToken();
   }
 }

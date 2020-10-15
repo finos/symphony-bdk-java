@@ -86,12 +86,7 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(tempDir.toString());
         this.bdkConfig.setDatafeed(datafeedConfig);
 
-        BdkRetryConfig retryConfig = new BdkRetryConfig();
-        retryConfig.setInitialIntervalMillis(50);
-        retryConfig.setMultiplier(1);
-        retryConfig.setMaxAttempts(2);
-        retryConfig.setMaxIntervalMillis(90);
-        this.bdkConfig.setRetry(retryConfig);
+        this.bdkConfig.setRetry(BdkRetryConfig.ofMinimalInterval(2));
 
         this.datafeedService = new DatafeedServiceV1(
                 null,

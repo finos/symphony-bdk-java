@@ -57,16 +57,7 @@ public class ApiException extends Exception {
         this.responseBody = responseBody;
     }
 
-    /**
-     * Indicates if the error is not a fatal one and if the api call can be subsequently retried.
-     *
-     * @return true if it error code is 401 unauthorized or 429 too many requests or 5xx greater than 500.
-     */
-    public boolean isMinorError() {
-        return isServerError() || isUnauthorized() || isTooManyRequestsError();
-    }
-
-    /**
+  /**
      * Check if response status is unauthorized or not.
      *
      * @return true if response status is 401, false otherwise

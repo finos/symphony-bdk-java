@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -25,6 +26,7 @@ public class OboAuthenticatorCertImplTest {
   void init() {
     this.mockApiClient = new MockApiClient();
     this.authenticator = new OboAuthenticatorCertImpl(
+        BdkRetryConfig.ofMinimalInterval(1),
         "appId",
         this.mockApiClient.getApiClient("/sessionauth")
     );

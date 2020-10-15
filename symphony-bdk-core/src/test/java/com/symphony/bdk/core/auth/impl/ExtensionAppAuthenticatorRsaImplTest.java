@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth.impl;
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.core.test.RsaTestHelper;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -29,6 +30,7 @@ public class ExtensionAppAuthenticatorRsaImplTest {
     mockApiClient = new MockApiClient();
     tokensRepository = spy(new InMemoryTokensRepository());
     authenticator = new ExtensionAppAuthenticatorRsaImpl(
+        BdkRetryConfig.ofMinimalInterval(1),
         "appId",
         RsaTestHelper.generateKeyPair().getPrivate(),
         mockApiClient.getApiClient("/login"),

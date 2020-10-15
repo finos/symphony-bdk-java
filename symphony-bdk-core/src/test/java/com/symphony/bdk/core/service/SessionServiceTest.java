@@ -37,11 +37,7 @@ class SessionServiceTest {
 
   @BeforeEach
   void setUp() {
-    final BdkRetryConfig retryConfig = new BdkRetryConfig();
-    retryConfig.setMaxAttempts(2);
-    retryConfig.setMultiplier(1);
-    retryConfig.setInitialIntervalMillis(10);
-
+    final BdkRetryConfig retryConfig = BdkRetryConfig.ofMinimalInterval(1);
     this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder().retryConfig(retryConfig));
   }
 

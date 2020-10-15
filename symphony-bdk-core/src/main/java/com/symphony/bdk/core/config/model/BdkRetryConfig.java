@@ -19,6 +19,31 @@ public class BdkRetryConfig {
     private double multiplier = DEFAULT_MULTIPLIER;
     private long maxIntervalMillis = DEFAULT_MAX_INTERVAL_MILLIS;
 
+  /**
+   * For testing purposes only.
+   *
+   * @return a new {@link BdkRetryConfig} instance with 10ms interval, multiplier 1, 10 max attempts
+   */
+  public static BdkRetryConfig ofMinimalInterval() {
+      return ofMinimalInterval(DEFAULT_MAX_ATTEMPTS);
+    }
+
+  /**
+   * For testing purposes only.
+   *
+   * @param maxAttempts the maximum number
+   * @return a new {@link BdkRetryConfig} instance with 10ms interval, multiplier 1
+   */
+  public static BdkRetryConfig ofMinimalInterval(int maxAttempts) {
+    BdkRetryConfig retryConfig = new BdkRetryConfig();
+    retryConfig.setMultiplier(1);
+    retryConfig.setInitialIntervalMillis(10);
+    retryConfig.setMaxIntervalMillis(10);
+    retryConfig.setMaxAttempts(maxAttempts);
+
+    return retryConfig;
+  }
+
     public double getMultiplier() {
         if (this.multiplier < 1) {
             return 1;

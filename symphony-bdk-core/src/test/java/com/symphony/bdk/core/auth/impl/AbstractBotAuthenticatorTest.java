@@ -1,0 +1,90 @@
+package com.symphony.bdk.core.auth.impl;
+
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+
+import com.symphony.bdk.http.api.ApiRuntimeException;
+
+import org.junit.jupiter.api.Test;
+
+import javax.ws.rs.ProcessingException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+public class AbstractBotAuthenticatorTest {
+
+  private static class TestBotAuthenticator extends AbstractBotAuthenticator {
+    public TestBotAuthenticator(BdkRetryConfig retryConfig) {
+      super(retryConfig);
+    }
+
+    @Override
+    protected String authenticateAndGetToken(ApiClient client) throws ApiException {
+      return null;
+    }
+
+    @Override
+    public AuthSession authenticateBot() throws AuthUnauthorizedException {
+      return null;
+    }
+  }
+
+  @Test
+  void testSuccess() throws ApiException, AuthUnauthorizedException {
+    final String token = "12324";
+
+    AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    doReturn(token).when(botAuthenticator).authenticateAndGetToken(any());
+
+    assertEquals(token, botAuthenticator.retrieveToken(null));
+    verify(botAuthenticator, times(1)).authenticateAndGetToken(any());
+  }
+
+  @Test
+  void testUnauthorized() throws ApiException {
+    AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    doThrow(new ApiException(401, "")).when(botAuthenticator).authenticateAndGetToken(any());
+
+    assertThrows(AuthUnauthorizedException.class, () -> botAuthenticator.retrieveToken(null));
+    verify(botAuthenticator, times(1)).authenticateAndGetToken(any());
+  }
+
+  @Test
+  void testUnexpectedApiException() throws ApiException {
+    AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    doThrow(new ApiException(404, "")).when(botAuthenticator).authenticateAndGetToken(any());
+
+    assertThrows(ApiRuntimeException.class, () -> botAuthenticator.retrieveToken(null));
+    verify(botAuthenticator, times(1)).authenticateAndGetToken(any());
+  }
+
+  @Test
+  void testShouldRetry() throws ApiException, AuthUnauthorizedException {
+    final String token = "12324";
+
+    AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(BdkRetryConfig.ofMinimalInterval(4)));
+    doThrow(new ApiException(429, ""))
+        .doThrow(new ApiException(503, ""))
+        .doThrow(new ProcessingException(""))
+        .doReturn(token)
+        .when(botAuthenticator).authenticateAndGetToken(any());
+
+    assertEquals(token, botAuthenticator.retrieveToken(null));
+    verify(botAuthenticator, times(4)).authenticateAndGetToken(any());
+  }
+
+  @Test
+  void testRetriesExhausted() throws ApiException {
+    AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(BdkRetryConfig.ofMinimalInterval(2)));
+    doThrow(new ApiException(429, "")).when(botAuthenticator).authenticateAndGetToken(any());
+
+    assertThrows(ApiRuntimeException.class, () -> botAuthenticator.retrieveToken(null));
+    verify(botAuthenticator, times(2)).authenticateAndGetToken(any());
+  }
+}

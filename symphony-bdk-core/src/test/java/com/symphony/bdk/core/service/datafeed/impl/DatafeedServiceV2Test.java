@@ -53,12 +53,7 @@ public class DatafeedServiceV2Test {
         BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
         datafeedConfig.setVersion("v2");
         bdkConfig.setDatafeed(datafeedConfig);
-        BdkRetryConfig retryConfig = new BdkRetryConfig();
-        retryConfig.setInitialIntervalMillis(50);
-        retryConfig.setMultiplier(1);
-        retryConfig.setMaxAttempts(2);
-        retryConfig.setMaxIntervalMillis(90);
-        bdkConfig.setRetry(retryConfig);
+        bdkConfig.setRetry(BdkRetryConfig.ofMinimalInterval(2));
 
         this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");

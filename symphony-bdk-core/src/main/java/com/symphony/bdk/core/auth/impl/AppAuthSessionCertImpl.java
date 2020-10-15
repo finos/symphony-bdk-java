@@ -15,6 +15,7 @@ import org.apiguardian.api.API;
  */
 @API(status = API.Status.INTERNAL)
 public class AppAuthSessionCertImpl implements AppAuthSession {
+
   private final ExtensionAppAuthenticatorCertImpl authenticator;
   private String symphonySessionToken;
   private String appToken;
