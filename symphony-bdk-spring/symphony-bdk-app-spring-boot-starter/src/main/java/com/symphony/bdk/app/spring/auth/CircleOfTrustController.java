@@ -49,7 +49,7 @@ public class CircleOfTrustController {
 
   @PostMapping("/auth")
   public AppToken authenticate() {
-    log.debug("App auth step 1: Initializing extension app authentication");
+    log.debug("Generate app token and use it to authenticate the extension app.");
 
     try {
       String token = appTokenService.generateToken();
@@ -66,7 +66,7 @@ public class CircleOfTrustController {
   @PostMapping("/tokens")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void validateTokens(@Valid @RequestBody TokenPair appToken) {
-    log.debug("App auth step 2: Validating tokens");
+    log.debug("Validate the pair of tokens: app token and Symphony token.");
     if (!appTokenService.validateTokens(appToken)) {
       throw new AppAuthException(BdkAppErrorCode.INVALID_TOKEN);
     }
@@ -75,7 +75,7 @@ public class CircleOfTrustController {
   @PostMapping("/jwt")
   public UserId validateJwt(@Valid @RequestBody JwtInfo jwtInfo, HttpServletRequest request,
       HttpServletResponse response) {
-    log.debug("App auth step 3: Validate jwt");
+    log.debug("Validate the jwt signed by extension app frontend to get the user id");
     String jwt = jwtInfo.getJwt();
     UserId userId = jwtService.validateJwt(jwt);
     if (properties.getAuth().getJwtCookie().getEnabled()) {
