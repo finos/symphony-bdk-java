@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * JSON Web Token used for verifying the user of the Extension App
+ */
 @Data
 @NoArgsConstructor
 public class JwtInfo {

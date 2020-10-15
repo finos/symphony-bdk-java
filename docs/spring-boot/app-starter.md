@@ -4,7 +4,7 @@ The Symphony BDK for Java provides a _Starter_ module that aims to ease extensio
  
 ## Features
 - Configure extension app through `application.yaml`
-- Provide Apis for perform the [Circle of Trust](https://developers.symphony.com/extension/docs/application-authentication).
+- Expose a REST API to perform [Circle of Trust authentication](https://developers.symphony.com/extension/docs/application-authentication).
 
 ## Installation
 

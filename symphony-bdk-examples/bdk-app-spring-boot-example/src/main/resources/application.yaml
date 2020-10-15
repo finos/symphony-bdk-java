@@ -6,12 +6,15 @@ bdk:
     privateKeyPath: ${user.home}/.symphony/keys/rsa-private-bot.pem
 
   app:
-    auth.enabled: true
-    auth.jwtCookie:
-      enabled: true
-      expireIn: 43200
     appId: testapp-hongle
     privateKeyPath: ${user.home}/.symphony/keys/app_privatekey.pem
+
+bdk-app:
+  auth:
+    enabled: true
+    jwtCookie:
+      enabled: true
+      expireIn: 43200
 
 logging:
   level:

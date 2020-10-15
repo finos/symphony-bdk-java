@@ -10,6 +10,8 @@ import lombok.Setter;
 @Setter
 public class JwtCookieProperties {
 
+  private static final Integer DEFAULT_MAX_AGE = 24*60*60;
+
   private Boolean enabled = false;
-  private Integer maxAge = 24*60*60;
+  private Integer maxAge = DEFAULT_MAX_AGE;
 }

@@ -2,6 +2,8 @@ package com.symphony.bdk.app.spring.exception;
 
 import com.symphony.bdk.app.spring.auth.model.BdkAppError;
 import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
+import com.symphony.bdk.app.spring.auth.model.exception.AppAuthException;
+import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
@@ -23,32 +25,20 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler({AppAuthException.class})
+  private final SymphonyBdkCoreProperties properties;
+
+  public GlobalControllerExceptionHandler(SymphonyBdkCoreProperties properties) {
+    super();
+    this.properties = properties;
+  }
+
+  @ExceptionHandler(AppAuthException.class)
   public ResponseEntity<Object> handleUnauthorizedException(Exception e, WebRequest request) {
+    AppAuthException appAuthException = (AppAuthException) e;
     BdkAppError error = new BdkAppError();
     error.setStatus(HttpStatus.UNAUTHORIZED.value());
-    error.setCode(BdkAppErrorCode.UNAUTHORIZED);
-    error.setMessage(Collections.singletonList(e.getMessage()));
-
-    return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
-  }
-
-  @ExceptionHandler({InvalidTokenException.class})
-  public ResponseEntity<Object> handleInvalidTokenException(Exception e, WebRequest request) {
-    BdkAppError error = new BdkAppError();
-    error.setStatus(HttpStatus.UNAUTHORIZED.value());
-    error.setCode(BdkAppErrorCode.INVALID_TOKEN);
-    error.setMessage(Collections.singletonList(e.getMessage()));
-
-    return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
-  }
-
-  @ExceptionHandler({InvalidJwtException.class})
-  public ResponseEntity<Object> handleInvalidJwtException(Exception e, WebRequest request) {
-    BdkAppError error = new BdkAppError();
-    error.setStatus(HttpStatus.UNAUTHORIZED.value());
-    error.setCode(BdkAppErrorCode.INVALID_JWT);
-    error.setMessage(Collections.singletonList(e.getMessage()));
+    error.setCode(appAuthException.getErrorCode());
+    error.setMessage(Collections.singletonList(appAuthException.getMessage().replace("{appId}", properties.getApp().getAppId())));
 
     return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
   }
