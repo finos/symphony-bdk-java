@@ -2,8 +2,7 @@ package com.symphony.bdk.app.spring.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -13,68 +12,52 @@ import com.symphony.bdk.app.spring.auth.model.AppToken;
 import com.symphony.bdk.app.spring.auth.model.BdkAppError;
 import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
 import com.symphony.bdk.app.spring.auth.model.UserId;
-import com.symphony.bdk.app.spring.auth.model.exception.AppAuthException;
-import com.symphony.bdk.app.spring.auth.service.AppTokenService;
-import com.symphony.bdk.app.spring.auth.service.JwtService;
-import com.symphony.bdk.app.spring.exception.GlobalControllerExceptionHandler;
+import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
+import com.symphony.bdk.app.spring.exception.BdkAppException;
 import com.symphony.bdk.app.spring.properties.AppAuthProperties;
-import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@SpringBootTest
+@WebMvcTest(CircleOfTrustController.class)
 public class CircleOfTrustControllerTest {
-
-  private MockMvc mockMvc;
   private static final ObjectMapper MAPPER = new JsonMapper();
 
-  @Mock
+  @Autowired
+  private MockMvc mockMvc;
+
+  @MockBean
+  private SymphonyBdkCoreProperties coreProperties;
+
+  @MockBean
   private SymphonyBdkAppProperties properties;
 
-  @Mock
-  private ExtensionAppAuthenticator authenticator;
+  @MockBean
+  private CircleOfTrustService service;
 
-  @Mock
-  private JwtService jwtService;
-
-  @Mock
-  private AppTokenService appTokenService;
-
-  @Before
+  @BeforeEach
   public void setup() {
-    MockitoAnnotations.openMocks(this);
     AppAuthProperties appAuth = new AppAuthProperties();
     appAuth.getJwtCookie().setEnabled(true);
     when(properties.getAuth()).thenReturn(appAuth);
-    when(appTokenService.generateToken()).thenReturn("test-token");
-    SymphonyBdkCoreProperties coreProperties = new SymphonyBdkCoreProperties();
-    coreProperties.getApp().setAppId("appId");
-
-    this.mockMvc = MockMvcBuilders
-        .standaloneSetup(new CircleOfTrustController(properties, authenticator, jwtService, appTokenService))
-        .setControllerAdvice(new GlobalControllerExceptionHandler(coreProperties))
-        .build();
+    BdkExtAppConfig appConfig = new BdkExtAppConfig();
+    appConfig.setAppId("appId");
+    when(coreProperties.getApp()).thenReturn(appConfig);
   }
 
   @Test
   public void authenticateSuccess() throws Exception {
-    AppAuthSession appAuthSession = mock(AppAuthSession.class);
-    when(appAuthSession.getAppToken()).thenReturn("test-token");
-    when(appAuthSession.getSymphonyToken()).thenReturn("test-symphony-token");
-    when(authenticator.authenticateExtensionApp("test-token")).thenReturn(appAuthSession);
+    when(service.authenticate()).thenReturn(new AppToken("test-token"));
 
     String response =  mockMvc.perform(
         post("/bdk/v1/app/auth"))
@@ -87,7 +70,7 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void authenticateFailed() throws Exception {
-    when(authenticator.authenticateExtensionApp(anyString())).thenThrow(AuthUnauthorizedException.class);
+    when(service.authenticate()).thenThrow(new BdkAppException(BdkAppErrorCode.UNAUTHORIZED));
 
     String response =  mockMvc.perform(
         post("/bdk/v1/app/auth"))
@@ -101,8 +84,6 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void validateTokenSuccess() throws Exception {
-    when(appTokenService.validateTokens(any())).thenReturn(true);
-
     mockMvc.perform(
         post("/bdk/v1/app/tokens")
             .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +96,7 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void validateTokenFailed() throws Exception {
-    when(appTokenService.validateTokens(any())).thenReturn(false);
+    doThrow(new BdkAppException(BdkAppErrorCode.INVALID_TOKEN)).when(service).validateTokens(any());
 
     String response = mockMvc.perform(
         post("/bdk/v1/app/tokens")
@@ -134,9 +115,8 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void validateJwtSuccess() throws Exception {
-    UserId userId = new UserId();
-    userId.setUserId(1234L);
-    when(jwtService.validateJwt("test-jwt")).thenReturn(userId);
+    UserId userId = new UserId(1234L);
+    when(service.validateJwt("test-jwt")).thenReturn(userId);
 
     String response = mockMvc.perform(
         post("/bdk/v1/app/jwt")
@@ -154,7 +134,7 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void validateJwtFailed() throws Exception {
-    when(jwtService.validateJwt("test-jwt")).thenThrow(new AppAuthException(BdkAppErrorCode.INVALID_JWT));
+    when(service.validateJwt("test-jwt")).thenThrow(new BdkAppException(BdkAppErrorCode.INVALID_JWT));
 
     String response = mockMvc.perform(
         post("/bdk/v1/app/jwt")

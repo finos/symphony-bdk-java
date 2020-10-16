@@ -8,6 +8,6 @@ dependencies {
 
     implementation project(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
 
-    implementation 'org.springframework.boot:spring-boot-starter'
+//    implementation 'org.springframework.boot:spring-boot-starter'
 
 }

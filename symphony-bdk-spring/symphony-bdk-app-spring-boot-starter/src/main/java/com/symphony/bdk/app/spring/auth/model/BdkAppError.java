@@ -3,6 +3,7 @@ package com.symphony.bdk.app.spring.auth.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,4 +27,12 @@ public class BdkAppError {
    * Error message will be returned
    */
   private List<String> message;
+
+  public static BdkAppError fromBdkAppErrorCode(BdkAppErrorCode errorCode, String appId) {
+    BdkAppError bdkAppError = new BdkAppError();
+    bdkAppError.setCode(errorCode);
+    bdkAppError.setStatus(errorCode.getHttpStatus().value());
+    bdkAppError.setMessage(Collections.singletonList(errorCode.getMessage().replace("{appId}", appId)));
+    return bdkAppError;
+  }
 }

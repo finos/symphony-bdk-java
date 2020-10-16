@@ -2,16 +2,10 @@ package com.symphony.bdk.app.spring.auth;
 
 import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.auth.model.AppToken;
-import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
 import com.symphony.bdk.app.spring.auth.model.JwtInfo;
 import com.symphony.bdk.app.spring.auth.model.TokenPair;
 import com.symphony.bdk.app.spring.auth.model.UserId;
-import com.symphony.bdk.app.spring.auth.service.AppTokenService;
-import com.symphony.bdk.app.spring.auth.service.JwtService;
-import com.symphony.bdk.app.spring.auth.model.exception.AppAuthException;
-import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,41 +29,25 @@ import javax.validation.Valid;
 public class CircleOfTrustController {
 
   private final SymphonyBdkAppProperties properties;
-  private final ExtensionAppAuthenticator extensionAppAuthenticator;
-  private final AppTokenService appTokenService;
-  private final JwtService jwtService;
+  private final CircleOfTrustService circleOfTrustService;
 
-  public CircleOfTrustController(SymphonyBdkAppProperties properties,
-      ExtensionAppAuthenticator extensionAppAuthenticator, JwtService jwtService, AppTokenService appTokenService) {
+  public CircleOfTrustController(SymphonyBdkAppProperties properties, CircleOfTrustService circleOfTrustService) {
     this.properties = properties;
-    this.extensionAppAuthenticator = extensionAppAuthenticator;
-    this.appTokenService = appTokenService;
-    this.jwtService = jwtService;
+    this.circleOfTrustService = circleOfTrustService;
   }
 
   @PostMapping("/auth")
   public AppToken authenticate() {
     log.debug("Generate app token and use it to authenticate the extension app.");
 
-    try {
-      String token = appTokenService.generateToken();
-      AppAuthSession authSession = extensionAppAuthenticator.authenticateExtensionApp(token);
-      AppToken appToken = new AppToken();
-      appToken.setAppToken(authSession.getAppToken());
-
-      return appToken;
-    } catch (AuthUnauthorizedException e) {
-      throw new AppAuthException(e, BdkAppErrorCode.UNAUTHORIZED);
-    }
+    return circleOfTrustService.authenticate();
   }
 
   @PostMapping("/tokens")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void validateTokens(@Valid @RequestBody TokenPair appToken) {
+  public void validateTokens(@Valid @RequestBody TokenPair tokenPair) {
     log.debug("Validate the pair of tokens: app token and Symphony token.");
-    if (!appTokenService.validateTokens(appToken)) {
-      throw new AppAuthException(BdkAppErrorCode.INVALID_TOKEN);
-    }
+    circleOfTrustService.validateTokens(tokenPair);
   }
 
   @PostMapping("/jwt")
@@ -77,7 +55,9 @@ public class CircleOfTrustController {
       HttpServletResponse response) {
     log.debug("Validate the jwt signed by extension app frontend to get the user id");
     String jwt = jwtInfo.getJwt();
-    UserId userId = jwtService.validateJwt(jwt);
+    log.debug("JWT " + jwt);
+    UserId userId = circleOfTrustService.validateJwt(jwt);
+    log.debug("USERID " + userId.getUserId());
     if (properties.getAuth().getJwtCookie().getEnabled()) {
       response.addCookie(jwtCookie(jwt, request.getContextPath()));
     }
@@ -87,7 +67,7 @@ public class CircleOfTrustController {
   private Cookie jwtCookie(String jwt, String path) {
     Cookie jwtCookie = new Cookie("userJwt", jwt);
 
-    jwtCookie.setMaxAge(properties.getAuth().getJwtCookie().getMaxAge());
+    jwtCookie.setMaxAge((int) properties.getAuth().getJwtCookie().getMaxAge().getSeconds());
     jwtCookie.setSecure(true);
     jwtCookie.setHttpOnly(true);
     jwtCookie.setPath(path);

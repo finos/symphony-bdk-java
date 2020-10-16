@@ -1,20 +1,20 @@
-package com.symphony.bdk.app.spring.auth.model.exception;
+package com.symphony.bdk.app.spring.exception;
 
 import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
 
 /**
- * Thrown when the extension app authentication failed.
+ * Thrown when any Extension App Api request is failed.
  */
-public class AppAuthException extends RuntimeException {
+public class BdkAppException extends RuntimeException {
 
   private final BdkAppErrorCode errorCode;
 
-  public AppAuthException(Exception e, BdkAppErrorCode errorCode) {
+  public BdkAppException(BdkAppErrorCode errorCode, Exception e) {
     super(errorCode.getMessage(), e);
     this.errorCode = errorCode;
   }
 
-  public AppAuthException(BdkAppErrorCode errorCode) {
+  public BdkAppException(BdkAppErrorCode errorCode) {
     super(errorCode.getMessage());
     this.errorCode = errorCode;
   }

@@ -2,8 +2,7 @@ package com.symphony.bdk.app.spring.config;
 
 import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.auth.CircleOfTrustController;
-import com.symphony.bdk.app.spring.auth.service.AppTokenService;
-import com.symphony.bdk.app.spring.auth.service.JwtService;
+import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 import com.symphony.bdk.app.spring.exception.GlobalControllerExceptionHandler;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 
@@ -20,25 +19,17 @@ public class BdkExtAppControllerConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public JwtService jwtService(ExtensionAppAuthenticator extensionAppAuthenticator) {
-    return new JwtService(extensionAppAuthenticator);
-  }
-
-  @Bean
-  @ConditionalOnMissingBean
-  public AppTokenService appTokenService(ExtensionAppAuthenticator extensionAppAuthenticator) {
-    return new AppTokenService(extensionAppAuthenticator);
+  public CircleOfTrustService circleOfTrustService(ExtensionAppAuthenticator authenticator) {
+    return new CircleOfTrustService(authenticator);
   }
 
   @Bean
   @ConditionalOnProperty(name = "bdk-app.auth.enabled", havingValue = "true")
   public CircleOfTrustController circleOfTrustController(
       SymphonyBdkAppProperties properties,
-      ExtensionAppAuthenticator extensionAppAuthenticator,
-      JwtService jwtService,
-      AppTokenService appTokenService
+      CircleOfTrustService circleOfTrustService
   ) {
-    return new CircleOfTrustController(properties, extensionAppAuthenticator, jwtService, appTokenService);
+    return new CircleOfTrustController(properties, circleOfTrustService);
   }
 
   @Bean

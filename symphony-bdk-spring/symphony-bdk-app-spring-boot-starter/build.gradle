@@ -20,6 +20,8 @@ jacocoTestCoverageVerification {
 
 dependencies {
     api project(':symphony-bdk-core')
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-starter-web'
     implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 
     compileOnly 'org.projectlombok:lombok'
@@ -27,15 +29,12 @@ dependencies {
 
     implementation 'commons-codec:commons-codec'
     implementation 'org.apiguardian:apiguardian-api'
-    implementation 'org.springframework.boot:spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    testImplementation 'org.junit.vintage:junit-vintage-engine'
     testCompile project(':symphony-bdk-core').sourceSets.test.output
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'

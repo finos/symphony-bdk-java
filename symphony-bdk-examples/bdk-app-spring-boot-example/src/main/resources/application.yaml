@@ -1,10 +1,9 @@
 
 bdk:
-  host: devx1.symphony.com
+  host: acme.symphony.com
   bot:
     username: fxbot-hong
     privateKeyPath: ${user.home}/.symphony/keys/rsa-private-bot.pem
-
   app:
     appId: testapp-hongle
     privateKeyPath: ${user.home}/.symphony/keys/app_privatekey.pem

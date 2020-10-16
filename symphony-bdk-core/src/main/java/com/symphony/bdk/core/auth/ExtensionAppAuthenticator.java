@@ -44,11 +44,11 @@ public interface ExtensionAppAuthenticator {
 
 
   /**
-   * Validates a jwt against the pod certificate
+   * Validates a JWT against the pod certificate
    *
-   * @param jwt the jwt to be validated
-   * @return the {@link UserClaim} containing all information in jwt claim "user" if jwt successfully validated
-   * @throws AuthInitializationException if jwt cannot be validated or if jwt is invalid
+   * @param jwt the JWT to be validated
+   * @return the {@link UserClaim} containing all information in JWT claim "user" if JWT successfully validated
+   * @throws AuthInitializationException if JWT cannot be validated or if JWT is invalid
    * @see <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">Verifying, Decoding and Using the JWT</a>
    */
   UserClaim validateJwt(String jwt) throws AuthInitializationException;
