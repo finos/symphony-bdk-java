@@ -2,6 +2,7 @@ package configuration;
 
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -112,7 +113,7 @@ public class SymConfigLoaderTest {
     assertEquals(4, symConfig.getDatafeedEventsThreadpoolSize());
     assertEquals(6, symConfig.getDatafeedEventsErrorTimeout());
     assertTrue(symConfig.getReuseDatafeedID());
-    assertEquals("src/test/resources/testdatafeed.id\\", symConfig.getDatafeedIdFilePath());
+    assertEquals("src/test/resources/testdatafeed.id"+ File.separator, symConfig.getDatafeedIdFilePath());
     assertEquals("auth", symConfig.getAuthenticationFilterUrlPattern());
     assertFalse(symConfig.isShowFirehoseErrors());
 
