@@ -55,9 +55,7 @@ public class CircleOfTrustController {
       HttpServletResponse response) {
     log.debug("Validate the jwt signed by extension app frontend to get the user id");
     String jwt = jwtInfo.getJwt();
-    log.debug("JWT " + jwt);
     UserId userId = circleOfTrustService.validateJwt(jwt);
-    log.debug("USERID " + userId.getUserId());
     if (properties.getAuth().getJwtCookie().getEnabled()) {
       response.addCookie(jwtCookie(jwt, request.getContextPath()));
     }
