@@ -31,9 +31,8 @@ public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHan
   }
 
   @ExceptionHandler(BdkAppException.class)
-  public ResponseEntity<Object> handleUnauthorizedException(Exception e, WebRequest request) {
-    BdkAppException bdkAppException = (BdkAppException) e;
-    BdkAppError error = BdkAppError.fromBdkAppErrorCode(bdkAppException.getErrorCode(), properties.getApp().getAppId());
+  public ResponseEntity<Object> handleUnauthorizedException(BdkAppException e, WebRequest request) {
+    BdkAppError error = BdkAppError.fromBdkAppErrorCode(e.getErrorCode(), properties.getApp().getAppId());
 
     return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
   }

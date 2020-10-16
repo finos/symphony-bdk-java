@@ -1,16 +1,19 @@
 package com.symphony.bdk.app.spring.auth.model;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * User Id returned after verifying the {@link JwtInfo}.
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserId {
 
-  private Long userId;
+  private final Long userId;
+
+  @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+  public UserId(@JsonProperty("userId") Long userId) {
+    this.userId = userId;
+  }
 }

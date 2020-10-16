@@ -70,7 +70,7 @@ public class CircleOfTrustControllerTest {
 
   @Test
   public void authenticateFailed() throws Exception {
-    when(service.authenticate()).thenThrow(new BdkAppException(BdkAppErrorCode.UNAUTHORIZED));
+    when(service.authenticate()).thenThrow(new BdkAppException(BdkAppErrorCode.AUTH_FAILURE));
 
     String response =  mockMvc.perform(
         post("/bdk/v1/app/auth"))
@@ -79,7 +79,7 @@ public class CircleOfTrustControllerTest {
     BdkAppError error = MAPPER.readValue(response, BdkAppError.class);
 
     assertEquals(error.getStatus(), HttpStatus.UNAUTHORIZED.value());
-    assertEquals(error.getCode(), BdkAppErrorCode.UNAUTHORIZED);
+    assertEquals(error.getCode(), BdkAppErrorCode.AUTH_FAILURE);
   }
 
   @Test

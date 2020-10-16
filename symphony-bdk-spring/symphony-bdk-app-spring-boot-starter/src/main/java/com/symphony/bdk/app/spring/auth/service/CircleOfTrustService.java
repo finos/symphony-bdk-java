@@ -45,7 +45,7 @@ public class CircleOfTrustService {
       AppAuthSession authSession = authenticator.authenticateExtensionApp(token);
       return new AppToken(authSession.getAppToken());
     } catch (AuthUnauthorizedException e) {
-      throw new BdkAppException(BdkAppErrorCode.UNAUTHORIZED, e);
+      throw new BdkAppException(BdkAppErrorCode.AUTH_FAILURE, e);
     }
   }
 

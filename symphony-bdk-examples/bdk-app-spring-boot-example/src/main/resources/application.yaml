@@ -2,18 +2,18 @@
 bdk:
   host: acme.symphony.com
   bot:
-    username: fxbot-hong
-    privateKeyPath: ${user.home}/.symphony/keys/rsa-private-bot.pem
+    username: mybot
+    privateKeyPath: path/to/bot-privatekey.pem
   app:
-    appId: testapp-hongle
-    privateKeyPath: ${user.home}/.symphony/keys/app_privatekey.pem
+    appId: myapp
+    privateKeyPath: path/to/app-privatekey.pem
 
 bdk-app:
   auth:
     enabled: true
     jwtCookie:
       enabled: true
-      expireIn: 43200
+      maxAge: 1d
 
 logging:
   level:

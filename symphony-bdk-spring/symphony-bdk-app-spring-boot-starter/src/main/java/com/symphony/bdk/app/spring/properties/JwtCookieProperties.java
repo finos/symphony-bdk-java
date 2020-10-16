@@ -7,8 +7,6 @@ import org.springframework.boot.convert.DurationUnit;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
-import javax.validation.constraints.Min;
-
 /**
  * Configuration Properties for storing Jwt in cookie for the Extension App
  */
@@ -18,9 +16,14 @@ public class JwtCookieProperties {
 
   private static final Integer DEFAULT_MAX_AGE = 24*60*60;
 
+  /**
+   * The flag to enable to store the JWT in cookie.
+   */
   private Boolean enabled = false;
 
+  /**
+   * The maximum duration that the JWT will be stored in cookie.
+   */
   @DurationUnit(ChronoUnit.SECONDS)
-  @Min(value = 0)
   private Duration maxAge = Duration.ofSeconds(DEFAULT_MAX_AGE);
 }

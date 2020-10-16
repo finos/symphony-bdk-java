@@ -42,10 +42,6 @@ The following listing shows the `pom.xml` file that has to be created when using
             <groupId>com.symphony.platformsolutions</groupId>
             <artifactId>symphony-bdk-app-spring-boot-starter</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
     </dependencies>
     
     <build>
@@ -72,7 +68,6 @@ dependencies {
     implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.2.BETA')
     
     implementation 'com.symphony.platformsolutions:symphony-bdk--spring-boot-starter'
-    implementation 'org.springframework.boot:spring-boot-starter'
 }
 ```
 
@@ -86,13 +81,15 @@ bdk:
       privateKeyPath: /path/to/rsa/privatekey.pem
       
     app:
-        auth:
-          enabled: true
-          jwtCookie:
-            enabled: true
-            expireIn: 43200
-        appId: testapp-hongle
-        privateKeyPath: ${user.home}/.symphony/keys/app_privatekey.pem
+        appId: app-id
+        privateKeyPath: /path/tp/rsa/app_privatekey.pem
+
+bdk-app:
+    auth:
+      enabled: true # activate the CircleOfTrust endpoints (default is true)
+      jwtCookie:
+        enabled: true # activate the jwt cookie storage (default is false)
+        expireIn: 1d # jwt cookie duration (default value is 1d, see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config-conversion-duration) 
 
 logging:
   level:
@@ -142,10 +139,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppToken'
-              
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         401:
           description: Unauthorized
-          content: {}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   '/bdk/v1/app/tokens':
     post:
       tags:
@@ -161,6 +166,19 @@ paths:
         204: 
           description: Success
           content: {}
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   '/bdk/v1/app/jwt':
     post:
       tags:
@@ -179,10 +197,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserInfo'
-              
+        400:
+          description: Bad Request
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         401:
           description: Unauthorized
-          content: {}
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     AppToken:
@@ -207,4 +233,17 @@ components:
       properties:
         userId:
           type: number
+          format: int64
+    Error:
+      type: object
+      properties:
+        status:
+          type: number
+          format: int32
+        errorCode:
+          type: string
+        message:
+          type: array
+          items: 
+            type: string
 ```

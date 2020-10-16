@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
  */
 public enum BdkAppErrorCode {
 
-  UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Failed to authenticate the extension app {appId}."),
+  AUTH_FAILURE(HttpStatus.UNAUTHORIZED, "Failed to authenticate the extension app {appId}."),
   INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Failed to validate the app token."),
   INVALID_JWT(HttpStatus.UNAUTHORIZED, "Failed to validate the jwt."),
   MISSING_FIELDS(HttpStatus.BAD_REQUEST, "Some fields in the request body are missing.");

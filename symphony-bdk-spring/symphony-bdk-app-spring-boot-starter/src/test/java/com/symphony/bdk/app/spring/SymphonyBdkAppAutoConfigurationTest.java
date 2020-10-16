@@ -20,7 +20,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
             "bdk.app.privateKeyPath=classpath:/privatekey.pem",
             "bdk-app.auth.enabled=true",
             "bdk-app.auth.jwtCookies.enabled=true",
-            "bdk-app.auth.jwtCookies.maxAge=86400"
+            "bdk-app.auth.jwtCookies.maxAge=1d"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAppAutoConfiguration.class));

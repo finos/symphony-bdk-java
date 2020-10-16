@@ -58,10 +58,10 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
             "bdk.context=context",
 
-            "bdk.bot.username=tibot",
+            "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
 
-            "bdk.app.appId=tibapp",
+            "bdk.app.appId=testapp",
             "bdk.app.privateKeyPath=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
@@ -81,10 +81,10 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
             "bdk.context=context",
 
-            "bdk.bot.username=tibot",
+            "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
 
-            "bdk.app.appId=tibapp"
+            "bdk.app.appId=testapp"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
@@ -104,7 +104,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
             "bdk.context=context",
 
-            "bdk.bot.username=tibot",
+            "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)

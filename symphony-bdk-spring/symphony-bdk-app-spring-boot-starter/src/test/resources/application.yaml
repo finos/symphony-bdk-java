@@ -9,7 +9,7 @@ bdk:
     scheme: http
     host: localhost
   bot:
-    username: tibot
+    username: testbot
     privateKeyPath: classpath:/privatekey.pem
   app:
     appId: testapp
@@ -20,4 +20,4 @@ bdk-app:
     enabled: true
     jwtCookie:
       enabled: true
-      expireIn: 43200
+      maxAge: 1d

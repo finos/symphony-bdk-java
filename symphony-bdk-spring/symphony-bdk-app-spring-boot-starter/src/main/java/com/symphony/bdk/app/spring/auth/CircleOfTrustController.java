@@ -39,7 +39,7 @@ public class CircleOfTrustController {
   @PostMapping("/auth")
   public AppToken authenticate() {
     log.debug("Generate app token and use it to authenticate the extension app.");
-
+    log.debug(String.valueOf(properties.getAuth().getJwtCookie().getMaxAge().getSeconds()));
     return circleOfTrustService.authenticate();
   }
 
