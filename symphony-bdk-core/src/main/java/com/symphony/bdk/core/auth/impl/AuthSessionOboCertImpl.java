@@ -5,9 +5,9 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
-import lombok.NonNull;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -22,13 +22,13 @@ public class AuthSessionOboCertImpl implements AuthSession {
 
   private String sessionToken;
 
-  public AuthSessionOboCertImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull Long userId) {
+  public AuthSessionOboCertImpl(@Nonnull OboAuthenticatorCertImpl authenticator, @Nonnull Long userId) {
     this.authenticator = authenticator;
     this.userId = userId;
     this.username = null;
   }
 
-  public AuthSessionOboCertImpl(@NonNull OboAuthenticatorCertImpl authenticator, @NonNull String username) {
+  public AuthSessionOboCertImpl(@Nonnull OboAuthenticatorCertImpl authenticator, @Nonnull String username) {
     this.authenticator = authenticator;
     this.username = username;
     this.userId = null;
