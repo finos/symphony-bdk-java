@@ -1,20 +1,23 @@
 package com.symphony.bdk.core.auth.impl;
 
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.core.test.RsaTestHelper;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class ExtensionAppAuthenticatorRsaImplTest {
 
@@ -30,7 +33,7 @@ public class ExtensionAppAuthenticatorRsaImplTest {
     mockApiClient = new MockApiClient();
     tokensRepository = spy(new InMemoryTokensRepository());
     authenticator = new ExtensionAppAuthenticatorRsaImpl(
-        BdkRetryConfig.ofMinimalInterval(1),
+        ofMinimalInterval(1),
         "appId",
         RsaTestHelper.generateKeyPair().getPrivate(),
         mockApiClient.getApiClient("/login"),

@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.retry.resilience4j;
 
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -54,7 +55,7 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenReturn(value);
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier, (t) -> false,
+        ofMinimalInterval(), supplier, (t) -> false,
         Collections.emptyMap());
 
     assertEquals(value, r.execute());
@@ -71,7 +72,7 @@ class Resilience4jRetryWithRecoveryTest {
         .thenReturn(value);
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier,
+        ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isClientError(),
         Collections.emptyMap());
 
@@ -85,7 +86,7 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier,
+        ofMinimalInterval(), supplier,
         (t) -> false, Collections.emptyMap());
 
     assertThrows(ApiException.class, () -> r.execute());
@@ -97,7 +98,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    final BdkRetryConfig retryConfig = BdkRetryConfig.ofMinimalInterval();
+    final BdkRetryConfig retryConfig = ofMinimalInterval();
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", retryConfig, supplier, (t) -> true,
         Collections.emptyMap());
@@ -112,7 +113,7 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier,
+        ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isServerError(),
         Collections.emptyMap());
 
@@ -126,7 +127,7 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier, (t) -> true,
+        ofMinimalInterval(), supplier, (t) -> true,
         (e) -> true, Collections.emptyMap());
 
     assertNull(r.execute());
@@ -143,7 +144,7 @@ class Resilience4jRetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier, (t) -> true,
+        ofMinimalInterval(), supplier, (t) -> true,
         Collections.singletonMap(e -> true, consumer));
 
     assertEquals(value, r.execute());
@@ -165,7 +166,7 @@ class Resilience4jRetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier, (t) -> true,
+        ofMinimalInterval(), supplier, (t) -> true,
         Collections.singletonMap(e -> e.isClientError(), consumer));
 
     assertEquals(value, r.execute());
@@ -185,7 +186,7 @@ class Resilience4jRetryWithRecoveryTest {
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier,
+        ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException, Collections.singletonMap(ApiException::isClientError, consumer));
 
     assertThrows(IndexOutOfBoundsException.class, () -> r.execute());
@@ -208,7 +209,7 @@ class Resilience4jRetryWithRecoveryTest {
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
-        BdkRetryConfig.ofMinimalInterval(), supplier,
+        ofMinimalInterval(), supplier,
         (t) -> true, Collections.singletonMap(ApiException::isClientError, consumer));
 
     assertEquals(value, r.execute());

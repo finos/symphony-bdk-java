@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.anyLong;
@@ -60,7 +61,7 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUserIdSuccess() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
 
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doReturn(token).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
@@ -70,7 +71,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveTokenByUserIdUnauthorized() throws ApiException, AuthUnauthorizedException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(401, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
@@ -80,7 +81,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveTokenByUserIdUnexpectedApiException() throws ApiException, AuthUnauthorizedException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(404, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
@@ -92,7 +93,7 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUserIdShouldRetry() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
 
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
@@ -105,7 +106,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveTokenByUserIdRetriesExhausted() throws ApiException, AuthUnauthorizedException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval(2)));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval(2)));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
@@ -118,7 +119,7 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUsernameSuccess() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
 
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doReturn(token).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
@@ -128,7 +129,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveTokenByUsernameUnauthorized() throws ApiException, AuthUnauthorizedException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(401, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
@@ -138,7 +139,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveTokenByUsernameUnexpectedApiException() throws ApiException, AuthUnauthorizedException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(404, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
@@ -150,7 +151,7 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUsernameShouldRetry() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
 
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
@@ -163,7 +164,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveTokenByUsernameRetriesExhausted() throws ApiException, AuthUnauthorizedException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval(2)));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval(2)));
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
@@ -176,7 +177,7 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveAppSessionTokenSuccess() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
 
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn(token).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
     assertEquals(token, authenticator.retrieveAppSessionToken());
@@ -185,7 +186,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveAppSessionTokenUnauthorized() throws ApiException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(401, "")).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
     assertThrows(AuthUnauthorizedException.class, () -> authenticator.retrieveAppSessionToken());
@@ -194,7 +195,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveAppSessionTokenUnexpectedApiException() throws ApiException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(404, "")).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveAppSessionToken());
@@ -205,7 +206,7 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveApSessionTokenShouldRetry() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
 
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval()));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
         .doThrow(new ProcessingException(""))
@@ -217,7 +218,7 @@ public class AbstractOboAuthenticatorTest {
 
   @Test
   void testRetrieveApSessionTokenRetriesExhausted() throws ApiException {
-    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(BdkRetryConfig.ofMinimalInterval(2)));
+    AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval(2)));
     doThrow(new ApiException(429, "")).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveAppSessionToken());

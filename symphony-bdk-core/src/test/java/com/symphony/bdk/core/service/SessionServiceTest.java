@@ -1,17 +1,18 @@
 package com.symphony.bdk.core.service;
 
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +38,8 @@ class SessionServiceTest {
 
   @BeforeEach
   void setUp() {
-    final BdkRetryConfig retryConfig = BdkRetryConfig.ofMinimalInterval(1);
-    this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder().retryConfig(retryConfig));
+    this.service = new SessionService(this.sessionApi,
+        new RetryWithRecoveryBuilder().retryConfig(ofMinimalInterval(1)));
   }
 
   @Test

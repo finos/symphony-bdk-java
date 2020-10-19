@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
@@ -16,7 +16,6 @@ import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
@@ -27,6 +26,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Payload;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5EventList;
+import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +53,7 @@ public class DatafeedServiceV2Test {
         BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
         datafeedConfig.setVersion("v2");
         bdkConfig.setDatafeed(datafeedConfig);
-        bdkConfig.setRetry(BdkRetryConfig.ofMinimalInterval(2));
+        bdkConfig.setRetry(ofMinimalInterval(2));
 
         this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
