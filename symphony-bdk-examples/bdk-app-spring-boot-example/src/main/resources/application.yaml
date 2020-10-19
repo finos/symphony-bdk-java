@@ -1,12 +1,12 @@
 
 bdk:
-  host: devx1.symphony.com
+  host: acme.symphony.com
   bot:
-    username: tibot
-    privateKeyPath: /Users/thibault.pensec/.symphony/privatekey.pem
+    username: mybot
+    privateKeyPath: /Users/user.name/.symphony/privatekey.pem
   app:
-    appId: tibapp
-    privateKeyPath: /Users/thibault.pensec/.symphony/privatekey.pem
+    appId: myapp
+    privateKeyPath: /Users/user.name/.symphony/privatekey.pem
 
 bdk-app:
   auth:
