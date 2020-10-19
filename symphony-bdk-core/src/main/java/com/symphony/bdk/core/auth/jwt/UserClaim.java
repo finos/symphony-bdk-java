@@ -13,7 +13,7 @@ import org.apiguardian.api.API;
 @Data
 @API(status = API.Status.STABLE)
 public class UserClaim {
-  private String id;
+  private Long id;
   private String emailAddress;
   private String username;
   private String firstName;

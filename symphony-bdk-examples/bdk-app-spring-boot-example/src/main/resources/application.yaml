@@ -1,0 +1,20 @@
+
+bdk:
+  host: acme.symphony.com
+  bot:
+    username: mybot
+    privateKeyPath: path/to/bot-privatekey.pem
+  app:
+    appId: myapp
+    privateKeyPath: path/to/app-privatekey.pem
+
+bdk-app:
+  auth:
+    enabled: true
+    jwtCookie:
+      enabled: true
+      maxAge: 1d
+
+logging:
+  level:
+    com.symphony: debug

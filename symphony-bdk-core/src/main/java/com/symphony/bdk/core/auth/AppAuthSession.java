@@ -1,9 +1,6 @@
 package com.symphony.bdk.core.auth;
 
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-
-import com.symphony.bdk.core.auth.jwt.UserClaim;
 
 import org.apiguardian.api.API;
 
@@ -48,13 +45,4 @@ public interface AppAuthSession {
    */
   void refresh() throws AuthUnauthorizedException;
 
-  /**
-   * Validates a jwt against the pod certificate
-   *
-   * @param jwt the jwt to be validated
-   * @return the {@link UserClaim} containing all information in jwt claim "user" if jwt successfully validated
-   * @throws AuthInitializationException if jwt cannot be validated or if jwt is invalid
-   * @see <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">Verifying, Decoding and Using the JWT</a>
-   */
-  UserClaim validateJwt(String jwt) throws AuthInitializationException;
 }
