@@ -2,10 +2,7 @@ package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.jwt.JwtHelper;
-import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 
 import org.apiguardian.api.API;
@@ -59,14 +56,6 @@ public class AppAuthSessionCertImpl implements AppAuthSession {
     this.symphonySessionToken = appTokens.getSymphonyToken();
     this.appToken = appTokens.getAppToken();
     this.expireAt = appTokens.getExpireAt();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public UserClaim validateJwt(String jwt) throws AuthInitializationException {
-    return JwtHelper.validateJwt(jwt, authenticator.getPodCertificate().getCertificate());
   }
 
   /**

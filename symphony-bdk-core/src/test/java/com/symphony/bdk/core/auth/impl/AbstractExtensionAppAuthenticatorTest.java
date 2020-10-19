@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 import com.symphony.bdk.gen.api.model.PodCertificate;
@@ -36,6 +38,11 @@ public class AbstractExtensionAppAuthenticatorTest {
 
     @Override
     public AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException {
+      return null;
+    }
+
+    @Override
+    public UserClaim validateJwt(String jwt) throws AuthInitializationException {
       return null;
     }
   }

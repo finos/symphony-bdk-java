@@ -2,18 +2,18 @@ package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.model.ExtensionAppAuthenticateRequest;
+import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.CertificatePodApi;
 import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 import com.symphony.bdk.gen.api.model.PodCertificate;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -62,5 +62,13 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   @Override
   protected PodCertificate callGetPodCertificate() throws ApiException {
     return this.certificatePodApi.v1AppPodCertificateGet();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public UserClaim validateJwt(String jwt) throws AuthInitializationException {
+    return JwtHelper.validateJwt(jwt, this.getPodCertificate().getCertificate());
   }
 }

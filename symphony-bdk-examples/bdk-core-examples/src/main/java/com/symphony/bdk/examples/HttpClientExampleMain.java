@@ -39,7 +39,7 @@ public class HttpClientExampleMain {
     req.setToken(jwt);
 
     Token token = bdk.http()
-        .basePath("https://devx1.symphony.com/login")
+        .basePath("https://acme.symphony.com/login")
         .path("/pubkey/authenticate")
         .body(req)
         .post(new TypeReference<Token>() {});
