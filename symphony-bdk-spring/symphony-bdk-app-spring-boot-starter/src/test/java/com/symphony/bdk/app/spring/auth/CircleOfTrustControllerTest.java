@@ -9,17 +9,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.auth.model.AppToken;
-import com.symphony.bdk.app.spring.auth.model.BdkAppError;
-import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
 import com.symphony.bdk.app.spring.auth.model.UserId;
 import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
+import com.symphony.bdk.app.spring.exception.BdkAppError;
+import com.symphony.bdk.app.spring.exception.BdkAppErrorCode;
 import com.symphony.bdk.app.spring.exception.BdkAppException;
 import com.symphony.bdk.app.spring.properties.AppAuthProperties;
 import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +26,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CircleOfTrustController.class)
 public class CircleOfTrustControllerTest {
-  private static final ObjectMapper MAPPER = new JsonMapper();
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @Autowired
   private MockMvc mockMvc;
@@ -40,17 +42,18 @@ public class CircleOfTrustControllerTest {
   private SymphonyBdkCoreProperties coreProperties;
 
   @MockBean
-  private SymphonyBdkAppProperties properties;
+  private SymphonyBdkAppProperties appProperties;
 
   @MockBean
   private CircleOfTrustService service;
 
   @BeforeEach
   public void setup() {
-    AppAuthProperties appAuth = new AppAuthProperties();
+    final AppAuthProperties appAuth = new AppAuthProperties();
     appAuth.getJwtCookie().setEnabled(true);
-    when(properties.getAuth()).thenReturn(appAuth);
-    BdkExtAppConfig appConfig = new BdkExtAppConfig();
+    when(appProperties.getAuth()).thenReturn(appAuth);
+
+    final BdkExtAppConfig appConfig = new BdkExtAppConfig();
     appConfig.setAppId("appId");
     when(coreProperties.getApp()).thenReturn(appConfig);
   }
@@ -59,12 +62,14 @@ public class CircleOfTrustControllerTest {
   public void authenticateSuccess() throws Exception {
     when(service.authenticate()).thenReturn(new AppToken("test-token"));
 
-    String response =  mockMvc.perform(
+    MockHttpServletResponse response = mockMvc.perform(
         post("/bdk/v1/app/auth"))
         .andExpect(status().isOk())
-        .andReturn().getResponse().getContentAsString();
-    AppToken appToken = MAPPER.readValue(response, AppToken.class);
+        .andReturn().getResponse();
 
+    AppToken appToken = objectMapper.readValue(response.getContentAsString(), AppToken.class);
+
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
     assertEquals(appToken.getAppToken(), "test-token");
   }
 
@@ -72,14 +77,15 @@ public class CircleOfTrustControllerTest {
   public void authenticateFailed() throws Exception {
     when(service.authenticate()).thenThrow(new BdkAppException(BdkAppErrorCode.AUTH_FAILURE));
 
-    String response =  mockMvc.perform(
+    MockHttpServletResponse response =  mockMvc.perform(
         post("/bdk/v1/app/auth"))
         .andExpect(status().isUnauthorized())
-        .andReturn().getResponse().getContentAsString();
-    BdkAppError error = MAPPER.readValue(response, BdkAppError.class);
+        .andReturn().getResponse();
 
-    assertEquals(error.getStatus(), HttpStatus.UNAUTHORIZED.value());
-    assertEquals(error.getCode(), BdkAppErrorCode.AUTH_FAILURE);
+    BdkAppError error = objectMapper.readValue(response.getContentAsString(), BdkAppError.class);
+
+    assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
+    assertEquals(BdkAppErrorCode.AUTH_FAILURE, error.getCode());
   }
 
   @Test
@@ -87,9 +93,9 @@ public class CircleOfTrustControllerTest {
     mockMvc.perform(
         post("/bdk/v1/app/tokens")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\n"
-                + "    \"appToken\": \"test-token\",\n"
-                + "    \"symphonyToken\": \"test-symphony-token\"\n"
+            .content("{"
+                + "    \"appToken\": \"test-token\","
+                + "    \"symphonyToken\": \"test-symphony-token\""
                 + "}"))
         .andExpect(status().isNoContent());
   }
@@ -98,7 +104,7 @@ public class CircleOfTrustControllerTest {
   public void validateTokenFailed() throws Exception {
     doThrow(new BdkAppException(BdkAppErrorCode.INVALID_TOKEN)).when(service).validateTokens(any());
 
-    String response = mockMvc.perform(
+    MockHttpServletResponse response = mockMvc.perform(
         post("/bdk/v1/app/tokens")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{\n"
@@ -106,11 +112,12 @@ public class CircleOfTrustControllerTest {
                 + "    \"symphonyToken\": \"test-wrong-token\"\n"
                 + "}"))
         .andExpect(status().isUnauthorized())
-        .andReturn().getResponse().getContentAsString();
-    BdkAppError error = MAPPER.readValue(response, BdkAppError.class);
+        .andReturn().getResponse();
 
-    assertEquals(error.getStatus(), HttpStatus.UNAUTHORIZED.value());
-    assertEquals(error.getCode(), BdkAppErrorCode.INVALID_TOKEN);
+    BdkAppError error = objectMapper.readValue(response.getContentAsString(), BdkAppError.class);
+
+    assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
+    assertEquals(BdkAppErrorCode.INVALID_TOKEN, error.getCode());
   }
 
   @Test
@@ -118,17 +125,16 @@ public class CircleOfTrustControllerTest {
     UserId userId = new UserId(1234L);
     when(service.validateJwt("test-jwt")).thenReturn(userId);
 
-    String response = mockMvc.perform(
+    MockHttpServletResponse response = mockMvc.perform(
         post("/bdk/v1/app/jwt")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\n"
-                + "    \"jwt\": \"test-jwt\"\n"
-                + "}"))
+            .content("{ \"jwt\": \"test-jwt\" }"))
         .andExpect(status().isOk())
-        .andReturn().getResponse().getContentAsString();
+        .andReturn().getResponse();
 
-    UserId id = MAPPER.readValue(response, UserId.class);
+    UserId id = objectMapper.readValue(response.getContentAsString(), UserId.class);
 
+    assertEquals(HttpStatus.OK.value(), response.getStatus());
     assertEquals(id.getUserId(), 1234L);
   }
 
@@ -136,17 +142,15 @@ public class CircleOfTrustControllerTest {
   public void validateJwtFailed() throws Exception {
     when(service.validateJwt("test-jwt")).thenThrow(new BdkAppException(BdkAppErrorCode.INVALID_JWT));
 
-    String response = mockMvc.perform(
+    MockHttpServletResponse response = mockMvc.perform(
         post("/bdk/v1/app/jwt")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\n"
-                + "    \"jwt\": \"test-jwt\"\n"
-                + "}"))
+            .content("{ \"jwt\": \"test-jwt\" }"))
         .andExpect(status().isUnauthorized())
-        .andReturn().getResponse().getContentAsString();
-    BdkAppError error = MAPPER.readValue(response, BdkAppError.class);
+        .andReturn().getResponse();
+    BdkAppError error = objectMapper.readValue(response.getContentAsString(), BdkAppError.class);
 
-    assertEquals(error.getStatus(), HttpStatus.UNAUTHORIZED.value());
-    assertEquals(error.getCode(), BdkAppErrorCode.INVALID_JWT);
+    assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
+    assertEquals(BdkAppErrorCode.INVALID_JWT, error.getCode());
   }
 }
