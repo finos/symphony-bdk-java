@@ -3,10 +3,10 @@ bdk:
   host: acme.symphony.com
   bot:
     username: mybot
-    privateKeyPath: path/to/bot-privatekey.pem
+    privateKeyPath: /Users/user.name/.symphony/privatekey.pem
   app:
     appId: myapp
-    privateKeyPath: path/to/app-privatekey.pem
+    privateKeyPath: /Users/user.name/.symphony/privatekey.pem
 
 bdk-app:
   auth:

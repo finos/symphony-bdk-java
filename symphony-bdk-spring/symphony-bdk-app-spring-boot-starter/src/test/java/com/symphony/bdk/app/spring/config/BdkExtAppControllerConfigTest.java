@@ -6,8 +6,6 @@ import static org.mockito.Mockito.mock;
 import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 
-import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
-
 import org.junit.jupiter.api.Test;
 
 public class BdkExtAppControllerConfigTest {
@@ -27,6 +25,6 @@ public class BdkExtAppControllerConfigTest {
 
     final BdkExtAppControllerConfig config = new BdkExtAppControllerConfig();
 
-    assertNotNull(config.globalControllerExceptionHandler(new SymphonyBdkCoreProperties()));
+    assertNotNull(config.globalControllerExceptionHandler());
   }
 }

@@ -13,5 +13,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @ConfigurationProperties(prefix = "bdk-app")
 public class SymphonyBdkAppProperties {
-  private AppAuthProperties auth;
+
+  /**
+   * Circle of Trust controller properties.
+   */
+  private AppAuthProperties auth = new AppAuthProperties();
 }

@@ -1,0 +1,13 @@
+{
+    "loadBalancing": {
+        "method": "random",
+        "stickySessions": true
+    },
+    "agentServers": [
+        "server1",
+        "server2"
+    ],
+    "currentAgentIndex": -1,
+    "actualAgentHost": "localhost",
+    "actualAgentPort": 4345
+}

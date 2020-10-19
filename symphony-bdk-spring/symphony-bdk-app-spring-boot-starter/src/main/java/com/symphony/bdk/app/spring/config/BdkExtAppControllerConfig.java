@@ -19,8 +19,8 @@ public class BdkExtAppControllerConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public CircleOfTrustService circleOfTrustService(ExtensionAppAuthenticator authenticator) {
-    return new CircleOfTrustService(authenticator);
+  public CircleOfTrustService circleOfTrustService(ExtensionAppAuthenticator authenticator, SymphonyBdkCoreProperties properties) {
+    return new CircleOfTrustService(authenticator, properties);
   }
 
   @Bean
@@ -34,8 +34,7 @@ public class BdkExtAppControllerConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public GlobalControllerExceptionHandler globalControllerExceptionHandler(SymphonyBdkCoreProperties properties) {
-    return new GlobalControllerExceptionHandler(properties);
+  public GlobalControllerExceptionHandler globalControllerExceptionHandler() {
+    return new GlobalControllerExceptionHandler();
   }
-
 }
