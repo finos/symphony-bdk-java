@@ -65,10 +65,10 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
     this.retryBuilder = retryBuilder;
   }
 
-  @Override
   /**
    * {@inheritDoc}
    */
+  @Override
   public OboStreamService obo(AuthSession oboSession) {
     return new StreamService(streamsApi, roomMembershipApi, shareApi, oboSession, retryBuilder);
   }

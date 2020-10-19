@@ -10,6 +10,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -19,6 +20,7 @@ import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
+import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
@@ -124,5 +126,9 @@ class ServiceFactory {
         this.templateEngine,
         this.retryBuilder
     );
+  }
+
+  public PresenceService getPresenceService() {
+    return new PresenceService(new PresenceApi(this.podClient), this.authSession, this.retryBuilder);
   }
 }
