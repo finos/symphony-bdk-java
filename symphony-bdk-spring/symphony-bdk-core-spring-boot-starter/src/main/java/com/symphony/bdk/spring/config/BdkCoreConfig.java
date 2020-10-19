@@ -1,5 +1,6 @@
 package com.symphony.bdk.spring.config;
 
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.http.api.ApiClient;
@@ -73,6 +74,16 @@ public class BdkCoreConfig {
       return authenticatorFactory.getBotAuthenticator().authenticateBot();
     } catch (AuthUnauthorizedException | AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate bot", e);
+    }
+  }
+
+  @Bean
+  @ConditionalOnProperty("bdk.app.appId")
+  public ExtensionAppAuthenticator extensionAppAuthenticator(AuthenticatorFactory authenticatorFactory) {
+    try {
+      return authenticatorFactory.getExtensionAppAuthenticator();
+    } catch (AuthInitializationException e) {
+      throw new BeanInitializationException("Unable to authenticate app", e);
     }
   }
 

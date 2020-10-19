@@ -1,15 +1,12 @@
 package com.symphony.bdk.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
-import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
@@ -61,10 +58,10 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
             "bdk.context=context",
 
-            "bdk.bot.username=tibot",
+            "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
 
-            "bdk.app.appId=tibapp",
+            "bdk.app.appId=testapp",
             "bdk.app.privateKeyPath=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
@@ -84,10 +81,10 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
             "bdk.context=context",
 
-            "bdk.bot.username=tibot",
+            "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
 
-            "bdk.app.appId=tibapp"
+            "bdk.app.appId=testapp"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
@@ -107,7 +104,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
             "bdk.context=context",
 
-            "bdk.bot.username=tibot",
+            "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)

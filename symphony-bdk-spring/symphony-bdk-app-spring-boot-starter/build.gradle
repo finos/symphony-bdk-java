@@ -13,12 +13,32 @@ jacocoTestCoverageVerification {
                 minimum = 0.9
             }
             element = 'CLASS'
-            excludes = []
+            excludes = ['com.symphony.bdk.app.spring.*.model.*', 'com.symphony.bdk.app.spring.exception.*']
         }
     }
 }
 
 dependencies {
+    api project(':symphony-bdk-core')
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-starter-web'
+    implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'commons-codec:commons-codec'
+    implementation 'org.apiguardian:apiguardian-api'
+    implementation 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testCompile project(':symphony-bdk-core').sourceSets.test.output
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        exclude group: 'junit', module: 'junit'
+    }
 }
 
