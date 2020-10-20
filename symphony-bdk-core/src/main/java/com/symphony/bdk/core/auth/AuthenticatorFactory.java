@@ -61,6 +61,7 @@ public class AuthenticatorFactory {
             "Only one of certificate path or content should be configured for bot authentication.");
       }
       return new BotAuthenticatorCertImpl(
+          this.config.getRetry(),
           this.apiClientFactory.getSessionAuthClient(),
           this.apiClientFactory.getKeyAuthClient()
       );
@@ -71,6 +72,7 @@ public class AuthenticatorFactory {
             "Only one of private key path or content should be configured for bot authentication.");
       }
       return new BotAuthenticatorRsaImpl(
+          this.config.getRetry(),
           this.config.getBot().getUsername(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getBot()),
           this.apiClientFactory.getLoginClient(),
@@ -93,6 +95,7 @@ public class AuthenticatorFactory {
             "Only one of certificate path or content should be configured for app authentication.");
       }
       return new OboAuthenticatorCertImpl(
+          this.config.getRetry(),
           this.config.getApp().getAppId(),
           this.apiClientFactory.getExtAppSessionAuthClient()
       );
@@ -103,6 +106,7 @@ public class AuthenticatorFactory {
             "Only one of private key path or content should be configured for app authentication.");
       }
       return new OboAuthenticatorRsaImpl(
+          this.config.getRetry(),
           this.config.getApp().getAppId(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
           this.apiClientFactory.getLoginClient()
@@ -124,6 +128,7 @@ public class AuthenticatorFactory {
             "Only one of certificate path or content should be configured for app authentication.");
       }
       return new ExtensionAppAuthenticatorCertImpl(
+          this.config.getRetry(),
           this.config.getApp().getAppId(),
           this.apiClientFactory.getExtAppSessionAuthClient());
     }
@@ -133,6 +138,7 @@ public class AuthenticatorFactory {
             "Only one of private key path or content should be configured for app authentication.");
       }
       return new ExtensionAppAuthenticatorRsaImpl(
+          this.config.getRetry(),
           this.config.getApp().getAppId(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
           this.apiClientFactory.getLoginClient(),
