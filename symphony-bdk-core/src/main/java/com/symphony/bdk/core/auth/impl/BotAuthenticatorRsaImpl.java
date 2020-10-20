@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -26,7 +29,7 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class BotAuthenticatorRsaImpl implements BotAuthenticator {
+public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
 
   private final String username;
   private final PrivateKey privateKey;
@@ -37,11 +40,13 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
   private JwtHelper jwtHelper = new JwtHelper();
 
   public BotAuthenticatorRsaImpl(
+      @Nonnull BdkRetryConfig retryConfig,
       @Nonnull String username,
       @Nonnull PrivateKey privateKey,
       @Nonnull ApiClient loginApiClient,
       @Nonnull ApiClient relayApiClient
   ) {
+    super(retryConfig);
     this.username = username;
     this.privateKey = privateKey;
     this.loginApiClient = loginApiClient;
@@ -60,33 +65,23 @@ public class BotAuthenticatorRsaImpl implements BotAuthenticator {
 
   protected String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using RSA authentication...");
-    return this.doRetrieveToken(this.loginApiClient);
+    return this.retrieveToken(this.loginApiClient);
   }
 
   protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using RSA authentication...");
-    return this.doRetrieveToken(this.relayApiClient);
+    return this.retrieveToken(this.relayApiClient);
   }
 
-  protected String doRetrieveToken(ApiClient client) throws AuthUnauthorizedException {
+  @Override
+  protected String authenticateAndGetToken(ApiClient client) throws ApiException {
     final String jwt = this.jwtHelper.createSignedJwt(this.username, JwtHelper.JWT_EXPIRATION_MILLIS, this.privateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
-    try {
-      final Token token = new AuthenticationApi(client).pubkeyAuthenticatePost(req);
-      log.debug("{} successfully retrieved.", token.getName());
-      return token.getToken();
-    } catch (ApiException ex) {
-      if (ex.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-        // usually happens when the public RSA is wrong or if the username is not correct
-        throw new AuthUnauthorizedException("Service account with username '" + this.username + "' is not authorized to authenticate. "
-            + "Check if the public RSA key is valid or if the username is correct.", ex);
-      } else {
-        // we don't know what to do, let's forward the ApiException
-        throw new ApiRuntimeException(ex);
-      }
-    }
+    final Token token = new AuthenticationApi(client).pubkeyAuthenticatePost(req);
+    log.debug("{} successfully retrieved.", token.getName());
+    return token.getToken();
   }
 
   protected void setJwtHelper(JwtHelper jwtHelper) {

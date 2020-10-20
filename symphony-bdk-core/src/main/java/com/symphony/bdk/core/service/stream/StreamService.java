@@ -25,7 +25,6 @@ import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -151,11 +150,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
   public Stream create(List<Long> uids) {
-    try {
-      return streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return executeAndRetry("createStreamByUserIds",
+        () -> streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids));
   }
 
   /**
