@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.service.connection.ConnectionService;
+import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -55,6 +57,18 @@ public class ServiceFactoryTest {
   void getStreamServiceTest() {
     StreamService streamService = this.serviceFactory.getStreamService();
     assertNotNull(streamService);
+  }
+
+  @Test
+  void getPresenceServiceTest() {
+    PresenceService presenceService = this.serviceFactory.getPresenceService();
+    assertNotNull(presenceService);
+  }
+
+  @Test
+  void getConnectionServiceTest() {
+    ConnectionService connectionService = this.serviceFactory.getConnectionService();
+    assertNotNull(connectionService);
   }
 
   @Test

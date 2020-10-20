@@ -13,9 +13,11 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
+import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.test.JsonHelper;
@@ -81,6 +83,18 @@ public class SymphonyBdkTest {
   void getUserServiceTest() {
     UserService userService = this.symphonyBdk.users();
     assertNotNull(userService);
+  }
+
+  @Test
+  void getPresenceServiceTest() {
+    PresenceService presenceService = this.symphonyBdk.presences();
+    assertNotNull(presenceService);
+  }
+
+  @Test
+  void getConnectionServiceTest() {
+    ConnectionService connectionService = this.symphonyBdk.connections();
+    assertNotNull(connectionService);
   }
 
   @Test
