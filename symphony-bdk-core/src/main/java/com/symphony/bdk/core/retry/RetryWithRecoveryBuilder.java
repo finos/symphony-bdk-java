@@ -54,11 +54,13 @@ public class RetryWithRecoveryBuilder<T> {
    *
    * @param t the throwable to be checked.
    * @return true if passed throwable is a {@link ProcessingException} (e.g. in case of a temporary network exception)
-   * or if it is a {@link ApiException} which {@link ApiException#isMinorError()}.
+   * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
+   * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}.
    */
   public static boolean isNetworkOrMinorError(Throwable t) {
     if (t instanceof ApiException) {
-      return ((ApiException) t).isMinorError();
+      ApiException apiException = (ApiException) t;
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
     }
     return t instanceof ProcessingException;
   }
@@ -68,12 +70,15 @@ public class RetryWithRecoveryBuilder<T> {
    *
    * @param t the throwable to be checked.
    * @return true if passed throwable is a {@link ProcessingException} (e.g. in case of a temporary network exception)
-   * or if it is a {@link ApiException} which {@link ApiException#isMinorError()} or {@link ApiException#isClientError()}.
+   * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
+   * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}
+   * or {@link ApiException#isClientError()}.
    */
   public static boolean isNetworkOrMinorErrorOrClientError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
-      return apiException.isMinorError() || apiException.isClientError();
+      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError()
+          || apiException.isClientError();
     }
     return t instanceof ProcessingException;
   }
