@@ -63,7 +63,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public List<UserConnection> listConnection(ConnectionStatus status, List<Long> userIdList) {
+  public List<UserConnection> listConnections(ConnectionStatus status, List<Long> userIdList) {
     String userIds = userIdList.stream().map(String::valueOf).collect(Collectors.joining(","));
     return executeAndRetry("listConnection",
         () -> connectionApi.v1ConnectionListGet(authSession.getSessionToken(), status.name(), userIds));

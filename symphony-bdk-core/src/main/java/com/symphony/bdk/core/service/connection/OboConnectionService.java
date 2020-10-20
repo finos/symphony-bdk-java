@@ -25,7 +25,7 @@ public interface OboConnectionService {
 
   /**
    * List all current connection statuses with external or specified users.
-   * {@link ConnectionService#listConnection(ConnectionStatus, List)}
+   * {@link ConnectionService#listConnections(ConnectionStatus, List)}
    *
    * @param status  Filter the connection list based on the connection status.
    *                The connection status can only be pending_incoming, pending_outgoing, accepted, rejected, or all.
@@ -36,7 +36,7 @@ public interface OboConnectionService {
    * @return List of connection statuses with the specified users and status.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-connections">List Connections</a>
    */
-  List<UserConnection> listConnection(ConnectionStatus status, List<Long> userIds);
+  List<UserConnection> listConnections(ConnectionStatus status, List<Long> userIds);
 
   /**
    * Sends a connection request to another user.
@@ -64,7 +64,7 @@ public interface OboConnectionService {
    *
    * @param userId The id of the user who requested to connect with the caller.
    * @return Connection status with the requesting user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#reject-connection>Reject Connection</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference#reject-connection">Reject Connection</a>
    */
   UserConnection rejectConnection(Long userId);
 

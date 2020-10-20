@@ -83,7 +83,7 @@ public class ConnectionServiceTest {
             + "  }\n"
             + "]");
 
-    List<UserConnection> connections = this.service.listConnection(ConnectionStatus.ALL, Arrays.asList(7078106126503L, 7078106103809L));
+    List<UserConnection> connections = this.service.listConnections(ConnectionStatus.ALL, Arrays.asList(7078106126503L, 7078106103809L));
 
     assertEquals(connections.size(), 2);
     assertEquals(connections.get(0).getStatus(), UserConnection.StatusEnum.PENDING_OUTGOING);
@@ -96,7 +96,7 @@ public class ConnectionServiceTest {
   void listConnectionFailed() {
     this.mockApiClient.onGet(400, V1_LIST_CONNECTION, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.listConnection(ConnectionStatus.ALL, Arrays.asList(7078106126503L, 7078106103809L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.listConnections(ConnectionStatus.ALL, Arrays.asList(7078106126503L, 7078106103809L)));
   }
 
   @Test
