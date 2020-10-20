@@ -25,8 +25,8 @@ public abstract class AbstractExtensionAppAuthenticator implements ExtensionAppA
 
   protected final String appId;
   protected final ExtensionAppTokensRepository tokensRepository;
-  private AuthenticationRetry<ExtensionAppTokens> authenticationRetry;
-  private RetryWithRecoveryBuilder<PodCertificate> podCertificateRetryBuilder;
+  private final AuthenticationRetry<ExtensionAppTokens> authenticationRetry;
+  private final RetryWithRecoveryBuilder<PodCertificate> podCertificateRetryBuilder;
 
   public AbstractExtensionAppAuthenticator(BdkRetryConfig retryConfig, String appId) {
     this(retryConfig, appId, new InMemoryTokensRepository());

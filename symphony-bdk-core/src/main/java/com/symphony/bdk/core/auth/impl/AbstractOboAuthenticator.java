@@ -18,8 +18,8 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.INTERNAL)
 public abstract class AbstractOboAuthenticator implements OboAuthenticator {
 
-  protected String appId;
-  private AuthenticationRetry<String> authenticationRetry;
+  protected final String appId;
+  private final AuthenticationRetry<String> authenticationRetry;
 
   public AbstractOboAuthenticator(BdkRetryConfig retryConfig, String appId) {
     this.appId = appId;

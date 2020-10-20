@@ -15,7 +15,7 @@ import org.apiguardian.api.API;
 @API(status = API.Status.INTERNAL)
 public abstract class AbstractBotAuthenticator implements BotAuthenticator {
 
-  private AuthenticationRetry<String> authenticationRetry;
+  private final AuthenticationRetry<String> authenticationRetry;
 
   public AbstractBotAuthenticator(BdkRetryConfig retryConfig) {
     authenticationRetry = new AuthenticationRetry<>(retryConfig);
