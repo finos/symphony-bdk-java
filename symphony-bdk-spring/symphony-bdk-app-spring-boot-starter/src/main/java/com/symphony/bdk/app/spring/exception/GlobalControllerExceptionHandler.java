@@ -1,9 +1,5 @@
 package com.symphony.bdk.app.spring.exception;
 
-import com.symphony.bdk.app.spring.auth.model.BdkAppError;
-import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
-import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
-
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,34 +19,30 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
-  private final SymphonyBdkCoreProperties properties;
-
-  public GlobalControllerExceptionHandler(SymphonyBdkCoreProperties properties) {
-    super();
-    this.properties = properties;
-  }
-
   @ExceptionHandler(BdkAppException.class)
-  public ResponseEntity<Object> handleUnauthorizedException(BdkAppException e, WebRequest request) {
-    BdkAppError error = BdkAppError.fromBdkAppErrorCode(e.getErrorCode(), properties.getApp().getAppId());
-
-    return handleExceptionInternal(e, error, new HttpHeaders(), HttpStatus.UNAUTHORIZED, request);
+  public ResponseEntity<Object> handleBdkAppException(final BdkAppException e, final WebRequest request) {
+    final BdkAppError error = BdkAppError.fromException(e);
+    return super.handleExceptionInternal(e, error, new HttpHeaders(), e.getErrorCode().getStatus(), request);
   }
 
   @Override
-  protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers,
-      HttpStatus status, WebRequest request) {
-    BdkAppError error = new BdkAppError();
-    error.setStatus(status.value());
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException ex,
+      HttpHeaders headers,
+      HttpStatus status,
+      WebRequest request
+  ) {
+
+    final BdkAppError error = new BdkAppError();
     error.setCode(BdkAppErrorCode.MISSING_FIELDS);
 
-    List<String> errors = ex.getBindingResult()
+    final List<String> errors = ex.getBindingResult()
         .getFieldErrors()
         .stream()
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
         .collect(Collectors.toList());
 
     error.setMessage(errors);
-    return handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
+    return super.handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
   }
 }

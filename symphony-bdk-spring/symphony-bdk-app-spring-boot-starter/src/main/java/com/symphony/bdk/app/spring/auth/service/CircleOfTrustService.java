@@ -1,18 +1,19 @@
 package com.symphony.bdk.app.spring.auth.service;
 
 import com.symphony.bdk.app.spring.auth.model.AppToken;
-import com.symphony.bdk.app.spring.auth.model.BdkAppErrorCode;
+import com.symphony.bdk.app.spring.exception.BdkAppErrorCode;
 import com.symphony.bdk.app.spring.auth.model.TokenPair;
 import com.symphony.bdk.app.spring.auth.model.UserId;
 import com.symphony.bdk.app.spring.exception.BdkAppException;
 import com.symphony.bdk.core.auth.AppAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
+import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
+
+import lombok.AllArgsConstructor;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
 
@@ -22,14 +23,13 @@ import java.security.SecureRandom;
  * Service layer class used for Circle of Trust authentication.
  */
 @Service
+@AllArgsConstructor
 public class CircleOfTrustService {
 
   private static final SecureRandom secureRandom = new SecureRandom();
-  private final ExtensionAppAuthenticator authenticator;
 
-  public CircleOfTrustService(ExtensionAppAuthenticator authenticator) {
-    this.authenticator = authenticator;
-  }
+  private final ExtensionAppAuthenticator authenticator;
+  private final SymphonyBdkCoreProperties properties;
 
   /**
    * Authenticate the extension application.
@@ -41,11 +41,10 @@ public class CircleOfTrustService {
    */
   public AppToken authenticate() {
     try {
-      String token = this.generateToken();
-      AppAuthSession authSession = authenticator.authenticateExtensionApp(token);
+      final AppAuthSession authSession = authenticator.authenticateExtensionApp(this.generateToken());
       return new AppToken(authSession.getAppToken());
     } catch (AuthUnauthorizedException e) {
-      throw new BdkAppException(BdkAppErrorCode.AUTH_FAILURE, e);
+      throw new BdkAppException(BdkAppErrorCode.AUTH_FAILURE, e, this.properties.getApp().getAppId());
     }
   }
 
@@ -68,9 +67,8 @@ public class CircleOfTrustService {
    */
   public UserId validateJwt(String jwt) {
     try {
-      UserClaim userClaim = authenticator.validateJwt(jwt);
-      Long userId = userClaim.getId();
-      return new UserId(userId);
+      final UserClaim userClaim = authenticator.validateJwt(jwt);
+      return new UserId(userClaim.getId());
     } catch (AuthInitializationException e) {
       throw new BdkAppException(BdkAppErrorCode.INVALID_JWT, e);
     }
@@ -81,5 +79,4 @@ public class CircleOfTrustService {
     secureRandom.nextBytes(randBytes);
     return Hex.encodeHexString(randBytes);
   }
-
 }
