@@ -7,7 +7,6 @@ import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.presence.constant.PresenceStatus;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.PresenceApi;
-import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.V2Presence;
 import com.symphony.bdk.gen.api.model.V2PresenceStatus;
 import com.symphony.bdk.gen.api.model.V2UserPresence;
@@ -102,9 +101,9 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public StringId createPresenceFeed() {
+  public String createPresenceFeed() {
     return executeAndRetry("createPresenceFeed",
-        () -> presenceApi.v1PresenceFeedCreatePost(authSession.getSessionToken()));
+        () -> presenceApi.v1PresenceFeedCreatePost(authSession.getSessionToken())).getId();
   }
 
   /**
@@ -120,9 +119,9 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public StringId deletePresenceFeed(String feedId) {
+  public String deletePresenceFeed(String feedId) {
     return executeAndRetry("deletePresenceFeed",
-        () -> presenceApi.v1PresenceFeedFeedIdDeletePost(authSession.getSessionToken(), feedId));
+        () -> presenceApi.v1PresenceFeedFeedIdDeletePost(authSession.getSessionToken(), feedId)).getId();
   }
 
   /**

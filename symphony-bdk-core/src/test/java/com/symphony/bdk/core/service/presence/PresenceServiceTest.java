@@ -12,7 +12,6 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.presence.constant.PresenceStatus;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.PresenceApi;
-import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.V2Presence;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
@@ -174,9 +173,9 @@ public class PresenceServiceTest {
             + "  \"id\": \"c4dca251-8639-48db-a9d4-f387089e17cf\"\n"
             + "}");
 
-    StringId feedId = this.service.createPresenceFeed();
+    String feedId = this.service.createPresenceFeed();
 
-    assertEquals(feedId.getId(), "c4dca251-8639-48db-a9d4-f387089e17cf");
+    assertEquals(feedId, "c4dca251-8639-48db-a9d4-f387089e17cf");
   }
 
   @Test
@@ -225,9 +224,9 @@ public class PresenceServiceTest {
             + "  \"id\": \"1234\"\n"
             + "}");
 
-    StringId feedId = this.service.deletePresenceFeed("1234");
+    String feedId = this.service.deletePresenceFeed("1234");
 
-    assertEquals(feedId.getId(), "1234");
+    assertEquals(feedId, "1234");
   }
 
   @Test

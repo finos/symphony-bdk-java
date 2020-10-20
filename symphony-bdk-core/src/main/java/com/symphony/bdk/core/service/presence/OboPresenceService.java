@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.service.presence;
 
 import com.symphony.bdk.core.service.presence.constant.PresenceStatus;
-import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.V2Presence;
 
 import org.apiguardian.api.API;
@@ -81,7 +80,7 @@ public interface OboPresenceService {
    * @return Presence feed Id
    * @see <a href="https://developers.symphony.com/restapi/reference#create-presence-feed">Create Presence Feed</a>
    */
-  StringId createPresenceFeed();
+  String createPresenceFeed();
 
   /**
    * Reads the specified presence feed that was created.
@@ -101,7 +100,7 @@ public interface OboPresenceService {
    * @param feedId The presence feed id to be deleted.
    * @return The id of the deleted presence feed.
    */
-  StringId deletePresenceFeed(String feedId);
+  String deletePresenceFeed(String feedId);
 
   /**
    * Set the presence state of a another user.
