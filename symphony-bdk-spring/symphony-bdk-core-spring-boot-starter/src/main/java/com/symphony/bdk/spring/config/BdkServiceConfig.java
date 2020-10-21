@@ -4,11 +4,13 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
@@ -58,6 +60,12 @@ public class BdkServiceConfig {
   @ConditionalOnMissingBean
   public PresenceService presenceService(PresenceApi presenceApi, AuthSession botSession, BdkConfig config) {
     return new PresenceService(presenceApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public ConnectionService connectionService(ConnectionApi connectionApi, AuthSession botSession, BdkConfig config) {
+    return new ConnectionService(connectionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
