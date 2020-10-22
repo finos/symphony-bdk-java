@@ -90,7 +90,14 @@ bdk-app:
       jwtCookie:
         enabled: true # activate the jwt cookie storage (default is false)
         expireIn: 1d # jwt cookie duration (default value is 1d, see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config-conversion-duration) 
-
+    cors: # enable Cross-Origin Resource Sharing (CORS) communication
+      "[/**]": # url mapping
+        allowed-origins: "*" # list of allowed origins path pattern that be specific origins,
+        allowed-credentials: true # Access-Control-Allow-Credentials response header for CORS request
+        allowed-method: ["POST", "GET"] # list of HTTP methods to allow
+        allowed-headers: ["header1", "header2"] # list of headers that a request can list as allowed
+        exposed-headers: ["header1", "header2"] # list of response headers that a response can have and can be exposed
+        
 logging:
   level:
     com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
