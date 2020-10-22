@@ -3,6 +3,9 @@ package com.symphony.bdk.app.spring.properties;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Configuration Properties for enabling the CORS support to accept requests coming from the extension app.
  */
@@ -11,12 +14,28 @@ import lombok.Setter;
 public class CorsProperties {
 
   /**
-   * CORS handling for the specified path pattern.
+   * CORS handling for the specified path patterns.
    */
-  private String allowedOrigin = "/**";
+  private List<String> allowedOrigins = Collections.singletonList("/**");
 
   /**
-   * The list of allowed origins pattern.
+   * Access-Control-Allow-Credentials response header for CORS request
    */
-  private String urlMapping = "*";
+  private Boolean allowedCredentials = true;
+
+  /**
+   * List of headers that a request can list as allowed
+   */
+  private List<String> allowedHeaders = Collections.emptyList();
+
+  /**
+   * List of response headers that a response can have and can be exposed
+   */
+  private List<String> exposedHeaders = Collections.emptyList();
+
+  /**
+   * List of HTTP methods to allow
+   */
+  private List<String> allowedMethod = Collections.emptyList();
+
 }

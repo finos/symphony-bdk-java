@@ -7,17 +7,18 @@ bdk:
 
   app:
     appId: myapp
-    privateKeyPath: ${user.home}/.symphony/app_privatekey.pem
+    privateKeyPath: ${user.home}/.symphony/privatekey.pem
 
 bdk-app:
   auth:
     enabled: true
     jwtCookie:
       enabled: true
-      expireIn: 43200
+      maxAge: 1d
   cors:
-    allowed-origin: /**
-    url-mapping: "*"
+    "[/**]":
+      allowed-origins: "*"
+
 logging:
   level:
     com.symphony: debug
@@ -28,6 +29,6 @@ server:
     key-store-password: password
     key-store-type: pkcs12
     key-alias: tomcat
-  port: 443
+  port: 10443
 spring.security.user.name: user
 spring.security.user.password: password
