@@ -1,6 +1,6 @@
 let appControllerService = SYMPHONY.services.register("app:controller")
 let navService
-let appId = "myapp"
+let appId = "mybot"
 
 let authenticate = () => {
     return $.post({
@@ -27,7 +27,7 @@ let register = data => {
         appControllerService.implement({
             select: id => {
                 if (id === 'show-module') {
-                    modulesService.show("test-app", {title: "Circle Of Trust"}, "app:controller", "https://localhost:8443/app.html")
+                    modulesService.show("test-app", {title: "Circle Of Trust"}, "app:controller", "https://localhost:443/app.html")
 
                 }
             }

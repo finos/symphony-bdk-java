@@ -9,6 +9,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+    // This configuration is not recommended in production setup
     http.authorizeRequests().anyRequest().permitAll();
     http.csrf().disable();
     http.headers().frameOptions().disable();
