@@ -3,7 +3,9 @@ package com.symphony.bdk.core;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.OboMessageService;
+import com.symphony.bdk.core.service.presence.OboPresenceService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.user.OboUserService;
 
@@ -18,6 +20,8 @@ public class OboServices {
   private final OboStreamService oboStreamService;
   private final OboUserService oboUserService;
   private final OboMessageService oboMessageService;
+  private final OboPresenceService oboPresenceService;
+  private final OboConnectionService oboConnectionService;
 
   public OboServices(BdkConfig config, AuthSession oboSession) {
     final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config);
@@ -25,6 +29,8 @@ public class OboServices {
     oboStreamService = serviceFactory.getStreamService();
     oboUserService = serviceFactory.getUserService();
     oboMessageService = serviceFactory.getMessageService();
+    oboPresenceService = serviceFactory.getPresenceService();
+    oboConnectionService = serviceFactory.getConnectionService();
   }
 
   /**
@@ -43,6 +49,24 @@ public class OboServices {
    */
   public OboUserService users() {
     return oboUserService;
+  }
+
+  /**
+   * Get the {@link OboPresenceService} using the provided OBO session in constructor.
+   *
+   * @return an {@link OboPresenceService} instance with the provided OBO session.
+   */
+  public OboPresenceService presences() {
+    return oboPresenceService;
+  }
+
+  /**
+   * Get the {@link OboConnectionService} using the provided OBO session in constructor.
+   *
+   * @return an {@link OboConnectionService} instance with the provided OBO session.
+   */
+  public OboConnectionService connections() {
+    return oboConnectionService;
   }
 
   /**
