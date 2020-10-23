@@ -67,7 +67,7 @@ plugins {
 dependencies {
     implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.2.BETA')
     
-    implementation 'com.symphony.platformsolutions:symphony-bdk--spring-boot-starter'
+    implementation 'com.symphony.platformsolutions:symphony-bdk-app-spring-boot-starter'
 }
 ```
 
