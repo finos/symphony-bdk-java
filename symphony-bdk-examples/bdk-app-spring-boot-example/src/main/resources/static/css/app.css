@@ -1,0 +1,12 @@
+body {
+    padding-left: 30px;
+}
+
+.content {
+    max-width: 500px;
+    word-break: break-all;
+}
+
+.action {
+    margin-top: 35px;
+}

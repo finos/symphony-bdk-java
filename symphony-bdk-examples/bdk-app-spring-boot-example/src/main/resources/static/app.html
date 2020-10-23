@@ -1,0 +1,51 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>App Auth Example - Module</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.symphony.com/resources/api/v2.1/styles/symphony-external-app.css" />
+    <link rel="stylesheet" type="text/css" href="css/app.css">
+</head>
+<body class="symphony-external-app">
+<div class="module-wrapper">
+
+    <div id="authenticate">
+        <div class="tempo-btn tempo-btn--primary action" id="authenticate-btn">Authenticate</div>
+        <div>
+            <p class="tempo-text-primary content" id="authenticate-txt"></p>
+        </div>
+    </div>
+    <div id="register">
+        <div class="tempo-btn tempo-btn--primary action" id="register-btn">Register to Symphony Backend</div>
+        <div>
+            <p class="tempo-text-primary content" id="register-txt"></p>
+        </div>
+    </div>
+    <div id="validate-token">
+        <div class="tempo-btn tempo-btn--primary action" id="validate-token-btn">Validate Tokens Pair</div>
+        <div>
+            <p class="tempo-text-primary content" id="validate-token-txt"></p>
+        </div>
+    </div>
+    <div id="retrieve-jwt">
+        <div class="tempo-btn tempo-btn--primary action" id="retrieve-jwt-btn">Retrieve JWT from Symphony Frontend</div>
+        <div>
+            <p class="tempo-text-primary content" id="retrieve-jwt-txt"></p>
+        </div>
+    </div>
+    <div id="validate-jwt">
+        <div class="tempo-btn tempo-btn--primary action" id="validate-jwt-btn">Validate JWT</div>
+        <div>
+            <p class="tempo-text-primary content " id="validate-jwt-txt"></p>
+        </div>
+    </div>
+    <div class="tempo-btn tempo-btn--primary action" id="reset-btn">Reset</div>
+</div>
+<!-- Include the Symphony Client Extensions API javascript -->
+<script type="text/javascript" src="https://cdn.symphony.com/resources/api/v1.0/symphony-api.js" charset="utf-8"></script>
+
+<!-- Include the app controller javascript. This file is generated when running the npm webpack commands. -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="scripts/app.js" charset="utf-8"></script>
+
+</body>
+</html>
