@@ -1,4 +1,13 @@
+plugins {
+    id 'java'
+}
 description = '[legacy] Symphony BDK'
+
+processResources {
+    filesMatching("application-base.properties") {
+        expand(project.properties)
+    }
+}
 
 dependencies {
     implementation project(':symphony-api-client-java')
