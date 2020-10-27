@@ -42,7 +42,7 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    final UserPresence userPresence = presenceClient.getUserPresence(1L, true);
+    final UserPresence userPresence = this.presenceClient.getUserPresence(1L, true);
     assertNotNull(userPresence);
 
     verifyUserPresence(userPresence, 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
@@ -55,7 +55,7 @@ public class PresenceClientTest extends BotTest {
         400, "{}"
     );
 
-    presenceClient.getUserPresence(1L, true);
+    this.presenceClient.getUserPresence(1L, true);
   }
 
   @Test(expected = SymClientException.class)
@@ -65,7 +65,7 @@ public class PresenceClientTest extends BotTest {
         401, "{}"
     );
 
-    presenceClient.getUserPresence(1L, true);
+    this.presenceClient.getUserPresence(1L, true);
   }
 
 
@@ -76,7 +76,7 @@ public class PresenceClientTest extends BotTest {
         403, "{}"
     );
 
-    presenceClient.getUserPresence(1L, true);
+    this.presenceClient.getUserPresence(1L, true);
   }
 
   @Test(expected = ServerErrorException.class)
@@ -86,7 +86,7 @@ public class PresenceClientTest extends BotTest {
         500, "{}"
     );
 
-    presenceClient.getUserPresence(1L, true);
+    this.presenceClient.getUserPresence(1L, true);
   }
   // End getUserPresence with arguments
 
@@ -102,7 +102,7 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    final UserPresence userPresence = presenceClient.getUserPresence();
+    final UserPresence userPresence = this.presenceClient.getUserPresence();
     assertNotNull(userPresence);
 
     verifyUserPresence(userPresence, 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
@@ -113,7 +113,7 @@ public class PresenceClientTest extends BotTest {
 
     stubGet(PodConstants.GET_OR_SET_PRESENCE, 400, "{}");
 
-    presenceClient.getUserPresence();
+    this.presenceClient.getUserPresence();
   }
 
   @Test(expected = SymClientException.class)
@@ -121,7 +121,7 @@ public class PresenceClientTest extends BotTest {
 
     stubGet(PodConstants.GET_OR_SET_PRESENCE, 401, "{}");
 
-    presenceClient.getUserPresence();
+    this.presenceClient.getUserPresence();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -129,7 +129,7 @@ public class PresenceClientTest extends BotTest {
 
     stubGet(PodConstants.GET_OR_SET_PRESENCE, 403, "{}");
 
-    presenceClient.getUserPresence();
+    this.presenceClient.getUserPresence();
   }
 
   @Test(expected = ServerErrorException.class)
@@ -137,7 +137,7 @@ public class PresenceClientTest extends BotTest {
 
     stubGet(PodConstants.GET_OR_SET_PRESENCE, 500, "{}");
 
-    presenceClient.getUserPresence();
+    this.presenceClient.getUserPresence();
   }
   // End getUserPresence without argument
 
@@ -160,7 +160,7 @@ public class PresenceClientTest extends BotTest {
             + "]"
     );
 
-    final List<UserPresence> presenceList = presenceClient.getAllPresence(974217539631L, 50);
+    final List<UserPresence> presenceList = this.presenceClient.getAllPresence(974217539631L, 50);
     assertNotNull(presenceList);
 
     assertEquals(2, presenceList.size());
@@ -185,7 +185,7 @@ public class PresenceClientTest extends BotTest {
             + "]"
     );
 
-    presenceClient.getAllPresence(974217539631L, 5001);
+    this.presenceClient.getAllPresence(974217539631L, 5001);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -193,7 +193,7 @@ public class PresenceClientTest extends BotTest {
     stubGet(PodConstants.GET_ALL_PRESENCE + "?lastUserId=974217539631&limit=50", 400,
         "{}");
 
-    presenceClient.getAllPresence(974217539631L, 50);
+    this.presenceClient.getAllPresence(974217539631L, 50);
   }
 
   @Test(expected = SymClientException.class)
@@ -201,7 +201,7 @@ public class PresenceClientTest extends BotTest {
     stubGet(PodConstants.GET_ALL_PRESENCE + "?lastUserId=974217539631&limit=50", 401,
         "{}");
 
-    presenceClient.getAllPresence(974217539631L, 50);
+    this.presenceClient.getAllPresence(974217539631L, 50);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -212,7 +212,7 @@ public class PresenceClientTest extends BotTest {
             + "\"message\": \"The user lacks the required entitlement to perform this operation\""
             + "}");
 
-    presenceClient.getAllPresence(974217539631L, 50);
+    this.presenceClient.getAllPresence(974217539631L, 50);
   }
 
   @Test(expected = ServerErrorException.class)
@@ -220,7 +220,7 @@ public class PresenceClientTest extends BotTest {
     stubGet(PodConstants.GET_ALL_PRESENCE + "?lastUserId=974217539631&limit=50", 500,
         "{}");
 
-    presenceClient.getAllPresence(974217539631L, 50);
+    this.presenceClient.getAllPresence(974217539631L, 50);
   }
   // End getAllPresence
 
@@ -236,7 +236,7 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    final UserPresence userPresence = presenceClient.setPresence(UserPresenceCategory.AWAY);
+    final UserPresence userPresence = this.presenceClient.setPresence(UserPresenceCategory.AWAY);
     assertNotNull(userPresence);
 
     verifyUserPresence(userPresence, 1L, UserPresenceCategory.AWAY, 1503286569882L);
@@ -247,7 +247,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.GET_OR_SET_PRESENCE, "{}", 400);
 
-    presenceClient.setPresence(UserPresenceCategory.AWAY);
+    this.presenceClient.setPresence(UserPresenceCategory.AWAY);
   }
 
   @Test(expected = SymClientException.class)
@@ -255,7 +255,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.GET_OR_SET_PRESENCE, "{}", 401);
 
-    presenceClient.setPresence(UserPresenceCategory.AWAY);
+    this.presenceClient.setPresence(UserPresenceCategory.AWAY);
   }
 
   @Test(expected = ServerErrorException.class)
@@ -263,7 +263,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.GET_OR_SET_PRESENCE, "{}", 500);
 
-    presenceClient.setPresence(UserPresenceCategory.AWAY);
+    this.presenceClient.setPresence(UserPresenceCategory.AWAY);
   }
   // End setPresence by category
 
@@ -279,7 +279,7 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    final UserPresence userPresence = presenceClient.setPresence("AWAY");
+    final UserPresence userPresence = this.presenceClient.setPresence("AWAY");
     assertNotNull(userPresence);
 
     verifyUserPresence(userPresence, 1L, UserPresenceCategory.AWAY, 1503286569882L);
@@ -290,7 +290,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.GET_OR_SET_PRESENCE, "{}", 400);
 
-    presenceClient.setPresence("AWAY");
+    this.presenceClient.setPresence("AWAY");
   }
 
   @Test(expected = SymClientException.class)
@@ -298,7 +298,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.GET_OR_SET_PRESENCE, "{}", 401);
 
-    presenceClient.setPresence("AWAY");
+    this.presenceClient.setPresence("AWAY");
   }
 
   @Test(expected = ServerErrorException.class)
@@ -306,7 +306,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.GET_OR_SET_PRESENCE, "{}", 500);
 
-    presenceClient.setPresence("AWAY");
+    this.presenceClient.setPresence("AWAY");
   }
   // End setPresence by status
 
@@ -323,7 +323,7 @@ public class PresenceClientTest extends BotTest {
 
     List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
     assertNotNull(userIds);
-    presenceClient.registerInterestExtUser(userIds);
+    this.presenceClient.registerInterestExtUser(userIds);
     assertTrue(true);
   }
 
@@ -334,7 +334,7 @@ public class PresenceClientTest extends BotTest {
 
     List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
     assertNotNull(userIds);
-    presenceClient.registerInterestExtUser(userIds);
+    this.presenceClient.registerInterestExtUser(userIds);
     assertTrue(true);
   }
 
@@ -345,7 +345,7 @@ public class PresenceClientTest extends BotTest {
 
     List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
     assertNotNull(userIds);
-    presenceClient.registerInterestExtUser(userIds);
+    this.presenceClient.registerInterestExtUser(userIds);
     assertTrue(true);
   }
 
@@ -356,7 +356,7 @@ public class PresenceClientTest extends BotTest {
 
     List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
     assertNotNull(userIds);
-    presenceClient.registerInterestExtUser(userIds);
+    this.presenceClient.registerInterestExtUser(userIds);
     assertTrue(true);
   }
 
@@ -367,7 +367,7 @@ public class PresenceClientTest extends BotTest {
 
     List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
     assertNotNull(userIds);
-    presenceClient.registerInterestExtUser(userIds);
+    this.presenceClient.registerInterestExtUser(userIds);
     assertTrue(true);
   }
   // End registerInterestExtUser
@@ -379,7 +379,7 @@ public class PresenceClientTest extends BotTest {
         "{ \"id\": \"c6ddc040-734c-40cb-9d33-20a5200486d8\" }"
     );
 
-    final String feedId = presenceClient.createPresenceFeed();
+    final String feedId = this.presenceClient.createPresenceFeed();
     assertEquals("c6ddc040-734c-40cb-9d33-20a5200486d8", feedId);
   }
 
@@ -388,7 +388,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_CREATE,
         "{ \"id\": \"c6ddc040-734c-40cb-9d33-20a5200486d8\" }", 400);
 
-    presenceClient.createPresenceFeed();
+    this.presenceClient.createPresenceFeed();
   }
 
   @Test(expected = SymClientException.class)
@@ -396,7 +396,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_CREATE,
         "{ \"id\": \"c6ddc040-734c-40cb-9d33-20a5200486d8\" }", 401);
 
-    presenceClient.createPresenceFeed();
+    this.presenceClient.createPresenceFeed();
   }
 
   @Test(expected = ForbiddenException.class)
@@ -404,7 +404,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_CREATE,
         "{ \"id\": \"c6ddc040-734c-40cb-9d33-20a5200486d8\" }", 403);
 
-    presenceClient.createPresenceFeed();
+    this.presenceClient.createPresenceFeed();
   }
 
   @Test(expected = ServerErrorException.class)
@@ -412,7 +412,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_CREATE,
         "{ \"id\": \"c6ddc040-734c-40cb-9d33-20a5200486d8\" }", 500);
 
-    presenceClient.createPresenceFeed();
+    this.presenceClient.createPresenceFeed();
   }
   // End createPresenceFeed
 
@@ -437,7 +437,7 @@ public class PresenceClientTest extends BotTest {
             + "]"
     );
 
-    final List<UserPresence> presenceList = presenceClient.readPresenceFeed(feedId);
+    final List<UserPresence> presenceList = this.presenceClient.readPresenceFeed(feedId);
     assertNotNull(presenceList);
 
     assertEquals(2, presenceList.size());
@@ -453,7 +453,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_READ.replace("{feedId}", feedId),
         "{}", 400);
 
-    presenceClient.readPresenceFeed(feedId);
+    this.presenceClient.readPresenceFeed(feedId);
   }
 
   @Test(expected = SymClientException.class)
@@ -464,7 +464,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_READ.replace("{feedId}", feedId),
         "{}", 401);
 
-    presenceClient.readPresenceFeed(feedId);
+    this.presenceClient.readPresenceFeed(feedId);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -475,7 +475,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_READ.replace("{feedId}", feedId),
         "{}", 403);
 
-    presenceClient.readPresenceFeed(feedId);
+    this.presenceClient.readPresenceFeed(feedId);
   }
 
   @Test(expected = ServerErrorException.class)
@@ -486,7 +486,7 @@ public class PresenceClientTest extends BotTest {
     stubPost(PodConstants.PRESENCE_FEED_READ.replace("{feedId}", feedId),
         "{}", 500);
 
-    presenceClient.readPresenceFeed(feedId);
+    this.presenceClient.readPresenceFeed(feedId);
   }
   // End readPresenceFeed
 
@@ -500,7 +500,7 @@ public class PresenceClientTest extends BotTest {
         "{}"
     );
 
-    presenceClient.deletePresenceFeed(feedId);
+    this.presenceClient.deletePresenceFeed(feedId);
 
     assertTrue(true);
   }
@@ -513,7 +513,7 @@ public class PresenceClientTest extends BotTest {
     stubDelete(PodConstants.PRESENCE_FEED_DELETE.replace("{feedId}", feedId),
         "{}", 400);
 
-    presenceClient.deletePresenceFeed(feedId);
+    this.presenceClient.deletePresenceFeed(feedId);
   }
 
   @Test(expected = SymClientException.class)
@@ -524,7 +524,7 @@ public class PresenceClientTest extends BotTest {
     stubDelete(PodConstants.PRESENCE_FEED_DELETE.replace("{feedId}", feedId),
         "{}", 401);
 
-    presenceClient.deletePresenceFeed(feedId);
+    this.presenceClient.deletePresenceFeed(feedId);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -535,7 +535,7 @@ public class PresenceClientTest extends BotTest {
     stubDelete(PodConstants.PRESENCE_FEED_DELETE.replace("{feedId}", feedId),
         "{}", 403);
 
-    presenceClient.deletePresenceFeed(feedId);
+    this.presenceClient.deletePresenceFeed(feedId);
   }
 
   @Test(expected = ServerErrorException.class)
@@ -546,7 +546,7 @@ public class PresenceClientTest extends BotTest {
     stubDelete(PodConstants.PRESENCE_FEED_DELETE.replace("{feedId}", feedId),
         "{}", 500);
 
-    presenceClient.deletePresenceFeed(feedId);
+    this.presenceClient.deletePresenceFeed(feedId);
   }
   // End deletePresenceFeed
 
@@ -562,7 +562,7 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    final UserPresence userPresence = presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    final UserPresence userPresence = this.presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
     assertNotNull(userPresence);
 
     verifyUserPresence(userPresence, 1L, UserPresenceCategory.BUSY, 1503286569882L);
@@ -573,7 +573,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.SET_OTHER_USER_PRESENCE,"{}", 400);
 
-    presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    this.presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
   }
 
   @Test(expected = SymClientException.class)
@@ -581,7 +581,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.SET_OTHER_USER_PRESENCE,"{}", 401);
 
-    presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    this.presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
   }
 
   @Test(expected = ForbiddenException.class)
@@ -589,7 +589,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.SET_OTHER_USER_PRESENCE,"{}", 403);
 
-    presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    this.presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
   }
 
   @Test(expected = ServerErrorException.class)
@@ -597,7 +597,7 @@ public class PresenceClientTest extends BotTest {
 
     stubPost(PodConstants.SET_OTHER_USER_PRESENCE,"{}", 500);
 
-    presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    this.presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
   }
   // End setOtherUserPresence
 
