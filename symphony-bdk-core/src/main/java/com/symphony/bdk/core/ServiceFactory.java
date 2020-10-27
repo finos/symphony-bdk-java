@@ -12,6 +12,7 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -26,6 +27,7 @@ import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
+import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -146,5 +148,14 @@ class ServiceFactory {
    */
   public ConnectionService getConnectionService() {
     return new ConnectionService(new ConnectionApi(this.podClient), this.authSession, this.retryBuilder);
+  }
+
+  /**
+   * Returns a fully initialized {@link SignalService}.
+   *
+   * @return a new {@link SignalService} instance.
+   */
+  public SignalService getSignalService() {
+    return new SignalService(new SignalsApi(this.agentClient), this.authSession, this.retryBuilder);
   }
 }

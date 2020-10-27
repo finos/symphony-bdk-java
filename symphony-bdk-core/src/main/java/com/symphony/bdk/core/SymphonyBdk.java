@@ -14,6 +14,7 @@ import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.util.ServiceLookup;
@@ -48,6 +49,7 @@ public class SymphonyBdk {
   private final DatafeedService datafeedService;
   private final PresenceService presenceService;
   private final ConnectionService connectionService;
+  private final SignalService signalService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
@@ -70,6 +72,7 @@ public class SymphonyBdk {
     this.streamService = serviceFactory.getStreamService();
     this.presenceService = serviceFactory.getPresenceService();
     this.connectionService = serviceFactory.getConnectionService();
+    this.signalService = serviceFactory.getSignalService();
     this.messageService = serviceFactory.getMessageService();
     this.datafeedService = serviceFactory.getDatafeedService();
 
@@ -144,6 +147,15 @@ public class SymphonyBdk {
    */
   public ConnectionService connections() {
     return this.connectionService;
+  }
+
+  /**
+   * Get the {@link SignalService} from a Bdk entry point.
+   *
+   * @return {@link SignalService} signal service instance.
+   */
+  public SignalService signals() {
+    return this.signalService;
   }
 
   /**
