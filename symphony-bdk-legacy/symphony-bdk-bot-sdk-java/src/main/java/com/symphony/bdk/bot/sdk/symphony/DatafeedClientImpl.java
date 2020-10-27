@@ -3,6 +3,7 @@ package com.symphony.bdk.bot.sdk.symphony;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import clients.SymBotClient;
 import listeners.ElementsListener;
 import listeners.IMListener;
