@@ -30,7 +30,6 @@ import java.util.stream.Stream;
  * <li>Update a signal</li>
  * <li>Delete a signal</li>
  * <li>Subscribe or unsubscribe a signal</li>
- * <li></li>
  * </ul></p>
  */
 @API(status = API.Status.STABLE)
@@ -135,7 +134,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * @return
    */
   @Override
-  public List<ChannelSubscriber> subscribers(String id, Integer skip, Integer limit) {
+  public List<ChannelSubscriber> listSubscribers(String id, Integer skip, Integer limit) {
     return executeAndRetry("subscribers",
         () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(), skip, limit)).getData();
   }
@@ -145,8 +144,8 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * @return
    */
   @Override
-  public Stream<ChannelSubscriber> subscribersStream(String id, Integer chunkSize, Integer totalSize) {
-    PaginatedApi<ChannelSubscriber> api = (((offset, limit) -> subscribers(id, offset, limit)));
+  public Stream<ChannelSubscriber> listSubscribersStream(String id, Integer chunkSize, Integer totalSize) {
+    PaginatedApi<ChannelSubscriber> api = (((offset, limit) -> listSubscribers(id, offset, limit)));
 
     final int actualChunkSize = chunkSize == null ? 100 : chunkSize;
     final int actualTotalSize = totalSize == null ? 100 : totalSize;

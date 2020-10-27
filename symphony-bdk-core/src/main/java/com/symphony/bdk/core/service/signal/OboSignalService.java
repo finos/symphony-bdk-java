@@ -54,7 +54,7 @@ public interface OboSignalService {
    *
    * @param signal  A signal object to be created.
    * @return A new created signal object.
-   * @see <a href=https://developers.symphony.com/restapi/reference#create-signal">Create Signal</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-signal">Create Signal</a>
    */
   Signal createSignal(BaseSignal signal);
 
@@ -104,7 +104,7 @@ public interface OboSignalService {
 
   /**
    * Get the subscribers for a specified signal.
-   * {@link SignalService#subscribers(String, Integer, Integer)}
+   * {@link SignalService#listSubscribers(String, Integer, Integer)}
    *
    * @param id      The id of the specified signal.
    * @param skip    The number of results to skip.
@@ -112,11 +112,11 @@ public interface OboSignalService {
    * @return List of subscribers of the signal.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  List<ChannelSubscriber> subscribers(String id, Integer skip, Integer limit);
+  List<ChannelSubscriber> listSubscribers(String id, Integer skip, Integer limit);
 
   /**
    * Get the subscribers for a specified signal.
-   * {@link SignalService#subscribersStream(String, Integer, Integer)}
+   * {@link SignalService#listSubscribersStream(String, Integer, Integer)}
    *
    * @param id        The id of the specified signal.
    * @param chunkSize The size of elements to retrieve in one call. Optional and defaults to 100.
@@ -124,5 +124,5 @@ public interface OboSignalService {
    * @return a {@link Stream} containing the subscribers.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  Stream<ChannelSubscriber> subscribersStream(String id, Integer chunkSize, Integer totalSize);
+  Stream<ChannelSubscriber> listSubscribersStream(String id, Integer chunkSize, Integer totalSize);
 }

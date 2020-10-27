@@ -266,7 +266,7 @@ public class SignalServiceTest {
             + "    ]\n"
             + "}");
 
-    List<ChannelSubscriber> subscribers = this.service.subscribers("1234", 0, 100);
+    List<ChannelSubscriber> subscribers = this.service.listSubscribers("1234", 0, 100);
 
     assertEquals(subscribers.size(), 1);
     assertEquals(subscribers.get(0).getUserId(), 68719476742L);
@@ -277,7 +277,7 @@ public class SignalServiceTest {
   void subscribersFailed() {
     this.mockApiClient.onGet(400, V1_SUBSCRIBERS.replace("{id}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.subscribers("1234", 0, 100));
+    assertThrows(ApiRuntimeException.class, () -> this.service.listSubscribers("1234", 0, 100));
   }
 
   @Test
@@ -298,7 +298,7 @@ public class SignalServiceTest {
             + "    ]\n"
             + "}");
 
-    Stream<ChannelSubscriber> subscribers = this.service.subscribersStream("1234", 2, 2);
+    Stream<ChannelSubscriber> subscribers = this.service.listSubscribersStream("1234", 2, 2);
     List<ChannelSubscriber> subscriberList = subscribers.collect(Collectors.toList());
 
     assertEquals(subscriberList.size(), 1);
