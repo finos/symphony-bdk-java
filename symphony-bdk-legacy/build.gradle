@@ -138,6 +138,16 @@ subprojects {
     }
 
     publishing {
+        repositories {
+            maven {
+                credentials {
+                    username rootProject.ext.symphonyRepoUser
+                    password rootProject.ext.symphonyRepoPassword
+                }
+                url rootProject.ext.symphonyRepoUrl
+            }
+        }
+
         publications {
             maven(MavenPublication) {
                 from(components.java)
