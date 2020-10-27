@@ -1,5 +1,9 @@
 package it.clients.symphony.api;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import clients.symphony.api.PresenceClient;
 import clients.symphony.api.constants.PodConstants;
 import exceptions.APIClientErrorException;
@@ -7,18 +11,15 @@ import exceptions.ForbiddenException;
 import exceptions.ServerErrorException;
 import exceptions.SymClientException;
 import it.commons.BotTest;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import model.UserPresence;
 import model.UserPresenceCategory;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PresenceClientTest extends BotTest {
 
@@ -41,16 +42,10 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    try {
+    final UserPresence userPresence = presenceClient.getUserPresence(1L, true);
+    assertNotNull(userPresence);
 
-      final UserPresence userPresence = presenceClient.getUserPresence(1L, true);
-      assertNotNull(userPresence);
-
-      verifyUserPresence(userPresence, 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    verifyUserPresence(userPresence, 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -107,16 +102,10 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    try {
+    final UserPresence userPresence = presenceClient.getUserPresence();
+    assertNotNull(userPresence);
 
-      final UserPresence userPresence = presenceClient.getUserPresence();
-      assertNotNull(userPresence);
-
-      verifyUserPresence(userPresence, 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    verifyUserPresence(userPresence, 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -158,48 +147,42 @@ public class PresenceClientTest extends BotTest {
 
     stubGet(PodConstants.GET_ALL_PRESENCE + "?lastUserId=974217539631&limit=50",
         "["
-                          + "{ "
-                            + "\"category\": \"AVAILABLE\", "
-                            + "\"userId\": 1, "
-                            + "\"timestamp\": 1533928483800"
-                          + "},"
-                          + "{"
-                          + " \"category\": \"BUSY\","
-                          + " \"userId\": 974217539631,"
-                          + " \"timestamp\": 1503286226030"
-                          + "}"
-                        + "]"
+            + "{ "
+            + "\"category\": \"AVAILABLE\", "
+            + "\"userId\": 1, "
+            + "\"timestamp\": 1533928483800"
+            + "},"
+            + "{"
+            + " \"category\": \"BUSY\","
+            + " \"userId\": 974217539631,"
+            + " \"timestamp\": 1503286226030"
+            + "}"
+            + "]"
     );
 
-    try {
+    final List<UserPresence> presenceList = presenceClient.getAllPresence(974217539631L, 50);
+    assertNotNull(presenceList);
 
-      final List<UserPresence> presenceList = presenceClient.getAllPresence(974217539631L, 50);
-      assertNotNull(presenceList);
-
-      assertEquals(2, presenceList.size());
-      verifyUserPresence(presenceList.get(0), 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
-      verifyUserPresence(presenceList.get(1), 974217539631L, UserPresenceCategory.BUSY, 1503286226030L);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    assertEquals(2, presenceList.size());
+    verifyUserPresence(presenceList.get(0), 1L, UserPresenceCategory.AVAILABLE, 1533928483800L);
+    verifyUserPresence(presenceList.get(1), 974217539631L, UserPresenceCategory.BUSY, 1503286226030L);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void getAllPresenceFailureLimit() {
     stubGet(PodConstants.GET_ALL_PRESENCE + "?lastUserId=974217539631&limit=5001",
         "["
-                          + "{ "
-                            + "\"category\": \"AVAILABLE\", "
-                            + "\"userId\": 1, "
-                            + "\"timestamp\": 1533928483800"
-                          + "},"
-                          + "{"
-                            + " \"category\": \"BUSY\","
-                            + " \"userId\": 974217539631,"
-                            + " \"timestamp\": 1503286226030"
-                          + "}"
-                          + "]"
+            + "{ "
+            + "\"category\": \"AVAILABLE\", "
+            + "\"userId\": 1, "
+            + "\"timestamp\": 1533928483800"
+            + "},"
+            + "{"
+            + " \"category\": \"BUSY\","
+            + " \"userId\": 974217539631,"
+            + " \"timestamp\": 1503286226030"
+            + "}"
+            + "]"
     );
 
     presenceClient.getAllPresence(974217539631L, 5001);
@@ -253,16 +236,10 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    try {
+    final UserPresence userPresence = presenceClient.setPresence(UserPresenceCategory.AWAY);
+    assertNotNull(userPresence);
 
-      final UserPresence userPresence = presenceClient.setPresence(UserPresenceCategory.AWAY);
-      assertNotNull(userPresence);
-
-      verifyUserPresence(userPresence, 1L, UserPresenceCategory.AWAY, 1503286569882L);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    verifyUserPresence(userPresence, 1L, UserPresenceCategory.AWAY, 1503286569882L);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -302,16 +279,10 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    try {
+    final UserPresence userPresence = presenceClient.setPresence("AWAY");
+    assertNotNull(userPresence);
 
-      final UserPresence userPresence = presenceClient.setPresence("AWAY");
-      assertNotNull(userPresence);
-
-      verifyUserPresence(userPresence, 1L, UserPresenceCategory.AWAY, 1503286569882L);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    verifyUserPresence(userPresence, 1L, UserPresenceCategory.AWAY, 1503286569882L);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -350,16 +321,10 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    try {
-
-      List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
-      assertNotNull(userIds);
-      presenceClient.registerInterestExtUser(userIds);
-      assertTrue(true);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    List<Long> userIds = Stream.of(1L, 2L, 3L).collect(Collectors.toList());
+    assertNotNull(userIds);
+    presenceClient.registerInterestExtUser(userIds);
+    assertTrue(true);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -414,14 +379,8 @@ public class PresenceClientTest extends BotTest {
         "{ \"id\": \"c6ddc040-734c-40cb-9d33-20a5200486d8\" }"
     );
 
-    try {
-
-      final String feedId = presenceClient.createPresenceFeed();
-      assertEquals("c6ddc040-734c-40cb-9d33-20a5200486d8", feedId);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    final String feedId = presenceClient.createPresenceFeed();
+    assertEquals("c6ddc040-734c-40cb-9d33-20a5200486d8", feedId);
   }
 
   @Test(expected = APIClientErrorException.class)
@@ -603,16 +562,10 @@ public class PresenceClientTest extends BotTest {
             + "}"
     );
 
-    try {
+    final UserPresence userPresence = presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
+    assertNotNull(userPresence);
 
-      final UserPresence userPresence = presenceClient.setOtherUserPresence(1L, UserPresenceCategory.BUSY);
-      assertNotNull(userPresence);
-
-      verifyUserPresence(userPresence, 1L, UserPresenceCategory.BUSY, 1503286569882L);
-
-    } catch (SymClientException e) {
-      fail();
-    }
+    verifyUserPresence(userPresence, 1L, UserPresenceCategory.BUSY, 1503286569882L);
   }
 
   @Test(expected = APIClientErrorException.class)
