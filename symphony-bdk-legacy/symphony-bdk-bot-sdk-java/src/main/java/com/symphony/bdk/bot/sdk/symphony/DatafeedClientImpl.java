@@ -10,6 +10,7 @@ import listeners.RoomListener;
 import listeners.ConnectionListener;
 
 @Service
+@ConditionalOnProperty(value = "datafeed.polling.disabled", havingValue="false", matchIfMissing=true)
 public class DatafeedClientImpl implements DatafeedClient {
   private static final Logger LOGGER = LoggerFactory.getLogger(DatafeedClientImpl.class);
 
