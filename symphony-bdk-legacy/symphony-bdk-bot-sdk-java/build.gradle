@@ -7,8 +7,8 @@ processResources {
 }
 
 dependencies {
-    implementation project(':symphony-api-client-java')
-    implementation project(':sms-sdk-renderer-java')
+    api project(':symphony-api-client-java')
+    api project(':sms-sdk-renderer-java')
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
