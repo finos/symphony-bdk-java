@@ -99,7 +99,9 @@ subprojects {
             implementation 'org.springframework.boot:spring-boot-starter-security:2.3.0.RELEASE'
             implementation 'org.springframework.boot:spring-boot-starter-web:2.3.0.RELEASE'
             implementation 'org.springframework.boot:spring-boot-starter-aop:2.3.0.RELEASE'
+            implementation 'org.springframework.boot:spring-boot-starter-actuator:2.3.0.RELEASE'
             implementation 'org.symphonyoss.symphony:messageml:0.9.57'
+            implementation 'io.micrometer:micrometer-registry-prometheus:1.5.1'
 
             testCompileOnly 'org.projectlombok:lombok:1.18.12'
             testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
