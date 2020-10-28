@@ -1,6 +1,6 @@
 description = 'Symphony Java BDK Legacy Module'
 
-ext.projectVersion = '1.3.0'
+ext.projectVersion = '1.3.1'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
@@ -55,6 +55,7 @@ nexusStaging {
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'jacoco'
     apply plugin: 'signing'
     apply plugin: 'maven-publish'
@@ -99,7 +100,9 @@ subprojects {
             implementation 'org.springframework.boot:spring-boot-starter-security:2.3.0.RELEASE'
             implementation 'org.springframework.boot:spring-boot-starter-web:2.3.0.RELEASE'
             implementation 'org.springframework.boot:spring-boot-starter-aop:2.3.0.RELEASE'
+            implementation 'org.springframework.boot:spring-boot-starter-actuator:2.3.0.RELEASE'
             implementation 'org.symphonyoss.symphony:messageml:0.9.57'
+            implementation 'io.micrometer:micrometer-registry-prometheus:1.5.1'
 
             testCompileOnly 'org.projectlombok:lombok:1.18.12'
             testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
