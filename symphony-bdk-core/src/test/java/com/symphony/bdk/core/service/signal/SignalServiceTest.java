@@ -79,6 +79,27 @@ public class SignalServiceTest {
   }
 
   @Test
+  void listSignalsDefaultLimit() {
+    this.mockApiClient.onGet(V1_LIST_SIGNAL,
+        "[\n"
+            + "  {\n"
+            + "    \"name\": \"Mention and keyword\",\n"
+            + "    \"query\": \"HASHTAG:Hello OR POSTEDBY:10854618893681\",\n"
+            + "    \"visibleOnProfile\": false,\n"
+            + "    \"companyWide\": false,\n"
+            + "    \"id\": \"5a0068344b570777718322a3\",\n"
+            + "    \"timestamp\": 1509976116525\n"
+            + "  }\n"
+            + "]");
+
+    List<Signal> signals = this.service.listSignals();
+
+    assertEquals(signals.size(), 1);
+    assertEquals(signals.get(0).getId(), "5a0068344b570777718322a3");
+    assertEquals(signals.get(0).getName(), "Mention and keyword");
+  }
+
+  @Test
   void listSignalFailed() {
     this.mockApiClient.onGet(400, V1_LIST_SIGNAL, "{}");
 
@@ -100,6 +121,27 @@ public class SignalServiceTest {
             + "]");
 
     Stream<Signal> signals = this.service.listSignalsStream(2, 2);
+    List<Signal> signalList = signals.collect(Collectors.toList());
+
+    assertEquals(signalList.size(), 1);
+    assertEquals(signalList.get(0).getQuery(), "HASHTAG:Hello OR POSTEDBY:10854618893681");
+  }
+
+  @Test
+  void listSignalStreamDefaultPagination() {
+    this.mockApiClient.onGet(V1_LIST_SIGNAL,
+        "[\n"
+            + "  {\n"
+            + "    \"name\": \"Mention and keyword\",\n"
+            + "    \"query\": \"HASHTAG:Hello OR POSTEDBY:10854618893681\",\n"
+            + "    \"visibleOnProfile\": false,\n"
+            + "    \"companyWide\": false,\n"
+            + "    \"id\": \"5a0068344b570777718322a3\",\n"
+            + "    \"timestamp\": 1509976116525\n"
+            + "  }\n"
+            + "]");
+
+    Stream<Signal> signals = this.service.listSignalsStream();
     List<Signal> signalList = signals.collect(Collectors.toList());
 
     assertEquals(signalList.size(), 1);
@@ -274,6 +316,31 @@ public class SignalServiceTest {
   }
 
   @Test
+  void subscribersDefaultLimit() {
+    this.mockApiClient.onGet(V1_SUBSCRIBERS.replace("{id}", "1234"),
+        "{\n"
+            + "    \"offset\": 0,\n"
+            + "    \"hasMore\": true,\n"
+            + "    \"total\": 150,\n"
+            + "    \"data\": [\n"
+            + "        {\n"
+            + "            \"pushed\": false,\n"
+            + "            \"owner\": true,\n"
+            + "            \"subscriberName\": \"John Doe 01\",\n"
+            + "            \"userId\": 68719476742,\n"
+            + "            \"timestamp\": 1519231972000\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}");
+
+    List<ChannelSubscriber> subscribers = this.service.listSubscribers("1234");
+
+    assertEquals(subscribers.size(), 1);
+    assertEquals(subscribers.get(0).getUserId(), 68719476742L);
+    assertEquals(subscribers.get(0).getSubscriberName(), "John Doe 01");
+  }
+
+  @Test
   void subscribersFailed() {
     this.mockApiClient.onGet(400, V1_SUBSCRIBERS.replace("{id}", "1234"), "{}");
 
@@ -299,6 +366,32 @@ public class SignalServiceTest {
             + "}");
 
     Stream<ChannelSubscriber> subscribers = this.service.listSubscribersStream("1234", 2, 2);
+    List<ChannelSubscriber> subscriberList = subscribers.collect(Collectors.toList());
+
+    assertEquals(subscriberList.size(), 1);
+    assertEquals(subscriberList.get(0).getUserId(), 68719476742L);
+    assertEquals(subscriberList.get(0).getSubscriberName(), "John Doe 01");
+  }
+
+  @Test
+  void subscribersStreamDefaultPagination() {
+    this.mockApiClient.onGet(V1_SUBSCRIBERS.replace("{id}", "1234"),
+        "{\n"
+            + "    \"offset\": 0,\n"
+            + "    \"hasMore\": true,\n"
+            + "    \"total\": 150,\n"
+            + "    \"data\": [\n"
+            + "        {\n"
+            + "            \"pushed\": false,\n"
+            + "            \"owner\": true,\n"
+            + "            \"subscriberName\": \"John Doe 01\",\n"
+            + "            \"userId\": 68719476742,\n"
+            + "            \"timestamp\": 1519231972000\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}");
+
+    Stream<ChannelSubscriber> subscribers = this.service.listSubscribersStream("1234");
     List<ChannelSubscriber> subscriberList = subscribers.collect(Collectors.toList());
 
     assertEquals(subscriberList.size(), 1);
