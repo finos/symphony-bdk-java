@@ -7,6 +7,7 @@ import com.symphony.bdk.core.service.SessionService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -20,6 +21,7 @@ import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
+import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -66,6 +68,12 @@ public class BdkServiceConfig {
   @ConditionalOnMissingBean
   public ConnectionService connectionService(ConnectionApi connectionApi, AuthSession botSession, BdkConfig config) {
     return new ConnectionService(connectionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public SignalService signalService(SignalsApi signalsApi, AuthSession botSession, BdkConfig config) {
+    return new SignalService(signalsApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
