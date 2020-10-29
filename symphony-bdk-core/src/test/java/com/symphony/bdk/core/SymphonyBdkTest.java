@@ -18,6 +18,7 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.test.JsonHelper;
@@ -107,6 +108,12 @@ public class SymphonyBdkTest {
   void getMessageServiceTest() {
     MessageService messageService = this.symphonyBdk.messages();
     assertNotNull(messageService);
+  }
+
+  @Test
+  void getSignalServiceTest() {
+    SignalService signalService = this.symphonyBdk.signals();
+    assertNotNull(signalService);
   }
 
   @Test
