@@ -55,6 +55,10 @@ public class AuthenticatorFactory {
    */
   public @Nonnull
   BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
+    if (this.config.getBot().isBothCertificateAndRsaConfigured()) {
+      throw new AuthInitializationException(
+          "Both of certificate and rsa authentication are configured. Only one of them should be provided.");
+    }
     if (this.config.getBot().isCertificateAuthenticationConfigured()) {
       if (!this.config.getBot().isCertificateConfigurationValid()) {
         throw new AuthInitializationException(
@@ -89,6 +93,10 @@ public class AuthenticatorFactory {
    */
   public @Nonnull
   OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
+    if (this.config.getApp().isBothCertificateAndRsaConfigured()) {
+      throw new AuthInitializationException(
+          "Both of certificate and rsa authentication are configured. Only one of them should be provided.");
+    }
     if (this.config.getApp().isCertificateAuthenticationConfigured()) {
       if (!this.config.getApp().isCertificateConfigurationValid()) {
         throw new AuthInitializationException(
@@ -122,6 +130,10 @@ public class AuthenticatorFactory {
    */
   public @Nonnull
   ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
+    if (this.config.getApp().isBothCertificateAndRsaConfigured()) {
+      throw new AuthInitializationException(
+          "Both of certificate and rsa authentication are configured. Only one of them should be provided.");
+    }
     if (this.config.getApp().isCertificateAuthenticationConfigured()) {
       if (!this.config.getApp().isCertificateConfigurationValid()) {
         throw new AuthInitializationException(

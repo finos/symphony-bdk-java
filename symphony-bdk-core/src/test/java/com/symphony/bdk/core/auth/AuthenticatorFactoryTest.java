@@ -241,6 +241,39 @@ class AuthenticatorFactoryTest {
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
   }
 
+  @Test
+  void testGetBotAuthenticatorBothRsaAndCertificateConfigured(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfig(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath(RSA_PRIVATE_KEY, privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+    config.getBot().setCertificatePath("/path/to/cert/file.p12");
+    config.getBot().setCertificatePassword("password");
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
+  }
+
+  @Test
+  void testGetAppAuthenticatorBothRsaAndCertificateConfigured(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfig(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath(RSA_PRIVATE_KEY, privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+    config.getApp().setCertificatePath("/path/to/cert/file.p12");
+    config.getApp().setCertificatePassword("password");
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+  }
+
   @SneakyThrows
   private BdkConfig createRsaConfig(Supplier<String> privateKeyPathSupplier) {
     final BdkConfig config = new BdkConfig();

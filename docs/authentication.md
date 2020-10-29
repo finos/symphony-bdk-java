@@ -11,6 +11,9 @@ The following sections will explain you:
 In this section we will see how to authenticate a bot service account. You will notice that everything has to be done 
 through your BDK `config.yaml`, making your code completely agnostic to authentication modes (RSA or certificate).
 
+Only one of certificate or RSA authentication should be configured in one BDK `config.yaml`. If both of them are 
+provided, an `AuthInitializationException` will be thrown when you try to authenticate to the bot service account.
+
 ### Bot authentication using RSA
 > Read more about RSA authentication [here](https://developers.symphony.com/symphony-developer/docs/rsa-bot-authentication-workflow)
 
@@ -33,12 +36,6 @@ bot:
     certificatePath: /path/to/certificate.p12
     certificatePassword: YourCertificatePassword
 ```
-
-### Configuration priority
-If you configure both private key and certificate within the same `config.yaml`, note that the certificate will have
-a higher priority over the RSA configuration.
-
-Configuring both RSA and certificate authentication isn't recommended. 
 
 ### Bot authentication deep-dive
 The code snippet below explains how to manually retrieve your bot authentication session. However, note that by default 
@@ -110,6 +107,9 @@ public class Example {
 ## App authentication
 Application authentication is completely optional but remains required if you want to implement the Circle Of trust 
 or if you want to use OBO.
+
+Only one of certificate or RSA authentication should be configured in one BDK `config.yaml`. If both of them are 
+provided, an `AuthInitializationException` will be thrown when you try to authenticate to the extension application.
 
 ### App authentication using RSA
 
