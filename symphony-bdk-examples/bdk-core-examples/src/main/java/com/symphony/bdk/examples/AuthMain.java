@@ -37,6 +37,6 @@ public class AuthMain {
 
     bdk.obo(oboSession).streams().listStreams(new StreamFilter());
     bdk.obo(oboSession).messages().send(STREAM, MESSAGE);
-    bdk.obo(oboSession).users().searchUserByUsernames(Arrays.asList("user.name"));
+    bdk.obo(oboSession).users().searchUserByUsernames(Arrays.asList("user.name"), true);
   }
 }
