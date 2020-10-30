@@ -77,7 +77,7 @@ public class MessageServiceTest {
 
   private static final String STREAM_ID = "streamId";
   private static final String MESSAGE_ID = "messageId";
-  private static final String MESSAGE = "message";
+  private static final String MESSAGE = "<messageML>message</messageML>";
   private static final String TOKEN = "1234";
 
   private MockApiClient mockApiClient;
