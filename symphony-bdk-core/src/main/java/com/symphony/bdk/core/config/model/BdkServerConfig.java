@@ -16,4 +16,27 @@ public class BdkServerConfig {
   protected String host;
   protected Integer port = DEFAULT_HTTPS_PORT;
   protected String context = "";
+
+  public String getBasePath() {
+    return this.getScheme() + "://" + this.getHost() + this.getPortAsString() + this.getFormattedContext();
+  }
+
+  public String getFormattedContext() {
+    final String localContext = this.getContext();
+    if (localContext == null) {
+      return "";
+    }
+    if (!localContext.equals("") && localContext.charAt(0) != '/') {
+      return "/" + localContext;
+    }
+    if (!localContext.equals("") && localContext.endsWith("/")) {
+      return localContext.substring(0, localContext.length() - 1);
+    }
+
+    return localContext;
+  }
+
+  private String getPortAsString() {
+    return this.getPort() != null ? ":" + this.getPort() : "";
+  }
 }

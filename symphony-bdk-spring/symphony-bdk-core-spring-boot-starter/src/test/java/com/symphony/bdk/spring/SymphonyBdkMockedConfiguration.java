@@ -4,7 +4,7 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.model.UserV2;
-import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.RegularApiClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -69,12 +69,12 @@ public class SymphonyBdkMockedConfiguration {
     }
 
     @Override
-    public ApiClient getAgentClient() {
+    public RegularApiClient getAgentClient() {
       return this.agentApiClient.getApiClient("/agent");
     }
 
     @Override
-    public ApiClient getPodClient() {
+    public RegularApiClient getPodClient() {
 
       this.podApiClient.onGet("/pod/v2/sessioninfo", toString(new UserV2().displayName("BotMention")));
 
@@ -82,7 +82,7 @@ public class SymphonyBdkMockedConfiguration {
     }
 
     @Override
-    public ApiClient getRelayClient() {
+    public RegularApiClient getRelayClient() {
 
       this.relayApiClient.onPost("/relay/pubkey/authenticate", "{ \"token\":\"123456789\", \"name\":\"keyManagerToken\" }");
 
@@ -90,7 +90,7 @@ public class SymphonyBdkMockedConfiguration {
     }
 
     @Override
-    public ApiClient getLoginClient() {
+    public RegularApiClient getLoginClient() {
 
       this.loginApiClient.onPost("/login/pubkey/authenticate", "{ \"token\":\"123456789\", \"name\":\"sessionToken\" }");
 

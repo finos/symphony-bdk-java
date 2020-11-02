@@ -16,7 +16,7 @@ import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.RsaTestHelper;
-import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2;
 
 import lombok.SneakyThrows;
@@ -35,7 +35,7 @@ import java.util.function.Supplier;
  */
 class AuthenticatorFactoryTest {
 
-  private static final ApiClient DUMMY_API_CLIENT = new ApiClientBuilderJersey2().build();
+  private static final RegularApiClient DUMMY_API_CLIENT = new ApiClientBuilderJersey2().build();
   private static final String RSA_PRIVATE_KEY = RsaTestHelper.generatePrivateKeyAsString();
   private static ApiClientFactory DUMMY_API_CLIENT_FACTORY;
 

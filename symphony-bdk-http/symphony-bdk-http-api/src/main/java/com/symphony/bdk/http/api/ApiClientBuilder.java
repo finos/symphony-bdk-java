@@ -13,9 +13,9 @@ public interface ApiClientBuilder {
 
 
   /**
-   * @return a new {@link ApiClient} based on the previously called methods below.
+   * @return a new {@link RegularApiClient} based on the previously called methods below.
    */
-  ApiClient build();
+  RegularApiClient build();
 
   /**
    * @param basePath base URL to be used for HTTP calls

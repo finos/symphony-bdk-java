@@ -11,6 +11,8 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
 
+import com.symphony.bdk.http.api.RegularApiClient;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -46,76 +48,80 @@ public class ApiClientFactory {
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for Login API.
+   * Returns a fully initialized {@link RegularApiClient} for Login API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return an new {@link RegularApiClient} instance.
    */
-  public ApiClient getLoginClient() {
+  public RegularApiClient getLoginClient() {
     return buildClient(this.config.getPod().getBasePath() + "/login");
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for Pod API.
+   * Returns a fully initialized {@link RegularApiClient} for Pod API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return an new {@link RegularApiClient} instance.
    */
-  public ApiClient getPodClient() {
+  public RegularApiClient getPodClient() {
     return buildClient(this.config.getPod().getBasePath() + "/pod");
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for KeyManager API.
+   * Returns a fully initialized {@link RegularApiClient} for KeyManager API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return an new {@link RegularApiClient} instance.
    */
-  public ApiClient getRelayClient() {
+  public RegularApiClient getRelayClient() {
     return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for Agent API.
+   * Returns a fully initialized {@link RegularApiClient} for Agent API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return an new {@link RegularApiClient} instance.
    */
-  public ApiClient getAgentClient() {
-    return buildClient(this.config.getAgent().getBasePath() + "/agent");
+  public RegularApiClient getAgentClient() {
+    return getAgentClient(this.config.getAgent().getBasePath());
+  }
+
+  public RegularApiClient getAgentClient(String agentBasePath) {
+    return buildClient(agentBasePath + "/agent");
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for the SessionAuth API. This only works with a
+   * Returns a fully initialized {@link RegularApiClient} for the SessionAuth API. This only works with a
    * certification configured.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return an new {@link RegularApiClient} instance.
    */
-  public ApiClient getSessionAuthClient() {
+  public RegularApiClient getSessionAuthClient() {
     return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getBot());
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for the SessionAuth API using in Extension App Authentication.
+   * Returns a fully initialized {@link RegularApiClient} for the SessionAuth API using in Extension App Authentication.
    * This only works with a extension app authentication configured
    *
-   * @return a new {@link ApiClient} instance.
+   * @return a new {@link RegularApiClient} instance.
    */
-  public ApiClient getExtAppSessionAuthClient() {
+  public RegularApiClient getExtAppSessionAuthClient() {
     return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getApp());
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for the KayAuth API. This only works with a
+   * Returns a fully initialized {@link RegularApiClient} for the KayAuth API. This only works with a
    * certification configured.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return an new {@link RegularApiClient} instance.
    */
-  public ApiClient getKeyAuthClient() {
+  public RegularApiClient getKeyAuthClient() {
     return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth", this.config.getBot());
   }
 
-  private ApiClient buildClient(String basePath) {
+  private RegularApiClient buildClient(String basePath) {
     return getApiClientBuilder(basePath).build();
   }
 
-  private ApiClient buildClientWithCertificate(String basePath, BdkAuthenticationConfig config) {
+  private RegularApiClient buildClientWithCertificate(String basePath, BdkAuthenticationConfig config) {
     if (!config.isCertificateAuthenticationConfigured()) {
       throw new ApiClientInitializationException("For certificate authentication, " +
           "certificatePath and certificatePassword must be set");

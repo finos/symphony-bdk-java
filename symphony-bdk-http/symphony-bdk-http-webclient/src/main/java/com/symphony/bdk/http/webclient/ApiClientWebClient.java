@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
  * Spring WebClient implementation for the {@link ApiClient} interface called by generated code.
  */
 @API(status = API.Status.EXPERIMENTAL)
-public class ApiClientWebClient implements ApiClient {
+public class ApiClientWebClient extends RegularApiClient {
 
   protected WebClient webClient;
   protected String basePath;

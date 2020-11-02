@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -119,7 +119,7 @@ public class MockApiClient {
     this.onRequestWithResponseCode("DELETE", statusCode, path, resContent);
   }
 
-  public ApiClient getApiClient(String basePath) {
+  public RegularApiClient getApiClient(String basePath) {
     return new ApiClientJersey2(this.httpClient, basePath, new HashMap<>(), null);
   }
 }

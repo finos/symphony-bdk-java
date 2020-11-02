@@ -12,7 +12,7 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ class BdkCoreConfigTest {
   void shouldCreateKeyAuthApiClient() {
     final BdkCoreConfig config = new BdkCoreConfig();
     final ApiClientFactory factory = mock(ApiClientFactory.class);
-    when(factory.getKeyAuthClient()).thenReturn(mock(ApiClient.class));
+    when(factory.getKeyAuthClient()).thenReturn(mock(RegularApiClient.class));
     assertNotNull(config.keyAuthApiClient(factory));
   }
 
@@ -55,7 +55,7 @@ class BdkCoreConfigTest {
   void shouldCreateSessionAuthApiClient() {
     final BdkCoreConfig config = new BdkCoreConfig();
     final ApiClientFactory factory = mock(ApiClientFactory.class);
-    when(factory.getSessionAuthClient()).thenReturn(mock(ApiClient.class));
+    when(factory.getSessionAuthClient()).thenReturn(mock(RegularApiClient.class));
     assertNotNull(config.sessionAuthApiClient(factory));
   }
 

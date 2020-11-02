@@ -5,24 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.service.connection.ConnectionService;
-import com.symphony.bdk.core.service.presence.PresenceService;
-import com.symphony.bdk.core.service.signal.SignalService;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
-import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.http.api.RegularApiClient;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,8 +37,8 @@ public class ServiceFactoryTest {
   void setUp() throws BdkConfigException {
     this.config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     this.mAuthSession = mock(AuthSession.class);
-    ApiClient mPodClient = mock(ApiClient.class);
-    ApiClient mAgentClient = mock(ApiClient.class);
+    RegularApiClient mPodClient = mock(RegularApiClient.class);
+    RegularApiClient mAgentClient = mock(RegularApiClient.class);
     this.apiClientFactory = mock(ApiClientFactory.class);
 
     when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);
