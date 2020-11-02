@@ -26,11 +26,13 @@ public class Example {
     // Create BDK entry point
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
     // send a regular message
-    final V4Message regularMessage = bdk.message().send(STREAM_ID, Message.builder().content("<messageML>Hello, World!</messageML>").build());
+    final V4Message regularMessage = bdk.message().send(STREAM_ID, Message.builder().content("Hello, World!").build());
     log.info("Message sent, id: " + regularMessage.getMessageId());
   }
 }
 ```
+> `Message.builder().content("Hello, World!").build()` will automatically prefix and suffix content with `"<messageML>"` and `"</messageML>"`.
+> Therefore, the actual `Message.getContent()` result will be `"<messageML>Hello, World!</messageML>"`
 
 ## Using templates
 The `MessageService` also allows you to send messages using templates. So far, the BDK supports two different template

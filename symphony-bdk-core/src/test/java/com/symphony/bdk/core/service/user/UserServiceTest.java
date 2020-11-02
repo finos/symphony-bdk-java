@@ -10,11 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
@@ -37,6 +33,9 @@ import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -415,17 +414,17 @@ class UserServiceTest {
     String response = JsonHelper.readFromClasspath("/user/users.json");
     this.mockApiClient.onGet(SEARCH_USERS_V3, response);
 
-    List<UserV2> users1 = this.service.searchUserByIds(Collections.singletonList(1234L), true);
+    List<UserV2> users1 = this.service.searchUserByIds(Collections.singletonList(1234L), true, true);
 
     assertEquals(users1.size(), 1);
     assertEquals(users1.get(0).getDisplayName(), "Test Bot");
 
-    List<UserV2> users2 = this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true);
+    List<UserV2> users2 = this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true, true);
 
     assertEquals(users2.size(), 1);
     assertEquals(users2.get(0).getUsername(), "tibot");
 
-    List<UserV2> users3 = this.service.searchUserByUsernames(Collections.singletonList("tibot"));
+    List<UserV2> users3 = this.service.searchUserByUsernames(Collections.singletonList("tibot"), true);
 
     assertEquals(users3.size(), 1);
     assertEquals(users3.get(0).getId(), 1234L);
@@ -439,18 +438,24 @@ class UserServiceTest {
 
     assertEquals(users5.size(), 1);
     assertEquals(users5.get(0).getId(), 1234L);
+
+    List<UserV2> users6 = this.service.searchUserByUsernames(Collections.singletonList("tibot"));
+
+    assertEquals(users6.size(), 1);
+    assertEquals(users6.get(0).getId(), 1234L);
   }
 
   @Test
   void searchUserV3TestFailed() {
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L), true));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L), true, true));
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true));
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true, true));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot"), true));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L)));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com")));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
   }
 
   @Test

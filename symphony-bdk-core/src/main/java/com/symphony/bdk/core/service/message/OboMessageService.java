@@ -28,26 +28,20 @@ public interface OboMessageService {
    * Sends a message to the stream ID of the passed {@link V4Stream} object.
    *
    * @param stream  the stream to send the message to
-   * @param message the message payload in MessageML
+   * @param message the MessageML content. Note: <code>&lt;messageML&gt;&lt;/messageML&gt;</code> is automatically appended if not set.
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   * @deprecated this method will be replaced by {@link MessageService#send(V4Stream, Message)}
    */
-  @Deprecated
-  @API(status = API.Status.DEPRECATED)
   V4Message send(@Nonnull V4Stream stream, @Nonnull String message);
 
   /**
    * Sends a message to the stream ID passed in parameter.
    *
    * @param streamId the ID of the stream to send the message to
-   * @param message  the message payload in MessageML
+   * @param message the MessageML content. Note: <code>&lt;messageML&gt;&lt;/messageML&gt;</code> is automatically appended if not set.
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
-   * @deprecated this method will be replaced by {@link MessageService#send(String, Message)}
    */
-  @Deprecated
-  @API(status = API.Status.DEPRECATED)
   V4Message send(@Nonnull String streamId, @Nonnull String message);
 
   /**
