@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.config.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
@@ -32,6 +33,9 @@ public class BdkConfig {
 
   private BdkRetryConfig retry = new BdkRetryConfig();
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
+
+  @JsonProperty("lb-agent")
+  private BdkLoadBalancingConfig agentLoadBalancing;
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.

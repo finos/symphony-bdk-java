@@ -7,6 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
+import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
+
+import com.symphony.bdk.core.config.model.BdkServerConfig;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -19,6 +24,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 public class BdkConfigLoaderTest {
@@ -68,7 +74,7 @@ public class BdkConfigLoaderTest {
     }
 
     @Test
-    void loadFromFileNotFoundTest() throws BdkConfigException {
+    void loadFromFileNotFoundTest() {
         BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
             String configPath = "/wrong_path/config.yaml";
             BdkConfigLoader.loadFromFile(configPath);
@@ -86,7 +92,7 @@ public class BdkConfigLoaderTest {
     }
 
     @Test
-    void loadFromClasspathNotFoundTest() throws BdkConfigException {
+    void loadFromClasspathNotFoundTest() {
         BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
             BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml");
         });
@@ -118,6 +124,57 @@ public class BdkConfigLoaderTest {
         assertEquals(config.getSessionAuth().getHost(), "devx1.symphony.com");
         assertEquals(config.getSessionAuth().getPort(), 8443);
         assertEquals(config.getSessionAuth().getContext(), "context");
+    }
+
+
+    @Test
+    public void parseLbAgentField() throws BdkConfigException {
+        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb.yaml");
+        final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+        final List<BdkServerConfig> nodes = agentLoadBalancing.getNodes();
+
+        assertEquals(BdkLoadBalancingMode.RANDOM, agentLoadBalancing.getMode());
+        assertEquals(false, agentLoadBalancing.isStickiness());
+        assertEquals(2, nodes.size());
+
+        assertEquals("http", nodes.get(0).getScheme());
+        assertEquals("agent1.acme.org", nodes.get(0).getHost());
+        assertEquals(8443, nodes.get(0).getPort());
+        assertEquals("/app", nodes.get(0).getContext());
+
+        assertEquals("https", nodes.get(1).getScheme());
+        assertEquals("agent2.acme.org", nodes.get(1).getHost());
+        assertEquals(443, nodes.get(1).getPort());
+        assertEquals("", nodes.get(1).getContext());
+    }
+
+    @Test
+    public void parseLbAgentFieldsWithNoDefinedStickiness() throws BdkConfigException {
+        BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_no_stickiness.yaml");
+        assertEquals(true, config.getAgentLoadBalancing().isStickiness());
+    }
+
+    @Test
+    public void parseLbAgentFieldsWithRoundRobinMode() throws BdkConfigException {
+        final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_round_robin.yaml");
+        final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+
+        assertEquals(true, agentLoadBalancing.isStickiness());
+        assertEquals(BdkLoadBalancingMode.ROUND_ROBIN, agentLoadBalancing.getMode());
+    }
+
+    @Test
+    public void parseLbAgentFieldsWithExternalMode() throws BdkConfigException {
+        final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_external.yaml");
+        final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+
+        assertEquals(BdkLoadBalancingMode.EXTERNAL, agentLoadBalancing.getMode());
+    }
+
+    @Test
+    public void parseLbAgentFieldsWithInvalidMode() {
+        assertThrows(BdkConfigException.class,
+            () -> BdkConfigLoader.loadFromClasspath("/config/config_invalid_mode.yaml"));
     }
 
     @Test
