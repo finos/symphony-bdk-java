@@ -1,13 +1,17 @@
 package com.symphony.bdk.core;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
+
+import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.OboMessageService;
+import com.symphony.bdk.core.service.presence.OboPresenceService;
+import com.symphony.bdk.core.service.signal.OboSignalService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
+
 import com.symphony.bdk.core.service.user.OboUserService;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,19 +28,37 @@ public class OboServicesTest {
 
   @Test
   void testOboStreams() {
-    assertNotNull(oboServices.streams());
-    assertTrue(oboServices.streams() instanceof OboStreamService);
+    OboStreamService streamService = oboServices.streams();
+    assertNotNull(streamService);
   }
 
   @Test
   void testOboUsers() {
-    assertNotNull(oboServices.users());
-    assertTrue(oboServices.users() instanceof OboUserService);
+    OboUserService userService = oboServices.users();
+    assertNotNull(userService);
   }
 
   @Test
   void testOboMessages() {
-    assertNotNull(oboServices.messages());
-    assertTrue(oboServices.messages() instanceof OboMessageService);
+    OboMessageService messageService = oboServices.messages();
+    assertNotNull(messageService);
+  }
+
+  @Test
+  void testOboPresences() {
+    OboPresenceService presenceService = oboServices.presences();
+    assertNotNull(presenceService);
+  }
+
+  @Test
+  void testOboConnections() {
+    OboConnectionService connectionService = oboServices.connections();
+    assertNotNull(connectionService);
+  }
+
+  @Test
+  void testOboSignals() {
+    OboSignalService signalService = oboServices.signals();
+    assertNotNull(signalService);
   }
 }

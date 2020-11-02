@@ -1,0 +1,11 @@
+plugins {
+    id 'org.springframework.boot' version "2.3.4.RELEASE"
+}
+
+description = 'Symphony Java BDK Examples for the SpringBoot integration'
+
+dependencies {
+
+    implementation project(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+}

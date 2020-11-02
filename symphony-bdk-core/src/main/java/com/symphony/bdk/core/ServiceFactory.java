@@ -5,23 +5,29 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
 import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
+import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
+import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -124,5 +130,32 @@ class ServiceFactory {
         this.templateEngine,
         this.retryBuilder
     );
+  }
+
+  /**
+   * Returns a fully initialized {@link PresenceService}.
+   *
+   * @return a new {@link PresenceService} instance.
+   */
+  public PresenceService getPresenceService() {
+    return new PresenceService(new PresenceApi(this.podClient), this.authSession, this.retryBuilder);
+  }
+
+  /**
+   * Returns a fully initialized {@link ConnectionService}.
+   *
+   * @return a new {@link ConnectionService} instance.
+   */
+  public ConnectionService getConnectionService() {
+    return new ConnectionService(new ConnectionApi(this.podClient), this.authSession, this.retryBuilder);
+  }
+
+  /**
+   * Returns a fully initialized {@link SignalService}.
+   *
+   * @return a new {@link SignalService} instance.
+   */
+  public SignalService getSignalService() {
+    return new SignalService(new SignalsApi(this.agentClient), this.authSession, this.retryBuilder);
   }
 }

@@ -18,4 +18,14 @@ class MessageTest {
   void checkDefaultVersion() {
     assertEquals("2.0", Message.builder().content("foobar").build().getVersion());
   }
+
+  @Test
+  void checkMessageMLAppendedToContentIfNotSet() {
+    assertEquals("<messageML>hello</messageML>", Message.builder().content("hello").build().getContent());
+  }
+
+  @Test
+  void checkMessageMLNotAppendedToContentIfSet() {
+    assertEquals("<messageML>hello</messageML>", Message.builder().content("<messageML>hello</messageML>").build().getContent());
+  }
 }

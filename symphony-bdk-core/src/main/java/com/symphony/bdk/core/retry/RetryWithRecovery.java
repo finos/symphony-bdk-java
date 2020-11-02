@@ -31,7 +31,7 @@ public abstract class RetryWithRecovery<T> {
    * and refreshes the authSession if we get an unauthorized error.
    *
    * @param baseRetryBuilder the {@link RetryWithRecoveryBuilder} containing the base settings for the retry mechanism.
-   * @param name the name of the retry, can be any string but should specific to the function neing retried.
+   * @param name the name of the retry, can be any string but should specific to the function being retried.
    * @param supplier the supplier returning the desired object which may fail with an exception.
    * @param <T> the type of the object to be returned by the supplier.
    * @return the object returned by the supplier

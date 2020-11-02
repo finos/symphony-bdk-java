@@ -1,0 +1,34 @@
+
+bdk:
+  host: acme.symphony.com
+  bot:
+    username: mybot
+    privateKeyPath: ${user.home}/.symphony/privatekey.pem
+
+  app:
+    appId: myapp
+    privateKeyPath: ${user.home}/.symphony/privatekey.pem
+
+bdk-app:
+  auth:
+    enabled: true
+    jwtCookie:
+      enabled: true
+      maxAge: 1d
+  cors:
+    "[/**]":
+      allowed-origins: "*"
+
+logging:
+  level:
+    com.symphony: debug
+
+server:
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: pkcs12
+    key-alias: tomcat
+  port: 10443
+spring.security.user.name: user
+spring.security.user.password: password
