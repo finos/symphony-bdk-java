@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
@@ -72,6 +73,7 @@ public class Message {
   /**
    * {@link Message} class builder. Accessible via {@link Message#builder()}.
    */
+  @Slf4j
   @Getter
   @Setter
   @Accessors(fluent = true)
@@ -164,9 +166,17 @@ public class Message {
      * @throws MessageCreationException if mandatory content is empty.
      */
     public Message build() {
+      // content is mandatory
       if (StringUtils.isEmpty(this.content)) {
         throw new MessageCreationException("Message content is mandatory.");
       }
+
+      // check if content is encapsulated in <messageML/> node
+      if (!this.content.startsWith("<messageML>") && !this.content.endsWith("</messageML>")) {
+        log.trace("Processing content to prefix with <messageML> and suffix with </messageML>");
+        this.content = "<messageML>" + this.content + "</messageML>";
+      }
+
       // check done below because it will rejected by the agent otherwise
       if (!this.previews.isEmpty() && this.previews.size() != this.attachments().size()) {
         throw new MessageCreationException("Message should contain either no preview or as many previews as attachments");
