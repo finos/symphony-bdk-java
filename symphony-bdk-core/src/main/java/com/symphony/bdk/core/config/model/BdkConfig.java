@@ -11,16 +11,7 @@ import org.apiguardian.api.API;
 @Getter
 @Setter
 @API(status = API.Status.STABLE)
-public class BdkConfig {
-
-  private static final String DEFAULT_SCHEME = "https";
-  private static final int DEFAULT_HTTPS_PORT = 443;
-
-  // the targeted URLs can be defined globally here and overridden for each agent, pod, keyManager, sessionAuth config
-  private String scheme = DEFAULT_SCHEME;
-  private String host;
-  private Integer port = DEFAULT_HTTPS_PORT;
-  private String context = "";
+public class BdkConfig extends BdkServerConfig {
 
   private BdkClientConfig agent = new BdkClientConfig(this);
   private BdkClientConfig pod = new BdkClientConfig(this);

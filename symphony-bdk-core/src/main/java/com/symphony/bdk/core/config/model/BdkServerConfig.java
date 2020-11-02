@@ -9,17 +9,11 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE)
 public class BdkServerConfig {
 
-  private static final String DEFAULT_SCHEME = "https";
-  private static final int DEFAULT_HTTPS_PORT = 443;
+  protected static final String DEFAULT_SCHEME = "https";
+  protected static final int DEFAULT_HTTPS_PORT = 443;
 
-  private String scheme;
-  private String host;
-  private Integer port;
-  private String context;
-
-  public BdkServerConfig() {
-    scheme = DEFAULT_SCHEME;
-    port = DEFAULT_HTTPS_PORT;
-    context = "";
-  }
+  protected String scheme = DEFAULT_SCHEME;
+  protected String host;
+  protected Integer port = DEFAULT_HTTPS_PORT;
+  protected String context = "";
 }

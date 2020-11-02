@@ -9,14 +9,9 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 @API(status = API.Status.STABLE)
-public class BdkClientConfig {
+public class BdkClientConfig extends BdkServerConfig {
 
   private BdkConfig parentConfig;
-
-  private String scheme = null;
-  private String host = null;
-  private Integer port = null;
-  private String context = null;
 
   private String proxyUrl = null;
   private String proxyUsername = null;
@@ -28,9 +23,14 @@ public class BdkClientConfig {
 
   public BdkClientConfig() {
     // for Jackson deserialization
+    this.scheme = null;
+    this.host = null;
+    this.port = null;
+    this.context = null;
   }
 
   public BdkClientConfig(BdkConfig parentConfig) {
+    this();
     this.parentConfig = parentConfig;
   }
 
