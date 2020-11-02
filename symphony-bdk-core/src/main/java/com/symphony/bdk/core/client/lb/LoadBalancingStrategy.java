@@ -26,8 +26,7 @@ public interface LoadBalancingStrategy {
         return new RandomLoadBalancingStrategy(nodes);
       case ROUND_ROBIN:
         return new RoundRobinLoadBalancingStrategy(nodes);
-      default:
-        return null;
     }
+    return null;
   }
 }
