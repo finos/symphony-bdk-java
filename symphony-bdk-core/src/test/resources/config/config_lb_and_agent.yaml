@@ -1,0 +1,12 @@
+host: devx1.symphony.com
+context: context
+port: 8443
+
+agent:
+  host: devx1.symphony.com
+  port: 443
+
+lb-agent:
+  mode: external
+  nodes:
+    - host: agent1.acme.org

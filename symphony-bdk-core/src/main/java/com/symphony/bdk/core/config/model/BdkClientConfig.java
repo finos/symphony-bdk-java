@@ -34,6 +34,10 @@ public class BdkClientConfig {
     this.parentConfig = parentConfig;
   }
 
+  public boolean overridesParentConfig() {
+    return scheme != null || host != null || port != null || context!= null;
+  }
+
   public String getScheme() {
     return thisOrParent(scheme, parentConfig::getScheme);
   }

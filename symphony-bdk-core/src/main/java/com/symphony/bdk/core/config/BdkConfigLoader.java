@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
+import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
+
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -24,7 +27,12 @@ import java.nio.file.Paths;
 @API(status = API.Status.STABLE)
 public class BdkConfigLoader {
 
-  private static final ObjectMapper JSON_MAPPER = new JsonMapper();
+  private static final ObjectMapper JSON_MAPPER;
+
+  static {
+    JSON_MAPPER = new JsonMapper();
+    JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  }
 
   /**
    * Load {@link BdkConfig} from a file path
@@ -49,28 +57,45 @@ public class BdkConfigLoader {
    * @return Symphony Bot Configuration
    */
   public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
-    if (inputStream != null) {
-      JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-      if (jsonNode != null) {
-        JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        if (jsonNode.at("/botUsername").isMissingNode()) {
-          return JSON_MAPPER.convertValue(jsonNode, BdkConfig.class);
-        } else {
-          LegacySymConfig legacySymConfig = JSON_MAPPER.convertValue(jsonNode, LegacySymConfig.class);
-          return LegacyConfigMapper.map(legacySymConfig);
-        }
-      }
+    final BdkConfig bdkConfig = parseConfig(BdkConfigParser.parse(inputStream));
+    validateLoadBalancingConfiguration(bdkConfig);
+
+    return bdkConfig;
+  }
+
+  private static BdkConfig parseConfig(JsonNode jsonNode) {
+    if (jsonNode.at("/botUsername").isMissingNode()) {
+      return JSON_MAPPER.convertValue(jsonNode, BdkConfig.class);
+    } else {
+      LegacySymConfig legacySymConfig = JSON_MAPPER.convertValue(jsonNode, LegacySymConfig.class);
+      return LegacyConfigMapper.map(legacySymConfig);
     }
-    return null;
+  }
+
+  private static void validateLoadBalancingConfiguration(BdkConfig config) throws BdkConfigException {
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+    if (agentLoadBalancing == null) {
+      return;
+    }
+
+    if (config.getAgent().overridesParentConfig()) {
+      throw new BdkConfigException("Both agent and lb-agent fields are defined");
+    }
+    if (agentLoadBalancing.getMode() == null) {
+      throw new BdkConfigException("Field \"mode\" in lb-agent is mandatory");
+    }
+    if (agentLoadBalancing.getNodes() == null || agentLoadBalancing.getNodes().isEmpty()) {
+      throw new BdkConfigException("Field \"nodes\" in lb-agent is mandatory and must contain at least one element");
+    }
   }
 
   /**
    * Load {@link BdkConfig} from a relative path located in the .symphony directory.
    *
    * <p>
-   *   Note: The .symphony directory is located under your home directory (<code>System.getProperty("user.home")</code>).
-   *   Convention adopted in order to avoid storing sensitive information (such as usernames, private keys...)
-   *   within the code base.
+   * Note: The .symphony directory is located under your home directory (<code>System.getProperty("user.home")</code>).
+   * Convention adopted in order to avoid storing sensitive information (such as usernames, private keys...)
+   * within the code base.
    * </p>
    *
    * @param relPath Configuration file relative path from the ${user.home}/.symphony directory
