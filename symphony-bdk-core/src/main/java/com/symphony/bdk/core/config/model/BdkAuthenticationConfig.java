@@ -54,4 +54,13 @@ public class BdkAuthenticationConfig {
   public boolean isCertificateConfigurationValid() {
     return !(isNotEmpty(certificatePath) && isNotEmpty(certificateContent));
   }
+
+  /**
+   * Check if both of certificate and RSA authentication is configured.
+   *
+   * @return true if both of certificate and RSA authentication is configured.
+   */
+  public boolean isBothCertificateAndRsaConfigured() {
+    return isRsaAuthenticationConfigured() && isCertificateAuthenticationConfigured();
+  }
 }

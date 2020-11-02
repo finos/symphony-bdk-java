@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -12,8 +15,6 @@ import com.symphony.bdk.gen.api.model.Token;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.net.HttpURLConnection;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -23,13 +24,16 @@ import javax.annotation.Nonnull;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class BotAuthenticatorCertImpl implements BotAuthenticator {
+public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
 
   private final ApiClient sessionAuthClient;
   private final ApiClient keyAuthClient;
 
-  public BotAuthenticatorCertImpl(@Nonnull ApiClient sessionAuthClient,
+  public BotAuthenticatorCertImpl(
+      @Nonnull BdkRetryConfig retryConfig,
+      @Nonnull ApiClient sessionAuthClient,
       @Nonnull ApiClient keyAuthClient) {
+    super(retryConfig);
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
   }
@@ -46,30 +50,19 @@ public class BotAuthenticatorCertImpl implements BotAuthenticator {
 
   protected @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using certificate authentication...");
-    return doRetrieveToken(this.sessionAuthClient);
+    return retrieveToken(this.sessionAuthClient);
   }
 
   protected  @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using certificate authentication...");
-    return doRetrieveToken(this.keyAuthClient);
+    return retrieveToken(this.keyAuthClient);
   }
 
-  private String doRetrieveToken(ApiClient client) throws AuthUnauthorizedException {
-    try {
-      final Token token = new CertificateAuthenticationApi(client).v1AuthenticatePost();
-      log.debug("{} successfully retrieved.", token.getName());
-      return token.getToken();
-    } catch (ApiException ex) {
-      if (ex.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-        // usually happens when the certificate is not correct
-        throw new AuthUnauthorizedException(
-            "Service account is not authorized to authenticate using certificate. " +
-                "Please check if certificate is correct.", ex);
-      } else {
-        // we don't know what to do, let's forward the ApiException
-        throw new ApiRuntimeException(ex);
-      }
-    }
+  @Override
+  protected String authenticateAndGetToken(ApiClient client) throws ApiException {
+    final Token token = new CertificateAuthenticationApi(client).v1AuthenticatePost();
+    log.debug("{} successfully retrieved.", token.getName());
+    return token.getToken();
   }
 
 }

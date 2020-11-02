@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Import;
 
 /**
- * Configuration entry-point the Symphony BDK SpringBoot wrapper.
+ * Configuration entry-point the Symphony BDK Spring Boot wrapper.
  */
 @Import({
     BdkCoreConfig.class,

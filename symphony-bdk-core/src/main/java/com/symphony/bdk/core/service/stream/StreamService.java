@@ -3,6 +3,7 @@ package com.symphony.bdk.core.service.stream;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
@@ -13,6 +14,7 @@ import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
+import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
@@ -23,7 +25,6 @@ import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -46,14 +47,89 @@ import java.util.List;
  */
 @Slf4j
 @API(status = API.Status.STABLE)
-public class StreamService extends OboStreamService {
+public class StreamService implements OboStreamService, OboService<OboStreamService> {
 
+  private final StreamsApi streamsApi;
+  private final RoomMembershipApi roomMembershipApi;
+  private final ShareApi shareApi;
   private final AuthSession authSession;
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
       AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
-    super(streamsApi, membershipApi, shareApi, retryBuilder);
+    this.streamsApi = streamsApi;
+    this.roomMembershipApi = membershipApi;
+    this.shareApi = shareApi;
     this.authSession = authSession;
+    this.retryBuilder = retryBuilder;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public OboStreamService obo(AuthSession oboSession) {
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, oboSession, retryBuilder);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public V2StreamAttributes getStreamInfo(String streamId) {
+    return executeAndRetry("getStreamInfo",
+        () -> streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken()));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<StreamAttributes> listStreams(StreamFilter filter) {
+    return executeAndRetry("listStreams",
+        () -> streamsApi.v1StreamsListPost(authSession.getSessionToken(), null, null, filter));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void addMemberToRoom( Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("addMemberToRoom",
+        () -> roomMembershipApi.v1RoomIdMembershipAddPost(roomId, authSession.getSessionToken(), user));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void removeMemberFromRoom(Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("removeMemberFrom",
+        () -> roomMembershipApi.v1RoomIdMembershipRemovePost(roomId, authSession.getSessionToken(), user));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public V2Message share(String streamId, ShareContent content) {
+    return executeAndRetry("share",
+        () -> shareApi.v3StreamSidSharePost(streamId, authSession.getSessionToken(), content, authSession.getKeyManagerToken()));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void promoteUserToRoomOwner(Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("promoteUserToOwner",
+        () -> roomMembershipApi.v1RoomIdMembershipPromoteOwnerPost(roomId, authSession.getSessionToken(), user));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void demoteUserToRoomParticipant(Long userId, String roomId) {
+    UserId user = new UserId().id(userId);
+    executeAndRetry("demoteUserToParticipant",
+        () -> roomMembershipApi.v1RoomIdMembershipDemoteOwnerPost(roomId, authSession.getSessionToken(), user));
   }
 
   /**
@@ -74,11 +150,8 @@ public class StreamService extends OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
   public Stream create(List<Long> uids) {
-    try {
-      return streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids);
-    } catch (ApiException apiException) {
-      throw new ApiRuntimeException(apiException);
-    }
+    return executeAndRetry("createStreamByUserIds",
+        () -> streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids));
   }
 
   /**
@@ -156,29 +229,6 @@ public class StreamService extends OboStreamService {
   }
 
   /**
-   * Retrieve a list of all streams of which the requesting user is a member,
-   * sorted by creation date (ascending).
-   *
-   * @param filter The stream searching criteria
-   * @return The list of streams retrieved according to the searching criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
-   */
-  public List<StreamAttributes> listStreams(StreamFilter filter) {
-    return this.listStreams(this.authSession, filter);
-  }
-
-  /**
-   * Get information about a particular stream.
-   *
-   * @param streamId The stream id
-   * @return The information about the stream with the given id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#stream-info-v2">Stream Info V2</a>
-   */
-  public V2StreamAttributes getStreamInfo(String streamId) {
-    return this.getStreamInfo(this.authSession, streamId);
-  }
-
-  /**
    * Create a new single or multi party instant message conversation.
    * At least two user IDs must be provided or an error response will be sent.
    * <p>
@@ -248,64 +298,10 @@ public class StreamService extends OboStreamService {
         () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
   }
 
-  /**
-   * Adds a new member to an existing room.
-   *
-   * @param userId The id of the user to be added to the given room
-   * @param roomId The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#add-member">Add Member</a>
-   */
-  public void addMemberToRoom(Long userId, String roomId) {
-    this.addMemberToRoom(this.authSession, userId, roomId);
-  }
-
-  /**
-   * Removes an existing member from an existing room.
-   *
-   * @param userId The id of the user to be removed from the given room
-   * @param roomId The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#remove-member">Remove Member</a>
-   */
-  public void removeMemberFromRoom(Long userId, String roomId) {
-    this.removeMemberFromRoom(this.authSession, userId, roomId);
-  }
-
-  /**
-   * Share third-party content, such as a news article, into the specified stream.
-   * The stream can be a chat room, an IM, or an MIM.
-   *
-   * @param streamId The stream id.
-   * @param content  The third-party {@link ShareContent} to be shared.
-   * @return Message contains share content
-   * @see <a href="https://developers.symphony.com/restapi/reference#share-v3">Share</a>
-   */
-  public V2Message share(String streamId, ShareContent content) {
-    return this.share(this.authSession, streamId, content);
-  }
-
-  /**
-   * Promotes user to owner of the chat room.
-   *
-   * @param userId The id of the user to be promoted to room owner.
-   * @param roomId The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#promote-owner">Promote Owner</a>
-   */
-  public void promoteUserToRoomOwner(Long userId, String roomId) {
-    this.promoteUserToRoomOwner(this.authSession, userId, roomId);
-  }
-
-  /**
-   * Demotes room owner to a participant in the chat room.
-   *
-   * @param userId The id of the user to be demoted to room participant.
-   * @param roomId The room id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#demote-owner">Demote Owner</a>
-   */
-  public void demoteUserToRoomParticipant(Long userId, String roomId) {
-    this.demoteUserToRoomParticipant(this.authSession, userId, roomId);
-  }
-
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+        .clearRecoveryStrategies() // to remove refresh on bot session put by default
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
   }
 }

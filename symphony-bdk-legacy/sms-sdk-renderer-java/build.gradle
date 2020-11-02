@@ -6,12 +6,12 @@ test {
 
 dependencies {
 
-    implementation 'org.slf4j:slf4j-api'
-    implementation 'org.slf4j:slf4j-log4j12'
-    implementation 'com.github.jknack:handlebars'
-    implementation 'com.github.jknack:handlebars-jackson2'
-    implementation 'com.github.jknack:handlebars-guava-cache'
-    implementation 'com.googlecode.json-simple:json-simple'
+    api 'org.slf4j:slf4j-api'
+    api 'org.slf4j:slf4j-log4j12'
+    api 'com.github.jknack:handlebars'
+    api 'com.github.jknack:handlebars-jackson2'
+    api 'com.github.jknack:handlebars-guava-cache'
+    api 'com.googlecode.json-simple:json-simple'
 
     testImplementation 'junit:junit'
 }

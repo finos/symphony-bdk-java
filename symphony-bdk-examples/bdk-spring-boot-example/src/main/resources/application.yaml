@@ -1,9 +1,9 @@
 
 bdk:
-  host: devx1.symphony.com
+  host: acme.symphony.com
   bot:
-    username: tibot
-    privateKeyPath: ${user.home}/local/conf/agent/privateKey.pem
+    username: mybot
+    privateKeyPath: path/to/bot-privatekey.pem
 
 logging:
   level:

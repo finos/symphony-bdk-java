@@ -1,8 +1,8 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
@@ -12,7 +12,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
@@ -21,7 +20,6 @@ import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.Datafeed;
@@ -45,8 +43,8 @@ import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
+import com.symphony.bdk.http.api.ApiException;
 
-import io.github.resilience4j.retry.Retry;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,12 +84,7 @@ public class DatafeedServiceV1Test {
         datafeedConfig.setIdFilePath(tempDir.toString());
         this.bdkConfig.setDatafeed(datafeedConfig);
 
-        BdkRetryConfig retryConfig = new BdkRetryConfig();
-        retryConfig.setInitialIntervalMillis(50);
-        retryConfig.setMultiplier(1);
-        retryConfig.setMaxAttempts(2);
-        retryConfig.setMaxIntervalMillis(90);
-        this.bdkConfig.setRetry(retryConfig);
+        this.bdkConfig.setRetry(ofMinimalInterval(2));
 
         this.datafeedService = new DatafeedServiceV1(
                 null,

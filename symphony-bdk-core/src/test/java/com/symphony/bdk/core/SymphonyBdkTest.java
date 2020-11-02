@@ -1,8 +1,6 @@
 package com.symphony.bdk.core;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -15,9 +13,12 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
+import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.test.JsonHelper;
@@ -86,6 +87,18 @@ public class SymphonyBdkTest {
   }
 
   @Test
+  void getPresenceServiceTest() {
+    PresenceService presenceService = this.symphonyBdk.presences();
+    assertNotNull(presenceService);
+  }
+
+  @Test
+  void getConnectionServiceTest() {
+    ConnectionService connectionService = this.symphonyBdk.connections();
+    assertNotNull(connectionService);
+  }
+
+  @Test
   void getActivitiesTest() {
     ActivityRegistry registry = this.symphonyBdk.activities();
     assertNotNull(registry);
@@ -98,9 +111,26 @@ public class SymphonyBdkTest {
   }
 
   @Test
+  void getSignalServiceTest() {
+    SignalService signalService = this.symphonyBdk.signals();
+    assertNotNull(signalService);
+  }
+
+  @Test
   void getHttpClientBuilderTest() {
     HttpClient.Builder builder = this.symphonyBdk.http();
     assertNotNull(builder);
+  }
+
+  @Test
+  void getOboServiceFacade() throws AuthUnauthorizedException {
+    this.mockApiClient.onPost(LOGIN_PUBKEY_APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+
+    AuthSession oboSession = this.symphonyBdk.obo(123456L);
+    final OboServices obo = this.symphonyBdk.obo(oboSession);
+
+    assertNotNull(obo);
   }
 
   @Test
