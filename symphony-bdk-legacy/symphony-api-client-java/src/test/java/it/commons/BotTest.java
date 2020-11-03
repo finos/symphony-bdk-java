@@ -68,6 +68,16 @@ public class BotTest extends ServerTest {
         );
     }
 
+    protected static StubMapping stubGet(String url, int status, String returnedJsonResponse) {
+      return stubFor(get(urlEqualTo(url))
+          .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+          .willReturn(aResponse()
+              .withStatus(status)
+              .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+              .withBody(returnedJsonResponse))
+      );
+    }
+
     protected static StubMapping stubDelete(String url, String returnedJsonResponse) {
         return stubFor(delete(urlEqualTo(url))
             .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
@@ -77,6 +87,16 @@ public class BotTest extends ServerTest {
                 .withBody(returnedJsonResponse))
         );
     }
+
+  protected static StubMapping stubDelete(String url, String returnedJsonResponse, int status) {
+    return stubFor(delete(urlEqualTo(url))
+        .withHeader(HttpHeaders.ACCEPT, equalTo(MediaType.APPLICATION_JSON))
+        .willReturn(aResponse()
+            .withStatus(status)
+            .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+            .withBody(returnedJsonResponse))
+    );
+  }
 
     public static StubMapping stubPost(String url, String returnedJsonResponse) {
         return stubPost(url,returnedJsonResponse, 200);
