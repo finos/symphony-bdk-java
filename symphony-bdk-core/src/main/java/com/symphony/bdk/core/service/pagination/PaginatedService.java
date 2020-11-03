@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.service.pagination;
 
-import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -21,29 +20,12 @@ import java.util.stream.StreamSupport;
  */
 @API(status = API.Status.INTERNAL)
 public class PaginatedService<T> {
+  public static final int DEFAULT_PAGINATION_CHUNK_SIZE = 100;
+  public static final int DEFAULT_PAGINATION_TOTAL_SIZE = 100;
+
   private final PaginatedApi<T> paginatedApi;
   private final int chunkSize;
   private final int maxSize;
-
-  /**
-   * Get the valid pagination attribute.
-   * This method returns default chunk size and default total size if these attributes equal null or the given {@link StreamPaginationAttribute} is null.
-   *
-   * @param pagination        the {@link StreamPaginationAttribute} to be validated.
-   * @param defaultChunkSize  default chunkSize to be set if chunkSize is null.
-   * @param defaultTotalSize  default totalSize to be set if totalSize is null.
-   * @return the valid {@link StreamPaginationAttribute}.
-   */
-  public static StreamPaginationAttribute getValidPaginationAttribute(StreamPaginationAttribute pagination, Integer defaultChunkSize, Integer defaultTotalSize) {
-
-    if (pagination != null) {
-      final int actualChunkSize = pagination.chunkSize() == null ? defaultChunkSize : pagination.chunkSize();
-      final int actualTotalSize = pagination.totalSize() == null ? defaultTotalSize : pagination.totalSize();
-
-      return pagination.chunkSize(actualChunkSize).totalSize(actualTotalSize);
-    }
-    return new StreamPaginationAttribute().chunkSize(defaultChunkSize).totalSize(defaultTotalSize);
-  }
 
   /**
    * The only constructor

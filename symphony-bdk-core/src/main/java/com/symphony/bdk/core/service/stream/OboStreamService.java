@@ -48,26 +48,26 @@ public interface OboStreamService {
    * @return The list of streams retrieved according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
-  List<StreamAttributes> listStreams(@Nullable StreamFilter filter, @Nullable PaginationAttribute pagination);
+  List<StreamAttributes> listStreams(@Nullable StreamFilter filter, @Nonnull PaginationAttribute pagination);
 
   /**
-   * {@link StreamService#listStreamsInStream(StreamFilter)}
+   * {@link StreamService#listAllStreams(StreamFilter)}
    *
    * @param filter The stream searching criteria.
    * @return a {@link Stream} of matching streams according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
-  Stream<StreamAttributes> listStreamsInStream(@Nullable StreamFilter filter);
+  Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter);
 
   /**
-   * {@link StreamService#listStreamsInStream(StreamFilter, StreamPaginationAttribute)}
+   * {@link StreamService#listAllStreams(StreamFilter, StreamPaginationAttribute)}
    *
    * @param filter      The stream searching criteria.
    * @param pagination  The chunkSize and totalSize for pagination with default value equals 50.
    * @return a {@link Stream} of matching streams according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
-  Stream<StreamAttributes> listStreamsInStream(@Nullable StreamFilter filter, @Nullable StreamPaginationAttribute pagination);
+  Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter, @Nonnull StreamPaginationAttribute pagination);
 
   /**
    * {@link StreamService#addMemberToRoom(Long, String)}
