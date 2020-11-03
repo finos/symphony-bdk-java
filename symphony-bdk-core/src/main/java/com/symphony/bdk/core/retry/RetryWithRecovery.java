@@ -73,7 +73,7 @@ public abstract class RetryWithRecovery<T> {
 
   /**
    * This implements the logic corresponding to one retry:
-   * calls the {@link #supplier}, catches the potential {@link ApiException},
+   * calls the {@link #supplier}, catches the potential {@link Exception},
    * return null if it satisfies {@link #ignoreException}
    * and runs the recovery functions if it matches its corresponding condition.
    * This should be called by any implementation of {@link #execute()}.

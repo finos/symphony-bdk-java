@@ -140,7 +140,7 @@ public class RetryWithRecoveryBuilder<T> {
   }
 
   /**
-   * Sets the condition on which we should ignore an exception thrown by the {@link #supplier}
+   * Sets the condition on which we should ignore an {@link ApiException} thrown by the {@link #supplier}
    * and return null in {@link RetryWithRecovery#execute()}.
    *
    * @param ignoreException the condition when we should ignore a given exception
@@ -152,24 +152,39 @@ public class RetryWithRecoveryBuilder<T> {
   }
 
   /**
-   * Sets one recovery strategy which consists in a predicate on the thrown {@link ApiException}
-   * and in a corresponding recovery function to be executed when condition is met.
+   * Sets one recovery strategy which consists of a predicate on a thrown {@link ApiException}
+   * and of a corresponding recovery function to be executed when condition is met.
    *
    * @param condition the predicate to check if the exception should lead to the execution of the recovery function.
    * @param recovery the recovery function to be executed when condition is fulfilled.
-   * @return
+   * @return the modified builder instance.
    */
   public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition, ConsumerWithThrowable recovery) {
     this.recoveryStrategies.add(new RecoveryStrategy(ApiException.class, condition, recovery));
     return this;
   }
 
+  /**
+   * Sets one recovery strategy which consists of a predicate on a thrown {@link Exception}
+   * and of a corresponding recovery function to be executed when condition is met.
+   *
+   * @param exceptionType the actual exception class
+   * @param condition the predicate to check if the exception should lead to the execution of the recovery function.
+   * @param recovery the recovery function to be executed when condition is fulfilled.
+   * @param <E> the actual exception class
+   * @return the modified builder instance.
+   */
   public <E extends Exception> RetryWithRecoveryBuilder<T> recoveryStrategy(Class<? extends E> exceptionType,
       Predicate<E> condition, ConsumerWithThrowable recovery) {
     this.recoveryStrategies.add(new RecoveryStrategy(exceptionType, condition, recovery));
     return this;
   }
 
+  /**
+   * Removes all the recovery strategies from the builder instance.
+   *
+   * @return the modified builder instance.
+   */
   public RetryWithRecoveryBuilder<T> clearRecoveryStrategies() {
     this.recoveryStrategies.clear();
     return this;

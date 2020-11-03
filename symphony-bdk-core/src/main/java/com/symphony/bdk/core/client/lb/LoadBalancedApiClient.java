@@ -10,6 +10,10 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
+/**
+ * An {@link ApiClient} implementation which load balances calls across several base URLs.
+ * It contains a {@link RegularApiClient} (i.e. non load-balanced api client) in order to target a specific base URL.
+ */
 @API(status = API.Status.INTERNAL)
 public abstract class LoadBalancedApiClient implements ApiClient {
 
@@ -18,6 +22,11 @@ public abstract class LoadBalancedApiClient implements ApiClient {
   protected RegularApiClient apiClient;
   private LoadBalancingStrategy loadBalancingStrategy;
 
+  /**
+   *
+   * @param loadBalancingConfig the load balancing configuration to be used
+   * @param apiClientFactory the api client factory used to instantiate {@link RegularApiClient} instances.
+   */
   public LoadBalancedApiClient(BdkLoadBalancingConfig loadBalancingConfig, ApiClientFactory apiClientFactory) {
     this.loadBalancingConfig = loadBalancingConfig;
     this.apiClientFactory = apiClientFactory;
@@ -26,36 +35,57 @@ public abstract class LoadBalancedApiClient implements ApiClient {
     rotate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void rotate() {
     apiClient = apiClientFactory.getRegularAgentClient(loadBalancingStrategy.getNewBasePath());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String getBasePath() {
     return apiClient.getBasePath();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String parameterToString(Object param) {
     return apiClient.parameterToString(param);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public List<Pair> parameterToPairs(String collectionFormat, String name, Object value) {
     return apiClient.parameterToPairs(collectionFormat, name, value);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String selectHeaderAccept(String... accepts) {
     return apiClient.selectHeaderAccept(accepts);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String selectHeaderContentType(String... contentTypes) {
     return apiClient.selectHeaderContentType(contentTypes);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String escapeString(String str) {
     return apiClient.escapeString(str);

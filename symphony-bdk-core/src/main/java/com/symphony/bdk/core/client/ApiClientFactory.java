@@ -60,7 +60,7 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link RegularApiClient} for Login API.
    *
-   * @return an new {@link RegularApiClient} instance.
+   * @return a new {@link RegularApiClient} instance.
    */
   public RegularApiClient getLoginClient() {
     return buildClient(this.config.getPod().getBasePath() + "/login");
@@ -69,7 +69,7 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link RegularApiClient} for Pod API.
    *
-   * @return an new {@link RegularApiClient} instance.
+   * @return a new {@link RegularApiClient} instance.
    */
   public RegularApiClient getPodClient() {
     return buildClient(this.config.getPod().getBasePath() + "/pod");
@@ -78,7 +78,7 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link RegularApiClient} for KeyManager API.
    *
-   * @return an new {@link RegularApiClient} instance.
+   * @return a new {@link RegularApiClient} instance.
    */
   public RegularApiClient getRelayClient() {
     return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
@@ -101,12 +101,18 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link RegularApiClient} for Agent API.
    *
-   * @return an new {@link RegularApiClient} instance.
+   * @return a new {@link RegularApiClient} instance.
    */
   public RegularApiClient getRegularAgentClient() {
     return getRegularAgentClient(this.config.getAgent().getBasePath());
   }
 
+  /**
+   * Returns a fully initialized {@link RegularApiClient} for Agent API given an agent base path.
+   *
+   * @param agentBasePath the agent base URL to target.
+   * @return a new {@link RegularApiClient} instance.
+   */
   public RegularApiClient getRegularAgentClient(String agentBasePath) {
     return buildClient(agentBasePath + "/agent");
   }
@@ -115,7 +121,7 @@ public class ApiClientFactory {
    * Returns a fully initialized {@link RegularApiClient} for the SessionAuth API. This only works with a
    * certification configured.
    *
-   * @return an new {@link RegularApiClient} instance.
+   * @return a new {@link RegularApiClient} instance.
    */
   public RegularApiClient getSessionAuthClient() {
     return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getBot());

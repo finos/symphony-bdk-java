@@ -9,12 +9,24 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
+/**
+ * Interface to provide a load balancing strategy, i.e. provide a new base URL when needed.
+ */
 @API(status = API.Status.INTERNAL)
 public interface LoadBalancingStrategy {
 
   String getNewBasePath();
 
-  static LoadBalancingStrategy getInstance(BdkLoadBalancingConfig loadBalancingConfig, ApiClientFactory apiClientFactory) {
+  /**
+   * Returns a concrete implementation instance based on the provided inputs.
+   *
+   * @param loadBalancingConfig the load balancing configuration
+   * @param apiClientFactory    the api client factory needed for the
+   *                            {@link com.symphony.bdk.core.config.model.BdkLoadBalancingMode#EXTERNAL} mode.
+   * @return a fully initialized instance whose implementation depends on the provided {@link BdkLoadBalancingConfig}
+   */
+  static LoadBalancingStrategy getInstance(BdkLoadBalancingConfig loadBalancingConfig,
+      ApiClientFactory apiClientFactory) {
     final List<BdkServerConfig> nodes = loadBalancingConfig.getNodes();
 
     switch (loadBalancingConfig.getMode()) {
