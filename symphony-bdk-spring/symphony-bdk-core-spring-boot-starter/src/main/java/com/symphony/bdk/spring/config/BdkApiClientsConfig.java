@@ -94,7 +94,7 @@ public class BdkApiClientsConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public DatafeedApi datafeedApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+  public DatafeedApi datafeedApi(@Qualifier("datafeedAgentApiClient") ApiClient agentApiClient) {
     return new DatafeedApi(agentApiClient);
   }
 

@@ -28,7 +28,7 @@ public abstract class LoadBalancedApiClient implements ApiClient {
 
   @Override
   public void rotate() {
-    apiClient = apiClientFactory.getAgentClient(loadBalancingStrategy.getNewBasePath());
+    apiClient = apiClientFactory.getRegularAgentClient(loadBalancingStrategy.getNewBasePath());
   }
 
   @Override

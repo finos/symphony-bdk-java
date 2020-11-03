@@ -5,12 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -43,6 +38,7 @@ import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 
 import org.apache.commons.io.FileUtils;
@@ -69,28 +65,39 @@ public class DatafeedServiceV1Test {
 
     private DatafeedServiceV1 datafeedService;
     private BdkConfig bdkConfig;
+    private ApiClient datafeedApiClient;
     private DatafeedApi datafeedApi;
     private AuthSession authSession;
     private RealTimeEventListener listener;
 
     @BeforeEach
     void init(@TempDir Path tempDir) throws BdkConfigException {
+        //authSession
         this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
+
+        //bdkConfig
         this.bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
 
         BdkDatafeedConfig datafeedConfig = this.bdkConfig.getDatafeed();
         datafeedConfig.setIdFilePath(tempDir.toString());
         this.bdkConfig.setDatafeed(datafeedConfig);
-
         this.bdkConfig.setRetry(ofMinimalInterval(2));
 
+        //datafeed service
+        this.datafeedApiClient = mock(ApiClient.class);
+        doNothing().when(this.datafeedApiClient).rotate();
+
+        this.datafeedApi = mock(DatafeedApi.class);
+        when(this.datafeedApi.getApiClient()).thenReturn(this.datafeedApiClient);
+
         this.datafeedService = new DatafeedServiceV1(
-                null,
+                this.datafeedApi,
                 this.authSession,
                 this.bdkConfig
         );
+
         this.listener = new RealTimeEventListener() {
             @Override
             public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
@@ -98,8 +105,6 @@ public class DatafeedServiceV1Test {
             }
         };
         this.datafeedService.subscribe(listener);
-        this.datafeedApi = mock(DatafeedApi.class);
-        this.datafeedService.setDatafeedApi(datafeedApi);
     }
 
     @Test
@@ -124,6 +129,7 @@ public class DatafeedServiceV1Test {
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(2)).v4DatafeedCreatePost("1234", "1234");
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -136,6 +142,7 @@ public class DatafeedServiceV1Test {
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(3)).v4DatafeedCreatePost("1234", "1234");
         verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -145,6 +152,7 @@ public class DatafeedServiceV1Test {
 
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
+        // verify(datafeedApiClient, times(0)).rotate();
     }
 
     @Test
@@ -153,6 +161,7 @@ public class DatafeedServiceV1Test {
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -165,6 +174,7 @@ public class DatafeedServiceV1Test {
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
         verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+        // verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -175,6 +185,7 @@ public class DatafeedServiceV1Test {
 
         this.datafeedService.start();
         verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+        // verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test

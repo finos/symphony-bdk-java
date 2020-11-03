@@ -90,7 +90,8 @@ public class LoadBalancingStrategyTest {
     mockApiClient.onGet("/agent/v1/info", "{ \"serverFqdn\": \"https://agent1:443/context\" }");
 
     ApiClientFactory apiClientFactory = mock(ApiClientFactory.class);
-    when(apiClientFactory.getAgentClient(eq("https://agent-lb:443"))).thenReturn(mockApiClient.getApiClient("/agent"));
+    when(apiClientFactory.getRegularAgentClient(eq("https://agent-lb:443")))
+        .thenReturn(mockApiClient.getApiClient("/agent"));
 
     final LoadBalancingStrategy instance = LoadBalancingStrategy.getInstance(loadBalancingConfig, apiClientFactory);
 

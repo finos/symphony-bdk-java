@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -29,15 +30,18 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected final List<RealTimeEventListener> listeners;
   protected final RetryWithRecoveryBuilder retryWithRecoveryBuilder;
   protected DatafeedApi datafeedApi;
+  protected ApiClient apiClient;
 
   public AbstractDatafeedService(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     this.datafeedApi = datafeedApi;
     this.listeners = new ArrayList<>();
     this.authSession = authSession;
     this.bdkConfig = config;
+    this.apiClient = datafeedApi.getApiClient();
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
-        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh)
+        .recoveryStrategy(e -> true, () -> this.apiClient.rotate()); //always rotate in case of any error
   }
 
   /**

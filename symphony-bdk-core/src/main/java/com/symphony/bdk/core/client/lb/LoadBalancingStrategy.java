@@ -20,7 +20,7 @@ public interface LoadBalancingStrategy {
     switch (loadBalancingConfig.getMode()) {
       case EXTERNAL:
         final String agentLbBasePath = nodes.get(0).getBasePath();
-        final SignalsApi signalsApi = new SignalsApi(apiClientFactory.getAgentClient(agentLbBasePath));
+        final SignalsApi signalsApi = new SignalsApi(apiClientFactory.getRegularAgentClient(agentLbBasePath));
         return new ExternalLoadBalancingStrategy(signalsApi);
       case RANDOM:
         return new RandomLoadBalancingStrategy(nodes);
