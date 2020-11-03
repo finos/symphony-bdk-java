@@ -41,6 +41,7 @@ import javax.ws.rs.ProcessingException;
 public class DatafeedServiceV2Test {
 
     private DatafeedServiceV2 datafeedService;
+    private ApiClient datafeedApiClient;
     private DatafeedApi datafeedApi;
     private AuthSession authSession;
     private RealTimeEventListener listener;
@@ -57,11 +58,14 @@ public class DatafeedServiceV2Test {
         when(this.authSession.getSessionToken()).thenReturn("1234");
         when(this.authSession.getKeyManagerToken()).thenReturn("1234");
 
-        ApiClient apiClient = mock(ApiClient.class);
-        doNothing().when(apiClient).rotate(); //TODO test rotate called in case of error??
+        this.datafeedApiClient = mock(ApiClient.class);
+        doNothing().when(this.datafeedApiClient).rotate();
+
+        this.datafeedApi = mock(DatafeedApi.class);
+        when(this.datafeedApi.getApiClient()).thenReturn(this.datafeedApiClient);
 
         this.datafeedService = new DatafeedServiceV2(
-                new DatafeedApi(apiClient),
+                this.datafeedApi,
                 this.authSession,
                 bdkConfig
         );
@@ -72,9 +76,6 @@ public class DatafeedServiceV2Test {
             }
         };
         this.datafeedService.subscribe(listener);
-
-        this.datafeedApi = mock(DatafeedApi.class);
-        this.datafeedService.setDatafeedApi(datafeedApi);
     }
 
     @Test
@@ -90,6 +91,7 @@ public class DatafeedServiceV2Test {
 
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(0)).rotate();
     }
 
     @Test
@@ -105,6 +107,7 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).createDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(0)).rotate();
     }
 
     @Test
@@ -144,6 +147,7 @@ public class DatafeedServiceV2Test {
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -154,6 +158,7 @@ public class DatafeedServiceV2Test {
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(authSession, times(1)).refresh();
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -162,6 +167,7 @@ public class DatafeedServiceV2Test {
 
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(2)).listDatafeed("1234", "1234");
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -179,6 +185,7 @@ public class DatafeedServiceV2Test {
 
         verify(datafeedApi, times(2)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -190,6 +197,7 @@ public class DatafeedServiceV2Test {
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).createDatafeed("1234", "1234");
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -200,6 +208,7 @@ public class DatafeedServiceV2Test {
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).createDatafeed("1234", "1234");
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -210,6 +219,7 @@ public class DatafeedServiceV2Test {
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(2)).createDatafeed("1234", "1234");
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -227,6 +237,7 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).readDatafeed("recreate-df-id", "1234", "1234", ackId);
         verify(datafeedApi, times(1)).createDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -238,6 +249,7 @@ public class DatafeedServiceV2Test {
         this.datafeedService.start();
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -251,6 +263,7 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
         verify(authSession, times(1)).refresh();
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -262,6 +275,7 @@ public class DatafeedServiceV2Test {
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -273,6 +287,7 @@ public class DatafeedServiceV2Test {
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -284,6 +299,7 @@ public class DatafeedServiceV2Test {
         assertThrows(ApiException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test
@@ -302,7 +318,7 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).readDatafeed("recreate-df-id", "1234", "1234", ackId);
         verify(datafeedApi, times(1)).createDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
-
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -317,6 +333,7 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
         verify(datafeedApi, times(2)).deleteDatafeed("test-id", "1234", "1234");
+        verify(datafeedApiClient, times(3)).rotate();
     }
 
     @Test
@@ -332,5 +349,6 @@ public class DatafeedServiceV2Test {
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
         verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
+        verify(datafeedApiClient, times(2)).rotate();
     }
 }

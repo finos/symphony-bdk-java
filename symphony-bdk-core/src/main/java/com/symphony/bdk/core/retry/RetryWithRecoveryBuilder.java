@@ -25,7 +25,7 @@ public class RetryWithRecoveryBuilder<T> {
   private BdkRetryConfig retryConfig;
   private SupplierWithApiException<T> supplier;
   private Predicate<Throwable> retryOnExceptionPredicate;
-  private Predicate<ApiException> ignoreException;
+  private Predicate<Exception> ignoreException;
   private List<RecoveryStrategy> recoveryStrategies;
 
   /**
@@ -147,7 +147,7 @@ public class RetryWithRecoveryBuilder<T> {
    * @return the modified builder instance.
    */
   public RetryWithRecoveryBuilder<T> ignoreException(Predicate<ApiException> ignoreException) {
-    this.ignoreException = ignoreException;
+    this.ignoreException = (e) -> e instanceof ApiException && ignoreException.test((ApiException) e);
     return this;
   }
 

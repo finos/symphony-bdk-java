@@ -14,13 +14,14 @@ import java.util.function.Predicate;
 /**
  * Abstract class to implement a retry mechanism with recovery strategies,
  * e.g. refresh a session in a case of session expiration.
+ *
  * @param <T> the type of the object to be eventually returned by the {@link #supplier}
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
 public abstract class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
-  private Predicate<ApiException> ignoreApiException;
+  private Predicate<Exception> ignoreException;
   private List<RecoveryStrategy> recoveryStrategies;
 
   /**
@@ -29,14 +30,15 @@ public abstract class RetryWithRecovery<T> {
    * and refreshes the authSession if we get an unauthorized error.
    *
    * @param baseRetryBuilder the {@link RetryWithRecoveryBuilder} containing the base settings for the retry mechanism.
-   * @param name the name of the retry, can be any string but should specific to the function being retried.
-   * @param supplier the supplier returning the desired object which may fail with an exception.
-   * @param <T> the type of the object to be returned by the supplier.
+   * @param name             the name of the retry, can be any string but should specific to the function being retried.
+   * @param supplier         the supplier returning the desired object which may fail with an exception.
+   * @param <T>              the type of the object to be returned by the supplier.
    * @return the object returned by the supplier
    * @throws ApiRuntimeException if a non-handled {@link ApiException} thrown or if the max number of retries has been reached.
-   * @throws RuntimeException if any other exception thrown.
+   * @throws RuntimeException    if any other exception thrown.
    */
-  public static <T> T executeAndRetry(RetryWithRecoveryBuilder baseRetryBuilder, String name, SupplierWithApiException<T> supplier) {
+  public static <T> T executeAndRetry(RetryWithRecoveryBuilder baseRetryBuilder, String name,
+      SupplierWithApiException<T> supplier) {
     RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
         .supplier(supplier)
@@ -51,10 +53,10 @@ public abstract class RetryWithRecovery<T> {
     }
   }
 
-  public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<ApiException> ignoreApiException,
+  public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<Exception> ignoreException,
       List<RecoveryStrategy> recoveryStrategies) {
     this.supplier = supplier;
-    this.ignoreApiException = ignoreApiException;
+    this.ignoreException = ignoreException;
     this.recoveryStrategies = recoveryStrategies;
   }
 
@@ -65,14 +67,14 @@ public abstract class RetryWithRecovery<T> {
    *
    * @return the object returned by the supplier.
    * @throws Throwable in case the max number of retries exhausted
-   * or if any other exception thrown by the supplier or the recovery functions.
+   *                   or if any other exception thrown by the supplier or the recovery functions.
    */
   public abstract T execute() throws Throwable;
 
   /**
    * This implements the logic corresponding to one retry:
    * calls the {@link #supplier}, catches the potential {@link ApiException},
-   * return null if it satisfies {@link #ignoreApiException}
+   * return null if it satisfies {@link #ignoreException}
    * and runs the recovery functions if it matches its corresponding condition.
    * This should be called by any implementation of {@link #execute()}.
    *
@@ -83,12 +85,9 @@ public abstract class RetryWithRecovery<T> {
     try {
       return supplier.get();
     } catch (Exception e) {
-      if (e instanceof ApiException) {
-        final ApiException apiException = (ApiException) e;
-        if (ignoreApiException.test(apiException)) {
-          log.debug("ApiException ignored: {}, {}", apiException.getCode(), apiException.getMessage());
-          return null;
-        }
+      if (ignoreException.test(e)) {
+        log.debug("{} ignored: {}", e.getClass().getCanonicalName(), e.getMessage());
+        return null;
       }
 
       handleRecovery(e);
@@ -100,7 +99,7 @@ public abstract class RetryWithRecovery<T> {
     boolean recoveryTriggered = false;
 
     for (RecoveryStrategy recoveryStrategy : recoveryStrategies) {
-      if(recoveryStrategy.matches(e)) {
+      if (recoveryStrategy.matches(e)) {
         log.debug("Exception recovered: {}", e);
         recoveryTriggered = true;
         recoveryStrategy.runRecovery();
@@ -108,7 +107,7 @@ public abstract class RetryWithRecovery<T> {
     }
 
     if (!recoveryTriggered) {
-      log.error("Error of type {} not recovered: {}", e.getClass().getCanonicalName(), e.getMessage());
+      log.error("Exception of type {} not recovered: {}", e.getClass().getCanonicalName(), e.getMessage());
     }
   }
 }

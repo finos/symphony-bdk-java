@@ -47,14 +47,14 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    * @param bdkRetryConfig the retry configuration to be used.
    * @param supplier the supplier responsible to provide the object of param type T and which may throw an {@link ApiException}.
    * @param retryOnExceptionPredicate predicate on a thrown {@link ApiException} to know if call should be retried.
-   * @param ignoreApiException predicate on a thrown {@link ApiException} to know if exception should be ignored,
+   * @param ignoreException predicate on a thrown {@link Exception} to know if exception should be ignored,
    *                           which means no subsequent retry will be made and null value will be returned.
    * @param recoveryStrategies mapping between {@link Predicate<ApiException>} and the corresponding recovery functions to be executed before retrying.
    *                           If several predicates match, all corresponding consumers will be executed.
    */
   public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
-      Predicate<Throwable> retryOnExceptionPredicate, Predicate<ApiException> ignoreApiException, List<RecoveryStrategy> recoveryStrategies) {
-    super(supplier, ignoreApiException, recoveryStrategies);
+      Predicate<Throwable> retryOnExceptionPredicate, Predicate<Exception> ignoreException, List<RecoveryStrategy> recoveryStrategies) {
+    super(supplier, ignoreException, recoveryStrategies);
     this.retry = createRetry(name, bdkRetryConfig, retryOnExceptionPredicate);
   }
 
