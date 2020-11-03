@@ -1,16 +1,14 @@
 package com.symphony.bdk.core.retry;
 
 
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.util.Map;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -23,7 +21,7 @@ import java.util.function.Predicate;
 public abstract class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<ApiException> ignoreApiException;
-  private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
+  private List<RecoveryStrategy<?>> recoveryStrategies;
 
   /**
    * This is a helper function designed to cover most of the retry cases.
@@ -54,7 +52,7 @@ public abstract class RetryWithRecovery<T> {
   }
 
   public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<ApiException> ignoreApiException,
-      Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
+      List<RecoveryStrategy<?>> recoveryStrategies) {
     this.supplier = supplier;
     this.ignoreApiException = ignoreApiException;
     this.recoveryStrategies = recoveryStrategies;
@@ -84,10 +82,13 @@ public abstract class RetryWithRecovery<T> {
   protected T executeOnce() throws Throwable {
     try {
       return supplier.get();
-    } catch (ApiException e) {
-      if (ignoreApiException.test(e)) {
-        log.debug("Exception ignored: {}", e);
-        return null;
+    } catch (Exception e) {
+      if (e instanceof ApiException) {
+        final ApiException apiException = (ApiException) e;
+        if (ignoreApiException.test(apiException)) {
+          log.debug("ApiException ignored: {}, {}", apiException.getCode(), apiException.getMessage());
+          return null;
+        }
       }
 
       handleRecovery(e);
@@ -95,19 +96,19 @@ public abstract class RetryWithRecovery<T> {
     }
   }
 
-  private void handleRecovery(ApiException e) throws Throwable {
+  private void handleRecovery(Exception e) throws Throwable {
     boolean recoveryTriggered = false;
 
-    for (Map.Entry<Predicate<ApiException>, ConsumerWithThrowable> entry : recoveryStrategies.entrySet()) {
-      if (entry.getKey().test(e)) {
+    for (RecoveryStrategy<?> recoveryStrategy : recoveryStrategies) {
+      if(recoveryStrategy.matches(e)) {
         log.debug("Exception recovered: {}", e);
         recoveryTriggered = true;
-        entry.getValue().consume();
+        recoveryStrategy.runRecovery();
       }
     }
 
     if (!recoveryTriggered) {
-      log.error("Error {}: {}", e.getCode(), e.getMessage());
+      log.error("Error of type {} not recovered: {}", e.getClass().getCanonicalName(), e.getMessage());
     }
   }
 }

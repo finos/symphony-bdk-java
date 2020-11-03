@@ -4,16 +4,15 @@ import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.resilience4j.Resilience4jRetryWithRecovery;
 import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
-
 import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
 
-import javax.ws.rs.ProcessingException;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
+
+import javax.ws.rs.ProcessingException;
 
 /**
  * Builder class to facilitate the instantiation of a {@link RetryWithRecovery}.
@@ -27,7 +26,7 @@ public class RetryWithRecoveryBuilder<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<Throwable> retryOnExceptionPredicate;
   private Predicate<ApiException> ignoreException;
-  private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
+  private List<RecoveryStrategy<?>> recoveryStrategies;
 
   /**
    * Copies all fields of an existing builder except the {@link #supplier}.
@@ -42,7 +41,7 @@ public class RetryWithRecoveryBuilder<T> {
     copy.retryConfig = from.retryConfig;
     copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
     copy.ignoreException = from.ignoreException;
-    copy.recoveryStrategies = new HashMap<>(from.recoveryStrategies);
+    copy.recoveryStrategies = new ArrayList<>(from.recoveryStrategies);
 
     return copy;
   }
@@ -88,7 +87,7 @@ public class RetryWithRecoveryBuilder<T> {
    * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}.
    */
   public RetryWithRecoveryBuilder() {
-    this.recoveryStrategies = new HashMap<>();
+    this.recoveryStrategies = new ArrayList<>();
     this.ignoreException = e -> false;
     this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrMinorError;
     this.retryConfig = new BdkRetryConfig();
@@ -161,7 +160,7 @@ public class RetryWithRecoveryBuilder<T> {
    * @return
    */
   public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition, ConsumerWithThrowable recovery) {
-    this.recoveryStrategies.put(condition, recovery);
+    this.recoveryStrategies.add(new RecoveryStrategy<>(ApiException.class, condition, recovery));
     return this;
   }
 

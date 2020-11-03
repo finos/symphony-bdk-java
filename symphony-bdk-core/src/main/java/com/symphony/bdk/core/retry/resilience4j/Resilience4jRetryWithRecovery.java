@@ -1,13 +1,10 @@
 package com.symphony.bdk.core.retry.resilience4j;
 
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-
+import com.symphony.bdk.core.retry.RecoveryStrategy;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.util.BdkExponentialFunction;
-
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
-
 import com.symphony.bdk.http.api.ApiException;
 
 import io.github.resilience4j.retry.Retry;
@@ -15,7 +12,7 @@ import io.github.resilience4j.retry.RetryConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.util.Map;
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -39,8 +36,7 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    *                           If several predicates match, all corresponding consumers will be executed.
    */
   public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
-      Predicate<Throwable> retryOnExceptionPredicate,
-      Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
+      Predicate<Throwable> retryOnExceptionPredicate, List<RecoveryStrategy<?>> recoveryStrategies) {
     this(name, bdkRetryConfig, supplier, retryOnExceptionPredicate, (e) -> false, recoveryStrategies);
   }
 
@@ -57,8 +53,7 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    *                           If several predicates match, all corresponding consumers will be executed.
    */
   public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
-      Predicate<Throwable> retryOnExceptionPredicate, Predicate<ApiException> ignoreApiException,
-      Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies) {
+      Predicate<Throwable> retryOnExceptionPredicate, Predicate<ApiException> ignoreApiException, List<RecoveryStrategy<?>> recoveryStrategies) {
     super(supplier, ignoreApiException, recoveryStrategies);
     this.retry = createRetry(name, bdkRetryConfig, retryOnExceptionPredicate);
   }
