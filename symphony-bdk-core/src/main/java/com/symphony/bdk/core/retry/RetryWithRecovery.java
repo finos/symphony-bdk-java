@@ -21,7 +21,7 @@ import java.util.function.Predicate;
 public abstract class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<ApiException> ignoreApiException;
-  private List<RecoveryStrategy<?>> recoveryStrategies;
+  private List<RecoveryStrategy> recoveryStrategies;
 
   /**
    * This is a helper function designed to cover most of the retry cases.
@@ -52,7 +52,7 @@ public abstract class RetryWithRecovery<T> {
   }
 
   public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<ApiException> ignoreApiException,
-      List<RecoveryStrategy<?>> recoveryStrategies) {
+      List<RecoveryStrategy> recoveryStrategies) {
     this.supplier = supplier;
     this.ignoreApiException = ignoreApiException;
     this.recoveryStrategies = recoveryStrategies;
@@ -99,7 +99,7 @@ public abstract class RetryWithRecovery<T> {
   private void handleRecovery(Exception e) throws Throwable {
     boolean recoveryTriggered = false;
 
-    for (RecoveryStrategy<?> recoveryStrategy : recoveryStrategies) {
+    for (RecoveryStrategy recoveryStrategy : recoveryStrategies) {
       if(recoveryStrategy.matches(e)) {
         log.debug("Exception recovered: {}", e);
         recoveryTriggered = true;

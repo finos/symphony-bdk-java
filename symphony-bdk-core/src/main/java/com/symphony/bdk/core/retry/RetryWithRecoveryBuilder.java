@@ -26,7 +26,7 @@ public class RetryWithRecoveryBuilder<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<Throwable> retryOnExceptionPredicate;
   private Predicate<ApiException> ignoreException;
-  private List<RecoveryStrategy<?>> recoveryStrategies;
+  private List<RecoveryStrategy> recoveryStrategies;
 
   /**
    * Copies all fields of an existing builder except the {@link #supplier}.
@@ -160,7 +160,13 @@ public class RetryWithRecoveryBuilder<T> {
    * @return
    */
   public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition, ConsumerWithThrowable recovery) {
-    this.recoveryStrategies.add(new RecoveryStrategy<>(ApiException.class, condition, recovery));
+    this.recoveryStrategies.add(new RecoveryStrategy(ApiException.class, condition, recovery));
+    return this;
+  }
+
+  public <E extends Exception> RetryWithRecoveryBuilder<T> recoveryStrategy(Class<? extends E> exceptionType,
+      Predicate<E> condition, ConsumerWithThrowable recovery) {
+    this.recoveryStrategies.add(new RecoveryStrategy(exceptionType, condition, recovery));
     return this;
   }
 
@@ -175,7 +181,7 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
+    return new Resilience4jRetryWithRecovery<T>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
         recoveryStrategies);
   }
 }

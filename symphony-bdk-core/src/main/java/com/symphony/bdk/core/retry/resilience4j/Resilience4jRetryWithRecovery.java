@@ -36,7 +36,7 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    *                           If several predicates match, all corresponding consumers will be executed.
    */
   public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
-      Predicate<Throwable> retryOnExceptionPredicate, List<RecoveryStrategy<?>> recoveryStrategies) {
+      Predicate<Throwable> retryOnExceptionPredicate, List<RecoveryStrategy> recoveryStrategies) {
     this(name, bdkRetryConfig, supplier, retryOnExceptionPredicate, (e) -> false, recoveryStrategies);
   }
 
@@ -53,7 +53,7 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    *                           If several predicates match, all corresponding consumers will be executed.
    */
   public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
-      Predicate<Throwable> retryOnExceptionPredicate, Predicate<ApiException> ignoreApiException, List<RecoveryStrategy<?>> recoveryStrategies) {
+      Predicate<Throwable> retryOnExceptionPredicate, Predicate<ApiException> ignoreApiException, List<RecoveryStrategy> recoveryStrategies) {
     super(supplier, ignoreApiException, recoveryStrategies);
     this.retry = createRetry(name, bdkRetryConfig, retryOnExceptionPredicate);
   }

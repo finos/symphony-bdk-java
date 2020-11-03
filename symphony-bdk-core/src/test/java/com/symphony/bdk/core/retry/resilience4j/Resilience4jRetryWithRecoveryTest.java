@@ -145,7 +145,7 @@ class Resilience4jRetryWithRecoveryTest {
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
         ofMinimalInterval(), supplier, (t) -> true,
-        Collections.singletonList(new RecoveryStrategy<>(ApiException.class, e -> true, consumer)));
+        Collections.singletonList(new RecoveryStrategy(ApiException.class, e -> true, consumer)));
 
     assertEquals(value, r.execute());
 
@@ -167,7 +167,7 @@ class Resilience4jRetryWithRecoveryTest {
 
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
         ofMinimalInterval(), supplier, (t) -> true,
-        Collections.singletonList(new RecoveryStrategy<>(ApiException.class, e -> e.isClientError(), consumer)));
+        Collections.singletonList(new RecoveryStrategy(ApiException.class, e -> e.isClientError(), consumer)));
 
     assertEquals(value, r.execute());
     verify(supplier, times(2)).get();
@@ -188,7 +188,7 @@ class Resilience4jRetryWithRecoveryTest {
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException,
-        Collections.singletonList(new RecoveryStrategy<>(ApiException.class, ApiException::isClientError, consumer)));
+        Collections.singletonList(new RecoveryStrategy(ApiException.class, ApiException::isClientError, consumer)));
 
     assertThrows(IndexOutOfBoundsException.class, () -> r.execute());
 
@@ -212,7 +212,7 @@ class Resilience4jRetryWithRecoveryTest {
     Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
         ofMinimalInterval(), supplier,
         (t) -> true,
-        Collections.singletonList(new RecoveryStrategy<>(ApiException.class, ApiException::isClientError, consumer)));
+        Collections.singletonList(new RecoveryStrategy(ApiException.class, ApiException::isClientError, consumer)));
 
     assertEquals(value, r.execute());
 

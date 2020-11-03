@@ -152,7 +152,7 @@ public class DatafeedServiceV1Test {
 
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
-        // verify(datafeedApiClient, times(0)).rotate();
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -174,7 +174,7 @@ public class DatafeedServiceV1Test {
         assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
         verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
         verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
-        // verify(datafeedApiClient, times(1)).rotate();
+        verify(datafeedApiClient, times(1)).rotate();
     }
 
     @Test
@@ -185,7 +185,7 @@ public class DatafeedServiceV1Test {
 
         this.datafeedService.start();
         verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
-        // verify(datafeedApiClient, times(2)).rotate();
+        verify(datafeedApiClient, times(2)).rotate();
     }
 
     @Test

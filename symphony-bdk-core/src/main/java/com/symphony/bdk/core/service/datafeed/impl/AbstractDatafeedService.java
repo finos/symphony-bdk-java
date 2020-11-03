@@ -14,6 +14,8 @@ import com.symphony.bdk.gen.api.model.V4Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import javax.ws.rs.ProcessingException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +42,8 @@ abstract class AbstractDatafeedService implements DatafeedService {
     this.apiClient = datafeedApi.getApiClient();
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
-        .recoveryStrategy(ApiException::isUnauthorized, this::refresh)
-        .recoveryStrategy(e -> true, () -> this.apiClient.rotate()); //always rotate in case of any error
+        .recoveryStrategy(Exception.class, e -> true, () -> this.apiClient.rotate())  //always rotate in case of any error
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
   }
 
   /**
