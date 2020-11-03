@@ -41,6 +41,7 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
     this.appAuth = appAuth;
   }
 
+  /** Constructor for testing purpose only */
   protected SymOBOUserAuth(final SymConfig config, final Client sessionAuthClient, final String username,
       final ISymOBOAuth appAuth, int timeout, int maxRetry) {
     this.config = config;
