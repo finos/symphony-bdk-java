@@ -4,7 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+import com.symphony.bdk.core.client.lb.DatafeedLoadBalancedApiClient;
+import com.symphony.bdk.core.client.lb.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
+import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
+import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
@@ -13,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 
 /**
  * Test class for the {@link ApiClientFactory}.
@@ -36,10 +42,33 @@ class ApiClientFactoryTest {
   }
 
   @Test
-  void testGetAgentClient()  {
+  void testGetAgentClient() {
     final ApiClient agentClient = this.factory.getAgentClient();
     assertEquals(ApiClientJersey2.class, agentClient.getClass());
     assertEquals("https://agent-host:443/agent", agentClient.getBasePath());
+  }
+
+  @Test
+  void testGetLoadBalancedAgentClient() {
+    ApiClientFactory factory = new ApiClientFactory(this.createLoadBalancedConfig());
+    final ApiClient agentClient = factory.getAgentClient();
+    assertEquals(RegularLoadBalancedApiClient.class, agentClient.getClass());
+    assertEquals("https://lb-agent-host:443/agent", agentClient.getBasePath());
+  }
+
+  @Test
+  void testGetDatafeedAgentClient() {
+    final ApiClient agentClient = this.factory.getDatafeedAgentClient();
+    assertEquals(ApiClientJersey2.class, agentClient.getClass());
+    assertEquals("https://agent-host:443/agent", agentClient.getBasePath());
+  }
+
+  @Test
+  void testGetLoadBalancedDatafeedAgentClient() {
+    ApiClientFactory factory = new ApiClientFactory(this.createLoadBalancedConfig());
+    final ApiClient agentClient = factory.getDatafeedAgentClient();
+    assertEquals(DatafeedLoadBalancedApiClient.class, agentClient.getClass());
+    assertEquals("https://lb-agent-host:443/agent", agentClient.getBasePath());
   }
 
   @Test
@@ -103,7 +132,7 @@ class ApiClientFactoryTest {
     config.getBot().setCertificateContent("invalid certificate".getBytes());
     config.getBot().setCertificatePassword("password");
 
-    assertThrows(IllegalStateException .class, () -> new ApiClientFactory(config).getSessionAuthClient());
+    assertThrows(IllegalStateException.class, () -> new ApiClientFactory(config).getSessionAuthClient());
   }
 
   @Test
@@ -121,7 +150,8 @@ class ApiClientFactoryTest {
     BdkConfig bdkConfig = this.createConfig();
     this.addExtAppCertificateToConfig(bdkConfig, "./non/existent/file.p12", "password");
 
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
+    assertThrows(ApiClientInitializationException.class,
+        () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
   }
 
   @Test
@@ -136,12 +166,15 @@ class ApiClientFactoryTest {
   void testExtAppAuthClientNotConfiguredShouldFail() {
     BdkConfig bdkConfig = this.createConfig();
 
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
+    assertThrows(ApiClientInitializationException.class,
+        () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
   }
 
   @Test
   void testAuthClientWithTrustStore() {
-    BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "changeit");
+    BdkConfig configWithTrustStore =
+        this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore",
+            "changeit");
     ApiClient sessionAuth = new ApiClientFactory(configWithTrustStore).getSessionAuthClient();
 
     assertEquals(ApiClientJersey2.class, sessionAuth.getClass());
@@ -150,15 +183,20 @@ class ApiClientFactoryTest {
 
   @Test
   void testAuthClientWithWrongTrustStorePathShouldFail() {
-    BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/non_existing_truststore", "changeit");
+    BdkConfig configWithTrustStore =
+        this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/non_existing_truststore", "changeit");
 
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
+    assertThrows(ApiClientInitializationException.class,
+        () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
+    assertThrows(ApiClientInitializationException.class,
+        () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
   }
 
   @Test
   void testAuthClientWithWrongTrustStorePasswordShouldFail() {
-    BdkConfig configWithTrustStore = this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore", "wrongpass");
+    BdkConfig configWithTrustStore =
+        this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore",
+            "wrongpass");
 
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
     assertThrows(IllegalStateException.class, () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
@@ -219,6 +257,21 @@ class ApiClientFactoryTest {
     config.getSessionAuth().setHost("sa-host");
     config.getSessionAuth().setScheme("https");
     config.getSessionAuth().setPort(443);
+
+    return config;
+  }
+
+  private BdkConfig createLoadBalancedConfig() {
+    final BdkServerConfig serverConfig = new BdkServerConfig();
+    serverConfig.setHost("lb-agent-host");
+
+    final BdkLoadBalancingConfig loadBalancingConfig = new BdkLoadBalancingConfig();
+    loadBalancingConfig.setMode(BdkLoadBalancingMode.ROUND_ROBIN);
+    loadBalancingConfig.setNodes(Collections.singletonList(serverConfig));
+
+    final BdkConfig config = new BdkConfig();
+    config.setHost("global-host");
+    config.setAgentLoadBalancing(loadBalancingConfig);
 
     return config;
   }
