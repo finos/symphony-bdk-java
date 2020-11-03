@@ -1,7 +1,14 @@
 package com.symphony.bdk.core.service.stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -285,7 +292,7 @@ public class StreamServiceTest {
   }
 
   @Test
-  void listAllStreamsChunksizeTotalSizeTest() throws IOException {
+  void listAllStreamsPaginationTest() throws IOException {
     this.mockApiClient.onPost(V1_STREAM_LIST, JsonHelper.readFromClasspath("/stream/list_stream.json"));
 
     List<StreamAttributes> streams =
@@ -395,7 +402,7 @@ public class StreamServiceTest {
   }
 
   @Test
-  void listAllStreamsAdminChunkTotalSizeTest() throws IOException {
+  void listAllStreamsAdminPaginationTest() throws IOException {
     this.mockApiClient.onPost(V2_STREAM_LIST_ADMIN, JsonHelper.readFromClasspath("/stream/v2_admin_stream_list.json"));
 
     List<V2AdminStreamInfo> streamList =
@@ -452,7 +459,7 @@ public class StreamServiceTest {
   }
 
   @Test
-  void listAllStreamMembersChunkTotalSizeTest() throws IOException {
+  void listAllStreamMembersPaginationTest() throws IOException {
     this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
         JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
 

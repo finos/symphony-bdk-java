@@ -4,6 +4,10 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
+import com.symphony.bdk.core.service.pagination.PaginatedApi;
+import com.symphony.bdk.core.service.pagination.PaginatedService;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
@@ -35,6 +39,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -80,7 +85,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, Boolean local, @Nullable Boolean active) {
+  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active) {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local, active));
@@ -154,6 +159,41 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+      @Nonnull PaginationAttribute pagination) {
+    UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
+        () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
+            pagination.getLimit(), local));
+    return results.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
+    PaginatedApi<UserV2> api =
+        (offset, limit) -> searchUserBySearchQuery(query, local, new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<UserV2> api =
+        (offset, limit) -> searchUserBySearchQuery(query, local, new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
    * Retrieve user details of a particular user.
    *
    * @param uid User Id
@@ -176,6 +216,43 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
+   * Retrieve all users in the company (pod).
+   *
+   * @param pagination The skip and limit for pagination.
+   * @return List of retrieved users
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   */
+  public List<V2UserDetail> listUsersDetail(@Nonnull PaginationAttribute pagination) {
+    return executeAndRetry("listUsersDetail",
+        () -> userApi.v2AdminUserListGet(authSession.getSessionToken(), pagination.getSkip(), pagination.getLimit()));
+  }
+
+
+  /**
+   * Retrieve all users in the company (pod) and return in a {@link Stream}.
+   *
+   * @return a {@link Stream} of retrieved users
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   */
+  public Stream<V2UserDetail> listAllUsersDetail() {
+    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * Retrieve all users in the company (pod) and return in a {@link Stream}.
+   *
+   * @param pagination The chunkSize and totalSize for pagination with default value equals 50.
+   * @return a {@link Stream} of retrieved users
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   */
+  public Stream<V2UserDetail> listAllUsersDetail(@Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  /**
    * Retrieve a list of users in the company (pod) by a filter.
    *
    * @param filter using to filter users by
@@ -189,6 +266,53 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     return userDetailList.stream()
         .map(UserDetailMapper.INSTANCE::userDetailToV2UserDetail)
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieve a list of users in the company (pod) by a filter.
+   *
+   * @param filter     using to filter users by.
+   * @param pagination The skip and limit for pagination.
+   * @return List of retrieved users
+   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   */
+  public List<V2UserDetail> listUsersDetail(@Nonnull UserFilter filter, @Nonnull PaginationAttribute pagination) {
+    List<UserDetail> userDetailList = executeAndRetry("listUsersDetail",
+        () -> userApi.v1AdminUserFindPost(authSession.getSessionToken(), filter, pagination.getSkip(),
+            pagination.getLimit()));
+    return userDetailList.stream()
+        .map(UserDetailMapper.INSTANCE::userDetailToV2UserDetail)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Retrieve all of users in the company (pod) by a filter and return in a {@link Stream}.
+   *
+   * @param filter using to filter users by
+   * @return a {@link Stream} of retrieved users
+   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   */
+  public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter) {
+    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * Retrieve all of users in the company (pod) by a filter and return in a {@link Stream}.
+   *
+   * @param filter      using to filter users by.
+   * @param pagination  The chunkSize and totalSize for pagination with default value equals 50.
+   * @return a {@link Stream} of retrieved users
+   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   */
+  public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**

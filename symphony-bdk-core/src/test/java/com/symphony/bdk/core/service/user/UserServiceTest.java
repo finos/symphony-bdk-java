@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
@@ -46,6 +48,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class UserServiceTest {
   private static final String V2_USER_DETAIL_BY_ID = "/pod/v2/admin/user/{uid}";
@@ -118,6 +121,40 @@ class UserServiceTest {
   }
 
   @Test
+  void listUsersDetailSkipLimitTest() throws IOException {
+    String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
+    this.mockApiClient.onGet(V2_USER_LIST, responseV2);
+    List<V2UserDetail> UserDetails = this.service.listUsersDetail(new PaginationAttribute(0, 100));
+
+    assertEquals(UserDetails.size(), 5);
+    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+  }
+
+  @Test
+  void listAllUsersDetailTest() throws IOException {
+    String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
+    this.mockApiClient.onGet(V2_USER_LIST, responseV2);
+    List<V2UserDetail> UserDetails = this.service.listAllUsersDetail().collect(Collectors.toList());
+
+    assertEquals(UserDetails.size(), 5);
+    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+  }
+
+  @Test
+  void listAllUsersDetailPaginationTest() throws IOException {
+    String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
+    this.mockApiClient.onGet(V2_USER_LIST, responseV2);
+    List<V2UserDetail> UserDetails =
+        this.service.listAllUsersDetail(new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
+
+    assertEquals(UserDetails.size(), 5);
+    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+  }
+
+  @Test
   void listUsersDetailByFilterTest() throws IOException {
     String responseV1 = JsonHelper.readFromClasspath("/user/list_users_detail_v1.json");
 
@@ -135,6 +172,47 @@ class UserServiceTest {
     this.mockApiClient.onPost(400, USER_FIND, "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.listUsersDetail(new UserFilter()));
+  }
+
+  @Test
+  void listUsersDetailByFilterSkipLimitTest() throws IOException {
+    String responseV1 = JsonHelper.readFromClasspath("/user/list_users_detail_v1.json");
+
+    this.mockApiClient.onPost(USER_FIND, responseV1);
+    UserFilter userFilter = new UserFilter();
+    List<V2UserDetail> userDetails = this.service.listUsersDetail(userFilter, new PaginationAttribute(0, 100));
+
+    assertEquals(userDetails.size(), 4);
+    assertEquals(userDetails.get(2).getUserAttributes().getUserName(), "bot.user");
+    assertEquals(userDetails.get(3).getUserAttributes().getUserName(), "nexus.user");
+  }
+
+  @Test
+  void listAllUsersDetailByFilterTest() throws IOException {
+    String responseV1 = JsonHelper.readFromClasspath("/user/list_users_detail_v1.json");
+
+    this.mockApiClient.onPost(USER_FIND, responseV1);
+    UserFilter userFilter = new UserFilter();
+    List<V2UserDetail> userDetails = this.service.listAllUsersDetail(userFilter).collect(Collectors.toList());
+
+    assertEquals(userDetails.size(), 4);
+    assertEquals(userDetails.get(2).getUserAttributes().getUserName(), "bot.user");
+    assertEquals(userDetails.get(3).getUserAttributes().getUserName(), "nexus.user");
+  }
+
+  @Test
+  void listAllUsersDetailByFilterPaginationTest() throws IOException {
+    String responseV1 = JsonHelper.readFromClasspath("/user/list_users_detail_v1.json");
+
+    this.mockApiClient.onPost(USER_FIND, responseV1);
+    UserFilter userFilter = new UserFilter();
+    List<V2UserDetail> userDetails =
+        this.service.listAllUsersDetail(userFilter, new StreamPaginationAttribute(100, 100))
+            .collect(Collectors.toList());
+
+    assertEquals(userDetails.size(), 4);
+    assertEquals(userDetails.get(2).getUserAttributes().getUserName(), "bot.user");
+    assertEquals(userDetails.get(3).getUserAttributes().getUserName(), "nexus.user");
   }
 
   @Test
@@ -210,8 +288,10 @@ class UserServiceTest {
     this.service.updateAvatarOfUser(1234L, bytes);
     this.service.updateAvatarOfUser(1234L, inputStream);
 
-    verify(spiedUserApi).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image("iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s")));
-    verify(spiedUserApi, times(2)).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L), eq(new AvatarUpdate().image(Base64.getEncoder().encodeToString(bytes))));
+    verify(spiedUserApi).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L),
+        eq(new AvatarUpdate().image("iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s")));
+    verify(spiedUserApi, times(2)).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L),
+        eq(new AvatarUpdate().image(Base64.getEncoder().encodeToString(bytes))));
 
   }
 
@@ -449,13 +529,18 @@ class UserServiceTest {
   void searchUserV3TestFailed() {
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L), true, true));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.searchUserByIds(Collections.singletonList(1234L), true, true));
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true, true));
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot"), true));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true, true));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.searchUserByUsernames(Collections.singletonList("tibot"), true));
     assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L)));
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com")));
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com")));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
   }
 
   @Test
@@ -463,9 +548,56 @@ class UserServiceTest {
     String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
     this.mockApiClient.onPost(SEARCH_USER_BY_QUERY, response);
 
-    UserSearchQuery query = new UserSearchQuery().query("john doe").filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
+    UserSearchQuery query = new UserSearchQuery().query("john doe")
+        .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
     List<UserV2> users = this.service.searchUserBySearchQuery(query, true);
+
+    assertEquals(users.size(), 1);
+    assertEquals(users.get(0).getUsername(), "john.doe");
+    assertEquals(users.get(0).getDisplayName(), "John Doe");
+  }
+
+  @Test
+  void searchUserBySearchQuerySkipLimitTest() throws IOException {
+    String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
+    this.mockApiClient.onPost(SEARCH_USER_BY_QUERY, response);
+
+    UserSearchQuery query = new UserSearchQuery().query("john doe")
+        .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
+
+    List<UserV2> users = this.service.searchUserBySearchQuery(query, true, new PaginationAttribute(0, 100));
+
+    assertEquals(users.size(), 1);
+    assertEquals(users.get(0).getUsername(), "john.doe");
+    assertEquals(users.get(0).getDisplayName(), "John Doe");
+  }
+
+  @Test
+  void searchAllUserBySearchQueryTest() throws IOException {
+    String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
+    this.mockApiClient.onPost(SEARCH_USER_BY_QUERY, response);
+
+    UserSearchQuery query = new UserSearchQuery().query("john doe")
+        .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
+
+    List<UserV2> users = this.service.searchAllUsersBySearchQuery(query, true).collect(Collectors.toList());
+
+    assertEquals(users.size(), 1);
+    assertEquals(users.get(0).getUsername(), "john.doe");
+    assertEquals(users.get(0).getDisplayName(), "John Doe");
+  }
+
+  @Test
+  void searchAllUserBySearchQueryPaginationTest() throws IOException {
+    String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
+    this.mockApiClient.onPost(SEARCH_USER_BY_QUERY, response);
+
+    UserSearchQuery query = new UserSearchQuery().query("john doe")
+        .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
+
+    List<UserV2> users = this.service.searchAllUsersBySearchQuery(query, true, new StreamPaginationAttribute(100, 100))
+        .collect(Collectors.toList());
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -482,7 +614,8 @@ class UserServiceTest {
 
     assertNull(userDetail.getUserAttributes());
 
-    V2UserDetail userDetail1 = UserDetailMapper.INSTANCE.userDetailToV2UserDetail(new UserDetail().userAttributes(new UserAttributes().accountType(null)));
+    V2UserDetail userDetail1 = UserDetailMapper.INSTANCE.userDetailToV2UserDetail(
+        new UserDetail().userAttributes(new UserAttributes().accountType(null)));
     assertNull(userDetail1.getUserAttributes().getAccountType());
   }
 }
