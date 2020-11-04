@@ -1,14 +1,10 @@
 package authentication;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 import clients.symphony.api.APIClient;
-import clients.symphony.api.constants.CommonConstants;
 import configuration.SymConfig;
 import exceptions.NoConfigException;
-import java.util.concurrent.TimeUnit;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import model.Token;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -16,7 +12,13 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.HttpClientBuilderHelper;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.util.concurrent.TimeUnit;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
     private final Logger logger = LoggerFactory
@@ -26,37 +28,67 @@ public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
     private Client sessionAuthClient;
     private int authRetries = 0;
 
+    // For the tests
+    private int timeout;
+    private int maxRetry;
+
     public SymOBOAuth(final SymConfig configuration) {
-        logger.info("SymOBOAuth being constructed");
-        this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
-        Client client = clientBuilder.build();
-        if (isEmpty(config.getProxyURL())) {
-            this.sessionAuthClient = client;
-        } else {
-            ClientConfig clientConfig = new ClientConfig();
-            clientConfig.connectorProvider(new ApacheConnectorProvider());
-            clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
-            if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
-                clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
-                clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
-            }
-            this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
-        }
+      initConfig(configuration);
+      this.timeout = AuthEndpointConstants.TIMEOUT;
+      this.maxRetry = AuthEndpointConstants.MAX_AUTH_RETRY;
     }
 
+    public SymOBOAuth(final SymConfig configuration, final ClientConfig sessionAuthClientConfig, int timeout, int maxRetry) {
+      initConfig(configuration, sessionAuthClientConfig);
+      this.timeout = timeout;
+      this.maxRetry = maxRetry;
+    }
+
+    // For the tests
     public SymOBOAuth(final SymConfig configuration, final ClientConfig sessionAuthClientConfig) {
-        logger.info("SymOBOAuth being constructed with ClientConfig variable");
-        this.config = configuration;
-        ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
-        if (sessionAuthClientConfig != null) {
-            this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
-        } else {
-            this.sessionAuthClient = clientBuilder.build();
-        }
+      initConfig(configuration, sessionAuthClientConfig);
+      this.timeout = AuthEndpointConstants.TIMEOUT;
+      this.maxRetry = AuthEndpointConstants.MAX_AUTH_RETRY;
     }
 
-    public SymOBOUserAuth getUserAuth(final String username) {
+    // For the tests
+    public SymOBOAuth(final SymConfig configuration, int timeout, int maxRetry) {
+      initConfig(configuration);
+      this.timeout = timeout;
+      this.maxRetry = maxRetry;
+    }
+
+  private void initConfig(SymConfig configuration) {
+    logger.info("SymOBOAuth being constructed");
+    this.config = configuration;
+    ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
+    Client client = clientBuilder.build();
+    if (isEmpty(config.getProxyURL())) {
+        this.sessionAuthClient = client;
+    } else {
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.connectorProvider(new ApacheConnectorProvider());
+        clientConfig.property(ClientProperties.PROXY_URI, config.getProxyURL());
+        if (!isEmpty(config.getProxyUsername()) && !isEmpty(config.getProxyPassword())) {
+            clientConfig.property(ClientProperties.PROXY_USERNAME, config.getProxyUsername());
+            clientConfig.property(ClientProperties.PROXY_PASSWORD, config.getProxyPassword());
+        }
+        this.sessionAuthClient = clientBuilder.withConfig(clientConfig).build();
+    }
+  }
+
+  private void initConfig(SymConfig configuration, ClientConfig sessionAuthClientConfig) {
+    logger.info("SymOBOAuth being constructed with ClientConfig variable");
+    this.config = configuration;
+    ClientBuilder clientBuilder = HttpClientBuilderHelper.getHttpClientAppBuilder(config);
+    if (sessionAuthClientConfig != null) {
+        this.sessionAuthClient = clientBuilder.withConfig(sessionAuthClientConfig).build();
+    } else {
+        this.sessionAuthClient = clientBuilder.build();
+    }
+  }
+
+  public SymOBOUserAuth getUserAuth(final String username) {
         SymOBOUserAuth userAuth = new SymOBOUserAuth(config,
                 sessionAuthClient, username, this);
         userAuth.authenticate();
@@ -84,14 +116,14 @@ public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
                     handleError(response, null);
                 } catch (Exception e) {
                     logger.error("Unexpected error, "
-                            + "retry authentication in 30 seconds");
+                            + "retry authentication in " + this.timeout + " seconds");
                 }
                 try {
-                    TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                    TimeUnit.SECONDS.sleep(this.timeout);
                 } catch (InterruptedException e) {
                     logger.error("Error with session app authentication", e);
                 }
-                if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+                if (authRetries++ > this.maxRetry) {
                     logger.error("Max retries reached. Giving up on auth.");
                     return;
                 }
