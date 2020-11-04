@@ -14,6 +14,7 @@ import com.symphony.bdk.gen.api.model.AvatarUpdate;
 import com.symphony.bdk.gen.api.model.DelegateAction;
 import com.symphony.bdk.gen.api.model.Disclaimer;
 import com.symphony.bdk.gen.api.model.Feature;
+import com.symphony.bdk.gen.api.model.FollowersList;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
@@ -151,6 +152,24 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
         () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local));
     return results.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void followUser(@Nonnull Long uid, @Nonnull List<Long> followerIds) {
+    executeAndRetry("followUser",
+        () -> userApi.v1UserUidFollowPost(authSession.getSessionToken(), uid, new FollowersList().followers(followerIds)));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void unfollowUser(@Nonnull Long uid, @Nonnull List<Long> followerIds) {
+    executeAndRetry("unfollowUser",
+        () -> userApi.v1UserUidUnfollowPost(authSession.getSessionToken(), uid, new FollowersList().followers(followerIds)));
   }
 
   /**
