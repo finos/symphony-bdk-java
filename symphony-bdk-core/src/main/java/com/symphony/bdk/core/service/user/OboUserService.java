@@ -139,4 +139,24 @@ public interface OboUserService {
    */
   Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local, @Nonnull
       StreamPaginationAttribute pagination);
+
+  /**
+   * Make a list of users to start following a specific user.
+   * {@link UserService#followUser(Long, List)}
+   *
+   * @param uid         The id of the user to be followed.
+   * @param followerIds List of ids of the followers.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#follow-user">Follow User</a>
+   */
+  void followUser(@Nonnull Long uid, @Nonnull List<Long> followerIds);
+
+  /**
+   * Make a list of users to stop following a specific user.
+   * {@link UserService#unfollowUser(Long, List)}
+   *
+   * @param uid         The id of the user to be unfollowed.
+   * @param followerIds List of the ids of the followers.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
+   */
+  void unfollowUser(@Nonnull Long uid, @Nonnull List<Long> followerIds);
 }

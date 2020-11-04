@@ -26,6 +26,7 @@ import com.symphony.bdk.gen.api.model.AvatarUpdate;
 import com.symphony.bdk.gen.api.model.DelegateAction;
 import com.symphony.bdk.gen.api.model.Disclaimer;
 import com.symphony.bdk.gen.api.model.Feature;
+import com.symphony.bdk.gen.api.model.FollowersList;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserAttributes;
 import com.symphony.bdk.gen.api.model.UserDetail;
@@ -45,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -69,6 +71,8 @@ class UserServiceTest {
   private static final String UPDATE_STATUS_OF_USER = "/pod/v1/admin/user/{uid}/status/update";
   private static final String SEARCH_USERS_V3 = "/pod/v3/users";
   private static final String SEARCH_USER_BY_QUERY = "/pod/v1/user/search";
+  private static final String V1_USER_FOLLOW = "/pod/v1/user/{uid}/follow";
+  private static final String V1_USER_UNFOLLOW = "/pod/v1/user/{uid}/unfollow";
 
   private UserService service;
   private UserApi spiedUserApi;
@@ -602,6 +606,40 @@ class UserServiceTest {
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
     assertEquals(users.get(0).getDisplayName(), "John Doe");
+  }
+
+  @Test
+  void followUserTest() throws ApiException {
+    this.mockApiClient.onPost(V1_USER_FOLLOW.replace("{uid}", "1234"), "{}");
+
+    this.service.followUser(1234L, Arrays.asList(12345L, 12346L));
+
+    verify(this.spiedUserApi).v1UserUidFollowPost(eq("1234"), eq(1234L),
+        eq(new FollowersList().followers(Arrays.asList(12345L, 12346L))));
+  }
+
+  @Test
+  void followUserFailed() {
+    this.mockApiClient.onPost(400, V1_USER_FOLLOW.replace("{uid}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.followUser(1234L, Collections.singletonList(12345L)));
+  }
+
+  @Test
+  void unfollowUserTest() throws ApiException {
+    this.mockApiClient.onPost(V1_USER_UNFOLLOW.replace("{uid}", "1234"), "{}");
+
+    this.service.unfollowUser(1234L, Arrays.asList(12345L, 12346L));
+
+    verify(this.spiedUserApi).v1UserUidUnfollowPost(eq("1234"), eq(1234L),
+        eq(new FollowersList().followers(Arrays.asList(12345L, 12346L))));
+  }
+
+  @Test
+  void unfollowFailed() {
+    this.mockApiClient.onPost(400, V1_USER_UNFOLLOW.replace("{uid}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.unfollowUser(1234L, Collections.singletonList(12345L)));
   }
 
   @Test
