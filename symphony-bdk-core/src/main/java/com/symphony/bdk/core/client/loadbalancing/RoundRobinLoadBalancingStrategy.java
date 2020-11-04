@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.client.lb;
+package com.symphony.bdk.core.client.loadbalancing;
 
 import com.symphony.bdk.core.config.model.BdkServerConfig;
 

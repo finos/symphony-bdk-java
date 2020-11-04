@@ -2,9 +2,8 @@ package com.symphony.bdk.core.client;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-import com.symphony.bdk.core.client.lb.DatafeedLoadBalancedApiClient;
-import com.symphony.bdk.core.client.lb.LoadBalancedApiClient;
-import com.symphony.bdk.core.client.lb.RegularLoadBalancedApiClient;
+import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
+import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
@@ -14,12 +13,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
 
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiResponse;
-import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.RegularApiClient;
-
-import com.symphony.bdk.http.api.util.TypeReference;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -27,8 +21,6 @@ import org.apiguardian.api.API;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -86,14 +78,14 @@ public class ApiClientFactory {
 
   public ApiClient getAgentClient() {
     if (config.getAgentLoadBalancing() != null) {
-      return new RegularLoadBalancedApiClient(this.config.getAgentLoadBalancing(), this);
+      return new RegularLoadBalancedApiClient(this.config, this);
     }
     return getRegularAgentClient();
   }
 
   public ApiClient getDatafeedAgentClient() {
     if (config.getAgentLoadBalancing() != null) {
-      return new DatafeedLoadBalancedApiClient(this.config.getAgentLoadBalancing(), this);
+      return new DatafeedLoadBalancedApiClient(this.config, this);
     }
     return getRegularAgentClient();
   }

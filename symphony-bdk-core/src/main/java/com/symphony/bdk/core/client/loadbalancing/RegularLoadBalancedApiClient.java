@@ -1,7 +1,7 @@
-package com.symphony.bdk.core.client.lb;
+package com.symphony.bdk.core.client.loadbalancing;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
+import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
@@ -20,8 +20,8 @@ import java.util.Map;
 @API(status = API.Status.INTERNAL)
 public class RegularLoadBalancedApiClient extends LoadBalancedApiClient {
 
-  public RegularLoadBalancedApiClient(BdkLoadBalancingConfig loadBalancingConfig, ApiClientFactory apiClientFactory) {
-    super(loadBalancingConfig, apiClientFactory);
+  public RegularLoadBalancedApiClient(BdkConfig config, ApiClientFactory apiClientFactory) {
+    super(config, apiClientFactory);
   }
 
   /**

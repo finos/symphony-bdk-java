@@ -43,16 +43,6 @@ public class SymMessageParserTest {
   }
 
   @Test
-  public void testError() {
-    final SymBotClient botClient = mock(SymBotClient.class);
-    when(botClient.getConfig()).thenReturn(new SymConfig());
-    final SymMessageParser instance = SymMessageParser.createInstance(botClient);
-
-    instance.messageToText("<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\">"
-        + "<p>/abc&nbsp;abc <span class=\"entity\" data-entity-id=\"0\">@Hualiang Luo (SUP)</span> </p></div>", "{}");
-  }
-
-  @Test
   public void testInvalidInputMessageToText() {
     final SymBotClient botClient = mock(SymBotClient.class);
     when(botClient.getConfig()).thenReturn(new SymConfig());

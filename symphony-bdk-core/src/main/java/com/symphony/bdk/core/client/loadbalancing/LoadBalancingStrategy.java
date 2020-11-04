@@ -1,6 +1,7 @@
-package com.symphony.bdk.core.client.lb;
+package com.symphony.bdk.core.client.loadbalancing;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.gen.api.SignalsApi;
@@ -20,20 +21,20 @@ public interface LoadBalancingStrategy {
   /**
    * Returns a concrete implementation instance based on the provided inputs.
    *
-   * @param loadBalancingConfig the load balancing configuration
-   * @param apiClientFactory    the api client factory needed for the
-   *                            {@link com.symphony.bdk.core.config.model.BdkLoadBalancingMode#EXTERNAL} mode.
+   * @param config           the bdk configuration
+   * @param apiClientFactory the api client factory needed for the
+   *                         {@link com.symphony.bdk.core.config.model.BdkLoadBalancingMode#EXTERNAL} mode.
    * @return a fully initialized instance whose implementation depends on the provided {@link BdkLoadBalancingConfig}
    */
-  static LoadBalancingStrategy getInstance(BdkLoadBalancingConfig loadBalancingConfig,
+  static LoadBalancingStrategy getInstance(BdkConfig config,
       ApiClientFactory apiClientFactory) {
-    final List<BdkServerConfig> nodes = loadBalancingConfig.getNodes();
+    final List<BdkServerConfig> nodes = config.getAgentLoadBalancing().getNodes();
 
-    switch (loadBalancingConfig.getMode()) {
+    switch (config.getAgentLoadBalancing().getMode()) {
       case EXTERNAL:
         final String agentLbBasePath = nodes.get(0).getBasePath();
         final SignalsApi signalsApi = new SignalsApi(apiClientFactory.getRegularAgentClient(agentLbBasePath));
-        return new ExternalLoadBalancingStrategy(signalsApi);
+        return new ExternalLoadBalancingStrategy(config.getRetry(), signalsApi);
       case RANDOM:
         return new RandomLoadBalancingStrategy(nodes);
       case ROUND_ROBIN:

@@ -1,10 +1,16 @@
-package com.symphony.bdk.core.client.lb;
+package com.symphony.bdk.core.client.loadbalancing;
 
+import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.apiguardian.api.API;
+
+import static com.symphony.bdk.core.retry.RetryWithRecovery.executeAndRetry;
 
 /**
  * The {@link LoadBalancingStrategy} corresponding to the
@@ -13,10 +19,14 @@ import org.apiguardian.api.API;
 @API(status = API.Status.INTERNAL)
 public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
 
+  private RetryWithRecoveryBuilder<String> retryBuilder;
   private SignalsApi signalsApi;
 
-  public ExternalLoadBalancingStrategy(SignalsApi signalsApi) {
+  public ExternalLoadBalancingStrategy(BdkRetryConfig retryConfig, SignalsApi signalsApi) {
     this.signalsApi = signalsApi;
+    this.retryBuilder = new RetryWithRecoveryBuilder<String>()
+        .retryConfig(retryConfig)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrMinorError);
   }
 
   /**
@@ -27,11 +37,6 @@ public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   @Override
   public String getNewBasePath() {
-    try {
-      return signalsApi.v1InfoGet().getServerFqdn();
-    } catch (ApiException e) {
-      // TODO Which retry strategy in case of error ?
-      throw new ApiRuntimeException(e);
-    }
+    return executeAndRetry(retryBuilder, "agent-info", () -> signalsApi.v1InfoGet().getServerFqdn());
   }
 }

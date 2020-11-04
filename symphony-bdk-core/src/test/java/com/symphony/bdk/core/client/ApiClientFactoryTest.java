@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
-import com.symphony.bdk.core.client.lb.DatafeedLoadBalancedApiClient;
-import com.symphony.bdk.core.client.lb.RegularLoadBalancedApiClient;
+import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
+import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;

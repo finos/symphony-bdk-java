@@ -1,6 +1,7 @@
-package com.symphony.bdk.core.client.lb;
+package com.symphony.bdk.core.client.loadbalancing;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
@@ -19,20 +20,20 @@ import java.util.List;
 @Slf4j
 public abstract class LoadBalancedApiClient implements ApiClient {
 
-  protected BdkLoadBalancingConfig loadBalancingConfig;
   protected ApiClientFactory apiClientFactory;
   protected RegularApiClient apiClient;
+  protected BdkLoadBalancingConfig loadBalancingConfig;
   private LoadBalancingStrategy loadBalancingStrategy;
 
   /**
    *
-   * @param loadBalancingConfig the load balancing configuration to be used
+   * @param config the bdk configuration to be used
    * @param apiClientFactory the api client factory used to instantiate {@link RegularApiClient} instances.
    */
-  public LoadBalancedApiClient(BdkLoadBalancingConfig loadBalancingConfig, ApiClientFactory apiClientFactory) {
-    this.loadBalancingConfig = loadBalancingConfig;
+  public LoadBalancedApiClient(BdkConfig config, ApiClientFactory apiClientFactory) {
     this.apiClientFactory = apiClientFactory;
-    this.loadBalancingStrategy = LoadBalancingStrategy.getInstance(loadBalancingConfig, apiClientFactory);
+    this.loadBalancingConfig = config.getAgentLoadBalancing();
+    this.loadBalancingStrategy = LoadBalancingStrategy.getInstance(config, apiClientFactory);
 
     rotate();
   }

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
-import com.symphony.bdk.core.client.lb.LoadBalancedApiClient;
+import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
