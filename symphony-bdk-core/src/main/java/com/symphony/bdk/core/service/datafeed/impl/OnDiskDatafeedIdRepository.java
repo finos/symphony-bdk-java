@@ -36,12 +36,17 @@ public class OnDiskDatafeedIdRepository implements DatafeedIdRepository {
    */
   @Override
   public void write(String datafeedId) {
-    log.debug("Writing datafeed id {} to file: {}", datafeedId, this.getDatafeedIdFile().toString());
     String agentUrl = this.config.getAgent().getHost() + ":" + this.config.getAgent().getPort();
+    write(datafeedId, agentUrl);
+  }
+
+
+  public void write(String datafeedId, String agentBasePath) {
+    log.debug("Writing datafeed id {} to file: {}", datafeedId, this.getDatafeedIdFile().toString());
     try {
-      FileUtils.writeStringToFile(this.getDatafeedIdFile(), datafeedId + "@" + agentUrl, StandardCharsets.UTF_8);
+      FileUtils.writeStringToFile(this.getDatafeedIdFile(), datafeedId + "@" + agentBasePath, StandardCharsets.UTF_8);
     } catch (IOException e) {
-      log.error(e.getMessage());
+      log.error("Error occurred when writing datafeed id", e);
     }
   }
 
@@ -50,19 +55,34 @@ public class OnDiskDatafeedIdRepository implements DatafeedIdRepository {
    */
   @Override
   public Optional<String> read() {
-    log.debug("Reading datafeed id from file: {}", this.getDatafeedIdFile().toString());
-    String datafeedId;
+    final Optional<String> s = readDatafeedInformation();
+    if (s.isPresent()) {
+      final String datafeedId = s.get().split("@")[0];
+      log.info("Retrieved datafeed id from datafeed repository: {}", datafeedId);
+      return Optional.of(datafeedId);
+    }
+    return Optional.empty();
+  }
+
+  public Optional<String> readAgentBasePath() {
+    final Optional<String> s = readDatafeedInformation();
+    if (s.isPresent()) {
+      final String agentBasePath = s.get().split("@")[1];
+      log.info("Retrieved agent base path from datafeed repository: {}", agentBasePath);
+      return Optional.of(agentBasePath);
+    }
+    return Optional.empty();
+  }
+
+  private Optional<String> readDatafeedInformation() {
+    log.debug("Reading stored datafeed information from file: {}", this.getDatafeedIdFile().toString());
     try {
-      File file = this.getDatafeedIdFile();
-      Path datafeedIdPath = Paths.get(file.getPath());
+      Path datafeedIdPath = Paths.get(this.getDatafeedIdFile().getPath());
       List<String> lines = Files.readAllLines(datafeedIdPath);
       if (lines.isEmpty() || !lines.get(0).contains("@")) {
         return Optional.empty();
       }
-      String[] persistedDatafeed = lines.get(0).split("@");
-      datafeedId = persistedDatafeed[0];
-      log.info("Retrieved datafeed id from datafeed repository: {}", datafeedId);
-      return Optional.of(datafeedId);
+      return Optional.of(lines.get(0));
     } catch (IOException e) {
       log.debug("No persisted datafeed id could be retrieved from disk");
       return Optional.empty();
