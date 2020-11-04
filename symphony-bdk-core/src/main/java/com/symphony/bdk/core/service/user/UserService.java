@@ -189,8 +189,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<UserV2> api =
         (offset, limit) -> searchUserBySearchQuery(query, local, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -303,8 +302,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Retrieve all of users in the company (pod) by a filter and return in a {@link Stream}.
    *
-   * @param filter      using to filter users by.
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 50.
+   * @param filter     using to filter users by.
+   * @param pagination The chunkSize and totalSize for pagination with default value equals 50.
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature

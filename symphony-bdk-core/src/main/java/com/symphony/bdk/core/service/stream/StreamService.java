@@ -247,7 +247,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
    */
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("searhRooms",
+    return executeAndRetry("searchRooms",
         () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
             pagination.getLimit()));
   }
