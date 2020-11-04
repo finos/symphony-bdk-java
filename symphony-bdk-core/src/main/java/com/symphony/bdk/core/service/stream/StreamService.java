@@ -113,6 +113,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * {@inheritDoc}
    */
   @Override
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter) {
     PaginatedApi<StreamAttributes> api = (offset, limit) -> listStreams(filter, new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
@@ -123,6 +124,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * {@inheritDoc}
    */
   @Override
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<StreamAttributes> api = (offset, limit) -> listStreams(filter, new PaginationAttribute(offset, limit));
@@ -259,6 +261,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return A {@link java.util.stream.Stream} of rooms returned according to the given criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query) {
     PaginatedApi<V3RoomDetail> api =
         (offset, limit) -> searchRooms(query, new PaginationAttribute(offset, limit)).getRooms();
@@ -274,6 +277,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return A {@link java.util.stream.Stream} of rooms returned according to the given criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<V3RoomDetail> api =
@@ -386,6 +390,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return List of streams returned according the given filter.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V2AdminStreamInfo> listAllStreamsAdmin(@Nullable V2AdminStreamFilter filter) {
     PaginatedApi<V2AdminStreamInfo> api =
         (offset, limit) -> listStreamsAdmin(filter, new PaginationAttribute(offset, limit)).getStreams();
@@ -401,6 +406,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return A {@link java.util.stream.Stream} of streams returned according the given filter.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V2AdminStreamInfo> listAllStreamsAdmin(@Nullable V2AdminStreamFilter filter,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<V2AdminStreamInfo> api =
@@ -444,6 +450,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return A {@link java.util.stream.Stream} of members in the stream with the given stream id.
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V2MemberInfo> listAllStreamMembers(@Nonnull String streamId) {
     PaginatedApi<V2MemberInfo> api =
         (offset, limit) -> listStreamMembers(streamId, new PaginationAttribute(offset, limit)).getMembers();
@@ -460,6 +467,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return A {@link java.util.stream.Stream} of members in the stream with the given stream id.
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V2MemberInfo> listAllStreamMembers(@Nonnull String streamId,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<V2MemberInfo> api =

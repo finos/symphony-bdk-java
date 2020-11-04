@@ -175,6 +175,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
     PaginatedApi<UserV2> api =
         (offset, limit) -> searchUserBySearchQuery(query, local, new PaginationAttribute(offset, limit));
@@ -186,6 +187,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<UserV2> api =
@@ -252,6 +254,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail() {
     PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
@@ -265,6 +268,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
@@ -312,6 +316,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter) {
     PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
@@ -327,6 +332,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));

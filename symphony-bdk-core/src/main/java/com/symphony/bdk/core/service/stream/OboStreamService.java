@@ -57,6 +57,7 @@ public interface OboStreamService {
    * @return a {@link Stream} of matching streams according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter);
 
   /**
@@ -67,6 +68,7 @@ public interface OboStreamService {
    * @return a {@link Stream} of matching streams according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter, @Nonnull StreamPaginationAttribute pagination);
 
   /**

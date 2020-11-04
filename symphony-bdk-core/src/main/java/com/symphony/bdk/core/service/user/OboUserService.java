@@ -124,6 +124,7 @@ public interface OboUserService {
    * @return a {@link Stream} of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
 
   /**
@@ -137,6 +138,7 @@ public interface OboUserService {
    * @return a {@link Stream} of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local, @Nonnull
       StreamPaginationAttribute pagination);
 
