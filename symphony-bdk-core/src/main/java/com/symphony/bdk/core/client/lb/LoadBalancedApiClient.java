@@ -6,6 +6,7 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.RegularApiClient;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
  * It contains a {@link RegularApiClient} (i.e. non load-balanced api client) in order to target a specific base URL.
  */
 @API(status = API.Status.INTERNAL)
+@Slf4j
 public abstract class LoadBalancedApiClient implements ApiClient {
 
   protected BdkLoadBalancingConfig loadBalancingConfig;
@@ -50,6 +52,7 @@ public abstract class LoadBalancedApiClient implements ApiClient {
    * @param basePath the base URL to target.
    */
   public void setBasePath(String basePath) {
+    log.debug("Set new base path to {}", basePath);
     apiClient = apiClientFactory.getRegularAgentClient(basePath);
   }
 
