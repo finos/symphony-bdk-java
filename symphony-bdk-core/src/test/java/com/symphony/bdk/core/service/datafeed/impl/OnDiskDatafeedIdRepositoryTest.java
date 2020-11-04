@@ -46,7 +46,7 @@ public class OnDiskDatafeedIdRepositoryTest {
     datafeedIdRepository.write("test-id");
     String datafeedFileContent = Files.readAllLines(this.datafeedFile).get(0);
 
-    assertEquals("test-id@devx1.symphony.com:443", datafeedFileContent);
+    assertEquals("test-id@https://devx1.symphony.com:443", datafeedFileContent);
   }
 
   @Test

@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import com.symphony.bdk.core.client.lb.LoadBalancedApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -54,8 +55,15 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
       DatafeedIdRepository repository) {
     super(datafeedApi, authSession, config);
     this.started.set(false);
-    this.datafeedId = null;
     this.datafeedRepository = repository;
+
+    this.datafeedId = this.retrieveDatafeed().orElse(null);
+    if (this.apiClient instanceof LoadBalancedApiClient) {
+      final Optional<String> basePath = this.datafeedRepository.readAgentBasePath();
+      if (basePath.isPresent()) {
+        ((LoadBalancedApiClient) this.apiClient).setBasePath(basePath.get());
+      }
+    }
   }
 
   /**
@@ -66,10 +74,9 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     if (this.started.get()) {
       throw new IllegalStateException("The datafeed service is already started");
     }
-    Optional<String> persistedDatafeedId = this.retrieveDatafeed();
 
     try {
-      this.datafeedId = persistedDatafeedId.orElse(this.createDatafeed());
+      this.datafeedId = this.datafeedId == null ? this.createDatafeed() : this.datafeedId;
       log.debug("Start reading events from datafeed {}", datafeedId);
       this.started.set(true);
       do {
@@ -130,8 +137,9 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
   }
 
   private String createDatafeedAndPersist() throws ApiException {
-    String id = datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
-    datafeedRepository.write(id);
+    String id =
+        datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
+    datafeedRepository.write(id, apiClient.getBasePath());
     log.debug("Datafeed: {} was created and persisted", id);
     return id;
   }

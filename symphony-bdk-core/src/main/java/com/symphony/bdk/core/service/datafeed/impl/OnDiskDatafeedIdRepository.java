@@ -36,8 +36,7 @@ public class OnDiskDatafeedIdRepository implements DatafeedIdRepository {
    */
   @Override
   public void write(String datafeedId) {
-    String agentUrl = this.config.getAgent().getHost() + ":" + this.config.getAgent().getPort();
-    write(datafeedId, agentUrl);
+    write(datafeedId, this.config.getAgent().getBasePath());
   }
 
 
