@@ -36,6 +36,14 @@ public abstract class LoadBalancedApiClient implements ApiClient {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getBasePath() {
+    return apiClient.getBasePath();
+  }
+
+  /**
    * This makes the api client target the provided basePath.
    * It creates a new underlying RegularApiClient targeting the provided basePath.
    *
@@ -51,14 +59,6 @@ public abstract class LoadBalancedApiClient implements ApiClient {
   @Override
   public void rotate() {
     setBasePath(loadBalancingStrategy.getNewBasePath());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getBasePath() {
-    return apiClient.getBasePath();
   }
 
   /**

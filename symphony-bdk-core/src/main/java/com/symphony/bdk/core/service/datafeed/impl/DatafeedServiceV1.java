@@ -82,7 +82,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
       do {
         readDatafeed();
       } while (this.started.get());
-    } catch (AuthUnauthorizedException | ApiException exception) {
+    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
       log.error("Unknown error", throwable);
