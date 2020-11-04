@@ -113,7 +113,7 @@ public interface OboUserService {
    *
    * @param uid         The id of the user to be unfollowed.
    * @param followerIds List of the ids of the followers.
-   * @see <a href=https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
    */
   void unfollowUser(@Nonnull Long uid, @Nonnull List<Long> followerIds);
 }
