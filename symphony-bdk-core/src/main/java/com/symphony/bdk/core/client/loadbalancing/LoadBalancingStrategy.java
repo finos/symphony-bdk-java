@@ -37,9 +37,8 @@ public interface LoadBalancingStrategy {
         return new ExternalLoadBalancingStrategy(config.getRetry(), signalsApi);
       case RANDOM:
         return new RandomLoadBalancingStrategy(nodes);
-      case ROUND_ROBIN:
+      default:
         return new RoundRobinLoadBalancingStrategy(nodes);
     }
-    return null;
   }
 }
