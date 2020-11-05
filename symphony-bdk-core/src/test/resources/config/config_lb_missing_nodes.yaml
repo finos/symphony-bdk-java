@@ -1,3 +1,3 @@
-lb-agent:
+loadBalancingAgent:
   mode: random
   stickiness: false

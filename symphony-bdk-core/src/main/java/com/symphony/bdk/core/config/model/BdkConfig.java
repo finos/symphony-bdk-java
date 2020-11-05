@@ -25,8 +25,7 @@ public class BdkConfig extends BdkServerConfig {
   private BdkRetryConfig retry = new BdkRetryConfig();
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
 
-  @JsonProperty("lb-agent")
-  private BdkLoadBalancingConfig agentLoadBalancing;
+  private BdkLoadBalancingConfig loadBalancingAgent;
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.

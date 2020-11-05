@@ -77,14 +77,14 @@ public class ApiClientFactory {
   }
 
   public ApiClient getAgentClient() {
-    if (config.getAgentLoadBalancing() != null) {
+    if (config.getLoadBalancingAgent() != null) {
       return new RegularLoadBalancedApiClient(this.config, this);
     }
     return getRegularAgentClient();
   }
 
   public ApiClient getDatafeedAgentClient() {
-    if (config.getAgentLoadBalancing() != null) {
+    if (config.getLoadBalancingAgent() != null) {
       return new DatafeedLoadBalancedApiClient(this.config, this);
     }
     return getRegularAgentClient();

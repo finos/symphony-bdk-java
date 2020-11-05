@@ -271,7 +271,7 @@ class ApiClientFactoryTest {
 
     final BdkConfig config = new BdkConfig();
     config.setHost("global-host");
-    config.setAgentLoadBalancing(loadBalancingConfig);
+    config.setLoadBalancingAgent(loadBalancingConfig);
 
     return config;
   }

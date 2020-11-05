@@ -1,4 +1,4 @@
-lb-agent:
+loadBalancingAgent:
   mode: random
   nodes:
     - host: agent1.acme.org

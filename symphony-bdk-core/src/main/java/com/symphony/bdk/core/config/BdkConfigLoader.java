@@ -73,7 +73,7 @@ public class BdkConfigLoader {
   }
 
   private static void validateLoadBalancingConfiguration(BdkConfig config) throws BdkConfigException {
-    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getLoadBalancingAgent();
     if (agentLoadBalancing == null) {
       return;
     }

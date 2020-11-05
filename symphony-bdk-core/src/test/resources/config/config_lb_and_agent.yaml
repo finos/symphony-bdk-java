@@ -6,7 +6,7 @@ agent:
   host: devx1.symphony.com
   port: 443
 
-lb-agent:
+loadBalancingAgent:
   mode: external
   nodes:
     - host: agent1.acme.org

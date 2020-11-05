@@ -140,7 +140,7 @@ public class LoadBalancingStrategyTest {
     loadBalancingConfig.setMode(mode);
 
     BdkConfig config = new BdkConfig();
-    config.setAgentLoadBalancing(loadBalancingConfig);
+    config.setLoadBalancingAgent(loadBalancingConfig);
 
     return config;
   }

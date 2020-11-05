@@ -32,7 +32,7 @@ public abstract class LoadBalancedApiClient implements ApiClient {
    */
   public LoadBalancedApiClient(BdkConfig config, ApiClientFactory apiClientFactory) {
     this.apiClientFactory = apiClientFactory;
-    this.loadBalancingConfig = config.getAgentLoadBalancing();
+    this.loadBalancingConfig = config.getLoadBalancingAgent();
     this.loadBalancingStrategy = LoadBalancingStrategy.getInstance(config, apiClientFactory);
 
     rotate();

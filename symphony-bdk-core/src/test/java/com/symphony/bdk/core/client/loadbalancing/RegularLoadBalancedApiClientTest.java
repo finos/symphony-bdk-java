@@ -62,13 +62,13 @@ class RegularLoadBalancedApiClientTest {
     agentLoadBalancing.setNodes(Collections.singletonList(serverConfig));
 
     final BdkConfig config = new BdkConfig();
-    config.setAgentLoadBalancing(agentLoadBalancing);
+    config.setLoadBalancingAgent(agentLoadBalancing);
     return config;
   }
 
   @Test
   public void testInvokeApiIsDelegatedAndRotateNotCalledWhenSticky() throws ApiException {
-    config.getAgentLoadBalancing().setStickiness(true);
+    config.getLoadBalancingAgent().setStickiness(true);
     RegularLoadBalancedApiClient loadBalancedApiClient =
         spy(new RegularLoadBalancedApiClient(config, apiClientFactory));
 
@@ -83,7 +83,7 @@ class RegularLoadBalancedApiClientTest {
 
   @Test
   public void testInvokeApiIsDelegatedAndRotateCalledWhenNonSticky() throws ApiException {
-    config.getAgentLoadBalancing().setStickiness(false);
+    config.getLoadBalancingAgent().setStickiness(false);
     RegularLoadBalancedApiClient loadBalancedApiClient =
         spy(new RegularLoadBalancedApiClient(config, apiClientFactory));
 

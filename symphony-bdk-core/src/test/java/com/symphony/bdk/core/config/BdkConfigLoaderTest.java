@@ -130,7 +130,7 @@ public class BdkConfigLoaderTest {
   @Test
   public void parseLbAgentField() throws BdkConfigException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb.yaml");
-    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getLoadBalancingAgent();
     final List<BdkServerConfig> nodes = agentLoadBalancing.getNodes();
 
     assertEquals(BdkLoadBalancingMode.RANDOM, agentLoadBalancing.getMode());
@@ -151,13 +151,13 @@ public class BdkConfigLoaderTest {
   @Test
   public void parseLbAgentFieldsWithNoDefinedStickiness() throws BdkConfigException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_no_stickiness.yaml");
-    assertEquals(true, config.getAgentLoadBalancing().isStickiness());
+    assertEquals(true, config.getLoadBalancingAgent().isStickiness());
   }
 
   @Test
   public void parseLbAgentFieldsWithRoundRobinMode() throws BdkConfigException {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_round_robin.yaml");
-    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getLoadBalancingAgent();
 
     assertEquals(true, agentLoadBalancing.isStickiness());
     assertEquals(BdkLoadBalancingMode.ROUND_ROBIN, agentLoadBalancing.getMode());
@@ -166,7 +166,7 @@ public class BdkConfigLoaderTest {
   @Test
   public void parseLbAgentFieldsWithExternalMode() throws BdkConfigException {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_external.yaml");
-    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgentLoadBalancing();
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getLoadBalancingAgent();
 
     assertEquals(BdkLoadBalancingMode.EXTERNAL, agentLoadBalancing.getMode());
   }
