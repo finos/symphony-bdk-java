@@ -20,10 +20,10 @@ import java.util.List;
 @Slf4j
 public abstract class LoadBalancedApiClient implements ApiClient {
 
-  protected ApiClientFactory apiClientFactory;
+  protected final ApiClientFactory apiClientFactory;
   protected RegularApiClient apiClient;
-  protected BdkLoadBalancingConfig loadBalancingConfig;
-  private LoadBalancingStrategy loadBalancingStrategy;
+  protected final BdkLoadBalancingConfig loadBalancingConfig;
+  private final LoadBalancingStrategy loadBalancingStrategy;
 
   /**
    *
