@@ -44,6 +44,10 @@ abstract class AbstractDatafeedService implements DatafeedService {
         .retryConfig(config.getDatafeedRetryConfig())
         .recoveryStrategy(Exception.class, e -> true, () -> this.apiClient.rotate())  //always rotate in case of any error
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
+
+    if (config.getAgentLoadBalancing() != null && !config.getAgentLoadBalancing().isStickiness()) {
+      log.warn("DF used with agent load balancing configured with stickiness false. DF calls will still be sticky.");
+    }
   }
 
   /**

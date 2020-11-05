@@ -54,9 +54,6 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
   public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config,
       DatafeedIdRepository repository) {
     super(datafeedApi, authSession, config);
-    if (config.getAgentLoadBalancing() != null && !config.getAgentLoadBalancing().isStickiness()) {
-      log.warn("DFv1 used with agent load balancing configured with stickiness false. DFv1 calls will still be sticky.");
-    }
 
     this.started.set(false);
     this.datafeedRepository = repository;

@@ -68,6 +68,15 @@ sessionAuth:
   host: dev-session.symphony.com
   port: 8444
 
+lb-agent:
+  mode: roundRobin
+  stickiness: false
+  nodes:
+    - host: agent1.symphony.com
+      port: 7443
+      context: app/
+    - host: agent2.symphony.com
+
 bot:
   username: bot-name
   privateKeyPath: /path/to/bot/rsa-private-key.pem
@@ -109,6 +118,7 @@ the service account using by the bot is created.
 the bot connects to.
 - `keyManager` contains information like host, port, scheme, context, proxy... of the key 
 manager which manages the key token of the bot.
+- `lb-agent` contains information about agent load-balancing. It must not be defined with an `agent` field.
 - `bot` contains information about the bot like the username, the private key or 
 the certificate for authenticating the service account on pod.
 - `app` contains information about the extension app that the bot will use like 
@@ -145,6 +155,24 @@ service.
 datafeed service v1 is used.
 - `retry`: the specific retry configuration can be used to override the global retry configuration. If no
 retry configuration is defined, the global one will be used.
+
+#### Agent load-balancing configuration
+The `lb-agent` part of the configuration contains the information in order to load balance calls to the agent if wanted.
+The fields `agent` and `lb-agent` must not be defined in the same configuration.
+Fields are:
+- `mode`: mandatory, can be `external`, `roundRobin` or `random`.
+- `stickiness`: optional boolean, default value is true.
+- `nodes`: mandatory and must contain at least one element. List items must have at least `host` field put and can contain the following other fields: `scheme`, `port`, `context`.
+
+`roundRobin` and `random` modes mean calls to the agent are load balanced across all `nodes`, respectively in a round robin and random fashion.
+`external` mode means each time we want to pick a new agent host, we make a call to the endpoint
+[/v1/info](https://developers.symphony.com/restapi/reference#agent-info-v1) on the first node provided in `nodes`.
+The actual agent URL is taken from the field `serverFqdn` in the response body.
+
+When `stickiness` is set to true, it means one picks a given agent and makes all calls to the same agent node.
+Otherwise, when `stickiness` is set to false, one picks a new agent node each time a call is made.
+
+When using datafeed services, calls will always be sticky, regardless of the `stickiness` value.
 
 ## Configuration format
 Both of `JSON` and `YAML` formats are supported by BDK configuration. Using `JSON`, a minimal configuration file would 
