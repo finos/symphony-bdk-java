@@ -1,7 +1,8 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,7 +17,6 @@ import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
@@ -98,7 +98,8 @@ public class LoadBalancingStrategyTest {
         .thenReturn(new AgentInfo().serverFqdn("https://agent2:443"))
         .thenReturn(new AgentInfo().serverFqdn("https://agent3:443"));
 
-    ExternalLoadBalancingStrategy loadBalancingStrategy = new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
+    ExternalLoadBalancingStrategy loadBalancingStrategy =
+        new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
 
     List<String> basePaths = Stream.generate(() -> loadBalancingStrategy.getNewBasePath()).limit(3)
         .collect(Collectors.toList());
@@ -112,7 +113,8 @@ public class LoadBalancingStrategyTest {
     when(signalsApi.v1InfoGet())
         .thenThrow(new ApiException(500, "error"));
 
-    ExternalLoadBalancingStrategy loadBalancingStrategy = new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
+    ExternalLoadBalancingStrategy loadBalancingStrategy =
+        new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
 
     assertThrows(ApiRuntimeException.class, () -> loadBalancingStrategy.getNewBasePath());
   }
