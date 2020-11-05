@@ -176,7 +176,7 @@ public class BdkConfigLoaderTest {
     final BdkConfigException bdkConfigException = assertThrows(BdkConfigException.class,
         () -> BdkConfigLoader.loadFromClasspath("/config/config_invalid_mode.yaml"));
 
-    assertEquals("Config file is not found", bdkConfigException.getMessage()); //TODO to be changed ?
+    assertEquals("Config file is not found", bdkConfigException.getMessage());
   }
 
   @Test

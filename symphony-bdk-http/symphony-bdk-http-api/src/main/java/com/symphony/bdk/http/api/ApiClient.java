@@ -99,7 +99,7 @@ public interface ApiClient {
 
   /**
    * Change target server according to the load balancing configuration, applies only for calls to the agent.
-   * TODO: elaborate this
+   * Default implementation does nothing.
    */
   default void rotate() {
 

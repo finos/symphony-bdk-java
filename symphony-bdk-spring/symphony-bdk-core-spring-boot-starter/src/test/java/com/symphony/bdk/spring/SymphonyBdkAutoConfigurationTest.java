@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;
@@ -112,6 +113,32 @@ class SymphonyBdkAutoConfigurationTest {
 
     contextRunner.run(context -> {
       final SymphonyBdkCoreProperties config = context.getBean(SymphonyBdkCoreProperties.class);
+
+      assertThat(config.getAgent().getBasePath()).isEqualTo("http://localhost:443/context");
+    });
+  }
+
+  @Test
+  void shouldInstantiateLoadBalancedApiClientIfConfigured() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.scheme=http",
+            "bdk.host=localhost",
+            "bdk.context=context",
+
+            "bdk.bot.username=testbot",
+            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+
+            "bdk.loadBalancingAgent.mode=roundRobin",
+            "bdk.loadBalancingAgent.nodes[0].host=agent-lb"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      final SymphonyBdkCoreProperties config = context.getBean(SymphonyBdkCoreProperties.class);
+      assertThat(context).hasBean("datafeedAgentApiClient");
+      assertThat(context).getBean("datafeedAgentApiClient").isExactlyInstanceOf(DatafeedLoadBalancedApiClient.class);
 
       assertThat(config.getAgent().getBasePath()).isEqualTo("http://localhost:443/context");
     });
