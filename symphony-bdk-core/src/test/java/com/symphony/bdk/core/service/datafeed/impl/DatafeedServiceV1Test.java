@@ -113,7 +113,7 @@ public class DatafeedServiceV1Test {
   private void initializeDatafeedApiClient() {
     this.datafeedApiClient = mock(ApiClient.class);
     doNothing().when(this.datafeedApiClient).rotate();
-    when(this.datafeedApiClient.getBasePath()).thenReturn(DEFAULT_AGENT_BASE_PATH);
+    when(this.datafeedApiClient.getBasePath()).thenReturn(DEFAULT_AGENT_BASE_PATH + "/agent");
   }
 
   private void initializeDatafeedApi() {
@@ -179,7 +179,7 @@ public class DatafeedServiceV1Test {
     LoadBalancedApiClient loadBalancedApiClient = mock(LoadBalancedApiClient.class);
     doNothing().when(loadBalancedApiClient).rotate();
     doNothing().when(loadBalancedApiClient).setBasePath(any());
-    when(loadBalancedApiClient.getBasePath()).thenReturn("https://agent-lb:7443/path");
+    when(loadBalancedApiClient.getBasePath()).thenReturn("https://agent-lb:7443/path/agent");
     this.datafeedApiClient = loadBalancedApiClient;
 
     initializeDatafeedApi();
@@ -207,7 +207,7 @@ public class DatafeedServiceV1Test {
     LoadBalancedApiClient loadBalancedApiClient = mock(LoadBalancedApiClient.class);
     doNothing().when(loadBalancedApiClient).rotate();
     doNothing().when(loadBalancedApiClient).setBasePath(any());
-    when(loadBalancedApiClient.getBasePath()).thenReturn("https://agent-lb:7443/path");
+    when(loadBalancedApiClient.getBasePath()).thenReturn("https://agent-lb:7443/path/agent");
     this.datafeedApiClient = loadBalancedApiClient;
 
     initializeDatafeedApi();

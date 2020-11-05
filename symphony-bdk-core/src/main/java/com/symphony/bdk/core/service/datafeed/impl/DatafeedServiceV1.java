@@ -140,9 +140,14 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
   private String createDatafeedAndPersist() throws ApiException {
     String id =
         datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
-    datafeedRepository.write(id, apiClient.getBasePath());
+    datafeedRepository.write(id, getBasePathWithoutTrailingAgent());
     log.debug("Datafeed: {} was created and persisted", id);
     return id;
+  }
+
+  private String getBasePathWithoutTrailingAgent() {
+    final String basePath = apiClient.getBasePath();
+    return basePath.substring(0, basePath.length() - "/agent".length());
   }
 
   protected Optional<String> retrieveDatafeed() {
