@@ -37,6 +37,13 @@ public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   @Override
   public String getNewBasePath() {
-    return executeAndRetry(retryBuilder, "agent-info", () -> signalsApi.v1InfoGet().getServerFqdn());
+    String basePath = executeAndRetry(retryBuilder, "agent-info", () -> signalsApi.v1InfoGet().getServerFqdn());
+    if (basePath.endsWith("/")) {
+      basePath = basePath.substring(0, basePath.length() - 1);
+    }
+    if (! basePath.contains("://")) {
+      basePath = "https://" + basePath;
+    }
+    return basePath;
   }
 }
