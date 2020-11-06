@@ -1,8 +1,12 @@
 package com.symphony.bdk.bot.sdk.extapp.authentication;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.symphony.bdk.bot.sdk.symphony.ConfigClient;
+import com.symphony.bdk.bot.sdk.symphony.ExtensionAppAuthClient;
+import com.symphony.bdk.bot.sdk.symphony.exception.AppAuthenticateException;
+import com.symphony.bdk.bot.sdk.symphony.exception.SymphonyClientException;
+import com.symphony.bdk.bot.sdk.symphony.model.AuthenticateResponse;
+import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,12 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.symphony.bdk.bot.sdk.symphony.ConfigClient;
-import com.symphony.bdk.bot.sdk.symphony.ExtensionAppAuthClient;
-import com.symphony.bdk.bot.sdk.symphony.exception.AppAuthenticateException;
-import com.symphony.bdk.bot.sdk.symphony.exception.SymphonyClientException;
-import com.symphony.bdk.bot.sdk.symphony.model.AuthenticateResponse;
-import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Extension App authentication controller
@@ -42,6 +43,13 @@ public class AppAuthController {
   public AppAuthController(ExtensionAppAuthClient extAppAuthClient, ConfigClient configClient) {
     this.extAppAuthClient = extAppAuthClient;
     this.configClient = configClient;
+  }
+
+  // For the tests
+  protected AppAuthController(ExtensionAppAuthClient extAppAuthClient, ConfigClient configClient, Boolean jwtCookieEnable) {
+    this.extAppAuthClient = extAppAuthClient;
+    this.configClient = configClient;
+    this.jwtCookieEnable = jwtCookieEnable;
   }
 
   @PostMapping("authenticate")
