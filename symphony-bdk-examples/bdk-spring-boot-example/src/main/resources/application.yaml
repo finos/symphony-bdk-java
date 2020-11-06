@@ -1,9 +1,25 @@
 
 bdk:
-  host: acme.symphony.com
+  host: devx1.symphony.com
+
+  loadBalancingAgent:
+    stickiness: false
+    mode: roundRobin
+    nodes:
+      - host: devx1.symphony.com
+      - host: devx1.symphony.com
+
   bot:
-    username: mybot
-    privateKeyPath: path/to/bot-privatekey.pem
+    username: postman-ecroze
+    privateKeyPath: /Users/elias.croze/.symphony/fbbot_privatekey.pkcs8
+
+  ssl:
+    trustStorePath: /Users/elias.croze/.symphony/all_symphony_certs_truststore
+    trustStorePassword: changeit
+
+  datafeed:
+    version: v2
+
 
 logging:
   level:

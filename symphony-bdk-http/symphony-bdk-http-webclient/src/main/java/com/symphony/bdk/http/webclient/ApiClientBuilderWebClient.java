@@ -2,7 +2,6 @@ package com.symphony.bdk.http.webclient;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
-import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
 import io.netty.channel.ChannelOption;
@@ -55,7 +54,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    * Specific implementation of {@link ApiClientBuilder#build()} which returns an {@link ApiClientWebClient} instance.
    */
   @Override
-  public RegularApiClient build() {
+  public ApiClient build() {
     WebClient.Builder builder = WebClient.builder();
     SslContext sslContext = this.createSSLContext();
     HttpClient httpConnector =

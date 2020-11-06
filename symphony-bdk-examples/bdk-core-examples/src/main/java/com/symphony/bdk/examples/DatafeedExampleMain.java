@@ -15,7 +15,7 @@ public class DatafeedExampleMain {
 
   public static void main(String[] args) throws Exception {
 
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config_random_lb_devx3.yaml"));
 
     bdk.datafeed().subscribe(new RealTimeEventListener() {
       @Override
@@ -24,7 +24,7 @@ public class DatafeedExampleMain {
       }
     });
 
-    bdk.activities().register(slash("/hello", context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>")));
+    //bdk.activities().register(slash("/hello", context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>")));
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       log.info("Stopping Datafeed...");

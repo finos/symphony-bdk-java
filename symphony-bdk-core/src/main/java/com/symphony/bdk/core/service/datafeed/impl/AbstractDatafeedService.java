@@ -40,7 +40,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
     this.apiClient = datafeedApi.getApiClient();
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
-        .recoveryStrategy(Exception.class, e -> true, () -> this.apiClient.rotate())  //always rotate in case of any error
+        .recoveryStrategy(Exception.class, () -> this.apiClient.rotate())  //always rotate in case of any error
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
     if (config.getLoadBalancingAgent() != null && !config.getLoadBalancingAgent().isStickiness()) {

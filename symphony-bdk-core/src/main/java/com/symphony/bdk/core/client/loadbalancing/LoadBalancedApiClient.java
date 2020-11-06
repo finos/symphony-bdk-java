@@ -5,7 +5,6 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.http.api.RegularApiClient;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -14,26 +13,26 @@ import java.util.List;
 
 /**
  * An {@link ApiClient} implementation which load balances calls across several base URLs.
- * It contains a {@link RegularApiClient} (i.e. non load-balanced api client) in order to target a specific base URL.
+ * It contains an {@link ApiClient} (a non load-balanced api client) in order to target a specific base URL.
  */
 @API(status = API.Status.INTERNAL)
 @Slf4j
 public abstract class LoadBalancedApiClient implements ApiClient {
 
   protected final ApiClientFactory apiClientFactory;
-  protected RegularApiClient apiClient;
+  protected ApiClient apiClient;
   protected final BdkLoadBalancingConfig loadBalancingConfig;
   private final LoadBalancingStrategy loadBalancingStrategy;
 
   /**
    *
    * @param config the bdk configuration to be used
-   * @param apiClientFactory the api client factory used to instantiate {@link RegularApiClient} instances.
+   * @param apiClientFactory the api client factory used to instantiate {@link ApiClient} instances.
    */
   public LoadBalancedApiClient(BdkConfig config, ApiClientFactory apiClientFactory) {
     this.apiClientFactory = apiClientFactory;
     this.loadBalancingConfig = config.getLoadBalancingAgent();
-    this.loadBalancingStrategy = LoadBalancingStrategy.getInstance(config, apiClientFactory);
+    this.loadBalancingStrategy = LoadBalancingStrategyFactory.getInstance(config, apiClientFactory);
 
     rotate();
   }

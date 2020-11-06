@@ -165,18 +165,17 @@ public class RetryWithRecoveryBuilder<T> {
   }
 
   /**
-   * Sets one recovery strategy which consists of a predicate on a thrown {@link Exception}
-   * and of a corresponding recovery function to be executed when condition is met.
+   * Sets one recovery strategy which consists of a specific {@link Exception} type
+   * and of a corresponding recovery function to be executed when exception is of the given provided type.
    *
    * @param exceptionType the actual exception class
-   * @param condition the predicate to check if the exception should lead to the execution of the recovery function.
    * @param recovery the recovery function to be executed when condition is fulfilled.
    * @param <E> the actual exception class
    * @return the modified builder instance.
    */
   public <E extends Exception> RetryWithRecoveryBuilder<T> recoveryStrategy(Class<? extends E> exceptionType,
-      Predicate<E> condition, ConsumerWithThrowable recovery) {
-    this.recoveryStrategies.add(new RecoveryStrategy(exceptionType, condition, recovery));
+      ConsumerWithThrowable recovery) {
+    this.recoveryStrategies.add(new RecoveryStrategy(exceptionType, e -> true, recovery));
     return this;
   }
 

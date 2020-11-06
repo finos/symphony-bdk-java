@@ -8,9 +8,9 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
 import com.symphony.bdk.core.config.model.BdkServerConfig;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +24,11 @@ class DatafeedLoadBalancedApiClientTest {
 
   private BdkConfig config;
   private ApiClientFactory apiClientFactory;
-  private RegularApiClient apiClient;
+  private ApiClient apiClient;
 
   @BeforeEach
   public void setUp() {
-    this.apiClient = mock(RegularApiClient.class);
+    this.apiClient = mock(ApiClient.class);
 
     this.apiClientFactory = mock(ApiClientFactory.class);
     when(this.apiClientFactory.getRegularAgentClient(any())).thenReturn(this.apiClient);

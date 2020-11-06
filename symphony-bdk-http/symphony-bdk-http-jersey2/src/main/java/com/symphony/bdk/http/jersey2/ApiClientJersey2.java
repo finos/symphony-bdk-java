@@ -5,7 +5,6 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -45,7 +44,7 @@ import javax.ws.rs.core.Response.Status;
  * Jersey2 implementation for the {@link ApiClient} interface called by generated code.
  */
 @API(status = API.Status.STABLE)
-public class ApiClientJersey2 extends RegularApiClient {
+public class ApiClientJersey2 implements ApiClient {
 
   protected Client httpClient;
   protected String basePath;

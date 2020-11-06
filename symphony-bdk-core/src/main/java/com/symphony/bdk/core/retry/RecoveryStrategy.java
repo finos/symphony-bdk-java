@@ -13,9 +13,9 @@ import java.util.function.Predicate;
  */
 @API(status = API.Status.INTERNAL)
 public class RecoveryStrategy {
-  Class<? extends Exception> exceptionType;
-  Predicate<Exception> condition;
-  ConsumerWithThrowable recovery;
+
+  private Predicate<Exception> condition;
+  private ConsumerWithThrowable recovery;
 
   /**
    *
@@ -25,7 +25,6 @@ public class RecoveryStrategy {
    * @param <T> the actual exception class
    */
   public <T extends Exception> RecoveryStrategy(Class<? extends T> exceptionType, Predicate<T> condition, ConsumerWithThrowable recovery) {
-    this.exceptionType = exceptionType;
     this.condition = e -> exceptionType.isAssignableFrom(e.getClass()) && condition.test(exceptionType.cast(e));
     this.recovery = recovery;
   }

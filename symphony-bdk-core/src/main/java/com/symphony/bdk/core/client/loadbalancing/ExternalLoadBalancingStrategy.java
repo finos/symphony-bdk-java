@@ -19,8 +19,8 @@ import static com.symphony.bdk.core.retry.RetryWithRecovery.executeAndRetry;
 @API(status = API.Status.INTERNAL)
 public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
 
-  private RetryWithRecoveryBuilder<String> retryBuilder;
-  private SignalsApi signalsApi;
+  private final RetryWithRecoveryBuilder<String> retryBuilder;
+  private final SignalsApi signalsApi;
 
   public ExternalLoadBalancingStrategy(BdkRetryConfig retryConfig, SignalsApi signalsApi) {
     this.signalsApi = signalsApi;

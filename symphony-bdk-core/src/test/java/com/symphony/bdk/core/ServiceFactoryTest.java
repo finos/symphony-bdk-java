@@ -21,7 +21,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
-import com.symphony.bdk.http.api.RegularApiClient;
+import com.symphony.bdk.http.api.ApiClient;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +37,8 @@ public class ServiceFactoryTest {
   void setUp() throws BdkConfigException {
     this.config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     this.mAuthSession = mock(AuthSession.class);
-    RegularApiClient mPodClient = mock(RegularApiClient.class);
-    RegularApiClient mAgentClient = mock(RegularApiClient.class);
+    ApiClient mPodClient = mock(ApiClient.class);
+    ApiClient mAgentClient = mock(ApiClient.class);
     this.apiClientFactory = mock(ApiClientFactory.class);
 
     when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);

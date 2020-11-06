@@ -4,6 +4,7 @@ import com.symphony.bdk.core.config.model.BdkServerConfig;
 
 import org.apiguardian.api.API;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,16 +15,16 @@ import java.util.concurrent.ThreadLocalRandom;
 @API(status = API.Status.INTERNAL)
 public class RandomLoadBalancingStrategy implements LoadBalancingStrategy {
 
-  private List<BdkServerConfig> nodes;
+  private final List<BdkServerConfig> nodes;
+  private final ThreadLocalRandom localRandom;
   private int currentIndex;
-  private ThreadLocalRandom localRandom;
 
   /**
    *
    * @param nodes the list of nodes to be load balanced across in a random way.
    */
   public RandomLoadBalancingStrategy(List<BdkServerConfig> nodes) {
-    this.nodes = nodes;
+    this.nodes = new ArrayList<>(nodes);
     this.currentIndex = -1;
     this.localRandom = ThreadLocalRandom.current();
   }

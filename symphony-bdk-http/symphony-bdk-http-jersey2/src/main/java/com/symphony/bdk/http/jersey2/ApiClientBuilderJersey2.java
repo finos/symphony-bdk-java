@@ -4,7 +4,6 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
-import com.symphony.bdk.http.api.RegularApiClient;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
 import org.apiguardian.api.API;
@@ -55,7 +54,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * Specific implementation of {@link ApiClientBuilder#build()} which returns an {@link ApiClientJersey2} instance.
    */
   @Override
-  public RegularApiClient build() {
+  public ApiClient build() {
     java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
 
     SSLContext sslContext = createSSLContext();

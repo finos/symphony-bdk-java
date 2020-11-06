@@ -4,6 +4,7 @@ import com.symphony.bdk.core.config.model.BdkServerConfig;
 
 import org.apiguardian.api.API;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
 @API(status = API.Status.INTERNAL)
 public class RoundRobinLoadBalancingStrategy implements LoadBalancingStrategy {
 
-  private List<BdkServerConfig> nodes;
+  private final List<BdkServerConfig> nodes;
   private int currentIndex;
 
   /**
@@ -21,7 +22,7 @@ public class RoundRobinLoadBalancingStrategy implements LoadBalancingStrategy {
    * @param nodes the list of nodes to be load balanced across in a round-robin way.
    */
   public RoundRobinLoadBalancingStrategy(List<BdkServerConfig> nodes) {
-    this.nodes = nodes;
+    this.nodes = new ArrayList<>(nodes);
     this.currentIndex = -1;
   }
 
