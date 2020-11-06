@@ -1,16 +1,16 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
-import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;

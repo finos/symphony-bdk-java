@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.config.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;

@@ -12,15 +12,13 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
-import com.symphony.bdk.core.config.BdkConfigLoader;
-import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
 import com.symphony.bdk.core.config.model.BdkServerConfig;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.junit.jupiter.api.BeforeEach;

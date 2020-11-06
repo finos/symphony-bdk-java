@@ -6,6 +6,7 @@ import org.apiguardian.api.API;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The {@link LoadBalancingStrategy} corresponding to the
@@ -15,7 +16,7 @@ import java.util.List;
 public class RoundRobinLoadBalancingStrategy implements LoadBalancingStrategy {
 
   private final List<BdkServerConfig> nodes;
-  private int currentIndex;
+  private AtomicInteger currentIndex;
 
   /**
    *
@@ -23,7 +24,7 @@ public class RoundRobinLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   public RoundRobinLoadBalancingStrategy(List<BdkServerConfig> nodes) {
     this.nodes = new ArrayList<>(nodes);
-    this.currentIndex = -1;
+    this.currentIndex = new AtomicInteger(-1);
   }
 
   /**
@@ -33,7 +34,7 @@ public class RoundRobinLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   @Override
   public String getNewBasePath() {
-    currentIndex = (currentIndex + 1) % nodes.size();
-    return nodes.get(currentIndex).getBasePath();
+    final int nextIndex = currentIndex.updateAndGet(operand -> (operand + 1) % nodes.size());
+    return nodes.get(nextIndex).getBasePath();
   }
 }

@@ -39,6 +39,7 @@ public class LoadBalancingStrategyTest {
 
   @Test
   public void testNewInstanceRoundRobinLB() {
+
     LoadBalancingStrategy loadBalancingStrategy = getLoadBalancingStrategy(BdkLoadBalancingMode.ROUND_ROBIN);
     assertEquals(RoundRobinLoadBalancingStrategy.class, loadBalancingStrategy.getClass());
   }

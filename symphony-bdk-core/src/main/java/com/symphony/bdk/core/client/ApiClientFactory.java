@@ -2,16 +2,16 @@ package com.symphony.bdk.core.client;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiClientBuilder;
-import com.symphony.bdk.http.api.ApiClientBuilderProvider;
-import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;

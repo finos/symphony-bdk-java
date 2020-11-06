@@ -6,10 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
-
 import com.symphony.bdk.core.config.model.BdkServerConfig;
 
 import org.apache.commons.io.FileUtils;

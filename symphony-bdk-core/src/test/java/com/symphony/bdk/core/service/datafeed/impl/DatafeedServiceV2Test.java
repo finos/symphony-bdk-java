@@ -3,7 +3,12 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -27,7 +32,6 @@ import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
 import org.mockito.Mockito;
 
 import java.net.SocketTimeoutException;

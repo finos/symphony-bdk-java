@@ -7,6 +7,7 @@ import org.apiguardian.api.API;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The {@link LoadBalancingStrategy} corresponding to the
@@ -17,7 +18,7 @@ public class RandomLoadBalancingStrategy implements LoadBalancingStrategy {
 
   private final List<BdkServerConfig> nodes;
   private final ThreadLocalRandom localRandom;
-  private int currentIndex;
+  private AtomicInteger currentIndex;
 
   /**
    *
@@ -25,7 +26,7 @@ public class RandomLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   public RandomLoadBalancingStrategy(List<BdkServerConfig> nodes) {
     this.nodes = new ArrayList<>(nodes);
-    this.currentIndex = -1;
+    this.currentIndex = new AtomicInteger(-1);
     this.localRandom = ThreadLocalRandom.current();
   }
 
@@ -36,7 +37,9 @@ public class RandomLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   @Override
   public String getNewBasePath() {
-    currentIndex = localRandom.nextInt(0, nodes.size());
-    return nodes.get(currentIndex).getBasePath();
+    final int newValue = localRandom.nextInt(0, nodes.size());
+    currentIndex.set(newValue);
+
+    return nodes.get(newValue).getBasePath();
   }
 }

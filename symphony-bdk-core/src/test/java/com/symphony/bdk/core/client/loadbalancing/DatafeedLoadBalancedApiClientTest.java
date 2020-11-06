@@ -1,7 +1,12 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;

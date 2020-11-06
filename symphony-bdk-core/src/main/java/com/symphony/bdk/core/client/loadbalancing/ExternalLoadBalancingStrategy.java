@@ -1,16 +1,12 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
-import com.symphony.bdk.core.config.model.BdkConfig;
+import static com.symphony.bdk.core.retry.RetryWithRecovery.executeAndRetry;
+
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.gen.api.SignalsApi;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.apiguardian.api.API;
-
-import static com.symphony.bdk.core.retry.RetryWithRecovery.executeAndRetry;
 
 /**
  * The {@link LoadBalancingStrategy} corresponding to the

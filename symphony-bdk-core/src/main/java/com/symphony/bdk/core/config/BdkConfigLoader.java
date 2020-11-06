@@ -9,9 +9,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-
-import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
-
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
