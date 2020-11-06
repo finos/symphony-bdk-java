@@ -2,14 +2,16 @@ package com.symphony.bdk.core.client;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiClientBuilder;
-import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
+import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -48,7 +50,7 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link ApiClient} for Login API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return a new {@link ApiClient} instance.
    */
   public ApiClient getLoginClient() {
     return buildClient(this.config.getPod().getBasePath() + "/login");
@@ -57,7 +59,7 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link ApiClient} for Pod API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return a new {@link ApiClient} instance.
    */
   public ApiClient getPodClient() {
     return buildClient(this.config.getPod().getBasePath() + "/pod");
@@ -66,7 +68,7 @@ public class ApiClientFactory {
   /**
    * Returns a fully initialized {@link ApiClient} for KeyManager API.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRelayClient() {
     return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
@@ -74,18 +76,54 @@ public class ApiClientFactory {
 
   /**
    * Returns a fully initialized {@link ApiClient} for Agent API.
+   * This may be a {@link RegularLoadBalancedApiClient} or a non load-balanced ApiClient based on the configuration.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return a new {@link ApiClient} instance.
    */
   public ApiClient getAgentClient() {
-    return buildClient(this.config.getAgent().getBasePath() + "/agent");
+    if (config.getAgents() != null) {
+      return new RegularLoadBalancedApiClient(this.config, this);
+    }
+    return getRegularAgentClient();
+  }
+
+  /**
+   * Returns a fully initialized {@link ApiClient} for Agent API to be used by the datafeed services.
+   * This may be a {@link DatafeedLoadBalancedApiClient} or a non load-balanced ApiClient based on the configuration.
+   *
+   * @return a new {@link ApiClient} instance.
+   */
+  public ApiClient getDatafeedAgentClient() {
+    if (config.getAgents() != null) {
+      return new DatafeedLoadBalancedApiClient(this.config, this);
+    }
+    return getRegularAgentClient();
+  }
+
+  /**
+   * Returns a fully initialized non-load-balanced {@link ApiClient} for Agent API.
+   *
+   * @return a new {@link ApiClient} instance.
+   */
+  public ApiClient getRegularAgentClient() {
+    return getRegularAgentClient(this.config.getAgent().getBasePath());
+  }
+
+  /**
+   * Returns a fully initialized non-load-balanced {@link ApiClient} for Agent API given an agent base path.
+   *
+   * @param agentBasePath the agent base URL to target.
+   * @return a new {@link ApiClient} instance.
+   */
+  public ApiClient getRegularAgentClient(String agentBasePath) {
+    return buildClient(agentBasePath + "/agent");
   }
 
   /**
    * Returns a fully initialized {@link ApiClient} for the SessionAuth API. This only works with a
    * certification configured.
    *
-   * @return an new {@link ApiClient} instance.
+   * @return a new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
     return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getBot());

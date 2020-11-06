@@ -31,9 +31,7 @@ import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
-
 import com.symphony.bdk.http.api.ApiClient;
-
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.template.api.TemplateEngine;
 
@@ -55,6 +53,7 @@ class ServiceFactory {
 
   private final ApiClient podClient;
   private final ApiClient agentClient;
+  private final ApiClient datafeedAgentClient;
   private final AuthSession authSession;
   private final TemplateEngine templateEngine;
   private final BdkConfig config;
@@ -63,6 +62,7 @@ class ServiceFactory {
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
+    this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.config = config;
@@ -107,9 +107,9 @@ class ServiceFactory {
    */
   public DatafeedService getDatafeedService() {
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedServiceV2(new DatafeedApi(agentClient), authSession, config);
+      return new DatafeedServiceV2(new DatafeedApi(datafeedAgentClient), authSession, config);
     }
-    return new DatafeedServiceV1(new DatafeedApi(agentClient), authSession, config);
+    return new DatafeedServiceV1(new DatafeedApi(datafeedAgentClient), authSession, config);
   }
 
   /**
