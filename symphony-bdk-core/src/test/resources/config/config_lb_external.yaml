@@ -1,4 +1,4 @@
-loadBalancingAgent:
+agents:
   mode: external
   stickiness: true
   nodes:

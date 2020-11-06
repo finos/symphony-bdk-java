@@ -50,7 +50,7 @@ class DatafeedLoadBalancedApiClientTest {
     agentLoadBalancing.setNodes(Collections.singletonList(serverConfig));
 
     final BdkConfig config = new BdkConfig();
-    config.setLoadBalancingAgent(agentLoadBalancing);
+    config.setAgents(agentLoadBalancing);
     return config;
   }
 

@@ -68,7 +68,7 @@ sessionAuth:
   host: dev-session.symphony.com
   port: 8444
 
-loadBalancingAgent:
+agents:
   mode: roundRobin
   stickiness: false
   nodes:
@@ -118,7 +118,7 @@ the service account using by the bot is created.
 the bot connects to.
 - `keyManager` contains information like host, port, scheme, context, proxy... of the key 
 manager which manages the key token of the bot.
-- `loadBalancingAgent` contains information about agent load-balancing. It must not be defined with an `agent` field.
+- `agents` contains information about agent load-balancing. It must not be defined with an `agent` field.
 - `bot` contains information about the bot like the username, the private key or 
 the certificate for authenticating the service account on pod.
 - `app` contains information about the extension app that the bot will use like 
@@ -157,8 +157,8 @@ datafeed service v1 is used.
 retry configuration is defined, the global one will be used.
 
 #### Agent load-balancing configuration
-The `loadBalancingAgent` part of the configuration contains the information in order to load balance calls to the agent if wanted.
-The fields `agent` and `loadBalancingAgent` must not be defined in the same configuration.
+The `agents` part of the configuration contains the information in order to load balance calls to the agent if wanted.
+The fields `agent` and `agents` must not be defined in the same configuration.
 Fields are:
 - `mode`: mandatory, can be `external`, `roundRobin` or `random`.
 - `stickiness`: optional boolean, default value is true.

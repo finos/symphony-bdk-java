@@ -129,8 +129,8 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.bot.username=testbot",
             "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
 
-            "bdk.loadBalancingAgent.mode=roundRobin",
-            "bdk.loadBalancingAgent.nodes[0].host=agent-lb"
+            "bdk.agents.mode=roundRobin",
+            "bdk.agents.nodes[0].host=agent-lb"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));

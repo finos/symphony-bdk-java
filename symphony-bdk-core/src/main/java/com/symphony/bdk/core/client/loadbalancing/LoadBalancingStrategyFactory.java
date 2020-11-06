@@ -26,9 +26,9 @@ public class LoadBalancingStrategyFactory {
    */
   static LoadBalancingStrategy getInstance(BdkConfig config,
       ApiClientFactory apiClientFactory) {
-    final List<BdkServerConfig> nodes = config.getLoadBalancingAgent().getNodes();
+    final List<BdkServerConfig> nodes = config.getAgents().getNodes();
 
-    switch (config.getLoadBalancingAgent().getMode()) {
+    switch (config.getAgents().getMode()) {
       case EXTERNAL:
         final String agentLbBasePath = nodes.get(0).getBasePath();
         final SignalsApi signalsApi = new SignalsApi(apiClientFactory.getRegularAgentClient(agentLbBasePath));

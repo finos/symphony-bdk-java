@@ -1,4 +1,4 @@
-loadBalancingAgent:
+agents:
   mode: random
   stickiness: false
   nodes:

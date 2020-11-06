@@ -1,4 +1,4 @@
-loadBalancingAgent:
+agents:
   mode: roundRobin
   stickiness: true
   nodes:
