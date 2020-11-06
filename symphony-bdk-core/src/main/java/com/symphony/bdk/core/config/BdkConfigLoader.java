@@ -57,10 +57,7 @@ public class BdkConfigLoader {
    * @return Symphony Bot Configuration
    */
   public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
-    final BdkConfig bdkConfig = parseConfig(BdkConfigParser.parse(inputStream));
-    validateLoadBalancingConfiguration(bdkConfig);
-
-    return bdkConfig;
+    return parseConfig(BdkConfigParser.parse(inputStream));
   }
 
   private static BdkConfig parseConfig(JsonNode jsonNode) {
@@ -69,23 +66,6 @@ public class BdkConfigLoader {
     } else {
       LegacySymConfig legacySymConfig = JSON_MAPPER.convertValue(jsonNode, LegacySymConfig.class);
       return LegacyConfigMapper.map(legacySymConfig);
-    }
-  }
-
-  private static void validateLoadBalancingConfiguration(BdkConfig config) throws BdkConfigException {
-    final BdkLoadBalancingConfig agentLoadBalancing = config.getLoadBalancingAgent();
-    if (agentLoadBalancing == null) {
-      return;
-    }
-
-    if (config.getAgent().overridesParentConfig()) {
-      throw new BdkConfigException("Both agent and lb-agent fields are defined");
-    }
-    if (agentLoadBalancing.getMode() == null) {
-      throw new BdkConfigException("Field \"mode\" in lb-agent is mandatory");
-    }
-    if (agentLoadBalancing.getNodes() == null || agentLoadBalancing.getNodes().isEmpty()) {
-      throw new BdkConfigException("Field \"nodes\" in lb-agent is mandatory and must contain at least one element");
     }
   }
 

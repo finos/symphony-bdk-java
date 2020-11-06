@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.http.api.ApiClient;
@@ -30,6 +31,8 @@ public abstract class LoadBalancedApiClient implements ApiClient {
    * @param apiClientFactory the api client factory used to instantiate {@link ApiClient} instances.
    */
   public LoadBalancedApiClient(BdkConfig config, ApiClientFactory apiClientFactory) {
+    validateLoadBalancingConfiguration(config);
+
     this.apiClientFactory = apiClientFactory;
     this.loadBalancingConfig = config.getLoadBalancingAgent();
     this.loadBalancingStrategy = LoadBalancingStrategyFactory.getInstance(config, apiClientFactory);
@@ -102,5 +105,22 @@ public abstract class LoadBalancedApiClient implements ApiClient {
   @Override
   public String escapeString(String str) {
     return apiClient.escapeString(str);
+  }
+
+  private void validateLoadBalancingConfiguration(BdkConfig config) {
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getLoadBalancingAgent();
+    if (agentLoadBalancing == null) {
+      return;
+    }
+
+    if (config.getAgent().overridesParentConfig()) {
+      throw new ApiClientInitializationException("Both agent and loadBalancingAgent fields are defined");
+    }
+    if (agentLoadBalancing.getMode() == null) {
+      throw new ApiClientInitializationException("Field \"mode\" in loadBalancingAgent is mandatory");
+    }
+    if (agentLoadBalancing.getNodes() == null || agentLoadBalancing.getNodes().isEmpty()) {
+      throw new ApiClientInitializationException("Field \"nodes\" in loadBalancingAgent is mandatory and must contain at least one element");
+    }
   }
 }
