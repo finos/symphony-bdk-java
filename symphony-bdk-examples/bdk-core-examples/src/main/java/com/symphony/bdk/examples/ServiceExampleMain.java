@@ -4,7 +4,10 @@ import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.pagination.model.RangePaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
+import com.symphony.bdk.gen.api.model.FollowersListResponse;
+import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.Signal;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
@@ -52,5 +55,13 @@ public class ServiceExampleMain {
 
     bdk.users().followUser(13056700579873L, Collections.singletonList(13056700579879L));
     bdk.users().unfollowUser(13056700579873L, Collections.singletonList(13056700579879L));
+
+    final FollowersListResponse followersList =
+        bdk.users().listUserFollowers(13056700579873L, new RangePaginationAttribute(4, 0, 10));
+    log.info("Retrieve {} followers", followersList.getCount());
+
+    final FollowingListResponse followingList =
+        bdk.users().listUsersFollowing(13056700579873L, new RangePaginationAttribute(4, 0, 10));
+    log.info("Following {} users", followingList.getCount());
   }
 }

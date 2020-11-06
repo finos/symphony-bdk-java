@@ -7,6 +7,7 @@ import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.RangePaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
@@ -19,6 +20,8 @@ import com.symphony.bdk.gen.api.model.DelegateAction;
 import com.symphony.bdk.gen.api.model.Disclaimer;
 import com.symphony.bdk.gen.api.model.Feature;
 import com.symphony.bdk.gen.api.model.FollowersList;
+import com.symphony.bdk.gen.api.model.FollowersListResponse;
+import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
@@ -201,7 +204,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @Override
   public void followUser(@Nonnull Long uid, @Nonnull List<Long> followerIds) {
     executeAndRetry("followUser",
-        () -> userApi.v1UserUidFollowPost(authSession.getSessionToken(), uid, new FollowersList().followers(followerIds)));
+        () -> userApi.v1UserUidFollowPost(authSession.getSessionToken(), uid,
+            new FollowersList().followers(followerIds)));
   }
 
   /**
@@ -210,7 +214,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @Override
   public void unfollowUser(@Nonnull Long uid, @Nonnull List<Long> followerIds) {
     executeAndRetry("unfollowUser",
-        () -> userApi.v1UserUidUnfollowPost(authSession.getSessionToken(), uid, new FollowersList().followers(followerIds)));
+        () -> userApi.v1UserUidUnfollowPost(authSession.getSessionToken(), uid,
+            new FollowersList().followers(followerIds)));
   }
 
   /**
@@ -524,6 +529,118 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   public void updateStatusOfUser(@Nonnull Long uid, @Nonnull UserStatus status) {
     executeAndRetry("updateStatusOfUser",
         () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), uid, status));
+  }
+
+  /**
+   * Returns the list of followers of a specific user.
+   *
+   * @param uid   User Id
+   * @return The list of followers of a specific user with the pagination information.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  public FollowersListResponse listUserFollowers(@Nonnull Long uid) {
+    return executeAndRetry("listUserFollowers",
+        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), uid, null, null, null));
+  }
+
+  /**
+   * Returns the list of followers of a specific user.
+   *
+   * @param uid         User Id
+   * @param pagination  The range and limit for pagination.
+   * @return The list of followers of a specific user with the pagination information.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  public FollowersListResponse listUserFollowers(@Nonnull Long uid, @Nonnull RangePaginationAttribute pagination) {
+    return executeAndRetry("listUserFollowers",
+        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), uid, pagination.getLimit(),
+            pagination.getBefore().toString(), pagination.getAfter().toString()));
+  }
+
+  /**
+   * Returns the {@link Stream} of followers of a specific user.
+   *
+   * @param uid         User Id
+   * @return The {@link Stream} of followers of a specific user.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<Long> listAllUserFollowers(@Nonnull Long uid) {
+    PaginatedApi<Long> api =
+        (offset, limit) -> listUserFollowers(uid, new RangePaginationAttribute(0, offset, limit)).getFollowers();
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * Returns the {@link Stream} of followers of a specific user.
+   *
+   * @param uid         User Id
+   * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
+   * @return The {@link Stream} of followers of a specific user.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<Long> listAllUserFollowers(@Nonnull Long uid, @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<Long> api =
+        (offset, limit) -> listUserFollowers(uid, new RangePaginationAttribute(0, offset, limit)).getFollowers();
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  /**
+   * Returns the list of users followed by a specific user.
+   *
+   * @param uid   User Id
+   * @return The list of users followed by a specific user with the pagination information.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  public FollowingListResponse listUsersFollowing(@Nonnull Long uid) {
+    return executeAndRetry("listUsersFollowing",
+        () -> userApi.v1UserUidFollowingGet("listUsersFollowing", uid, null, null, null));
+  }
+
+  /**
+   * Returns the list of users followed by a specific user.
+   *
+   * @param uid         User Id
+   * @param pagination  The range and limit for pagination.
+   * @return The list of users followed by a specific user with the pagination information.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-users-followed">List Users Followed</a>
+   */
+  public FollowingListResponse listUsersFollowing(@Nonnull Long uid, @Nonnull RangePaginationAttribute pagination) {
+    return executeAndRetry("listUsersFollowing",
+        () -> userApi.v1UserUidFollowingGet(authSession.getSessionToken(), uid, pagination.getLimit(),
+            pagination.getBefore().toString(), pagination.getAfter().toString()));
+  }
+
+  /**
+   * Returns a {@link Stream} of users followed by a specific user.
+   *
+   * @param uid   User Id
+   * @return a {@link Stream} of users followed by a specific user with the pagination information.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  @API(status = API.Status.STABLE)
+  public Stream<Long> listAllUserFollowing(@Nonnull Long uid) {
+    PaginatedApi<Long> api =
+        (offset, limit) -> listUsersFollowing(uid, new RangePaginationAttribute(0, offset, limit)).getFollowing();
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * Returns a {@link Stream} of users followed by a specific user.
+   *
+   * @param uid         User Id
+   * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
+   * @return a {@link Stream} of users followed by a specific user with the pagination information.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
+   */
+  @API(status = API.Status.STABLE)
+  public Stream<Long> listAllUserFollowing(@Nonnull Long uid, @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<Long> api =
+        (offset, limit) -> listUsersFollowing(uid, new RangePaginationAttribute(0, offset, limit)).getFollowing();
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {

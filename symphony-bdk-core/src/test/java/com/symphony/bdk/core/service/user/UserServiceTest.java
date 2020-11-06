@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.RangePaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
@@ -27,6 +28,8 @@ import com.symphony.bdk.gen.api.model.DelegateAction;
 import com.symphony.bdk.gen.api.model.Disclaimer;
 import com.symphony.bdk.gen.api.model.Feature;
 import com.symphony.bdk.gen.api.model.FollowersList;
+import com.symphony.bdk.gen.api.model.FollowersListResponse;
+import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserAttributes;
 import com.symphony.bdk.gen.api.model.UserDetail;
@@ -73,6 +76,8 @@ class UserServiceTest {
   private static final String SEARCH_USER_BY_QUERY = "/pod/v1/user/search";
   private static final String V1_USER_FOLLOW = "/pod/v1/user/{uid}/follow";
   private static final String V1_USER_UNFOLLOW = "/pod/v1/user/{uid}/unfollow";
+  private static final String V1_LIST_FOLLOWERS = "/pod/v1/user/{uid}/followers";
+  private static final String V1_LIST_FOLLOWING = "/pod/v1/user/{uid}/following";
 
   private UserService service;
   private UserApi spiedUserApi;
@@ -640,6 +645,200 @@ class UserServiceTest {
     this.mockApiClient.onPost(400, V1_USER_UNFOLLOW.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.unfollowUser(1234L, Collections.singletonList(12345L)));
+  }
+
+  @Test
+  void listUserFollowersTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWERS.replace("{uid}", "1234"),
+        "{\n"
+            + "    \"count\": 3,\n"
+            + "    \"followers\": [\n"
+            + "        13056700579848,\n"
+            + "        13056700580889,\n"
+            + "        13056700580890\n"
+            + "    ],\n"
+            + "    \"pagination\": {\n"
+            + "        \"cursors\": {\n"
+            + "            \"before\": \"1\",\n"
+            + "            \"after\": \"4\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}");
+
+    FollowersListResponse response = this.service.listUserFollowers(1234L);
+
+    assertEquals(response.getCount(), 3);
+    assertEquals(response.getFollowers().get(0), 13056700579848L);
+    assertEquals(response.getFollowers().get(1), 13056700580889L);
+    assertEquals(response.getFollowers().get(2), 13056700580890L);
+  }
+
+  @Test
+  void listUserFollowersPaginationTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWERS.replace("{uid}", "1234"),
+        "{\n"
+            + "    \"count\": 3,\n"
+            + "    \"followers\": [\n"
+            + "        13056700579848,\n"
+            + "        13056700580889,\n"
+            + "        13056700580890\n"
+            + "    ],\n"
+            + "    \"pagination\": {\n"
+            + "        \"cursors\": {\n"
+            + "            \"before\": \"1\",\n"
+            + "            \"after\": \"4\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}");
+
+    FollowersListResponse response = this.service.listUserFollowers(1234L, new RangePaginationAttribute(4, 1, 5));
+
+    assertEquals(response.getCount(), 3);
+    assertEquals(response.getFollowers().get(0), 13056700579848L);
+    assertEquals(response.getFollowers().get(1), 13056700580889L);
+    assertEquals(response.getFollowers().get(2), 13056700580890L);
+  }
+
+  @Test
+  void listAllUserFollowersTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWERS.replace("{uid}", "1234"), "{\n"
+        + "    \"count\": 3,\n"
+        + "    \"followers\": [\n"
+        + "        13056700579848,\n"
+        + "        13056700580889,\n"
+        + "        13056700580890\n"
+        + "    ],\n"
+        + "    \"pagination\": {\n"
+        + "        \"cursors\": {\n"
+        + "            \"before\": \"1\",\n"
+        + "            \"after\": \"4\"\n"
+        + "        }\n"
+        + "    }\n"
+        + "}");
+
+    List<Long> followers = this.service.listAllUserFollowers(1234L).collect(Collectors.toList());
+
+    assertEquals(followers.size(), 3);
+    assertEquals(followers.get(0), 13056700579848L);
+    assertEquals(followers.get(1), 13056700580889L);
+    assertEquals(followers.get(2), 13056700580890L);
+  }
+
+  @Test
+  void listAllUserFollowersPaginationTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWERS.replace("{uid}", "1234"), "{\n"
+        + "    \"count\": 3,\n"
+        + "    \"followers\": [\n"
+        + "        13056700579848,\n"
+        + "        13056700580889,\n"
+        + "        13056700580890\n"
+        + "    ],\n"
+        + "    \"pagination\": {\n"
+        + "        \"cursors\": {\n"
+        + "            \"before\": \"1\",\n"
+        + "            \"after\": \"4\"\n"
+        + "        }\n"
+        + "    }\n"
+        + "}");
+
+    List<Long> followers = this.service.listAllUserFollowers(1234L, new StreamPaginationAttribute(10, 10)).collect(Collectors.toList());
+
+    assertEquals(followers.size(), 3);
+    assertEquals(followers.get(0), 13056700579848L);
+    assertEquals(followers.get(1), 13056700580889L);
+    assertEquals(followers.get(2), 13056700580890L);
+  }
+
+  @Test
+  void listUserFollowingTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWING.replace("{uid}", "1234"),
+        "{\n"
+            + "    \"count\": 2,\n"
+            + "    \"following\": [\n"
+            + "        13056700580888,\n"
+            + "        13056700580889\n"
+            + "    ],\n"
+            + "    \"pagination\": {\n"
+            + "        \"cursors\": {\n"
+            + "            \"before\": \"1\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}");
+
+    FollowingListResponse response = this.service.listUsersFollowing(1234L);
+
+    assertEquals(response.getCount(), 2);
+    assertEquals(response.getFollowing().get(0), 13056700580888L);
+    assertEquals(response.getFollowing().get(1), 13056700580889L);
+  }
+
+  @Test
+  void listUserFollowingPaginationTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWING.replace("{uid}", "1234"),
+        "{\n"
+            + "    \"count\": 2,\n"
+            + "    \"following\": [\n"
+            + "        13056700580888,\n"
+            + "        13056700580889\n"
+            + "    ],\n"
+            + "    \"pagination\": {\n"
+            + "        \"cursors\": {\n"
+            + "            \"before\": \"1\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}");
+
+    FollowingListResponse response = this.service.listUsersFollowing(1234L, new RangePaginationAttribute(4, 1, 5));
+
+    assertEquals(response.getCount(), 2);
+    assertEquals(response.getFollowing().get(0), 13056700580888L);
+    assertEquals(response.getFollowing().get(1), 13056700580889L);
+  }
+
+  @Test
+  void listAllUserFollowingTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWING.replace("{uid}", "1234"),
+        "{\n"
+            + "    \"count\": 2,\n"
+            + "    \"following\": [\n"
+            + "        13056700580888,\n"
+            + "        13056700580889\n"
+            + "    ],\n"
+            + "    \"pagination\": {\n"
+            + "        \"cursors\": {\n"
+            + "            \"before\": \"1\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}");
+
+    List<Long> followers = this.service.listAllUserFollowing(1234L).collect(Collectors.toList());
+
+    assertEquals(followers.size(), 2);
+    assertEquals(followers.get(0), 13056700580888L);
+    assertEquals(followers.get(1), 13056700580889L);
+  }
+
+  @Test
+  void listAllUserFollowingsPaginationTest() {
+    this.mockApiClient.onGet(V1_LIST_FOLLOWING.replace("{uid}", "1234"),
+        "{\n"
+            + "    \"count\": 2,\n"
+            + "    \"following\": [\n"
+            + "        13056700580888,\n"
+            + "        13056700580889\n"
+            + "    ],\n"
+            + "    \"pagination\": {\n"
+            + "        \"cursors\": {\n"
+            + "            \"before\": \"1\"\n"
+            + "        }\n"
+            + "    }\n"
+            + "}");
+
+    List<Long> followers = this.service.listAllUserFollowing(1234L, new StreamPaginationAttribute(10, 10)).collect(Collectors.toList());
+
+    assertEquals(followers.size(), 2);
+    assertEquals(followers.get(0), 13056700580888L);
+    assertEquals(followers.get(1), 13056700580889L);
   }
 
   @Test
