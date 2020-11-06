@@ -74,6 +74,12 @@ public class ApiClientFactory {
     return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
   }
 
+  /**
+   * Returns a fully initialized {@link ApiClient} for Agent API.
+   * This may be a {@link RegularLoadBalancedApiClient} or a non load-balanced ApiClient based on the configuration.
+   *
+   * @return a new {@link ApiClient} instance.
+   */
   public ApiClient getAgentClient() {
     if (config.getLoadBalancingAgent() != null) {
       return new RegularLoadBalancedApiClient(this.config, this);
@@ -81,6 +87,12 @@ public class ApiClientFactory {
     return getRegularAgentClient();
   }
 
+  /**
+   * Returns a fully initialized {@link ApiClient} for Agent API to be used by the datafeed services.
+   * This may be a {@link DatafeedLoadBalancedApiClient} or a non load-balanced ApiClient based on the configuration.
+   *
+   * @return a new {@link ApiClient} instance.
+   */
   public ApiClient getDatafeedAgentClient() {
     if (config.getLoadBalancingAgent() != null) {
       return new DatafeedLoadBalancedApiClient(this.config, this);
