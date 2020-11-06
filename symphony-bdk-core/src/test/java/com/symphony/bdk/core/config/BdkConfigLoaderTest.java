@@ -180,31 +180,6 @@ public class BdkConfigLoaderTest {
   }
 
   @Test
-  public void loadConfigWithLbAndAgentDefinedShouldFail() {
-    final BdkConfigException configException = assertThrows(BdkConfigException.class,
-        () -> BdkConfigLoader.loadFromClasspath("/config/config_lb_and_agent.yaml"));
-
-    assertEquals("Both agent and lb-agent fields are defined", configException.getMessage());
-  }
-
-  @Test
-  public void loadConfigWithMissingModeShouldFail() {
-    final BdkConfigException configException = assertThrows(BdkConfigException.class,
-        () -> BdkConfigLoader.loadFromClasspath("/config/config_lb_missing_mode.yaml"));
-
-    assertEquals("Field \"mode\" in lb-agent is mandatory", configException.getMessage());
-  }
-
-  @Test
-  public void loadConfigWithMissingNodesShouldFail() {
-    final BdkConfigException configException = assertThrows(BdkConfigException.class,
-        () -> BdkConfigLoader.loadFromClasspath("/config/config_lb_missing_nodes.yaml"));
-
-    assertEquals("Field \"nodes\" in lb-agent is mandatory and must contain at least one element",
-        configException.getMessage());
-  }
-
-  @Test
   @DisabledIfEnvironmentVariable(named = "CIRCLECI", matches = "true")
     // cf. https://circleci.com/docs/2.0/env-vars/#built-in-environment-variables
   void testLoadConfigFromSymphonyDirectory() throws Exception {

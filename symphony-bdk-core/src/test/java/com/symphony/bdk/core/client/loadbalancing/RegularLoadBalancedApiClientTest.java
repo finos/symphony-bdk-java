@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -9,6 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+import com.symphony.bdk.core.config.BdkConfigLoader;
+import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
@@ -64,6 +69,44 @@ class RegularLoadBalancedApiClientTest {
     final BdkConfig config = new BdkConfig();
     config.setLoadBalancingAgent(agentLoadBalancing);
     return config;
+  }
+
+  @Test
+  public void configWithLbAndAgentDefinedShouldFail() {
+    config.getAgent().setHost("global-host");
+    ApiClientInitializationException exception = assertThrows(ApiClientInitializationException.class,
+        () -> new RegularLoadBalancedApiClient(config, apiClientFactory));
+
+    assertEquals("Both agent and loadBalancingAgent fields are defined", exception.getMessage());
+  }
+
+  @Test
+  public void configWithMissingModeShouldFail() {
+    config.getLoadBalancingAgent().setMode(null);
+    ApiClientInitializationException exception = assertThrows(ApiClientInitializationException.class,
+        () -> new RegularLoadBalancedApiClient(config, apiClientFactory));
+
+    assertEquals("Field \"mode\" in loadBalancingAgent is mandatory", exception.getMessage());
+  }
+
+  @Test
+  public void configWithMissingNodesShouldFail() {
+    config.getLoadBalancingAgent().setNodes(null);
+    ApiClientInitializationException exception = assertThrows(ApiClientInitializationException.class,
+        () -> new RegularLoadBalancedApiClient(config, apiClientFactory));
+
+    assertEquals("Field \"nodes\" in loadBalancingAgent is mandatory and must contain at least one element",
+        exception.getMessage());
+  }
+
+  @Test
+  public void configWithEmptyNodesListShouldFail() {
+    config.getLoadBalancingAgent().setNodes(Collections.emptyList());
+    ApiClientInitializationException exception = assertThrows(ApiClientInitializationException.class,
+        () -> new RegularLoadBalancedApiClient(config, apiClientFactory));
+
+    assertEquals("Field \"nodes\" in loadBalancingAgent is mandatory and must contain at least one element",
+        exception.getMessage());
   }
 
   @Test

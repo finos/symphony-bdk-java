@@ -1,3 +1,0 @@
-loadBalancingAgent:
-  nodes:
-    - host: agent1.acme.org
