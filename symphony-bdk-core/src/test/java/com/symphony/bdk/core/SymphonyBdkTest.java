@@ -13,6 +13,7 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.service.application.ApplicationManagementService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
@@ -114,6 +115,12 @@ public class SymphonyBdkTest {
   void getSignalServiceTest() {
     SignalService signalService = this.symphonyBdk.signals();
     assertNotNull(signalService);
+  }
+
+  @Test
+  void getApplicationManagementServiceTest() {
+    ApplicationManagementService applicationManagementService = this.symphonyBdk.applications();
+    assertNotNull(applicationManagementService);
   }
 
   @Test

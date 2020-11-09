@@ -12,6 +12,7 @@ import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.application.ApplicationManagementService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
@@ -75,6 +76,12 @@ public class ServiceFactoryTest {
   void getSignalServiceTest() {
     SignalService signalService = this.serviceFactory.getSignalService();
     assertNotNull(signalService);
+  }
+
+  @Test
+  void getApplicationManagementServiceTest() {
+    ApplicationManagementService applicationManagementService = this.serviceFactory.getApplicationManagementService();
+    assertNotNull(applicationManagementService);
   }
 
   @Test

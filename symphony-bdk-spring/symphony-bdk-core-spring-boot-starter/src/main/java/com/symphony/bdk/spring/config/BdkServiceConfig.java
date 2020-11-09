@@ -4,12 +4,15 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.application.ApplicationManagementService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.AppEntitlementApi;
+import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DefaultApi;
@@ -61,19 +64,29 @@ public class BdkServiceConfig {
   @Bean
   @ConditionalOnMissingBean
   public PresenceService presenceService(PresenceApi presenceApi, AuthSession botSession, BdkConfig config) {
-    return new PresenceService(presenceApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+    return new PresenceService(presenceApi, botSession,
+        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
   public ConnectionService connectionService(ConnectionApi connectionApi, AuthSession botSession, BdkConfig config) {
-    return new ConnectionService(connectionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+    return new ConnectionService(connectionApi, botSession,
+        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
   public SignalService signalService(SignalsApi signalsApi, AuthSession botSession, BdkConfig config) {
     return new SignalService(signalsApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public ApplicationManagementService applicationManagementService(ApplicationApi applicationApi,
+      AppEntitlementApi appEntitlementApi, AuthSession botSession, BdkConfig config) {
+    return new ApplicationManagementService(applicationApi, appEntitlementApi, botSession,
+        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
