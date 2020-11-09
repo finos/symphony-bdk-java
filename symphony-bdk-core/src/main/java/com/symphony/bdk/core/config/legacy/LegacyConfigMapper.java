@@ -22,7 +22,7 @@ public class LegacyConfigMapper {
         pod.setPort(legacySymConfig.getPodPort());
         pod.setContext(legacySymConfig.getPodContextPath());
 
-        BdkClientConfig agent = new BdkClientConfig();
+        BdkAgentConfig agent = new BdkAgentConfig();
         agent.setHost(legacySymConfig.getAgentHost());
         agent.setPort(legacySymConfig.getAgentPort());
         agent.setContext(legacySymConfig.getAgentContextPath());
