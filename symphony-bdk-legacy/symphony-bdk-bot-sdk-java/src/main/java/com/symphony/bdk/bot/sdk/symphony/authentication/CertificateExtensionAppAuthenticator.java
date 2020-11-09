@@ -47,7 +47,7 @@ public class CertificateExtensionAppAuthenticator implements ExtensionAppAuthent
    */
   @Override
   public UserInfo verifyJWT(String jwt) {
-    return symExtensionAppAuth.verifyJWT(jwt, null);
+    return symExtensionAppAuth.verifyJWT(jwt, new String[0]);
   }
 
   private String generateAppToken() {
