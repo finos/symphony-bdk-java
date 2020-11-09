@@ -3,6 +3,7 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
@@ -43,7 +44,8 @@ abstract class AbstractDatafeedService implements DatafeedService {
         .recoveryStrategy(Exception.class, () -> this.apiClient.rotate())  //always rotate in case of any error
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
-    if (config.getAgents() != null && !config.getAgents().isStickiness()) {
+    final BdkLoadBalancingConfig loadBalancing = config.getAgent().getLoadBalancing();
+    if (loadBalancing != null && !loadBalancing.isStickiness()) {
       log.warn("DF used with agent load balancing configured with stickiness false. DF calls will still be sticky.");
     }
   }
