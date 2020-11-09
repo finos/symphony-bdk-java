@@ -80,10 +80,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, @Nonnull Boolean local) {
+  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, Boolean local, @Nullable Boolean active) {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local));
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local, active));
     return v2UserList.getUsers();
   }
 
@@ -94,7 +94,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList) {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false));
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false, null));
     return v2UserList.getUsers();
   }
 
@@ -103,10 +103,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   public List<UserV2> searchUserByEmails(@Nonnull List<String> emailList,
-      @Nonnull Boolean local) {
+      @Nonnull Boolean local, @Nullable Boolean active) {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local));
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local, active));
     return v2UserList.getUsers();
   }
 
@@ -117,7 +117,18 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   public List<UserV2> searchUserByEmails(@Nonnull List<String> emailList) {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false));
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false, null));
+    return v2UserList.getUsers();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active) {
+    String usernames = String.join(",", usernameList);
+    V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true, active));
     return v2UserList.getUsers();
   }
 
@@ -128,7 +139,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   public List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList) {
     String usernames = String.join(",", usernameList);
     V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
-        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true));
+        () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true, null));
     return v2UserList.getUsers();
   }
 
