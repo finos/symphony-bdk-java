@@ -34,6 +34,11 @@ public class BdkCoreConfig {
     return apiClientFactory.getAgentClient();
   }
 
+  @Bean(name = "datafeedAgentApiClient")
+  public ApiClient datafeedAgentApiClient(ApiClientFactory apiClientFactory) {
+    return apiClientFactory.getDatafeedAgentClient();
+  }
+
   @Bean(name = "podApiClient")
   public ApiClient podApiClient(ApiClientFactory apiClientFactory) {
     return apiClientFactory.getPodClient();

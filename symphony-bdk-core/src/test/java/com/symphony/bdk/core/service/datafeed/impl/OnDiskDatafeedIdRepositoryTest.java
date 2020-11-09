@@ -46,7 +46,15 @@ public class OnDiskDatafeedIdRepositoryTest {
     datafeedIdRepository.write("test-id");
     String datafeedFileContent = Files.readAllLines(this.datafeedFile).get(0);
 
-    assertEquals(datafeedFileContent, "test-id@devx1.symphony.com:443");
+    assertEquals("test-id@https://devx1.symphony.com:443", datafeedFileContent);
+  }
+
+  @Test
+  void writeDatafeedWithAgentHost() throws IOException {
+    datafeedIdRepository.write("test-id", "https://agent-1:8443/path");
+    String datafeedFileContent = Files.readAllLines(this.datafeedFile).get(0);
+
+    assertEquals("test-id@https://agent-1:8443/path", datafeedFileContent);
   }
 
   @Test
@@ -55,34 +63,46 @@ public class OnDiskDatafeedIdRepositoryTest {
     Files.copy(inputStream, datafeedFile);
 
     Optional<String> datafeedId = datafeedIdRepository.read();
+    Optional<String> agentBasePath = datafeedIdRepository.readAgentBasePath();
 
     assertTrue(datafeedId.isPresent());
-    assertEquals(datafeedId.get(), "8e7c8672-220");
+    assertEquals("8e7c8672-220", datafeedId.get());
+    assertTrue(agentBasePath.isPresent());
+    assertEquals("localhost:7443", agentBasePath.get());
+  }
+
+  @Test
+  void readDatafeedWithAgentBasePathTest() throws IOException {
+    datafeedIdRepository.write("test-id", "https://agent-1:8443/path");
+
+    Optional<String> datafeedId = datafeedIdRepository.read();
+    Optional<String> agentBasePath = datafeedIdRepository.readAgentBasePath();
+
+    assertTrue(datafeedId.isPresent());
+    assertEquals("test-id", datafeedId.get());
+    assertTrue(agentBasePath.isPresent());
+    assertEquals("https://agent-1:8443/path", agentBasePath.get());
   }
 
   @Test
   void readInvalidDatafeedFileTest() throws IOException {
     FileUtils.writeStringToFile(datafeedFile.toFile(), "invalid-datafeed-file", StandardCharsets.UTF_8);
 
-    Optional<String> datafeedId = datafeedIdRepository.read();
-
-    assertFalse(datafeedId.isPresent());
+    assertFalse(datafeedIdRepository.read().isPresent());
+    assertFalse(datafeedIdRepository.readAgentBasePath().isPresent());
   }
 
   @Test
   void readEmptyDatafeedFileTest() throws IOException {
     FileUtils.writeStringToFile(datafeedFile.toFile(), "", StandardCharsets.UTF_8);
 
-    Optional<String> datafeedId = datafeedIdRepository.read();
-
-    assertFalse(datafeedId.isPresent());
+    assertFalse(datafeedIdRepository.read().isPresent());
+    assertFalse(datafeedIdRepository.readAgentBasePath().isPresent());
   }
 
   @Test
   void readNotExistDatafeedFileTest() {
-    Optional<String> datafeedId = datafeedIdRepository.read();
-
-    assertFalse(datafeedId.isPresent());
+    assertFalse(datafeedIdRepository.read().isPresent());
+    assertFalse(datafeedIdRepository.readAgentBasePath().isPresent());
   }
-
 }

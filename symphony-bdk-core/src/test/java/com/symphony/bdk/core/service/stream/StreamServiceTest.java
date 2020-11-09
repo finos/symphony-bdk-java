@@ -1,10 +1,19 @@
 package com.symphony.bdk.core.service.stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
@@ -19,7 +28,9 @@ import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.StreamType;
 import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
+import com.symphony.bdk.gen.api.model.V2AdminStreamInfo;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
+import com.symphony.bdk.gen.api.model.V2MemberInfo;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
 import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
@@ -37,6 +48,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StreamServiceTest {
 
@@ -148,6 +160,40 @@ public class StreamServiceTest {
   }
 
   @Test
+  void searchRoomsSkipLimitTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    V3RoomSearchResults searchResults =
+        this.service.searchRooms(new V2RoomSearchCriteria(), new PaginationAttribute(0, 100));
+
+    assertEquals(searchResults.getCount(), 2);
+    assertEquals(searchResults.getRooms().get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+  }
+
+  @Test
+  void searchAllRoomsTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    List<V3RoomDetail> searchResults =
+        this.service.searchAllRooms(new V2RoomSearchCriteria()).collect(Collectors.toList());
+
+    assertEquals(searchResults.size(), 2);
+    assertEquals(searchResults.get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+  }
+
+  @Test
+  void searchAllRoomsStreamPaginationTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    List<V3RoomDetail> searchResults =
+        this.service.searchAllRooms(new V2RoomSearchCriteria(), new StreamPaginationAttribute(100, 100))
+            .collect(Collectors.toList());
+
+    assertEquals(searchResults.size(), 2);
+    assertEquals(searchResults.get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+  }
+
+  @Test
   void getRoomInfoTest() throws IOException {
     this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
         JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
@@ -224,6 +270,39 @@ public class StreamServiceTest {
   }
 
   @Test
+  void listStreamsWithSkipLimit() throws IOException {
+    this.mockApiClient.onPost(V1_STREAM_LIST, JsonHelper.readFromClasspath("/stream/list_stream.json"));
+
+    List<StreamAttributes> streams =
+        this.service.listStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
+            StreamType.TypeEnum.IM)), new PaginationAttribute(0, 100));
+    assertEquals(streams.size(), 1);
+    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+  }
+
+  @Test
+  void listAllStreamsTest() throws IOException {
+    this.mockApiClient.onPost(V1_STREAM_LIST, JsonHelper.readFromClasspath("/stream/list_stream.json"));
+
+    List<StreamAttributes> streams =
+        this.service.listAllStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
+            StreamType.TypeEnum.IM))).collect(Collectors.toList());
+    assertEquals(streams.size(), 1);
+    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+  }
+
+  @Test
+  void listAllStreamsPaginationTest() throws IOException {
+    this.mockApiClient.onPost(V1_STREAM_LIST, JsonHelper.readFromClasspath("/stream/list_stream.json"));
+
+    List<StreamAttributes> streams =
+        this.service.listAllStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
+            StreamType.TypeEnum.IM)), new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
+    assertEquals(streams.size(), 1);
+    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+  }
+
+  @Test
   void getStreamInfoTest() throws IOException {
     this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"),
         JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
@@ -297,6 +376,46 @@ public class StreamServiceTest {
   }
 
   @Test
+  void listStreamsAdminSkipLimitTest() throws IOException {
+    this.mockApiClient.onPost(V2_STREAM_LIST_ADMIN, JsonHelper.readFromClasspath("/stream/v2_admin_stream_list.json"));
+
+    V2AdminStreamList streamList =
+        this.service.listStreamsAdmin(new V2AdminStreamFilter(), new PaginationAttribute(0, 100));
+
+    assertEquals(streamList.getCount(), 4);
+    assertEquals(streamList.getStreams().get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
+    assertEquals(streamList.getStreams().get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
+    assertEquals(streamList.getStreams().get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+  }
+
+  @Test
+  void listAllStreamsAdminTest() throws IOException {
+    this.mockApiClient.onPost(V2_STREAM_LIST_ADMIN, JsonHelper.readFromClasspath("/stream/v2_admin_stream_list.json"));
+
+    List<V2AdminStreamInfo> streamList =
+        this.service.listAllStreamsAdmin(new V2AdminStreamFilter()).collect(Collectors.toList());
+
+    assertEquals(streamList.size(), 4);
+    assertEquals(streamList.get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
+    assertEquals(streamList.get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
+    assertEquals(streamList.get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+  }
+
+  @Test
+  void listAllStreamsAdminPaginationTest() throws IOException {
+    this.mockApiClient.onPost(V2_STREAM_LIST_ADMIN, JsonHelper.readFromClasspath("/stream/v2_admin_stream_list.json"));
+
+    List<V2AdminStreamInfo> streamList =
+        this.service.listAllStreamsAdmin(new V2AdminStreamFilter(), new StreamPaginationAttribute(100, 100))
+            .collect(Collectors.toList());
+
+    assertEquals(streamList.size(), 4);
+    assertEquals(streamList.get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
+    assertEquals(streamList.get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
+    assertEquals(streamList.get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+  }
+
+  @Test
   void listStreamMembersTest() throws IOException {
     this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
         JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
@@ -313,6 +432,42 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(400, V1_STREAM_MEMBERS.replace("{id}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.listStreamMembers("1234"));
+  }
+
+  @Test
+  void listStreamMembersSkipLimitTest() throws IOException {
+    this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
+        JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
+
+    V2MembershipList membersList = this.service.listStreamMembers("1234", new PaginationAttribute(0, 100));
+
+    assertEquals(membersList.getCount(), 2);
+    assertEquals(membersList.getMembers().get(0).getJoinDate(), 1485366753320L);
+    assertEquals(membersList.getMembers().get(1).getJoinDate(), 1485366753279L);
+  }
+
+  @Test
+  void listAllStreamMembersTest() throws IOException {
+    this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
+        JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
+
+    List<V2MemberInfo> membersList = this.service.listAllStreamMembers("1234").collect(Collectors.toList());
+
+    assertEquals(membersList.size(), 2);
+    assertEquals(membersList.get(0).getJoinDate(), 1485366753320L);
+    assertEquals(membersList.get(1).getJoinDate(), 1485366753279L);
+  }
+
+  @Test
+  void listAllStreamMembersPaginationTest() throws IOException {
+    this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
+        JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
+
+    List<V2MemberInfo> membersList = this.service.listAllStreamMembers("1234", new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
+
+    assertEquals(membersList.size(), 2);
+    assertEquals(membersList.get(0).getJoinDate(), 1485366753320L);
+    assertEquals(membersList.get(1).getJoinDate(), 1485366753279L);
   }
 
   @Test

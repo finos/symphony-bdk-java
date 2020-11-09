@@ -1,0 +1,5 @@
+agents:
+  mode: roundRobin
+  stickiness: true
+  nodes:
+    - host: agent1.acme.org

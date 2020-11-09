@@ -4,16 +4,15 @@ import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.resilience4j.Resilience4jRetryWithRecovery;
 import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
-
 import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
 
-import javax.ws.rs.ProcessingException;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
+
+import javax.ws.rs.ProcessingException;
 
 /**
  * Builder class to facilitate the instantiation of a {@link RetryWithRecovery}.
@@ -26,8 +25,8 @@ public class RetryWithRecoveryBuilder<T> {
   private BdkRetryConfig retryConfig;
   private SupplierWithApiException<T> supplier;
   private Predicate<Throwable> retryOnExceptionPredicate;
-  private Predicate<ApiException> ignoreException;
-  private Map<Predicate<ApiException>, ConsumerWithThrowable> recoveryStrategies;
+  private Predicate<Exception> ignoreException;
+  private List<RecoveryStrategy> recoveryStrategies;
 
   /**
    * Copies all fields of an existing builder except the {@link #supplier}.
@@ -42,7 +41,7 @@ public class RetryWithRecoveryBuilder<T> {
     copy.retryConfig = from.retryConfig;
     copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
     copy.ignoreException = from.ignoreException;
-    copy.recoveryStrategies = new HashMap<>(from.recoveryStrategies);
+    copy.recoveryStrategies = new ArrayList<>(from.recoveryStrategies);
 
     return copy;
   }
@@ -88,7 +87,7 @@ public class RetryWithRecoveryBuilder<T> {
    * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}.
    */
   public RetryWithRecoveryBuilder() {
-    this.recoveryStrategies = new HashMap<>();
+    this.recoveryStrategies = new ArrayList<>();
     this.ignoreException = e -> false;
     this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrMinorError;
     this.retryConfig = new BdkRetryConfig();
@@ -141,30 +140,50 @@ public class RetryWithRecoveryBuilder<T> {
   }
 
   /**
-   * Sets the condition on which we should ignore an exception thrown by the {@link #supplier}
+   * Sets the condition on which we should ignore an {@link ApiException} thrown by the {@link #supplier}
    * and return null in {@link RetryWithRecovery#execute()}.
    *
    * @param ignoreException the condition when we should ignore a given exception
    * @return the modified builder instance.
    */
   public RetryWithRecoveryBuilder<T> ignoreException(Predicate<ApiException> ignoreException) {
-    this.ignoreException = ignoreException;
+    this.ignoreException = (e) -> e instanceof ApiException && ignoreException.test((ApiException) e);
     return this;
   }
 
   /**
-   * Sets one recovery strategy which consists in a predicate on the thrown {@link ApiException}
-   * and in a corresponding recovery function to be executed when condition is met.
+   * Sets one recovery strategy which consists of a predicate on a thrown {@link ApiException}
+   * and of a corresponding recovery function to be executed when condition is met.
    *
    * @param condition the predicate to check if the exception should lead to the execution of the recovery function.
    * @param recovery the recovery function to be executed when condition is fulfilled.
-   * @return
+   * @return the modified builder instance.
    */
   public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition, ConsumerWithThrowable recovery) {
-    this.recoveryStrategies.put(condition, recovery);
+    this.recoveryStrategies.add(new RecoveryStrategy(ApiException.class, condition, recovery));
     return this;
   }
 
+  /**
+   * Sets one recovery strategy which consists of a specific {@link Exception} type
+   * and of a corresponding recovery function to be executed when exception is of the given provided type.
+   *
+   * @param exceptionType the actual exception class
+   * @param recovery the recovery function to be executed when condition is fulfilled.
+   * @param <E> the actual exception class
+   * @return the modified builder instance.
+   */
+  public <E extends Exception> RetryWithRecoveryBuilder<T> recoveryStrategy(Class<? extends E> exceptionType,
+      ConsumerWithThrowable recovery) {
+    this.recoveryStrategies.add(new RecoveryStrategy(exceptionType, e -> true, recovery));
+    return this;
+  }
+
+  /**
+   * Removes all the recovery strategies from the builder instance.
+   *
+   * @return the modified builder instance.
+   */
   public RetryWithRecoveryBuilder<T> clearRecoveryStrategies() {
     this.recoveryStrategies.clear();
     return this;
@@ -176,7 +195,7 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
+    return new Resilience4jRetryWithRecovery<T>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
         recoveryStrategies);
   }
 }

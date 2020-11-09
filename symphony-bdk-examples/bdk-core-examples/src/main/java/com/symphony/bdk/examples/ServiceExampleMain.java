@@ -14,6 +14,7 @@ import com.symphony.bdk.gen.api.model.V2UserDetail;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -48,5 +49,8 @@ public class ServiceExampleMain {
     log.info("First signal:");
     log.info("Signal name: {}", signalList.get(0).getName());
     log.info("Signal query: {}", signalList.get(0).getQuery());
+
+    bdk.users().followUser(13056700579873L, Collections.singletonList(13056700579879L));
+    bdk.users().unfollowUser(13056700579873L, Collections.singletonList(13056700579879L));
   }
 }
