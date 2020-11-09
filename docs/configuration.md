@@ -58,7 +58,14 @@ pod:
   port: 443
 
 agent:
-  context: agent
+  loadBalancing:
+    mode: roundRobin
+    stickiness: false
+    nodes:
+      - host: agent1.symphony.com
+        port: 7443
+        context: app/
+      - host: agent2.symphony.com
 
 keyManager:
   host: dev-key.symphony.com
@@ -67,15 +74,6 @@ keyManager:
 sessionAuth:
   host: dev-session.symphony.com
   port: 8444
-
-agents:
-  mode: roundRobin
-  stickiness: false
-  nodes:
-    - host: agent1.symphony.com
-      port: 7443
-      context: app/
-    - host: agent2.symphony.com
 
 bot:
   username: bot-name
@@ -115,10 +113,10 @@ user specify the dedicated `host`, `port`, `context`, `scheme` inside the client
 - `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
 the service account using by the bot is created.
 - `agent` contains information like host, port, scheme, context, proxy... of the agent which 
-the bot connects to.
+the bot connects to. It can also contain a `loadBalancing` field: if defined,
+it should not any field among scheme, host, port, context.
 - `keyManager` contains information like host, port, scheme, context, proxy... of the key 
 manager which manages the key token of the bot.
-- `agents` contains information about agent load-balancing. It must not be defined with an `agent` field.
 - `bot` contains information about the bot like the username, the private key or 
 the certificate for authenticating the service account on pod.
 - `app` contains information about the extension app that the bot will use like 
@@ -157,9 +155,9 @@ datafeed service v1 is used.
 retry configuration is defined, the global one will be used.
 
 #### Agent load-balancing configuration
-The `agents` part of the configuration contains the information in order to load balance calls to the agent if wanted.
-The fields `agent` and `agents` must not be defined in the same configuration.
-Fields are:
+The `agent.loadBalancing` part of the configuration contains the information in order to load balance calls to the agent if wanted.
+None of the fields `scheme`, `host`, `port`, `context` should be set if field `loadBalancing` is defined.
+Fields inside `loadBalancing` are:
 - `mode`: mandatory, can be `external`, `roundRobin` or `random`.
 - `stickiness`: optional boolean, default value is true.
 - `nodes`: mandatory and must contain at least one element. List items must have at least `host` field put and can contain the following other fields: `scheme`, `port`, `context`.
