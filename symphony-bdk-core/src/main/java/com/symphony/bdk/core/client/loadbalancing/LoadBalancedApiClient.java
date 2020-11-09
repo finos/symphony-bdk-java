@@ -34,7 +34,7 @@ public abstract class LoadBalancedApiClient implements ApiClient {
     validateLoadBalancingConfiguration(config);
 
     this.apiClientFactory = apiClientFactory;
-    this.loadBalancingConfig = config.getAgents();
+    this.loadBalancingConfig = config.getAgent().getLoadBalancing();
     this.loadBalancingStrategy = LoadBalancingStrategyFactory.getInstance(config, apiClientFactory);
 
     rotate();
@@ -108,19 +108,19 @@ public abstract class LoadBalancedApiClient implements ApiClient {
   }
 
   private void validateLoadBalancingConfiguration(BdkConfig config) {
-    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgents();
+    final BdkLoadBalancingConfig agentLoadBalancing = config.getAgent().getLoadBalancing();
     if (agentLoadBalancing == null) {
       return;
     }
 
     if (config.getAgent().overridesParentConfig()) {
-      throw new ApiClientInitializationException("Both agent and agents fields are defined");
+      throw new ApiClientInitializationException("Both agent url (scheme, host, port, context) and loadBalancing are defined");
     }
     if (agentLoadBalancing.getMode() == null) {
-      throw new ApiClientInitializationException("Field \"mode\" in agents is mandatory");
+      throw new ApiClientInitializationException("Field \"mode\" in loadBalancing is mandatory");
     }
     if (agentLoadBalancing.getNodes() == null || agentLoadBalancing.getNodes().isEmpty()) {
-      throw new ApiClientInitializationException("Field \"nodes\" in agents is mandatory and must contain at least one element");
+      throw new ApiClientInitializationException("Field \"nodes\" in loadBalancing is mandatory and must contain at least one element");
     }
   }
 }
