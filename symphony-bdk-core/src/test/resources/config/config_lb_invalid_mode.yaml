@@ -1,4 +1,5 @@
-agents:
-  mode: invalid
-  nodes:
-    - host: agent1.acme.org
+agent:
+  loadBalancing:
+    mode: invalid
+    nodes:
+      - host: agent1.acme.org
