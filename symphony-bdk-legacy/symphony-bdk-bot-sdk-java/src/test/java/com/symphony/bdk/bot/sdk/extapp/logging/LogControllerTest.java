@@ -3,13 +3,11 @@ package com.symphony.bdk.bot.sdk.extapp.logging;
 import com.symphony.bdk.bot.sdk.symphony.ConfigClient;
 
 import lombok.SneakyThrows;
-import org.slf4j.Logger;
 import org.junit.*;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -25,9 +23,14 @@ public class LogControllerTest {
   private final String FILE_NAME = "src/test/resources/logs/test.log";
   private ConfigClient configClient;
 
+
   @SneakyThrows
   @Before
   public void init() {
+    try {
+      Files.createFile(Paths.get(FILE_NAME));
+    } catch (Exception ignored) {}
+
     // Clear Content of test log file
     new PrintWriter(FILE_NAME).close();
     configClient = mock(ConfigClient.class);
