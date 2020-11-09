@@ -10,7 +10,7 @@ import javax.annotation.Nonnull;
  */
 @Getter
 @API(status = API.Status.STABLE)
-public class RangePaginationAttribute {
+public class CursorPaginationAttribute {
 
   /**
    * The rank of the last item wished in the payload
@@ -29,7 +29,7 @@ public class RangePaginationAttribute {
    */
   private final Integer limit;
 
-  public RangePaginationAttribute(@Nonnull Integer before, @Nonnull Integer after, @Nonnull Integer limit) {
+  public CursorPaginationAttribute(@Nonnull Integer before, @Nonnull Integer after, @Nonnull Integer limit) {
     this.before = before;
     this.after = after;
     this.limit = limit;

@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
-import com.symphony.bdk.core.service.pagination.model.RangePaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
@@ -691,7 +691,7 @@ class UserServiceTest {
             + "    }\n"
             + "}");
 
-    FollowersListResponse response = this.service.listUserFollowers(1234L, new RangePaginationAttribute(4, 1, 5));
+    FollowersListResponse response = this.service.listUserFollowers(1234L, new CursorPaginationAttribute(4, 1, 5));
 
     assertEquals(response.getCount(), 3);
     assertEquals(response.getFollowers().get(0), 13056700579848L);
@@ -788,7 +788,7 @@ class UserServiceTest {
             + "    }\n"
             + "}");
 
-    FollowingListResponse response = this.service.listUsersFollowing(1234L, new RangePaginationAttribute(4, 1, 5));
+    FollowingListResponse response = this.service.listUsersFollowing(1234L, new CursorPaginationAttribute(4, 1, 5));
 
     assertEquals(response.getCount(), 2);
     assertEquals(response.getFollowing().get(0), 13056700580888L);

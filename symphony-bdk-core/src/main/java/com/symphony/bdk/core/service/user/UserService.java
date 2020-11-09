@@ -7,7 +7,7 @@ import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
-import com.symphony.bdk.core.service.pagination.model.RangePaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
@@ -202,9 +202,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public void followUser(@Nonnull Long uid, @Nonnull List<Long> followerIds) {
+  public void followUser(@Nonnull Long userId, @Nonnull List<Long> followerIds) {
     executeAndRetry("followUser",
-        () -> userApi.v1UserUidFollowPost(authSession.getSessionToken(), uid,
+        () -> userApi.v1UserUidFollowPost(authSession.getSessionToken(), userId,
             new FollowersList().followers(followerIds)));
   }
 
@@ -212,21 +212,21 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public void unfollowUser(@Nonnull Long uid, @Nonnull List<Long> followerIds) {
+  public void unfollowUser(@Nonnull Long userId, @Nonnull List<Long> followerIds) {
     executeAndRetry("unfollowUser",
-        () -> userApi.v1UserUidUnfollowPost(authSession.getSessionToken(), uid,
+        () -> userApi.v1UserUidUnfollowPost(authSession.getSessionToken(), userId,
             new FollowersList().followers(followerIds)));
   }
 
   /**
    * Retrieve user details of a particular user.
    *
-   * @param uid User Id
+   * @param userId User Id
    * @return Details of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    */
-  public V2UserDetail getUserDetailByUid(@Nonnull Long uid) {
-    return executeAndRetry("getUserDetailByUid", () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), uid));
+  public V2UserDetail getUserDetailByUid(@Nonnull Long userId) {
+    return executeAndRetry("getUserDetailByUid", () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), userId));
   }
 
   /**
@@ -347,227 +347,227 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Add a role to an user.
    *
-   * @param uid    User Id
+   * @param userId    User Id
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
-  public void addRoleToUser(@Nonnull Long uid, @Nonnull RoleId roleId) {
+  public void addRoleToUser(@Nonnull Long userId, @Nonnull RoleId roleId) {
     StringId stringId = new StringId().id(roleId.name());
     executeAndRetry("addRoleToUser",
-        () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), uid, stringId));
+        () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), userId, stringId));
   }
 
   /**
    * Remove a role from an user.
    *
-   * @param uid    User Id
+   * @param userId    User Id
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
-  public void removeRoleFromUser(@Nonnull Long uid, @Nonnull RoleId roleId) {
+  public void removeRoleFromUser(@Nonnull Long userId, @Nonnull RoleId roleId) {
     StringId stringId = new StringId().id(roleId.name());
     executeAndRetry("removeRoleFromUser",
-        () -> userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), uid, stringId));
+        () -> userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), userId, stringId));
   }
 
   /**
    * Get the url of avatar of an user
    *
-   * @param uid User Id
+   * @param userId User Id
    * @return List of avatar urls of the user
    * @see <a href="https://developers.symphony.com/restapi/reference#user-avatar">User Avatar</a>
    */
-  public List<Avatar> getAvatarFromUser(@Nonnull Long uid) {
+  public List<Avatar> getAvatarFromUser(@Nonnull Long userId) {
     return executeAndRetry("getAvatarFromUser",
-        () -> userApi.v1AdminUserUidAvatarGet(authSession.getSessionToken(), uid));
+        () -> userApi.v1AdminUserUidAvatarGet(authSession.getSessionToken(), userId));
   }
 
   /**
    * Update avatar of an user
    *
-   * @param uid   User Id
+   * @param userId   User Id
    * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@Nonnull Long uid, @Nonnull String image) {
+  public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull String image) {
     AvatarUpdate avatarUpdate = new AvatarUpdate().image(image);
     executeAndRetry("updateAvatarOfUser",
-        () -> userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), uid, avatarUpdate));
+        () -> userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), userId, avatarUpdate));
   }
 
   /**
    * Update avatar of an user
    *
-   * @param uid   User Id
+   * @param userId   User Id
    * @param image The avatar image in bytes array for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@Nonnull Long uid, @Nonnull byte[] image) {
+  public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull byte[] image) {
     String imageBase64 = Base64.getEncoder().encodeToString(image);
-    this.updateAvatarOfUser(uid, imageBase64);
+    this.updateAvatarOfUser(userId, imageBase64);
   }
 
   /**
    * Update avatar of an user
    *
-   * @param uid         User Id
+   * @param userId         User Id
    * @param imageStream The avatar image input stream for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@Nonnull Long uid, @Nonnull InputStream imageStream) throws IOException {
+  public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull InputStream imageStream) throws IOException {
     byte[] bytes = IOUtils.toByteArray(imageStream);
-    this.updateAvatarOfUser(uid, bytes);
+    this.updateAvatarOfUser(userId, bytes);
   }
 
   /**
    * Get disclaimer assigned to an user.
    *
-   * @param uid User Id
+   * @param userId User Id
    * @return Disclaimer assigned to the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-disclaimer">User Disclaimer</a>
    */
-  public Disclaimer getDisclaimerAssignedToUser(@Nonnull Long uid) {
+  public Disclaimer getDisclaimerAssignedToUser(@Nonnull Long userId) {
     return executeAndRetry("getDisclaimerAssignedToUser",
-        () -> userApi.v1AdminUserUidDisclaimerGet(authSession.getSessionToken(), uid));
+        () -> userApi.v1AdminUserUidDisclaimerGet(authSession.getSessionToken(), userId));
   }
 
   /**
    * Unassign disclaimer from an user.
    *
-   * @param uid User Id
+   * @param userId User Id
    * @see <a href="https://developers.symphony.com/restapi/reference#unassign-user-disclaimer">Unassign User Disclaimer</a>
    */
-  public void unAssignDisclaimerFromUser(@Nonnull Long uid) {
+  public void unAssignDisclaimerFromUser(@Nonnull Long userId) {
     executeAndRetry("unAssignDisclaimerFromUser",
-        () -> userApi.v1AdminUserUidDisclaimerDelete(authSession.getSessionToken(), uid));
+        () -> userApi.v1AdminUserUidDisclaimerDelete(authSession.getSessionToken(), userId));
   }
 
   /**
    * Assign disclaimer to an user.
    *
-   * @param uid          User Id
+   * @param userId          User Id
    * @param disclaimerId Disclaimer to be assigned
    * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    */
-  public void assignDisclaimerToUser(@Nonnull Long uid, @Nonnull String disclaimerId) {
+  public void assignDisclaimerToUser(@Nonnull Long userId, @Nonnull String disclaimerId) {
     StringId stringId = new StringId().id(disclaimerId);
     executeAndRetry("assignDisclaimerToUser",
-        () -> userApi.v1AdminUserUidDisclaimerUpdatePost(authSession.getSessionToken(), uid, stringId));
+        () -> userApi.v1AdminUserUidDisclaimerUpdatePost(authSession.getSessionToken(), userId, stringId));
 
   }
 
   /**
    * Get delegates assigned to an user.
    *
-   * @param uid User Id
+   * @param userId User Id
    * @return List of delegates assigned to an user.
    * @see <a href="https://developers.symphony.com/restapi/reference#delegates">User Delegates</a>
    */
-  public List<Long> getDelegatesAssignedToUser(@Nonnull Long uid) {
+  public List<Long> getDelegatesAssignedToUser(@Nonnull Long userId) {
     return executeAndRetry("getDelegatesAssignedToUser",
-        () -> userApi.v1AdminUserUidDelegatesGet(authSession.getSessionToken(), uid));
+        () -> userApi.v1AdminUserUidDelegatesGet(authSession.getSessionToken(), userId));
   }
 
   /**
    * Update delegates assigned to an user.
    *
-   * @param uid             User Id
+   * @param userId             User Id
    * @param delegatedUserId Delegated user Id to be assigned
    * @param actionEnum      Action to be performed
    * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
    */
-  public void updateDelegatesAssignedToUser(@Nonnull Long uid, @Nonnull Long delegatedUserId,
+  public void updateDelegatesAssignedToUser(@Nonnull Long userId, @Nonnull Long delegatedUserId,
       @Nonnull DelegateAction.ActionEnum actionEnum) {
     DelegateAction delegateAction = new DelegateAction().action(actionEnum).userId(delegatedUserId);
     executeAndRetry("updateDelegatesAssignedToUser",
-        () -> userApi.v1AdminUserUidDelegatesUpdatePost(authSession.getSessionToken(), uid, delegateAction));
+        () -> userApi.v1AdminUserUidDelegatesUpdatePost(authSession.getSessionToken(), userId, delegateAction));
   }
 
   /**
    * Get feature entitlements of an user.
    *
-   * @param uid User Id
+   * @param userId User Id
    * @return List of feature entitlements of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#features">User Features</a>
    */
-  public List<Feature> getFeatureEntitlementsOfUser(@Nonnull Long uid) {
+  public List<Feature> getFeatureEntitlementsOfUser(@Nonnull Long userId) {
     return executeAndRetry("getFeatureEntitlementsOfUser",
-        () -> userApi.v1AdminUserUidFeaturesGet(authSession.getSessionToken(), uid));
+        () -> userApi.v1AdminUserUidFeaturesGet(authSession.getSessionToken(), userId));
   }
 
   /**
    * Update feature entitlements of an user.
    *
-   * @param uid      User Id
+   * @param userId      User Id
    * @param features List of feature entitlements to be updated
    * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    */
-  public void updateFeatureEntitlementsOfUser(@Nonnull Long uid, @Nonnull List<Feature> features) {
+  public void updateFeatureEntitlementsOfUser(@Nonnull Long userId, @Nonnull List<Feature> features) {
     executeAndRetry("updateFeatureEntitlementsOfUser",
-        () -> userApi.v1AdminUserUidFeaturesUpdatePost(authSession.getSessionToken(), uid, features));
+        () -> userApi.v1AdminUserUidFeaturesUpdatePost(authSession.getSessionToken(), userId, features));
   }
 
   /**
    * Get status of an user.
    *
-   * @param uid User Id
+   * @param userId User Id
    * @return Status of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-status">User Status</a>
    */
-  public UserStatus getStatusOfUser(@Nonnull Long uid) {
+  public UserStatus getStatusOfUser(@Nonnull Long userId) {
     return executeAndRetry("getStatusOfUser",
-        () -> userApi.v1AdminUserUidStatusGet(authSession.getSessionToken(), uid));
+        () -> userApi.v1AdminUserUidStatusGet(authSession.getSessionToken(), userId));
   }
 
   /**
    * Update the status of an user
    *
-   * @param uid    User Id
+   * @param userId    User Id
    * @param status Status to be updated to the user
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    */
-  public void updateStatusOfUser(@Nonnull Long uid, @Nonnull UserStatus status) {
+  public void updateStatusOfUser(@Nonnull Long userId, @Nonnull UserStatus status) {
     executeAndRetry("updateStatusOfUser",
-        () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), uid, status));
+        () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), userId, status));
   }
 
   /**
    * Returns the list of followers of a specific user.
    *
-   * @param uid   User Id
+   * @param userId   User Id
    * @return The list of followers of a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
-  public FollowersListResponse listUserFollowers(@Nonnull Long uid) {
+  public FollowersListResponse listUserFollowers(@Nonnull Long userId) {
     return executeAndRetry("listUserFollowers",
-        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), uid, null, null, null));
+        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), userId, null, null, null));
   }
 
   /**
    * Returns the list of followers of a specific user.
    *
-   * @param uid         User Id
+   * @param userId         User Id
    * @param pagination  The range and limit for pagination.
    * @return The list of followers of a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
-  public FollowersListResponse listUserFollowers(@Nonnull Long uid, @Nonnull RangePaginationAttribute pagination) {
+  public FollowersListResponse listUserFollowers(@Nonnull Long userId, @Nonnull CursorPaginationAttribute pagination) {
     return executeAndRetry("listUserFollowers",
-        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), uid, pagination.getLimit(),
+        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), userId, pagination.getLimit(),
             pagination.getBefore().toString(), pagination.getAfter().toString()));
   }
 
   /**
    * Returns the {@link Stream} of followers of a specific user.
    *
-   * @param uid         User Id
+   * @param userId         User Id
    * @return The {@link Stream} of followers of a specific user.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<Long> listAllUserFollowers(@Nonnull Long uid) {
+  public Stream<Long> listAllUserFollowers(@Nonnull Long userId) {
     PaginatedApi<Long> api =
-        (offset, limit) -> listUserFollowers(uid, new RangePaginationAttribute(0, offset, limit)).getFollowers();
+        (offset, limit) -> listUserFollowers(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowers();
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
@@ -575,55 +575,55 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the {@link Stream} of followers of a specific user.
    *
-   * @param uid         User Id
+   * @param userId         User Id
    * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
    * @return The {@link Stream} of followers of a specific user.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<Long> listAllUserFollowers(@Nonnull Long uid, @Nonnull StreamPaginationAttribute pagination) {
+  public Stream<Long> listAllUserFollowers(@Nonnull Long userId, @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<Long> api =
-        (offset, limit) -> listUserFollowers(uid, new RangePaginationAttribute(0, offset, limit)).getFollowers();
+        (offset, limit) -> listUserFollowers(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowers();
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
    * Returns the list of users followed by a specific user.
    *
-   * @param uid   User Id
+   * @param userId   User Id
    * @return The list of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
-  public FollowingListResponse listUsersFollowing(@Nonnull Long uid) {
+  public FollowingListResponse listUsersFollowing(@Nonnull Long userId) {
     return executeAndRetry("listUsersFollowing",
-        () -> userApi.v1UserUidFollowingGet("listUsersFollowing", uid, null, null, null));
+        () -> userApi.v1UserUidFollowingGet("listUsersFollowing", userId, null, null, null));
   }
 
   /**
    * Returns the list of users followed by a specific user.
    *
-   * @param uid         User Id
+   * @param userId         User Id
    * @param pagination  The range and limit for pagination.
    * @return The list of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-users-followed">List Users Followed</a>
    */
-  public FollowingListResponse listUsersFollowing(@Nonnull Long uid, @Nonnull RangePaginationAttribute pagination) {
+  public FollowingListResponse listUsersFollowing(@Nonnull Long userId, @Nonnull CursorPaginationAttribute pagination) {
     return executeAndRetry("listUsersFollowing",
-        () -> userApi.v1UserUidFollowingGet(authSession.getSessionToken(), uid, pagination.getLimit(),
+        () -> userApi.v1UserUidFollowingGet(authSession.getSessionToken(), userId, pagination.getLimit(),
             pagination.getBefore().toString(), pagination.getAfter().toString()));
   }
 
   /**
    * Returns a {@link Stream} of users followed by a specific user.
    *
-   * @param uid   User Id
+   * @param userId   User Id
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
   @API(status = API.Status.STABLE)
-  public Stream<Long> listAllUserFollowing(@Nonnull Long uid) {
+  public Stream<Long> listAllUserFollowing(@Nonnull Long userId) {
     PaginatedApi<Long> api =
-        (offset, limit) -> listUsersFollowing(uid, new RangePaginationAttribute(0, offset, limit)).getFollowing();
+        (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
@@ -631,15 +631,15 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns a {@link Stream} of users followed by a specific user.
    *
-   * @param uid         User Id
+   * @param userId         User Id
    * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
   @API(status = API.Status.STABLE)
-  public Stream<Long> listAllUserFollowing(@Nonnull Long uid, @Nonnull StreamPaginationAttribute pagination) {
+  public Stream<Long> listAllUserFollowing(@Nonnull Long userId, @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<Long> api =
-        (offset, limit) -> listUsersFollowing(uid, new RangePaginationAttribute(0, offset, limit)).getFollowing();
+        (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
