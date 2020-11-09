@@ -26,7 +26,6 @@ public class LogControllerTest {
   @Before
   public void init() {
     try {
-      Files.createFile(Paths.get(FILE_NAME));
       new PrintWriter(FILE_NAME).close();
     } catch (Exception ignored) {}
     configClient = mock(ConfigClient.class);
