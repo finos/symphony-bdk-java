@@ -29,6 +29,9 @@ dependencies {
     api 'io.micrometer:micrometer-registry-prometheus'
     api 'org.glassfish.jersey.core:jersey-client'
 
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.springframework.security:spring-security-test'

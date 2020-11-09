@@ -58,15 +58,13 @@ public class LogController {
       case DEBUG:
         LOGGER.debug(logMsg);
         break;
-      case INFO:
-        LOGGER.info(logMsg);
-        break;
       case WARN:
         LOGGER.warn(logMsg);
         break;
       case ERROR:
         LOGGER.error(logMsg);
         break;
+      case INFO:
       default:
         LOGGER.info(logMsg);
         break;
@@ -87,6 +85,5 @@ public class LogController {
             Optional.class,
             String.class));
   }
-
 }
 
