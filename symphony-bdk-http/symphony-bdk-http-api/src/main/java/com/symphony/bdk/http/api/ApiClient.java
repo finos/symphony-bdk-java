@@ -96,4 +96,12 @@ public interface ApiClient {
    * @return Escaped string
    */
   String escapeString(String str);
+
+  /**
+   * Change target server according to the load balancing configuration, applies only for calls to the agent.
+   * Default implementation does nothing.
+   */
+  default void rotate() {
+
+  }
 }
