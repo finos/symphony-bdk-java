@@ -7,7 +7,6 @@ import org.junit.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -29,10 +28,8 @@ public class LogControllerTest {
   public void init() {
     try {
       Files.createFile(Paths.get(FILE_NAME));
+      new PrintWriter(FILE_NAME).close();
     } catch (Exception ignored) {}
-
-    // Clear Content of test log file
-    new PrintWriter(FILE_NAME).close();
     configClient = mock(ConfigClient.class);
     when(configClient.getExtAppAuthPath()).thenReturn("test");
   }
@@ -41,7 +38,9 @@ public class LogControllerTest {
   @After
   public void clear() {
     // Clear Content of test log file
-    new PrintWriter(FILE_NAME).close();
+    try {
+      new PrintWriter(FILE_NAME).close();
+    } catch (Exception ignored) {}
   }
 
   @Test
