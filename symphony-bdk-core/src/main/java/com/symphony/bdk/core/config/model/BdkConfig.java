@@ -12,7 +12,7 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE)
 public class BdkConfig extends BdkServerConfig {
 
-  private BdkClientConfig agent = new BdkClientConfig(this);
+  private BdkAgentConfig agent = new BdkAgentConfig(this);
   private BdkClientConfig pod = new BdkClientConfig(this);
   private BdkClientConfig keyManager = new BdkClientConfig(this);
   private BdkClientConfig sessionAuth = new BdkClientConfig(this);
@@ -23,8 +23,6 @@ public class BdkConfig extends BdkServerConfig {
 
   private BdkRetryConfig retry = new BdkRetryConfig();
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
-
-  private BdkLoadBalancingConfig agents;
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.
@@ -44,7 +42,7 @@ public class BdkConfig extends BdkServerConfig {
     return datafeed.getRetry() == null ? retry : datafeed.getRetry();
   }
 
-  public void setAgent(BdkClientConfig agent) {
+  public void setAgent(BdkAgentConfig agent) {
     this.agent = attachParent(agent);
   }
 
@@ -60,7 +58,7 @@ public class BdkConfig extends BdkServerConfig {
     this.sessionAuth = attachParent(sessionAuth);
   }
 
-  private BdkClientConfig attachParent(BdkClientConfig config) {
+  private <T extends BdkClientConfig> T attachParent(T config) {
     config.setParentConfig(this);
     return config;
   }

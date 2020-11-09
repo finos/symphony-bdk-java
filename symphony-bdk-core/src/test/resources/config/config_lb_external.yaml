@@ -1,5 +1,6 @@
-agents:
-  mode: external
-  stickiness: true
-  nodes:
-    - host: agent1.acme.org
+agent:
+  loadBalancing:
+    mode: external
+    stickiness: true
+    nodes:
+      - host: agent1.acme.org
