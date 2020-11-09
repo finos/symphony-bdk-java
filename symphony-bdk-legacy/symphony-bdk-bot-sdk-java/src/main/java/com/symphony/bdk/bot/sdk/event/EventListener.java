@@ -3,6 +3,7 @@ package com.symphony.bdk.bot.sdk.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import com.symphony.bdk.bot.sdk.event.model.IMCreatedEvent;
 import com.symphony.bdk.bot.sdk.event.model.MessageEvent;
@@ -42,6 +43,7 @@ import model.events.UserLeftRoom;
  * @author Marcus Secato
  */
 @Service
+@ConditionalOnProperty(value = "datafeed.polling.disabled", havingValue="false", matchIfMissing=true)
 public class EventListener implements IMListener, RoomListener, ElementsListener, ConnectionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventListener.class);
 
