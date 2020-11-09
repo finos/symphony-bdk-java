@@ -1,11 +1,14 @@
 package com.symphony.bdk.core.service.user;
 
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserV2;
 
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -96,4 +99,66 @@ public interface OboUserService {
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+
+  /**
+   * {@link UserService#searchUserBySearchQuery(UserSearchQuery, Boolean, PaginationAttribute)}
+   *
+   * @param query       Searching query containing complicated information like title, location, company...
+   * @param local       If true then a local DB search will be performed and only local pod users will be
+   *                    returned. If absent or false then a directory search will be performed and users
+   *                    from other pods who are visible to the calling user will also be returned.
+   * @param pagination  The skip and limit for pagination.
+   * @return List of users found by query
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
+   */
+  List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local, @Nonnull
+      PaginationAttribute pagination);
+
+  /**
+   * {@link UserService#searchAllUsersBySearchQuery(UserSearchQuery, Boolean)}
+   *
+   * @param query       Searching query containing complicated information like title, location, company...
+   * @param local       If true then a local DB search will be performed and only local pod users will be
+   *                    returned. If absent or false then a directory search will be performed and users
+   *                    from other pods who are visible to the calling user will also be returned.
+   * @return a {@link Stream} of users found by query
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+
+  /**
+   * {@link UserService#searchAllUsersBySearchQuery(UserSearchQuery, Boolean, StreamPaginationAttribute)}
+   *
+   * @param query       Searching query containing complicated information like title, location, company...
+   * @param local       If true then a local DB search will be performed and only local pod users will be
+   *                    returned. If absent or false then a directory search will be performed and users
+   *                    from other pods who are visible to the calling user will also be returned.
+   * @param pagination  The chunkSize and totalSize for pagination with default value equals 50.
+   * @return a {@link Stream} of users found by query
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local, @Nonnull
+      StreamPaginationAttribute pagination);
+
+  /**
+   * Make a list of users to start following a specific user.
+   * {@link UserService#followUser(Long, List)}
+   *
+   * @param uid         The id of the user to be followed.
+   * @param followerIds List of ids of the followers.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#follow-user">Follow User</a>
+   */
+  void followUser(@Nonnull Long uid, @Nonnull List<Long> followerIds);
+
+  /**
+   * Make a list of users to stop following a specific user.
+   * {@link UserService#unfollowUser(Long, List)}
+   *
+   * @param uid         The id of the user to be unfollowed.
+   * @param followerIds List of the ids of the followers.
+   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
+   */
+  void unfollowUser(@Nonnull Long uid, @Nonnull List<Long> followerIds);
 }

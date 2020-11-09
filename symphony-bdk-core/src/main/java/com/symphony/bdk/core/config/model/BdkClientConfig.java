@@ -9,14 +9,9 @@ import java.util.function.Supplier;
 @Getter
 @Setter
 @API(status = API.Status.STABLE)
-public class BdkClientConfig {
+public class BdkClientConfig extends BdkServerConfig {
 
   private BdkConfig parentConfig;
-
-  private String scheme = null;
-  private String host = null;
-  private Integer port = null;
-  private String context = null;
 
   private String proxyUrl = null;
   private String proxyUsername = null;
@@ -28,10 +23,19 @@ public class BdkClientConfig {
 
   public BdkClientConfig() {
     // for Jackson deserialization
+    this.scheme = null;
+    this.host = null;
+    this.port = null;
+    this.context = null;
   }
 
   public BdkClientConfig(BdkConfig parentConfig) {
+    this();
     this.parentConfig = parentConfig;
+  }
+
+  public boolean overridesParentConfig() {
+    return scheme != null || host != null || port != null || context!= null;
   }
 
   public String getScheme() {
@@ -52,28 +56,5 @@ public class BdkClientConfig {
 
   private <T> T thisOrParent(T thisValue, Supplier<T> parentValue) {
     return thisValue == null ? parentValue.get() : thisValue;
-  }
-
-  public String getBasePath() {
-    return this.getScheme() + "://" + this.getHost() + this.getPortAsString() + this.getFormattedContext();
-  }
-
-  public String getFormattedContext() {
-    final String localContext = this.getContext();
-    if (localContext == null) {
-      return "";
-    }
-    if (!localContext.equals("") && localContext.charAt(0) != '/') {
-      return "/" + localContext;
-    }
-    if (!localContext.equals("") && localContext.endsWith("/")) {
-      return localContext.substring(0, localContext.length() - 1);
-    }
-
-    return localContext;
-  }
-
-  private String getPortAsString() {
-    return this.getPort() != null ? ":" + this.getPort() : "";
   }
 }

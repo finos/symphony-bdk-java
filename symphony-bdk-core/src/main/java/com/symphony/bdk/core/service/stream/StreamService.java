@@ -4,6 +4,10 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
+import com.symphony.bdk.core.service.pagination.PaginatedApi;
+import com.symphony.bdk.core.service.pagination.PaginatedService;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
@@ -16,7 +20,9 @@ import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
+import com.symphony.bdk.gen.api.model.V2AdminStreamInfo;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
+import com.symphony.bdk.gen.api.model.V2MemberInfo;
 import com.symphony.bdk.gen.api.model.V2MembershipList;
 import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
@@ -31,6 +37,9 @@ import org.apiguardian.api.API;
 
 import java.util.Arrays;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Service class for managing streams.
@@ -75,7 +84,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
-  public V2StreamAttributes getStreamInfo(String streamId) {
+  @Override
+  public V2StreamAttributes getStreamInfo(@Nonnull String streamId) {
     return executeAndRetry("getStreamInfo",
         () -> streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken()));
   }
@@ -83,7 +93,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
-  public List<StreamAttributes> listStreams(StreamFilter filter) {
+  @Override
+  public List<StreamAttributes> listStreams(@Nullable StreamFilter filter) {
     return executeAndRetry("listStreams",
         () -> streamsApi.v1StreamsListPost(authSession.getSessionToken(), null, null, filter));
   }
@@ -91,7 +102,40 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
-  public void addMemberToRoom( Long userId, String roomId) {
+  @Override
+  public List<StreamAttributes> listStreams(@Nullable StreamFilter filter, @Nonnull PaginationAttribute pagination) {
+    return executeAndRetry("listStreams",
+        () -> streamsApi.v1StreamsListPost(authSession.getSessionToken(), pagination.getSkip(), pagination.getLimit(),
+            filter));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter) {
+    PaginatedApi<StreamAttributes> api = (offset, limit) -> listStreams(filter, new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<StreamAttributes> api = (offset, limit) -> listStreams(filter, new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addMemberToRoom(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("addMemberToRoom",
         () -> roomMembershipApi.v1RoomIdMembershipAddPost(roomId, authSession.getSessionToken(), user));
@@ -100,7 +144,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
-  public void removeMemberFromRoom(Long userId, String roomId) {
+  @Override
+  public void removeMemberFromRoom(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("removeMemberFrom",
         () -> roomMembershipApi.v1RoomIdMembershipRemovePost(roomId, authSession.getSessionToken(), user));
@@ -109,15 +154,18 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
-  public V2Message share(String streamId, ShareContent content) {
+  @Override
+  public V2Message share(@Nonnull String streamId, @Nonnull ShareContent content) {
     return executeAndRetry("share",
-        () -> shareApi.v3StreamSidSharePost(streamId, authSession.getSessionToken(), content, authSession.getKeyManagerToken()));
+        () -> shareApi.v3StreamSidSharePost(streamId, authSession.getSessionToken(), content,
+            authSession.getKeyManagerToken()));
   }
 
   /**
    * {@inheritDoc}
    */
-  public void promoteUserToRoomOwner(Long userId, String roomId) {
+  @Override
+  public void promoteUserToRoomOwner(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("promoteUserToOwner",
         () -> roomMembershipApi.v1RoomIdMembershipPromoteOwnerPost(roomId, authSession.getSessionToken(), user));
@@ -126,7 +174,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
-  public void demoteUserToRoomParticipant(Long userId, String roomId) {
+  @Override
+  public void demoteUserToRoomParticipant(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("demoteUserToParticipant",
         () -> roomMembershipApi.v1RoomIdMembershipDemoteOwnerPost(roomId, authSession.getSessionToken(), user));
@@ -149,7 +198,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The created IM or MIM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
-  public Stream create(List<Long> uids) {
+
+  public Stream create(@Nonnull List<Long> uids) {
     return executeAndRetry("createStreamByUserIds",
         () -> streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids));
   }
@@ -161,7 +211,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The created IM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
    */
-  public Stream create(Long... uids) {
+  public Stream create(@Nonnull Long... uids) {
     return this.create(Arrays.asList(uids));
   }
 
@@ -173,7 +223,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The created chatroom
    * @see <a href="https://developers.symphony.com/restapi/reference#create-room-v3">Create Room V3</a>
    */
-  public V3RoomDetail create(V3RoomAttributes roomAttributes) {
+  public V3RoomDetail create(@Nonnull V3RoomAttributes roomAttributes) {
     return executeAndRetry("createStream",
         () -> streamsApi.v3RoomCreatePost(authSession.getSessionToken(), roomAttributes));
   }
@@ -185,9 +235,54 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The rooms returned according to the given criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
    */
-  public V3RoomSearchResults searchRooms(V2RoomSearchCriteria query) {
+  public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query) {
     return executeAndRetry("searchRooms",
         () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, null, null));
+  }
+
+  /**
+   * Search rooms according to the specified criteria.
+   *
+   * @param query      The room searching criteria.
+   * @param pagination The skip and limit for pagination.
+   * @return The rooms returned according to the given criteria.
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   */
+  public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination) {
+    return executeAndRetry("searchRooms",
+        () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
+            pagination.getLimit()));
+  }
+
+  /**
+   * Search rooms and return in a {@link java.util.stream.Stream} according to the specified criteria.
+   *
+   * @param query The room searching criteria.
+   * @return A {@link java.util.stream.Stream} of rooms returned according to the given criteria.
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query) {
+    PaginatedApi<V3RoomDetail> api =
+        (offset, limit) -> searchRooms(query, new PaginationAttribute(offset, limit)).getRooms();
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * Search rooms and return in a {@link java.util.stream.Stream} according to the specified criteria.
+   *
+   * @param query      The room searching criteria.
+   * @param pagination The chunkSize and totalSize for stream pagination.
+   * @return A {@link java.util.stream.Stream} of rooms returned according to the given criteria.
+   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<V3RoomDetail> api =
+        (offset, limit) -> searchRooms(query, new PaginationAttribute(offset, limit)).getRooms();
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -197,7 +292,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The information about the room with the given room id.
    * @see <a href="https://developers.symphony.com/restapi/reference#room-info-v3">Room Info V3</a>
    */
-  public V3RoomDetail getRoomInfo(String roomId) {
+  public V3RoomDetail getRoomInfo(@Nonnull String roomId) {
     return executeAndRetry("getRoomInfo",
         () -> streamsApi.v3RoomIdInfoGet(roomId, authSession.getSessionToken()));
   }
@@ -210,7 +305,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The information of the room after being deactivated or reactivated.
    * @see <a href="https://developers.symphony.com/restapi/reference#de-or-re-activate-room">De/Reactivate Room</a>
    */
-  public RoomDetail setRoomActive(String roomId, Boolean active) {
+  public RoomDetail setRoomActive(@Nonnull String roomId, @Nonnull Boolean active) {
     return executeAndRetry("setRoomActive",
         () -> streamsApi.v1RoomIdSetActivePost(roomId, active, authSession.getSessionToken()));
   }
@@ -223,7 +318,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The information of the room after being updated.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-room-v3">Update Room V3</a>
    */
-  public V3RoomDetail updateRoom(String roomId, V3RoomAttributes roomAttributes) {
+  public V3RoomDetail updateRoom(@Nonnull String roomId, @Nonnull V3RoomAttributes roomAttributes) {
     return executeAndRetry("updateRoom",
         () -> streamsApi.v3RoomIdUpdatePost(roomId, authSession.getSessionToken(), roomAttributes));
   }
@@ -244,7 +339,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The created IM or MIM
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim-admin">Create IM or MIM Non-inclusive</a>
    */
-  public Stream createInstantMessageAdmin(List<Long> uids) {
+  public Stream createInstantMessageAdmin(@Nonnull List<Long> uids) {
     return executeAndRetry("createInstantMessageAdmin",
         () -> streamsApi.v1AdminImCreatePost(authSession.getSessionToken(), uids));
   }
@@ -256,7 +351,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @param active   Deactivate or activate
    * @return The information of the room after being deactivated or reactivated.
    */
-  public RoomDetail setRoomActiveAdmin(String streamId, Boolean active) {
+  public RoomDetail setRoomActiveAdmin(@Nonnull String streamId, @Nonnull Boolean active) {
     return executeAndRetry("setRoomActiveAdmin",
         () -> streamsApi.v1AdminRoomIdSetActivePost(streamId, active, authSession.getSessionToken()));
   }
@@ -268,9 +363,55 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return List of streams returned according the given filter.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
    */
-  public V2AdminStreamList listStreamsAdmin(V2AdminStreamFilter filter) {
+  public V2AdminStreamList listStreamsAdmin(@Nullable V2AdminStreamFilter filter) {
     return executeAndRetry("listStreamsAdmin",
         () -> streamsApi.v2AdminStreamsListPost(authSession.getSessionToken(), null, null, filter));
+  }
+
+  /**
+   * Retrieve all the streams across the enterprise.
+   *
+   * @param filter     The stream searching filter
+   * @param pagination The skip and limit for pagination.
+   * @return List of streams returned according the given filter.
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
+   */
+  public V2AdminStreamList listStreamsAdmin(@Nullable V2AdminStreamFilter filter,
+      @Nonnull PaginationAttribute pagination) {
+    return executeAndRetry("listStreamsAdmin",
+        () -> streamsApi.v2AdminStreamsListPost(authSession.getSessionToken(), pagination.getSkip(),
+            pagination.getLimit(), filter));
+  }
+
+  /**
+   * Retrieve all the streams across the enterprise and return in a {@link java.util.stream.Stream}.
+   *
+   * @param filter The stream searching filter
+   * @return List of streams returned according the given filter.
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<V2AdminStreamInfo> listAllStreamsAdmin(@Nullable V2AdminStreamFilter filter) {
+    PaginatedApi<V2AdminStreamInfo> api =
+        (offset, limit) -> listStreamsAdmin(filter, new PaginationAttribute(offset, limit)).getStreams();
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * Retrieve all the streams across the enterprise and return in a {@link java.util.stream.Stream}.
+   *
+   * @param filter     The stream searching filter
+   * @param pagination The chunkSize and totalSize for stream pagination.
+   * @return A {@link java.util.stream.Stream} of streams returned according the given filter.
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<V2AdminStreamInfo> listAllStreamsAdmin(@Nullable V2AdminStreamFilter filter,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<V2AdminStreamInfo> api =
+        (offset, limit) -> listStreamsAdmin(filter, new PaginationAttribute(offset, limit)).getStreams();
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -281,9 +422,57 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return List of member in the stream with the given stream id.
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
    */
-  public V2MembershipList listStreamMembers(String streamId) {
+  public V2MembershipList listStreamMembers(@Nonnull String streamId) {
     return executeAndRetry("listStreamMembers",
         () -> streamsApi.v1AdminStreamIdMembershipListGet(streamId, authSession.getSessionToken(), null, null));
+  }
+
+  /**
+   * List the current members of an existing stream.
+   * The stream can be of type IM, MIM, or ROOM.
+   *
+   * @param streamId   The stream id
+   * @param pagination The skip and limit for pagination.
+   * @return List of member in the stream with the given stream id.
+   * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
+   */
+  public V2MembershipList listStreamMembers(@Nonnull String streamId, @Nonnull PaginationAttribute pagination) {
+    return executeAndRetry("listStreamMembers",
+        () -> streamsApi.v1AdminStreamIdMembershipListGet(streamId, authSession.getSessionToken(), pagination.getSkip(),
+            pagination.getLimit()));
+  }
+
+  /**
+   * List the current members of an existing room and return in a {@link java.util.stream.Stream}.
+   * The stream can be of type IM, MIM, or ROOM.
+   *
+   * @param streamId The stream id
+   * @return A {@link java.util.stream.Stream} of members in the stream with the given stream id.
+   * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<V2MemberInfo> listAllStreamMembers(@Nonnull String streamId) {
+    PaginatedApi<V2MemberInfo> api =
+        (offset, limit) -> listStreamMembers(streamId, new PaginationAttribute(offset, limit)).getMembers();
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+  }
+
+  /**
+   * List the current members of an existing room and return in a {@link java.util.stream.Stream}.
+   * The stream can be of type IM, MIM, or ROOM.
+   *
+   * @param streamId   The stream id
+   * @param pagination The chunkSize and totalSize for stream pagination with default value equal 100.
+   * @return A {@link java.util.stream.Stream} of members in the stream with the given stream id.
+   * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public java.util.stream.Stream<V2MemberInfo> listAllStreamMembers(@Nonnull String streamId,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<V2MemberInfo> api =
+        (offset, limit) -> listStreamMembers(streamId, new PaginationAttribute(offset, limit)).getMembers();
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -293,7 +482,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return List of members in the room with the given room id.
    * @see <a href="https://developers.symphony.com/restapi/reference#room-members">Room Members</a>
    */
-  public List<MemberInfo> listRoomMembers(String roomId) {
+  public List<MemberInfo> listRoomMembers(@Nonnull String roomId) {
     return executeAndRetry("listRoomMembers",
         () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
   }
