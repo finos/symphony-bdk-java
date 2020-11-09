@@ -1,15 +1,16 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
-import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -53,9 +54,17 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
   public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config,
       DatafeedIdRepository repository) {
     super(datafeedApi, authSession, config);
+
     this.started.set(false);
-    this.datafeedId = null;
     this.datafeedRepository = repository;
+
+    this.datafeedId = this.retrieveDatafeed().orElse(null);
+    if (this.apiClient instanceof LoadBalancedApiClient) {
+      final Optional<String> basePath = this.datafeedRepository.readAgentBasePath();
+      if (basePath.isPresent()) {
+        ((LoadBalancedApiClient) this.apiClient).setBasePath(basePath.get());
+      }
+    }
   }
 
   /**
@@ -66,16 +75,15 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
     if (this.started.get()) {
       throw new IllegalStateException("The datafeed service is already started");
     }
-    Optional<String> persistedDatafeedId = this.retrieveDatafeed();
 
     try {
-      this.datafeedId = persistedDatafeedId.orElse(this.createDatafeed());
+      this.datafeedId = this.datafeedId == null ? this.createDatafeed() : this.datafeedId;
       log.debug("Start reading events from datafeed {}", datafeedId);
       this.started.set(true);
       do {
         readDatafeed();
       } while (this.started.get());
-    } catch (AuthUnauthorizedException | ApiException exception) {
+    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
       log.error("Unknown error", throwable);
@@ -130,10 +138,16 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
   }
 
   private String createDatafeedAndPersist() throws ApiException {
-    String id = datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
-    datafeedRepository.write(id);
+    String id =
+        datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
+    datafeedRepository.write(id, getBasePathWithoutTrailingAgent());
     log.debug("Datafeed: {} was created and persisted", id);
     return id;
+  }
+
+  private String getBasePathWithoutTrailingAgent() {
+    final String basePath = apiClient.getBasePath();
+    return basePath.substring(0, basePath.length() - "/agent".length());
   }
 
   protected Optional<String> retrieveDatafeed() {
