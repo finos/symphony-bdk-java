@@ -20,9 +20,12 @@ import java.util.stream.StreamSupport;
  */
 @API(status = API.Status.INTERNAL)
 public class PaginatedService<T> {
-  private PaginatedApi<T> paginatedApi;
-  private int chunkSize;
-  private int maxSize;
+  public static final int DEFAULT_PAGINATION_CHUNK_SIZE = 100;
+  public static final int DEFAULT_PAGINATION_TOTAL_SIZE = 100;
+
+  private final PaginatedApi<T> paginatedApi;
+  private final int chunkSize;
+  private final int maxSize;
 
   /**
    * The only constructor
