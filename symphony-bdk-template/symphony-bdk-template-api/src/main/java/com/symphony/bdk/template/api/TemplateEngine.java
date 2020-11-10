@@ -1,7 +1,6 @@
 package com.symphony.bdk.template.api;
 
 import org.apiguardian.api.API;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.ServiceLoader;
@@ -35,14 +34,12 @@ public interface TemplateEngine {
     final ServiceLoader<TemplateEngine> engineServiceLoader = ServiceLoader.load(TemplateEngine.class);
 
     final List<TemplateEngine> templateEngines = StreamSupport.stream(engineServiceLoader.spliterator(), false)
-            .collect(Collectors.toList());
+        .collect(Collectors.toList());
 
     if (templateEngines.isEmpty()) {
       throw new IllegalStateException("No TemplateEngine implementation found in classpath.");
     } else if (templateEngines.size() > 1) {
-      LoggerFactory.getLogger(TemplateEngine.class)
-          .warn("More than 1 TemplateEngine implementation found in classpath, will use : {}",
-          templateEngines.stream().findFirst().get());
+      throw new IllegalStateException("More than 1 TemplateEngine implementation found in classpath.");
     }
     return templateEngines.stream().findFirst().get();
   }
