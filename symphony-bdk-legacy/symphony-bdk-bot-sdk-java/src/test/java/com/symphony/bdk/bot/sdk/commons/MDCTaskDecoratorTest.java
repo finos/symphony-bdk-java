@@ -65,19 +65,21 @@ public class MDCTaskDecoratorTest {
 
   private void testResultContextMap(Map<String, String> contextMap) {
     Map<String, String> resultMap;
-    if(contextMap == null)
+    if(contextMap == null) {
       resultMap = null;
-    else
+    } else {
       resultMap = MDC.getCopyOfContextMap();
+    }
 
     assertEquals(resultMap, contextMap);
   }
 
   private void setMDCTaskDecoratorAndContextMap(Map<String, String> contextMap) {
     this.mdcTaskDecorator = new MDCTaskDecorator();
-    if(contextMap == null)
+    if(contextMap == null) {
       MDC.setContextMap(new HashMap<>());
-    else
+    } else {
       MDC.setContextMap(contextMap);
+    }
   }
 }
