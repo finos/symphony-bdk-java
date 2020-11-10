@@ -24,11 +24,12 @@ public interface TemplateEngine {
 
   /**
    * Create a {@link Template} instance from a file in the classpath
+   *
    * @param templatePath full path to a template file in the classpath
    * @return a new {@link Template} instantiated from the provided classpath resource
    * @throws TemplateException when template cannot be loaded, e.g. resource not accessible
    */
-  Template newTemplateFromClasspath(String templatePath) ;
+  Template newTemplateFromClasspath(String templatePath);
 
   static TemplateEngine getDefaultImplementation() {
     final ServiceLoader<TemplateEngine> engineServiceLoader = ServiceLoader.load(TemplateEngine.class);
@@ -37,9 +38,11 @@ public interface TemplateEngine {
         .collect(Collectors.toList());
 
     if (templateEngines.isEmpty()) {
-      throw new IllegalStateException("No TemplateEngine implementation found in classpath.");
+      throw new IllegalStateException("No TemplateEngine implementation found in classpath. "
+          + "Please add a symphony-bdk-template-* (freemarker or handlebars) dependency to your project.");
     } else if (templateEngines.size() > 1) {
-      throw new IllegalStateException("More than 1 TemplateEngine implementation found in classpath.");
+      throw new IllegalStateException("More than 1 TemplateEngine implementation found in classpath. "
+          + "Please remove the extra symphony-bdk-template-* dependency from your project");
     }
     return templateEngines.stream().findFirst().get();
   }
