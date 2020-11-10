@@ -1,11 +1,18 @@
 package com.symphony.bdk.core.service.message;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -32,6 +39,7 @@ import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
@@ -66,6 +74,7 @@ public class MessageServiceTest {
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
   private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
+  private static final String V4_BLAST_MESSAGE = "/agent/v4/message/blast";
   private static final String V1_MESSAGE_SUPPRESSION = "/pod/v1/admin/messagesuppression/{id}/suppress";
   private static final String V1_MESSAGE_STATUS = "/pod/v1/message/{mid}/status";
   private static final String V1_ALLOWED_TYPES = "/pod/v1/files/allowedTypes";
@@ -456,6 +465,70 @@ public class MessageServiceTest {
 
     assertInvokeApiCalledWithCorrectParams(mockServer, message,
         Collections.singletonList("file.txt"), Collections.singletonList("preview-file.txt"));
+  }
+
+  @Test
+  @ExtendWith(BdkMockServerExtension.class)
+  void testDoSendBlast(final BdkMockServer mockServer) throws IOException, ApiException {
+    final Message message = Message.builder()
+        .content("<MessageML>Hello world</MessageML>")
+        .addAttachment(IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8),
+            IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8), "file.txt")
+        .build();
+
+    ApiClient agentClient = spy(mockServer.newApiClient("/agent"));
+    messageService = new MessageService(new MessagesApi(agentClient), null, null, null, null, null, null, authSession,
+        templateEngine, new RetryWithRecoveryBuilder());
+
+    final String response = JsonHelper.readFromClasspath("/message/blast_message.json");
+    mockServer.onPost(V4_BLAST_MESSAGE, res -> res.withBody(response));
+
+    final V4MessageBlastResponse blastResponse =
+        messageService.blastMessage(Arrays.asList("sid1", "sid2"), message);
+
+    //assert on response body
+    assertNotNull(blastResponse);
+    assertEquals(2, blastResponse.getMessages().size());
+
+    //assert on arguments passed to invokeApi
+    Map<String, String> expectedHeaders = new HashMap<>();
+    expectedHeaders.put("sessionToken", TOKEN);
+    expectedHeaders.put("keyManagerToken", TOKEN);
+
+    final ArgumentCaptor<Map<String, Object>> captor = ArgumentCaptor.forClass(Map.class);
+
+    verify(agentClient)
+        .invokeAPI(
+            eq("/v4/message/blast"),
+            eq("POST"),
+            eq(Collections.emptyList()),
+            isNull(),
+            eq(expectedHeaders),
+            eq(Collections.emptyMap()),
+            captor.capture(),
+            eq("application/json"),
+            eq("multipart/form-data"),
+            eq(new String[0]),
+            any());
+
+    //assert on form fields not related to attachments
+    final Map<String, Object> value = captor.getValue();
+    assertEquals(message.getContent(), value.get("message"));
+    assertEquals(message.getData(), value.get("data"));
+    assertEquals(message.getVersion(), value.get("version"));
+    assertEquals("sid1,sid2", value.get("sids"));
+
+    //assert on attachments and previews
+    List<String> attachmentFileNames = Stream.of((ApiClientBodyPart[]) value.get("attachment"))
+        .map(ApiClientBodyPart::getFilename)
+        .collect(Collectors.toList());
+
+    List<String> previewFileNames = Stream.of((ApiClientBodyPart[]) value.get("preview"))
+        .map(ApiClientBodyPart::getFilename)
+        .collect(Collectors.toList());
+
+    assertEquals(Collections.singletonList("file.txt"), attachmentFileNames);
+    assertEquals(Collections.singletonList("preview-file.txt"), previewFileNames);
   }
 
   private void assertInvokeApiCalledWithCorrectParams(final BdkMockServer mockServer, Message message,
