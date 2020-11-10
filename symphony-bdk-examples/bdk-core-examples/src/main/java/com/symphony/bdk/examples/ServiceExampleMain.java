@@ -6,6 +6,7 @@ import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
+import com.symphony.bdk.gen.api.model.ApplicationDetail;
 import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.Signal;
@@ -63,5 +64,10 @@ public class ServiceExampleMain {
     final FollowingListResponse followingList =
         bdk.users().listUsersFollowing(13056700579873L, new CursorPaginationAttribute(4, 0, 10));
     log.info("Following {} users", followingList.getCount());
+
+    ApplicationDetail appDetail = bdk.applications().getApplication("my-app");
+    log.info(appDetail.getApplicationInfo().getAppId());
+    log.info(appDetail.getCert());
+    log.info(appDetail.getAuthenticationKeys().getCurrent().getKey());
   }
 }
