@@ -4,7 +4,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.SessionService;
-import com.symphony.bdk.core.service.application.ApplicationManagementService;
+import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
@@ -83,9 +83,9 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public ApplicationManagementService applicationManagementService(ApplicationApi applicationApi,
+  public ApplicationService applicationService(ApplicationApi applicationApi,
       AppEntitlementApi appEntitlementApi, AuthSession botSession, BdkConfig config) {
-    return new ApplicationManagementService(applicationApi, appEntitlementApi, botSession,
+    return new ApplicationService(applicationApi, appEntitlementApi, botSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 

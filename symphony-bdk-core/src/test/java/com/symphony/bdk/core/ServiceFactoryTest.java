@@ -12,7 +12,7 @@ import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.service.SessionService;
-import com.symphony.bdk.core.service.application.ApplicationManagementService;
+import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
@@ -80,7 +80,7 @@ public class ServiceFactoryTest {
 
   @Test
   void getApplicationManagementServiceTest() {
-    ApplicationManagementService applicationManagementService = this.serviceFactory.getApplicationManagementService();
+    ApplicationService applicationManagementService = this.serviceFactory.getApplicationService();
     assertNotNull(applicationManagementService);
   }
 

@@ -10,7 +10,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.SessionService;
-import com.symphony.bdk.core.service.application.ApplicationManagementService;
+import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.message.MessageService;
@@ -51,7 +51,7 @@ public class SymphonyBdk {
   private final PresenceService presenceService;
   private final ConnectionService connectionService;
   private final SignalService signalService;
-  private final ApplicationManagementService applicationManagementService;
+  private final ApplicationService applicationService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
@@ -75,7 +75,7 @@ public class SymphonyBdk {
     this.presenceService = serviceFactory.getPresenceService();
     this.connectionService = serviceFactory.getConnectionService();
     this.signalService = serviceFactory.getSignalService();
-    this.applicationManagementService = serviceFactory.getApplicationManagementService();
+    this.applicationService = serviceFactory.getApplicationService();
     this.messageService = serviceFactory.getMessageService();
     this.datafeedService = serviceFactory.getDatafeedService();
 
@@ -162,12 +162,12 @@ public class SymphonyBdk {
   }
 
   /**
-   * Get the {@link ApplicationManagementService} from a Bdk entry point.
+   * Get the {@link ApplicationService} from a Bdk entry point.
    *
-   * @return {@link ApplicationManagementService} application management service instance.
+   * @return {@link ApplicationService} application service instance.
    */
-  public ApplicationManagementService applications() {
-    return this.applicationManagementService;
+  public ApplicationService applications() {
+    return this.applicationService;
   }
 
   /**

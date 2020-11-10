@@ -5,7 +5,7 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.SessionService;
-import com.symphony.bdk.core.service.application.ApplicationManagementService;
+import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
@@ -163,12 +163,12 @@ class ServiceFactory {
   }
 
   /**
-   * Returns a fully initialized {@link ApplicationManagementService}.
+   * Returns a fully initialized {@link ApplicationService}.
    *
-   * @return a new {@link ApplicationManagementService} instance.
+   * @return a new {@link ApplicationService} instance.
    */
-  public ApplicationManagementService getApplicationManagementService() {
-    return new ApplicationManagementService(new ApplicationApi(this.podClient), new AppEntitlementApi(podClient),
+  public ApplicationService getApplicationService() {
+    return new ApplicationService(new ApplicationApi(this.podClient), new AppEntitlementApi(podClient),
         this.authSession, this.retryBuilder);
   }
 }

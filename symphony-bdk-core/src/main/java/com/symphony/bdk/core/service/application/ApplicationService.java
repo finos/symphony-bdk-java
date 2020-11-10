@@ -33,14 +33,14 @@ import javax.annotation.Nonnull;
  * </p>
  */
 @API(status = API.Status.STABLE)
-public class ApplicationManagementService {
+public class ApplicationService {
 
   private final ApplicationApi applicationApi;
   private final AppEntitlementApi appEntitlementApi;
   private final AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public ApplicationManagementService(ApplicationApi applicationApi, AppEntitlementApi appEntitlementApi,
+  public ApplicationService(ApplicationApi applicationApi, AppEntitlementApi appEntitlementApi,
       AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.applicationApi = applicationApi;
     this.appEntitlementApi = appEntitlementApi;

@@ -37,7 +37,7 @@ public class ApplicationManagementServiceTest {
   private static final String V1_USER_APPS = "/pod/v1/admin/user/{uid}/app/entitlement/list";
   private static final String V1_UPDATE_USER_APPS = "/pod/v1/admin/user/{uid}/app/entitlement/list";
 
-  private ApplicationManagementService service;
+  private ApplicationService service;
   private ApplicationApi applicationApi;
   private MockApiClient mockApiClient;
 
@@ -49,7 +49,7 @@ public class ApplicationManagementServiceTest {
     ApplicationApi applicationApi = new ApplicationApi(podClient);
     AppEntitlementApi appEntitlementApi = new AppEntitlementApi(podClient);
     this.applicationApi = spy(applicationApi);
-    this.service = new ApplicationManagementService(this.applicationApi, appEntitlementApi, authSession,
+    this.service = new ApplicationService(this.applicationApi, appEntitlementApi, authSession,
         new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
