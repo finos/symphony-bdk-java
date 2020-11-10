@@ -2,12 +2,12 @@ package authentication;
 
 import it.commons.BotTest;
 import model.AppAuthResponse;
+import model.UserInfo;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class SymExtensionAppAuthTest extends BotTest {
     private SymExtensionAppAuth symExtensionAppAuth;
@@ -64,5 +64,14 @@ public class SymExtensionAppAuthTest extends BotTest {
     public void generateTokensTest() {
         String token = symExtensionAppAuth.generateToken();
         assertNotNull(token);
+    }
+
+    @Test
+    public void verifyJwtNoError() {
+      stubGet(AuthEndpointConstants.POD_CERT_PATH,
+          "{\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIEQDCCAyigAwIBAgIVAKmSDvvk3rea1n\\n-----END CERTIFICATE-----\\n\"}");
+      UserInfo userInfo = symExtensionAppAuth.verifyJWT("some jwt", new String[0]);
+
+      assertNull(userInfo);
     }
 }
