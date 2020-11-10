@@ -33,6 +33,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
       assertThat(context).hasSingleBean(SymphonyBdkAppAutoConfiguration.class);
       assertThat(context).hasSingleBean(BdkExtAppControllerConfig.class);
       assertThat(context).hasSingleBean(CircleOfTrustController.class);
+      assertThat(context).hasBean("corsConfigurer");
 
       SymphonyBdkAppProperties properties = context.getBean(SymphonyBdkAppProperties.class);
       assertEquals(properties.getCors().get("test-url").getAllowedOrigins().get(0), "/**");
