@@ -1,0 +1,89 @@
+{
+    "messages": [
+        {
+            "messageId": "kyydG4s4FMzU1O6oTGu3v3___opR7dOFbQ",
+            "timestamp": 1604943228026,
+            "message": "<div data-format=\"PresentationML\" data-version=\"2.0\">A message</div>",
+            "sharedMessage": null,
+            "data": null,
+            "attachments": [
+                {
+                    "id": "internal_13056700579891%2FWgDerTCmPNsF6JcMpISnKQ%3D%3D",
+                    "name": "lenna.png",
+                    "size": 473892,
+                    "images": [
+                        {
+                            "id": "internal_13056700579891%2FNROKj7P9hJgZ%2BcBhHUe%2BSw%3D%3D",
+                            "dimension": "600"
+                        }
+                    ]
+                }
+            ],
+            "user": {
+                "userId": 43210987654321,
+                "firstName": null,
+                "lastName": null,
+                "displayName": "postman-ecroze",
+                "email": "fake@symphony.com",
+                "username": "postman-ecroze"
+            },
+            "stream": {
+                "streamId": "7TxODHvqnX5a9628am5IG3___o0ZgFNCdA",
+                "streamType": "IM",
+                "roomName": null,
+                "members": null,
+                "external": null,
+                "crossPod": null
+            },
+            "externalRecipients": null,
+            "diagnostic": null,
+            "userAgent": "Agent-2.62.0-SNAPSHOT-Linux-4.14.193-149.317.amzn2.x86_64",
+            "originalFormat": "com.symphony.messageml.v2",
+            "disclaimer": null,
+            "sid": "a9fab5ee-13cb-44c0-b908-f992f11b2e64"
+        },
+        {
+            "messageId": "2FzwmfOsTPKL_OhWkDvjhH___opR7dOFbQ",
+            "timestamp": 1604943228026,
+            "message": "<div data-format=\"PresentationML\" data-version=\"2.0\">A message</div>",
+            "sharedMessage": null,
+            "data": null,
+            "attachments": [
+                {
+                    "id": "internal_13056700579891%2FCsZbxmxI0wDobIIpM1C0sQ%3D%3D",
+                    "name": "lenna.png",
+                    "size": 473892,
+                    "images": [
+                        {
+                            "id": "internal_13056700579891%2FSQ5U0KWr1d2xhSj3qGmzOw%3D%3D",
+                            "dimension": "600"
+                        }
+                    ]
+                }
+            ],
+            "user": {
+                "userId": 12345678901234,
+                "firstName": null,
+                "lastName": null,
+                "displayName": "bot-user",
+                "email": "fake@symphony.com",
+                "username": "postman-ecroze"
+            },
+            "stream": {
+                "streamId": "ubaSiuUsc_j-_lVQ8vhAz3___opSJdJZdA",
+                "streamType": "ROOM",
+                "roomName": null,
+                "members": null,
+                "external": null,
+                "crossPod": null
+            },
+            "externalRecipients": null,
+            "diagnostic": null,
+            "userAgent": "Agent-2.62.0-SNAPSHOT-Linux-4.14.193-149.317.amzn2.x86_64",
+            "originalFormat": "com.symphony.messageml.v2",
+            "disclaimer": null,
+            "sid": "a9fab5ee-13cb-44c0-b908-f992f11b2e64"
+        }
+    ],
+    "errors": {}
+}

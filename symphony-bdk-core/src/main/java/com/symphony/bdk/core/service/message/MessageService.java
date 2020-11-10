@@ -29,6 +29,7 @@ import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
@@ -45,6 +46,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -201,29 +203,69 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
     return this.executeAndRetry("send", () ->
-        this.doSend(streamId, message, this.authSession.getSessionToken(), this.authSession.getKeyManagerToken())
+        this.doSendMessage(streamId, message)
     );
+  }
+
+  /**
+   * Sends a message to multiple existing streams.
+   *
+   * @param streamIds the list of stream IDs to send the message to
+   * @param message   the message to be sent
+   * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   */
+  public V4MessageBlastResponse blastMessage(@Nonnull List<String> streamIds, @Nonnull Message message) {
+    return this.executeAndRetry("sendBlast", () -> doSendBlast(streamIds, message));
   }
 
   /**
    * The generated {@link MessagesApi#v4StreamSidMessageCreatePost(String, String, String, String, String, String, File, File)}
    * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
    */
-  private V4Message doSend(String streamId, Message message, String sessionToken, String keyManagerToken) throws ApiException {
-    final ApiClient apiClient = this.messagesApi.getApiClient();
+  private V4Message doSendMessage(String streamId, Message message) throws ApiException {
+    final String path = "/v4/stream/" + this.messagesApi.getApiClient().escapeString(streamId) + "/message/create";
+
+    return doSendFormData(path, getForm(message), new TypeReference<V4Message>() {});
+  }
+
+  /**
+   * The generated {@link MessagesApi#v4MessageBlastPost(String, List, String, String, String, String, File, File)}
+   * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
+   */
+  private V4MessageBlastResponse doSendBlast(List<String> streamIds, Message message) throws ApiException {
+    final Map<String, Object> form = getForm(message);
+    form.put("sids", streamIds.stream().collect(Collectors.joining(",")));
+
+    return doSendFormData("/v4/message/blast", form, new TypeReference<V4MessageBlastResponse>() {});
+  }
+
+  private Map<String, Object> getForm(Message message) {
     final Map<String, Object> form = new HashMap<>();
     form.put("message", message.getContent());
     form.put("data", message.getData());
     form.put("version", message.getVersion());
     form.put("attachment", toApiClientBodyParts(message.getAttachments()));
     form.put("preview", toApiClientBodyParts(message.getPreviews()));
+    return form;
+  }
+
+  private static ApiClientBodyPart[] toApiClientBodyParts(List<Attachment> attachments) {
+    return attachments.stream()
+        .map(a -> new ApiClientBodyPart(a.getContent(), a.getFilename()))
+        .toArray(ApiClientBodyPart[]::new);
+  }
+
+  private <T> T doSendFormData(String path, Map<String, Object> form, TypeReference<T> typeReference)
+      throws ApiException {
+    final ApiClient apiClient = this.messagesApi.getApiClient();
 
     final Map<String, String> headers = new HashMap<>();
-    headers.put("sessionToken", apiClient.parameterToString(sessionToken));
-    headers.put("keyManagerToken", apiClient.parameterToString(keyManagerToken));
+    headers.put("sessionToken", apiClient.parameterToString(this.authSession.getSessionToken()));
+    headers.put("keyManagerToken", apiClient.parameterToString(this.authSession.getKeyManagerToken()));
 
     return apiClient.invokeAPI(
-        "/v4/stream/" + apiClient.escapeString(streamId) + "/message/create",
+        path,
         "POST",
         emptyList(),
         null, // for 'multipart/form-data', body can be null
@@ -233,14 +275,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
         apiClient.selectHeaderAccept("application/json"),
         apiClient.selectHeaderContentType("multipart/form-data"),
         new String[0],
-        new TypeReference<V4Message>() {}
+        typeReference
     ).getData();
-  }
-
-  private static ApiClientBodyPart[] toApiClientBodyParts(List<Attachment> attachments) {
-    return attachments.stream()
-        .map(a -> new ApiClientBodyPart(a.getContent(), a.getFilename()))
-        .toArray(ApiClientBodyPart[]::new);
   }
 
   /**
