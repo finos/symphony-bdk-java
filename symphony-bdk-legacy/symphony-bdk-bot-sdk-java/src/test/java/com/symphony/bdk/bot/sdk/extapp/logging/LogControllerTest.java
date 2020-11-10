@@ -3,14 +3,15 @@ package com.symphony.bdk.bot.sdk.extapp.logging;
 import com.symphony.bdk.bot.sdk.symphony.ConfigClient;
 
 import lombok.SneakyThrows;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.PatternLayout;
 import org.junit.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,15 +20,23 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class LogControllerTest {
-  private final String FILE_NAME = "src/test/resources/logs/test.log";
+  private final String FILE_DIR = "src/test/resources/logs/";
   private ConfigClient configClient;
+  private Path logFilePath;
 
   @SneakyThrows
   @Before
   public void init() {
-    try {
-      new PrintWriter(FILE_NAME).close();
-    } catch (Exception ignored) {}
+    Files.createDirectories(Paths.get(FILE_DIR));
+    logFilePath = Files.createTempFile(Paths.get(FILE_DIR), "test", ".log");
+    FileAppender fileAppender = new FileAppender();
+    fileAppender.setName("LogControllerFileAppender");
+    fileAppender.setLayout(new PatternLayout());
+    fileAppender.setFile(logFilePath.toString());
+    fileAppender.setAppend(true);
+    fileAppender.activateOptions();
+
+    BasicConfigurator.configure(fileAppender);
     configClient = mock(ConfigClient.class);
     when(configClient.getExtAppAuthPath()).thenReturn("test");
   }
@@ -35,10 +44,8 @@ public class LogControllerTest {
   @SneakyThrows
   @After
   public void clear() {
-    // Clear Content of test log file
-    try {
-      new PrintWriter(FILE_NAME).close();
-    } catch (Exception ignored) {}
+    BasicConfigurator.resetConfiguration();
+    logFilePath.toFile().deleteOnExit();
   }
 
   @Test
@@ -102,7 +109,7 @@ public class LogControllerTest {
 
   private List<String> readLogContent() throws IOException {
     List<String> result;
-    try(Stream<String> lines = Files.lines(Paths.get(FILE_NAME))) {
+    try(Stream<String> lines = Files.lines(Paths.get(logFilePath.toString()))) {
       result = lines.collect(Collectors.toList());
     }
     return result;
