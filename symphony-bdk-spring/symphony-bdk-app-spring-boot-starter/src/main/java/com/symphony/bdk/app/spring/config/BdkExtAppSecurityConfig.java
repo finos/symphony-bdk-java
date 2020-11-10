@@ -3,7 +3,6 @@ package com.symphony.bdk.app.spring.config;
 import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.properties.CorsProperties;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,7 +15,6 @@ import java.util.Map;
 public class BdkExtAppSecurityConfig {
 
   @Bean
-  @ConditionalOnMissingBean
   public WebMvcConfigurer corsConfigurer(SymphonyBdkAppProperties properties) {
     return new BdkExtAppWebMvcConfigurer(properties);
   }
