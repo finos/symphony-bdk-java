@@ -59,6 +59,33 @@ public class AppAuthControllerTest {
   }
 
   @Test
+  public void testAuthenticateOk() throws SymphonyClientException {
+    final AppInfo appInfo = new AppInfo();
+    ResponseEntity responseEntity;
+
+    // Initialize configClient.extAppId
+    Mockito.when(this.configClient.getExtAppId()).thenReturn("56789");
+
+    // AppId = null
+    appInfo.setAppId(null);
+    responseEntity = this.appAuthController.authenticate(appInfo);
+    assertEquals(ResponseEntity.badRequest().build(), responseEntity);
+
+    // AppId != configClient.extAppId
+    appInfo.setAppId(this.configClient.getExtAppId() + "Test1");
+    responseEntity = this.appAuthController.authenticate(appInfo);
+    assertEquals(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(), responseEntity);
+
+    // AppId = configClient.extAppId
+    appInfo.setAppId(this.configClient.getExtAppId());
+    responseEntity = this.appAuthController.authenticate(appInfo);
+    AuthenticateResponse authenticateResponse = null;
+    authenticateResponse = this.extAppAuthClient.appAuthenticate(appInfo.getAppId());
+
+    assertEquals(ResponseEntity.ok(authenticateResponse), responseEntity);
+  }
+
+  @Test
   public void testAuthenticateWithAppAuthenticateException() throws SymphonyClientException {
     final AppInfo appInfo = new AppInfo();
     ResponseEntity responseEntity;
@@ -78,19 +105,14 @@ public class AppAuthControllerTest {
 
     // AppId = configClient.extAppId
     appInfo.setAppId(this.configClient.getExtAppId());
-    responseEntity = this.appAuthController.authenticate(appInfo);
     AuthenticateResponse authenticateResponse = null;
-    try {
-      assertNotNull(appInfo.getAppId());
-      authenticateResponse = this.extAppAuthClient.appAuthenticate(appInfo.getAppId());
-      assertEquals(ResponseEntity.ok(authenticateResponse), responseEntity);
-    } catch (final AppAuthenticateException aae) {
-      assertEquals(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(), responseEntity);
-    }
+    Mockito.when(this.extAppAuthClient.appAuthenticate(appInfo.getAppId())).thenThrow(AppAuthenticateException.class);
+    responseEntity = this.appAuthController.authenticate(appInfo);
+    assertEquals(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build(), responseEntity);
   }
 
   @Test
-  public void testAuthenticateWithAppSymphonyException() {
+  public void testAuthenticateWithSymphonyClientException() throws SymphonyClientException {
     final AppInfo appInfo = new AppInfo();
     ResponseEntity responseEntity;
 
@@ -109,15 +131,10 @@ public class AppAuthControllerTest {
 
     // AppId = configClient.extAppId
     appInfo.setAppId(this.configClient.getExtAppId());
-    responseEntity = this.appAuthController.authenticate(appInfo);
     AuthenticateResponse authenticateResponse = null;
-    try {
-      assertNotNull(appInfo.getAppId());
-      authenticateResponse = this.extAppAuthClient.appAuthenticate(appInfo.getAppId());
-      assertEquals(ResponseEntity.ok(authenticateResponse), responseEntity);
-    } catch (final SymphonyClientException sce) {
-      assertEquals(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(), responseEntity);
-    }
+    Mockito.when(this.extAppAuthClient.appAuthenticate(appInfo.getAppId())).thenThrow(SymphonyClientException.class);
+    responseEntity = this.appAuthController.authenticate(appInfo);
+    assertEquals(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(), responseEntity);
   }
 
   @Test
