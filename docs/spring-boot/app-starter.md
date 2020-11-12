@@ -95,9 +95,9 @@ bdk-app:
         allowed-origins: "*" # list of allowed origins path pattern that be specific origins,
         allowed-credentials: true # Access-Control-Allow-Credentials response header for CORS request
         allowed-method: ["POST", "GET"] # list of HTTP methods to allow
-        allowed-headers: ["header1", "header2"] # list of headers that a request can list as allowed
-        exposed-headers: ["header1", "header2"] # list of response headers that a response can have and can be exposed
-        
+        allowed-headers: "*" # list of headers that a request can list as allowed (multiple values allowed by using ["header-name-1", "header-name-2"])
+        exposed-headers: ["header-name-1", "header-name-2"] # list of response headers that a response can have and can be exposed, the value "*" is not allowed for this field.
+
 logging:
   level:
     com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
@@ -117,7 +117,7 @@ public class ExtAppSpringApplication {
 
 ## Circle of Trust
 
-By configuring the property `bdk.app.auth.enabled=true`, the Application backend will provide Apis for performing
+By configuring the property `bdk-app.auth.enabled=true`, the Application backend will provide Apis for performing
 the [Circle of Trust](https://developers.symphony.com/extension/docs/application-authentication) of Symphony:
 
 ```yaml
