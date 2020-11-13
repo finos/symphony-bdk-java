@@ -35,12 +35,12 @@ public class Example {
 > Therefore, the actual `Message.getContent()` result will be `"<messageML>Hello, World!</messageML>"`
 
 ## Using templates
-The `MessageService` also allows you to send messages using templates. So far, the BDK supports two different template
+The `Message.Builder` also allows you to build a message from a template. So far, the BDK supports two different template
 engine implementations: 
 - [FreeMarker](https://freemarker.apache.org/) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-freemarker`)
 - [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-handlebars`)
 
-### How to send a message from a template
+### How to send a message built from a template
 > In the code examples below, we will assume that FreeMarker as been selected as template engine implementation.
 > See [how to select the template engine implementation](#select-your-template-engine-implementation).
 
@@ -55,8 +55,10 @@ public class Example {
 
   public static void main(String[] args) {
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+    final Template template = bdk.messages().templates().newTemplateFromClasspath("/templates/simple.ftl");
 
-    final V4Message regularMessage = bdk.message().send(streamId, "/templates/simple.ftl", Collections.singletonMap("name", "User"));
+    final Message message = Message.builder().template(template, Collections.singletonMap("name", "User")).build();
+    final V4Message regularMessage = bdk.message().send(streamId, message);
   }
 }
 ```
