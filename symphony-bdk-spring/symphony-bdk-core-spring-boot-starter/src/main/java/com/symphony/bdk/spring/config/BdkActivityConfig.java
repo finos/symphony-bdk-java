@@ -6,7 +6,7 @@ import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.spring.annotation.Slash;

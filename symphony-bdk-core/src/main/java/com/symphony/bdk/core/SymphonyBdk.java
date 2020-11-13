@@ -9,7 +9,8 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.health.HealthService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
@@ -52,6 +53,7 @@ public class SymphonyBdk {
   private final ConnectionService connectionService;
   private final SignalService signalService;
   private final ApplicationService applicationService;
+  private final HealthService healthService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
@@ -76,6 +78,7 @@ public class SymphonyBdk {
     this.connectionService = serviceFactory.getConnectionService();
     this.signalService = serviceFactory.getSignalService();
     this.applicationService = serviceFactory.getApplicationService();
+    this.healthService = serviceFactory.getHealthService();
     this.messageService = serviceFactory.getMessageService();
     this.datafeedService = serviceFactory.getDatafeedService();
 
@@ -169,6 +172,13 @@ public class SymphonyBdk {
   public ApplicationService applications() {
     return this.applicationService;
   }
+
+  /**
+   * Get the {@link HealthService} from a Bdk entry point.
+   *
+   * @return {@link HealthService} health service instance.
+   */
+  public HealthService health() {return this.healthService;}
 
   /**
    * Returns the {@link ActivityRegistry} in order to register Command or Form activities.
