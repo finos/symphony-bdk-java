@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.service;
+package com.symphony.bdk.core.service.session;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
