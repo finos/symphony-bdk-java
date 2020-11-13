@@ -4,7 +4,8 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.SessionService;
+import com.symphony.bdk.core.service.health.HealthService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
@@ -32,6 +33,7 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamsApi;
+import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.http.api.ApiClient;
@@ -170,5 +172,14 @@ class ServiceFactory {
   public ApplicationService getApplicationService() {
     return new ApplicationService(new ApplicationApi(this.podClient), new AppEntitlementApi(podClient),
         this.authSession, this.retryBuilder);
+  }
+
+  /**
+   * Returns a fully initialized {@link HealthService}.
+   *
+   * @return a new {@link HealthService} instance.
+   */
+  public HealthService getHealthService() {
+    return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession);
   }
 }
