@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.health;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
@@ -36,11 +37,7 @@ public class HealthService {
    * @see <a href="https://developers.symphony.com/restapi/reference#health-check-v3">Health Check v3</a>
    */
   public V3Health v3HealthCheck() {
-    try {
-      return systemApi.v3Health();
-    } catch (ApiException e) {
-      throw new ApiRuntimeException(e);
-    }
+    return execute(systemApi::v3Health);
   }
 
   /**
@@ -51,11 +48,7 @@ public class HealthService {
    * @see <a href="https://developers.symphony.com/restapi/reference#health-check-extended-v3">Healt Check Extended v3</a>
    */
   public V3Health v3ExtendedHealthCheck() {
-    try {
-      return systemApi.v3ExtendedHealth();
-    } catch (ApiException e) {
-      throw new ApiRuntimeException(e);
-    }
+    return execute(systemApi::v3ExtendedHealth);
   }
 
   /**
@@ -66,15 +59,11 @@ public class HealthService {
    * @see <a href="https://developers.symphony.com/restapi/reference#health-check-v2">Health Check v2</a>
    */
   public V2HealthCheckResponse v2HeathCheck() {
-    try {
-      return systemApi.v2HealthCheckGet(true, true,
-          true, true,
-          true, true,
-          true, true,
-          authSession.getSessionToken(), authSession.getKeyManagerToken());
-    } catch (ApiException e) {
-      throw new ApiRuntimeException(e);
-    }
+    return execute(() -> systemApi.v2HealthCheckGet(true, true,
+        true, true,
+        true, true,
+        true, true,
+        authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
   /**
@@ -85,8 +74,12 @@ public class HealthService {
    * @see <a href="https://developers.symphony.com/restapi/reference#agent-info-v1">Agent Info v1</a>
    */
   public AgentInfo getAgentInfo() {
+    return execute(signalsApi::v1InfoGet);
+  }
+
+  private <T> T execute(SupplierWithApiException<T> supplier) {
     try {
-      return signalsApi.v1InfoGet();
+      return supplier.get();
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
     }
