@@ -1,5 +1,6 @@
 package com.symphony.bdk.spring.events;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
@@ -232,6 +233,15 @@ class RealTimeEventsDispatcherTest {
 
     verify(this.listener, only()).onSymphonyElementsAction(eq(initiator), eq(payload));
     verify(this.listener, times(1)).onSymphonyElementsAction(eq(initiator), eq(payload));
+  }
+
+  @Test
+  void realTimeEvent() {
+    final V4Initiator initiator = createInitiator();
+    final RealTimeEvent<Integer> integerRealTimeEvent = new RealTimeEvent<>(initiator, new Integer(3));
+
+    assertEquals(initiator, integerRealTimeEvent.getInitiator());
+    assertEquals(Integer.class, integerRealTimeEvent.getResolvableType().getGeneric(0).getRawClass());
   }
 
   private static V4Initiator createInitiator() {
