@@ -9,14 +9,16 @@ import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.SameSiteCookies;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -53,23 +55,22 @@ public class CircleOfTrustController {
     final String jwt = jwtInfo.getJwt();
     final UserId userId = this.circleOfTrustService.validateJwt(jwt);
     if (properties.getAuth().getJwtCookie().getEnabled()) {
-      response.addCookie(jwtCookie(jwt, request.getContextPath()));
+      response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie(jwt, request.getContextPath()).toString());
     }
     return userId;
   }
 
-  private Cookie jwtCookie(String jwt, String path) {
+  private ResponseCookie jwtCookie(String jwt, String path) {
     final int maxAgeInSeconds = (int) this.properties.getAuth().getJwtCookie().getMaxAge().getSeconds();
     log.debug("Creating JWT cookie: maxAge={}s", maxAgeInSeconds);
 
-    final Cookie jwtCookie = new Cookie("userJwt", jwt);
-
-    jwtCookie.setMaxAge(maxAgeInSeconds);
-    jwtCookie.setSecure(true);
-    jwtCookie.setHttpOnly(true);
-    jwtCookie.setPath(path);
-
-    return jwtCookie;
+    return ResponseCookie.from("userJwt", jwt)
+        .maxAge(maxAgeInSeconds)
+        .secure(true)
+        .httpOnly(true)
+        .path(path)
+        .sameSite(SameSiteCookies.NONE.getValue())
+        .build();
   }
 
 }
