@@ -215,7 +215,8 @@ public class CoreServices {
 
 ## Slash Command
 You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to 
-successfully register your command. If not defined, a `warn` message will appear in your application log.
+successfully register your command. If not defined, a `warn` message will appear in your application log. Note also that 
+only beans with scope **singleton** will be scanned.
  
 ```java
 @Component
@@ -233,7 +234,7 @@ public class SlashHello {
 }
 ```
 By default, the `@Slash` annotation is configured to require bot mention in order to trigger the command. You can override
-this value using `@Slash#mentionBot` annotation parameter.
+this value using `@Slash#mentionBot` annotation parameter. 
 
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
