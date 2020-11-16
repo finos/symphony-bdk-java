@@ -6,8 +6,8 @@ import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.spring.annotation.Slash;
 
@@ -18,12 +18,15 @@ import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Configuration for Activity API:
@@ -66,8 +69,7 @@ public class BdkActivityConfig {
     @Override
     public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
 
-      for (final String beanName : applicationContext.getBeanDefinitionNames()) {
-        final Object bean = applicationContext.getBean(beanName);
+      getBeansToScan(applicationContext).forEach(bean -> {
 
         for (final Method m : getClass(bean).getDeclaredMethods()) {
 
@@ -88,7 +90,17 @@ public class BdkActivityConfig {
             }
           }
         }
-      }
+      });
+    }
+
+    /**
+     * Returns a {@link Stream} of beans to be scanned from {@link ApplicationContext}.
+     * Only "singleton" beans will be returned.
+     */
+    private static Stream<Object> getBeansToScan(ApplicationContext applicationContext) {
+      return Arrays.stream(applicationContext.getBeanDefinitionNames())
+          .filter(((ConfigurableApplicationContext) applicationContext).getBeanFactory()::isSingleton)
+          .map(applicationContext::getBean);
     }
 
     private static boolean isMethodPrototypeValid(Method m) {
