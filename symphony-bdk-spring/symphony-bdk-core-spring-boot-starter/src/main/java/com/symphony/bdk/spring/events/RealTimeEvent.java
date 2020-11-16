@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.ResolvableTypeProvider;
 
+import java.util.Objects;
+
 /**
  * Specific {@link ApplicationEvent} used to wrap Real Time Events that are then dispatched by the {@link RealTimeEventsDispatcher}.
  */
@@ -31,5 +33,19 @@ public class RealTimeEvent<T> extends ApplicationEvent implements ResolvableType
   public ResolvableType getResolvableType() {
     return ResolvableType.forClassWithGenerics(getClass(),
         ResolvableType.forInstance(source));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    RealTimeEvent<?> that = (RealTimeEvent<?>) o;
+    return initiator.equals(that.initiator) &&
+        source.equals(that.source);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(initiator, source);
   }
 }
