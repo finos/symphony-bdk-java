@@ -12,6 +12,7 @@ import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.core.util.MessageMLValidator;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -115,10 +116,11 @@ public class BdkServiceConfig {
       final DefaultApi defaultApi,
       final AuthSession botSession,
       final TemplateEngine templateEngine,
+      final UserService userService,
       final BdkConfig config
   ) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, botSession, templateEngine, getRetryBuilder(config, botSession));
+        defaultApi, botSession, templateEngine, new MessageMLValidator(userService), getRetryBuilder(config, botSession));
   }
 
   private RetryWithRecoveryBuilder getRetryBuilder(BdkConfig config, AuthSession botSession) {

@@ -17,6 +17,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.core.util.MessageMLValidator;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -133,6 +134,7 @@ class ServiceFactory {
         new DefaultApi(this.podClient),
         this.authSession,
         this.templateEngine,
+        new MessageMLValidator(this.getUserService()),
         this.retryBuilder
     );
   }

@@ -12,6 +12,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
+import com.symphony.bdk.core.util.MessageMLValidator;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
@@ -69,6 +70,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   private final DefaultApi defaultApi;
   private final AuthSession authSession;
   private final TemplateEngine templateEngine;
+  private final MessageMLValidator messageMLValidator;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public MessageService(
@@ -81,6 +83,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       final DefaultApi defaultApi,
       final AuthSession authSession,
       final TemplateEngine templateEngine,
+      final MessageMLValidator messageMLValidator,
       final RetryWithRecoveryBuilder<?> retryBuilder
   ) {
     this.messagesApi = messagesApi;
@@ -92,13 +95,14 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     this.authSession = authSession;
     this.templateEngine = templateEngine;
     this.defaultApi = defaultApi;
+    this.messageMLValidator = messageMLValidator;
     this.retryBuilder = retryBuilder;
   }
 
   @Override
   public OboMessageService obo(AuthSession oboSession) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, oboSession, templateEngine, retryBuilder);
+        defaultApi, oboSession, templateEngine, messageMLValidator, retryBuilder);
   }
 
   /**
@@ -241,6 +245,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   private Map<String, Object> getForm(Message message) {
+    this.messageMLValidator.dataExceededValidate(message);
+    
     final Map<String, Object> form = new HashMap<>();
     form.put("message", message.getContent());
     form.put("data", message.getData());

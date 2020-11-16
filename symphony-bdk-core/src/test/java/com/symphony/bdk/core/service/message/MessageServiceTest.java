@@ -23,6 +23,7 @@ import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
+import com.symphony.bdk.core.util.MessageMLValidator;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -94,6 +95,7 @@ public class MessageServiceTest {
   private StreamsApi streamsApi;
   private AttachmentsApi attachmentsApi;
   private TemplateEngine templateEngine;
+  private MessageMLValidator validator;
   private AuthSession authSession;
 
   @BeforeEach
@@ -109,10 +111,11 @@ public class MessageServiceTest {
     templateEngine = mock(TemplateEngine.class);
     streamsApi = spy(new StreamsApi(podClient));
     attachmentsApi = spy(new AttachmentsApi(agentClient));
+    validator = mock(MessageMLValidator.class);
 
     messageService = new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
         new MessageSuppressionApi(podClient), streamsApi, new PodApi(podClient),
-        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine, new RetryWithRecoveryBuilder());
+        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine, validator, new RetryWithRecoveryBuilder());
   }
 
   @Test
@@ -478,7 +481,7 @@ public class MessageServiceTest {
 
     ApiClient agentClient = spy(mockServer.newApiClient("/agent"));
     messageService = new MessageService(new MessagesApi(agentClient), null, null, null, null, null, null, authSession,
-        templateEngine, new RetryWithRecoveryBuilder());
+        templateEngine, validator, new RetryWithRecoveryBuilder());
 
     final String response = JsonHelper.readFromClasspath("/message/blast_message.json");
     mockServer.onPost(V4_BLAST_MESSAGE, res -> res.withBody(response));
@@ -536,7 +539,7 @@ public class MessageServiceTest {
       throws IOException, ApiException {
     ApiClient agentClient = spy(mockServer.newApiClient("/agent"));
     messageService = new MessageService(new MessagesApi(agentClient), null, null, null, null, null, null, authSession,
-        templateEngine, new RetryWithRecoveryBuilder());
+        templateEngine, validator, new RetryWithRecoveryBuilder());
 
     final String response = JsonHelper.readFromClasspath("/message/send_message.json");
     mockServer.onPost("/agent/v4/stream/streamid/message/create", res -> res.withBody(response));

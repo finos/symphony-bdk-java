@@ -199,6 +199,27 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
+   * Get user information.
+   * Only one of these attributes: userId, email or username should be specified.
+   * Otherwise, a 400 Bad Request will be returned by pod server.
+   *
+   * @param userId    User Id.
+   * @param email     Email address of the user.
+   * @param username  Username of the user.
+   * @param local     If true then a local DB search will be performed and only local pod users will be
+   *                  returned. If absent or false then a directory search will be performed and users
+   *                  from other pods who are visible to the calling user will also be returned.
+   *                  Note: for username search, the local flag must be true
+   * @return  The information of the user.
+   */
+  @API(status = API.Status.INTERNAL)
+  public UserV2 getUser(@Nullable Long userId, @Nullable String email, @Nullable String username,
+      @Nullable Boolean local) {
+    return executeAndRetry("getUser",
+        () -> usersApi.v2UserGet(authSession.getSessionToken(), userId, email, username, local));
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
@@ -226,7 +247,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    */
   public V2UserDetail getUserDetailByUid(@Nonnull Long userId) {
-    return executeAndRetry("getUserDetailByUid", () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), userId));
+    return executeAndRetry("getUserDetailByUid",
+        () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), userId));
   }
 
   /**
@@ -347,7 +369,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Add a role to an user.
    *
-   * @param userId    User Id
+   * @param userId User Id
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
@@ -360,7 +382,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Remove a role from an user.
    *
-   * @param userId    User Id
+   * @param userId User Id
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
@@ -385,8 +407,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update avatar of an user
    *
-   * @param userId   User Id
-   * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
+   * @param userId User Id
+   * @param image  The avatar image for the user profile picture.The image must be a base64-encoded.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull String image) {
@@ -398,8 +420,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update avatar of an user
    *
-   * @param userId   User Id
-   * @param image The avatar image in bytes array for the user profile picture.
+   * @param userId User Id
+   * @param image  The avatar image in bytes array for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull byte[] image) {
@@ -410,7 +432,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update avatar of an user
    *
-   * @param userId         User Id
+   * @param userId      User Id
    * @param imageStream The avatar image input stream for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
@@ -445,7 +467,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Assign disclaimer to an user.
    *
-   * @param userId          User Id
+   * @param userId       User Id
    * @param disclaimerId Disclaimer to be assigned
    * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    */
@@ -471,7 +493,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update delegates assigned to an user.
    *
-   * @param userId             User Id
+   * @param userId          User Id
    * @param delegatedUserId Delegated user Id to be assigned
    * @param actionEnum      Action to be performed
    * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
@@ -498,7 +520,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update feature entitlements of an user.
    *
-   * @param userId      User Id
+   * @param userId   User Id
    * @param features List of feature entitlements to be updated
    * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    */
@@ -522,7 +544,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update the status of an user
    *
-   * @param userId    User Id
+   * @param userId User Id
    * @param status Status to be updated to the user
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    */
@@ -534,7 +556,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of followers of a specific user.
    *
-   * @param userId   User Id
+   * @param userId User Id
    * @return The list of followers of a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -546,8 +568,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of followers of a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The range and limit for pagination.
+   * @param userId     User Id
+   * @param pagination The range and limit for pagination.
    * @return The list of followers of a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -560,7 +582,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the {@link Stream} of followers of a specific user.
    *
-   * @param userId         User Id
+   * @param userId User Id
    * @return The {@link Stream} of followers of a specific user.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -575,8 +597,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the {@link Stream} of followers of a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
+   * @param userId     User Id
+   * @param pagination The chunkSize and totalSize for pagination with default value equals 100.
    * @return The {@link Stream} of followers of a specific user.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -590,7 +612,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of users followed by a specific user.
    *
-   * @param userId   User Id
+   * @param userId User Id
    * @return The list of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -602,8 +624,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of users followed by a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The range and limit for pagination.
+   * @param userId     User Id
+   * @param pagination The range and limit for pagination.
    * @return The list of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-users-followed">List Users Followed</a>
    */
@@ -616,7 +638,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns a {@link Stream} of users followed by a specific user.
    *
-   * @param userId   User Id
+   * @param userId User Id
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -631,8 +653,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns a {@link Stream} of users followed by a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
+   * @param userId     User Id
+   * @param pagination The chunkSize and totalSize for pagination with default value equals 100.
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */

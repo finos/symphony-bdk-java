@@ -63,6 +63,8 @@ dependencies {
 
         api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
+        api 'org.symphonyoss.symphony:messageml:0.9.58'
+
         api 'org.freemarker:freemarker:2.3.30'
         api 'org.reflections:reflections:0.9.12'
 

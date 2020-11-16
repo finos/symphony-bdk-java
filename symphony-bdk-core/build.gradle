@@ -51,6 +51,7 @@ dependencies {
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'org.glassfish.jersey.core:jersey-client'
+    implementation 'org.symphonyoss.symphony:messageml'
 
     testImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
     testRuntimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
