@@ -7,7 +7,6 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
-import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
@@ -284,7 +283,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       ).getData();
     } catch (ApiException e) {
       if (e.getMessage().contains(MAXIMUM_CHARACTERS_EXCEEDED_ERROR)) {
-        throw new MessageValidationException(MAXIMUM_CHARACTERS_EXCEEDED_ERROR, e);
+        log.error(MAXIMUM_CHARACTERS_EXCEEDED_ERROR);
       }
       throw e;
     }

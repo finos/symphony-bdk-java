@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.retry;
 
 
-import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -49,8 +48,6 @@ public abstract class RetryWithRecovery<T> {
       return retry.execute();
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
-    } catch (MessageValidationException messageValidationException) {
-      throw messageValidationException;
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }

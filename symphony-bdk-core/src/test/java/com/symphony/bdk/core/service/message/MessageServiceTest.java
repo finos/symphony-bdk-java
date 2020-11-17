@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
-import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.BdkMockServer;
@@ -451,7 +450,7 @@ public class MessageServiceTest {
 
     String message = "<messageML>" + StringUtils.repeat('a', 70000) + "</messageML>";
 
-    assertThrows(MessageValidationException.class, () -> this.messageService.send(STREAM_ID, message));
+    assertThrows(ApiRuntimeException.class, () -> this.messageService.send(STREAM_ID, message));
   }
 
   @Test
