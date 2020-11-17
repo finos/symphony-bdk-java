@@ -15,6 +15,7 @@ import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
+import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
@@ -121,6 +122,12 @@ public class SymphonyBdkTest {
   void getApplicationManagementServiceTest() {
     ApplicationService applicationManagementService = this.symphonyBdk.applications();
     assertNotNull(applicationManagementService);
+  }
+
+  @Test
+  void getHealthServiceTest() {
+    HealthService healthService = this.symphonyBdk.health();
+    assertNotNull(healthService);
   }
 
   @Test
