@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -68,7 +69,7 @@ public class DatafeedServiceV2 extends AbstractDatafeedService {
       do {
         this.readDatafeed();
       } while (this.started.get());
-    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
+    } catch (AuthUnauthorizedException | ApiException | NestedRetryException | MessageValidationException exception) {
       throw exception;
     } catch (Throwable throwable) {
       log.error("Unknown error", throwable);

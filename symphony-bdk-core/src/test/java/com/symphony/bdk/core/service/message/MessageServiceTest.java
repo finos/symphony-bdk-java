@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
+import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.BdkMockServer;
@@ -48,6 +49,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,6 +97,7 @@ public class MessageServiceTest {
   private AttachmentsApi attachmentsApi;
   private TemplateEngine templateEngine;
   private AuthSession authSession;
+  private ApiClient agentClient;
 
   @BeforeEach
   void setUp() {
@@ -104,7 +107,7 @@ public class MessageServiceTest {
 
     mockApiClient = new MockApiClient();
     ApiClient podClient = mockApiClient.getApiClient("/pod");
-    ApiClient agentClient = mockApiClient.getApiClient("/agent");
+    agentClient = spy(mockApiClient.getApiClient("/agent"));
 
     templateEngine = mock(TemplateEngine.class);
     streamsApi = spy(new StreamsApi(podClient));
@@ -439,6 +442,16 @@ public class MessageServiceTest {
         .build();
 
     assertInvokeApiCalledWithCorrectParams(mockServer, message, Collections.emptyList(), Collections.emptyList());
+  }
+
+  @Test
+  void testDoSendLimitExceededMessage() throws ApiException {
+    doThrow(new ApiException(400, "Your message exceeds the maximum number of characters allowed."))
+        .when(agentClient).invokeAPI(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+
+    String message = "<messageML>" + StringUtils.repeat('a', 70000) + "</messageML>";
+
+    assertThrows(MessageValidationException.class, () -> this.messageService.send(STREAM_ID, message));
   }
 
   @Test

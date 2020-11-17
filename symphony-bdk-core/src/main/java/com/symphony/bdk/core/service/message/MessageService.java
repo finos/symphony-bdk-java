@@ -7,6 +7,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
+import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
@@ -59,6 +60,9 @@ import javax.annotation.Nonnull;
 @Slf4j
 @API(status = API.Status.STABLE)
 public class MessageService implements OboMessageService, OboService<OboMessageService> {
+
+  private static final String MAXIMUM_CHARACTERS_EXCEEDED_ERROR =
+      "Your message exceeds the maximum number of characters allowed";
 
   private final MessagesApi messagesApi;
   private final MessageApi messageApi;
@@ -264,19 +268,26 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     headers.put("sessionToken", apiClient.parameterToString(this.authSession.getSessionToken()));
     headers.put("keyManagerToken", apiClient.parameterToString(this.authSession.getKeyManagerToken()));
 
-    return apiClient.invokeAPI(
-        path,
-        "POST",
-        emptyList(),
-        null, // for 'multipart/form-data', body can be null
-        headers,
-        emptyMap(),
-        form,
-        apiClient.selectHeaderAccept("application/json"),
-        apiClient.selectHeaderContentType("multipart/form-data"),
-        new String[0],
-        typeReference
-    ).getData();
+    try {
+      return apiClient.invokeAPI(
+          path,
+          "POST",
+          emptyList(),
+          null, // for 'multipart/form-data', body can be null
+          headers,
+          emptyMap(),
+          form,
+          apiClient.selectHeaderAccept("application/json"),
+          apiClient.selectHeaderContentType("multipart/form-data"),
+          new String[0],
+          typeReference
+      ).getData();
+    } catch (ApiException e) {
+      if (e.getMessage().contains(MAXIMUM_CHARACTERS_EXCEEDED_ERROR)) {
+        throw new MessageValidationException(MAXIMUM_CHARACTERS_EXCEEDED_ERROR, e);
+      }
+      throw e;
+    }
   }
 
   /**

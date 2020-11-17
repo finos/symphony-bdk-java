@@ -8,6 +8,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
+import com.symphony.bdk.core.service.message.exception.MessageValidationException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiException;
@@ -83,7 +84,7 @@ public class DatafeedServiceV1 extends AbstractDatafeedService {
       do {
         readDatafeed();
       } while (this.started.get());
-    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
+    } catch (AuthUnauthorizedException | ApiException | NestedRetryException | MessageValidationException exception) {
       throw exception;
     } catch (Throwable throwable) {
       log.error("Unknown error", throwable);
