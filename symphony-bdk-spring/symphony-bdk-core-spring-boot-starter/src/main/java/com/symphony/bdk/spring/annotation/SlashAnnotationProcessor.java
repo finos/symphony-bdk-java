@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 /**
+ * Registers {@link Slash} methods as individual {@link com.symphony.bdk.core.activity.command.SlashCommand} instances
+ * within the {@link ActivityRegistry}.
  *
  * @see <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-extension-bpp">BeanPostProcessor</a>
  * @see <a href="https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/context/event/EventListenerMethodProcessor.java">EventListenerMethodProcessor.java</a>
@@ -140,6 +142,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return annotatedMethods == null ? Collections.emptyMap() : annotatedMethods;
   }
 
+  @Generated // means ignored from test coverage
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
     this.registry.register(slash(annotation.value(), annotation.mentionBot(), c -> {
       try {
