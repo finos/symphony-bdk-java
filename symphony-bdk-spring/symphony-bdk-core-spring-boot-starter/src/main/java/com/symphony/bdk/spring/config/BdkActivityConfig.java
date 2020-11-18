@@ -1,32 +1,19 @@
 package com.symphony.bdk.spring.config;
 
-import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
-
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.spring.annotation.Slash;
+import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.AnnotationUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Configuration for Activity API:
@@ -58,57 +45,5 @@ public class BdkActivityConfig {
   @Bean
   public SlashAnnotationProcessor slashAnnotationProcessor(ActivityRegistry registry) {
     return new SlashAnnotationProcessor(registry);
-  }
-
-  @Slf4j
-  @RequiredArgsConstructor
-  private static class SlashAnnotationProcessor implements ApplicationContextAware {
-
-    private final ActivityRegistry registry;
-
-    @Override
-    public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-
-      getBeansToScan(applicationContext).forEach(bean -> {
-
-        for (final Method m : getClass(bean).getDeclaredMethods()) {
-
-          final Slash annotation = AnnotationUtils.getAnnotation(m, Slash.class);
-
-          if (annotation != null) {
-            if (isMethodPrototypeValid(m)) {
-              this.registry.register(slash(annotation.value(), annotation.mentionBot(), c -> {
-                try {
-                  m.invoke(bean, c);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                  log.error("Unable to invoke @Slash method {} from bean {}", m.getName(), bean.getClass(), e);
-                }
-              }));
-            } else {
-              log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
-                  + "It must accept a single argument of type '{}'", m, CommandContext.class);
-            }
-          }
-        }
-      });
-    }
-
-    /**
-     * Returns a {@link Stream} of beans to be scanned from {@link ApplicationContext}.
-     * Only "singleton" beans will be returned.
-     */
-    private static Stream<Object> getBeansToScan(ApplicationContext applicationContext) {
-      return Arrays.stream(applicationContext.getBeanDefinitionNames())
-          .filter(((ConfigurableApplicationContext) applicationContext).getBeanFactory()::isSingleton)
-          .map(applicationContext::getBean);
-    }
-
-    private static boolean isMethodPrototypeValid(Method m) {
-      return m.getParameterCount() == 1 && m.getParameters()[0].getType().equals(CommandContext.class);
-    }
-
-    private static Class<?> getClass(Object bean) {
-      return AopUtils.isAopProxy(bean) ? AopUtils.getTargetClass(bean) : bean.getClass();
-    }
   }
 }
