@@ -8,6 +8,7 @@ import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 
 import lombok.Generated;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils;
 import org.springframework.aop.scope.ScopedObject;
@@ -19,7 +20,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.MethodIntrospector;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
@@ -34,6 +34,7 @@ import java.util.stream.Stream;
  * @see <a href="https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/context/event/EventListenerMethodProcessor.java">EventListenerMethodProcessor.java</a>
  */
 @Slf4j
+@RequiredArgsConstructor
 public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
 
   /**
@@ -52,15 +53,10 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
 
   private ConfigurableApplicationContext applicationContext;
 
-  public SlashAnnotationProcessor(ActivityRegistry registry) {
-    this.registry = registry;
-  }
-
   @Override
   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
     this.applicationContext = (ConfigurableApplicationContext) applicationContext;
   }
-
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
@@ -82,7 +78,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return bean;
   }
 
-  @Generated // means ignored from test coverage
+  @Generated // means excluded from test coverage (hard to test error cases)
   private Class<?> determineTargetClass(String beanName) {
     Class<?> type = null;
     try {
@@ -127,7 +123,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     }
   }
 
-  @Generated // means ignored from test coverage
+  @Generated // means excluded from test coverage (hard to test error cases)
   private Map<Method, Slash> getSlashAnnotatedMethods(String beanName, Class<?> targetType) {
     Map<Method, Slash> annotatedMethods = null;
 
@@ -154,7 +150,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return c -> {
       try {
         method.invoke(bean, c);
-      } catch (IllegalAccessException | InvocationTargetException e) {
+      } catch (Throwable e) {
         log.error("Unable to invoke @Slash method {} from bean {}", method.getName(), bean.getClass(), e);
       }
     };
