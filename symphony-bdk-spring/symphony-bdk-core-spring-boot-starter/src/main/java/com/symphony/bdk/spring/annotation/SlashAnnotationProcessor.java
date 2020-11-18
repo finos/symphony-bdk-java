@@ -5,12 +5,12 @@ import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
 
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils;
 import org.springframework.aop.scope.ScopedObject;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -18,13 +18,12 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.MethodIntrospector;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  *
@@ -33,6 +32,13 @@ import java.util.Map;
  */
 @Slf4j
 public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
+
+  /** The list of packages to be ignored from application context scanning */
+  private static final String[] IGNORED_PACKAGES = {
+      "org.springframework.",
+      "com.symphony.bdk.gen.",
+      "com.symphony.bdk.core."
+  };
 
   /** The {@link ActivityRegistry} is used here to register the slash activities */
   private final ActivityRegistry registry;
@@ -52,33 +58,16 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
     if (!ScopedProxyUtils.isScopedTarget(beanName)) {
-      Class<?> type = null;
-      try {
-        type = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), beanName);
-      }
-      catch (Throwable ex) {
-        // An unresolvable bean type, probably from a lazy bean - let's ignore it.
-        log.debug("Could not resolve target class for bean with name '" + beanName + "'", ex);
-      }
+
+      final Class<?> type = this.determineTargetClass(beanName);
+
       if (type != null) {
-        if (ScopedObject.class.isAssignableFrom(type)) {
-          try {
-            Class<?> targetClass = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), ScopedProxyUtils.getTargetBeanName(beanName));
-            if (targetClass != null) {
-              type = targetClass;
-            }
-          }
-          catch (Throwable ex) {
-            // An invalid scoped proxy arrangement - let's ignore it.
-            log.debug("Could not resolve target bean for scoped proxy '" + beanName + "'", ex);
-          }
-        }
         try {
           this.processBean(bean, beanName, type);
         }
         catch (Throwable ex) {
-          throw new BeanInitializationException(
-              "Failed to process @Slash annotation on bean with name '" + beanName + "'", ex);
+          // just alert the developer
+          log.warn("Failed to process @Slash annotation on bean with name '" + beanName + "'", ex);
         }
       }
     }
@@ -86,39 +75,69 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return bean;
   }
 
-  private void processBean(final Object bean, final String beanName, final Class<?> targetType) {
-    if (AnnotationUtils.isCandidateClass(targetType, Slash.class)
-        && !isSpringContainerClass(targetType)
-        && !isBdkCoreClass(targetType)) {
+  @Generated // means ignored from test coverage
+  private Class<?> determineTargetClass(String beanName) {
+    Class<?> type = null;
+    try {
+      type = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), beanName);
+    }
+    catch (Throwable ex) {
+      // An unresolvable bean type, probably from a lazy bean - let's ignore it.
+      log.debug("Could not resolve target class for bean with name '" + beanName + "'", ex);
+    }
 
-      Map<Method, Slash> annotatedMethods = null;
-
+    if (type != null && ScopedObject.class.isAssignableFrom(type)) {
       try {
-        annotatedMethods = MethodIntrospector.selectMethods(targetType,
-            (MethodIntrospector.MetadataLookup<Slash>) method ->
-                AnnotatedElementUtils.findMergedAnnotation(method, Slash.class));
+        Class<?> targetClass = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), ScopedProxyUtils.getTargetBeanName(beanName));
+        if (targetClass != null) {
+          type = targetClass;
+        }
       }
       catch (Throwable ex) {
-        // An unresolvable type in a method signature, probably from a lazy bean - let's ignore it.
-        log.debug("Could not resolve methods for bean with name '" + beanName + "'", ex);
+        // An invalid scoped proxy arrangement - let's ignore it.
+        log.debug("Could not resolve target bean for scoped proxy '" + beanName + "'", ex);
       }
+    }
 
-      if (!CollectionUtils.isEmpty(annotatedMethods)) {
-        for (final Method m : annotatedMethods.keySet()) {
+    return type;
+  }
 
-          final Slash annotation = AnnotationUtils.getAnnotation(m, Slash.class);
+  private void processBean(final Object bean, final String beanName, final Class<?> targetType) {
+    if (AnnotationUtils.isCandidateClass(targetType, Slash.class)
+        && !isClassLocatedInPackages(targetType, IGNORED_PACKAGES)) {
 
-          if (annotation != null) {
-            if (isMethodPrototypeValid(m)) {
-              this.registerSlashMethod(bean, m, annotation);
-            } else {
-              log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
-                  + "It must accept a single argument of type '{}'", m, CommandContext.class);
-            }
+      final Map<Method, Slash> annotatedMethods = this.getSlashAnnotatedMethods(beanName, targetType);
+
+      for (final Method m : annotatedMethods.keySet()) {
+
+        final Slash annotation = AnnotationUtils.getAnnotation(m, Slash.class);
+
+        if (annotation != null) {
+          if (isMethodPrototypeValid(m)) {
+            this.registerSlashMethod(bean, m, annotation);
+          } else {
+            log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
+                + "It must accept a single argument of type '{}'", m, CommandContext.class);
           }
         }
       }
     }
+  }
+
+  @Generated // means ignored from test coverage
+  private Map<Method, Slash> getSlashAnnotatedMethods(String beanName, Class<?> targetType) {
+    Map<Method, Slash> annotatedMethods = null;
+
+    try {
+      annotatedMethods = MethodIntrospector.selectMethods(targetType,
+          (MethodIntrospector.MetadataLookup<Slash>) method -> AnnotatedElementUtils.findMergedAnnotation(method, Slash.class)
+      );
+    }
+    catch (Throwable ex) {
+      // An unresolvable type in a method signature, probably from a lazy bean - let's ignore it.
+      log.debug("Could not resolve methods for bean with name '" + beanName + "'", ex);
+    }
+    return annotatedMethods == null ? Collections.emptyMap() : annotatedMethods;
   }
 
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
@@ -135,21 +154,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return m.getParameterCount() == 1 && m.getParameters()[0].getType().equals(CommandContext.class);
   }
 
-  /**
-   * Determine whether the given class is an {@code org.springframework}
-   * bean class that is not annotated as a user or test {@link Component}...
-   * which indicates that there is no {@link Slash} to be found there.
-   */
-  private static boolean isSpringContainerClass(Class<?> clazz) {
-    return clazz.getName().startsWith("org.springframework.")
-        && !AnnotatedElementUtils.isAnnotated(ClassUtils.getUserClass(clazz), Component.class);
-  }
-
-  /**
-   * Ignore BDK core and gen classes, that don't need to be scanned.
-   */
-  private static boolean isBdkCoreClass(Class<?> clazz) {
-    return (clazz.getName().startsWith("com.symphony.bdk.gen.") || clazz.getName().startsWith("com.symphony.bdk.core."))
-        && !AnnotatedElementUtils.isAnnotated(ClassUtils.getUserClass(clazz), Component.class);
+  private static boolean isClassLocatedInPackages(Class<?> clazz, String... packagePrefixes) {
+    return Stream.of(packagePrefixes).anyMatch(clazz.getName()::startsWith);
   }
 }
