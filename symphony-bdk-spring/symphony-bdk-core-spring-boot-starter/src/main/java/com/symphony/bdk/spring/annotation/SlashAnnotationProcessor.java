@@ -1,9 +1,11 @@
 package com.symphony.bdk.spring.annotation;
 
-import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
+import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
+import static org.springframework.core.annotation.AnnotationUtils.isCandidateClass;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
+import com.symphony.bdk.core.activity.command.SlashCommand;
 
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +18,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.MethodIntrospector;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,14 +36,18 @@ import java.util.stream.Stream;
 @Slf4j
 public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
 
-  /** The list of packages to be ignored from application context scanning */
+  /**
+   * The list of packages to be ignored from application context scanning
+   */
   private static final String[] IGNORED_PACKAGES = {
       "org.springframework.",
       "com.symphony.bdk.gen.",
       "com.symphony.bdk.core."
   };
 
-  /** The {@link ActivityRegistry} is used here to register the slash activities */
+  /**
+   * The {@link ActivityRegistry} is used here to register the slash activities
+   */
   private final ActivityRegistry registry;
 
   private ConfigurableApplicationContext applicationContext;
@@ -57,6 +61,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     this.applicationContext = (ConfigurableApplicationContext) applicationContext;
   }
 
+
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 
@@ -64,13 +69,12 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
 
       final Class<?> type = this.determineTargetClass(beanName);
 
-      if (type != null) {
+      if (type != null && isCandidateClass(type, Slash.class) && !isClassLocatedInPackages(type, IGNORED_PACKAGES)) {
         try {
           this.processBean(bean, beanName, type);
-        }
-        catch (Throwable ex) {
+        } catch (Throwable ex) {
           // just alert the developer
-          log.warn("Failed to process @Slash annotation on bean with name '" + beanName + "'", ex);
+          log.warn("Failed to process @Slash annotation on bean with name '{}'", beanName, ex);
         }
       }
     }
@@ -83,22 +87,23 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     Class<?> type = null;
     try {
       type = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), beanName);
-    }
-    catch (Throwable ex) {
+    } catch (Throwable ex) {
       // An unresolvable bean type, probably from a lazy bean - let's ignore it.
-      log.debug("Could not resolve target class for bean with name '" + beanName + "'", ex);
+      log.debug("Could not resolve target class for bean with name '{}'", beanName, ex);
     }
 
     if (type != null && ScopedObject.class.isAssignableFrom(type)) {
       try {
-        Class<?> targetClass = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), ScopedProxyUtils.getTargetBeanName(beanName));
+        Class<?> targetClass = AutoProxyUtils.determineTargetClass(
+            this.applicationContext.getBeanFactory(),
+            ScopedProxyUtils.getTargetBeanName(beanName)
+        );
         if (targetClass != null) {
           type = targetClass;
         }
-      }
-      catch (Throwable ex) {
+      } catch (Throwable ex) {
         // An invalid scoped proxy arrangement - let's ignore it.
-        log.debug("Could not resolve target bean for scoped proxy '" + beanName + "'", ex);
+        log.debug("Could not resolve target bean for scoped proxy '{}'", beanName, ex);
       }
     }
 
@@ -106,23 +111,18 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
   }
 
   private void processBean(final Object bean, final String beanName, final Class<?> targetType) {
-    if (AnnotationUtils.isCandidateClass(targetType, Slash.class)
-        && !isClassLocatedInPackages(targetType, IGNORED_PACKAGES)) {
 
-      final Map<Method, Slash> annotatedMethods = this.getSlashAnnotatedMethods(beanName, targetType);
+    final Map<Method, Slash> annotatedMethods = this.getSlashAnnotatedMethods(beanName, targetType);
 
-      for (final Method m : annotatedMethods.keySet()) {
+    for (final Method m : annotatedMethods.keySet()) {
 
-        final Slash annotation = AnnotationUtils.getAnnotation(m, Slash.class);
+      final Slash annotation = annotatedMethods.get(m);
 
-        if (annotation != null) {
-          if (isMethodPrototypeValid(m)) {
-            this.registerSlashMethod(bean, m, annotation);
-          } else {
-            log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
-                + "It must accept a single argument of type '{}'", m, CommandContext.class);
-          }
-        }
+      if (isMethodPrototypeValid(m)) {
+        this.registerSlashMethod(bean, m, annotation);
+      } else {
+        log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
+            + "It must accept a single argument of type '{}'", m, CommandContext.class);
       }
     }
   }
@@ -132,19 +132,21 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     Map<Method, Slash> annotatedMethods = null;
 
     try {
-      annotatedMethods = MethodIntrospector.selectMethods(targetType,
-          (MethodIntrospector.MetadataLookup<Slash>) method -> AnnotatedElementUtils.findMergedAnnotation(method, Slash.class)
+      annotatedMethods = MethodIntrospector.selectMethods(
+          targetType,
+          (MethodIntrospector.MetadataLookup<Slash>) method -> findMergedAnnotation(method, Slash.class)
       );
-    }
-    catch (Throwable ex) {
+    } catch (Throwable ex) {
       // An unresolvable type in a method signature, probably from a lazy bean - let's ignore it.
-      log.debug("Could not resolve methods for bean with name '" + beanName + "'", ex);
+      log.debug("Could not resolve methods for bean with name '{}'", beanName, ex);
     }
     return annotatedMethods == null ? Collections.emptyMap() : annotatedMethods;
   }
 
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
-    this.registry.register(slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method)));
+    this.registry.register(
+        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method))
+    );
   }
 
   // visible for testing

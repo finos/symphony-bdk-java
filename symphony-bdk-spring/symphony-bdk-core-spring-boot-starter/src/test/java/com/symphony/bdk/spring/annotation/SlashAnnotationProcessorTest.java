@@ -46,26 +46,35 @@ public class SlashAnnotationProcessorTest {
   @Test
   void slashMethodShouldBeRegistered() {
 
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(3);
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(4);
 
     assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(SlashCommand.class)));
     assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(TestFormReplyActivity.class)));
 
     // for lazy beans, slash activity is added once bean initialized
     this.applicationContext.getBean("foobar-lazy");
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(4);
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(5);
 
     // verify that slash activity is not added twice in the registry for a lazy bean
     this.applicationContext.getBean("foobar-lazy");
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(4);
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(5);
   }
 
   @Test
   void testCreateSlashCommandCallback() throws Exception {
-    final TestSlashCommand bean = mock(TestSlashCommand.class);
-    final Method method = bean.getClass().getMethod("onTest", CommandContext.class);
-    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, method);
+    final TestSlashCommand bean = spy(new TestSlashCommand());
+    final Method publicMethod = bean.getClass().getDeclaredMethod("onTest", CommandContext.class);
+    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod);
     callback.accept(mock(CommandContext.class));
-    verify(bean, times(1)).onTest(any(CommandContext.class));
+    verify(bean).onTest(any(CommandContext.class));
+  }
+
+  @Test
+  void testExecuteCallbackWithError() throws Exception {
+    final TestSlashCommand bean = spy(new TestSlashCommand());
+    final Method publicMethod = bean.getClass().getDeclaredMethod("onErrorTest", CommandContext.class);
+    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod);
+    callback.accept(mock(CommandContext.class));
+    verify(bean, never()).onTest(any(CommandContext.class));
   }
 }
