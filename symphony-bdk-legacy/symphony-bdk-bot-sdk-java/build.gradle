@@ -35,5 +35,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'com.github.tomakehurst:wiremock-jre8'
 }
 
