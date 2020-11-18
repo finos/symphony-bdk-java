@@ -18,6 +18,8 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
@@ -118,12 +120,24 @@ public class MessageServiceTest {
   @Test
   void testGetMessagesWithStreamObject() {
     MessageService service = spy(messageService);
-    doReturn(Collections.emptyList()).when(service).getMessages(anyString(), any(), any(), any());
+    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any());
 
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+    Instant now = Instant.now();
+    assertNotNull(service.listMessages(v4Stream, now));
+    verify(service).listMessages(eq(STREAM_ID), eq(now));
+  }
 
-    assertNotNull(service.getMessages(v4Stream, null, null, null));
-    verify(service).getMessages(eq(STREAM_ID), isNull(), isNull(), isNull());
+  @Test
+  void testGetPaginationMessagesWithStreamObject() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(), any());
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+    Instant now = Instant.now();
+    PaginationAttribute pagination = new PaginationAttribute(2, 2);
+    assertNotNull(service.listMessages(v4Stream, now, pagination));
+    verify(service).listMessages(eq(STREAM_ID), eq(now), eq(pagination));
   }
 
   @Test
@@ -132,7 +146,7 @@ public class MessageServiceTest {
     mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", streamId),
         JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
 
-    final List<V4Message> messages = messageService.getMessages(streamId, Instant.now(), null, null);
+    final List<V4Message> messages = messageService.listMessages(streamId, Instant.now());
 
     assertEquals(2, messages.size());
     assertEquals(Arrays.asList("messageId1", "messageId2"),
@@ -140,11 +154,24 @@ public class MessageServiceTest {
   }
 
   @Test
+  void testGetPaginationMessagesStream() throws IOException {
+    mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final Stream<V4Message> messages =
+        messageService.listAllMessages(STREAM_ID, Instant.now(), new StreamPaginationAttribute(2, 2));
+
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
   void testGetMessagesStream() throws IOException {
     mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
 
-    final Stream<V4Message> messages = messageService.getMessagesStream(STREAM_ID, Instant.now(), 2, 2);
+    final Stream<V4Message> messages =
+        messageService.listAllMessages(STREAM_ID, Instant.now());
 
     assertEquals(Arrays.asList("messageId1", "messageId2"),
         messages.map(V4Message::getMessageId).collect(Collectors.toList()));
@@ -153,12 +180,28 @@ public class MessageServiceTest {
   @Test
   void testGetMessagesStreamWithStreamObject() {
     MessageService service = spy(messageService);
-    doReturn(Stream.empty()).when(service).getMessagesStream(anyString(), any(), any(), any());
+    doReturn(Stream.empty()).when(service).listAllMessages(anyString(), any());
 
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
 
-    assertNotNull(service.getMessagesStream(v4Stream, null, null, null));
-    verify(service).getMessagesStream(eq(STREAM_ID), isNull(), isNull(), isNull());
+    Instant now = Instant.now();
+
+    assertNotNull(service.listAllMessages(v4Stream, now));
+    verify(service).listAllMessages(eq(STREAM_ID), eq(now));
+  }
+
+  @Test
+  void testGetPaginationMessagesStreamWithStreamObject() {
+    MessageService service = spy(messageService);
+    doReturn(Stream.empty()).when(service).listAllMessages(anyString(), any(), any());
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+
+    Instant now = Instant.now();
+    StreamPaginationAttribute pagination = new StreamPaginationAttribute(2, 2);
+
+    assertNotNull(service.listAllMessages(v4Stream, now, pagination));
+    verify(service).listAllMessages(eq(STREAM_ID), eq(now), eq(pagination));
   }
 
   @Test
@@ -393,7 +436,7 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
 
     final MessageIdsFromStream messageIdsByTimestamp =
-        messageService.getMessageIdsByTimestamp(STREAM_ID, Instant.now(), Instant.now(), null, null);
+        messageService.listMessageIdsByTimestamp(STREAM_ID, Instant.now(), Instant.now());
     assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.getData());
   }
 
@@ -403,7 +446,18 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
 
     final Stream<String> messageIdsByTimestamp =
-        messageService.getMessageIdsByTimestampStream(STREAM_ID, Instant.now(), Instant.now(), null, null);
+        messageService.listAllMessageIdsByTimestampStream(STREAM_ID, Instant.now(), Instant.now());
+    assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.collect(Collectors.toList()));
+  }
+
+  @Test
+  void testGetPaginationMessageIdsByTimestampStream() throws IOException {
+    mockApiClient.onGet(V2_MESSAGE_IDS.replace("{streamId}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
+
+    final Stream<String> messageIdsByTimestamp =
+        messageService.listAllMessageIdsByTimestampStream(STREAM_ID, Instant.now(), Instant.now(),
+            new StreamPaginationAttribute(2, 2));
     assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.collect(Collectors.toList()));
   }
 
@@ -484,7 +538,7 @@ public class MessageServiceTest {
     mockServer.onPost(V4_BLAST_MESSAGE, res -> res.withBody(response));
 
     final V4MessageBlastResponse blastResponse =
-        messageService.blastMessage(Arrays.asList("sid1", "sid2"), message);
+        messageService.sendBlast(Arrays.asList("sid1", "sid2"), message);
 
     //assert on response body
     assertNotNull(blastResponse);

@@ -7,6 +7,9 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Service interface exposing OBO-enabled endpoints to manage user presence information.
  */
@@ -24,7 +27,7 @@ public interface OboPresenceService {
 
   /**
    * Get the presence info of all users in a pod.
-   * {@link PresenceService#getAllUsersPresence(Long, int)}
+   * {@link PresenceService#listPresencesOfAllUsers(Long, Integer)}
    *
    * @param lastUserId  Last user ID retrieved, used for paging. If provided, results skip users with IDs less than
    *                    this parameter.
@@ -32,7 +35,7 @@ public interface OboPresenceService {
    * @return List of presence info of all users in a pod.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-all-presence">Get All Presence</a>
    */
-  List<V2Presence> getAllUsersPresence(Long lastUserId, int limit);
+  List<V2Presence> listPresencesOfAllUsers(@Nullable Long lastUserId, @Nullable Integer limit);
 
   /**
    * Get the presence info of a specified user.
@@ -45,7 +48,7 @@ public interface OboPresenceService {
    * @return Presence info of the looked up user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-presence-v3">Get User Presence</a>
    */
-  V2Presence getUserPresence(Long userId, Boolean local);
+  V2Presence getUserPresence(@Nonnull Long userId, @Nullable Boolean local);
 
   /**
    * Register interest in a list of external users to get their presence info.
@@ -54,7 +57,7 @@ public interface OboPresenceService {
    * @param userIds List of user ids to be registered.
    * @see <a href="https://developers.symphony.com/restapi/reference#register-user-presence-interest">External Presence Interest</a>
    */
-  void externalPresenceInterest(List<Long> userIds);
+  void externalPresenceInterest(@Nonnull List<Long> userIds);
 
   /**
    * Set the presence info of the calling user.
@@ -70,7 +73,7 @@ public interface OboPresenceService {
    * @return Presence info of the calling user.
    * @see <a href="https://developers.symphony.com/restapi/reference#set-presence">Set Presence</a>
    */
-  V2Presence setPresence(PresenceStatus status, Boolean soft);
+  V2Presence setPresence(@Nonnull PresenceStatus status, @Nullable Boolean soft);
 
   /**
    * Creates a new stream capturing online status changes ("presence feed") for the company (pod) and returns the ID of
@@ -91,7 +94,7 @@ public interface OboPresenceService {
    * @return The list of user presences has changed since the last presence read.
    * @see <a href="https://developers.symphony.com/restapi/reference#read-presence-feed">Read Presence Feed</a>
    */
-  List<V2Presence> readPresenceFeed(String feedId);
+  List<V2Presence> readPresenceFeed(@Nonnull String feedId);
 
   /**
    * Delete the specified presence feed that was created.
@@ -100,7 +103,7 @@ public interface OboPresenceService {
    * @param feedId The presence feed id to be deleted.
    * @return The id of the deleted presence feed.
    */
-  String deletePresenceFeed(String feedId);
+  String deletePresenceFeed(@Nonnull String feedId);
 
   /**
    * Set the presence state of a another user.
@@ -116,5 +119,5 @@ public interface OboPresenceService {
    *                but the user is currently idle, their status will be represented as AWAY)
    * @return The presence info of the specified user.
    */
-  V2Presence setUserPresence(Long userId, PresenceStatus status, Boolean soft);
+  V2Presence setUserPresence(@Nonnull Long userId, @Nonnull PresenceStatus status, @Nullable Boolean soft);
 }

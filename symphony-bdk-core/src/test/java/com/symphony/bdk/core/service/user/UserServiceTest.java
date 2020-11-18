@@ -503,32 +503,32 @@ class UserServiceTest {
     String response = JsonHelper.readFromClasspath("/user/users.json");
     this.mockApiClient.onGet(SEARCH_USERS_V3, response);
 
-    List<UserV2> users1 = this.service.searchUserByIds(Collections.singletonList(1234L), true, true);
+    List<UserV2> users1 = this.service.listUsersByIds(Collections.singletonList(1234L), true, true);
 
     assertEquals(users1.size(), 1);
     assertEquals(users1.get(0).getDisplayName(), "Test Bot");
 
-    List<UserV2> users2 = this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true, true);
+    List<UserV2> users2 = this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"), true, true);
 
     assertEquals(users2.size(), 1);
     assertEquals(users2.get(0).getUsername(), "tibot");
 
-    List<UserV2> users3 = this.service.searchUserByUsernames(Collections.singletonList("tibot"), true);
+    List<UserV2> users3 = this.service.listUsersByUsernames(Collections.singletonList("tibot"), true);
 
     assertEquals(users3.size(), 1);
     assertEquals(users3.get(0).getId(), 1234L);
 
-    List<UserV2> users4 = this.service.searchUserByIds(Collections.singletonList(1234L));
+    List<UserV2> users4 = this.service.listUsersByIds(Collections.singletonList(1234L));
 
     assertEquals(users4.size(), 1);
     assertEquals(users4.get(0).getId(), 1234L);
 
-    List<UserV2> users5 = this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"));
+    List<UserV2> users5 = this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"));
 
     assertEquals(users5.size(), 1);
     assertEquals(users5.get(0).getId(), 1234L);
 
-    List<UserV2> users6 = this.service.searchUserByUsernames(Collections.singletonList("tibot"));
+    List<UserV2> users6 = this.service.listUsersByUsernames(Collections.singletonList("tibot"));
 
     assertEquals(users6.size(), 1);
     assertEquals(users6.get(0).getId(), 1234L);
@@ -539,17 +539,17 @@ class UserServiceTest {
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.searchUserByIds(Collections.singletonList(1234L), true, true));
+        () -> this.service.listUsersByIds(Collections.singletonList(1234L), true, true));
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com"), true, true));
+        () -> this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"), true, true));
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.searchUserByUsernames(Collections.singletonList("tibot"), true));
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchUserByIds(Collections.singletonList(1234L)));
+        () -> this.service.listUsersByUsernames(Collections.singletonList("tibot"), true));
+    assertThrows(ApiRuntimeException.class, () -> this.service.listUsersByIds(Collections.singletonList(1234L)));
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.searchUserByEmails(Collections.singletonList("tibot@symphony.com")));
+        () -> this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com")));
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.searchUserByUsernames(Collections.singletonList("tibot")));
+        () -> this.service.listUsersByUsernames(Collections.singletonList("tibot")));
   }
 
   @Test
@@ -560,7 +560,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.searchUserBySearchQuery(query, true);
+    List<UserV2> users = this.service.listUsersBySearchQuery(query, true);
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -575,7 +575,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.searchUserBySearchQuery(query, true, new PaginationAttribute(0, 100));
+    List<UserV2> users = this.service.listUsersBySearchQuery(query, true, new PaginationAttribute(0, 100));
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -590,7 +590,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.searchAllUsersBySearchQuery(query, true).collect(Collectors.toList());
+    List<UserV2> users = this.service.listAllUsersBySearchQuery(query, true).collect(Collectors.toList());
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -605,7 +605,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.searchAllUsersBySearchQuery(query, true, new StreamPaginationAttribute(100, 100))
+    List<UserV2> users = this.service.listAllUsersBySearchQuery(query, true, new StreamPaginationAttribute(100, 100))
         .collect(Collectors.toList());
 
     assertEquals(users.size(), 1);

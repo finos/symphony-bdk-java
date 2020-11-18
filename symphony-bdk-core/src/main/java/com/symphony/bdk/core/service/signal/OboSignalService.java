@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.signal;
 
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.gen.api.model.BaseSignal;
 import com.symphony.bdk.gen.api.model.ChannelSubscriber;
 import com.symphony.bdk.gen.api.model.ChannelSubscriptionResponse;
@@ -21,14 +23,13 @@ public interface OboSignalService {
 
   /**
    * Lists signals on behalf of the user.
-   * {@link SignalService#listSignals(Integer, Integer)}
+   * {@link SignalService#listSignals(PaginationAttribute)}
    *
-   * @param skip  The number of signals to skip.
-   * @param limit Maximum number of signals to return. Default is 50, maximum value is 500.
+   * @param pagination  The skip and limit for pagination.
    * @return List of signals that the user has created and public signals to which they have subscribed.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
    */
-  List<Signal> listSignals(@Nullable Integer skip, @Nullable Integer limit);
+  List<Signal> listSignals(@Nonnull PaginationAttribute pagination);
 
   /**
    * Lists signals on behalf of the user with default limit equal 50.
@@ -41,23 +42,24 @@ public interface OboSignalService {
 
   /**
    * Lists paginated stream of signals on behalf of the user.
-   * {@link SignalService#listSignalsStream(Integer, Integer)}
+   * {@link SignalService#listAllSignals(StreamPaginationAttribute)}
    *
-   * @param chunkSize size of elements to retrieve in one call. Optional and defaults to 50.
-   * @param totalSize Total maximum number of signals to return. Optional and defaults to 50.
+   * @param pagination  The chunkSize and totalSize for pagination.
    * @return a {@link Stream} containing the signals.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
    */
-  Stream<Signal> listSignalsStream(@Nullable Integer chunkSize, @Nullable Integer totalSize);
+  @API(status = API.Status.EXPERIMENTAL)
+  Stream<Signal> listAllSignals(@Nonnull StreamPaginationAttribute pagination);
 
   /**
-   * Lists paginated stream of signals on behalf of the user with the default chunkSize and totalSize equal 50.
-   * {@link SignalService#listSignalsStream()}
+   * Lists paginated stream of signals on behalf of the user with the default chunkSize and totalSize equal 100.
+   * {@link SignalService#listAllSignals()}
    *
    * @return a {@link Stream} containing the signals.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
    */
-  Stream<Signal> listSignalsStream();
+  @API(status = API.Status.EXPERIMENTAL)
+  Stream<Signal> listAllSignals();
 
   /**
    * Gets details about the specified signal.
@@ -125,15 +127,14 @@ public interface OboSignalService {
 
   /**
    * Get the subscribers for a specified signal.
-   * {@link SignalService#listSubscribers(String, Integer, Integer)}
+   * {@link SignalService#listSubscribers(String, PaginationAttribute)}
    *
    * @param id      The id of the specified signal.
-   * @param skip    The number of results to skip.
-   * @param limit   The maximum number of subscribers to return. If no value is provided, 100 is the default.
+   * @param pagination  The skip and limit for pagination.
    * @return List of subscribers of the signal.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nullable Integer skip, @Nullable Integer limit);
+  List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nonnull PaginationAttribute pagination);
 
   /**
    * Get the subscribers for a specified signal with default limit equal to 100.
@@ -147,23 +148,24 @@ public interface OboSignalService {
 
   /**
    * Get the paginated stream of subscribers for a specified signal.
-   * {@link SignalService#listSubscribersStream(String, Integer, Integer)}
+   * {@link SignalService#listAllSubscribers(String, StreamPaginationAttribute)}
    *
    * @param id        The id of the specified signal.
-   * @param chunkSize The size of elements to retrieve in one call. Optional and defaults to 100.
-   * @param totalSize Total maximum number of subscribers to return. Optional and defaults to 100.
+   * @param pagination  The chunkSize and totalSize for pagination.
    * @return a {@link Stream} containing the subscribers.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  Stream<ChannelSubscriber> listSubscribersStream(@Nonnull String id, @Nullable Integer chunkSize, @Nullable Integer totalSize);
+  @API(status = API.Status.EXPERIMENTAL)
+  Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id, @Nonnull StreamPaginationAttribute pagination);
 
   /**
    * Get the paginated stream of subscribers for a specified signal with the default chunkSize and totalSize equal to 100.
-   * {@link SignalService#listSubscribersStream(String)}
+   * {@link SignalService#listAllSubscribers(String)}
    *
    * @param id  The id of the specified signal.
    * @return a {@link Stream} containing the subscribers.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  Stream<ChannelSubscriber> listSubscribersStream(@Nonnull String id);
+  @API(status = API.Status.EXPERIMENTAL)
+  Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id);
 }

@@ -7,6 +7,8 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 /**
  * Service interface exposing OBO-enabled endpoints to manage user connection status.
  */
@@ -21,7 +23,7 @@ public interface OboConnectionService {
    * @return Connection status with the specified user.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-connection">Get Connection</a>
    */
-  UserConnection getConnection(Long userId);
+  UserConnection getConnection(@Nonnull Long userId);
 
   /**
    * List all current connection statuses with external or specified users.
@@ -36,7 +38,7 @@ public interface OboConnectionService {
    * @return List of connection statuses with the specified users and status.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-connections">List Connections</a>
    */
-  List<UserConnection> listConnections(ConnectionStatus status, List<Long> userIds);
+  List<UserConnection> listConnections(@Nonnull ConnectionStatus status, @Nonnull List<Long> userIds);
 
   /**
    * Sends a connection request to another user.
@@ -46,7 +48,7 @@ public interface OboConnectionService {
    * @return Connection status with the specified user.
    * @see <a href="https://developers.symphony.com/restapi/reference#create-connection">Create Connection</a>
    */
-  UserConnection createConnection(Long userId);
+  UserConnection createConnection(@Nonnull Long userId);
 
   /**
    * Accept the connection request from a requesting user.
@@ -56,7 +58,7 @@ public interface OboConnectionService {
    * @return Connection status with the requesting user.
    * @see <a href="https://developers.symphony.com/restapi/reference#accepted-connection">Accept Connection</a>
    */
-  UserConnection acceptConnection(Long userId);
+  UserConnection acceptConnection(@Nonnull Long userId);
 
   /**
    * Reject the connection request from a requesting user.
@@ -66,7 +68,7 @@ public interface OboConnectionService {
    * @return Connection status with the requesting user.
    * @see <a href="https://developers.symphony.com/restapi/reference#reject-connection">Reject Connection</a>
    */
-  UserConnection rejectConnection(Long userId);
+  UserConnection rejectConnection(@Nonnull Long userId);
 
   /**
    * Removes a connection with a user.
@@ -75,5 +77,5 @@ public interface OboConnectionService {
    * @param userId The id of the user with whom we want to remove the connection.
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-connection">Remove Connection</a>
    */
-  void removeConnection(Long userId);
+  void removeConnection(@Nonnull Long userId);
 }

@@ -16,6 +16,9 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Service class for managing user presence information.
  * <p>
@@ -64,7 +67,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public List<V2Presence> getAllUsersPresence(Long lastUserId, int limit) {
+  public List<V2Presence> listPresencesOfAllUsers(@Nullable Long lastUserId, @Nullable Integer limit) {
     return executeAndRetry("getAllUsersPresence",
         () -> presenceApi.v2UsersPresenceGet(authSession.getSessionToken(), lastUserId, limit));
   }
@@ -73,7 +76,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public V2Presence getUserPresence(Long userId, Boolean local) {
+  public V2Presence getUserPresence(@Nonnull Long userId, @Nullable Boolean local) {
     return executeAndRetry("getUserPresence",
         () -> presenceApi.v3UserUidPresenceGet(userId, authSession.getSessionToken(), local));
   }
@@ -82,7 +85,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public void externalPresenceInterest(List<Long> userIds) {
+  public void externalPresenceInterest(@Nonnull List<Long> userIds) {
     executeAndRetry("externalPresenceInterest",
         () -> presenceApi.v1UserPresenceRegisterPost(authSession.getSessionToken(), userIds));
   }
@@ -91,7 +94,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public V2Presence setPresence(PresenceStatus status, Boolean soft) {
+  public V2Presence setPresence(@Nonnull PresenceStatus status, @Nullable Boolean soft) {
     V2PresenceStatus presenceStatus = new V2PresenceStatus().category(status.name());
     return executeAndRetry("setPresence",
         () -> presenceApi.v2UserPresencePost(authSession.getSessionToken(), presenceStatus, soft));
@@ -110,7 +113,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public List<V2Presence> readPresenceFeed(String feedId) {
+  public List<V2Presence> readPresenceFeed(@Nonnull String feedId) {
     return executeAndRetry("readPresenceFeed",
         () -> presenceApi.v1PresenceFeedFeedIdReadGet(authSession.getSessionToken(), feedId));
   }
@@ -119,7 +122,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public String deletePresenceFeed(String feedId) {
+  public String deletePresenceFeed(@Nonnull String feedId) {
     return executeAndRetry("deletePresenceFeed",
         () -> presenceApi.v1PresenceFeedFeedIdDeletePost(authSession.getSessionToken(), feedId)).getId();
   }
@@ -128,7 +131,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public V2Presence setUserPresence(Long userId, PresenceStatus status, Boolean soft) {
+  public V2Presence setUserPresence(@Nonnull Long userId, @Nonnull PresenceStatus status, @Nullable Boolean soft) {
     V2UserPresence userPresence = new V2UserPresence().userId(userId).category(status.name());
     return executeAndRetry("setUserPresence",
         () -> presenceApi.v3UserPresencePost(authSession.getSessionToken(), userPresence, soft));

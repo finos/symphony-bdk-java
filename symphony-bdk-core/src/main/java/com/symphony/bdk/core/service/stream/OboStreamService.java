@@ -23,13 +23,13 @@ import javax.annotation.Nullable;
 public interface OboStreamService {
 
   /**
-   * {@link StreamService#getStreamInfo(String)}
+   * {@link StreamService#getStream(String)}
    *
    * @param streamId    The stream id.
    * @return The information about the stream with the given id.
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-info-v2">Stream Info V2</a>
    */
-  V2StreamAttributes getStreamInfo(@Nonnull String streamId);
+  V2StreamAttributes getStream(@Nonnull String streamId);
 
   /**
    * {@link StreamService#listStreams(StreamFilter)}
@@ -64,7 +64,7 @@ public interface OboStreamService {
    * {@link StreamService#listAllStreams(StreamFilter, StreamPaginationAttribute)}
    *
    * @param filter      The stream searching criteria.
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 50.
+   * @param pagination  The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of matching streams according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
    */

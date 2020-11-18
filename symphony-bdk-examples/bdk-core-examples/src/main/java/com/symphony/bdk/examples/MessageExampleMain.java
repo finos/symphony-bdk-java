@@ -3,6 +3,8 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.model.MessageIdsFromStream;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
@@ -41,26 +43,29 @@ public class MessageExampleMain {
     final V4Message message = bdk.messages().getMessage(regularMessage.getMessageId());
 
     //retrieve a list of messages
-    final List<V4Message> messages = bdk.messages().getMessages(STREAM_ID, SINCE, null, 2);
-    final Stream<V4Message> messagesStream = bdk.messages().getMessagesStream(STREAM_ID, SINCE, 2, 6);
+    final List<V4Message> messages = bdk.messages().listMessages(STREAM_ID, SINCE, new PaginationAttribute(0, 2));
+    final Stream<V4Message> messagesStream =
+        bdk.messages().listAllMessages(STREAM_ID, SINCE, new StreamPaginationAttribute(2, 6));
 
     //retrieve a list of messageIds
     final MessageIdsFromStream messageIdsByTimestamp =
-        bdk.messages().getMessageIdsByTimestamp(STREAM_ID, SINCE, TO, 2, 0);
+        bdk.messages().listMessageIdsByTimestamp(STREAM_ID, SINCE, TO, new PaginationAttribute(2, 0));
 
     final Stream<String> messageIdsByTimestampStream =
-        bdk.messages().getMessageIdsByTimestampStream(STREAM_ID, SINCE, TO, 2, 6);
+        bdk.messages().listAllMessageIdsByTimestampStream(STREAM_ID, SINCE, TO, new StreamPaginationAttribute(2, 6));
 
     //message status, receipts, relationships
     final MessageStatus messageStatus = bdk.messages().getMessageStatus(message.getMessageId());
-    final MessageReceiptDetailResponse messageReceiptDetailResponse = bdk.messages().listMessageReceipts(message.getMessageId());
+    final MessageReceiptDetailResponse messageReceiptDetailResponse =
+        bdk.messages().listMessageReceipts(message.getMessageId());
     final MessageMetadataResponse messageRelationships = bdk.messages().getMessageRelationships(message.getMessageId());
 
     //attachment
     final List<String> attachmentTypes = bdk.messages().getAttachmentTypes();
     final List<StreamAttachmentItem> streamAttachmentItems =
         bdk.messages().listAttachments(STREAM_ID, SINCE, TO, 3, AttachmentSort.ASC);
-    final byte[] attachment = bdk.messages().getAttachment(STREAM_ID, message.getMessageId(), message.getAttachments().get(0).getId());
+    final byte[] attachment =
+        bdk.messages().getAttachment(STREAM_ID, message.getMessageId(), message.getAttachments().get(0).getId());
 
     //import a message
     V4ImportedMessage msg = new V4ImportedMessage();
