@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -142,15 +143,19 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return annotatedMethods == null ? Collections.emptyMap() : annotatedMethods;
   }
 
-  @Generated // means ignored from test coverage
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
-    this.registry.register(slash(annotation.value(), annotation.mentionBot(), c -> {
+    this.registry.register(slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method)));
+  }
+
+  // visible for testing
+  protected static Consumer<CommandContext> createSlashCommandCallback(Object bean, Method method) {
+    return c -> {
       try {
         method.invoke(bean, c);
       } catch (IllegalAccessException | InvocationTargetException e) {
         log.error("Unable to invoke @Slash method {} from bean {}", method.getName(), bean.getClass(), e);
       }
-    }));
+    };
   }
 
   private static boolean isMethodPrototypeValid(Method m) {

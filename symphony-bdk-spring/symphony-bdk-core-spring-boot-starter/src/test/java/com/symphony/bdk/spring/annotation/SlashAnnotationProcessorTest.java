@@ -1,10 +1,15 @@
-package com.symphony.bdk.spring.slash;
+package com.symphony.bdk.spring.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
+import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.spring.slash.TestFormReplyActivity;
+
+import com.symphony.bdk.spring.slash.TestSlashCommand;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.lang.reflect.Method;
+import java.util.function.Consumer;
 
 /**
  * This test class ensures that methods annotated by {@link com.symphony.bdk.spring.annotation.Slash} annotation are
@@ -31,9 +39,9 @@ public class SlashAnnotationProcessorTest {
    * Multiple classes in this test package create @Slash methods in different ways: from prototype scopes bean, from lazy beans...
    * We want here to ensure that those @Slash methods are correctly registered in the {@link ActivityRegistry}.
    *
-   * @see TestSlashConfig
-   * @see TestSlashCommand
-   * @see TestFormReplyActivity
+   * @see com.symphony.bdk.spring.slash.TestSlashConfig
+   * @see com.symphony.bdk.spring.slash.TestSlashCommand
+   * @see com.symphony.bdk.spring.slash.TestFormReplyActivity
    */
   @Test
   void slashMethodShouldBeRegistered() {
@@ -50,5 +58,14 @@ public class SlashAnnotationProcessorTest {
     // verify that slash activity is not added twice in the registry for a lazy bean
     this.applicationContext.getBean("foobar-lazy");
     assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(4);
+  }
+
+  @Test
+  void testCreateSlashCommandCallback() throws Exception {
+    final TestSlashCommand bean = mock(TestSlashCommand.class);
+    final Method method = bean.getClass().getMethod("onTest", CommandContext.class);
+    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, method);
+    callback.accept(mock(CommandContext.class));
+    verify(bean, times(1)).onTest(any(CommandContext.class));
   }
 }
