@@ -16,6 +16,11 @@ public class TestSlashCommand {
     // nothing to be done here
   }
 
+  @Slash("/error-test")
+  public void onErrorTest(CommandContext context) {
+    throw new RuntimeException("something wrong happened!");
+  }
+
   @Slash("/hello")
   public void illegalPrototype() {
     //
