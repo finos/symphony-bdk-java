@@ -446,7 +446,7 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
 
     final Stream<String> messageIdsByTimestamp =
-        messageService.listAllMessageIdsByTimestampStream(STREAM_ID, Instant.now(), Instant.now());
+        messageService.listAllMessageIdsByTimestamp(STREAM_ID, Instant.now(), Instant.now());
     assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.collect(Collectors.toList()));
   }
 
@@ -456,7 +456,7 @@ public class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/get_message_ids_by_timestamp.json"));
 
     final Stream<String> messageIdsByTimestamp =
-        messageService.listAllMessageIdsByTimestampStream(STREAM_ID, Instant.now(), Instant.now(),
+        messageService.listAllMessageIdsByTimestamp(STREAM_ID, Instant.now(), Instant.now(),
             new StreamPaginationAttribute(2, 2));
     assertEquals(Arrays.asList("messageId1", "messageId2"), messageIdsByTimestamp.collect(Collectors.toList()));
   }
@@ -538,7 +538,7 @@ public class MessageServiceTest {
     mockServer.onPost(V4_BLAST_MESSAGE, res -> res.withBody(response));
 
     final V4MessageBlastResponse blastResponse =
-        messageService.sendBlast(Arrays.asList("sid1", "sid2"), message);
+        messageService.send(Arrays.asList("sid1", "sid2"), message);
 
     //assert on response body
     assertNotNull(blastResponse);

@@ -52,7 +52,7 @@ public class MessageExampleMain {
         bdk.messages().listMessageIdsByTimestamp(STREAM_ID, SINCE, TO, new PaginationAttribute(2, 0));
 
     final Stream<String> messageIdsByTimestampStream =
-        bdk.messages().listAllMessageIdsByTimestampStream(STREAM_ID, SINCE, TO, new StreamPaginationAttribute(2, 6));
+        bdk.messages().listAllMessageIdsByTimestamp(STREAM_ID, SINCE, TO, new StreamPaginationAttribute(2, 6));
 
     //message status, receipts, relationships
     final MessageStatus messageStatus = bdk.messages().getMessageStatus(message.getMessageId());

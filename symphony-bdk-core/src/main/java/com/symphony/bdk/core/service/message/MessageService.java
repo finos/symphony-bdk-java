@@ -276,7 +276,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#blast-message">Blast Message</a>
    */
-  public V4MessageBlastResponse sendBlast(@Nonnull List<String> streamIds, @Nonnull Message message) {
+  public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
     return this.executeAndRetry("sendBlast", () -> doSendBlast(streamIds, message));
   }
 
@@ -479,7 +479,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<String> listAllMessageIdsByTimestampStream(@Nonnull String streamId, @Nullable Instant since,
+  public Stream<String> listAllMessageIdsByTimestamp(@Nonnull String streamId, @Nullable Instant since,
       @Nullable Instant to, @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<String> api = ((offset, limit) ->
         listMessageIdsByTimestamp(streamId, since, to, new PaginationAttribute(offset, limit)).getData());
@@ -497,7 +497,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<String> listAllMessageIdsByTimestampStream(@Nonnull String streamId, @Nullable Instant since,
+  public Stream<String> listAllMessageIdsByTimestamp(@Nonnull String streamId, @Nullable Instant since,
       @Nullable Instant to) {
     PaginatedApi<String> api = ((offset, limit) ->
         listMessageIdsByTimestamp(streamId, since, to, new PaginationAttribute(offset, limit)).getData());
