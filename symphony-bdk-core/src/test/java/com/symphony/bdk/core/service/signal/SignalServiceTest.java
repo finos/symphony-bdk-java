@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.BaseSignal;
@@ -61,17 +63,17 @@ public class SignalServiceTest {
   void listSignalTest() {
     this.mockApiClient.onGet(V1_LIST_SIGNAL,
         "[\n"
-        + "  {\n"
-        + "    \"name\": \"Mention and keyword\",\n"
-        + "    \"query\": \"HASHTAG:Hello OR POSTEDBY:10854618893681\",\n"
-        + "    \"visibleOnProfile\": false,\n"
-        + "    \"companyWide\": false,\n"
-        + "    \"id\": \"5a0068344b570777718322a3\",\n"
-        + "    \"timestamp\": 1509976116525\n"
-        + "  }\n"
-        + "]");
+            + "  {\n"
+            + "    \"name\": \"Mention and keyword\",\n"
+            + "    \"query\": \"HASHTAG:Hello OR POSTEDBY:10854618893681\",\n"
+            + "    \"visibleOnProfile\": false,\n"
+            + "    \"companyWide\": false,\n"
+            + "    \"id\": \"5a0068344b570777718322a3\",\n"
+            + "    \"timestamp\": 1509976116525\n"
+            + "  }\n"
+            + "]");
 
-    List<Signal> signals = this.service.listSignals(0, 100);
+    List<Signal> signals = this.service.listSignals(new PaginationAttribute(0, 100));
 
     assertEquals(signals.size(), 1);
     assertEquals(signals.get(0).getId(), "5a0068344b570777718322a3");
@@ -103,7 +105,7 @@ public class SignalServiceTest {
   void listSignalFailed() {
     this.mockApiClient.onGet(400, V1_LIST_SIGNAL, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.listSignals(0, 100));
+    assertThrows(ApiRuntimeException.class, () -> this.service.listSignals(new PaginationAttribute(0, 100)));
   }
 
   @Test
@@ -120,7 +122,7 @@ public class SignalServiceTest {
             + "  }\n"
             + "]");
 
-    Stream<Signal> signals = this.service.listSignalsStream(2, 2);
+    Stream<Signal> signals = this.service.listAllSignals(new StreamPaginationAttribute(2, 2));
     List<Signal> signalList = signals.collect(Collectors.toList());
 
     assertEquals(signalList.size(), 1);
@@ -141,7 +143,7 @@ public class SignalServiceTest {
             + "  }\n"
             + "]");
 
-    Stream<Signal> signals = this.service.listSignalsStream();
+    Stream<Signal> signals = this.service.listAllSignals();
     List<Signal> signalList = signals.collect(Collectors.toList());
 
     assertEquals(signalList.size(), 1);
@@ -152,13 +154,13 @@ public class SignalServiceTest {
   void getSignalTest() {
     this.mockApiClient.onGet(V1_GET_SIGNAL.replace("{id}", "1234"),
         "{\n"
-        + "    \"name\": \"my signal\",\n"
-        + "    \"query\": \"HASHTAG:hashtag AND CASHTAG:cash\",\n"
-        + "    \"visibleOnProfile\": true,\n"
-        + "    \"companyWide\": false,\n"
-        + "    \"id\": \"5a8daa0bb9d82100011d5095\",\n"
-        + "    \"timestamp\": 1519233547982\n"
-        + "}");
+            + "    \"name\": \"my signal\",\n"
+            + "    \"query\": \"HASHTAG:hashtag AND CASHTAG:cash\",\n"
+            + "    \"visibleOnProfile\": true,\n"
+            + "    \"companyWide\": false,\n"
+            + "    \"id\": \"5a8daa0bb9d82100011d5095\",\n"
+            + "    \"timestamp\": 1519233547982\n"
+            + "}");
 
     Signal signal = this.service.getSignal("1234");
 
@@ -178,13 +180,13 @@ public class SignalServiceTest {
   void createSignalTest() {
     this.mockApiClient.onPost(V1_CREATE_SIGNAL,
         "{\n"
-        + "    \"name\": \"hash and cash\",\n"
-        + "    \"query\": \"HASHTAG:hash AND CASHTAG:cash\",\n"
-        + "    \"visibleOnProfile\": true,\n"
-        + "    \"companyWide\": false,\n"
-        + "    \"id\": \"5a8da7edb9d82100011d508f\",\n"
-        + "    \"timestamp\": 1519233005107\n"
-        + "}");
+            + "    \"name\": \"hash and cash\",\n"
+            + "    \"query\": \"HASHTAG:hash AND CASHTAG:cash\",\n"
+            + "    \"visibleOnProfile\": true,\n"
+            + "    \"companyWide\": false,\n"
+            + "    \"id\": \"5a8da7edb9d82100011d508f\",\n"
+            + "    \"timestamp\": 1519233005107\n"
+            + "}");
 
     Signal signal = this.service.createSignal(new BaseSignal());
 
@@ -252,7 +254,8 @@ public class SignalServiceTest {
             + "    \"subscriptionErrors\": []\n"
             + "}");
 
-    ChannelSubscriptionResponse response = this.service.subscribeSignal("1234", true, Arrays.asList(1234L, 1235L, 1236L));
+    ChannelSubscriptionResponse response =
+        this.service.subscribeSignal("1234", true, Arrays.asList(1234L, 1235L, 1236L));
 
     verify(spiedSignalApi).v1SignalsIdSubscribePost("1234", "1234", "1234", true, Arrays.asList(1234L, 1235L, 1236L));
     assertEquals(response.getRequestedSubscription(), 3);
@@ -263,7 +266,8 @@ public class SignalServiceTest {
   void subscribeSignalFailed() {
     this.mockApiClient.onPost(400, V1_SUBSCRIBE_SIGNAL.replace("{id}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.subscribeSignal("1234", true, Collections.singletonList(1234L)));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.subscribeSignal("1234", true, Collections.singletonList(1234L)));
   }
 
   @Test
@@ -287,7 +291,8 @@ public class SignalServiceTest {
   void unsubscribeSignalFailed() {
     this.mockApiClient.onPost(400, V1_UNSUBSCRIBE_SIGNAL.replace("{id}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.unsubscribeSignal("1234", Collections.singletonList(1234L)));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.unsubscribeSignal("1234", Collections.singletonList(1234L)));
   }
 
   @Test
@@ -308,7 +313,7 @@ public class SignalServiceTest {
             + "    ]\n"
             + "}");
 
-    List<ChannelSubscriber> subscribers = this.service.listSubscribers("1234", 0, 100);
+    List<ChannelSubscriber> subscribers = this.service.listSubscribers("1234", new PaginationAttribute(0, 100));
 
     assertEquals(subscribers.size(), 1);
     assertEquals(subscribers.get(0).getUserId(), 68719476742L);
@@ -344,7 +349,8 @@ public class SignalServiceTest {
   void subscribersFailed() {
     this.mockApiClient.onGet(400, V1_SUBSCRIBERS.replace("{id}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.listSubscribers("1234", 0, 100));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.listSubscribers("1234", new PaginationAttribute(0, 100)));
   }
 
   @Test
@@ -365,7 +371,8 @@ public class SignalServiceTest {
             + "    ]\n"
             + "}");
 
-    Stream<ChannelSubscriber> subscribers = this.service.listSubscribersStream("1234", 2, 2);
+    Stream<ChannelSubscriber> subscribers =
+        this.service.listAllSubscribers("1234", new StreamPaginationAttribute(2, 2));
     List<ChannelSubscriber> subscriberList = subscribers.collect(Collectors.toList());
 
     assertEquals(subscriberList.size(), 1);
@@ -391,7 +398,7 @@ public class SignalServiceTest {
             + "    ]\n"
             + "}");
 
-    Stream<ChannelSubscriber> subscribers = this.service.listSubscribersStream("1234");
+    Stream<ChannelSubscriber> subscribers = this.service.listAllSubscribers("1234");
     List<ChannelSubscriber> subscriberList = subscribers.collect(Collectors.toList());
 
     assertEquals(subscriberList.size(), 1);
