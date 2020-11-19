@@ -16,6 +16,8 @@ import org.apiguardian.api.API;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
+
 /**
  * Service class for managing connection status.
  * <p>
@@ -54,7 +56,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public UserConnection getConnection(Long userId) {
+  public UserConnection getConnection(@Nonnull Long userId) {
     return executeAndRetry("getConnection",
         () -> connectionApi.v1ConnectionUserUserIdInfoGet(authSession.getSessionToken(), String.valueOf(userId)));
   }
@@ -63,7 +65,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public List<UserConnection> listConnections(ConnectionStatus status, List<Long> userIdList) {
+  public List<UserConnection> listConnections(@Nonnull ConnectionStatus status, @Nonnull List<Long> userIdList) {
     String userIds = userIdList.stream().map(String::valueOf).collect(Collectors.joining(","));
     return executeAndRetry("listConnection",
         () -> connectionApi.v1ConnectionListGet(authSession.getSessionToken(), status.name(), userIds));
@@ -73,7 +75,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public UserConnection createConnection(Long userId) {
+  public UserConnection createConnection(@Nonnull Long userId) {
     UserConnectionRequest connectionRequest = new UserConnectionRequest().userId(userId);
     return executeAndRetry("createConnection",
         () -> connectionApi.v1ConnectionCreatePost(authSession.getSessionToken(), connectionRequest));
@@ -83,7 +85,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public UserConnection acceptConnection(Long userId) {
+  public UserConnection acceptConnection(@Nonnull Long userId) {
     UserConnectionRequest connectionRequest = new UserConnectionRequest().userId(userId);
     return executeAndRetry("acceptConnection",
         () -> connectionApi.v1ConnectionAcceptPost(authSession.getSessionToken(), connectionRequest));
@@ -93,7 +95,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public UserConnection rejectConnection(Long userId) {
+  public UserConnection rejectConnection(@Nonnull Long userId) {
     UserConnectionRequest connectionRequest = new UserConnectionRequest().userId(userId);
     return executeAndRetry("rejectConnection",
         () -> connectionApi.v1ConnectionRejectPost(authSession.getSessionToken(), connectionRequest));
@@ -103,7 +105,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public void removeConnection(Long userId) {
+  public void removeConnection(@Nonnull Long userId) {
     executeAndRetry("removeConnection",
         () -> connectionApi.v1ConnectionUserUidRemovePost(authSession.getSessionToken(), userId));
   }

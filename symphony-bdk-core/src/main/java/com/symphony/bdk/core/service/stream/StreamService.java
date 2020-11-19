@@ -85,7 +85,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * {@inheritDoc}
    */
   @Override
-  public V2StreamAttributes getStreamInfo(@Nonnull String streamId) {
+  public V2StreamAttributes getStream(@Nonnull String streamId) {
     return executeAndRetry("getStreamInfo",
         () -> streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken()));
   }
@@ -384,7 +384,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   }
 
   /**
-   * Retrieve all the streams across the enterprise and return in a {@link java.util.stream.Stream}.
+   * Retrieve all the streams across the enterprise and return in a {@link java.util.stream.Stream} with default chunk size and total size equals 100.
    *
    * @param filter The stream searching filter
    * @return List of streams returned according the given filter.
@@ -443,7 +443,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   }
 
   /**
-   * List the current members of an existing room and return in a {@link java.util.stream.Stream}.
+   * List the current members of an existing room and return in a {@link java.util.stream.Stream} with default chunk size and total size equals 100.
    * The stream can be of type IM, MIM, or ROOM.
    *
    * @param streamId The stream id
