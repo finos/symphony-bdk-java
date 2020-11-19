@@ -6,6 +6,8 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.pagination.PaginatedApi;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.BaseSignal;
@@ -59,9 +61,10 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public List<Signal> listSignals(@Nullable Integer skip, @Nullable Integer limit) {
+  public List<Signal> listSignals(@Nonnull PaginationAttribute pagination) {
     return executeAndRetry("listSignals",
-        () -> signalsApi.v1SignalsListGet(authSession.getSessionToken(), authSession.getKeyManagerToken(), skip, limit));
+        () -> signalsApi.v1SignalsListGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
+            pagination.getSkip(), pagination.getLimit()));
   }
 
   /**
@@ -69,28 +72,29 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   public List<Signal> listSignals() {
-    return listSignals(null, null);
+    return executeAndRetry("listSignals",
+        () -> signalsApi.v1SignalsListGet(authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Stream<Signal> listSignalsStream(@Nullable Integer chunkSize, @Nullable Integer totalSize) {
-    PaginatedApi<Signal> api = ((this::listSignals));
-
-    final int actualChunkSize = chunkSize == null ? 50 : chunkSize;
-    final int actualTotalSize = totalSize == null ? 50 : totalSize;
-
-    return new PaginatedService<>(api, actualChunkSize, actualTotalSize).stream();
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<Signal> listAllSignals(@Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Stream<Signal> listSignalsStream() {
-    return listSignalsStream(null, null);
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<Signal> listAllSignals() {
+    PaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -117,7 +121,8 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   public Signal updateSignal(@Nonnull String id, @Nonnull BaseSignal signal) {
     return executeAndRetry("updateSignal",
-        () -> signalsApi.v1SignalsIdUpdatePost(authSession.getSessionToken(), id, signal, authSession.getKeyManagerToken()));
+        () -> signalsApi.v1SignalsIdUpdatePost(authSession.getSessionToken(), id, signal,
+            authSession.getKeyManagerToken()));
   }
 
   /**
@@ -133,9 +138,11 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public ChannelSubscriptionResponse subscribeSignal(@Nonnull String id, @Nullable Boolean pushed, @Nonnull List<Long> userIds) {
+  public ChannelSubscriptionResponse subscribeSignal(@Nonnull String id, @Nullable Boolean pushed,
+      @Nullable List<Long> userIds) {
     return executeAndRetry("subscribeSignal",
-        () -> signalsApi.v1SignalsIdSubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(), pushed, userIds));
+        () -> signalsApi.v1SignalsIdSubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
+            pushed, userIds));
   }
 
   /**
@@ -144,16 +151,18 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   public ChannelSubscriptionResponse unsubscribeSignal(@Nonnull String id, @Nullable List<Long> userIds) {
     return executeAndRetry("unsubscribeSignal",
-        () -> signalsApi.v1SignalsIdUnsubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(), userIds));
+        () -> signalsApi.v1SignalsIdUnsubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
+            userIds));
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nullable Integer skip, @Nullable Integer limit) {
+  public List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("subscribers",
-        () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(), skip, limit)).getData();
+        () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
+            pagination.getSkip(), pagination.getLimit())).getData();
   }
 
   /**
@@ -161,29 +170,33 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   public List<ChannelSubscriber> listSubscribers(@Nonnull String id) {
-    return listSubscribers(id, null, null);
+    return executeAndRetry("subscribers",
+        () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
+            null, null)).getData();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Stream<ChannelSubscriber> listSubscribersStream(
-      @Nonnull String id, @Nullable Integer chunkSize, @Nullable Integer totalSize) {
-    PaginatedApi<ChannelSubscriber> api = (((offset, limit) -> listSubscribers(id, offset, limit)));
-
-    final int actualChunkSize = chunkSize == null ? 100 : chunkSize;
-    final int actualTotalSize = totalSize == null ? 100 : totalSize;
-
-    return new PaginatedService<>(api, actualChunkSize, actualTotalSize).stream();
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id,
+      @Nonnull StreamPaginationAttribute pagination) {
+    PaginatedApi<ChannelSubscriber> api =
+        (((offset, limit) -> listSubscribers(id, new PaginationAttribute(offset, limit))));
+    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public Stream<ChannelSubscriber> listSubscribersStream(@Nonnull String id) {
-    return listSubscribersStream(id, null, null);
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id) {
+    PaginatedApi<ChannelSubscriber> api =
+        (((offset, limit) -> listSubscribers(id, new PaginationAttribute(offset, limit))));
+    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {

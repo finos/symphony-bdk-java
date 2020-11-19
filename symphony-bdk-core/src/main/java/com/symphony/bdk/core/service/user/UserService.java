@@ -70,10 +70,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   private final UserApi userApi;
   private final UsersApi usersApi;
   private final AuthSession authSession;
-  private final RetryWithRecoveryBuilder retryBuilder;
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession,
-      RetryWithRecoveryBuilder retryBuilder) {
+      RetryWithRecoveryBuilder<?> retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
     this.authSession = authSession;
@@ -89,7 +89,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active) {
+  public List<UserV2> listUsersByIds(@Nonnull List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active) {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local, active));
@@ -100,7 +100,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByIds(@Nonnull List<Long> uidList) {
+  public List<UserV2> listUsersByIds(@Nonnull List<Long> uidList) {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false, null));
@@ -111,8 +111,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByEmails(@Nonnull List<String> emailList,
-      @Nonnull Boolean local, @Nullable Boolean active) {
+  public List<UserV2> listUsersByEmails(@Nonnull List<String> emailList,
+      @Nullable Boolean local, @Nullable Boolean active) {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local, active));
@@ -123,7 +123,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByEmails(@Nonnull List<String> emailList) {
+  public List<UserV2> listUsersByEmails(@Nonnull List<String> emailList) {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false, null));
@@ -134,7 +134,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active) {
+  public List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active) {
     String usernames = String.join(",", usernameList);
     V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true, active));
@@ -145,7 +145,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList) {
+  public List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList) {
     String usernames = String.join(",", usernameList);
     V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true, null));
@@ -156,7 +156,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
+  public List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
     UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
         () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local));
     return results.getUsers();
@@ -166,7 +166,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+  public List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull PaginationAttribute pagination) {
     UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
         () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
@@ -179,9 +179,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
+  public Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
     PaginatedApi<UserV2> api =
-        (offset, limit) -> searchUserBySearchQuery(query, local, new PaginationAttribute(offset, limit));
+        (offset, limit) -> listUsersBySearchQuery(query, local, new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
@@ -191,10 +191,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+  public Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<UserV2> api =
-        (offset, limit) -> searchUserBySearchQuery(query, local, new PaginationAttribute(offset, limit));
+        (offset, limit) -> listUsersBySearchQuery(query, local, new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
@@ -226,7 +226,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    */
   public V2UserDetail getUserDetailByUid(@Nonnull Long userId) {
-    return executeAndRetry("getUserDetailByUid", () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), userId));
+    return executeAndRetry("getUserDetailByUid",
+        () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), userId));
   }
 
   /**
@@ -254,7 +255,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
 
 
   /**
-   * Retrieve all users in the company (pod) and return in a {@link Stream}.
+   * Retrieve all users in the company (pod) and return in a {@link Stream} with default chunk size and total size equals 100.
    *
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
@@ -269,7 +270,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Retrieve all users in the company (pod) and return in a {@link Stream}.
    *
-   * @param pagination The chunkSize and totalSize for pagination with default value equals 50.
+   * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
    */
@@ -314,7 +315,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
-   * Retrieve all of users in the company (pod) by a filter and return in a {@link Stream}.
+   * Retrieve all of users in the company (pod) by a filter and return in a {@link Stream} with default chunk size and total size equals 100.
    *
    * @param filter using to filter users by
    * @return a {@link Stream} of retrieved users
@@ -332,7 +333,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * Retrieve all of users in the company (pod) by a filter and return in a {@link Stream}.
    *
    * @param filter     using to filter users by.
-   * @param pagination The chunkSize and totalSize for pagination with default value equals 50.
+   * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
@@ -347,7 +348,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Add a role to an user.
    *
-   * @param userId    User Id
+   * @param userId User Id
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
@@ -360,7 +361,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Remove a role from an user.
    *
-   * @param userId    User Id
+   * @param userId User Id
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
@@ -385,8 +386,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update avatar of an user
    *
-   * @param userId   User Id
-   * @param image The avatar image for the user profile picture.The image must be a base64-encoded.
+   * @param userId User Id
+   * @param image  The avatar image for the user profile picture.The image must be a base64-encoded.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull String image) {
@@ -398,8 +399,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update avatar of an user
    *
-   * @param userId   User Id
-   * @param image The avatar image in bytes array for the user profile picture.
+   * @param userId User Id
+   * @param image  The avatar image in bytes array for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
   public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull byte[] image) {
@@ -410,7 +411,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update avatar of an user
    *
-   * @param userId         User Id
+   * @param userId      User Id
    * @param imageStream The avatar image input stream for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
@@ -445,7 +446,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Assign disclaimer to an user.
    *
-   * @param userId          User Id
+   * @param userId       User Id
    * @param disclaimerId Disclaimer to be assigned
    * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    */
@@ -471,7 +472,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update delegates assigned to an user.
    *
-   * @param userId             User Id
+   * @param userId          User Id
    * @param delegatedUserId Delegated user Id to be assigned
    * @param actionEnum      Action to be performed
    * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
@@ -498,7 +499,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update feature entitlements of an user.
    *
-   * @param userId      User Id
+   * @param userId   User Id
    * @param features List of feature entitlements to be updated
    * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    */
@@ -522,7 +523,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Update the status of an user
    *
-   * @param userId    User Id
+   * @param userId User Id
    * @param status Status to be updated to the user
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    */
@@ -534,7 +535,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of followers of a specific user.
    *
-   * @param userId   User Id
+   * @param userId User Id
    * @return The list of followers of a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -546,8 +547,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of followers of a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The range and limit for pagination.
+   * @param userId     User Id
+   * @param pagination The range and limit for pagination.
    * @return The list of followers of a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -558,9 +559,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
-   * Returns the {@link Stream} of followers of a specific user.
+   * Returns the {@link Stream} of followers of a specific user with default chunk size and total size equals 100.
    *
-   * @param userId         User Id
+   * @param userId User Id
    * @return The {@link Stream} of followers of a specific user.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -575,8 +576,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the {@link Stream} of followers of a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
+   * @param userId     User Id
+   * @param pagination The chunkSize and totalSize for pagination.
    * @return The {@link Stream} of followers of a specific user.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -590,7 +591,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of users followed by a specific user.
    *
-   * @param userId   User Id
+   * @param userId User Id
    * @return The list of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -602,8 +603,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns the list of users followed by a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The range and limit for pagination.
+   * @param userId     User Id
+   * @param pagination The range and limit for pagination.
    * @return The list of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-users-followed">List Users Followed</a>
    */
@@ -614,9 +615,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
-   * Returns a {@link Stream} of users followed by a specific user.
+   * Returns a {@link Stream} of users followed by a specific user with default chunk size and total size equals 100.
    *
-   * @param userId   User Id
+   * @param userId User Id
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -631,8 +632,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns a {@link Stream} of users followed by a specific user.
    *
-   * @param userId         User Id
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 100.
+   * @param userId     User Id
+   * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
@@ -644,7 +645,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
+    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .clearRecoveryStrategies() // to remove refresh on bot session put by default
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
     return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);

@@ -89,7 +89,7 @@ public class PresenceServiceTest {
         + "  }  \n"
         + "]");
 
-    List<V2Presence> presenceList = this.service.getAllUsersPresence(1234L, 5000);
+    List<V2Presence> presenceList = this.service.listPresencesOfAllUsers(1234L, 5000);
 
     assertEquals(presenceList.size(), 2);
     assertEquals(presenceList.get(0).getUserId(), 14568529068038L);
@@ -102,7 +102,7 @@ public class PresenceServiceTest {
   void getAllUserPresenceFailed() {
     this.mockApiClient.onGet(400, V2_GET_ALL_PRESENCE, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getAllUsersPresence(1234L, 5000));
+    assertThrows(ApiRuntimeException.class, () -> this.service.listPresencesOfAllUsers(1234L, 5000));
   }
 
   @Test

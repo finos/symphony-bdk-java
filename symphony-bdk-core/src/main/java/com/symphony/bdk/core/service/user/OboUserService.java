@@ -20,133 +20,133 @@ import javax.annotation.Nullable;
 public interface OboUserService {
 
   /**
-   * {@link UserService#searchUserByIds(List, Boolean, Boolean)}
+   * {@link UserService#listUsersByIds(List, Boolean, Boolean)}
    *
-   * @param uidList     List of user ids
-   * @param local       If true then a local DB search will be performed and only local pod users will be
-   *                    returned. If absent or false then a directory search will be performed and users
-   *                    from other pods who are visible to the calling user will also be returned.
-   * @param active      If not set all user status will be returned,
-   *                    if true all active users will be returned,
-   *                    if false all inactive users will be returned
+   * @param uidList List of user ids
+   * @param local   If true then a local DB search will be performed and only local pod users will be
+   *                returned. If absent or false then a directory search will be performed and users
+   *                from other pods who are visible to the calling user will also be returned.
+   * @param active  If not set all user status will be returned,
+   *                if true all active users will be returned,
+   *                if false all inactive users will be returned
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> searchUserByIds(@Nonnull List<Long> uidList, Boolean local, @Nullable Boolean active);
+  List<UserV2> listUsersByIds(@Nonnull List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active);
 
   /**
-   * {@link UserService#searchUserByIds(List)}
+   * {@link UserService#listUsersByIds(List)}
    *
-   * @param uidList     List of user ids
+   * @param uidList List of user ids
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> searchUserByIds(@Nonnull List<Long> uidList);
+  List<UserV2> listUsersByIds(@Nonnull List<Long> uidList);
 
   /**
-   * {@link UserService#searchUserByEmails(List, Boolean, Boolean)}
+   * {@link UserService#listUsersByEmails(List, Boolean, Boolean)}
    *
-   * @param emailList   List of emails
-   * @param local       If true then a local DB search will be performed and only local pod users will be
-   *                    returned. If absent or false then a directory search will be performed and users
-   *                    from other pods who are visible to the calling user will also be returned.
-   * @param active      If not set all user status will be returned,
-   *                    if true all active users will be returned,
-   *                    if false all inactive users will be returned
+   * @param emailList List of emails
+   * @param local     If true then a local DB search will be performed and only local pod users will be
+   *                  returned. If absent or false then a directory search will be performed and users
+   *                  from other pods who are visible to the calling user will also be returned.
+   * @param active    If not set all user status will be returned,
+   *                  if true all active users will be returned,
+   *                  if false all inactive users will be returned
    * @return Users found by emails.
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> searchUserByEmails(@Nonnull List<String> emailList, Boolean local, @Nullable Boolean active);
+  List<UserV2> listUsersByEmails(@Nonnull List<String> emailList, @Nullable Boolean local, @Nullable Boolean active);
 
   /**
-   * {@link UserService#searchUserByEmails(List)}
+   * {@link UserService#listUsersByEmails(List)}
    *
-   * @param emailList   List of emails
+   * @param emailList List of emails
    * @return Users found by emails
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> searchUserByEmails(@Nonnull List<String> emailList);
+  List<UserV2> listUsersByEmails(@Nonnull List<String> emailList);
 
   /**
-   * {@link UserService#searchUserByUsernames(List, Boolean)}
+   * {@link UserService#listUsersByUsernames(List, Boolean)}
    *
    * @param usernameList List of usernames
-   * @param active      If not set all user status will be returned,
-   *                    if true all active users will be returned,
-   *                    if false all inactive users will be returned
+   * @param active       If not set all user status will be returned,
+   *                     if true all active users will be returned,
+   *                     if false all inactive users will be returned
    * @return Users found by usernames
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active);
+  List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active);
 
   /**
-   * {@link UserService#searchUserByUsernames(List)}
+   * {@link UserService#listUsersByUsernames(List)}
    *
    * @param usernameList List of usernames
    * @return Users found by usernames
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> searchUserByUsernames(@Nonnull List<String> usernameList);
+  List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList);
 
   /**
-   * {@link UserService#searchUserBySearchQuery(UserSearchQuery, Boolean)}
+   * {@link UserService#listUsersBySearchQuery(UserSearchQuery, Boolean)}
    *
-   * @param query       Searching query containing complicated information like title, location, company...
-   * @param local       If true then a local DB search will be performed and only local pod users will be
-   *                    returned. If absent or false then a directory search will be performed and users
-   *                    from other pods who are visible to the calling user will also be returned.
+   * @param query Searching query containing complicated information like title, location, company...
+   * @param local If true then a local DB search will be performed and only local pod users will be
+   *              returned. If absent or false then a directory search will be performed and users
+   *              from other pods who are visible to the calling user will also be returned.
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+  List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
 
   /**
-   * {@link UserService#searchUserBySearchQuery(UserSearchQuery, Boolean, PaginationAttribute)}
+   * {@link UserService#listUsersBySearchQuery(UserSearchQuery, Boolean, PaginationAttribute)}
    *
-   * @param query       Searching query containing complicated information like title, location, company...
-   * @param local       If true then a local DB search will be performed and only local pod users will be
-   *                    returned. If absent or false then a directory search will be performed and users
-   *                    from other pods who are visible to the calling user will also be returned.
-   * @param pagination  The skip and limit for pagination.
+   * @param query      Searching query containing complicated information like title, location, company...
+   * @param local      If true then a local DB search will be performed and only local pod users will be
+   *                   returned. If absent or false then a directory search will be performed and users
+   *                   from other pods who are visible to the calling user will also be returned.
+   * @param pagination The skip and limit for pagination.
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  List<UserV2> searchUserBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local, @Nonnull
-      PaginationAttribute pagination);
+  List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+      @Nonnull PaginationAttribute pagination);
 
   /**
-   * {@link UserService#searchAllUsersBySearchQuery(UserSearchQuery, Boolean)}
+   * {@link UserService#listAllUsersBySearchQuery(UserSearchQuery, Boolean)}
    *
-   * @param query       Searching query containing complicated information like title, location, company...
-   * @param local       If true then a local DB search will be performed and only local pod users will be
-   *                    returned. If absent or false then a directory search will be performed and users
-   *                    from other pods who are visible to the calling user will also be returned.
+   * @param query Searching query containing complicated information like title, location, company...
+   * @param local If true then a local DB search will be performed and only local pod users will be
+   *              returned. If absent or false then a directory search will be performed and users
+   *              from other pods who are visible to the calling user will also be returned.
    * @return a {@link Stream} of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+  Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
 
   /**
-   * {@link UserService#searchAllUsersBySearchQuery(UserSearchQuery, Boolean, StreamPaginationAttribute)}
+   * {@link UserService#listAllUsersBySearchQuery(UserSearchQuery, Boolean, StreamPaginationAttribute)}
    *
-   * @param query       Searching query containing complicated information like title, location, company...
-   * @param local       If true then a local DB search will be performed and only local pod users will be
-   *                    returned. If absent or false then a directory search will be performed and users
-   *                    from other pods who are visible to the calling user will also be returned.
-   * @param pagination  The chunkSize and totalSize for pagination with default value equals 50.
+   * @param query      Searching query containing complicated information like title, location, company...
+   * @param local      If true then a local DB search will be performed and only local pod users will be
+   *                   returned. If absent or false then a directory search will be performed and users
+   *                   from other pods who are visible to the calling user will also be returned.
+   * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<UserV2> searchAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local, @Nonnull
-      StreamPaginationAttribute pagination);
+  Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+      @Nonnull StreamPaginationAttribute pagination);
 
   /**
    * Make a list of users to start following a specific user.
    * {@link UserService#followUser(Long, List)}
    *
-   * @param userId         The id of the user to be followed.
+   * @param userId      The id of the user to be followed.
    * @param followerIds List of ids of the followers.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#follow-user">Follow User</a>
    */
@@ -156,7 +156,7 @@ public interface OboUserService {
    * Make a list of users to stop following a specific user.
    * {@link UserService#unfollowUser(Long, List)}
    *
-   * @param userId         The id of the user to be unfollowed.
+   * @param userId      The id of the user to be unfollowed.
    * @param followerIds List of the ids of the followers.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
    */

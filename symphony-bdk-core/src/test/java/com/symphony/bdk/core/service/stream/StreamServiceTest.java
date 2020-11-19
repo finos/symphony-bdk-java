@@ -307,7 +307,7 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"),
         JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
 
-    V2StreamAttributes stream = this.service.getStreamInfo("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
+    V2StreamAttributes stream = this.service.getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
     assertEquals(stream.getId(), "p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
     assertEquals(stream.getOrigin(), "INTERNAL");
@@ -317,7 +317,7 @@ public class StreamServiceTest {
   void getStreamInfoTestFailed() {
     this.mockApiClient.onGet(400, V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getStreamInfo("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
   }
 
   @Test
