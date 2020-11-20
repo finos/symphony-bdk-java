@@ -2,6 +2,7 @@ package com.symphony.bdk.core.util;
 
 import com.symphony.bdk.core.util.exception.PresentationMLParserException;
 
+import lombok.Generated;
 import lombok.SneakyThrows;
 import org.apiguardian.api.API;
 import org.w3c.dom.Document;
@@ -28,7 +29,7 @@ public class PresentationMLParser {
    * @param presentationML the PresentationML to be parsed
    * @return the message text content extracted from the given PresentationML
    */
-  public static String getMessageTextContent(String presentationML) {
+  public static String getMessageTextContent(String presentationML) throws PresentationMLParserException {
     try {
       final Document doc = builder.parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
       return doc.getChildNodes().item(0).getTextContent();
@@ -37,6 +38,8 @@ public class PresentationMLParser {
     }
   }
 
+  // Ignore the code coverage check because cannot produce the exception
+  @Generated
   @SneakyThrows
   private static DocumentBuilder initBuilder() {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

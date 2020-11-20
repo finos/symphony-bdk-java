@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class PresentationMLParserTest {
 
   @Test
-  void getMessageFromPresentationMLTest() {
+  void getMessageFromPresentationMLTest() throws PresentationMLParserException {
     String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\"> \n"
         + "  <a href=\"http://www.symphony.com\">This is a link to Symphony's Website</a> \n"
         + "</div>";
