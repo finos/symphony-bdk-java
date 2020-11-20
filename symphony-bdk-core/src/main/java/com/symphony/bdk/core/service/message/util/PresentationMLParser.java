@@ -1,6 +1,6 @@
-package com.symphony.bdk.core.util;
+package com.symphony.bdk.core.service.message.util;
 
-import com.symphony.bdk.core.util.exception.PresentationMLParserException;
+import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 
 import lombok.Generated;
 import lombok.SneakyThrows;
@@ -24,18 +24,30 @@ public class PresentationMLParser {
   private static final DocumentBuilder builder = initBuilder();
 
   /**
-   * Get message text content from PresentationML
+   * Get text content from PresentationML
    *
-   * @param presentationML the PresentationML to be parsed
+   * @param presentationML  the PresentationML to be parsed
+   * @param trim            flag if we want to trim the text result
    * @return the message text content extracted from the given PresentationML
    */
-  public static String getMessageTextContent(String presentationML) throws PresentationMLParserException {
+  public static String getTextContent(String presentationML, Boolean trim) throws PresentationMLParserException {
     try {
       final Document doc = builder.parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
-      return doc.getChildNodes().item(0).getTextContent();
+      String textContent = doc.getChildNodes().item(0).getTextContent();
+      return trim ? textContent.trim() : textContent;
     } catch (SAXException | IOException e) {
-      throw new PresentationMLParserException("Failed to parse the PresentationML", e);
+      throw new PresentationMLParserException(presentationML, "Failed to parse the PresentationML", e);
     }
+  }
+
+  /**
+   * Get trimmed text content from PresentationML
+   *
+   * @param presentationML  the PresentationML to be parsed
+   * @return the message text content extracted from the given PresentationML
+   */
+  public static String getTextContent(String presentationML) throws PresentationMLParserException {
+    return getTextContent(presentationML, true);
   }
 
   // Ignore the code coverage check because cannot produce the exception

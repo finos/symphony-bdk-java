@@ -5,8 +5,8 @@ import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.b
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.exception.FatalActivityExecutionException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.core.util.PresentationMLParser;
-import com.symphony.bdk.core.util.exception.PresentationMLParserException;
+import com.symphony.bdk.core.service.message.util.PresentationMLParser;
+import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
 import lombok.Getter;
@@ -42,7 +42,7 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
   protected void beforeMatcher(C context) {
     try {
       context.setTextContent(
-          PresentationMLParser.getMessageTextContent(context.getSourceEvent().getMessage().getMessage()));
+          PresentationMLParser.getTextContent(context.getSourceEvent().getMessage().getMessage()));
     } catch (PresentationMLParserException e) {
       throw new FatalActivityExecutionException(this.getInfo(), "Unable to parse presentationML", e);
     }
