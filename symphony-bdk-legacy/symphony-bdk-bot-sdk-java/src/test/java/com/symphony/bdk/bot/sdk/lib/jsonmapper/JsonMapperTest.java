@@ -151,4 +151,12 @@ public class JsonMapperTest {
         UserDetails.class
     ));
   }
+
+  @Test
+  public void toObjectBadJsonStringTest() {
+    assertThrows(JsonMapperException.class, () -> jsonMapper.toObject(
+        "I'm a bad JSON String",
+        UserDetails.class
+    ));
+  }
 }
