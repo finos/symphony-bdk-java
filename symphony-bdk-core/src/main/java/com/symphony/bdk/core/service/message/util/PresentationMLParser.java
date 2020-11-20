@@ -21,7 +21,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 @API(status = API.Status.STABLE)
 public class PresentationMLParser {
 
-  private static final DocumentBuilder builder = initBuilder();
+  private static final ThreadLocal<DocumentBuilder> LOCAL_BUILDER = ThreadLocal.withInitial(
+      PresentationMLParser::initBuilder);
 
   /**
    * Get text content from PresentationML
@@ -32,7 +33,7 @@ public class PresentationMLParser {
    */
   public static String getTextContent(String presentationML, Boolean trim) throws PresentationMLParserException {
     try {
-      final Document doc = builder.parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
+      final Document doc = LOCAL_BUILDER.get().parse(new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
       String textContent = doc.getChildNodes().item(0).getTextContent();
       return trim ? textContent.trim() : textContent;
     } catch (SAXException | IOException e) {
@@ -56,5 +57,9 @@ public class PresentationMLParser {
   private static DocumentBuilder initBuilder() {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     return factory.newDocumentBuilder();
+  }
+
+  private PresentationMLParser() {
+
   }
 }

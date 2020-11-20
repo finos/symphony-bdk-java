@@ -2,7 +2,6 @@ package com.symphony.bdk.core.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
@@ -45,8 +44,16 @@ public class PresentationMLParserTest {
   }
 
   @Test
-  void testInitParser() {
-    PresentationMLParser parser = new PresentationMLParser();
-    assertNotNull(parser);
+  void getMessageFromEmptyPresentationMLFailed() {
+    String presentationML = "";
+
+    assertThrows(PresentationMLParserException.class, () -> PresentationMLParser.getTextContent(presentationML));
+  }
+
+  @Test
+  void getMessageFromInvalidPresentationMLFailed() {
+    String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\">";
+
+    assertThrows(PresentationMLParserException.class, () -> PresentationMLParser.getTextContent(presentationML));
   }
 }
