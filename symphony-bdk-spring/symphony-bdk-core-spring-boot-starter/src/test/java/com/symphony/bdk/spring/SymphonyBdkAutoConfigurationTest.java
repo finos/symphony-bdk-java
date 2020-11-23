@@ -143,4 +143,31 @@ class SymphonyBdkAutoConfigurationTest {
       assertThat(config.getAgent().getBasePath()).isEqualTo("http://localhost:443/context");
     });
   }
+
+  @Test
+  void shouldNotInitializeDatafeedIfDisabled() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.host=localhost",
+
+            "bdk.bot.username=testbot",
+            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+
+            "bdk.datafeed.enabled=false"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
+
+      final SymphonyBdkCoreProperties config = context.getBean(SymphonyBdkCoreProperties.class);
+      assertThat(config.getAgent().getBasePath()).isEqualTo("https://localhost:443");
+
+      assertThat(context).doesNotHaveBean("datafeedService");
+      assertThat(context).doesNotHaveBean("datafeedAsyncLauncherService");
+      assertThat(context).doesNotHaveBean("activityRegistry");
+      assertThat(context).doesNotHaveBean("slashAnnotationProcessor");
+    });
+  }
 }
