@@ -213,6 +213,14 @@ public class CoreServices {
 }
 ```
 
+Unlike subscribing to real time events, using slash commands or activities, solely injecting services does not require
+the datafeed loop to run. If you want to disable the datafeed loop, you can update your `application.yaml` file as follows:
+```yaml
+bdk:
+    datafeed:
+        enabled: false
+```
+
 ## Slash Command
 You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to 
 successfully register your command. If not defined, a `warn` message will appear in your application log. Note also that 
