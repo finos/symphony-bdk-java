@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:2.3.4.RELEASE')
+    api platform('org.springframework.boot:spring-boot-dependencies:2.4.0')
 
     // define all our dependencies versions
     constraints {
