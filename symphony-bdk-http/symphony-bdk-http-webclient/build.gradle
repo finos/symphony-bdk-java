@@ -18,6 +18,12 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
+    constraints {
+        implementation('com.google.guava:guava:30.0-jre') {
+            because 'version 28.2-android that is pulled contains security issues'
+        }
+    }
+
     api project(':symphony-bdk-http:symphony-bdk-http-api')
 
     implementation 'org.apiguardian:apiguardian-api'
