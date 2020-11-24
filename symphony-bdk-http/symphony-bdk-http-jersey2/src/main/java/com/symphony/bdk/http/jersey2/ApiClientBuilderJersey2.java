@@ -8,6 +8,7 @@ import com.symphony.bdk.http.api.util.ApiUtils;
 
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -36,6 +37,9 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   private int connectionTimeout;
   private int readTimeout;
   private String temporaryFolderPath;
+  private String proxyUrl;
+  private String proxyUser;
+  private String proxyPassword;
 
   public ApiClientBuilderJersey2() {
     basePath = "https://acme.symphony.com";
@@ -47,6 +51,9 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
     readTimeout = DEFAULT_READ_TIMEOUT;
     temporaryFolderPath = null;
+    proxyUrl = null;
+    proxyUser = null;
+    proxyPassword = null;
     withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -57,10 +64,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClient build() {
     java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
 
-    SSLContext sslContext = createSSLContext();
-
     Client httpClient = ClientBuilder.newBuilder()
-        .sslContext(sslContext)
+        .sslContext(createSSLContext())
         .withConfig(createClientConfig())
         .build();
 
@@ -144,6 +149,25 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withProxy(String proxyHost, int proxyPort) {
+    this.proxyUrl = proxyHost != null ? "http://" + proxyHost + ":" + proxyPort : null;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword) {
+    this.proxyUser = proxyUser;
+    this.proxyPassword = proxyPassword;
+    return this;
+  }
+
   private ClientConfig createClientConfig() {
     final ClientConfig clientConfig = new ClientConfig();
     clientConfig.register(MultiPartFeature.class);
@@ -153,7 +177,18 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     // turn off compliance validation to be able to send payloads with DELETE calls
     clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
 
+    if (proxyUrl != null) {
+      configureProxy(clientConfig);
+    }
+
     return clientConfig;
+  }
+
+  private void configureProxy(ClientConfig clientConfig) {
+    clientConfig.connectorProvider(new ApacheConnectorProvider());
+    clientConfig.property(ClientProperties.PROXY_URI, proxyUrl);
+    clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
+    clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPassword);
   }
 
   private SSLContext createSSLContext() {

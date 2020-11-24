@@ -19,6 +19,7 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.glassfish.jersey.connectors:jersey-apache-connector'
+    implementation 'commons-logging:commons-logging'
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'

@@ -12,6 +12,7 @@ import org.apiguardian.api.API;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.ProxyProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -41,12 +43,20 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   private int connectionTimeout;
   private int readTimeout;
   private String temporaryFolderPath;
+  private String proxyHost;
+  private int proxyPort;
+  private String proxyUser;
+  private String proxyPassword;
 
   public ApiClientBuilderWebClient() {
     basePath = "";
     defaultHeaders = new HashMap<>();
     connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
     readTimeout = DEFAULT_READ_TIMEOUT;
+    proxyHost = null;
+    proxyPort = -1;
+    proxyUser = null;
+    proxyPassword = null;
     withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -55,16 +65,12 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    */
   @Override
   public ApiClient build() {
-    WebClient.Builder builder = WebClient.builder();
-    SslContext sslContext = this.createSSLContext();
-    HttpClient httpConnector =
-        HttpClient.create().secure(t -> t.sslContext(sslContext)).tcpConfiguration(tcpClient -> tcpClient.option(
-            ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectionTimeout)
-            .doOnConnected(connection -> connection.addHandlerLast(
-                new ReadTimeoutHandler(this.readTimeout / 1000))));
+    final WebClient build = WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(createHttpClient()))
+        .baseUrl(this.basePath)
+        .build();
 
-    builder.clientConnector(new ReactorClientHttpConnector(httpConnector));
-    return new ApiClientWebClient(builder.baseUrl(this.basePath).build(), this.basePath, this.defaultHeaders);
+    return new ApiClientWebClient(build, this.basePath, this.defaultHeaders);
   }
 
   /**
@@ -141,6 +147,36 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withProxy(String proxyHost, int proxyPort) {
+    this.proxyHost = proxyHost;
+    this.proxyPort = proxyPort;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword) {
+    this.proxyUser = proxyUser;
+    this.proxyPassword = proxyPassword;
+    return this;
+  }
+
+  private HttpClient createHttpClient() {
+    HttpClient httpClient = HttpClient.create()
+        .secure(t -> t.sslContext(this.createSSLContext()))
+        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectionTimeout)
+        .doOnConnected(connection -> connection.addHandlerLast(
+            new ReadTimeoutHandler(this.readTimeout, TimeUnit.MILLISECONDS)));
+
+    return configureProxy(httpClient);
+  }
+
   private SslContext createSSLContext() {
     try {
       SslContextBuilder builder = SslContextBuilder.forClient();
@@ -162,5 +198,24 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private HttpClient configureProxy(HttpClient httpClient) {
+    if (this.proxyHost == null) {
+      return httpClient;
+    }
+    return httpClient.proxy(p -> getProxyBuilder(p));
+  }
+
+  private ProxyProvider.Builder getProxyBuilder(ProxyProvider.TypeSpec proxySpec) {
+    ProxyProvider.Builder builder = proxySpec.type(ProxyProvider.Proxy.HTTP)
+        .host(this.proxyHost)
+        .port(this.proxyPort)
+        .connectTimeoutMillis(this.connectionTimeout);
+
+    if (this.proxyUser != null && this.proxyPassword != null) {
+      builder = builder.username(this.proxyUser).password(u -> this.proxyPassword);
+    }
+    return builder;
   }
 }

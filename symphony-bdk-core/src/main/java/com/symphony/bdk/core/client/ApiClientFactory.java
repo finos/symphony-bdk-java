@@ -7,6 +7,8 @@ import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkProxyConfig;
+import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClient;
@@ -53,7 +55,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getLoginClient() {
-    return buildClient(this.config.getPod().getBasePath() + "/login");
+    return buildClient(this.config.getPod(), "/login");
   }
 
   /**
@@ -62,7 +64,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getPodClient() {
-    return buildClient(this.config.getPod().getBasePath() + "/pod");
+    return buildClient(this.config.getPod(), "/pod");
   }
 
   /**
@@ -71,7 +73,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRelayClient() {
-    return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
+    return buildClient(this.config.getKeyManager(), "/relay");
   }
 
   /**
@@ -116,7 +118,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRegularAgentClient(String agentBasePath) {
-    return buildClient(agentBasePath + "/agent");
+    return buildClient(agentBasePath + "/agent", this.config.getAgent().getProxy());
   }
 
   /**
@@ -126,7 +128,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getBot());
+    return buildClientWithCertificate(this.config.getSessionAuth(), "/sessionauth", this.config.getBot());
   }
 
   /**
@@ -136,7 +138,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getExtAppSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getApp());
+    return buildClientWithCertificate(this.config.getSessionAuth(), "/sessionauth", this.config.getApp());
   }
 
   /**
@@ -146,44 +148,57 @@ public class ApiClientFactory {
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getKeyAuthClient() {
-    return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth", this.config.getBot());
+    return buildClientWithCertificate(this.config.getKeyManager(), "/keyauth", this.config.getBot());
   }
 
-  private ApiClient buildClient(String basePath) {
-    return getApiClientBuilder(basePath).build();
+  private ApiClient buildClient(BdkServerConfig serverConfig, String contextPath) {
+    return buildClient(serverConfig.getBasePath() + contextPath, serverConfig.getProxy());
   }
 
-  private ApiClient buildClientWithCertificate(String basePath, BdkAuthenticationConfig config) {
+  private ApiClient buildClient(String basePath, BdkProxyConfig proxyConfig) {
+    return builderWithBasePathSslAndProxy(basePath, proxyConfig).build();
+  }
+
+  private ApiClient buildClientWithCertificate(BdkServerConfig serverConfig, String contextPath, BdkAuthenticationConfig config) {
     if (!config.isCertificateAuthenticationConfigured()) {
       throw new ApiClientInitializationException("For certificate authentication, " +
           "certificatePath and certificatePassword must be set");
     }
 
-    byte[] certificateBytes;
-    if (isNotEmpty(config.getCertificateContent())) {
-      certificateBytes = config.getCertificateContent();
-    } else {
-      certificateBytes = getBytesFromFile(config.getCertificatePath());
-    }
-
-    return getApiClientBuilder(basePath)
-        .withKeyStore(certificateBytes, config.getCertificatePassword())
+    return builderWithBasePathSslAndProxy(serverConfig.getBasePath() + contextPath, serverConfig.getProxy())
+        .withKeyStore(getCertificateBytes(config), config.getCertificatePassword())
         .build();
   }
 
-  private ApiClientBuilder getApiClientBuilder(String basePath) {
+  private ApiClientBuilder builderWithBasePathSslAndProxy(String basePath, BdkProxyConfig proxyConfig) {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
         .withBasePath(basePath);
 
     BdkSslConfig sslConfig = this.config.getSsl();
 
-    if(isNotEmpty(sslConfig.getTrustStorePath())) {
+    if (isNotEmpty(sslConfig.getTrustStorePath())) {
       byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStorePath());
       apiClientBuilder.withTrustStore(trustStoreBytes, sslConfig.getTrustStorePassword());
     }
 
+    if (proxyConfig != null) {
+      apiClientBuilder
+          .withProxy(proxyConfig.getHost(), proxyConfig.getPort())
+          .withProxyCredentials(proxyConfig.getUsername(), proxyConfig.getPassword());
+    }
+
     return apiClientBuilder;
+  }
+
+  private byte[] getCertificateBytes(BdkAuthenticationConfig config) {
+    byte[] certificateBytes;
+    if (isNotEmpty(config.getCertificateContent())) {
+      certificateBytes = config.getCertificateContent();
+    } else {
+      certificateBytes = getBytesFromFile(config.getCertificatePath());
+    }
+    return certificateBytes;
   }
 
   private byte[] getBytesFromFile(String filePath) {
