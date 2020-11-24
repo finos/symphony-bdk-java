@@ -1,5 +1,6 @@
 package com.symphony.bdk.http.api;
 
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -103,5 +104,15 @@ public interface ApiClient {
    */
   default void rotate() {
 
+  }
+
+  default void initTracingHeader(Map<String, String> headerParams) {
+    if (!headerParams.containsKey(DistributedTracingContext.TRACE_ID)) {
+      // if MDC not already set, initialize it
+      if (DistributedTracingContext.getTraceId().isEmpty()) {
+        DistributedTracingContext.setTraceId();
+      }
+      headerParams.put(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+    }
   }
 }

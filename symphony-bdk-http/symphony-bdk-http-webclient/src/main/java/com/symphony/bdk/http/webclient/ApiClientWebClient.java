@@ -89,6 +89,7 @@ public class ApiClientWebClient implements ApiClient {
     }
 
     if (headerParams != null) {
+      this.initTracingHeader(headerParams);
       for (Map.Entry<String, String> headerParam : headerParams.entrySet()) {
         String value = headerParam.getValue();
         if (value != null) {

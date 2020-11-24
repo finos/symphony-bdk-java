@@ -90,17 +90,22 @@ public class ApiClientJersey2 implements ApiClient {
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
 
-    for (Entry<String, String> entry : headerParams.entrySet()) {
-      String value = entry.getValue();
-      if (value != null) {
-        invocationBuilder = invocationBuilder.header(entry.getKey(), value);
+    if (headerParams != null) {
+      this.initTracingHeader(headerParams);
+      for (Entry<String, String> entry : headerParams.entrySet()) {
+        String value = entry.getValue();
+        if (value != null) {
+          invocationBuilder = invocationBuilder.header(entry.getKey(), value);
+        }
       }
     }
 
-    for (Entry<String, String> entry : cookieParams.entrySet()) {
-      String value = entry.getValue();
-      if (value != null) {
-        invocationBuilder = invocationBuilder.cookie(entry.getKey(), value);
+    if (cookieParams != null) {
+      for (Entry<String, String> entry : cookieParams.entrySet()) {
+        String value = entry.getValue();
+        if (value != null) {
+          invocationBuilder = invocationBuilder.cookie(entry.getKey(), value);
+        }
       }
     }
 
