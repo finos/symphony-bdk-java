@@ -6,6 +6,7 @@ import com.symphony.bdk.app.spring.filter.TracingFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
 
 /**
  * Configuration of the {@link TracingFilter}, that is activated by default.
@@ -19,6 +20,7 @@ public class BdkExtAppTracingFilterConfig {
 
     registrationBean.setFilter(new TracingFilter());
     registrationBean.addUrlPatterns(getUrlPatterns(properties));
+    registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
 
     return registrationBean;
   }

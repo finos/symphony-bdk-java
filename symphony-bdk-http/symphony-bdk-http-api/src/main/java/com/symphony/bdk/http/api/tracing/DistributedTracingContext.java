@@ -3,6 +3,7 @@ package com.symphony.bdk.http.api.tracing;
 import org.apiguardian.api.API;
 import org.slf4j.MDC;
 
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Random;
 public final class DistributedTracingContext {
 
   /** {@link Random} is thread-safe */
-  private static final Random RANDOM = new Random();
+  private static final SecureRandom RANDOM = new SecureRandom();
 
   private static final int TRACE_ID_SIZE = 6;
   private static final char TRACE_ID_SEPARATOR = ':';
