@@ -221,6 +221,8 @@ bdk:
         enabled: false
 ```
 
+:warning: Disabling the datafeed loop will prevent the use of real time event listeners, of slash commands and activities.
+
 ## Slash Command
 You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to 
 successfully register your command. If not defined, a `warn` message will appear in your application log. Note also that 

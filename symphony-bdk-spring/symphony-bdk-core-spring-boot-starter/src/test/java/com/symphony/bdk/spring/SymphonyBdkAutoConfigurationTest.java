@@ -2,9 +2,12 @@ package com.symphony.bdk.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
+import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;
@@ -164,10 +167,10 @@ class SymphonyBdkAutoConfigurationTest {
       final SymphonyBdkCoreProperties config = context.getBean(SymphonyBdkCoreProperties.class);
       assertThat(config.getAgent().getBasePath()).isEqualTo("https://localhost:443");
 
-      assertThat(context).doesNotHaveBean("datafeedService");
-      assertThat(context).doesNotHaveBean("datafeedAsyncLauncherService");
-      assertThat(context).doesNotHaveBean("activityRegistry");
-      assertThat(context).doesNotHaveBean("slashAnnotationProcessor");
+      assertThat(context).doesNotHaveBean(DatafeedService.class);
+      assertThat(context).doesNotHaveBean(DatafeedAsyncLauncherService.class);
+      assertThat(context).doesNotHaveBean(ActivityRegistry.class);
+      assertThat(context).doesNotHaveBean(SlashAnnotationProcessor.class);
     });
   }
 }
