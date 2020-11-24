@@ -2,8 +2,8 @@
 Production readiness documentation for BDK-based applications.
 
 ## Logging
-The Symphony BDK setup your logger [MDC](http://logback.qos.ch/manual/mdc.html) (Mapped Diagnostic Context) with a value
-called `X-Trace-Id` (random alphanumeric value of 6 characters). This value is send as header of every request made to
+The Symphony BDK sets up your logger [MDC](http://logback.qos.ch/manual/mdc.html) (Mapped Diagnostic Context) with a value
+called `X-Trace-Id` (random alphanumeric string of 6 characters). This value is send as header of every request made to
 the Symphony API. This is especially useful for cross-applications debugging, assuming that the `X-Trace-Id` value is 
 also present in your application logs.
 
