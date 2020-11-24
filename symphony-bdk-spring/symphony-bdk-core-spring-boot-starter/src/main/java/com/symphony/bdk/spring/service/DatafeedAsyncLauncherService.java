@@ -1,9 +1,11 @@
 package com.symphony.bdk.spring.service;
 
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.http.api.ApiException;
+
+import com.symphony.bdk.http.api.tracing.MDCUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -43,7 +45,7 @@ public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHan
    * Asynchronous execution of the {@link DatafeedService#start()} method.
    */
   public void start() {
-    final Thread datafeedThread = new Thread(this::uncheckedStart, "SymphonyBdk_DatafeedThread");
+    final Thread datafeedThread = new Thread(MDCUtils.wrap(this::uncheckedStart), "SymphonyBdk_DatafeedThread");
     datafeedThread.setUncaughtExceptionHandler(this);
     datafeedThread.start();
   }

@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -90,17 +91,26 @@ public class ApiClientJersey2 implements ApiClient {
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
 
-    for (Entry<String, String> entry : headerParams.entrySet()) {
-      String value = entry.getValue();
-      if (value != null) {
-        invocationBuilder = invocationBuilder.header(entry.getKey(), value);
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+    }
+    invocationBuilder = invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+
+    if (headerParams != null) {
+      for (Entry<String, String> entry : headerParams.entrySet()) {
+        String value = entry.getValue();
+        if (value != null) {
+          invocationBuilder = invocationBuilder.header(entry.getKey(), value);
+        }
       }
     }
 
-    for (Entry<String, String> entry : cookieParams.entrySet()) {
-      String value = entry.getValue();
-      if (value != null) {
-        invocationBuilder = invocationBuilder.cookie(entry.getKey(), value);
+    if (cookieParams != null) {
+      for (Entry<String, String> entry : cookieParams.entrySet()) {
+        String value = entry.getValue();
+        if (value != null) {
+          invocationBuilder = invocationBuilder.cookie(entry.getKey(), value);
+        }
       }
     }
 

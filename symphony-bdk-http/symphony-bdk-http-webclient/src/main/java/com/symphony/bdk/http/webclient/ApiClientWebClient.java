@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -87,6 +88,11 @@ public class ApiClientWebClient implements ApiClient {
     if (!"".equals(accept) && accept != null) {
       requestBodySpec.accept(MediaType.valueOf(accept));
     }
+
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+    }
+    requestBodySpec = requestBodySpec.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Map.Entry<String, String> headerParam : headerParams.entrySet()) {
