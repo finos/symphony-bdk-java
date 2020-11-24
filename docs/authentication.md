@@ -71,7 +71,7 @@ public class Example {
         // Loading the configuration
         BdkConfig config = loadFromClasspath("/config.yaml");
         byte[] privateKeyContent = FileUtils.readFileToByteArray(new File("path/to/privatekey.pem"));
-        config.getBot().setPrivateKeyContent(privateKeyContent);
+        config.getBot().getPrivateKey().setContent(privateKeyContent);
         // create bdk entry point
         final SymphonyBdk bdk = new SymphonyBdk(config);
         // at this point your bot is already authenticated

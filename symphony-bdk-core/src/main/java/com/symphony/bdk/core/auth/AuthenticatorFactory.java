@@ -164,7 +164,7 @@ public class AuthenticatorFactory {
       throws AuthInitializationException {
     try {
       String privateKey;
-      if (isNotEmpty(config.getPrivateKey())) {
+      if (config.getPrivateKey() != null && config.getPrivateKey().isConfigured()) {
         if (isNotEmpty(config.getPrivateKey().getContent())) {
           privateKey = new String(config.getPrivateKey().getContent(), StandardCharsets.UTF_8);
         } else {

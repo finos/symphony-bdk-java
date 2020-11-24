@@ -78,11 +78,13 @@ bdk:
     host: acme.symphony.com
     bot:
       username: bot-username
-      privateKeyPath: /path/to/rsa/privatekey.pem
+      privateKey:
+        path: /path/to/rsa/privatekey.pem
       
     app:
         appId: app-id
-        privateKeyPath: /path/tp/rsa/app_privatekey.pem
+        privateKey:
+          path: /path/tp/rsa/app_privatekey.pem
 
 bdk-app:
     auth:

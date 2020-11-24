@@ -161,7 +161,7 @@ public class ApiClientFactory {
 
     byte[] certificateBytes;
     String certificatePassword;
-    if (config.getCertificate() != null) {
+    if (config.getCertificate() != null && config.getCertificate().isConfigured()) {
       if (isNotEmpty(config.getCertificate().getContent())) {
         certificateBytes = config.getCertificateContent();
       } else {

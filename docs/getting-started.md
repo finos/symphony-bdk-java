@@ -112,7 +112,8 @@ host: acme.symphony.com                                     # your own pod host 
 
 bot: 
     username: bot-username                                  # your bot (or service account) username
-    privateKeyPath: /path/to/bot/rsa-private-key.pem        # your bot RSA private key
+    privateKey:
+      path: /path/to/bot/rsa-private-key.pem        # your bot RSA private key
 ```
 > Click [here](./configuration.md) for more detailed documentation about BDK configuration
 

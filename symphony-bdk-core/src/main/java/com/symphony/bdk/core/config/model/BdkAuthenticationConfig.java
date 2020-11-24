@@ -17,8 +17,8 @@ public class BdkAuthenticationConfig {
   protected byte[] certificateContent;
   protected String certificatePassword;
 
-  protected BdkRsaKeyConfig privateKey;
-  protected BdkCertificateConfig certificate;
+  protected BdkRsaKeyConfig privateKey = new BdkRsaKeyConfig();
+  protected BdkCertificateConfig certificate = new BdkCertificateConfig();
 
   /**
    * Check if the RSA authentication is configured or not
@@ -26,10 +26,9 @@ public class BdkAuthenticationConfig {
    * @return true if the RSA authentication is configured
    */
   public boolean isRsaAuthenticationConfigured() {
-    if (privateKey != null) {
-      return privateKey.isConfigured();
-    }
-    return isNotEmpty(privateKeyPath) || isNotEmpty(privateKeyContent);
+    return (privateKey != null && privateKey.isConfigured())
+        || isNotEmpty(privateKeyPath)
+        || isNotEmpty(privateKeyContent);
   }
 
   /**
@@ -40,7 +39,7 @@ public class BdkAuthenticationConfig {
    * @return true if the RSA configuration is invalid.
    */
   public boolean isRsaConfigurationValid() {
-    if (privateKey != null) {
+    if (privateKey != null && privateKey.isConfigured()) {
       if (isNotEmpty(privateKeyPath) || isNotEmpty(privateKeyContent)) {
         return false;
       }
@@ -55,10 +54,8 @@ public class BdkAuthenticationConfig {
    * @return true if the certificate authentication is configured
    */
   public boolean isCertificateAuthenticationConfigured() {
-    if (certificate != null) {
-      return certificate.isConfigured();
-    }
-    return (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) && certificatePassword != null;
+    return (certificate != null && certificate.isConfigured())
+        || (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) && certificatePassword != null;
   }
 
   /**
@@ -69,7 +66,7 @@ public class BdkAuthenticationConfig {
    * @return true if the certificate configuration is invalid.
    */
   public boolean isCertificateConfigurationValid() {
-    if (certificate != null) {
+    if (certificate != null && certificate.isConfigured()) {
       if (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) {
         return false;
       }
