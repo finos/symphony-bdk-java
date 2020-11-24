@@ -39,8 +39,8 @@ public class BdkConfigTest {
   private void assertIsCertificateAuthenticationConfigured(String certificatePath, String certificatePassword,
       boolean expected) {
     BdkBotConfig config = new BdkBotConfig();
-    config.setCertificatePath(certificatePath);
-    config.setCertificatePassword(certificatePassword);
+    config.getCertificate().setPath(certificatePath);
+    config.getCertificate().setPassword(certificatePassword);
 
     assertEquals(expected, config.isCertificateAuthenticationConfigured());
   }
@@ -49,9 +49,9 @@ public class BdkConfigTest {
       String certificatePassword, boolean expected) {
     BdkExtAppConfig extAppConfig = new BdkExtAppConfig();
     extAppConfig.setAppId(appId);
-    extAppConfig.setPrivateKeyPath(privateKeyPath);
-    extAppConfig.setCertificatePath(certificatePath);
-    extAppConfig.setCertificatePassword(certificatePassword);
+    extAppConfig.getPrivateKey().setPath(privateKeyPath);
+    extAppConfig.getCertificate().setPath(certificatePath);
+    extAppConfig.getCertificate().setPassword(certificatePassword);
 
     BdkConfig bdkConfig = new BdkConfig();
     bdkConfig.setApp(extAppConfig);
