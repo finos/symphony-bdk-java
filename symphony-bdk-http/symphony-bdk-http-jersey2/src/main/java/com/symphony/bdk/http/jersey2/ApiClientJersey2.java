@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -90,8 +91,12 @@ public class ApiClientJersey2 implements ApiClient {
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
 
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+    }
+    invocationBuilder = invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+
     if (headerParams != null) {
-      this.initTracingHeader(headerParams);
       for (Entry<String, String> entry : headerParams.entrySet()) {
         String value = entry.getValue();
         if (value != null) {

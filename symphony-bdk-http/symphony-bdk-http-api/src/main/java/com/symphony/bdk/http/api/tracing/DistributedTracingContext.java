@@ -37,6 +37,10 @@ public final class DistributedTracingContext {
     return MDC.get(TRACE_ID) != null ? MDC.get(TRACE_ID) : "";
   }
 
+  public static boolean hasTraceId() {
+    return !getTraceId().isEmpty();
+  }
+
   public static void clear() {
     MDC.remove(TRACE_ID);
   }
