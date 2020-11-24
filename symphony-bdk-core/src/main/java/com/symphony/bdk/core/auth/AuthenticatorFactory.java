@@ -164,12 +164,23 @@ public class AuthenticatorFactory {
       throws AuthInitializationException {
     try {
       String privateKey;
-      if (isNotEmpty(config.getPrivateKeyContent())) {
-        privateKey = new String(config.getPrivateKeyContent(), StandardCharsets.UTF_8);
+      if (isNotEmpty(config.getPrivateKey())) {
+        if (isNotEmpty(config.getPrivateKey().getContent())) {
+          privateKey = new String(config.getPrivateKey().getContent(), StandardCharsets.UTF_8);
+        } else {
+          String privateKeyPath = config.getPrivateKey().getPath();
+          log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
+          privateKey = loadPrivateKey(privateKeyPath);
+        }
       } else {
-        String privateKeyPath = config.getPrivateKeyPath();
-        log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
-        privateKey = loadPrivateKey(privateKeyPath);
+        log.warn("RSA private key should be configured under \"privateKey\" field");
+        if (isNotEmpty(config.getPrivateKeyContent())) {
+          privateKey = new String(config.getPrivateKeyContent(), StandardCharsets.UTF_8);
+        } else {
+          String privateKeyPath = config.getPrivateKeyPath();
+          log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
+          privateKey = loadPrivateKey(privateKeyPath);
+        }
       }
       return JwtHelper.parseRsaPrivateKey(privateKey);
     } catch (GeneralSecurityException e) {

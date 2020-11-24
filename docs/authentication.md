@@ -22,7 +22,8 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 bot:
     username: bot-username
-    privateKeyPath: /path/to/rsa/private-key.pem
+    privateKey:
+      path: /path/to/rsa/private-key.pem
 ```
 
 ### Bot authentication using Client Certificate
@@ -33,8 +34,9 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 bot:
     username: bot-username
-    certificatePath: /path/to/certificate.p12
-    certificatePassword: YourCertificatePassword
+    certificate:
+      path: /path/to/certificate.p12
+      password: YourCertificatePassword
 ```
 
 ### Bot authentication deep-dive
@@ -118,8 +120,13 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 app:
     appId: app-id
-    privateKeyPath: /path/to/rsa/private-key.pem
+    privateKey:
+      path: /path/to/rsa/private-key.pem
 ```
+
+> The private key path can still be configured under `privateKeyPath` field but will be deprecated in the future:
+> 
+> `privateKeyPath: /path/to/rsa/private-key.pem`
 
 ### App Authentication using Client Certificate
 
@@ -128,9 +135,15 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 app:
     appId: app-id
-    certificatePath: /path/to/certificate.p12
-    certificatePassword: YourCertificatePassword
+    certificate:
+      path: /path/to/certificate.p12
+      password: YourCertificatePassword
 ```
+
+> The certificate path and password can still be configured under `certificatePath` and `certificatePassword` fields but will be deprecated in the future:
+> 
+> `certificatePath: /path/to/certificate.p12`
+> `certificatePassword: YourCertificatePassword`
 
 ### Circle Of Trust
 > Read more about Circle Of Trust [here](https://developers.symphony.com/extension/docs/application-authentication#section-application-authentication-sequence)

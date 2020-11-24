@@ -17,41 +17,64 @@ public class BdkAuthenticationConfig {
   protected byte[] certificateContent;
   protected String certificatePassword;
 
+  protected BdkRsaKeyConfig privateKey;
+  protected BdkCertificateConfig certificate;
+
   /**
    * Check if the RSA authentication is configured or not
    *
    * @return true if the RSA authentication is configured
    */
   public boolean isRsaAuthenticationConfigured() {
+    if (privateKey != null) {
+      return privateKey.isConfigured();
+    }
     return isNotEmpty(privateKeyPath) || isNotEmpty(privateKeyContent);
   }
 
   /**
    * Check if the RSA configuration is valid.
+   * If privateKey field is configured, the privateKeyPath and privateKeyContent should not be configured.
    * If both of private key path and content, the configuration is invalid.
    *
    * @return true if the RSA configuration is invalid.
    */
   public boolean isRsaConfigurationValid() {
+    if (privateKey != null) {
+      if (isNotEmpty(privateKeyPath) || isNotEmpty(privateKeyContent)) {
+        return false;
+      }
+      return privateKey.isValid();
+    }
     return !(isNotEmpty(privateKeyPath) && isNotEmpty(privateKeyContent));
   }
 
   /**
-   * Check if the Extension App Certificate authentication is configured or not
+   * Check if the certificate authentication is configured or not
    *
-   * @return true if the Extension App Certificate authentication is configured
+   * @return true if the certificate authentication is configured
    */
   public boolean isCertificateAuthenticationConfigured() {
+    if (certificate != null) {
+      return certificate.isConfigured();
+    }
     return (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) && certificatePassword != null;
   }
 
   /**
    * Check if the certificate configuration is valid.
+   * If certificate field is configured, the certificatePath and certificateContent should not be configured.
    * If both of certificate path and content, the configuration is invalid.
    *
    * @return true if the certificate configuration is invalid.
    */
   public boolean isCertificateConfigurationValid() {
+    if (certificate != null) {
+      if (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) {
+        return false;
+      }
+      return certificate.isValid();
+    }
     return !(isNotEmpty(certificatePath) && isNotEmpty(certificateContent));
   }
 

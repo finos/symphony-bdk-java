@@ -160,14 +160,26 @@ public class ApiClientFactory {
     }
 
     byte[] certificateBytes;
-    if (isNotEmpty(config.getCertificateContent())) {
-      certificateBytes = config.getCertificateContent();
+    String certificatePassword;
+    if (config.getCertificate() != null) {
+      if (isNotEmpty(config.getCertificate().getContent())) {
+        certificateBytes = config.getCertificateContent();
+      } else {
+        certificateBytes = getBytesFromFile(config.getCertificate().getPath());
+      }
+      certificatePassword = config.getCertificate().getPassword();
     } else {
-      certificateBytes = getBytesFromFile(config.getCertificatePath());
+      log.warn("Certificate should be configured under \"certificate\" field");
+      if (isNotEmpty(config.getCertificateContent())) {
+        certificateBytes = config.getCertificateContent();
+      } else {
+        certificateBytes = getBytesFromFile(config.getCertificatePath());
+      }
+      certificatePassword = config.getCertificatePassword();
     }
 
     return getApiClientBuilder(basePath)
-        .withKeyStore(certificateBytes, config.getCertificatePassword())
+        .withKeyStore(certificateBytes, certificatePassword)
         .build();
   }
 
