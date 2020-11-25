@@ -1,4 +1,4 @@
-
+# BDK Core Configuration
 bdk:
   host: acme.symphony.com
   bot:
@@ -11,6 +11,7 @@ bdk:
     privateKey:
       path: ${user.home}/.symphony/privatekey.pem
 
+# BDK App Configuration
 bdk-app:
   auth:
     enabled: true
@@ -20,17 +21,28 @@ bdk-app:
   cors:
     "[/**]":
       allowed-origins: "*"
+  tracing:
+    enabled: true
+    urlPatterns:
+      - /api/*
 
 logging:
+  pattern:
+    # Added %clr(%X{X-Trace-Id}){magenta} to output the MDC traceId in logs
+    console: '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(%X{X-Trace-Id}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx'
   level:
     com.symphony: debug
 
 server:
+  port: 10443
   ssl:
     key-store: classpath:keystore.p12
     key-store-password: password
     key-store-type: pkcs12
     key-alias: tomcat
-  port: 10443
-spring.security.user.name: user
-spring.security.user.password: password
+
+spring:
+  security:
+    user:
+      name: admin
+      password: password
