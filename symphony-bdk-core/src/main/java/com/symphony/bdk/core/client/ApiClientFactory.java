@@ -6,6 +6,7 @@ import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
+import com.symphony.bdk.core.config.model.BdkCertificateConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
@@ -126,7 +127,8 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getBot());
+    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth",
+        this.config.getBot());
   }
 
   /**
@@ -136,7 +138,8 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getExtAppSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth", this.config.getApp());
+    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth",
+        this.config.getApp());
   }
 
   /**
@@ -160,14 +163,26 @@ public class ApiClientFactory {
     }
 
     byte[] certificateBytes;
-    if (isNotEmpty(config.getCertificateContent())) {
-      certificateBytes = config.getCertificateContent();
+    String certificatePassword;
+    if (config.getCertificate() != null && config.getCertificate().isConfigured()) {
+      if (isNotEmpty(config.getCertificate().getContent())) {
+        certificateBytes = config.getCertificateContent();
+      } else {
+        certificateBytes = getBytesFromFile(config.getCertificate().getPath());
+      }
+      certificatePassword = config.getCertificate().getPassword();
     } else {
-      certificateBytes = getBytesFromFile(config.getCertificatePath());
+      log.warn("Certificate should be configured under \"certificate\" field");
+      if (isNotEmpty(config.getCertificateContent())) {
+        certificateBytes = config.getCertificateContent();
+      } else {
+        certificateBytes = getBytesFromFile(config.getCertificatePath());
+      }
+      certificatePassword = config.getCertificatePassword();
     }
 
     return getApiClientBuilder(basePath)
-        .withKeyStore(certificateBytes, config.getCertificatePassword())
+        .withKeyStore(certificateBytes, certificatePassword)
         .build();
   }
 
@@ -178,7 +193,24 @@ public class ApiClientFactory {
 
     BdkSslConfig sslConfig = this.config.getSsl();
 
-    if(isNotEmpty(sslConfig.getTrustStorePath())) {
+    if (!sslConfig.isValid()) {
+      throw new ApiClientInitializationException(
+          "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
+    }
+
+    if (sslConfig.getTrustStore() != null && sslConfig.getTrustStore().isConfigured()) {
+      BdkCertificateConfig trustStoreConfig = sslConfig.getTrustStore();
+      if (!trustStoreConfig.isValid()) {
+        throw new ApiClientInitializationException(
+            "Both of trustStore path and content are configured. Only one of them should be configured.");
+      }
+      if (isNotEmpty(trustStoreConfig.getContent())) {
+        byte[] trustStoreBytes = trustStoreConfig.getContent();
+        apiClientBuilder.withTrustStore(trustStoreBytes, trustStoreConfig.getPassword());
+      }
+      byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStore().getPath());
+      apiClientBuilder.withTrustStore(trustStoreBytes, trustStoreConfig.getPassword());
+    } else if (isNotEmpty(sslConfig.getTrustStorePath())) {
       byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStorePath());
       apiClientBuilder.withTrustStore(trustStoreBytes, sslConfig.getTrustStorePassword());
     }
