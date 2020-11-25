@@ -27,6 +27,9 @@ import com.symphony.bdk.bot.sdk.symphony.exception.SymphonyClientException;
 import com.symphony.bdk.bot.sdk.symphony.model.AuthenticateResponse;
 import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Extension App authentication controller
  * Exposes endpoints through which an extension app could authenticate itself
