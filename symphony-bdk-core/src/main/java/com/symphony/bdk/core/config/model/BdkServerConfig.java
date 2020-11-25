@@ -12,7 +12,7 @@ public class BdkServerConfig {
   protected static final String DEFAULT_SCHEME = "https";
   protected static final int DEFAULT_HTTPS_PORT = 443;
 
-  protected BdkProxyConfig proxy = null;
+  protected BdkProxyConfig proxy;
 
   protected String scheme = DEFAULT_SCHEME;
   protected String host;
