@@ -1,7 +1,5 @@
 package com.symphony.bdk.core.client;
 
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
@@ -18,10 +16,6 @@ import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import javax.annotation.Nonnull;
 
@@ -166,27 +160,10 @@ public class ApiClientFactory {
           "certificatePath and certificatePassword must be set");
     }
 
-    byte[] certificateBytes;
-    String certificatePassword;
-    if (config.getCertificate() != null && config.getCertificate().isConfigured()) {
-      if (isNotEmpty(config.getCertificate().getContent())) {
-        certificateBytes = config.getCertificateContent();
-      } else {
-        certificateBytes = getBytesFromFile(config.getCertificate().getPath());
-      }
-      certificatePassword = config.getCertificate().getPassword();
-    } else {
-      log.warn("Certificate should be configured under \"certificate\" field");
-      if (isNotEmpty(config.getCertificateContent())) {
-        certificateBytes = config.getCertificateContent();
-      } else {
-        certificateBytes = getBytesFromFile(config.getCertificatePath());
-      }
-      certificatePassword = config.getCertificatePassword();
-    }
+    final BdkCertificateConfig certificateConfig = config.getCertificateConfig();
 
     return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy())
-        .withKeyStore(certificateBytes, certificatePassword)
+        .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
         .build();
   }
 
@@ -195,44 +172,30 @@ public class ApiClientFactory {
         .newInstance()
         .withBasePath(basePath);
 
-    BdkSslConfig sslConfig = this.config.getSsl();
-
-    if (!sslConfig.isValid()) {
-      throw new ApiClientInitializationException(
-          "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
-    }
-
-    if (sslConfig.getTrustStore() != null && sslConfig.getTrustStore().isConfigured()) {
-      BdkCertificateConfig trustStoreConfig = sslConfig.getTrustStore();
-      if (!trustStoreConfig.isValid()) {
-        throw new ApiClientInitializationException(
-            "Both of trustStore path and content are configured. Only one of them should be configured.");
-      }
-      if (isNotEmpty(trustStoreConfig.getContent())) {
-        byte[] trustStoreBytes = trustStoreConfig.getContent();
-        apiClientBuilder.withTrustStore(trustStoreBytes, trustStoreConfig.getPassword());
-      }
-      byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStore().getPath());
-      apiClientBuilder.withTrustStore(trustStoreBytes, trustStoreConfig.getPassword());
-    } else if (isNotEmpty(sslConfig.getTrustStorePath())) {
-      byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStorePath());
-      apiClientBuilder.withTrustStore(trustStoreBytes, sslConfig.getTrustStorePassword());
-    }
-
-    if (proxyConfig != null) {
-      apiClientBuilder
-          .withProxy(proxyConfig.getHost(), proxyConfig.getPort())
-          .withProxyCredentials(proxyConfig.getUsername(), proxyConfig.getPassword());
-    }
+    configureTruststore(apiClientBuilder);
+    configureProxy(proxyConfig, apiClientBuilder);
 
     return apiClientBuilder;
   }
 
-  private byte[] getBytesFromFile(String filePath) {
-    try {
-      return Files.readAllBytes(new File(filePath).toPath());
-    } catch (IOException e) {
-      throw new ApiClientInitializationException("Could not read file " + filePath, e);
+  private void configureTruststore(ApiClientBuilder apiClientBuilder) {
+    final BdkSslConfig ssl = this.config.getSsl();
+    if (!ssl.isValid()) {
+      throw new ApiClientInitializationException(
+          "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
+    }
+
+    final BdkCertificateConfig trustStoreConfig = ssl.getCertificateConfig();
+    if (trustStoreConfig.isConfigured()) {
+      apiClientBuilder.withTrustStore(trustStoreConfig.getCertificateBytes(), trustStoreConfig.getPassword());
+    }
+  }
+
+  private void configureProxy(BdkProxyConfig proxyConfig, ApiClientBuilder apiClientBuilder) {
+    if (proxyConfig != null) {
+      apiClientBuilder
+          .withProxy(proxyConfig.getHost(), proxyConfig.getPort())
+          .withProxyCredentials(proxyConfig.getUsername(), proxyConfig.getPassword());
     }
   }
 }

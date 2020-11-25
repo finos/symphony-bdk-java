@@ -13,4 +13,14 @@ public class BdkProxyConfig {
   private int port;
   private String username;
   private String password;
+
+  public BdkProxyConfig() {
+  }
+
+  public BdkProxyConfig(String host, int port, String username, String password) {
+    this.host = host;
+    this.port = port;
+    this.username = username;
+    this.password = password;
+  }
 }

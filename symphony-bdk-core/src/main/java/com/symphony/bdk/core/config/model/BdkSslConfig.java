@@ -4,11 +4,13 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 @Getter
 @Setter
 @API(status = API.Status.STABLE)
+@Slf4j
 public class BdkSslConfig {
 
   @Deprecated
@@ -26,8 +28,26 @@ public class BdkSslConfig {
    */
   public boolean isValid() {
     if (trustStore != null && trustStore.isConfigured()) {
-      return !isNotEmpty(trustStorePath);
+      return trustStore.isValid() && !isNotEmpty(trustStorePath);
     }
     return true;
+  }
+
+  /**
+   * Returns a {@link BdkCertificateConfig} instance equals to {@link #trustStore} if specified
+   * or a new instance containing deprecated fields {@link #trustStorePath} and {@link #trustStorePassword}
+   *
+   * @return a {@link BdkCertificateConfig} instance SSL certificate information.
+   */
+  public BdkCertificateConfig getCertificateConfig() {
+    if (trustStore != null && trustStore.isConfigured()) {
+      return trustStore;
+    }
+
+    final BdkCertificateConfig sslTruststoreConfig = new BdkCertificateConfig(trustStorePath, trustStorePassword);
+    if (sslTruststoreConfig.isConfigured()) {
+      log.warn("Truststore should be configured under \"trustStore\" field");
+    }
+    return sslTruststoreConfig;
   }
 }

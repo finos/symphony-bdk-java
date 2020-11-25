@@ -4,11 +4,13 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 @Getter
 @Setter
 @API(status = API.Status.STABLE)
+@Slf4j
 public class BdkAuthenticationConfig {
 
   @Deprecated
@@ -87,5 +89,20 @@ public class BdkAuthenticationConfig {
    */
   public boolean isBothCertificateAndRsaConfigured() {
     return isRsaAuthenticationConfigured() && isCertificateAuthenticationConfigured();
+  }
+
+  /**
+   * Returns a {@link BdkCertificateConfig} instance equals to {@link #certificate} if specified
+   * or a new instance containing deprecated fields {@link #certificatePath}, {@link #certificateContent}
+   * and {@link #certificatePassword}
+   *
+   * @return a {@link BdkCertificateConfig} instance containing certificate authentication information.
+   */
+  public BdkCertificateConfig getCertificateConfig() {
+    if (certificate != null && certificate.isConfigured()) {
+      return certificate;
+    }
+    log.warn("Certificate should be configured under \"certificate\" field");
+    return new BdkCertificateConfig(certificatePath, certificateContent, certificatePassword);
   }
 }
