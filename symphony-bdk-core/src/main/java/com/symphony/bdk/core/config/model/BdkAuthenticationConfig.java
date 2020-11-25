@@ -11,10 +11,15 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE)
 public class BdkAuthenticationConfig {
 
+  @Deprecated
   protected String privateKeyPath;
+  @Deprecated
   protected byte[] privateKeyContent;
+  @Deprecated
   protected String certificatePath;
+  @Deprecated
   protected byte[] certificateContent;
+  @Deprecated
   protected String certificatePassword;
 
   protected BdkRsaKeyConfig privateKey = new BdkRsaKeyConfig();

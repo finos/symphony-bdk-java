@@ -11,10 +11,12 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE)
 public class BdkSslConfig {
 
-    private String trustStorePath;
-    private String trustStorePassword;
+  @Deprecated
+  private String trustStorePath;
+  @Deprecated
+  private String trustStorePassword;
 
-    private BdkCertificateConfig trustStore = new BdkCertificateConfig();
+  private BdkCertificateConfig trustStore = new BdkCertificateConfig();
 
   /**
    * Check if the trustStore configuration is valid.
@@ -23,9 +25,9 @@ public class BdkSslConfig {
    * @return true if the trustStore configuration is invalid.
    */
   public boolean isValid() {
-      if (trustStore != null && trustStore.isConfigured()) {
-        return !isNotEmpty(trustStorePath);
-      }
-      return true;
+    if (trustStore != null && trustStore.isConfigured()) {
+      return !isNotEmpty(trustStorePath);
     }
+    return true;
+  }
 }
