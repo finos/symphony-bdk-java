@@ -26,6 +26,8 @@ public class ApiClientBuilderWebClientTest {
     this.builder.withTemporaryFolderPath("temp-path");
     this.builder.withConnectionTimeout(20_000);
     this.builder.withReadTimeout(30_000);
+    this.builder.withProxy("proxy.symphony.com", 1234);
+    this.builder.withProxyCredentials("user", "password");
 
     this.truststore = toByteArray(ApiClientBuilderWebClientTest.class
         .getResourceAsStream("/certs/all_symphony_certs_truststore"));
