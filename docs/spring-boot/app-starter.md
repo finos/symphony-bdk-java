@@ -104,8 +104,8 @@ bdk-app:
         urlPatterns:  # Add URL patterns that the tracing filter will be registered against
           - /api/*
 logging:
-  level:
-    com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
+    level:
+        com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
 > You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
