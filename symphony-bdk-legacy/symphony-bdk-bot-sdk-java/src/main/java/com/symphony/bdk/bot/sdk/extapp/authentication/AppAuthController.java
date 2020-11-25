@@ -1,12 +1,19 @@
 package com.symphony.bdk.bot.sdk.extapp.authentication;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.symphony.bdk.bot.sdk.symphony.ConfigClient;
+import com.symphony.bdk.bot.sdk.symphony.ExtensionAppAuthClient;
+import com.symphony.bdk.bot.sdk.symphony.exception.AppAuthenticateException;
+import com.symphony.bdk.bot.sdk.symphony.exception.SymphonyClientException;
+import com.symphony.bdk.bot.sdk.symphony.model.AuthenticateResponse;
+import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
+
+import org.apache.tomcat.util.http.SameSiteCookies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +26,9 @@ import com.symphony.bdk.bot.sdk.symphony.exception.AppAuthenticateException;
 import com.symphony.bdk.bot.sdk.symphony.exception.SymphonyClientException;
 import com.symphony.bdk.bot.sdk.symphony.model.AuthenticateResponse;
 import com.symphony.bdk.bot.sdk.webapi.security.JwtCookieFilter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Extension App authentication controller
@@ -90,7 +100,7 @@ public class AppAuthController {
       String jwt = jwtInfo.getJwt();
       Long userId = extAppAuthClient.verifyJWT(jwt);
       if(jwtCookieEnable) {
-        response.addCookie(jwtCookie(jwt, request.getContextPath()));
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie(jwt, request.getContextPath()).toString());
       }
 
       return ResponseEntity.ok(userId);
@@ -100,16 +110,15 @@ public class AppAuthController {
     }
   }
 
-  private Cookie jwtCookie(String jwt, String path) {
-    Cookie jwtCookie = new Cookie(JwtCookieFilter.JWT_COOKIE_NAME, jwt);
+  private ResponseCookie jwtCookie(String jwt, String path) {
 
-    // 1 day
-    jwtCookie.setMaxAge(1 * 24 * 60 * 60);
-    jwtCookie.setSecure(true);
-    jwtCookie.setHttpOnly(true);
-    jwtCookie.setPath(path.concat(configClient.getExtAppAuthPath()));
-
-    return jwtCookie;
+    return ResponseCookie.from(JwtCookieFilter.JWT_COOKIE_NAME, jwt)
+        .maxAge(24 * 60 * 60)
+        .secure(true)
+        .httpOnly(true)
+        .path(path.concat(configClient.getExtAppAuthPath()))
+        .sameSite(SameSiteCookies.NONE.getValue())
+        .build();
   }
 
 }

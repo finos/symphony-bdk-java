@@ -296,7 +296,8 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
 
   @Slash("/gif")
   public void displayGifForm(CommandContext context) throws TemplateException {
-    this.messageService.send(context.getStreamId(), "/templates/gif.ftl", emptyMap());
+    final Template template = bdk.messages().templates().newTemplateFromClasspath("/templates/gif.ftl");
+    this.messageService.send(context.getStreamId(), Message.builder().template(template, Collections.emptyMap()));
   }
 
   @Override
