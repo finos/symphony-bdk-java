@@ -1,14 +1,13 @@
 package com.symphony.bdk.core.client;
 
-import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkCertificateConfig;
+import com.symphony.bdk.core.config.model.BdkClientConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.config.model.BdkSslConfig;
+import com.symphony.bdk.core.config.model.BdkProxyConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
@@ -16,10 +15,6 @@ import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 import javax.annotation.Nonnull;
 
@@ -54,7 +49,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getLoginClient() {
-    return buildClient(this.config.getPod().getBasePath() + "/login");
+    return buildClient(this.config.getPod(), "/login");
   }
 
   /**
@@ -63,7 +58,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getPodClient() {
-    return buildClient(this.config.getPod().getBasePath() + "/pod");
+    return buildClient(this.config.getPod(), "/pod");
   }
 
   /**
@@ -72,7 +67,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRelayClient() {
-    return buildClient(this.config.getKeyManager().getBasePath() + "/relay");
+    return buildClient(this.config.getKeyManager(), "/relay");
   }
 
   /**
@@ -117,7 +112,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRegularAgentClient(String agentBasePath) {
-    return buildClient(agentBasePath + "/agent");
+    return buildClient(agentBasePath + "/agent", this.config.getAgent().getProxy());
   }
 
   /**
@@ -127,8 +122,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth",
-        this.config.getBot());
+    return buildClientWithCertificate(this.config.getSessionAuth(), "/sessionauth", this.config.getBot());
   }
 
   /**
@@ -138,8 +132,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getExtAppSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth().getBasePath() + "/sessionauth",
-        this.config.getApp());
+    return buildClientWithCertificate(this.config.getSessionAuth(), "/sessionauth", this.config.getApp());
   }
 
   /**
@@ -149,80 +142,54 @@ public class ApiClientFactory {
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getKeyAuthClient() {
-    return buildClientWithCertificate(this.config.getKeyManager().getBasePath() + "/keyauth", this.config.getBot());
+    return buildClientWithCertificate(this.config.getKeyManager(), "/keyauth", this.config.getBot());
   }
 
-  private ApiClient buildClient(String basePath) {
-    return getApiClientBuilder(basePath).build();
+  private ApiClient buildClient(BdkClientConfig clientConfig, String contextPath) {
+    return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy()).build();
   }
 
-  private ApiClient buildClientWithCertificate(String basePath, BdkAuthenticationConfig config) {
+  private ApiClient buildClient(String basePath, BdkProxyConfig proxyConfig) {
+    return getApiClientBuilder(basePath, proxyConfig).build();
+  }
+
+  private ApiClient buildClientWithCertificate(BdkClientConfig clientConfig, String contextPath, BdkAuthenticationConfig config) {
     if (!config.isCertificateAuthenticationConfigured()) {
       throw new ApiClientInitializationException("For certificate authentication, " +
           "certificatePath and certificatePassword must be set");
     }
 
-    byte[] certificateBytes;
-    String certificatePassword;
-    if (config.getCertificate() != null && config.getCertificate().isConfigured()) {
-      if (isNotEmpty(config.getCertificate().getContent())) {
-        certificateBytes = config.getCertificateContent();
-      } else {
-        certificateBytes = getBytesFromFile(config.getCertificate().getPath());
-      }
-      certificatePassword = config.getCertificate().getPassword();
-    } else {
-      log.warn("Certificate should be configured under \"certificate\" field");
-      if (isNotEmpty(config.getCertificateContent())) {
-        certificateBytes = config.getCertificateContent();
-      } else {
-        certificateBytes = getBytesFromFile(config.getCertificatePath());
-      }
-      certificatePassword = config.getCertificatePassword();
-    }
+    final BdkCertificateConfig certificateConfig = config.getCertificateConfig();
 
-    return getApiClientBuilder(basePath)
-        .withKeyStore(certificateBytes, certificatePassword)
+    return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy())
+        .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
         .build();
   }
 
-  private ApiClientBuilder getApiClientBuilder(String basePath) {
+  private ApiClientBuilder getApiClientBuilder(String basePath, BdkProxyConfig proxyConfig) {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
         .withBasePath(basePath);
 
-    BdkSslConfig sslConfig = this.config.getSsl();
-
-    if (!sslConfig.isValid()) {
-      throw new ApiClientInitializationException(
-          "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
-    }
-
-    if (sslConfig.getTrustStore() != null && sslConfig.getTrustStore().isConfigured()) {
-      BdkCertificateConfig trustStoreConfig = sslConfig.getTrustStore();
-      if (!trustStoreConfig.isValid()) {
-        throw new ApiClientInitializationException(
-            "Both of trustStore path and content are configured. Only one of them should be configured.");
-      }
-      if (isNotEmpty(trustStoreConfig.getContent())) {
-        byte[] trustStoreBytes = trustStoreConfig.getContent();
-        apiClientBuilder.withTrustStore(trustStoreBytes, trustStoreConfig.getPassword());
-      }
-      byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStore().getPath());
-      apiClientBuilder.withTrustStore(trustStoreBytes, trustStoreConfig.getPassword());
-    } else if (isNotEmpty(sslConfig.getTrustStorePath())) {
-      byte[] trustStoreBytes = getBytesFromFile(sslConfig.getTrustStorePath());
-      apiClientBuilder.withTrustStore(trustStoreBytes, sslConfig.getTrustStorePassword());
-    }
+    configureTruststore(apiClientBuilder);
+    configureProxy(proxyConfig, apiClientBuilder);
 
     return apiClientBuilder;
   }
 
-  private byte[] getBytesFromFile(String filePath) {
-    try {
-      return Files.readAllBytes(new File(filePath).toPath());
-    } catch (IOException e) {
-      throw new ApiClientInitializationException("Could not read file " + filePath, e);
+  private void configureTruststore(ApiClientBuilder apiClientBuilder) {
+    final BdkCertificateConfig trustStoreConfig = this.config.getSsl().getCertificateConfig();
+
+    if (trustStoreConfig.isConfigured()) {
+      apiClientBuilder.withTrustStore(trustStoreConfig.getCertificateBytes(), trustStoreConfig.getPassword());
+    }
+  }
+
+  private void configureProxy(BdkProxyConfig proxyConfig, ApiClientBuilder apiClientBuilder) {
+    if (proxyConfig != null) {
+      apiClientBuilder
+          .withProxy(proxyConfig.getHost(), proxyConfig.getPort())
+          .withProxyCredentials(proxyConfig.getUsername(), proxyConfig.getPassword());
     }
   }
 }

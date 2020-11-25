@@ -30,21 +30,21 @@ public interface ApiClientBuilder {
   ApiClientBuilder withUserAgent(String userAgent);
 
   /**
-   * @param keyStoreBytes content of the key store (aka client certificate)
+   * @param keyStoreBytes    content of the key store (aka client certificate)
    * @param keyStorePassword password of the key store
    * @return the updated instance of {@link ApiClientBuilder}
    */
   ApiClientBuilder withKeyStore(byte[] keyStoreBytes, String keyStorePassword);
 
   /**
-   * @param trustStoreBytes content of the trust store
+   * @param trustStoreBytes    content of the trust store
    * @param trustStorePassword password of the truststore
    * @return the updated instance of {@link ApiClientBuilder}
    */
   ApiClientBuilder withTrustStore(byte[] trustStoreBytes, String trustStorePassword);
 
   /**
-   * @param key name of the header to be added in all HTTP calls
+   * @param key   name of the header to be added in all HTTP calls
    * @param value header value
    * @return the updated instance of {@link ApiClientBuilder}
    */
@@ -57,7 +57,7 @@ public interface ApiClientBuilder {
   ApiClientBuilder withTemporaryFolderPath(String temporaryFolderPath);
 
   /**
-   * Set the connection timeout (in milliseconds). A value of 0 means no timeout, otherwise values
+   * Sets the connection timeout (in milliseconds). A value of 0 means no timeout, otherwise values
    * must be between 1 and {@link Integer#MAX_VALUE}. If not set, connection timeout will be 15000.
    *
    * @param connectionTimeout Connection timeout in milliseconds
@@ -66,11 +66,29 @@ public interface ApiClientBuilder {
   ApiClientBuilder withConnectionTimeout(int connectionTimeout);
 
   /**
-   * Set the read timeout (in milliseconds). A value of 0 means no timeout, otherwise values must be
+   * Sets the read timeout (in milliseconds). A value of 0 means no timeout, otherwise values must be
    * between 1 and {@link Integer#MAX_VALUE}. If not set, read timeout will be 60000.
    *
    * @param readTimeout Read timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
    */
   ApiClientBuilder withReadTimeout(int readTimeout);
+
+  /**
+   * Sets a proxy host and port.
+   *
+   * @param proxyHost the proxy host
+   * @param proxyPort the proxy port
+   * @return the updated instance of {@link ApiClientBuilder}
+   */
+  ApiClientBuilder withProxy(String proxyHost, int proxyPort);
+
+  /**
+   * Sets proxy credentials.
+   *
+   * @param proxyUser     the proxy user to be specified
+   * @param proxyPassword the proxy password to be specified
+   * @return the updated instance of {@link ApiClientBuilder}
+   */
+  ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword);
 }

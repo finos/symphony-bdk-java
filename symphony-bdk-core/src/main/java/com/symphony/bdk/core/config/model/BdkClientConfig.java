@@ -13,13 +13,9 @@ public class BdkClientConfig extends BdkServerConfig {
 
   private BdkConfig parentConfig;
 
-  private String proxyUrl = null;
-  private String proxyUsername = null;
-  private String proxyPassword = null;
-
-  private Integer connectTimeout = null;
-  private Integer readTimeout = null;
-  private Integer connectionRequestTimeout = null;
+  private Integer connectTimeout;
+  private Integer readTimeout;
+  private Integer connectionRequestTimeout;
 
   public BdkClientConfig() {
     // for Jackson deserialization
@@ -27,6 +23,10 @@ public class BdkClientConfig extends BdkServerConfig {
     this.host = null;
     this.port = null;
     this.context = null;
+
+    this.connectTimeout = null;
+    this.readTimeout = null;
+    this.connectionRequestTimeout = null;
   }
 
   public BdkClientConfig(BdkConfig parentConfig) {
@@ -52,6 +52,10 @@ public class BdkClientConfig extends BdkServerConfig {
 
   public String getContext() {
     return thisOrParent(context, parentConfig::getContext);
+  }
+
+  public BdkProxyConfig getProxy() {
+    return thisOrParent(proxy, parentConfig::getProxy);
   }
 
   private <T> T thisOrParent(T thisValue, Supplier<T> parentValue) {

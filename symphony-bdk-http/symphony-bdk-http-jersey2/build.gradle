@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.glassfish.jersey.media:jersey-media-multipart'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'com.brsanthu:migbase64'
+    runtimeOnly 'commons-logging:commons-logging'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'ch.qos.logback:logback-classic'

@@ -9,6 +9,7 @@ import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
+import com.symphony.bdk.core.config.model.BdkProxyConfig;
 import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
@@ -268,6 +269,7 @@ class ApiClientFactoryTest {
   private BdkConfig createConfig() {
     final BdkConfig config = new BdkConfig();
 
+    config.setProxy(new BdkProxyConfig("proxy-host", 1234, "user", "password"));
     config.getPod().setHost("pod-host");
     config.getPod().setScheme("https");
     config.getPod().setPort(443);

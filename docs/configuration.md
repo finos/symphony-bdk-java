@@ -54,6 +54,12 @@ scheme: https
 host: localhost.symphony.com
 port: 8443
 
+proxy:
+  host: proxy.symphony.com
+  port: 1234
+  username: proxyuser
+  password: proxypassword
+
 pod:
   host: dev.symphony.com
   port: 443
@@ -109,8 +115,11 @@ retry:
 
 The BDK configuration now includes the following properties:
 - The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
-These global properties can be used by the client configuration by default or can be override if
+These global properties can be used by the client configuration by default or can be overridden if
 user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
+- `proxy` contains proxy related information. This field is optional.
+If set, it will use the provided `host` (mandatory), `port` (mandatory), `username` and `password`.
+It can be overridden in each of the `pod`, `agent`, `keyManager` and `sessionAuth` fields.
 - `pod` contains information like host, port, scheme, context, proxy... of the pod on which 
 the service account using by the bot is created.
 - `agent` contains information like host, port, scheme, context, proxy... of the agent which 
@@ -172,6 +181,14 @@ When `stickiness` is set to true, it means one picks a given agent and makes all
 Otherwise, when `stickiness` is set to false, one picks a new agent node each time a call is made.
 
 When using datafeed services, calls will always be sticky, regardless of the `stickiness` value.
+
+### Proxy configuration
+A proxy can be configured at root level or in `pod`, `agent`, `keyManager` or `sessionAuth`.
+If a `proxy` field is defined at global level and in one of these fields, it will be overridden based on the endpoints called.
+Fields inside `proxy` are:
+* `host`: mandatory, host of the proxy, can be a dns name or an IP address, e.g. "proxy.symphony.com" or "10.12.34.45".
+* `port`: mandatory, port of the proxy, must be a strictly positive integer.
+* `username` and `password`: optional, basic authentication credentials for the proxy.
 
 ## Configuration format
 Both of `JSON` and `YAML` formats are supported by BDK configuration. Using `JSON`, a minimal configuration file would 
