@@ -2,6 +2,8 @@ package com.symphony.bdk.core.config.model;
 
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,11 @@ public class BdkSslConfig {
    * @return a {@link BdkCertificateConfig} instance SSL certificate information.
    */
   public BdkCertificateConfig getCertificateConfig() {
+    if (!isValid()) {
+      throw new ApiClientInitializationException(
+          "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
+    }
+
     if (trustStore != null && trustStore.isConfigured()) {
       return trustStore;
     }

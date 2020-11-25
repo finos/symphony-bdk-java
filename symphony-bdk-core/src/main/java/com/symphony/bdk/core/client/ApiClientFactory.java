@@ -8,7 +8,6 @@ import com.symphony.bdk.core.config.model.BdkCertificateConfig;
 import com.symphony.bdk.core.config.model.BdkClientConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkProxyConfig;
-import com.symphony.bdk.core.config.model.BdkSslConfig;
 import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
@@ -179,13 +178,8 @@ public class ApiClientFactory {
   }
 
   private void configureTruststore(ApiClientBuilder apiClientBuilder) {
-    final BdkSslConfig ssl = this.config.getSsl();
-    if (!ssl.isValid()) {
-      throw new ApiClientInitializationException(
-          "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
-    }
+    final BdkCertificateConfig trustStoreConfig = this.config.getSsl().getCertificateConfig();
 
-    final BdkCertificateConfig trustStoreConfig = ssl.getCertificateConfig();
     if (trustStoreConfig.isConfigured()) {
       apiClientBuilder.withTrustStore(trustStoreConfig.getCertificateBytes(), trustStoreConfig.getPassword());
     }
