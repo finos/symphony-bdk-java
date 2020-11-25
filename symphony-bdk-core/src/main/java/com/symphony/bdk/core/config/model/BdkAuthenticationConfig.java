@@ -11,11 +11,19 @@ import org.apiguardian.api.API;
 @API(status = API.Status.STABLE)
 public class BdkAuthenticationConfig {
 
+  @Deprecated
   protected String privateKeyPath;
+  @Deprecated
   protected byte[] privateKeyContent;
+  @Deprecated
   protected String certificatePath;
+  @Deprecated
   protected byte[] certificateContent;
+  @Deprecated
   protected String certificatePassword;
+
+  protected BdkRsaKeyConfig privateKey = new BdkRsaKeyConfig();
+  protected BdkCertificateConfig certificate = new BdkCertificateConfig();
 
   /**
    * Check if the RSA authentication is configured or not
@@ -23,35 +31,52 @@ public class BdkAuthenticationConfig {
    * @return true if the RSA authentication is configured
    */
   public boolean isRsaAuthenticationConfigured() {
-    return isNotEmpty(privateKeyPath) || isNotEmpty(privateKeyContent);
+    return (privateKey != null && privateKey.isConfigured())
+        || isNotEmpty(privateKeyPath)
+        || isNotEmpty(privateKeyContent);
   }
 
   /**
    * Check if the RSA configuration is valid.
+   * If privateKey field is configured, the privateKeyPath and privateKeyContent should not be configured.
    * If both of private key path and content, the configuration is invalid.
    *
    * @return true if the RSA configuration is invalid.
    */
   public boolean isRsaConfigurationValid() {
+    if (privateKey != null && privateKey.isConfigured()) {
+      if (isNotEmpty(privateKeyPath) || isNotEmpty(privateKeyContent)) {
+        return false;
+      }
+      return privateKey.isValid();
+    }
     return !(isNotEmpty(privateKeyPath) && isNotEmpty(privateKeyContent));
   }
 
   /**
-   * Check if the Extension App Certificate authentication is configured or not
+   * Check if the certificate authentication is configured or not
    *
-   * @return true if the Extension App Certificate authentication is configured
+   * @return true if the certificate authentication is configured
    */
   public boolean isCertificateAuthenticationConfigured() {
-    return (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) && certificatePassword != null;
+    return (certificate != null && certificate.isConfigured())
+        || (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) && certificatePassword != null;
   }
 
   /**
    * Check if the certificate configuration is valid.
+   * If certificate field is configured, the certificatePath and certificateContent should not be configured.
    * If both of certificate path and content, the configuration is invalid.
    *
    * @return true if the certificate configuration is invalid.
    */
   public boolean isCertificateConfigurationValid() {
+    if (certificate != null && certificate.isConfigured()) {
+      if (isNotEmpty(certificatePath) || isNotEmpty(certificateContent)) {
+        return false;
+      }
+      return certificate.isValid();
+    }
     return !(isNotEmpty(certificatePath) && isNotEmpty(certificateContent));
   }
 

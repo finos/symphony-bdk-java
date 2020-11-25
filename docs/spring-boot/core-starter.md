@@ -86,7 +86,8 @@ bdk:
     host: acme.symphony.com
     bot:
       username: bot-username
-      privateKeyPath: /path/to/rsa/privatekey.pem
+      privateKey:
+        path: /path/to/rsa/privatekey.pem
       
 logging:
   level:

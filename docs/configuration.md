@@ -10,7 +10,8 @@ host: acme.symphony.com                                     # (1)
 
 bot: 
     username: bot-username                                  # (2)
-    privateKeyPath: /path/to/bot/rsa-private-key.pem        # (3)
+    privateKey:
+      path: /path/to/bot/rsa-private-key.pem                # (3)
 ```
 1. hostname of your Symphony pod environment
 2. your bot (or service account) username as configured in your pod admin console (https://acme.symphony.com/admin-console)
@@ -35,7 +36,7 @@ public class Example {
       final BdkConfig config05 = new BdkConfig();                                                           // (5)
       config05.setHost("acme.symphony.com");
       config05.getBot().setUsername("bot-username");
-      config05.getBot().setPrivateKeyPath("/path/to/bot/rsa-private-key.pem");
+      config05.getBot().getPrivateKey().setPath("/path/to/bot/rsa-private-key.pem");
     }
 }
 ```
@@ -197,7 +198,9 @@ look like:
   "host": "acme.symphony.com",
   "bot": { 
     "username": "bot-username",
-    "privateKeyPath": "/path/to/bot/rsa-private-key.pem"
+    "privateKey": {
+      "path": "/path/to/bot/rsa-private-key.pem"
+    }
   }
 }
 ``` 
