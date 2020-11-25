@@ -97,10 +97,13 @@ bdk-app:
         allowed-method: ["POST", "GET"] # list of HTTP methods to allow
         allowed-headers: "*" # list of headers that a request can list as allowed (multiple values allowed by using ["header-name-1", "header-name-2"])
         exposed-headers: ["header-name-1", "header-name-2"] # list of response headers that a response can have and can be exposed, the value "*" is not allowed for this field.
-
+    tracing:
+        enabled: true # activate the tracing filter
+        urlPatterns:  # Add URL patterns that the tracing filter will be registered against
+          - /api/*
 logging:
-  level:
-    com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
+    level:
+        com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
 > You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
