@@ -30,6 +30,7 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
 /**
@@ -43,14 +44,30 @@ class JwtHelperTest {
 
   @Test
   void loadPkcs8PrivateKey() throws GeneralSecurityException {
-    final PrivateKey privateKey = new JwtHelper().parseRsaPrivateKey(generatePkcs8RsaPrivateKey());
+    final PrivateKey privateKey = JwtHelper.parseRsaPrivateKey(generatePkcs8RsaPrivateKey());
     assertNotNull(privateKey);
   }
 
   @Test
+  void loadInvalidPkcs8PrivateKey() {
+    String invalidPkc8PrivateKey = "-----BEGIN PRIVATE KEY-----\n"
+        + "abcdef\n"
+        + "-----END PRIVATE KEY-----";
+    assertThrows(InvalidKeySpecException.class, () -> JwtHelper.parseRsaPrivateKey(invalidPkc8PrivateKey));
+  }
+
+  @Test
   void loadPkcs1PrivateKey() throws GeneralSecurityException {
-    final PrivateKey privateKey = new JwtHelper().parseRsaPrivateKey(generatePkcs1RsaPrivateKey());
+    final PrivateKey privateKey = JwtHelper.parseRsaPrivateKey(generatePkcs1RsaPrivateKey());
     assertNotNull(privateKey);
+  }
+
+  @Test
+  void loadInvalidPkcs1PrivateKey() {
+    String invalidPkc8PrivateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
+        + "abcde\nf"
+        + "-----END RSA PRIVATE KEY-----";
+    assertThrows(GeneralSecurityException.class, () -> JwtHelper.parseRsaPrivateKey(invalidPkc8PrivateKey));
   }
 
   @Test
