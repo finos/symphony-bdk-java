@@ -26,7 +26,7 @@ public abstract class APIClient {
         }
     }
 
-    protected void handleError(Response response, ISymClient botClient) throws SymClientException {
+    public void handleError(Response response, ISymClient botClient) throws SymClientException {
         if (response.getStatusInfo().getFamily() == Family.SERVER_ERROR) {
             logger.error("REST error: error code {} reason {}",
                 response.getStatusInfo().getStatusCode(),

@@ -25,6 +25,8 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
     private Client kmAuthClient;
     private long lastAuthTime = 0;
     private int authRetries = 0;
+    private int timeout = AuthEndpointConstants.TIMEOUT;
+    private int maxAuthRetries = AuthEndpointConstants.MAX_AUTH_RETRY;
 
     public SymBotAuth(SymConfig config) {
         this.config = config;
@@ -60,6 +62,12 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         }
     }
 
+    protected SymBotAuth(SymConfig config, int timeout, int maxAuthRetries) {
+      this(config);
+      this.timeout = timeout;
+      this.maxAuthRetries = maxAuthRetries;
+    }
+
     @Override
     public void authenticate() throws AuthenticationException {
         if (lastAuthTime == 0 || System.currentTimeMillis() - lastAuthTime > AuthEndpointConstants.WAIT_TIME) {
@@ -70,7 +78,7 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
         } else {
             try {
                 logger.info("Re-authenticated too fast. Wait 30 seconds to try again.");
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                TimeUnit.SECONDS.sleep(timeout);
                 authenticate();
             } catch (InterruptedException e) {
                 logger.error("Error with authentication", e);
@@ -102,11 +110,11 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 logger.error("Unexpected error, retry authentication in 30 seconds", e);
             }
             try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                TimeUnit.SECONDS.sleep(timeout);
             } catch (InterruptedException e) {
                 logger.error("Error with session authentication", e);
             }
-            if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+            if (authRetries++ > maxAuthRetries) {
                 logger.error("Max retries reached. Giving up on auth.");
                 return;
             }
@@ -141,11 +149,11 @@ public final class SymBotAuth extends APIClient implements ISymAuth {
                 logger.error("Unexpected error, retry authentication in 30 seconds", e);
             }
             try {
-                TimeUnit.SECONDS.sleep(AuthEndpointConstants.TIMEOUT);
+                TimeUnit.SECONDS.sleep(timeout);
             } catch (InterruptedException e) {
                 logger.error("Error with authentication", e);
             }
-            if (authRetries++ > AuthEndpointConstants.MAX_AUTH_RETRY) {
+            if (authRetries++ > maxAuthRetries) {
                 logger.error("Max retries reached. Giving up on auth.");
                 return;
             }
