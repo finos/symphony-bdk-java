@@ -85,7 +85,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
       type = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), beanName);
     } catch (Throwable ex) {
       // An unresolvable bean type, probably from a lazy bean - let's ignore it.
-      log.debug("Could not resolve target class for bean with name '{}'", beanName, ex);
+      log.trace("Could not resolve target class for bean with name '{}'", beanName, ex);
     }
 
     if (type != null && ScopedObject.class.isAssignableFrom(type)) {
@@ -99,7 +99,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
         }
       } catch (Throwable ex) {
         // An invalid scoped proxy arrangement - let's ignore it.
-        log.debug("Could not resolve target bean for scoped proxy '{}'", beanName, ex);
+        log.trace("Could not resolve target bean for scoped proxy '{}'", beanName, ex);
       }
     }
 

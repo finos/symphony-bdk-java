@@ -22,7 +22,8 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 bot:
     username: bot-username
-    privateKeyPath: /path/to/rsa/private-key.pem
+    privateKey:
+      path: /path/to/rsa/private-key.pem
 ```
 
 ### Bot authentication using Client Certificate
@@ -33,8 +34,9 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 bot:
     username: bot-username
-    certificatePath: /path/to/certificate.p12
-    certificatePassword: YourCertificatePassword
+    certificate:
+      path: /path/to/certificate.p12
+      password: YourCertificatePassword
 ```
 
 ### Bot authentication deep-dive
@@ -69,7 +71,7 @@ public class Example {
         // Loading the configuration
         BdkConfig config = loadFromClasspath("/config.yaml");
         byte[] privateKeyContent = FileUtils.readFileToByteArray(new File("path/to/privatekey.pem"));
-        config.getBot().setPrivateKeyContent(privateKeyContent);
+        config.getBot().getPrivateKey().setContent(privateKeyContent);
         // create bdk entry point
         final SymphonyBdk bdk = new SymphonyBdk(config);
         // at this point your bot is already authenticated
@@ -118,7 +120,8 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 app:
     appId: app-id
-    privateKeyPath: /path/to/rsa/private-key.pem
+    privateKey:
+      path: /path/to/rsa/private-key.pem
 ```
 
 ### App Authentication using Client Certificate
@@ -128,8 +131,9 @@ Required `config.yaml` setup:
 host: acme.symphony.com
 app:
     appId: app-id
-    certificatePath: /path/to/certificate.p12
-    certificatePassword: YourCertificatePassword
+    certificate:
+      path: /path/to/certificate.p12
+      password: YourCertificatePassword
 ```
 
 ### Circle Of Trust

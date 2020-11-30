@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Build
           # Jacoco does not support incremental build so we don't run it automatically with check
-          command: ./gradlew build jacocoTestReport jacocoTestCoverageVerification && ./gradlew -p symphony-bdk-legacy build jacocoTestReport jacocoTestCoverageVerification
+          command: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
 
       - run:
           name: Build Legacy

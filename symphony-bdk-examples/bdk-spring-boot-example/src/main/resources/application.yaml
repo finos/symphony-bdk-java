@@ -3,7 +3,8 @@ bdk:
   host: acme.symphony.com
   bot:
     username: mybot
-    privateKeyPath: path/to/bot-privatekey.pem
+    privateKey:
+      path: path/to/bot-privatekey.pem
 
 logging:
   level:

@@ -1,0 +1,9 @@
+host: devx1.symphony.com
+
+proxy:
+  host: 127.0.0.1
+  port: 3128
+
+bot:
+  username: bot-user
+  privateKeyPath: /path/to/private-key.pkcs8

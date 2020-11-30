@@ -13,6 +13,7 @@ import com.symphony.bdk.spring.events.RealTimeEventsDispatcher;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.ApplicationEventMulticaster;
@@ -24,6 +25,7 @@ import java.util.List;
 /**
  * Injection of the {@link DatafeedService} instance into the Spring application context.
  */
+@ConditionalOnProperty(value = "bdk.datafeed.enabled", havingValue = "true", matchIfMissing = true)
 public class BdkDatafeedConfig {
 
   @Bean

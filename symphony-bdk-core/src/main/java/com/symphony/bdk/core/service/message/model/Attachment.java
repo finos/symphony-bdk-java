@@ -8,7 +8,8 @@ import org.apiguardian.api.API;
 import java.io.InputStream;
 
 /**
- * Attachment model to be used in {@link MessageBuilder} to attach a file to a {@link Message}
+ * Attachment model to be used in {@link com.symphony.bdk.core.service.message.model.Message.MessageBuilder}
+ * to attach a file to a {@link Message}
  */
 @Getter
 @API(status = API.Status.STABLE)

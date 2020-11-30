@@ -136,7 +136,7 @@ public class JwtHelper {
 			);
 
 			return new JcaPEMKeyConverter().getPrivateKey(PrivateKeyInfoFactory.createPrivateKeyInfo(privateKeyParameter));
-		} catch (IOException e) {
+		} catch (IOException | IllegalStateException | IllegalArgumentException e) {
 			throw new GeneralSecurityException("Invalid private key.", e);
 		}
 	}

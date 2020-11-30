@@ -9,6 +9,7 @@ import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
+import com.symphony.bdk.core.config.model.BdkProxyConfig;
 import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
@@ -203,6 +204,29 @@ class ApiClientFactoryTest {
   }
 
   @Test
+  void testAuthClientWithInvalidTrustStoreConfigShouldFail() {
+    BdkConfig configWithTrustStore =
+        this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore",
+            "changeit");
+
+    configWithTrustStore.getSsl().getTrustStore().setContent("content".getBytes());
+
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
+  }
+
+  @Test
+  void testAuthClientWithInvalidTrustStoreAndTrustStorePathConfigShouldFail() {
+    BdkConfig configWithTrustStore =
+        this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/all_symphony_certs_truststore",
+            "changeit");
+
+    configWithTrustStore.getSsl().setTrustStorePath("./src/test/resources/certs/all_symphony_certs_truststore");
+    configWithTrustStore.getSsl().setTrustStorePassword("changeit");
+
+    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
+  }
+
+  @Test
   void testKeyAuthClient() {
     ApiClient keyAuth = new ApiClientFactory(this.createConfigWithCertificate()).getKeyAuthClient();
 
@@ -212,8 +236,8 @@ class ApiClientFactoryTest {
 
   private BdkConfig createConfigWithCertificateAndTrustStore(String trustStorePath, String trustStorePassword) {
     BdkConfig config = createConfigWithCertificate();
-    config.getSsl().setTrustStorePath(trustStorePath);
-    config.getSsl().setTrustStorePassword(trustStorePassword);
+    config.getSsl().getTrustStore().setPath(trustStorePath);
+    config.getSsl().getTrustStore().setPassword(trustStorePassword);
 
     return config;
   }
@@ -225,15 +249,15 @@ class ApiClientFactoryTest {
   private BdkConfig createConfigWithCertificate(String certificatePath, String password) {
     BdkConfig config = createConfig();
 
-    config.getBot().setCertificatePath(certificatePath);
-    config.getBot().setCertificatePassword(password);
+    config.getBot().getCertificate().setPath(certificatePath);
+    config.getBot().getCertificate().setPassword(password);
 
     return config;
   }
 
   private BdkConfig addExtAppCertificateToConfig(BdkConfig config, String certificatePath, String password) {
-    config.getApp().setCertificatePath(certificatePath);
-    config.getApp().setCertificatePassword(password);
+    config.getApp().getCertificate().setPath(certificatePath);
+    config.getApp().getCertificate().setPassword(password);
 
     return config;
   }
@@ -245,6 +269,7 @@ class ApiClientFactoryTest {
   private BdkConfig createConfig() {
     final BdkConfig config = new BdkConfig();
 
+    config.setProxy(new BdkProxyConfig("proxy-host", 1234, "user", "password"));
     config.getPod().setHost("pod-host");
     config.getPod().setScheme("https");
     config.getPod().setPort(443);

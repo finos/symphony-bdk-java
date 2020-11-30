@@ -5,6 +5,12 @@ plugins {
 description = 'Symphony Java BDK Core Http Jersey2'
 
 dependencies {
+    constraints {
+        implementation('com.google.guava:guava:30.0-jre') {
+            because 'version 28.2-android that is pulled contains security issues'
+        }
+    }
+
     api project(':symphony-bdk-http:symphony-bdk-http-api')
 
     implementation 'org.apiguardian:apiguardian-api'
@@ -24,6 +30,7 @@ dependencies {
     implementation 'org.glassfish.jersey.media:jersey-media-multipart'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'com.brsanthu:migbase64'
+    runtimeOnly 'commons-logging:commons-logging'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'ch.qos.logback:logback-classic'

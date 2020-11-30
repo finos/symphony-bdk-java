@@ -41,6 +41,10 @@ public class HttpClient {
     private String keyStorePassword = "";
     private byte[] trustStore = null;
     private String trustStorePassword = "";
+    private String proxyHost = null;
+    private int proxyPort = -1;
+    private String proxyUser = null;
+    private String proxyPassword = null;
 
     protected Builder(ApiClientBuilderProvider provider) {
       this.provider = provider;
@@ -172,6 +176,18 @@ public class HttpClient {
       return this;
     }
 
+    public Builder proxy(String proxyHost, int proxyPort) {
+      this.proxyHost = proxyHost;
+      this.proxyPort = proxyPort;
+      return this;
+    }
+
+    public Builder proxyCredentials(String proxyUser, String proxyPassword) {
+      this.proxyUser = proxyUser;
+      this.proxyPassword = proxyPassword;
+      return this;
+    }
+
     /**
      * Build a request and execute it using an arbitrary request method name.
      *
@@ -190,6 +206,12 @@ public class HttpClient {
       }
       if (this.trustStore != null) {
         builder.withTrustStore(this.trustStore, this.trustStorePassword);
+      }
+      if (this.proxyHost != null) {
+        builder.withProxy(this.proxyHost, this.proxyPort);
+      }
+      if (this.proxyUser != null && proxyPassword != null) {
+        builder.withProxyCredentials(this.proxyUser, this.proxyPassword);
       }
 
       if (contentType.equals("")) {

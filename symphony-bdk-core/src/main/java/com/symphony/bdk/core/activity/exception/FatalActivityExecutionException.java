@@ -13,7 +13,6 @@ public class FatalActivityExecutionException extends RuntimeException {
 
   @Getter private final ActivityInfo activityInfo;
 
-  /** {@inheritDoc} */
   public FatalActivityExecutionException(final ActivityInfo activityInfo, final String message, final Throwable cause) {
     super(message, cause);
     this.activityInfo = activityInfo;

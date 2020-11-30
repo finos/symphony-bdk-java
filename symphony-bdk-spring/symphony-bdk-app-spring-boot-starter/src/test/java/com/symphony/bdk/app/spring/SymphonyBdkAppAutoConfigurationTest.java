@@ -34,6 +34,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
       assertThat(context).hasSingleBean(BdkExtAppControllerConfig.class);
       assertThat(context).hasSingleBean(CircleOfTrustController.class);
       assertThat(context).hasBean("corsConfigurer");
+      assertThat(context).hasBean("tracingFilter");
 
       SymphonyBdkAppProperties properties = context.getBean(SymphonyBdkAppProperties.class);
       assertEquals(properties.getCors().get("test-url").getAllowedOrigins().get(0), "/**");
@@ -55,5 +56,20 @@ public class SymphonyBdkAppAutoConfigurationTest {
     contextRunner.run(context -> {
       assertThat(context).doesNotHaveBean(CircleOfTrustController.class);
     });
+  }
+
+  @Test
+  void shouldLoadContextWithoutTracingFilter() {
+
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.app.appId=test-app",
+            "bdk.app.privateKeyPath=classpath:/privatekey.pem",
+            "bdk-app.tracing.enabled=false"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAppAutoConfiguration.class));
+
+    contextRunner.run(context -> assertThat(context).doesNotHaveBean("tracingFilter"));
   }
 }

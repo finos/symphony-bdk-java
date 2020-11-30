@@ -3,6 +3,8 @@ package com.symphony.bdk.app.spring;
 import com.symphony.bdk.app.spring.properties.AppAuthProperties;
 import com.symphony.bdk.app.spring.properties.CorsProperties;
 
+import com.symphony.bdk.app.spring.properties.TracingProperties;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,4 +29,9 @@ public class SymphonyBdkAppProperties {
    * CORS support properties
    */
   private Map<String, CorsProperties> cors = Collections.emptyMap();
+
+  /**
+   * {@link com.symphony.bdk.app.spring.filter.TracingFilter} properties.
+   */
+  private TracingProperties tracing = new TracingProperties();
 }

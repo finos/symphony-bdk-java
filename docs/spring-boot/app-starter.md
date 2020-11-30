@@ -78,11 +78,13 @@ bdk:
     host: acme.symphony.com
     bot:
       username: bot-username
-      privateKeyPath: /path/to/rsa/privatekey.pem
+      privateKey:
+        path: /path/to/rsa/privatekey.pem
       
     app:
         appId: app-id
-        privateKeyPath: /path/tp/rsa/app_privatekey.pem
+        privateKey:
+          path: /path/tp/rsa/app_privatekey.pem
 
 bdk-app:
     auth:
@@ -97,10 +99,13 @@ bdk-app:
         allowed-method: ["POST", "GET"] # list of HTTP methods to allow
         allowed-headers: "*" # list of headers that a request can list as allowed (multiple values allowed by using ["header-name-1", "header-name-2"])
         exposed-headers: ["header-name-1", "header-name-2"] # list of response headers that a response can have and can be exposed, the value "*" is not allowed for this field.
-
+    tracing:
+        enabled: true # activate the tracing filter
+        urlPatterns:  # Add URL patterns that the tracing filter will be registered against
+          - /api/*
 logging:
-  level:
-    com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
+    level:
+        com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
 > You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
@@ -119,138 +124,4 @@ public class ExtAppSpringApplication {
 
 By configuring the property `bdk-app.auth.enabled=true`, the Application backend will provide Apis for performing
 the [Circle of Trust](https://developers.symphony.com/extension/docs/application-authentication) of Symphony:
-
-```yaml
-openapi: 3.0.1
-info:
-  title: Circle of Trust API
-  version: 1.4.0-SNAPSHOT
-servers:
-- url: https://acme.symphony.com
-tags:
-- name: Circle Of Trust
-  description: For extension app authentication. See [Circle of Trust](https://developers.symphony.com/extension/docs/application-authentication) documentation.
-paths:
-  '/bdk/v1/app/auth':
-    post:
-      tags:
-      - Circle Of Trust
-      summary: Application Authenticate
-      operationId: appAuth
-      requestBody:
-        content: {}
-      responses:
-        200: 
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AppToken'
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  '/bdk/v1/app/tokens':
-    post:
-      tags:
-      - Circle Of Trust
-      summary: Validate Tokens
-      operationId: validateTokens
-      requestBody:
-        content:
-          application/json:
-            schema: 
-              $ref: '#/components/schemas/TokenPair'
-      responses:
-        204: 
-          description: Success
-          content: {}
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  '/bdk/v1/app/jwt':
-    post:
-      tags:
-      - Circle Of Trust
-      summary: Validate JWT
-      operationId: validateJwt
-      requestBody:
-        content:
-          application/json:
-            schema: 
-              $ref: '#/components/schemas/Jwt'
-      responses:
-        200: 
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserInfo'
-        400:
-          description: Bad Request
-          content: 
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        401:
-          description: Unauthorized
-          content: 
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-components:
-  schemas:
-    AppToken:
-      type: object
-      properties:
-        appToken:
-          type: string
-    TokenPair:
-      type: object
-      properties:
-        appToken:
-          type: string
-        symphonyToken:
-          type: string
-    Jwt:
-      type: object
-      properties:
-        jwt:
-          type: string
-    UserInfo:
-      type: object
-      properties:
-        userId:
-          type: number
-          format: int64
-    Error:
-      type: object
-      properties:
-        status:
-          type: number
-          format: int32
-        errorCode:
-          type: string
-        message:
-          type: array
-          items: 
-            type: string
-```
+[Circle of Trust API](https://editor.swagger.io/?url=https://raw.githubusercontent.com/SymphonyPlatformSolutions/symphony-api-client-java/master/docs/spring-boot/circle-of-trust.yaml)

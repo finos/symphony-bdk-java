@@ -86,7 +86,8 @@ bdk:
     host: acme.symphony.com
     bot:
       username: bot-username
-      privateKeyPath: /path/to/rsa/privatekey.pem
+      privateKey:
+        path: /path/to/rsa/privatekey.pem
       
 logging:
   level:
@@ -212,6 +213,16 @@ public class CoreServices {
     private ActivityRegistry activityRegistry;
 }
 ```
+
+Unlike subscribing to real time events, using slash commands or activities, solely injecting services does not require
+the datafeed loop to run. If you want to disable the datafeed loop, you can update your `application.yaml` file as follows:
+```yaml
+bdk:
+    datafeed:
+        enabled: false
+```
+
+:warning: Disabling the datafeed loop will prevent the use of real time event listeners, of slash commands and activities.
 
 ## Slash Command
 You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to 
