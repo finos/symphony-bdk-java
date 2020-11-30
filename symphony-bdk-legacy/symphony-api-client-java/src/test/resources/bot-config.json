@@ -15,6 +15,9 @@
   "botPrivateKeyPath": "src/test/resources/",
   "botPrivateKeyName": "testprivatekey.pkcs8",
   "botUsername": "testbot",
+  "botCertPath": "src/test/resources/",
+  "botCertName": "testkeystore.jks",
+  "botCertPassword": "123456",
 
   "readTimeout": 5000,
   "connectionTimeout": 1000,
