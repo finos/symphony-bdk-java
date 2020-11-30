@@ -3,7 +3,6 @@ package it.services;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,9 +10,10 @@ import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import services.SmsRenderer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStreamReader;
 
 public class SmsRendererTest {
 
@@ -95,8 +95,22 @@ public class SmsRendererTest {
   private String readResourceContent(final String path) throws IOException {
     assertNotNull(path);
 
-    final InputStream resourceStream = SmsRendererTest.class.getResourceAsStream(path);
-    return IOUtils.toString(resourceStream, StandardCharsets.UTF_8.name());
+    final InputStream resourceStream = this.getClass().getResourceAsStream(path);
+    assertNotNull(resourceStream);
+
+    final InputStreamReader inputStreamReader = new InputStreamReader(resourceStream);
+    assertNotNull(inputStreamReader);
+
+    final BufferedReader reader = new BufferedReader(inputStreamReader);
+    assertNotNull(reader);
+
+    final StringBuffer sb = new StringBuffer();
+
+    String content;
+    while((content = reader.readLine()) != null){
+      sb.append(content);
+    }
+    return sb.toString();
   }
 
   private String minifyHTML(final String text) {
