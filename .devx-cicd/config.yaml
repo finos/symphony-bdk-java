@@ -1,0 +1,12 @@
+build:
+  - image: 'adoptopenjdk/openjdk8:slim'
+    commands:
+      - './gradlew -x test'
+publishSnapshot:
+  - image: 'adoptopenjdk/openjdk8:slim'
+    commands:
+      - './gradlew -PsymphonyRepoUrl=https://repo.symphony.com/artifactory/libs-snapshot-local -PsymphonyRepoUser=$ARTIFACTORY_USERNAME -PsymphonyRepoPassword=$ARTIFACTORY_PASSWORD publish'
+publishStableSnapshot:
+  - image: 'adoptopenjdk/openjdk8:slim'
+    commands:
+      - './gradlew -PsymphonyRepoUrl=https://repo.symphony.com/artifactory/libs-snapshot-local -PsymphonyRepoUser=$ARTIFACTORY_USERNAME -PsymphonyRepoPassword=$ARTIFACTORY_PASSWORD -Pstable=true publish'
