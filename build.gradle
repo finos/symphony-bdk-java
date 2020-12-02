@@ -1,5 +1,5 @@
-ext.projectVersion = '1.6.0-SNAPSHOT'
-ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
+ext.projectVersion = project.properties['stable'] ? '1.6.0-stable-SNAPSHOT' : '1.6.0-SNAPSHOT'
+ext.isReleaseVersion = !ext.projectVersion.contains('SNAPSHOT')
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
