@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
@@ -13,6 +12,7 @@ import services.SmsRenderer;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +40,7 @@ public class SmsRendererTest {
   }
 
   @Test
-  public void renderInBotJSONArrayTest() throws IOException {
+  public void renderInBotJSONArrayTest() throws IOException, ParseException {
     this.testJsonArray(SmsRenderer.SmsTypes.LIST);
     this.testJsonArray(SmsRenderer.SmsTypes.TABLE);
     this.testJsonArray(SmsRenderer.SmsTypes.INFORMATION);
@@ -50,7 +50,7 @@ public class SmsRendererTest {
   }
 
   // Private methods
-  private void testJsonArray(final SmsRenderer.SmsTypes smsTypes) throws IOException {
+  private void testJsonArray(final SmsRenderer.SmsTypes smsTypes) throws IOException, ParseException {
     assertNotNull(smsTypes);
 
     final String typeName = smsTypes.getName().toLowerCase();
@@ -64,21 +64,17 @@ public class SmsRendererTest {
       jsonArray = new JSONArray();
       jsonArray.add(jsonMessageContext);
     } else {
-      jsonArray = this.writeJSONArray();
+      JSONParser parser = new JSONParser();
+      final String sourceFile = System.getProperty("user.dir") + "/src/test/resources/SmsRenderer/JSONData/tableJsonArray.json";
+      Object obj = parser.parse(new FileReader(sourceFile));
+      JSONObject jsonObject = (JSONObject) obj;
+      jsonArray = (JSONArray) jsonObject.get("phones");
     }
 
     final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonArray, smsTypes));
     assertNotNull(compiledTemplate);
 
     this.verifyResultJSON(typeName, compiledTemplate, "JsonArrayHtml.html");
-  }
-
-  private JSONArray writeJSONArray() {
-    final JSONArray jsonArray = new JSONArray();
-    jsonArray.add(JSONValue.parse("{\"Manufacturer\": \"Apple\", \"Phone\": \"iPhone\", \"Operating System\": \"iOS\"}"));
-    jsonArray.add(JSONValue.parse("{\"Manufacturer\": \"Samsung\", \"Phone\": \"Galaxy\", \"Operating System\": \"Android\"}"));
-    jsonArray.add(JSONValue.parse("{\"Manufacturer\": \"Google\", \"Phone\": \"Google Pixel 3\", \"Operating System\": \"Android\"}"));
-    return jsonArray;
   }
 
   private void verifyResultJSON(final String typeName, final String compiledTemplate, final String fileName) throws IOException {
