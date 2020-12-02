@@ -1,5 +1,5 @@
-{"message": {
-    "trend": "renault", "model": "kangoo", "year": 1997},
-    "trend": "chevrolet", "model": "corvette", "year": 2016},
-    "trend": "citroen", "model": "berlingo", "year": 2010}
-}}
+[
+    {"Phone":"iPhone","Manufacturer":"Apple","Operating System":"iOS"},
+    {"Phone":"Galaxy","Manufacturer":"Samsung","Operating System":"Android"},
+    {"Phone":"Google Pixel 3","Manufacturer":"Google","Operating System":"Android"}
+]

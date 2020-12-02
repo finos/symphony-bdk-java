@@ -1,16 +1,18 @@
 package it.services;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Test;
 import services.SmsRenderer;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,7 +20,17 @@ import java.io.InputStreamReader;
 public class SmsRendererTest {
 
   @Test
-  public void renderInBotJSONObjectTest() throws IOException {
+  public void renderInBotStringTest() throws IOException {
+    this.testString(SmsRenderer.SmsTypes.LIST);
+    this.testString(SmsRenderer.SmsTypes.TABLE);
+    this.testString(SmsRenderer.SmsTypes.INFORMATION);
+    this.testString(SmsRenderer.SmsTypes.NOTIFICATION);
+    this.testString(SmsRenderer.SmsTypes.ALERT);
+    this.testString(SmsRenderer.SmsTypes.SIMPLE);
+  }
+
+  @Test
+  public void renderInBotJSONObjectTest() throws IOException, ParseException {
     this.testJsonObject(SmsRenderer.SmsTypes.LIST);
     this.testJsonObject(SmsRenderer.SmsTypes.TABLE);
     this.testJsonObject(SmsRenderer.SmsTypes.INFORMATION);
@@ -37,38 +49,71 @@ public class SmsRendererTest {
     this.testJsonArray(SmsRenderer.SmsTypes.SIMPLE);
   }
 
-  @Test
-  public void renderInBotStringTest() throws IOException {
-    this.testString(SmsRenderer.SmsTypes.LIST);
-    this.testString(SmsRenderer.SmsTypes.TABLE);
-    this.testString(SmsRenderer.SmsTypes.INFORMATION);
-    this.testString(SmsRenderer.SmsTypes.NOTIFICATION);
-    this.testString(SmsRenderer.SmsTypes.ALERT);
-    this.testString(SmsRenderer.SmsTypes.SIMPLE);
+  // Private methods
+  private void testJsonArray(final SmsRenderer.SmsTypes smsTypes) throws IOException {
+    assertNotNull(smsTypes);
+
+    final String typeName = smsTypes.getName().toLowerCase();
+
+    String jsonMessageContext = null;
+    JSONArray jsonArray = null;
+
+    if (smsTypes != SmsRenderer.SmsTypes.TABLE) {
+      final String fileName = typeName + "JsonArray.json";
+      jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/" + fileName);
+      jsonArray = new JSONArray();
+      jsonArray.add(jsonMessageContext);
+    } else {
+      jsonArray = this.writeJSONArray();
+    }
+
+    final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonArray, smsTypes));
+    assertNotNull(compiledTemplate);
+
+    this.verifyResultJSON(typeName, compiledTemplate, "JsonArrayHtml.html");
   }
 
-  // Private methods
+  private JSONArray writeJSONArray() {
+    final JSONArray jsonArray = new JSONArray();
+    jsonArray.add(JSONValue.parse("{\"Manufacturer\": \"Apple\", \"Phone\": \"iPhone\", \"Operating System\": \"iOS\"}"));
+    jsonArray.add(JSONValue.parse("{\"Manufacturer\": \"Samsung\", \"Phone\": \"Galaxy\", \"Operating System\": \"Android\"}"));
+    jsonArray.add(JSONValue.parse("{\"Manufacturer\": \"Google\", \"Phone\": \"Google Pixel 3\", \"Operating System\": \"Android\"}"));
+    return jsonArray;
+  }
+
+  private void verifyResultJSON(final String typeName, final String compiledTemplate, final String fileName) throws IOException {
+    final String expectedResult = this.minifyHTML(this.getStringFromFile("/SmsRenderer/HTMLResult/" + typeName + fileName));
+    assertNotNull(expectedResult);
+    assertEquals(expectedResult, compiledTemplate);
+  }
+
   private void testString(final SmsRenderer.SmsTypes smsTypes) throws IOException {
     assertNotNull(smsTypes);
 
-    final String fileName = smsTypes.getName().toLowerCase() + "Json.json";
-    final String jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/"+fileName);
+    final String typeName = smsTypes.getName().toLowerCase();
+    final String jsonFileName = typeName + "Json.json";
+    final String jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/" + jsonFileName);
 
     final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonMessageContext, smsTypes));
     assertNotNull(compiledTemplate);
+
+    this.verifyResultJSON(typeName, compiledTemplate, "StringHtml.html");
   }
 
-  private void testJsonObject(final SmsRenderer.SmsTypes smsTypes) throws IOException {
+  private void testJsonObject(final SmsRenderer.SmsTypes smsTypes) throws IOException, ParseException {
     assertNotNull(smsTypes);
 
-    final String fileName = smsTypes.getName().toLowerCase() + "Json.json";
-    final String jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/"+fileName);
+    final String typeName = smsTypes.getName().toLowerCase();
+    final String fileName = typeName + "Json.json";
+    final String jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/" + fileName);
 
     final JSONObject jsonObject = this.getJsonObject(jsonMessageContext);
     assertNotNull(jsonObject);
 
     final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonObject, smsTypes));
     assertNotNull(compiledTemplate);
+
+    this.verifyResultJSON(typeName, compiledTemplate, "JsonObjectHtml.html");
   }
 
   private String getStringFromFile(final String fileName) throws IOException {
@@ -79,23 +124,11 @@ public class SmsRendererTest {
     return jsonMessageContext;
   }
 
-  private void testJsonArray(final SmsRenderer.SmsTypes smsTypes) throws IOException {
-    assertNotNull(smsTypes);
-
-    final String fileName = smsTypes.getName().toLowerCase() + "JsonArray.json";
-    final String jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/"+fileName);
-
-    final JSONArray jsonArray = new JSONArray();
-    jsonArray.add(jsonMessageContext);
-
-    final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonArray, smsTypes));
-    assertNotNull(compiledTemplate);
-  }
-
   private String readResourceContent(final String path) throws IOException {
     assertNotNull(path);
+    final String sourceFile = System.getProperty("user.dir") + "/src/test/resources/" + path;
 
-    final InputStream resourceStream = this.getClass().getResourceAsStream(path);
+    final InputStream resourceStream = new FileInputStream(sourceFile);
     assertNotNull(resourceStream);
 
     final InputStreamReader inputStreamReader = new InputStreamReader(resourceStream);
@@ -107,30 +140,25 @@ public class SmsRendererTest {
     final StringBuffer sb = new StringBuffer();
 
     String content;
-    while((content = reader.readLine()) != null){
+    while ((content = reader.readLine()) != null) {
       sb.append(content);
     }
     return sb.toString();
   }
 
   private String minifyHTML(final String text) {
-    return (text==null)?null : this.removeCarriageReturn(text.replaceAll("\\s{2,}", "").replaceAll("\n", "").replaceAll("\r", ""));
+    return (text == null) ? null : this.removeCarriageReturn(text.replaceAll("\\s{2,}", "").replaceAll("\n", "").replaceAll("\r", ""));
   }
 
   private String removeCarriageReturn(final String text) {
-    return (text==null)?null : text.replaceAll("\n", "").replaceAll("\r", "");
+    return (text == null) ? null : text.replaceAll("\n", "").replaceAll("\r", "");
   }
 
-  private JSONObject getJsonObject(final String jsonMessageContext) {
+  private JSONObject getJsonObject(final String jsonMessageContext) throws ParseException {
     assertNotNull(jsonMessageContext);
 
     final JSONParser parser = new JSONParser();
-    JSONObject jsonObject = null;
-    try {
-      jsonObject = (JSONObject) parser.parse(jsonMessageContext);
-    } catch (final ParseException e) {
-      fail(e.getMessage());
-    }
+    JSONObject jsonObject = (JSONObject) parser.parse(jsonMessageContext);
     return jsonObject;
   }
 }
