@@ -11,7 +11,6 @@ import org.junit.Test;
 import services.SmsRenderer;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,13 +70,31 @@ public class SmsRendererTest {
       jsonArray = (JSONArray) jsonObject.get("phones");
     }
 
+    this.verifyResultJSON(typeName, "JsonArrayHtml.html", jsonArray, smsTypes);
+  }
+
+  private void verifyResultJSON(final String typeName, final String fileName, final JSONArray jsonArray, final SmsRenderer.SmsTypes smsTypes) throws IOException {
     final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonArray, smsTypes));
     assertNotNull(compiledTemplate);
 
-    this.verifyResultJSON(typeName, compiledTemplate, "JsonArrayHtml.html");
+    final String expectedResult = this.minifyHTML(this.getStringFromFile("/SmsRenderer/HTMLResult/" + typeName + fileName));
+    assertNotNull(expectedResult);
+    assertEquals(expectedResult, compiledTemplate);
   }
 
-  private void verifyResultJSON(final String typeName, final String compiledTemplate, final String fileName) throws IOException {
+  private void verifyResultJSON(final String typeName, final String fileName, final JSONObject jsonObject, final SmsRenderer.SmsTypes smsTypes) throws IOException {
+    final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonObject, smsTypes));
+    assertNotNull(compiledTemplate);
+
+    final String expectedResult = this.minifyHTML(this.getStringFromFile("/SmsRenderer/HTMLResult/" + typeName + fileName));
+    assertNotNull(expectedResult);
+    assertEquals(expectedResult, compiledTemplate);
+  }
+
+  private void verifyResultJSON(final String typeName, final String jsonMessageContext, final String fileName, final SmsRenderer.SmsTypes smsTypes) throws IOException {
+    final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonMessageContext, smsTypes));
+    assertNotNull(compiledTemplate);
+
     final String expectedResult = this.minifyHTML(this.getStringFromFile("/SmsRenderer/HTMLResult/" + typeName + fileName));
     assertNotNull(expectedResult);
     assertEquals(expectedResult, compiledTemplate);
@@ -90,10 +107,7 @@ public class SmsRendererTest {
     final String jsonFileName = typeName + "Json.json";
     final String jsonMessageContext = this.getStringFromFile("/SmsRenderer/JSONData/" + jsonFileName);
 
-    final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonMessageContext, smsTypes));
-    assertNotNull(compiledTemplate);
-
-    this.verifyResultJSON(typeName, compiledTemplate, "StringHtml.html");
+    this.verifyResultJSON(typeName, jsonMessageContext, "StringHtml.html", smsTypes);
   }
 
   private void testJsonObject(final SmsRenderer.SmsTypes smsTypes) throws IOException, ParseException {
@@ -106,10 +120,7 @@ public class SmsRendererTest {
     final JSONObject jsonObject = this.getJsonObject(jsonMessageContext);
     assertNotNull(jsonObject);
 
-    final String compiledTemplate = this.minifyHTML(SmsRenderer.renderInBot(jsonObject, smsTypes));
-    assertNotNull(compiledTemplate);
-
-    this.verifyResultJSON(typeName, compiledTemplate, "JsonObjectHtml.html");
+    this.verifyResultJSON(typeName, "JsonObjectHtml.html", jsonObject, smsTypes);
   }
 
   private String getStringFromFile(final String fileName) throws IOException {
@@ -121,9 +132,8 @@ public class SmsRendererTest {
   }
 
   private String readResourceContent(final String path) throws IOException {
-    final String sourceFile = System.getProperty("user.dir") + "/src/test/resources/" + path;
-    final InputStream resourceStream = new FileInputStream(sourceFile);
-    final InputStreamReader inputStreamReader = new InputStreamReader(resourceStream);
+    final InputStream inputStream = SmsRenderer.class.getResourceAsStream(path);
+    final InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
     final BufferedReader reader = new BufferedReader(inputStreamReader);
     final StringBuffer sb = new StringBuffer();
 
