@@ -3,6 +3,7 @@ package com.symphony.bdk.http.webclient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.symphony.bdk.http.api.ApiClient;
@@ -37,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 @ExtendWith(BdkMockServerExtension.class)
-public class ApiClientWebClientTest {
+class ApiClientWebClientTest {
 
   private ApiClient apiClient;
 
@@ -48,7 +49,7 @@ public class ApiClientWebClientTest {
   }
 
   @Test
-  void testInvokeApiNullMethod(final BdkMockServer mockServer) {
+  void testInvokeApiNullMethod() {
     assertThrows(ApiException.class, () -> this.apiClient.invokeAPI("/test-api", null, null, null,
         Collections.singletonMap("sessionToken", "test-token"),
         null, null, null, null, new String[] {}, new TypeReference<Response>() {}));
@@ -67,9 +68,9 @@ public class ApiClientWebClientTest {
         this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
             null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
 
-    assertEquals(this.apiClient.getBasePath(), "http://localhost:10000");
-    assertEquals(response.getData().getCode(), 200);
-    assertEquals(response.getData().getMessage(), "success");
+    assertTrue(this.apiClient.getBasePath().startsWith("http://localhost:"));
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
   }
 
   @Test
@@ -81,7 +82,8 @@ public class ApiClientWebClientTest {
             .withHeader("sessionToken", "test-token"),
         httpResponse -> httpResponse.withBody("test-error"));
 
-    assertThrows(ApiException.class, () -> this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
+    assertThrows(ApiException.class, () -> this.apiClient.invokeAPI("/test-api", "GET", null, null,
+        Collections.singletonMap("sessionToken", "test-token"),
         null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {}));
   }
 
@@ -98,9 +100,9 @@ public class ApiClientWebClientTest {
         this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
             null, null, null, "application/json", new String[] {}, new TypeReference<List<Response>>() {});
 
-    assertEquals(response.getData().size(), 1);
-    assertEquals(response.getData().get(0).getCode(), 200);
-    assertEquals(response.getData().get(0).getMessage(), "success");
+    assertEquals(1, response.getData().size());
+    assertEquals(200, response.getData().get(0).getCode());
+    assertEquals("success", response.getData().get(0).getMessage());
   }
 
   @Test
@@ -116,7 +118,7 @@ public class ApiClientWebClientTest {
         this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
             null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
 
-    assertEquals(response.getStatusCode(), 204);
+    assertEquals(204, response.getStatusCode());
     assertNull(response.getData());
   }
 
@@ -133,7 +135,7 @@ public class ApiClientWebClientTest {
         this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
             null, null, null, "application/json", new String[] {}, null);
 
-    assertEquals(response.getStatusCode(), 200);
+    assertEquals(200, response.getStatusCode());
     assertNull(response.getData());
   }
 
@@ -154,8 +156,8 @@ public class ApiClientWebClientTest {
             Collections.singletonMap("cookie", "test-cookie"), null, null, "application/json", new String[] {},
             new TypeReference<Response>() {});
 
-    assertEquals(response.getData().getCode(), 200);
-    assertEquals(response.getData().getMessage(), "success");
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
   }
 
   @Test
@@ -176,8 +178,8 @@ public class ApiClientWebClientTest {
             Collections.singletonMap("cookie", "test-cookie"), null, null, "application/json", new String[] {},
             new TypeReference<Response>() {});
 
-    assertEquals(response.getData().getCode(), 200);
-    assertEquals(response.getData().getMessage(), "success");
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
   }
 
   @Test
@@ -208,8 +210,8 @@ public class ApiClientWebClientTest {
             MediaType.APPLICATION_FORM_URLENCODED_VALUE, new String[] {},
             new TypeReference<Response>() {});
 
-    assertEquals(response.getData().getCode(), 200);
-    assertEquals(response.getData().getMessage(), "success");
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
   }
 
   @Test
@@ -239,8 +241,8 @@ public class ApiClientWebClientTest {
             new String[] {},
             new TypeReference<Response>() {});
 
-    assertEquals(response.getData().getCode(), 200);
-    assertEquals(response.getData().getMessage(), "success");
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
   }
 
   @Test
@@ -264,32 +266,32 @@ public class ApiClientWebClientTest {
     pairs.addAll(this.apiClient.parameterToPairs("tsv", "tsv", Arrays.asList("test1", "test2")));
     pairs.addAll(this.apiClient.parameterToPairs("pipes", "pipes", Arrays.asList("test1", "test2")));
 
-    assertEquals(pairs.size(), 7);
-    assertEquals(pairs.get(0).getValue(), "test-value");
-    assertEquals(pairs.get(1).getValue(), "test1");
-    assertEquals(pairs.get(2).getValue(), "test2");
-    assertEquals(pairs.get(3).getValue(), "test1,test2");
-    assertEquals(pairs.get(4).getValue(), "test1 test2");
-    assertEquals(pairs.get(5).getValue(), "test1\ttest2");
-    assertEquals(pairs.get(6).getValue(), "test1|test2");
+    assertEquals(7, pairs.size());
+    assertEquals("test-value", pairs.get(0).getValue());
+    assertEquals("test1", pairs.get(1).getValue());
+    assertEquals("test2", pairs.get(2).getValue());
+    assertEquals("test1,test2", pairs.get(3).getValue());
+    assertEquals("test1 test2", pairs.get(4).getValue());
+    assertEquals("test1\ttest2", pairs.get(5).getValue());
+    assertEquals("test1|test2", pairs.get(6).getValue());
   }
 
   @Test
   void selectHeaderAcceptTest() {
-    assertNull(this.apiClient.selectHeaderAccept(new String[] {}));
-    assertEquals(MediaType.APPLICATION_JSON_VALUE, this.apiClient.selectHeaderAccept(new String[] {MediaType.APPLICATION_JSON_VALUE}));
+    assertNull(this.apiClient.selectHeaderAccept());
+    assertEquals(MediaType.APPLICATION_JSON_VALUE, this.apiClient.selectHeaderAccept(MediaType.APPLICATION_JSON_VALUE));
     assertEquals(MediaType.APPLICATION_FORM_URLENCODED_VALUE + "," + MediaType.MULTIPART_FORM_DATA_VALUE,
-        this.apiClient.selectHeaderAccept(new String[] {
-            MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            MediaType.MULTIPART_FORM_DATA_VALUE
-        }));
+        this.apiClient.selectHeaderAccept(MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+            MediaType.MULTIPART_FORM_DATA_VALUE));
   }
 
   @Test
   void selectHeaderContentTypeTest() {
-    assertEquals("application/json", this.apiClient.selectHeaderContentType(new String[] {}));
-    assertEquals(MediaType.APPLICATION_JSON_VALUE, this.apiClient.selectHeaderContentType(new String[] {MediaType.APPLICATION_JSON_VALUE}));
-    assertEquals(MediaType.APPLICATION_FORM_URLENCODED_VALUE, this.apiClient.selectHeaderContentType(new String[] {MediaType.APPLICATION_FORM_URLENCODED_VALUE}));
+    assertEquals("application/json", this.apiClient.selectHeaderContentType());
+    assertEquals(MediaType.APPLICATION_JSON_VALUE, this.apiClient.selectHeaderContentType(
+        MediaType.APPLICATION_JSON_VALUE));
+    assertEquals(MediaType.APPLICATION_FORM_URLENCODED_VALUE, this.apiClient.selectHeaderContentType(
+        MediaType.APPLICATION_FORM_URLENCODED_VALUE));
   }
 
   @Test

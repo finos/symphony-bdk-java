@@ -21,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
@@ -52,7 +53,6 @@ public class ApiClientWebClient implements ApiClient {
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public <T> ApiResponse<T> invokeAPI(
       final String path,
@@ -92,7 +92,8 @@ public class ApiClientWebClient implements ApiClient {
     if (!DistributedTracingContext.hasTraceId()) {
       DistributedTracingContext.setTraceId();
     }
-    requestBodySpec = requestBodySpec.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+    requestBodySpec =
+        requestBodySpec.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Map.Entry<String, String> headerParam : headerParams.entrySet()) {
@@ -137,8 +138,21 @@ public class ApiClientWebClient implements ApiClient {
       requestBodySpec.body(BodyInserters.fromValue(body));
     }
 
-    Mono<ClientResponse> mono = requestBodySpec.exchange();
-    ClientResponse response = mono.block();
+    try {
+      return requestBodySpec.exchangeToMono(response -> toApiResponse(returnType, response))
+          .block();
+    } catch (Exception e) {
+      Throwable unwrap = Exceptions.unwrap(e);
+      if (unwrap instanceof ApiException) {
+        throw (ApiException) unwrap;
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> Mono<ApiResponse<T>> toApiResponse(TypeReference<T> returnType, ClientResponse response) {
     Map<String, List<String>> headers = response
         .headers().asHttpHeaders().entrySet()
         .stream()
@@ -146,38 +160,39 @@ public class ApiClientWebClient implements ApiClient {
             Map.Entry::getKey,
             Map.Entry::getValue
         ));
-    for (Map.Entry<String, List<String>> entry : response.headers().asHttpHeaders().entrySet()) {
-      headers.put(entry.getKey(), entry.getValue());
-    }
 
     if (response.statusCode().equals(HttpStatus.NO_CONTENT)) {
-      return new ApiResponse<>(response.statusCode().value(), headers);
+      return Mono.just(
+          new ApiResponse<>(response.statusCode().value(), headers));
     } else if (response.statusCode().equals(HttpStatus.OK)) {
       if (returnType == null) {
-        return new ApiResponse<>(response.statusCode().value(), headers);
+        return Mono.just(
+            new ApiResponse<>(response.statusCode().value(), headers));
       } else {
         if (returnType.getType() instanceof Class) {
           Class<T> clazz = (Class<T>) returnType.getType();
-          T entity = response.bodyToMono(clazz).block();
-          return new ApiResponse<>(response.statusCode().value(), headers, entity);
+          Mono<T> entity = response.bodyToMono(clazz);
+          return entity.map(s -> new ApiResponse<>(response.statusCode().value(), headers, s));
         } else {
           ParameterizedTypeReference<T> reference = ParameterizedTypeReference.forType(returnType.getType());
-          T entity = response.bodyToMono(reference).block();
-          return new ApiResponse<>(response.statusCode().value(), headers, entity);
+          Mono<T> entity = response.bodyToMono(reference);
+          return entity.map( e -> new ApiResponse<>(response.statusCode().value(), headers, e));
         }
       }
     } else {
-      String message = "error";
-      String respBody = response.bodyToMono(String.class).block();
-      if (respBody != null) {
-        message = respBody;
-      }
+      Mono<String> respBody = response.bodyToMono(String.class);
 
-      throw new ApiException(
-          response.rawStatusCode(),
-          message,
-          headers,
-          respBody);
+      return respBody.flatMap(s -> {
+        String message = "error";
+        if (s != null) {
+          message = s;
+        }
+       throw Exceptions.propagate(new ApiException(
+            response.rawStatusCode(),
+            message,
+            headers,
+            s));
+      });
     }
   }
 
@@ -201,8 +216,7 @@ public class ApiClientWebClient implements ApiClient {
       }
     } else if (paramValue instanceof ApiClientBodyPart) {
       serializeApiClientBodyPart(paramKey, (ApiClientBodyPart) paramValue, formValueMap);
-    }
-    else {
+    } else {
       formValueMap.add(paramKey, parameterToString(paramValue));
     }
   }
@@ -215,7 +229,7 @@ public class ApiClientWebClient implements ApiClient {
         .part(paramKey, new InputStreamResource(bodyPart.getContent()))
         .filename(bodyPart.getFilename());
 
-    multipartBodyBuilder.build().forEach((k, l) -> formValueMap.addAll(k, l));
+    multipartBodyBuilder.build().forEach(formValueMap::addAll);
   }
 
   /**
@@ -252,7 +266,7 @@ public class ApiClientWebClient implements ApiClient {
    */
   @Override
   public List<Pair> parameterToPairs(String collectionFormat, String name, Object value) {
-    List<Pair> params = new ArrayList<Pair>();
+    List<Pair> params = new ArrayList<>();
 
     // preconditions
     if (name == null || name.isEmpty() || value == null) {
@@ -261,7 +275,7 @@ public class ApiClientWebClient implements ApiClient {
 
     Collection<?> valueCollection;
     if (value instanceof Collection) {
-      valueCollection = (Collection) value;
+      valueCollection = (Collection<?>) value;
     } else {
       params.add(new Pair(name, parameterToString(value)));
       return params;
@@ -354,7 +368,7 @@ public class ApiClientWebClient implements ApiClient {
   @Override
   public String escapeString(String str) {
     try {
-      return URLEncoder.encode(str, "utf8").replaceAll("\\+", "%20");
+      return URLEncoder.encode(str, "utf8").replace("\\+", "%20");
     } catch (UnsupportedEncodingException e) {
       return str;
     }
