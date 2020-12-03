@@ -63,6 +63,12 @@ public final class HandlebarsTemplateLoader {
         setHandlebars(new Handlebars(loader).with((new GuavaTemplateCache(templateCache))));
     }
 
+    public String apply(String name, JsonNode jsonNode) throws IOException{
+      Template template = this.getTemplate(name);
+      Context templateContext = this.getContext(jsonNode);
+      return template.apply(templateContext);
+    }
+
     public Handlebars getHandlebars() {
         return handlebars;
     }
