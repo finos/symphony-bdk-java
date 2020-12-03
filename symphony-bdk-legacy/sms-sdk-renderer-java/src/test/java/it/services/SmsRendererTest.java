@@ -121,18 +121,10 @@ public class SmsRendererTest {
   }
 
   private String readResourceContent(final String path) throws IOException {
-    assertNotNull(path);
     final String sourceFile = System.getProperty("user.dir") + "/src/test/resources/" + path;
-
     final InputStream resourceStream = new FileInputStream(sourceFile);
-    assertNotNull(resourceStream);
-
     final InputStreamReader inputStreamReader = new InputStreamReader(resourceStream);
-    assertNotNull(inputStreamReader);
-
     final BufferedReader reader = new BufferedReader(inputStreamReader);
-    assertNotNull(reader);
-
     final StringBuffer sb = new StringBuffer();
 
     String content;
