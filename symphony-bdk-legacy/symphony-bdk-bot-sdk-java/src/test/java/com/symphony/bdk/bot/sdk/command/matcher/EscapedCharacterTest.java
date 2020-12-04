@@ -14,23 +14,21 @@ public class EscapedCharacterTest {
   @Test
   public void characterWithReservedTest() {
     String reservedCharacters = "+*?^$\\.[]{}()|/";
-    assertAll("All Reserved Character Escaped",
-        () -> assertEquals("\\+", EscapedCharacter.character(reservedCharacters.charAt(0)).regex()),
-        () -> assertEquals("\\*", EscapedCharacter.character(reservedCharacters.charAt(1)).regex()),
-        () -> assertEquals("\\?", EscapedCharacter.character(reservedCharacters.charAt(2)).regex()),
-        () -> assertEquals("\\^", EscapedCharacter.character(reservedCharacters.charAt(3)).regex()),
-        () -> assertEquals("\\$", EscapedCharacter.character(reservedCharacters.charAt(4)).regex()),
-        () -> assertEquals("\\\\", EscapedCharacter.character(reservedCharacters.charAt(5)).regex()),
-        () -> assertEquals("\\.", EscapedCharacter.character(reservedCharacters.charAt(6)).regex()),
-        () -> assertEquals("\\[", EscapedCharacter.character(reservedCharacters.charAt(7)).regex()),
-        () -> assertEquals("\\]", EscapedCharacter.character(reservedCharacters.charAt(8)).regex()),
-        () -> assertEquals("\\{", EscapedCharacter.character(reservedCharacters.charAt(9)).regex()),
-        () -> assertEquals("\\}", EscapedCharacter.character(reservedCharacters.charAt(10)).regex()),
-        () -> assertEquals("\\(", EscapedCharacter.character(reservedCharacters.charAt(11)).regex()),
-        () -> assertEquals("\\)", EscapedCharacter.character(reservedCharacters.charAt(12)).regex()),
-        () -> assertEquals("\\|", EscapedCharacter.character(reservedCharacters.charAt(13)).regex()),
-        () -> assertEquals("\\/", EscapedCharacter.character(reservedCharacters.charAt(14)).regex())
-      );
+    assertEquals("\\+", EscapedCharacter.character(reservedCharacters.charAt(0)).regex());
+    assertEquals("\\*", EscapedCharacter.character(reservedCharacters.charAt(1)).regex());
+    assertEquals("\\?", EscapedCharacter.character(reservedCharacters.charAt(2)).regex());
+    assertEquals("\\^", EscapedCharacter.character(reservedCharacters.charAt(3)).regex());
+    assertEquals("\\$", EscapedCharacter.character(reservedCharacters.charAt(4)).regex());
+    assertEquals("\\\\", EscapedCharacter.character(reservedCharacters.charAt(5)).regex());
+    assertEquals("\\.", EscapedCharacter.character(reservedCharacters.charAt(6)).regex());
+    assertEquals("\\[", EscapedCharacter.character(reservedCharacters.charAt(7)).regex());
+    assertEquals("\\]", EscapedCharacter.character(reservedCharacters.charAt(8)).regex());
+    assertEquals("\\{", EscapedCharacter.character(reservedCharacters.charAt(9)).regex());
+    assertEquals("\\}", EscapedCharacter.character(reservedCharacters.charAt(10)).regex());
+    assertEquals("\\(", EscapedCharacter.character(reservedCharacters.charAt(11)).regex());
+    assertEquals("\\)", EscapedCharacter.character(reservedCharacters.charAt(12)).regex());
+    assertEquals("\\|", EscapedCharacter.character(reservedCharacters.charAt(13)).regex());
+    assertEquals("\\/", EscapedCharacter.character(reservedCharacters.charAt(14)).regex());
   }
 
   @Test
