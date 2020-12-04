@@ -29,7 +29,7 @@ public class CharacterMatcher implements Regex {
    * @return the matcher for the character sequence.
    */
   public static CharacterMatcher characterSet(EscapedCharacter... chars) {
-    if (chars == null) {
+    if (chars == null || chars.length == 0) {
       throw new IllegalArgumentException("Character set must have at least one element");
     }
     return new CharacterMatcher(
@@ -44,7 +44,7 @@ public class CharacterMatcher implements Regex {
    * @return the matcher for the character negated sequence.
    */
   public static CharacterMatcher negatedSet(EscapedCharacter... chars) {
-    if (chars == null) {
+    if (chars == null || chars.length == 0) {
       throw new IllegalArgumentException("Character set must have at least one element");
     }
     return new CharacterMatcher(
@@ -60,9 +60,9 @@ public class CharacterMatcher implements Regex {
    * @return the matcher for the character range.
    */
   public static CharacterMatcher range(char begin, char end) {
-    if (begin < end) {
+    if (begin > end) {
       throw new IllegalArgumentException(
-          "Begin character code must be greater than ending character");
+          "Begin character code must be lower than ending character");
     }
     return new CharacterMatcher("[" + begin + "-" + end + "]");
   }
