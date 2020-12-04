@@ -164,7 +164,7 @@ public class ApiClientWebClient implements ApiClient {
     if (response.statusCode().equals(HttpStatus.NO_CONTENT)) {
       return Mono.just(
           new ApiResponse<>(response.statusCode().value(), headers));
-    } else if (response.statusCode().equals(HttpStatus.OK)) {
+    } else if (response.statusCode().is2xxSuccessful()) {
       if (returnType == null) {
         return Mono.just(
             new ApiResponse<>(response.statusCode().value(), headers));

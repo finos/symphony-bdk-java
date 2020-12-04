@@ -74,6 +74,24 @@ class ApiClientWebClientTest {
   }
 
   @Test
+  void testInvokeApiTest2xx(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(201,
+        httpRequest -> httpRequest
+            .withMethod("GET")
+            .withPath("/test-api")
+            .withHeader("sessionToken", "test-token"),
+        httpResponse -> httpResponse.withBody("{\"code\": 201, \"message\": \"success\"}"));
+
+    ApiResponse<Response> response =
+        this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
+            null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+
+    assertTrue(this.apiClient.getBasePath().startsWith("http://localhost:"));
+    assertEquals(201, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
+  }
+
+  @Test
   void testInvokeApiExceptionTest(final BdkMockServer mockServer) {
     mockServer.onRequestModifierWithResponse(400,
         httpRequest -> httpRequest
