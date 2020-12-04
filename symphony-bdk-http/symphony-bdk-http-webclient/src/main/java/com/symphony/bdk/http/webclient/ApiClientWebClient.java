@@ -25,8 +25,6 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -78,7 +76,7 @@ public class ApiClientWebClient implements ApiClient {
           if (queryParams != null) {
             for (Pair queryParam : queryParams) {
               if (queryParam.getValue() != null) {
-                uriBuilder = uriBuilder.queryParam(queryParam.getName(), escapeString(queryParam.getValue()));
+                uriBuilder = uriBuilder.queryParam(queryParam.getName(), queryParam.getValue());
               }
             }
           }
@@ -367,10 +365,6 @@ public class ApiClientWebClient implements ApiClient {
    */
   @Override
   public String escapeString(String str) {
-    try {
-      return URLEncoder.encode(str, "utf8").replace("\\+", "%20");
-    } catch (UnsupportedEncodingException e) {
-      return str;
-    }
+    return str; // handled by Spring WebClient
   }
 }

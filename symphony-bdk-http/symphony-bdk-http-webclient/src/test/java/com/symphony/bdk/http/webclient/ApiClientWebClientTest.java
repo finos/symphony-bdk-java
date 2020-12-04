@@ -179,6 +179,26 @@ class ApiClientWebClientTest {
   }
 
   @Test
+  void testInvokeApiUrlEncode(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(200,
+        httpRequest -> httpRequest
+            .withMethod("GET")
+            // percentage needs to be encoded by client
+            .withPath("/test+api%25")
+            .withQueryStringParameter("param=", "value="),
+        httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
+
+    ApiResponse<Response> response =
+        this.apiClient.invokeAPI("/test+api%", "GET", Collections.singletonList(new Pair("param=", "value=")),
+            null, null, null, null, null, "application/json",
+            new String[] {},
+            new TypeReference<Response>() {});
+
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
+  }
+
+  @Test
   void testInvokeApiWithBodyTest(final BdkMockServer mockServer) throws ApiException {
     mockServer.onRequestModifierWithResponse(200,
         httpRequest -> httpRequest
@@ -316,47 +336,46 @@ class ApiClientWebClientTest {
   void escapeStringTest() {
     String url = "http://localhost/search?q=hello+world";
 
-    assertEquals("http%3A%2F%2Flocalhost%2Fsearch%3Fq%3Dhello%2Bworld", this.apiClient.escapeString(url));
-  }
-}
-
-
-class RequestBody {
-  private String id;
-  private String content;
-
-  protected RequestBody(String id, String content) {
-    this.id = id;
-    this.content = content;
+    assertEquals("http://localhost/search?q=hello+world", this.apiClient.escapeString(url));
   }
 
-  public String getId() {
-    return id;
+  private static class RequestBody {
+    private String id;
+    private String content;
+
+    protected RequestBody(String id, String content) {
+      this.id = id;
+      this.content = content;
+    }
+
+    public String getId() {
+      return id;
+    }
+
+    public void setId(String id) {
+      this.id = id;
+    }
+
+    public String getContent() {
+      return content;
+    }
+
+    public void setContent(String content) {
+      this.content = content;
+    }
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
 
-  public String getContent() {
-    return content;
-  }
+  private static class Response {
+    private int code;
+    private String message;
 
-  public void setContent(String content) {
-    this.content = content;
-  }
-}
+    public int getCode() {
+      return code;
+    }
 
-
-class Response {
-  private int code;
-  private String message;
-
-  public int getCode() {
-    return code;
-  }
-
-  public String getMessage() {
-    return message;
+    public String getMessage() {
+      return message;
+    }
   }
 }
