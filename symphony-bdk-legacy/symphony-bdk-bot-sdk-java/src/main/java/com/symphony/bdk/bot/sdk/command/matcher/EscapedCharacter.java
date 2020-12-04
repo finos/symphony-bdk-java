@@ -24,7 +24,7 @@ public class EscapedCharacter extends CharacterMatcher {
     if (RESERVED_CHARACTERS.contains(Character.toString(c))) {
       return new EscapedCharacter("\\" + c);
     }
-    return new EscapedCharacter(new Character(c).toString());
+    return new EscapedCharacter(Character.toString(c));
   }
 
   /**
@@ -89,7 +89,7 @@ public class EscapedCharacter extends CharacterMatcher {
    */
   public static EscapedCharacter octalEscape(char charCode) {
     if (charCode >= 0 && charCode <= 377) {
-      return new EscapedCharacter("\\" + String.format("%03d", new Integer(charCode)));
+      return new EscapedCharacter("\\" + String.format("%03o", new Integer(charCode)));
     }
     throw new IllegalArgumentException("Octal escaped character must be between 0 an 377");
   }
