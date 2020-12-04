@@ -2,8 +2,6 @@ package services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.jknack.handlebars.Context;
-import com.github.jknack.handlebars.Template;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
@@ -41,10 +39,7 @@ public final class SmsRenderer {
 
             JsonNode jsonNode = new ObjectMapper().readValue(wrappedContext, JsonNode.class);
 
-            Template template = handlebarsTemplateLoader.getTemplate(smsType.getName());
-            Context templateContext = handlebarsTemplateLoader.getContext(jsonNode);
-
-            return template.apply(templateContext);
+            return handlebarsTemplateLoader.apply(smsType.getName(), jsonNode);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
