@@ -7,6 +7,7 @@ import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +32,7 @@ class AbstractOboAuthenticatorTest {
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(String appSessionToken, Long userId) throws ApiException {
+    protected String authenticateAndRetrieveOboSessionToken(String appSessionToken, Long userId) {
       return null;
     }
 
@@ -42,19 +43,20 @@ class AbstractOboAuthenticatorTest {
     }
 
     @Override
-    protected String authenticateAndRetrieveAppSessionToken() throws ApiException {
+    protected String authenticateAndRetrieveAppSessionToken() {
       return null;
     }
 
     @Nonnull
     @Override
-    public AuthSession authenticateByUsername(String username) throws AuthUnauthorizedException {
-      return null;
+    public AuthSession authenticateByUsername(String username) {
+      return mock(AuthSession.class);
     }
 
+    @Nonnull
     @Override
-    public AuthSession authenticateByUserId(Long userId) throws AuthUnauthorizedException {
-      return null;
+    public AuthSession authenticateByUserId(Long userId) {
+      return mock(AuthSession.class);
     }
   }
 
