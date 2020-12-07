@@ -64,8 +64,8 @@ public class SmsRendererTest {
       jsonArray.add(jsonMessageContext);
     } else {
       final JSONParser parser = new JSONParser();
-      final String sourceFile = System.getProperty("user.dir") + "/src/test/resources/SmsRenderer/JSONData/tableJsonArray.json";
-      final Object obj = parser.parse(new FileReader(sourceFile));
+      final String pathFileTableJsonArray = SmsRenderer.class.getResource("/SmsRenderer/JSONData/tableJsonArray.json").getPath();
+      final Object obj = parser.parse(new FileReader(pathFileTableJsonArray));
       final JSONObject jsonObject = (JSONObject) obj;
       jsonArray = (JSONArray) jsonObject.get("phones");
     }

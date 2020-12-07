@@ -7,7 +7,6 @@ import static org.mockserver.model.HttpResponse.response;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.webclient.ApiClientBuilderWebClient;
 
-import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
@@ -18,20 +17,17 @@ import java.util.function.Consumer;
 public class BdkMockServer {
 
   private ClientAndServer mockServer;
-  private MockServerClient mockServerClient;
 
   public BdkMockServer() {
     // nothing to be done here
   }
 
   public void start() {
-    this.mockServer = startClientAndServer(10000);
-    this.mockServerClient = new MockServerClient("localhost", this.mockServer.getPort());
+    this.mockServer = startClientAndServer();
   }
 
   public void stop() {
-    this.mockServer.stop();
-    this.mockServerClient.stop();
+    this.mockServer.stopAsync();
   }
 
   public ApiClient newApiClient(String contextPath) {
@@ -74,7 +70,7 @@ public class BdkMockServer {
         .withStatusCode(responseCode);
 
     resModifier.accept(httpResponse);
-    this.mockServerClient
+    this.mockServer
         .when(request().withMethod(method).withPath(path))
         .respond(httpResponse);
   }
@@ -88,6 +84,6 @@ public class BdkMockServer {
         .withStatusCode(responseCode);
     resModifier.accept(httpResponse);
 
-    this.mockServerClient.when(httpRequest).respond(httpResponse);
+    this.mockServer.when(httpRequest).respond(httpResponse);
   }
 }
