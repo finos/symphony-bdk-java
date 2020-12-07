@@ -28,13 +28,12 @@ public class HttpClientExampleMain {
   public static void main(String[] args) throws BdkConfigException, IOException, GeneralSecurityException,
       ApiException, AuthUnauthorizedException, AuthInitializationException {
 
-    JwtHelper jwtHelper = new JwtHelper();
     BdkConfig config = loadFromSymphonyDir("config.yaml");
     final SymphonyBdk bdk = new SymphonyBdk(config);
-    PrivateKey privateKey = jwtHelper.parseRsaPrivateKey(
-        IOUtils.toString(new FileInputStream(config.getBot().getPrivateKeyPath()), StandardCharsets.UTF_8));
+    PrivateKey privateKey = JwtHelper.parseRsaPrivateKey(
+        IOUtils.toString(new FileInputStream(config.getBot().getPrivateKey().getPath()), StandardCharsets.UTF_8));
     final String jwt =
-        jwtHelper.createSignedJwt(config.getBot().getUsername(), JwtHelper.JWT_EXPIRATION_MILLIS, privateKey);
+        JwtHelper.createSignedJwt(config.getBot().getUsername(), JwtHelper.JWT_EXPIRATION_MILLIS, privateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
