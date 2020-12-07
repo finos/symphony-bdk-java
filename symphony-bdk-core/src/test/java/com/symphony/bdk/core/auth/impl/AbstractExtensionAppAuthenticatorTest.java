@@ -33,12 +33,12 @@ class AbstractExtensionAppAuthenticatorTest {
     }
 
     @Override
-    protected PodCertificate callGetPodCertificate() {
+    protected PodCertificate callGetPodCertificate() throws ApiException {
       return null;
     }
 
     @Override
-    protected ExtensionAppTokens authenticateAndRetrieveTokens(String appToken) {
+    protected ExtensionAppTokens authenticateAndRetrieveTokens(String appToken) throws ApiException {
       return null;
     }
 

@@ -31,7 +31,7 @@ class AbstractBotAuthenticatorTest {
     }
 
     @Override
-    protected String authenticateAndGetToken(ApiClient client)  {
+    protected String authenticateAndGetToken(ApiClient client) throws ApiException {
       return null;
     }
 
