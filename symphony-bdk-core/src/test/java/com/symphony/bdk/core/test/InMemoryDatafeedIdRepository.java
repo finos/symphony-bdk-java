@@ -6,14 +6,14 @@ import java.util.Optional;
 
 public class InMemoryDatafeedIdRepository implements DatafeedIdRepository {
 
-  private String defaultAgentBasePath;
-  private Optional<String> datafeedId;
-  private Optional<String> agentBasePath;
+  private final String defaultAgentBasePath;
+  private String datafeedId;
+  private String agentBasePath;
 
   public InMemoryDatafeedIdRepository(String defaultAgentBasePath) {
     this.defaultAgentBasePath = defaultAgentBasePath;
-    this.datafeedId = Optional.empty();
-    this.agentBasePath = Optional.empty();
+    this.datafeedId = null;
+    this.agentBasePath = null;
   }
 
   @Override
@@ -23,17 +23,17 @@ public class InMemoryDatafeedIdRepository implements DatafeedIdRepository {
 
   @Override
   public void write(String datafeedId, String agentBasePath) {
-    this.datafeedId = Optional.of(datafeedId);
-    this.agentBasePath = Optional.of(agentBasePath);
+    this.datafeedId = datafeedId;
+    this.agentBasePath = agentBasePath;
   }
 
   @Override
   public Optional<String> read() {
-    return this.datafeedId;
+    return Optional.ofNullable(this.datafeedId);
   }
 
   @Override
   public Optional<String> readAgentBasePath() {
-    return this.agentBasePath;
+    return Optional.ofNullable(this.agentBasePath);
   }
 }

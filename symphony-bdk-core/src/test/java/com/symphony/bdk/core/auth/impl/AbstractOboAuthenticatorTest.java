@@ -7,6 +7,7 @@ import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,9 +20,10 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
-public class AbstractOboAuthenticatorTest {
+class AbstractOboAuthenticatorTest {
 
   private static class TestAbstractOboAuthenticator extends AbstractOboAuthenticator {
 
@@ -45,14 +47,16 @@ public class AbstractOboAuthenticatorTest {
       return null;
     }
 
+    @Nonnull
     @Override
-    public AuthSession authenticateByUsername(String username) throws AuthUnauthorizedException {
-      return null;
+    public AuthSession authenticateByUsername(String username) {
+      return mock(AuthSession.class);
     }
 
+    @Nonnull
     @Override
-    public AuthSession authenticateByUserId(Long userId) throws AuthUnauthorizedException {
-      return null;
+    public AuthSession authenticateByUserId(Long userId) {
+      return mock(AuthSession.class);
     }
   }
 
@@ -73,7 +77,8 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUserIdUnauthorized() throws ApiException, AuthUnauthorizedException {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
-    doThrow(new ApiException(401, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
+    doThrow(new ApiException(401, "")).when(authenticator)
+        .authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
     assertThrows(AuthUnauthorizedException.class, () -> authenticator.retrieveOboSessionTokenByUserId(0L));
     verify(authenticator, times(1)).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
@@ -83,7 +88,8 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUserIdUnexpectedApiException() throws ApiException, AuthUnauthorizedException {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
-    doThrow(new ApiException(404, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
+    doThrow(new ApiException(404, "")).when(authenticator)
+        .authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveOboSessionTokenByUserId(0L));
     verify(authenticator, times(1)).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
@@ -108,7 +114,8 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUserIdRetriesExhausted() throws ApiException, AuthUnauthorizedException {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval(2)));
     doReturn("").when(authenticator).retrieveAppSessionToken();
-    doThrow(new ApiException(429, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
+    doThrow(new ApiException(429, "")).when(authenticator)
+        .authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveOboSessionTokenByUserId(0L));
     verify(authenticator, times(2)).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
@@ -131,7 +138,8 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUsernameUnauthorized() throws ApiException, AuthUnauthorizedException {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
-    doThrow(new ApiException(401, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
+    doThrow(new ApiException(401, "")).when(authenticator)
+        .authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
     assertThrows(AuthUnauthorizedException.class, () -> authenticator.retrieveOboSessionTokenByUsername(""));
     verify(authenticator, times(1)).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
@@ -141,7 +149,8 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUsernameUnexpectedApiException() throws ApiException, AuthUnauthorizedException {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doReturn("").when(authenticator).retrieveAppSessionToken();
-    doThrow(new ApiException(404, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
+    doThrow(new ApiException(404, "")).when(authenticator)
+        .authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveOboSessionTokenByUsername(""));
     verify(authenticator, times(1)).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
@@ -166,7 +175,8 @@ public class AbstractOboAuthenticatorTest {
   void testRetrieveTokenByUsernameRetriesExhausted() throws ApiException, AuthUnauthorizedException {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval(2)));
     doReturn("").when(authenticator).retrieveAppSessionToken();
-    doThrow(new ApiException(429, "")).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
+    doThrow(new ApiException(429, "")).when(authenticator)
+        .authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
     assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveOboSessionTokenByUsername(""));
     verify(authenticator, times(2)).authenticateAndRetrieveOboSessionToken(anyString(), anyString());

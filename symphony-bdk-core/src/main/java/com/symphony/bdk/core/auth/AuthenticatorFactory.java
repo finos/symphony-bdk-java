@@ -41,8 +41,6 @@ public class AuthenticatorFactory {
   private final BdkConfig config;
   private final ApiClientFactory apiClientFactory;
 
-  private final JwtHelper jwtHelper = new JwtHelper();
-
   public AuthenticatorFactory(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClientFactory apiClientFactory) {
     this.config = bdkConfig;
     this.apiClientFactory = apiClientFactory;

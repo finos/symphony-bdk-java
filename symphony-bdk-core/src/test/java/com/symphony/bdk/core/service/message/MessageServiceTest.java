@@ -71,7 +71,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MessageServiceTest {
+class MessageServiceTest {
 
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
@@ -114,7 +114,7 @@ public class MessageServiceTest {
 
     messageService = new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
         new MessageSuppressionApi(podClient), streamsApi, new PodApi(podClient),
-        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine, new RetryWithRecoveryBuilder());
+        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine, new RetryWithRecoveryBuilder<>());
   }
 
   @Test
@@ -316,9 +316,9 @@ public class MessageServiceTest {
     final Message message =
         Message.builder().content(MESSAGE).addAttachment(inputStream, "test.doc").build();
 
-    assertEquals(message.getVersion(), "2.0");
-    assertEquals(message.getContent(), MESSAGE);
-    assertEquals(message.getAttachments().get(0).getFilename(), "test.doc");
+    assertEquals("2.0", message.getVersion());
+    assertEquals(MESSAGE, message.getContent());
+    assertEquals("test.doc", message.getAttachments().get(0).getFilename());
   }
 
   @Test
@@ -400,7 +400,7 @@ public class MessageServiceTest {
     List<StreamAttachmentItem> attachments =
         messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
 
-    assertEquals(attachments.size(), 2);
+    assertEquals(2, attachments.size());
   }
 
   @Test
@@ -532,7 +532,7 @@ public class MessageServiceTest {
 
     ApiClient agentClient = spy(mockServer.newApiClient("/agent"));
     messageService = new MessageService(new MessagesApi(agentClient), null, null, null, null, null, null, authSession,
-        templateEngine, new RetryWithRecoveryBuilder());
+        templateEngine, new RetryWithRecoveryBuilder<>());
 
     final String response = JsonHelper.readFromClasspath("/message/blast_message.json");
     mockServer.onPost(V4_BLAST_MESSAGE, res -> res.withBody(response));
@@ -590,7 +590,7 @@ public class MessageServiceTest {
       throws IOException, ApiException {
     ApiClient agentClient = spy(mockServer.newApiClient("/agent"));
     messageService = new MessageService(new MessagesApi(agentClient), null, null, null, null, null, null, authSession,
-        templateEngine, new RetryWithRecoveryBuilder());
+        templateEngine, new RetryWithRecoveryBuilder<>());
 
     final String response = JsonHelper.readFromClasspath("/message/send_message.json");
     mockServer.onPost("/agent/v4/stream/streamid/message/create", res -> res.withBody(response));
@@ -642,12 +642,13 @@ public class MessageServiceTest {
     assertEquals(expectedPreviewFilenames, previewFileNames);
   }
 
-  class MockObject {
+  private static class MockObject {
     private String content;
 
     MockObject(String content) {
       this.content = content;
     }
+
   }
 
 }

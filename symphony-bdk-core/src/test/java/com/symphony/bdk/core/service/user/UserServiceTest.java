@@ -81,7 +81,6 @@ class UserServiceTest {
 
   private UserService service;
   private UserApi spiedUserApi;
-  private UsersApi spiedUsersApi;
   private MockApiClient mockApiClient;
 
   @BeforeEach
@@ -92,8 +91,8 @@ class UserServiceTest {
     UserApi userApi = new UserApi(podClient);
     this.spiedUserApi = spy(userApi);
     UsersApi usersApi = new UsersApi(podClient);
-    this.spiedUsersApi = spy(usersApi);
-    this.service = new UserService(this.spiedUserApi, this.spiedUsersApi, authSession, new RetryWithRecoveryBuilder());
+    UsersApi spiedUsersApi = spy(usersApi);
+    this.service = new UserService(this.spiedUserApi, spiedUsersApi, authSession, new RetryWithRecoveryBuilder());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");

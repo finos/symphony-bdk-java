@@ -195,7 +195,7 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<T>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
+    return new Resilience4jRetryWithRecovery<>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
         recoveryStrategies);
   }
 }
