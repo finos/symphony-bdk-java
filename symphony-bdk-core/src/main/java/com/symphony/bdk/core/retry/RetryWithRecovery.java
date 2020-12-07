@@ -100,7 +100,7 @@ public abstract class RetryWithRecovery<T> {
 
     for (RecoveryStrategy recoveryStrategy : recoveryStrategies) {
       if (recoveryStrategy.matches(e)) {
-        log.debug("Exception recovered: {}", e);
+        log.debug("Exception recovered", e);
         recoveryTriggered = true;
         recoveryStrategy.runRecovery();
       }

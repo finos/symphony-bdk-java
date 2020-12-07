@@ -18,6 +18,8 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
+
 /**
  * Extension app authenticator RSA implementation.
  *
@@ -47,6 +49,7 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
    * {@inheritDoc}
    */
   @Override
+  @Nonnull
   public AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException {
     AppAuthSession authSession = new AppAuthSessionCertImpl(this, appToken);
     authSession.refresh();

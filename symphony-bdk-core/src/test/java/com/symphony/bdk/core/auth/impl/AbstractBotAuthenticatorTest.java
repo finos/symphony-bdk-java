@@ -19,6 +19,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
 public class AbstractBotAuthenticatorTest {
@@ -34,6 +35,7 @@ public class AbstractBotAuthenticatorTest {
     }
 
     @Override
+    @Nonnull
     public AuthSession authenticateBot() throws AuthUnauthorizedException {
       return null;
     }

@@ -22,6 +22,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
 public class AbstractExtensionAppAuthenticatorTest {
@@ -41,6 +42,7 @@ public class AbstractExtensionAppAuthenticatorTest {
       return null;
     }
 
+    @Nonnull
     @Override
     public AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException {
       return null;

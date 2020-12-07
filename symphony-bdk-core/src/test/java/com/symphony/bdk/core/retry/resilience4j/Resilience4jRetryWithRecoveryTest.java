@@ -42,8 +42,7 @@ class Resilience4jRetryWithRecoveryTest {
 
   private static class ConcreteConsumer implements ConsumerWithThrowable {
     @Override
-    public void consume() throws Throwable {
-      return;
+    public void consume() {
     }
   }
 

@@ -19,9 +19,10 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
-public class AbstractOboAuthenticatorTest {
+class AbstractOboAuthenticatorTest {
 
   private static class TestAbstractOboAuthenticator extends AbstractOboAuthenticator {
 
@@ -45,6 +46,7 @@ public class AbstractOboAuthenticatorTest {
       return null;
     }
 
+    @Nonnull
     @Override
     public AuthSession authenticateByUsername(String username) throws AuthUnauthorizedException {
       return null;

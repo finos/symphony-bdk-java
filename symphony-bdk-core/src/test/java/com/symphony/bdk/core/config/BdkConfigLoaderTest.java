@@ -1,8 +1,10 @@
 package com.symphony.bdk.core.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -25,7 +27,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
-public class BdkConfigLoaderTest {
+class BdkConfigLoaderTest {
 
   @Test
   void loadFromYamlInputStreamTest() throws BdkConfigException {
@@ -91,9 +93,8 @@ public class BdkConfigLoaderTest {
 
   @Test
   void loadFromClasspathNotFoundTest() {
-    BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
-      BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml");
-    });
+    BdkConfigException exception = assertThrows(BdkConfigException.class,
+        () -> BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml"));
     assertEquals(exception.getMessage(), "Config file is not found");
   }
 
@@ -126,13 +127,13 @@ public class BdkConfigLoaderTest {
 
 
   @Test
-  public void parseLbAgentField() throws BdkConfigException {
+  void parseLbAgentField() throws BdkConfigException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb.yaml");
     final BdkLoadBalancingConfig agentLoadBalancing = config.getAgent().getLoadBalancing();
     final List<BdkServerConfig> nodes = agentLoadBalancing.getNodes();
 
     assertEquals(BdkLoadBalancingMode.RANDOM, agentLoadBalancing.getMode());
-    assertEquals(false, agentLoadBalancing.isStickiness());
+    assertFalse(agentLoadBalancing.isStickiness());
     assertEquals(2, nodes.size());
 
     assertEquals("http", nodes.get(0).getScheme());
@@ -147,22 +148,22 @@ public class BdkConfigLoaderTest {
   }
 
   @Test
-  public void parseLbAgentFieldsWithNoDefinedStickiness() throws BdkConfigException {
+  void parseLbAgentFieldsWithNoDefinedStickiness() throws BdkConfigException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_no_stickiness.yaml");
-    assertEquals(true, config.getAgent().getLoadBalancing().isStickiness());
+    assertTrue(config.getAgent().getLoadBalancing().isStickiness());
   }
 
   @Test
-  public void parseLbAgentFieldsWithRoundRobinMode() throws BdkConfigException {
+  void parseLbAgentFieldsWithRoundRobinMode() throws BdkConfigException {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_round_robin.yaml");
     final BdkLoadBalancingConfig agentLoadBalancing = config.getAgent().getLoadBalancing();
 
-    assertEquals(true, agentLoadBalancing.isStickiness());
+    assertTrue(agentLoadBalancing.isStickiness());
     assertEquals(BdkLoadBalancingMode.ROUND_ROBIN, agentLoadBalancing.getMode());
   }
 
   @Test
-  public void parseLbAgentFieldsWithExternalMode() throws BdkConfigException {
+  void parseLbAgentFieldsWithExternalMode() throws BdkConfigException {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_lb_external.yaml");
     final BdkLoadBalancingConfig agentLoadBalancing = config.getAgent().getLoadBalancing();
 
@@ -170,7 +171,7 @@ public class BdkConfigLoaderTest {
   }
 
   @Test
-  public void parseLbAgentFieldsWithInvalidMode() {
+  void parseLbAgentFieldsWithInvalidMode() {
     final BdkConfigException bdkConfigException = assertThrows(BdkConfigException.class,
         () -> BdkConfigLoader.loadFromClasspath("/config/config_invalid_mode.yaml"));
 

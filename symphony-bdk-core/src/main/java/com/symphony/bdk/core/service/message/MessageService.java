@@ -48,7 +48,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
@@ -297,7 +296,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   private V4MessageBlastResponse doSendBlast(@Nonnull List<String> streamIds, @Nonnull Message message)
       throws ApiException {
     final Map<String, Object> form = getForm(message);
-    form.put("sids", streamIds.stream().collect(Collectors.joining(",")));
+    form.put("sids", String.join(",", streamIds));
 
     return doSendFormData("/v4/message/blast", form, new TypeReference<V4MessageBlastResponse>() {});
   }

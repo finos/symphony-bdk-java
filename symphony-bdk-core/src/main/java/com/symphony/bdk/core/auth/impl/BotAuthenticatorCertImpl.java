@@ -1,16 +1,12 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.model.Token;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -42,18 +38,21 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
    * {@inheritDoc}
    */
   @Override
+  @Nonnull
   public AuthSession authenticateBot() throws AuthUnauthorizedException {
     AuthSessionCertImpl authSession = new AuthSessionCertImpl(this);
     authSession.refresh();
     return authSession;
   }
 
-  protected @Nonnull String retrieveSessionToken() throws AuthUnauthorizedException {
+  @Nonnull
+  protected String retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving sessionToken using certificate authentication...");
     return retrieveToken(this.sessionAuthClient);
   }
 
-  protected  @Nonnull String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+  @Nonnull
+  protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using certificate authentication...");
     return retrieveToken(this.keyAuthClient);
   }

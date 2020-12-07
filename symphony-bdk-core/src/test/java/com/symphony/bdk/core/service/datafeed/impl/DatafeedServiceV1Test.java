@@ -18,7 +18,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
 import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.BdkConfigLoader;
-import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
@@ -72,7 +71,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.ProcessingException;
 
-public class DatafeedServiceV1Test {
+class DatafeedServiceV1Test {
 
   public static final String DEFAULT_AGENT_BASE_PATH = "https://agent:8443/context";
 
@@ -358,7 +357,7 @@ public class DatafeedServiceV1Test {
 
   @Test
   void retrieveDatafeedIdFromDatafeedDir(@TempDir Path tempDir) throws IOException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/datafeed/datafeedId");
+    InputStream inputStream = DatafeedServiceV1Test.class.getResourceAsStream("/datafeed/datafeedId");
     Path datafeedFile = tempDir.resolve("datafeed.id");
     Files.copy(inputStream, datafeedFile);
 
@@ -375,7 +374,7 @@ public class DatafeedServiceV1Test {
 
   @Test
   void retrieveDatafeedIdFromDatafeedFile(@TempDir Path tempDir) throws IOException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/datafeed/datafeedId");
+    InputStream inputStream = DatafeedServiceV1Test.class.getResourceAsStream("/datafeed/datafeedId");
     Path datafeedFile = tempDir.resolve("datafeed.id");
     Files.copy(inputStream, datafeedFile);
 

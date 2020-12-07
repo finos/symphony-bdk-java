@@ -29,33 +29,33 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LoadBalancingStrategyTest {
+class LoadBalancingStrategyTest {
 
   @Test
-  public void testNewInstanceRandomLB() {
+  void testNewInstanceRandomLB() {
     LoadBalancingStrategy loadBalancingStrategy = getLoadBalancingStrategy(BdkLoadBalancingMode.RANDOM);
     assertEquals(RandomLoadBalancingStrategy.class, loadBalancingStrategy.getClass());
   }
 
   @Test
-  public void testNewInstanceRoundRobinLB() {
+  void testNewInstanceRoundRobinLB() {
     LoadBalancingStrategy loadBalancingStrategy = getLoadBalancingStrategy(BdkLoadBalancingMode.ROUND_ROBIN);
     assertEquals(RoundRobinLoadBalancingStrategy.class, loadBalancingStrategy.getClass());
   }
 
   @Test
-  public void testNewInstanceExternalLB() {
+  void testNewInstanceExternalLB() {
     LoadBalancingStrategy loadBalancingStrategy =
-        getLoadBalancingStrategy(BdkLoadBalancingMode.EXTERNAL, Arrays.asList(""));
+        getLoadBalancingStrategy(BdkLoadBalancingMode.EXTERNAL, Collections.singletonList(""));
     assertEquals(ExternalLoadBalancingStrategy.class, loadBalancingStrategy.getClass());
   }
 
   @Test
-  public void testRoundRobinLbStrategy() {
+  void testRoundRobinLbStrategy() {
     LoadBalancingStrategy loadBalancingStrategy = getLoadBalancingStrategy(BdkLoadBalancingMode.ROUND_ROBIN,
         Arrays.asList("agent1", "agent2", "agent3"));
 
-    List<String> basePaths = Stream.generate(() -> loadBalancingStrategy.getNewBasePath()).limit(4)
+    List<String> basePaths = Stream.generate(loadBalancingStrategy::getNewBasePath).limit(4)
         .collect(Collectors.toList());
 
     assertEquals(Arrays.asList("https://agent1:443", "https://agent2:443", "https://agent3:443", "https://agent1:443"),
@@ -63,11 +63,11 @@ public class LoadBalancingStrategyTest {
   }
 
   @Test
-  public void testRandomLbStrategy() {
+  void testRandomLbStrategy() {
     LoadBalancingStrategy loadBalancingStrategy = getLoadBalancingStrategy(BdkLoadBalancingMode.RANDOM,
         Arrays.asList("agent1", "agent2", "agent3"));
 
-    Map<String, Long> basePaths = Stream.generate(() -> loadBalancingStrategy.getNewBasePath()).limit(1000)
+    Map<String, Long> basePaths = Stream.generate(loadBalancingStrategy::getNewBasePath).limit(1000)
         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
     assertTrue(basePaths.get("https://agent1:443") > 1);
@@ -76,7 +76,7 @@ public class LoadBalancingStrategyTest {
   }
 
   @Test
-  public void testExternalLbWithApiClientMock() {
+  void testExternalLbWithApiClientMock() {
     MockApiClient mockApiClient = new MockApiClient();
     mockApiClient.onGet("/agent/v1/info", "{ \"serverFqdn\": \"https://agent1:443/context\" }");
 
@@ -91,7 +91,7 @@ public class LoadBalancingStrategyTest {
   }
 
   @Test
-  public void testExternalLbStrategy() throws ApiException {
+  void testExternalLbStrategy() throws ApiException {
     SignalsApi signalsApi = mock(SignalsApi.class);
     when(signalsApi.v1InfoGet())
         .thenReturn(new AgentInfo().serverFqdn("https://agent1:443"))
@@ -101,14 +101,14 @@ public class LoadBalancingStrategyTest {
     ExternalLoadBalancingStrategy loadBalancingStrategy =
         new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
 
-    List<String> basePaths = Stream.generate(() -> loadBalancingStrategy.getNewBasePath()).limit(3)
+    List<String> basePaths = Stream.generate(loadBalancingStrategy::getNewBasePath).limit(3)
         .collect(Collectors.toList());
 
     assertEquals(Arrays.asList("https://agent1:443", "https://agent2:443", "https://agent3:443"), basePaths);
   }
 
   @Test
-  public void testExternalLbStrategyWithError() throws ApiException {
+  void testExternalLbStrategyWithError() throws ApiException {
     SignalsApi signalsApi = mock(SignalsApi.class);
     when(signalsApi.v1InfoGet())
         .thenThrow(new ApiException(500, "error"));
@@ -116,17 +116,17 @@ public class LoadBalancingStrategyTest {
     ExternalLoadBalancingStrategy loadBalancingStrategy =
         new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
 
-    assertThrows(ApiRuntimeException.class, () -> loadBalancingStrategy.getNewBasePath());
+    assertThrows(ApiRuntimeException.class, loadBalancingStrategy::getNewBasePath);
   }
 
   @Test
-  public void testLoadBalancingStrategyFactoryConstructor() {
+  void testLoadBalancingStrategyFactoryConstructor() {
     //otherwise `gradle jacocoTestCoverageVerification` will fail on LoadBalancingStrategyFactory
     new LoadBalancingStrategyFactory();
   }
 
   private LoadBalancingStrategy getLoadBalancingStrategy(BdkLoadBalancingMode mode) {
-    return getLoadBalancingStrategy(mode, Arrays.asList());
+    return getLoadBalancingStrategy(mode, Collections.emptyList());
   }
 
   private LoadBalancingStrategy getLoadBalancingStrategy(BdkLoadBalancingMode mode, List<String> hosts) {
