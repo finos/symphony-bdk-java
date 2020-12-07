@@ -95,8 +95,8 @@ public class HttpClientBuilderHelper {
         return getClientConfig(
             config,
             getOr(config.getKeyManagerProxyURL(), config.getProxyURL()),
-            getOr(config.getKeyManagerProxyUsername(), config.getProxyURL()),
-            getOr(config.getKeyManagerProxyPassword(), config.getProxyURL())
+            getOr(config.getKeyManagerProxyUsername(), config.getProxyUsername()),
+            getOr(config.getKeyManagerProxyPassword(), config.getProxyPassword())
         );
     }
 
