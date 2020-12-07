@@ -14,14 +14,14 @@ public class RsaTestHelper {
   @SneakyThrows
   public static KeyPair generateKeyPair() {
     final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-    kpg.initialize(4096);
+    kpg.initialize(1024);
     return kpg.generateKeyPair();
   }
 
   @SneakyThrows
   public static String generatePrivateKeyAsString() {
     final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-    kpg.initialize(4096);
+    kpg.initialize(1024);
     final KeyPair kp = generateKeyPair();
     return "-----BEGIN PRIVATE KEY-----\n" +
         Base64.encodeToString(kp.getPrivate().getEncoded(), true) +

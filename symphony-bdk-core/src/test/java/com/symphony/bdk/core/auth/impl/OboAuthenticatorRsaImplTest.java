@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.security.PrivateKey;
 import java.util.UUID;
 
 /**
@@ -23,6 +24,8 @@ import java.util.UUID;
  */
 @ExtendWith(BdkMockServerExtension.class)
 class OboAuthenticatorRsaImplTest {
+
+  private static final PrivateKey PRIVATE_KEY = RsaTestHelper.generateKeyPair().getPrivate();
 
   private OboAuthenticatorRsaImpl authenticator;
 
@@ -32,7 +35,7 @@ class OboAuthenticatorRsaImplTest {
     this.authenticator = new OboAuthenticatorRsaImpl(
         ofMinimalInterval(1),
         "appId",
-        RsaTestHelper.generateKeyPair().getPrivate(),
+        PRIVATE_KEY,
         mockServer.newApiClient("/login")
     );
   }
