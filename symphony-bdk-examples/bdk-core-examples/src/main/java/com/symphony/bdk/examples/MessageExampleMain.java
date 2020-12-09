@@ -4,9 +4,7 @@ import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
-import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
-import com.symphony.bdk.gen.api.model.MessageIdsFromStream;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
 import com.symphony.bdk.gen.api.model.MessageStatus;
@@ -20,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * This demonstrates a basic usage of the message service.
@@ -44,16 +41,7 @@ public class MessageExampleMain {
 
     //retrieve a list of messages
     final List<V4Message> messages = bdk.messages().listMessages(STREAM_ID, SINCE, new PaginationAttribute(0, 2));
-    final Stream<V4Message> messagesStream =
-        bdk.messages().listAllMessages(STREAM_ID, SINCE, new StreamPaginationAttribute(2, 6));
-
-    //retrieve a list of messageIds
-    final MessageIdsFromStream messageIdsByTimestamp =
-        bdk.messages().listMessageIdsByTimestamp(STREAM_ID, SINCE, TO, new PaginationAttribute(2, 0));
-
-    final Stream<String> messageIdsByTimestampStream =
-        bdk.messages().listAllMessageIdsByTimestamp(STREAM_ID, SINCE, TO, new StreamPaginationAttribute(2, 6));
-
+   
     //message status, receipts, relationships
     final MessageStatus messageStatus = bdk.messages().getMessageStatus(message.getMessageId());
     final MessageReceiptDetailResponse messageReceiptDetailResponse =

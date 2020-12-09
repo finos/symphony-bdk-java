@@ -9,10 +9,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.core.service.pagination.PaginatedApi;
-import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
-import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
@@ -22,7 +19,6 @@ import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.StreamsApi;
-import com.symphony.bdk.gen.api.model.MessageIdsFromStream;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
 import com.symphony.bdk.gen.api.model.MessageStatus;
@@ -165,72 +161,6 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
     return executeAndRetry("getMessages", () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
-  }
-
-  /**
-   * Get messages from an existing stream in a {@link Stream}.
-   * Additionally returns any attachments associated with the message.
-   *
-   * @param stream     the stream where to look for messages
-   * @param since      instant of the earliest possible date of the first message returned.
-   * @param pagination The chunkSize and totalSize for pagination.
-   * @return a {@link Stream} of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
-   */
-  @API(status = API.Status.EXPERIMENTAL)
-  public Stream<V4Message> listAllMessages(@Nonnull V4Stream stream, @Nonnull Instant since,
-      @Nonnull StreamPaginationAttribute pagination) {
-    return listAllMessages(stream.getStreamId(), since, pagination);
-  }
-
-  /**
-   * Get messages from an existing stream in a {@link Stream} with default chunk size and total size equals 100.
-   * Additionally returns any attachments associated with the message.
-   *
-   * @param stream the stream where to look for messages
-   * @param since  instant of the earliest possible date of the first message returned.
-   * @return a {@link Stream} of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
-   */
-  @API(status = API.Status.EXPERIMENTAL)
-  public Stream<V4Message> listAllMessages(@Nonnull V4Stream stream, @Nonnull Instant since) {
-    return listAllMessages(stream.getStreamId(), since);
-  }
-
-  /**
-   * Get messages from an existing stream in a {@link Stream}.
-   * Additionally returns any attachments associated with the message.
-   *
-   * @param streamId   the streamID where to look for messages
-   * @param since      instant of the earliest possible date of the first message returned.
-   * @param pagination The chunkSize and totalSize for pagination.
-   * @return a {@link Stream} of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
-   */
-  @API(status = API.Status.EXPERIMENTAL)
-  public Stream<V4Message> listAllMessages(@Nonnull String streamId, @Nonnull Instant since,
-      @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<V4Message> api =
-        ((offset, limit) -> listMessages(streamId, since, new PaginationAttribute(offset, limit)));
-
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
-  }
-
-  /**
-   * Get messages from an existing stream in a {@link Stream} with default chunk size and total size equals 100.
-   * Additionally returns any attachments associated with the message.
-   *
-   * @param streamId the streamID where to look for messages
-   * @param since    instant of the earliest possible date of the first message returned.
-   * @return a {@link Stream} of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
-   */
-  @API(status = API.Status.EXPERIMENTAL)
-  public Stream<V4Message> listAllMessages(@Nonnull String streamId, @Nonnull Instant since) {
-    PaginatedApi<V4Message> api =
-        ((offset, limit) -> listMessages(streamId, since, new PaginationAttribute(offset, limit)));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -432,77 +362,6 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     return executeAndRetry("listAttachments", () ->
         streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since),
             getEpochMillis(to), limit, sortDir));
-  }
-
-  /**
-   * Fetches message ids using timestamp.
-   *
-   * @param streamId   the ID of the stream where to fetch messages.
-   * @param since      optional instant of the first required messageId.
-   * @param to         optional instant of the last required messageId.
-   * @param pagination The skip and limit for pagination.
-   * @return a {@link MessageIdsFromStream} object containing the list of messageIds.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
-   */
-  public MessageIdsFromStream listMessageIdsByTimestamp(@Nonnull String streamId, @Nullable Instant since,
-      @Nullable Instant to, @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("getMessageIdsByTimestamp", () ->
-        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since),
-            getEpochMillis(to), pagination.getLimit(), pagination.getSkip()));
-  }
-
-  /**
-   * Fetches message ids using timestamp.
-   *
-   * @param streamId the ID of the stream where to fetch messages.
-   * @param since    optional instant of the first required messageId.
-   * @param to       optional instant of the last required messageId.
-   * @return a {@link MessageIdsFromStream} object containing the list of messageIds.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
-   */
-  public MessageIdsFromStream listMessageIdsByTimestamp(@Nonnull String streamId, @Nullable Instant since,
-      @Nullable Instant to) {
-    return executeAndRetry("getMessageIdsByTimestamp", () ->
-        defaultApi.v2AdminStreamsStreamIdMessageIdsGet(authSession.getSessionToken(), streamId, getEpochMillis(since),
-            getEpochMillis(to), null, null));
-  }
-
-  /**
-   * Fetches message ids using timestamp and returns in {@link Stream}.
-   *
-   * @param streamId   the ID of the stream where to fetch messages.
-   * @param since      optional instant of the first required messageId.
-   * @param to         optional instant of the last required messageId.
-   * @param pagination The chunkSize and totalSize for pagination.
-   * @return a {@link Stream} containing the messageIds.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
-   */
-  @API(status = API.Status.EXPERIMENTAL)
-  public Stream<String> listAllMessageIdsByTimestamp(@Nonnull String streamId, @Nullable Instant since,
-      @Nullable Instant to, @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<String> api = ((offset, limit) ->
-        listMessageIdsByTimestamp(streamId, since, to, new PaginationAttribute(offset, limit)).getData());
-
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
-  }
-
-  /**
-   * Fetches message ids using timestamp and returns in {@link Stream} with default chunk size and total size equals 100.
-   *
-   * @param streamId the ID of the stream where to fetch messages.
-   * @param since    optional instant of the first required messageId.
-   * @param to       optional instant of the last required messageId.
-   * @return a {@link Stream} containing the messageIds.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp">Get Message IDs by Timestamp</a>
-   */
-  @API(status = API.Status.EXPERIMENTAL)
-  public Stream<String> listAllMessageIdsByTimestamp(@Nonnull String streamId, @Nullable Instant since,
-      @Nullable Instant to) {
-    PaginatedApi<String> api = ((offset, limit) ->
-        listMessageIdsByTimestamp(streamId, since, to, new PaginationAttribute(offset, limit)).getData());
-
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
