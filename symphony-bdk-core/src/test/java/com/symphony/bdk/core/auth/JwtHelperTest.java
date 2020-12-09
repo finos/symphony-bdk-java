@@ -20,7 +20,6 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringWriter;
 import java.security.GeneralSecurityException;
@@ -138,7 +137,7 @@ class JwtHelperTest {
 
   @SneakyThrows
   private KeyStore getKeyStoreFromFile() {
-    FileInputStream fm = new FileInputStream(new File("./src/test/resources/certs/extapp-cert.p12"));
+    FileInputStream fm = new FileInputStream("./src/test/resources/certs/extapp-cert.p12");
 
     KeyStore ks = KeyStore.getInstance("PKCS12");
     ks.load(fm, CERT_PASSWORD.toCharArray());
@@ -148,8 +147,8 @@ class JwtHelperTest {
 
   @SneakyThrows
   private String generateJwt(Key key, UserClaim userClaim) {
-    Date notBefore = new Date(new Date().getTime() - (365 * 1000 * 3600 * 24));
-    Date expiration = new Date(new Date().getTime() + (365 * 1000 * 3600 * 24));
+    Date notBefore = new Date(new Date().getTime() - (365L * 1000 * 3600 * 24));
+    Date expiration = new Date(new Date().getTime() + (365L * 1000 * 3600 * 24));
 
     return Jwts.builder()
         .setIssuer("me")

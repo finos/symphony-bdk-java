@@ -16,11 +16,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.security.PrivateKey;
+
 /**
  * Test class for the {@link BotAuthenticatorRsaImpl}.
  */
 @ExtendWith(BdkMockServerExtension.class)
 class BotAuthenticatorRsaImplTest {
+
+  private static final PrivateKey PRIVATE_KEY = RsaTestHelper.generateKeyPair().getPrivate();
 
   private BotAuthenticatorRsaImpl authenticator;
 
@@ -29,7 +33,7 @@ class BotAuthenticatorRsaImplTest {
     this.authenticator = new BotAuthenticatorRsaImpl(
         ofMinimalInterval(1),
         "username",
-        RsaTestHelper.generateKeyPair().getPrivate(),
+        PRIVATE_KEY,
         mockServer.newApiClient("/login"),
         mockServer.newApiClient("/relay")
     );

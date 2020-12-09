@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,9 +20,10 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
-public class AbstractBotAuthenticatorTest {
+class AbstractBotAuthenticatorTest {
 
   private static class TestBotAuthenticator extends AbstractBotAuthenticator {
     public TestBotAuthenticator(BdkRetryConfig retryConfig) {
@@ -34,8 +36,9 @@ public class AbstractBotAuthenticatorTest {
     }
 
     @Override
-    public AuthSession authenticateBot() throws AuthUnauthorizedException {
-      return null;
+    @Nonnull
+    public AuthSession authenticateBot() {
+      return mock(AuthSession.class);
     }
   }
 

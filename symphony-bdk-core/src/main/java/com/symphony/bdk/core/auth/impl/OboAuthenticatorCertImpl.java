@@ -1,24 +1,14 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.retry.RetryWithRecovery;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.gen.api.model.AuthenticateRequest;
+import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
-import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.OboAuthenticator;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
-import com.symphony.bdk.gen.api.model.OboAuthResponse;
-import com.symphony.bdk.gen.api.model.Token;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
-
-import java.net.HttpURLConnection;
 
 import javax.annotation.Nonnull;
 

@@ -52,7 +52,7 @@ public class ExtensionAppAuthenticateRequest extends AuthenticateRequest {
   }
 
   @Override
-  public boolean equals(java.lang.Object o) {
+  public boolean equals(Object o) {
     if (this == o) {
       return true;
     }
@@ -70,18 +70,16 @@ public class ExtensionAppAuthenticateRequest extends AuthenticateRequest {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("class ExtensionAppAuthenticateRequest {\n");
-    sb.append("    appToken: ").append(toIndentedString(appToken)).append("\n");
-    sb.append("}");
-    return sb.toString();
+    return "class ExtensionAppAuthenticateRequest {\n"
+        + "    appToken: " + toIndentedString(appToken) + "\n"
+        + "}";
   }
 
   /**
    * Convert the given object to string with each line indented by 4 spaces
    * (except the first line).
    */
-  private String toIndentedString(java.lang.Object o) {
+  private String toIndentedString(Object o) {
     if (o == null) {
       return "null";
     }

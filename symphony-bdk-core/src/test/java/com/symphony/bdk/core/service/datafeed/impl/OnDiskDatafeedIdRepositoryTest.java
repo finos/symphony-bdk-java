@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.config.BdkConfigLoader;
-import com.symphony.bdk.core.config.BdkConfigLoaderTest;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
@@ -59,7 +58,7 @@ public class OnDiskDatafeedIdRepositoryTest {
 
   @Test
   void readDatafeedTest() throws IOException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/datafeed/datafeedId");
+    InputStream inputStream = OnDiskDatafeedIdRepositoryTest.class.getResourceAsStream("/datafeed/datafeedId");
     Files.copy(inputStream, datafeedFile);
 
     Optional<String> datafeedId = datafeedIdRepository.read();

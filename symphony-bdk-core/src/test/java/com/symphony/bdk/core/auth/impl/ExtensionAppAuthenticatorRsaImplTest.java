@@ -19,10 +19,14 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ExtensionAppAuthenticatorRsaImplTest {
+import java.security.PrivateKey;
+
+class ExtensionAppAuthenticatorRsaImplTest {
 
   private static final String V1_EXTENSION_APP_AUTHENTICATE = "/login/v1/pubkey/app/authenticate/extensionApp";
-  public static final String V1_POD_CERT = "/pod/v1/podcert";
+  private static final String V1_POD_CERT = "/pod/v1/podcert";
+
+  private static final PrivateKey PRIVATE_KEY = RsaTestHelper.generateKeyPair().getPrivate();
 
   private ExtensionAppAuthenticatorRsaImpl authenticator;
   private MockApiClient mockApiClient;
@@ -35,7 +39,7 @@ public class ExtensionAppAuthenticatorRsaImplTest {
     authenticator = new ExtensionAppAuthenticatorRsaImpl(
         ofMinimalInterval(1),
         "appId",
-        RsaTestHelper.generateKeyPair().getPrivate(),
+        PRIVATE_KEY,
         mockApiClient.getApiClient("/login"),
         mockApiClient.getApiClient("/pod"),
         tokensRepository);

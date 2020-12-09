@@ -44,7 +44,6 @@ public class SymphonyBdk {
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
   private final ActivityRegistry activityRegistry;
-  private final SessionService sessionService;
   private final StreamService streamService;
   private final UserService userService;
   private final MessageService messageService;
@@ -71,7 +70,7 @@ public class SymphonyBdk {
 
     // service init
     final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
-    this.sessionService = serviceFactory.getSessionService();
+    SessionService sessionService = serviceFactory.getSessionService();
     this.userService = serviceFactory.getUserService();
     this.streamService = serviceFactory.getStreamService();
     this.presenceService = serviceFactory.getPresenceService();
@@ -83,7 +82,7 @@ public class SymphonyBdk {
     this.datafeedService = serviceFactory.getDatafeedService();
 
     // retrieve bot session info
-    this.botInfo = this.sessionService.getSession(this.botSession);
+    this.botInfo = sessionService.getSession(this.botSession);
 
     // setup activities
     this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);

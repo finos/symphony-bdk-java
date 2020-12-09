@@ -6,12 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
@@ -22,9 +22,10 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
-public class AbstractExtensionAppAuthenticatorTest {
+class AbstractExtensionAppAuthenticatorTest {
 
   private static class TestExtAppAuthenticator extends AbstractExtensionAppAuthenticator {
     public TestExtAppAuthenticator(BdkRetryConfig retryConfig) {
@@ -41,13 +42,14 @@ public class AbstractExtensionAppAuthenticatorTest {
       return null;
     }
 
+    @Nonnull
     @Override
-    public AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException {
-      return null;
+    public AppAuthSession authenticateExtensionApp(String appToken) {
+      return mock(AppAuthSession.class);
     }
 
     @Override
-    public UserClaim validateJwt(String jwt) throws AuthInitializationException {
+    public UserClaim validateJwt(String jwt) {
       return null;
     }
   }
