@@ -8,14 +8,15 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.exception.NoBotConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.health.HealthService;
-import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -36,23 +37,26 @@ import java.util.Optional;
 @API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdk {
 
+  private static final String NO_BOT_CONFIG_MESSAGE =
+      "Bot info is not configured. The bot can be now only runnable only in OBO if the app authentication info is configured";
+
   private final BdkConfig config;
-  private final AuthSession botSession;
-  private final UserV2 botInfo;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
-  private final ActivityRegistry activityRegistry;
-  private final StreamService streamService;
-  private final UserService userService;
-  private final MessageService messageService;
-  private final DatafeedService datafeedService;
-  private final PresenceService presenceService;
-  private final ConnectionService connectionService;
-  private final SignalService signalService;
-  private final ApplicationService applicationService;
-  private final HealthService healthService;
+  private AuthSession botSession;
+  private UserV2 botInfo;
+  private ActivityRegistry activityRegistry;
+  private StreamService streamService;
+  private UserService userService;
+  private MessageService messageService;
+  private DatafeedService datafeedService;
+  private PresenceService presenceService;
+  private ConnectionService connectionService;
+  private SignalService signalService;
+  private ApplicationService applicationService;
+  private HealthService healthService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
@@ -63,29 +67,33 @@ public class SymphonyBdk {
     this.config = config;
 
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
-    this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
 
-    // service init
-    final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
-    SessionService sessionService = serviceFactory.getSessionService();
-    this.userService = serviceFactory.getUserService();
-    this.streamService = serviceFactory.getStreamService();
-    this.presenceService = serviceFactory.getPresenceService();
-    this.connectionService = serviceFactory.getConnectionService();
-    this.signalService = serviceFactory.getSignalService();
-    this.applicationService = serviceFactory.getApplicationService();
-    this.healthService = serviceFactory.getHealthService();
-    this.messageService = serviceFactory.getMessageService();
-    this.datafeedService = serviceFactory.getDatafeedService();
+    if (config.isBotConfigured()) {
+      this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+      // service init
+      final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
+      SessionService sessionService = serviceFactory.getSessionService();
+      this.userService = serviceFactory.getUserService();
+      this.streamService = serviceFactory.getStreamService();
+      this.presenceService = serviceFactory.getPresenceService();
+      this.connectionService = serviceFactory.getConnectionService();
+      this.signalService = serviceFactory.getSignalService();
+      this.applicationService = serviceFactory.getApplicationService();
+      this.healthService = serviceFactory.getHealthService();
+      this.messageService = serviceFactory.getMessageService();
+      this.datafeedService = serviceFactory.getDatafeedService();
 
-    // retrieve bot session info
-    this.botInfo = sessionService.getSession(this.botSession);
+      // retrieve bot session info
+      this.botInfo = sessionService.getSession(this.botSession);
 
-    // setup activities
-    this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);
+      // setup activities
+      this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);
+    } else {
+      log.warn(NO_BOT_CONFIG_MESSAGE);
+    }
   }
 
   /**
@@ -105,7 +113,10 @@ public class SymphonyBdk {
    * @return {@link MessageService} message service instance.
    */
   public MessageService messages() {
-    return this.messageService;
+    if (this.messageService != null) {
+      return this.messageService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -115,7 +126,10 @@ public class SymphonyBdk {
    * @return {@link DatafeedService} datafeed service instance.
    */
   public DatafeedService datafeed() {
-    return this.datafeedService;
+    if (this.datafeedService != null) {
+      return this.datafeedService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -124,7 +138,10 @@ public class SymphonyBdk {
    * @return {@link UserService} user service instance.
    */
   public UserService users() {
-    return this.userService;
+    if (this.userService != null) {
+      return this.userService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -133,7 +150,10 @@ public class SymphonyBdk {
    * @return {@link StreamService} user service instance.
    */
   public StreamService streams() {
-    return this.streamService;
+    if (this.streamService != null) {
+      return this.streamService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -142,7 +162,10 @@ public class SymphonyBdk {
    * @return {@link PresenceService} presence service instance.
    */
   public PresenceService presences() {
-    return this.presenceService;
+    if (this.presenceService != null) {
+      return this.presenceService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -151,7 +174,10 @@ public class SymphonyBdk {
    * @return {@link ConnectionService} connection service instance.
    */
   public ConnectionService connections() {
-    return this.connectionService;
+    if (this.connectionService != null) {
+      return this.connectionService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -160,7 +186,10 @@ public class SymphonyBdk {
    * @return {@link SignalService} signal service instance.
    */
   public SignalService signals() {
-    return this.signalService;
+    if (this.signalService != null) {
+      return this.signalService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -169,7 +198,10 @@ public class SymphonyBdk {
    * @return {@link ApplicationService} application service instance.
    */
   public ApplicationService applications() {
-    return this.applicationService;
+    if (this.applicationService != null) {
+      return this.applicationService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**
@@ -177,7 +209,12 @@ public class SymphonyBdk {
    *
    * @return {@link HealthService} health service instance.
    */
-  public HealthService health() {return this.healthService;}
+  public HealthService health() {
+    if (this.healthService != null) {
+      return this.healthService;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+  }
 
   /**
    * Returns the {@link ActivityRegistry} in order to register Command or Form activities.
@@ -185,7 +222,10 @@ public class SymphonyBdk {
    * @return the single {@link ActivityRegistry}
    */
   public ActivityRegistry activities() {
-    return this.activityRegistry;
+    if (this.activityRegistry != null) {
+      return this.activityRegistry;
+    }
+    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
   }
 
   /**

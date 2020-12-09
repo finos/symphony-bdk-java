@@ -12,6 +12,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
+import com.symphony.bdk.core.config.exception.NoBotConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -37,6 +38,7 @@ public class SymphonyBdkTest {
 
   private SymphonyBdk symphonyBdk;
   private MockApiClient mockApiClient;
+  private ApiClientFactory apiClientFactory;
   private static final String LOGIN_PUBKEY_AUTHENTICATE = "/login/pubkey/authenticate";
   private static final String LOGIN_PUBKEY_APP_AUTHENTICATE = "/login/pubkey/app/authenticate";
   private static final String LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE = "/login/pubkey/app/user/{userId}/authenticate";
@@ -48,11 +50,11 @@ public class SymphonyBdkTest {
   @BeforeEach
   void setUp() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, IOException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
-    config.getBot().setPrivateKeyPath("./src/test/resources/keys/private-key.pem");
-    config.getApp().setPrivateKeyPath("./src/test/resources/keys/private-key.pem");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
     this.mockApiClient = new MockApiClient();
     ApiClientFactory factory = new ApiClientFactory(config);
-    ApiClientFactory apiClientFactory = spy(factory);
+    apiClientFactory = spy(factory);
 
     doReturn(mockApiClient.getApiClient("/pod")).when(apiClientFactory).getPodClient();
     doReturn(mockApiClient.getApiClient("/agent")).when(apiClientFactory).getAgentClient();
@@ -186,5 +188,23 @@ public class SymphonyBdkTest {
   @Test
   void botInfoTest() {
     assertNotNull(this.symphonyBdk.botInfo());
+  }
+
+  @Test
+  void noBotConfigTest() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/no_bot_config.yaml");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory);
+
+    assertThrows(NoBotConfigException.class, symphonyBdk::applications);
+    assertThrows(NoBotConfigException.class, symphonyBdk::messages);
+    assertThrows(NoBotConfigException.class, symphonyBdk::datafeed);
+    assertThrows(NoBotConfigException.class, symphonyBdk::users);
+    assertThrows(NoBotConfigException.class, symphonyBdk::streams);
+    assertThrows(NoBotConfigException.class, symphonyBdk::presences);
+    assertThrows(NoBotConfigException.class, symphonyBdk::connections);
+    assertThrows(NoBotConfigException.class, symphonyBdk::signals);
+    assertThrows(NoBotConfigException.class, symphonyBdk::health);
+    assertThrows(NoBotConfigException.class, symphonyBdk::activities);
   }
 }
