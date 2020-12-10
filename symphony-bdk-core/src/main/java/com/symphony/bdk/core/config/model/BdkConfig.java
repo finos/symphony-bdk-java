@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.config.model;
 
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
@@ -31,6 +33,10 @@ public class BdkConfig extends BdkServerConfig {
    */
   public boolean isOboConfigured() {
     return app.isConfigured();
+  }
+
+  public boolean isBotConfigured() {
+    return bot != null && isNotEmpty(bot.getUsername());
   }
 
   /**

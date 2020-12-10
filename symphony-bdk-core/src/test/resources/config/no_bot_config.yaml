@@ -9,11 +9,6 @@ agent:
 keyManager:
   host: devx1.symphony.com
 
-bot:
-  username: tibot
-  privateKey:
-    path: /Users/local/conf/agent/privatekey.pem
-
 app:
   appId: tibapp
   privateKey:
