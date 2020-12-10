@@ -12,7 +12,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
-import com.symphony.bdk.core.config.exception.NoBotConfigException;
+import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -196,15 +196,15 @@ public class SymphonyBdkTest {
     config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
     this.symphonyBdk = new SymphonyBdk(config, apiClientFactory);
 
-    assertThrows(NoBotConfigException.class, symphonyBdk::applications);
-    assertThrows(NoBotConfigException.class, symphonyBdk::messages);
-    assertThrows(NoBotConfigException.class, symphonyBdk::datafeed);
-    assertThrows(NoBotConfigException.class, symphonyBdk::users);
-    assertThrows(NoBotConfigException.class, symphonyBdk::streams);
-    assertThrows(NoBotConfigException.class, symphonyBdk::presences);
-    assertThrows(NoBotConfigException.class, symphonyBdk::connections);
-    assertThrows(NoBotConfigException.class, symphonyBdk::signals);
-    assertThrows(NoBotConfigException.class, symphonyBdk::health);
-    assertThrows(NoBotConfigException.class, symphonyBdk::activities);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::applications);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::messages);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::datafeed);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::users);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::streams);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::presences);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::connections);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::signals);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::health);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::activities);
   }
 }

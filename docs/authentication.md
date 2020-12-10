@@ -188,6 +188,16 @@ public class Example {
 When the bot `username` (service account) is not configured in the Bdk configuration, the bot project will be still runnable but only in the
 OBO mode if the app authentication is well-configured. 
 
+The `config.yaml` requires at least the application configuration:
+
+```yaml
+host: acme.symphony.com
+app:
+    appId: app-id
+    privateKey:
+      path: /path/to/private-key.pem
+```
+
 If users still try to access to Bdk services directly from `SymphonyBdk` facade object,
 a `NoBotConfigException` will be thrown.
 

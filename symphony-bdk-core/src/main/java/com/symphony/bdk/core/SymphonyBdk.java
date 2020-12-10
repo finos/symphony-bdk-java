@@ -8,7 +8,7 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.config.exception.NoBotConfigException;
+import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -37,26 +37,23 @@ import java.util.Optional;
 @API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdk {
 
-  private static final String NO_BOT_CONFIG_MESSAGE =
-      "Bot info is not configured. The bot can be now only runnable only in OBO if the app authentication info is configured";
-
   private final BdkConfig config;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
-  private AuthSession botSession;
-  private UserV2 botInfo;
-  private ActivityRegistry activityRegistry;
-  private StreamService streamService;
-  private UserService userService;
-  private MessageService messageService;
-  private DatafeedService datafeedService;
-  private PresenceService presenceService;
-  private ConnectionService connectionService;
-  private SignalService signalService;
-  private ApplicationService applicationService;
-  private HealthService healthService;
+  private final AuthSession botSession;
+  private final UserV2 botInfo;
+  private final ActivityRegistry activityRegistry;
+  private final StreamService streamService;
+  private final UserService userService;
+  private final MessageService messageService;
+  private final DatafeedService datafeedService;
+  private final PresenceService presenceService;
+  private final ConnectionService connectionService;
+  private final SignalService signalService;
+  private final ApplicationService applicationService;
+  private final HealthService healthService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
@@ -92,7 +89,19 @@ public class SymphonyBdk {
       // setup activities
       this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);
     } else {
-      log.warn(NO_BOT_CONFIG_MESSAGE);
+      log.info("Bot info is not configured. The bot can be now only runnable only in OBO if the app authentication info is configured");
+      this.botSession = null;
+      this.userService = null;
+      this.streamService = null;
+      this.presenceService = null;
+      this.connectionService = null;
+      this.signalService = null;
+      this.applicationService = null;
+      this.healthService = null;
+      this.messageService = null;
+      this.datafeedService = null;
+      this.botInfo = null;
+      this.activityRegistry = null;
     }
   }
 
@@ -113,10 +122,7 @@ public class SymphonyBdk {
    * @return {@link MessageService} message service instance.
    */
   public MessageService messages() {
-    if (this.messageService != null) {
-      return this.messageService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.messageService);
   }
 
   /**
@@ -126,10 +132,7 @@ public class SymphonyBdk {
    * @return {@link DatafeedService} datafeed service instance.
    */
   public DatafeedService datafeed() {
-    if (this.datafeedService != null) {
-      return this.datafeedService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.datafeedService);
   }
 
   /**
@@ -138,10 +141,7 @@ public class SymphonyBdk {
    * @return {@link UserService} user service instance.
    */
   public UserService users() {
-    if (this.userService != null) {
-      return this.userService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.userService);
   }
 
   /**
@@ -150,10 +150,7 @@ public class SymphonyBdk {
    * @return {@link StreamService} user service instance.
    */
   public StreamService streams() {
-    if (this.streamService != null) {
-      return this.streamService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.streamService);
   }
 
   /**
@@ -162,10 +159,7 @@ public class SymphonyBdk {
    * @return {@link PresenceService} presence service instance.
    */
   public PresenceService presences() {
-    if (this.presenceService != null) {
-      return this.presenceService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.presenceService);
   }
 
   /**
@@ -174,10 +168,7 @@ public class SymphonyBdk {
    * @return {@link ConnectionService} connection service instance.
    */
   public ConnectionService connections() {
-    if (this.connectionService != null) {
-      return this.connectionService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.connectionService);
   }
 
   /**
@@ -186,10 +177,7 @@ public class SymphonyBdk {
    * @return {@link SignalService} signal service instance.
    */
   public SignalService signals() {
-    if (this.signalService != null) {
-      return this.signalService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.signalService);
   }
 
   /**
@@ -198,10 +186,7 @@ public class SymphonyBdk {
    * @return {@link ApplicationService} application service instance.
    */
   public ApplicationService applications() {
-    if (this.applicationService != null) {
-      return this.applicationService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.applicationService);
   }
 
   /**
@@ -210,10 +195,7 @@ public class SymphonyBdk {
    * @return {@link HealthService} health service instance.
    */
   public HealthService health() {
-    if (this.healthService != null) {
-      return this.healthService;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.healthService);
   }
 
   /**
@@ -222,10 +204,7 @@ public class SymphonyBdk {
    * @return the single {@link ActivityRegistry}
    */
   public ActivityRegistry activities() {
-    if (this.activityRegistry != null) {
-      return this.activityRegistry;
-    }
-    throw new NoBotConfigException(NO_BOT_CONFIG_MESSAGE);
+    return getOrThrowNoBotConfig(this.activityRegistry);
   }
 
   /**
@@ -285,6 +264,10 @@ public class SymphonyBdk {
   @API(status = API.Status.EXPERIMENTAL)
   public UserV2 botInfo() {
     return this.botInfo;
+  }
+
+  private <T> T getOrThrowNoBotConfig(T field) {
+    return Optional.ofNullable(field).orElseThrow(BotNotConfiguredException::new);
   }
 
   protected ExtensionAppAuthenticator getExtensionAppAuthenticator() {
