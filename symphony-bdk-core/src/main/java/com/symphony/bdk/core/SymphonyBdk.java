@@ -8,14 +8,15 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.health.HealthService;
-import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -37,12 +38,12 @@ import java.util.Optional;
 public class SymphonyBdk {
 
   private final BdkConfig config;
-  private final AuthSession botSession;
-  private final UserV2 botInfo;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
+  private final AuthSession botSession;
+  private final UserV2 botInfo;
   private final ActivityRegistry activityRegistry;
   private final StreamService streamService;
   private final UserService userService;
@@ -63,29 +64,37 @@ public class SymphonyBdk {
     this.config = config;
 
     final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
-    this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
 
-    // service init
-    final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
-    SessionService sessionService = serviceFactory.getSessionService();
-    this.userService = serviceFactory.getUserService();
-    this.streamService = serviceFactory.getStreamService();
-    this.presenceService = serviceFactory.getPresenceService();
-    this.connectionService = serviceFactory.getConnectionService();
-    this.signalService = serviceFactory.getSignalService();
-    this.applicationService = serviceFactory.getApplicationService();
-    this.healthService = serviceFactory.getHealthService();
-    this.messageService = serviceFactory.getMessageService();
-    this.datafeedService = serviceFactory.getDatafeedService();
+    ServiceFactory serviceFactory = null;
+    if (config.isBotConfigured()) {
+      this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+      // service init
+      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
+    } else {
+      log.info(
+          "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
+      this.botSession = null;
+    }
+    SessionService sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
+    this.userService = serviceFactory != null ? serviceFactory.getUserService() : null;
+    this.streamService = serviceFactory != null ? serviceFactory.getStreamService() : null;
+    this.presenceService = serviceFactory != null ? serviceFactory.getPresenceService() : null;
+    this.connectionService = serviceFactory != null ? serviceFactory.getConnectionService() : null;
+    this.signalService = serviceFactory != null ? serviceFactory.getSignalService() : null;
+    this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
+    this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
+    this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
+    this.datafeedService = serviceFactory != null ? serviceFactory.getDatafeedService() : null;
 
     // retrieve bot session info
-    this.botInfo = sessionService.getSession(this.botSession);
+    this.botInfo = sessionService != null ? sessionService.getSession(this.botSession) : null;
 
     // setup activities
-    this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);
+    this.activityRegistry =
+        this.datafeedService != null ? new ActivityRegistry(this.botInfo, this.datafeedService::subscribe) : null;
   }
 
   /**
@@ -105,7 +114,7 @@ public class SymphonyBdk {
    * @return {@link MessageService} message service instance.
    */
   public MessageService messages() {
-    return this.messageService;
+    return getOrThrowNoBotConfig(this.messageService);
   }
 
   /**
@@ -115,7 +124,7 @@ public class SymphonyBdk {
    * @return {@link DatafeedService} datafeed service instance.
    */
   public DatafeedService datafeed() {
-    return this.datafeedService;
+    return getOrThrowNoBotConfig(this.datafeedService);
   }
 
   /**
@@ -124,7 +133,7 @@ public class SymphonyBdk {
    * @return {@link UserService} user service instance.
    */
   public UserService users() {
-    return this.userService;
+    return getOrThrowNoBotConfig(this.userService);
   }
 
   /**
@@ -133,7 +142,7 @@ public class SymphonyBdk {
    * @return {@link StreamService} user service instance.
    */
   public StreamService streams() {
-    return this.streamService;
+    return getOrThrowNoBotConfig(this.streamService);
   }
 
   /**
@@ -142,7 +151,7 @@ public class SymphonyBdk {
    * @return {@link PresenceService} presence service instance.
    */
   public PresenceService presences() {
-    return this.presenceService;
+    return getOrThrowNoBotConfig(this.presenceService);
   }
 
   /**
@@ -151,7 +160,7 @@ public class SymphonyBdk {
    * @return {@link ConnectionService} connection service instance.
    */
   public ConnectionService connections() {
-    return this.connectionService;
+    return getOrThrowNoBotConfig(this.connectionService);
   }
 
   /**
@@ -160,7 +169,7 @@ public class SymphonyBdk {
    * @return {@link SignalService} signal service instance.
    */
   public SignalService signals() {
-    return this.signalService;
+    return getOrThrowNoBotConfig(this.signalService);
   }
 
   /**
@@ -169,7 +178,7 @@ public class SymphonyBdk {
    * @return {@link ApplicationService} application service instance.
    */
   public ApplicationService applications() {
-    return this.applicationService;
+    return getOrThrowNoBotConfig(this.applicationService);
   }
 
   /**
@@ -177,7 +186,9 @@ public class SymphonyBdk {
    *
    * @return {@link HealthService} health service instance.
    */
-  public HealthService health() {return this.healthService;}
+  public HealthService health() {
+    return getOrThrowNoBotConfig(this.healthService);
+  }
 
   /**
    * Returns the {@link ActivityRegistry} in order to register Command or Form activities.
@@ -185,7 +196,7 @@ public class SymphonyBdk {
    * @return the single {@link ActivityRegistry}
    */
   public ActivityRegistry activities() {
-    return this.activityRegistry;
+    return getOrThrowNoBotConfig(this.activityRegistry);
   }
 
   /**
@@ -245,6 +256,10 @@ public class SymphonyBdk {
   @API(status = API.Status.EXPERIMENTAL)
   public UserV2 botInfo() {
     return this.botInfo;
+  }
+
+  private <T> T getOrThrowNoBotConfig(T field) {
+    return Optional.ofNullable(field).orElseThrow(BotNotConfiguredException::new);
   }
 
   protected ExtensionAppAuthenticator getExtensionAppAuthenticator() {
