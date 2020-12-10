@@ -9,7 +9,7 @@ import org.apiguardian.api.API;
 public class BotNotConfiguredException extends RuntimeException {
 
   private static final String NO_BOT_CONFIG_MESSAGE =
-      "Bot info is not configured. The bot can be now only runnable only in OBO if the app authentication info is configured";
+      "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.";
 
   public BotNotConfiguredException() {
     super(NO_BOT_CONFIG_MESSAGE);

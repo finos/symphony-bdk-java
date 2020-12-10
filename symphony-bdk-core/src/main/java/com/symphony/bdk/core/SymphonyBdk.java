@@ -68,41 +68,33 @@ public class SymphonyBdk {
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
 
+    ServiceFactory serviceFactory = null;
     if (config.isBotConfigured()) {
       this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
       // service init
-      final ServiceFactory serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
-      SessionService sessionService = serviceFactory.getSessionService();
-      this.userService = serviceFactory.getUserService();
-      this.streamService = serviceFactory.getStreamService();
-      this.presenceService = serviceFactory.getPresenceService();
-      this.connectionService = serviceFactory.getConnectionService();
-      this.signalService = serviceFactory.getSignalService();
-      this.applicationService = serviceFactory.getApplicationService();
-      this.healthService = serviceFactory.getHealthService();
-      this.messageService = serviceFactory.getMessageService();
-      this.datafeedService = serviceFactory.getDatafeedService();
-
-      // retrieve bot session info
-      this.botInfo = sessionService.getSession(this.botSession);
-
-      // setup activities
-      this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedService::subscribe);
+      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
     } else {
-      log.info("Bot info is not configured. The bot can be now only runnable only in OBO if the app authentication info is configured");
+      log.info(
+          "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
       this.botSession = null;
-      this.userService = null;
-      this.streamService = null;
-      this.presenceService = null;
-      this.connectionService = null;
-      this.signalService = null;
-      this.applicationService = null;
-      this.healthService = null;
-      this.messageService = null;
-      this.datafeedService = null;
-      this.botInfo = null;
-      this.activityRegistry = null;
     }
+    SessionService sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
+    this.userService = serviceFactory != null ? serviceFactory.getUserService() : null;
+    this.streamService = serviceFactory != null ? serviceFactory.getStreamService() : null;
+    this.presenceService = serviceFactory != null ? serviceFactory.getPresenceService() : null;
+    this.connectionService = serviceFactory != null ? serviceFactory.getConnectionService() : null;
+    this.signalService = serviceFactory != null ? serviceFactory.getSignalService() : null;
+    this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
+    this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
+    this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
+    this.datafeedService = serviceFactory != null ? serviceFactory.getDatafeedService() : null;
+
+    // retrieve bot session info
+    this.botInfo = sessionService != null ? sessionService.getSession(this.botSession) : null;
+
+    // setup activities
+    this.activityRegistry =
+        this.datafeedService != null ? new ActivityRegistry(this.botInfo, this.datafeedService::subscribe) : null;
   }
 
   /**
