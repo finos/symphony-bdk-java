@@ -12,7 +12,7 @@ import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
@@ -44,15 +44,16 @@ public class SymphonyBdk {
 
   private final AuthSession botSession;
   private final UserV2 botInfo;
+  private final DatafeedLoop datafeedLoop;
   private final ActivityRegistry activityRegistry;
   private final StreamService streamService;
   private final UserService userService;
   private final MessageService messageService;
-  private final DatafeedService datafeedService;
   private final PresenceService presenceService;
   private final ConnectionService connectionService;
   private final SignalService signalService;
   private final ApplicationService applicationService;
+  private final SessionService sessionService;
   private final HealthService healthService;
 
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
@@ -78,7 +79,7 @@ public class SymphonyBdk {
           "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
       this.botSession = null;
     }
-    SessionService sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
+    this.sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
     this.userService = serviceFactory != null ? serviceFactory.getUserService() : null;
     this.streamService = serviceFactory != null ? serviceFactory.getStreamService() : null;
     this.presenceService = serviceFactory != null ? serviceFactory.getPresenceService() : null;
@@ -87,14 +88,14 @@ public class SymphonyBdk {
     this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
     this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
     this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
-    this.datafeedService = serviceFactory != null ? serviceFactory.getDatafeedService() : null;
+    this.datafeedLoop = serviceFactory != null ? serviceFactory.getDatafeedLoop() : null;
 
     // retrieve bot session info
-    this.botInfo = sessionService != null ? sessionService.getSession(this.botSession) : null;
+    this.botInfo = sessionService != null ? sessionService.getSession() : null;
 
     // setup activities
     this.activityRegistry =
-        this.datafeedService != null ? new ActivityRegistry(this.botInfo, this.datafeedService::subscribe) : null;
+        this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop::subscribe) : null;
   }
 
   /**
@@ -118,13 +119,13 @@ public class SymphonyBdk {
   }
 
   /**
-   * Get the {@link DatafeedService} from a Bdk entry point.
+   * Get the {@link DatafeedLoop} from a Bdk entry point.
    * The returned datafeed service instance depends on the configuration of datafeed version.
    *
-   * @return {@link DatafeedService} datafeed service instance.
+   * @return {@link DatafeedLoop} datafeed service instance.
    */
-  public DatafeedService datafeed() {
-    return getOrThrowNoBotConfig(this.datafeedService);
+  public DatafeedLoop datafeed() {
+    return getOrThrowNoBotConfig(this.datafeedLoop);
   }
 
   /**
@@ -188,6 +189,15 @@ public class SymphonyBdk {
    */
   public HealthService health() {
     return getOrThrowNoBotConfig(this.healthService);
+  }
+
+  /**
+   * Get the {@link SessionService} from a Bdk entry point.
+   *
+   * @return {@link SessionService} session service instance.
+   */
+  public SessionService sessions() {
+    return getOrThrowNoBotConfig(this.sessionService);
   }
 
   /**

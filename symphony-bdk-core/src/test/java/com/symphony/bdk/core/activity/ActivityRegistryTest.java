@@ -8,7 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.activity.command.CommandActivity;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.UserV2;
 
@@ -27,7 +27,7 @@ import java.util.UUID;
 class ActivityRegistryTest {
 
   @Mock
-  private DatafeedService datafeedService;
+  private DatafeedLoop datafeedService;
 
   @Mock
   private UserV2 botSession;

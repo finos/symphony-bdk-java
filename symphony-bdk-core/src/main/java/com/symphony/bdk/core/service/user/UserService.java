@@ -156,8 +156,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
-    UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
+  public List<UserV2> searchUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
+    UserSearchResults results = executeAndRetry("searchUsers",
         () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, null, null, local));
     return results.getUsers();
   }
@@ -166,9 +166,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+  public List<UserV2> searchUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull PaginationAttribute pagination) {
-    UserSearchResults results = executeAndRetry("searchUserBySearchQuery",
+    UserSearchResults results = executeAndRetry("searchUsers",
         () -> usersApi.v1UserSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
             pagination.getLimit(), local));
     return results.getUsers();
@@ -179,9 +179,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
+  public Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
     PaginatedApi<UserV2> api =
-        (offset, limit) -> listUsersBySearchQuery(query, local, new PaginationAttribute(offset, limit));
+        (offset, limit) -> searchUsers(query, local, new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
@@ -191,10 +191,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+  public Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<UserV2> api =
-        (offset, limit) -> listUsersBySearchQuery(query, local, new PaginationAttribute(offset, limit));
+        (offset, limit) -> searchUsers(query, local, new PaginationAttribute(offset, limit));
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
@@ -202,7 +202,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public void followUser(@Nonnull Long userId, @Nonnull List<Long> followerIds) {
+  public void followUser(@Nonnull List<Long> followerIds, @Nonnull Long userId) {
     executeAndRetry("followUser",
         () -> userApi.v1UserUidFollowPost(authSession.getSessionToken(), userId,
             new FollowersList().followers(followerIds)));
@@ -212,7 +212,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * {@inheritDoc}
    */
   @Override
-  public void unfollowUser(@Nonnull Long userId, @Nonnull List<Long> followerIds) {
+  public void unfollowUser(@Nonnull List<Long> followerIds, @Nonnull Long userId) {
     executeAndRetry("unfollowUser",
         () -> userApi.v1UserUidUnfollowPost(authSession.getSessionToken(), userId,
             new FollowersList().followers(followerIds)));
@@ -225,8 +225,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return Details of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
    */
-  public V2UserDetail getUserDetailByUid(@Nonnull Long userId) {
-    return executeAndRetry("getUserDetailByUid",
+  public V2UserDetail getUserDetail(@Nonnull Long userId) {
+    return executeAndRetry("getUserDetail",
         () -> userApi.v2AdminUserUidGet(authSession.getSessionToken(), userId));
   }
 
@@ -352,9 +352,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
-  public void addRoleToUser(@Nonnull Long userId, @Nonnull RoleId roleId) {
+  public void addRole(@Nonnull Long userId, @Nonnull RoleId roleId) {
     StringId stringId = new StringId().id(roleId.name());
-    executeAndRetry("addRoleToUser",
+    executeAndRetry("addRole",
         () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), userId, stringId));
   }
 
@@ -365,9 +365,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
-  public void removeRoleFromUser(@Nonnull Long userId, @Nonnull RoleId roleId) {
+  public void removeRole(@Nonnull Long userId, @Nonnull RoleId roleId) {
     StringId stringId = new StringId().id(roleId.name());
-    executeAndRetry("removeRoleFromUser",
+    executeAndRetry("removeRole",
         () -> userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), userId, stringId));
   }
 
@@ -378,8 +378,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return List of avatar urls of the user
    * @see <a href="https://developers.symphony.com/restapi/reference#user-avatar">User Avatar</a>
    */
-  public List<Avatar> getAvatarFromUser(@Nonnull Long userId) {
-    return executeAndRetry("getAvatarFromUser",
+  public List<Avatar> getAvatar(@Nonnull Long userId) {
+    return executeAndRetry("getAvatar",
         () -> userApi.v1AdminUserUidAvatarGet(authSession.getSessionToken(), userId));
   }
 
@@ -390,9 +390,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param image  The avatar image for the user profile picture.The image must be a base64-encoded.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull String image) {
+  public void updateAvatar(@Nonnull Long userId, @Nonnull String image) {
     AvatarUpdate avatarUpdate = new AvatarUpdate().image(image);
-    executeAndRetry("updateAvatarOfUser",
+    executeAndRetry("updateAvatar",
         () -> userApi.v1AdminUserUidAvatarUpdatePost(authSession.getSessionToken(), userId, avatarUpdate));
   }
 
@@ -403,9 +403,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param image  The avatar image in bytes array for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull byte[] image) {
+  public void updateAvatar(@Nonnull Long userId, @Nonnull byte[] image) {
     String imageBase64 = Base64.getEncoder().encodeToString(image);
-    this.updateAvatarOfUser(userId, imageBase64);
+    this.updateAvatar(userId, imageBase64);
   }
 
   /**
@@ -415,9 +415,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param imageStream The avatar image input stream for the user profile picture.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-avatar">Update User Avatar</a>
    */
-  public void updateAvatarOfUser(@Nonnull Long userId, @Nonnull InputStream imageStream) throws IOException {
+  public void updateAvatar(@Nonnull Long userId, @Nonnull InputStream imageStream) throws IOException {
     byte[] bytes = IOUtils.toByteArray(imageStream);
-    this.updateAvatarOfUser(userId, bytes);
+    this.updateAvatar(userId, bytes);
   }
 
   /**
@@ -427,8 +427,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return Disclaimer assigned to the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-disclaimer">User Disclaimer</a>
    */
-  public Disclaimer getDisclaimerAssignedToUser(@Nonnull Long userId) {
-    return executeAndRetry("getDisclaimerAssignedToUser",
+  public Disclaimer getDisclaimer(@Nonnull Long userId) {
+    return executeAndRetry("getDisclaimer",
         () -> userApi.v1AdminUserUidDisclaimerGet(authSession.getSessionToken(), userId));
   }
 
@@ -438,8 +438,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param userId User Id
    * @see <a href="https://developers.symphony.com/restapi/reference#unassign-user-disclaimer">Unassign User Disclaimer</a>
    */
-  public void unAssignDisclaimerFromUser(@Nonnull Long userId) {
-    executeAndRetry("unAssignDisclaimerFromUser",
+  public void removeDisclaimer(@Nonnull Long userId) {
+    executeAndRetry("removeDisclaimer",
         () -> userApi.v1AdminUserUidDisclaimerDelete(authSession.getSessionToken(), userId));
   }
 
@@ -450,9 +450,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param disclaimerId Disclaimer to be assigned
    * @see <a href="https://developers.symphony.com/restapi/reference#update-disclaimer">Update User Disclaimer</a>
    */
-  public void assignDisclaimerToUser(@Nonnull Long userId, @Nonnull String disclaimerId) {
+  public void addDisclaimer(@Nonnull Long userId, @Nonnull String disclaimerId) {
     StringId stringId = new StringId().id(disclaimerId);
-    executeAndRetry("assignDisclaimerToUser",
+    executeAndRetry("addDisclaimer",
         () -> userApi.v1AdminUserUidDisclaimerUpdatePost(authSession.getSessionToken(), userId, stringId));
 
   }
@@ -464,8 +464,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return List of delegates assigned to an user.
    * @see <a href="https://developers.symphony.com/restapi/reference#delegates">User Delegates</a>
    */
-  public List<Long> getDelegatesAssignedToUser(@Nonnull Long userId) {
-    return executeAndRetry("getDelegatesAssignedToUser",
+  public List<Long> getDelegates(@Nonnull Long userId) {
+    return executeAndRetry("getDelegates",
         () -> userApi.v1AdminUserUidDelegatesGet(authSession.getSessionToken(), userId));
   }
 
@@ -477,10 +477,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param actionEnum      Action to be performed
    * @see <a href="https://developers.symphony.com/restapi/reference#update-delegates">Update User Delegates</a>
    */
-  public void updateDelegatesAssignedToUser(@Nonnull Long userId, @Nonnull Long delegatedUserId,
+  public void udpateDelegates(@Nonnull Long userId, @Nonnull Long delegatedUserId,
       @Nonnull DelegateAction.ActionEnum actionEnum) {
     DelegateAction delegateAction = new DelegateAction().action(actionEnum).userId(delegatedUserId);
-    executeAndRetry("updateDelegatesAssignedToUser",
+    executeAndRetry("udpateDelegates",
         () -> userApi.v1AdminUserUidDelegatesUpdatePost(authSession.getSessionToken(), userId, delegateAction));
   }
 
@@ -491,8 +491,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return List of feature entitlements of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#features">User Features</a>
    */
-  public List<Feature> getFeatureEntitlementsOfUser(@Nonnull Long userId) {
-    return executeAndRetry("getFeatureEntitlementsOfUser",
+  public List<Feature> getFeatureEntitlements(@Nonnull Long userId) {
+    return executeAndRetry("getFeatureEntitlements",
         () -> userApi.v1AdminUserUidFeaturesGet(authSession.getSessionToken(), userId));
   }
 
@@ -503,8 +503,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param features List of feature entitlements to be updated
    * @see <a href="https://developers.symphony.com/restapi/reference#update-features">Update User Features</a>
    */
-  public void updateFeatureEntitlementsOfUser(@Nonnull Long userId, @Nonnull List<Feature> features) {
-    executeAndRetry("updateFeatureEntitlementsOfUser",
+  public void updateFeatureEntitlements(@Nonnull Long userId, @Nonnull List<Feature> features) {
+    executeAndRetry("updateFeatureEntitlements",
         () -> userApi.v1AdminUserUidFeaturesUpdatePost(authSession.getSessionToken(), userId, features));
   }
 
@@ -515,8 +515,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return Status of the user.
    * @see <a href="https://developers.symphony.com/restapi/reference#user-status">User Status</a>
    */
-  public UserStatus getStatusOfUser(@Nonnull Long userId) {
-    return executeAndRetry("getStatusOfUser",
+  public UserStatus getStatus(@Nonnull Long userId) {
+    return executeAndRetry("getStatus",
         () -> userApi.v1AdminUserUidStatusGet(authSession.getSessionToken(), userId));
   }
 
@@ -527,8 +527,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param status Status to be updated to the user
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-status">Update User Status</a>
    */
-  public void updateStatusOfUser(@Nonnull Long userId, @Nonnull UserStatus status) {
-    executeAndRetry("updateStatusOfUser",
+  public void updateStatus(@Nonnull Long userId, @Nonnull UserStatus status) {
+    executeAndRetry("updateStatus",
         () -> userApi.v1AdminUserUidStatusUpdatePost(authSession.getSessionToken(), userId, status));
   }
 

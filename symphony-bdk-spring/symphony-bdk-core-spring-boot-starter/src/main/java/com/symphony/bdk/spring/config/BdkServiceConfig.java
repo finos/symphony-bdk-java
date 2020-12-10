@@ -46,8 +46,8 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public SessionService sessionService(SessionApi sessionApi, BdkConfig config) {
-    return new SessionService(sessionApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public SessionService sessionService(SessionApi sessionApi, AuthSession botSession, BdkConfig config) {
+    return new SessionService(sessionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

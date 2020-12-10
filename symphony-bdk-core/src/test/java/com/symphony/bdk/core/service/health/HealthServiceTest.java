@@ -1,19 +1,18 @@
 package com.symphony.bdk.core.service.health;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.test.MockApiClient;
-
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
-import com.symphony.bdk.gen.api.model.V2HealthCheckResponse;
 import com.symphony.bdk.gen.api.model.V3Health;
 import com.symphony.bdk.http.api.ApiClient;
-
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,40 +44,13 @@ public class HealthServiceTest {
   }
 
   @Test
-  void v2HealthCheck() {
-    this.mockApiClient.onGet(V2_HEALTH_CHECK,
-        "{\n"
-            + "\"podConnectivity\": true,\n"
-            + "\"keyManagerConnectivity\": true,\n"
-            + "\"encryptDecryptSuccess\": true,\n"
-            + "\"podVersion\": \"1.54.1\",\n"
-            + "\"agentVersion\": \"2.54.0\",\n"
-            + "\"agentServiceUser\": true,\n"
-            + "\"ceServiceUser\": true\n"
-            + "}");
-
-    V2HealthCheckResponse response = this.service.v2HeathCheck();
-
-    assertEquals(response.getAgentVersion(), "2.54.0");
-    assertTrue(response.getCeServiceUser());
-    assertTrue(response.getPodConnectivity());
-  }
-
-  @Test
-  void v2HealthCheckFailed() {
-    this.mockApiClient.onGet(400, V2_HEALTH_CHECK, "{}");
-
-    assertThrows(ApiRuntimeException.class, this.service::v2HeathCheck);
-  }
-
-  @Test
   void v3HealthCheck() {
     this.mockApiClient.onGet(V3_HEALTH_CHECK,
         "{\n"
             + "  \"status\": \"UP\"\n"
             + "}");
 
-    V3Health health = this.service.v3HealthCheck();
+    V3Health health = this.service.healthCheck();
 
     assertEquals(health.getStatus().getValue(), "UP");
   }
@@ -87,7 +59,7 @@ public class HealthServiceTest {
   void v3HealthCheckFailed() {
     this.mockApiClient.onGet(400, V3_HEALTH_CHECK, "{}");
 
-    assertThrows(ApiRuntimeException.class, this.service::v3HealthCheck);
+    assertThrows(ApiRuntimeException.class, this.service::healthCheck);
   }
 
   @Test
@@ -120,7 +92,7 @@ public class HealthServiceTest {
             + "  }\n"
             + "}");
 
-    V3Health health = this.service.v3ExtendedHealthCheck();
+    V3Health health = this.service.healthCheckExtended();
 
     assertEquals(health.getServices().get("pod").getVersion(), "1.57.0");
     assertEquals(health.getServices().get("datafeed").getStatus().getValue(), "UP");
@@ -131,7 +103,7 @@ public class HealthServiceTest {
   void v3HealthCheckExtendedFailed() {
     this.mockApiClient.onGet(400, V3_HEALTH_CHECK_EXTENDED, "{}");
 
-    assertThrows(ApiRuntimeException.class, this.service::v3ExtendedHealthCheck);
+    assertThrows(ApiRuntimeException.class, this.service::healthCheckExtended);
   }
 
   @Test

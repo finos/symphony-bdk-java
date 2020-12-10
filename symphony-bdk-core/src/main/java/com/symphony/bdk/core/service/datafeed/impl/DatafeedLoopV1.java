@@ -20,9 +20,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A class for implementing the datafeed v1 service.
+ * A class for implementing the datafeed v1 loop service.
  * <p>
- * This service will be started by calling {@link DatafeedServiceV1#start()}
+ * This service will be started by calling {@link DatafeedLoopV1#start()}
  * <p>
  * At the beginning, a datafeed will be created and the BDK bot will listen to this datafeed to receive the real-time
  * events. With datafeed service v1, we don't have the api endpoint to retrieve the datafeed id that a service account
@@ -34,24 +34,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * events from this datafeed. If this datafeed is expired or faulty, the datafeed service will create the new one for
  * listening.
  * <p>
- * This service will be stopped by calling {@link DatafeedServiceV1#stop()}
+ * This service will be stopped by calling {@link DatafeedLoopV1#stop()}
  * <p>
  * If the datafeed service is stopped during a read datafeed call, it has to wait until the last read finish to be
  * really stopped
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class DatafeedServiceV1 extends AbstractDatafeedService {
+public class DatafeedLoopV1 extends AbstractDatafeedLoop {
 
   private final AtomicBoolean started = new AtomicBoolean();
   private final DatafeedIdRepository datafeedRepository;
   private String datafeedId;
 
-  public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+  public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     this(datafeedApi, authSession, config, new OnDiskDatafeedIdRepository(config));
   }
 
-  public DatafeedServiceV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config,
+  public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config,
       DatafeedIdRepository repository) {
     super(datafeedApi, authSession, config);
 

@@ -15,9 +15,9 @@ import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
-import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
-import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.signal.SignalService;
@@ -109,15 +109,15 @@ public class ServiceFactoryTest {
     datafeedConfig.setVersion("v1");
 
     this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
-    DatafeedService datafeedServiceV1 = this.serviceFactory.getDatafeedService();
+    DatafeedLoop datafeedServiceV1 = this.serviceFactory.getDatafeedLoop();
     assertNotNull(datafeedServiceV1);
-    assertEquals(datafeedServiceV1.getClass(), DatafeedServiceV1.class);
+    assertEquals(datafeedServiceV1.getClass(), DatafeedLoopV1.class);
 
     datafeedConfig.setVersion("v2");
     this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
-    DatafeedService datafeedServiceV2 = this.serviceFactory.getDatafeedService();
+    DatafeedLoop datafeedServiceV2 = this.serviceFactory.getDatafeedLoop();
     assertNotNull(datafeedServiceV2);
-    assertEquals(datafeedServiceV2.getClass(), DatafeedServiceV2.class);
+    assertEquals(datafeedServiceV2.getClass(), DatafeedLoopV2.class);
 
   }
 }

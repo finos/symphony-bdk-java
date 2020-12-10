@@ -2,8 +2,7 @@ package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.spring.annotation.Slash;
@@ -29,14 +28,13 @@ public class BdkActivityConfig {
 
   @Bean
   public ActivityRegistry activityRegistry(
-      final AuthSession botSession,
       final SessionService sessionService,
-      final DatafeedService datafeedService,
+      final DatafeedLoop datafeedLoop,
       final List<AbstractActivity<?, ?>> activities
   ) {
     log.debug("Retrieving bot session info");
-    final UserV2 botSessionInfo = sessionService.getSession(botSession);
-    final ActivityRegistry activityRegistry = new ActivityRegistry(botSessionInfo, datafeedService::subscribe);
+    final UserV2 botSessionInfo = sessionService.getSession();
+    final ActivityRegistry activityRegistry = new ActivityRegistry(botSessionInfo, datafeedLoop::subscribe);
     log.debug("{} activities found from context", activities.size());
     activities.forEach(activityRegistry::register);
     return activityRegistry;

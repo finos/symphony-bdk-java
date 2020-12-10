@@ -42,9 +42,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.ProcessingException;
 
-public class DatafeedServiceV2Test {
+public class DatafeedLoopV2Test {
 
-    private DatafeedServiceV2 datafeedService;
+    private DatafeedLoopV2 datafeedService;
     private ApiClient datafeedApiClient;
     private DatafeedApi datafeedApi;
     private AuthSession authSession;
@@ -68,7 +68,7 @@ public class DatafeedServiceV2Test {
         this.datafeedApi = mock(DatafeedApi.class);
         when(this.datafeedApi.getApiClient()).thenReturn(this.datafeedApiClient);
 
-        this.datafeedService = new DatafeedServiceV2(
+        this.datafeedService = new DatafeedLoopV2(
                 this.datafeedApi,
                 this.authSession,
                 bdkConfig

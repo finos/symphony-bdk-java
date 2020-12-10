@@ -18,9 +18,10 @@ import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
-import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -72,10 +73,10 @@ public class SymphonyBdkTest {
 
   @Test
   void getDatafeedServiceTest() {
-    DatafeedService datafeedService = this.symphonyBdk.datafeed();
+    DatafeedLoop datafeedService = this.symphonyBdk.datafeed();
 
     assertNotNull(datafeedService);
-    assertEquals(datafeedService.getClass(), DatafeedServiceV1.class);
+    assertEquals(datafeedService.getClass(), DatafeedLoopV1.class);
   }
 
   @Test
@@ -130,6 +131,12 @@ public class SymphonyBdkTest {
   void getHealthServiceTest() {
     HealthService healthService = this.symphonyBdk.health();
     assertNotNull(healthService);
+  }
+
+  @Test
+  void getSessionServiceTest() {
+    SessionService sessionService = this.symphonyBdk.sessions();
+    assertNotNull(sessionService);
   }
 
   @Test
@@ -206,5 +213,6 @@ public class SymphonyBdkTest {
     assertThrows(BotNotConfiguredException.class, symphonyBdk::signals);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::health);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::activities);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::sessions);
   }
 }

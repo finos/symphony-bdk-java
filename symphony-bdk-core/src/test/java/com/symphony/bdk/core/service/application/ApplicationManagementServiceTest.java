@@ -132,7 +132,7 @@ public class ApplicationManagementServiceTest {
     mockApiClient.onGet(V1_LIST_APP_ENTITLEMENTS,
         JsonHelper.readFromClasspath("/application/list_app_entitlements.json"));
 
-    List<PodAppEntitlement> entitlements = this.service.listAppEntitlements();
+    List<PodAppEntitlement> entitlements = this.service.listApplicationEntitlements();
 
     assertEquals(entitlements.size(), 3);
     assertEquals(entitlements.get(0).getAppId(), "djApp");
@@ -144,7 +144,7 @@ public class ApplicationManagementServiceTest {
   void listAppEntitlementsTestFailed() {
     mockApiClient.onGet(400, V1_LIST_APP_ENTITLEMENTS, "{}");
 
-    assertThrows(ApiRuntimeException.class, this.service::listAppEntitlements);
+    assertThrows(ApiRuntimeException.class, this.service::listApplicationEntitlements);
   }
 
   @Test
@@ -166,7 +166,7 @@ public class ApplicationManagementServiceTest {
         .listed(true)
         .install(false);
 
-    List<PodAppEntitlement> entitlements = this.service.updateAppEntitlements(Collections.singletonList(entitlement));
+    List<PodAppEntitlement> entitlements = this.service.updateApplicationEntitlements(Collections.singletonList(entitlement));
 
     assertEquals(entitlements.size(), 1);
     assertEquals(entitlements.get(0), entitlement);
@@ -177,7 +177,7 @@ public class ApplicationManagementServiceTest {
     this.mockApiClient.onPost(400, V1_UPDATE_APP_ENTITLEMENTS, "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.updateAppEntitlements(Collections.singletonList(new PodAppEntitlement())));
+        () -> this.service.updateApplicationEntitlements(Collections.singletonList(new PodAppEntitlement())));
   }
 
   @Test

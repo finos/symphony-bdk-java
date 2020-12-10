@@ -103,7 +103,7 @@ class UserServiceTest {
     String response = JsonHelper.readFromClasspath("/user/user_detail.json");
     this.mockApiClient.onGet(V2_USER_DETAIL_BY_ID.replace("{uid}", "1234"), response);
 
-    V2UserDetail userDetail = this.service.getUserDetailByUid(1234L);
+    V2UserDetail userDetail = this.service.getUserDetail(1234L);
 
     assertEquals(userDetail.getUserAttributes().getCompanyName(), "Company");
     assertEquals(userDetail.getUserAttributes().getUserName(), "johndoe");
@@ -228,7 +228,7 @@ class UserServiceTest {
     this.mockApiClient.onPost(ADD_ROLE_TO_USER.replace("{uid}", "1234"),
         "{\"format\": \"TEXT\", \"message\": \"Role added\"}");
 
-    this.service.addRoleToUser(1234L, RoleId.INDIVIDUAL);
+    this.service.addRole(1234L, RoleId.INDIVIDUAL);
 
     verify(spiedUserApi).v1AdminUserUidRolesAddPost(eq("1234"), eq(1234L), eq(new StringId().id("INDIVIDUAL")));
   }
@@ -237,7 +237,7 @@ class UserServiceTest {
   void addRoleToUserTestFailed() {
     this.mockApiClient.onPost(400, ADD_ROLE_TO_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.addRoleToUser(1234L, RoleId.INDIVIDUAL));
+    assertThrows(ApiRuntimeException.class, () -> this.service.addRole(1234L, RoleId.INDIVIDUAL));
   }
 
   @Test
@@ -245,7 +245,7 @@ class UserServiceTest {
     this.mockApiClient.onPost(REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"),
         "{\"format\": \"TEXT\", \"message\": \"Role removed\"}");
 
-    this.service.removeRoleFromUser(1234L, RoleId.INDIVIDUAL);
+    this.service.removeRole(1234L, RoleId.INDIVIDUAL);
 
     verify(spiedUserApi).v1AdminUserUidRolesRemovePost(eq("1234"), eq(1234L), eq(new StringId().id("INDIVIDUAL")));
   }
@@ -254,7 +254,7 @@ class UserServiceTest {
   void removeRoleFromUserTestFailed() {
     this.mockApiClient.onPost(400, REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.removeRoleFromUser(1234L, RoleId.INDIVIDUAL));
+    assertThrows(ApiRuntimeException.class, () -> this.service.removeRole(1234L, RoleId.INDIVIDUAL));
   }
 
   @Test
@@ -270,7 +270,7 @@ class UserServiceTest {
         + "  }\n"
         + "]");
 
-    List<Avatar> avatars = this.service.getAvatarFromUser(1234L);
+    List<Avatar> avatars = this.service.getAvatar(1234L);
 
     assertEquals(avatars.size(), 2);
     assertEquals(avatars.get(0).getSize(), "600");
@@ -281,7 +281,7 @@ class UserServiceTest {
   void getAvatarFromUserTestFailed() {
     this.mockApiClient.onGet(400, GET_AVATAR_FROM_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getAvatarFromUser(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getAvatar(1234L));
   }
 
   @Test
@@ -292,9 +292,9 @@ class UserServiceTest {
     byte[] bytes = avatar.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    this.service.updateAvatarOfUser(1234L, avatar);
-    this.service.updateAvatarOfUser(1234L, bytes);
-    this.service.updateAvatarOfUser(1234L, inputStream);
+    this.service.updateAvatar(1234L, avatar);
+    this.service.updateAvatar(1234L, bytes);
+    this.service.updateAvatar(1234L, inputStream);
 
     verify(spiedUserApi).v1AdminUserUidAvatarUpdatePost(eq("1234"), eq(1234L),
         eq(new AvatarUpdate().image("iVBORw0KGgoAAAANSUhEUgAAAJgAAAAoCAMAAAA11s")));
@@ -310,9 +310,9 @@ class UserServiceTest {
     byte[] bytes = avatar.getBytes();
     InputStream inputStream = new ByteArrayInputStream(bytes);
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, avatar));
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, bytes));
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatarOfUser(1234L, inputStream));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatar(1234L, avatar));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatar(1234L, bytes));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateAvatar(1234L, inputStream));
   }
 
   @Test
@@ -328,7 +328,7 @@ class UserServiceTest {
         + "  \"modifiedDate\": 1461526610846\n"
         + "}");
 
-    Disclaimer disclaimer = this.service.getDisclaimerAssignedToUser(1234L);
+    Disclaimer disclaimer = this.service.getDisclaimer(1234L);
     assertEquals(disclaimer.getName(), "Enterprise Disclaimer");
     assertEquals(disclaimer.getIsActive(), true);
     assertEquals(disclaimer.getIsDefault(), false);
@@ -338,14 +338,14 @@ class UserServiceTest {
   void getDisclaimerAssignedToUserTestFailed() {
     this.mockApiClient.onGet(400, GET_DISCLAIMER_OF_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getDisclaimerAssignedToUser(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getDisclaimer(1234L));
   }
 
   @Test
   void unAssignDisclaimerFromUserTest() throws ApiException {
     this.mockApiClient.onDelete(UNASSIGN_DISCLAIMER_FROM_USER.replace("{uid}", "1234"), "{}");
 
-    this.service.unAssignDisclaimerFromUser(1234L);
+    this.service.removeDisclaimer(1234L);
 
     verify(spiedUserApi).v1AdminUserUidDisclaimerDelete("1234", 1234L);
   }
@@ -354,14 +354,14 @@ class UserServiceTest {
   void unAssignDisclaimerFromUserTestFailed() {
     this.mockApiClient.onDelete(400, UNASSIGN_DISCLAIMER_FROM_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.unAssignDisclaimerFromUser(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.removeDisclaimer(1234L));
   }
 
   @Test
   void assignDisclaimerToUserTest() throws ApiException {
     this.mockApiClient.onPost(ASSIGN_DISCLAIMER_TO_USER.replace("{uid}", "1234"), "{}");
 
-    this.service.assignDisclaimerToUser(1234L, "disclaimer");
+    this.service.addDisclaimer(1234L, "disclaimer");
 
     verify(spiedUserApi).v1AdminUserUidDisclaimerUpdatePost(eq("1234"), eq(1234L), eq(new StringId().id("disclaimer")));
   }
@@ -370,14 +370,14 @@ class UserServiceTest {
   void assignDisclaimerToUserTestFailed() {
     this.mockApiClient.onPost(400, ASSIGN_DISCLAIMER_TO_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.assignDisclaimerToUser(1234L, "disclaimer"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.addDisclaimer(1234L, "disclaimer"));
   }
 
   @Test
   void getDelegatesAssignedToUserTest() {
     this.mockApiClient.onGet(GET_DELEGATE_OF_USER.replace("{uid}", "1234"), "[7215545078461]");
 
-    List<Long> delegates = this.service.getDelegatesAssignedToUser(1234L);
+    List<Long> delegates = this.service.getDelegates(1234L);
 
     assertEquals(delegates.size(), 1);
     assertEquals(delegates.get(0), 7215545078461L);
@@ -387,14 +387,14 @@ class UserServiceTest {
   void getDelegatesAssignedToUserTestFailed() {
     this.mockApiClient.onGet(400, GET_DELEGATE_OF_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getDelegatesAssignedToUser(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getDelegates(1234L));
   }
 
   @Test
   void updateDelegatesAssignedToUserTest() throws ApiException {
     this.mockApiClient.onPost(UPDATE_DELEGATE_OF_USER.replace("{uid}", "1234"), "{}");
 
-    this.service.updateDelegatesAssignedToUser(1234L, 1234L, DelegateAction.ActionEnum.ADD);
+    this.service.udpateDelegates(1234L, 1234L, DelegateAction.ActionEnum.ADD);
 
     verify(spiedUserApi).v1AdminUserUidDelegatesUpdatePost(
         eq("1234"),
@@ -407,7 +407,7 @@ class UserServiceTest {
     this.mockApiClient.onPost(400, UPDATE_DELEGATE_OF_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.updateDelegatesAssignedToUser(1234L, 1234L, DelegateAction.ActionEnum.ADD));
+        () -> this.service.udpateDelegates(1234L, 1234L, DelegateAction.ActionEnum.ADD));
   }
 
   @Test
@@ -431,7 +431,7 @@ class UserServiceTest {
         + "  }\n"
         + "]");
 
-    List<Feature> features = this.service.getFeatureEntitlementsOfUser(1234L);
+    List<Feature> features = this.service.getFeatureEntitlements(1234L);
 
     assertEquals(features.size(), 4);
     assertEquals(features.get(0).getEntitlment(), UserFeature.canCreatePublicRoom.name());
@@ -442,7 +442,7 @@ class UserServiceTest {
   void getFeatureEntitlementsOfUserTestFailed() {
     this.mockApiClient.onGet(400, GET_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getFeatureEntitlementsOfUser(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getFeatureEntitlements(1234L));
   }
 
   @Test
@@ -450,7 +450,7 @@ class UserServiceTest {
     this.mockApiClient.onPost(UPDATE_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"), "{}");
     List<Feature> features = Collections.singletonList(new Feature().entitlment("delegatesEnabled").enabled(true));
 
-    this.service.updateFeatureEntitlementsOfUser(1234L, features);
+    this.service.updateFeatureEntitlements(1234L, features);
 
     verify(spiedUserApi).v1AdminUserUidFeaturesUpdatePost("1234", 1234L, features);
   }
@@ -460,14 +460,14 @@ class UserServiceTest {
     this.mockApiClient.onPost(400, UPDATE_FEATURE_ENTITLEMENTS_OF_USER.replace("{uid}", "1234"),
         "{}");
     List<Feature> features = Collections.singletonList(new Feature().entitlment("delegatesEnabled").enabled(true));
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateFeatureEntitlementsOfUser(1234L, features));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateFeatureEntitlements(1234L, features));
   }
 
   @Test
   void getStatusOfUserTest() {
     this.mockApiClient.onGet(GET_STATUS_OF_USER.replace("{uid}", "1234"), "{\"status\": \"ENABLED\"}");
 
-    UserStatus userStatus = this.service.getStatusOfUser(1234L);
+    UserStatus userStatus = this.service.getStatus(1234L);
 
     assertEquals(userStatus.getStatus(), UserStatus.StatusEnum.ENABLED);
   }
@@ -476,7 +476,7 @@ class UserServiceTest {
   void getStatusOfUserTestFailed() {
     this.mockApiClient.onGet(400, GET_STATUS_OF_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getStatusOfUser(1234L));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getStatus(1234L));
   }
 
   @Test
@@ -484,7 +484,7 @@ class UserServiceTest {
     this.mockApiClient.onPost(UPDATE_STATUS_OF_USER.replace("{uid}", "1234"), "{}");
     UserStatus userStatus = new UserStatus().status(UserStatus.StatusEnum.ENABLED);
 
-    this.service.updateStatusOfUser(1234L, userStatus);
+    this.service.updateStatus(1234L, userStatus);
 
     verify(spiedUserApi).v1AdminUserUidStatusUpdatePost("1234", 1234L, userStatus);
   }
@@ -493,7 +493,7 @@ class UserServiceTest {
   void updateStatusOfUserTestFailed() {
     this.mockApiClient.onPost(400, UPDATE_STATUS_OF_USER.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateStatusOfUser(1234L,
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateStatus(1234L,
         new UserStatus().status(UserStatus.StatusEnum.ENABLED)));
   }
 
@@ -559,7 +559,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.listUsersBySearchQuery(query, true);
+    List<UserV2> users = this.service.searchUsers(query, true);
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -574,7 +574,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.listUsersBySearchQuery(query, true, new PaginationAttribute(0, 100));
+    List<UserV2> users = this.service.searchUsers(query, true, new PaginationAttribute(0, 100));
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -589,7 +589,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.listAllUsersBySearchQuery(query, true).collect(Collectors.toList());
+    List<UserV2> users = this.service.searchAllUsers(query, true).collect(Collectors.toList());
 
     assertEquals(users.size(), 1);
     assertEquals(users.get(0).getUsername(), "john.doe");
@@ -604,7 +604,7 @@ class UserServiceTest {
     UserSearchQuery query = new UserSearchQuery().query("john doe")
         .filters(new UserSearchFilter().title("title").company("Gotham").location("New York"));
 
-    List<UserV2> users = this.service.listAllUsersBySearchQuery(query, true, new StreamPaginationAttribute(100, 100))
+    List<UserV2> users = this.service.searchAllUsers(query, true, new StreamPaginationAttribute(100, 100))
         .collect(Collectors.toList());
 
     assertEquals(users.size(), 1);
@@ -616,7 +616,7 @@ class UserServiceTest {
   void followUserTest() throws ApiException {
     this.mockApiClient.onPost(V1_USER_FOLLOW.replace("{uid}", "1234"), "{}");
 
-    this.service.followUser(1234L, Arrays.asList(12345L, 12346L));
+    this.service.followUser(Arrays.asList(12345L, 12346L), 1234L);
 
     verify(this.spiedUserApi).v1UserUidFollowPost(eq("1234"), eq(1234L),
         eq(new FollowersList().followers(Arrays.asList(12345L, 12346L))));
@@ -626,14 +626,14 @@ class UserServiceTest {
   void followUserFailed() {
     this.mockApiClient.onPost(400, V1_USER_FOLLOW.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.followUser(1234L, Collections.singletonList(12345L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.followUser(Collections.singletonList(12345L), 1234L));
   }
 
   @Test
   void unfollowUserTest() throws ApiException {
     this.mockApiClient.onPost(V1_USER_UNFOLLOW.replace("{uid}", "1234"), "{}");
 
-    this.service.unfollowUser(1234L, Arrays.asList(12345L, 12346L));
+    this.service.unfollowUser(Arrays.asList(12345L, 12346L), 1234L);
 
     verify(this.spiedUserApi).v1UserUidUnfollowPost(eq("1234"), eq(1234L),
         eq(new FollowersList().followers(Arrays.asList(12345L, 12346L))));
@@ -643,7 +643,7 @@ class UserServiceTest {
   void unfollowFailed() {
     this.mockApiClient.onPost(400, V1_USER_UNFOLLOW.replace("{uid}", "1234"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.unfollowUser(1234L, Collections.singletonList(12345L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.unfollowUser(Collections.singletonList(12345L), 1234L));
   }
 
   @Test

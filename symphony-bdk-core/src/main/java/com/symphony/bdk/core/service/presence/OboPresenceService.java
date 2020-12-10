@@ -27,7 +27,7 @@ public interface OboPresenceService {
 
   /**
    * Get the presence info of all users in a pod.
-   * {@link PresenceService#listPresencesOfAllUsers(Long, Integer)}
+   * {@link PresenceService#listPresences(Long, Integer)}
    *
    * @param lastUserId  Last user ID retrieved, used for paging. If provided, results skip users with IDs less than
    *                    this parameter.
@@ -35,7 +35,7 @@ public interface OboPresenceService {
    * @return List of presence info of all users in a pod.
    * @see <a href="https://developers.symphony.com/restapi/reference#get-all-presence">Get All Presence</a>
    */
-  List<V2Presence> listPresencesOfAllUsers(@Nullable Long lastUserId, @Nullable Integer limit);
+  List<V2Presence> listPresences(@Nullable Long lastUserId, @Nullable Integer limit);
 
   /**
    * Get the presence info of a specified user.

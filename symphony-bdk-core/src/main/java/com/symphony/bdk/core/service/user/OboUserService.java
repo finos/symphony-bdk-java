@@ -89,7 +89,7 @@ public interface OboUserService {
   List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList);
 
   /**
-   * {@link UserService#listUsersBySearchQuery(UserSearchQuery, Boolean)}
+   * {@link UserService#searchUsers(UserSearchQuery, Boolean)}
    *
    * @param query Searching query containing complicated information like title, location, company...
    * @param local If true then a local DB search will be performed and only local pod users will be
@@ -98,10 +98,10 @@ public interface OboUserService {
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+  List<UserV2> searchUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local);
 
   /**
-   * {@link UserService#listUsersBySearchQuery(UserSearchQuery, Boolean, PaginationAttribute)}
+   * {@link UserService#searchUsers(UserSearchQuery, Boolean, PaginationAttribute)}
    *
    * @param query      Searching query containing complicated information like title, location, company...
    * @param local      If true then a local DB search will be performed and only local pod users will be
@@ -111,11 +111,11 @@ public interface OboUserService {
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  List<UserV2> listUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+  List<UserV2> searchUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull PaginationAttribute pagination);
 
   /**
-   * {@link UserService#listAllUsersBySearchQuery(UserSearchQuery, Boolean)}
+   * {@link UserService#searchAllUsers(UserSearchQuery, Boolean)}
    *
    * @param query Searching query containing complicated information like title, location, company...
    * @param local If true then a local DB search will be performed and only local pod users will be
@@ -125,10 +125,10 @@ public interface OboUserService {
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+  Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local);
 
   /**
-   * {@link UserService#listAllUsersBySearchQuery(UserSearchQuery, Boolean, StreamPaginationAttribute)}
+   * {@link UserService#searchAllUsers(UserSearchQuery, Boolean, StreamPaginationAttribute)}
    *
    * @param query      Searching query containing complicated information like title, location, company...
    * @param local      If true then a local DB search will be performed and only local pod users will be
@@ -139,26 +139,26 @@ public interface OboUserService {
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<UserV2> listAllUsersBySearchQuery(@Nonnull UserSearchQuery query, @Nullable Boolean local,
+  Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull StreamPaginationAttribute pagination);
 
   /**
    * Make a list of users to start following a specific user.
-   * {@link UserService#followUser(Long, List)}
+   * {@link UserService#followUser(List, Long)}
    *
-   * @param userId      The id of the user to be followed.
    * @param followerIds List of ids of the followers.
+   * @param userId      The id of the user to be followed.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#follow-user">Follow User</a>
    */
-  void followUser(@Nonnull Long userId, @Nonnull List<Long> followerIds);
+  void followUser(@Nonnull List<Long> followerIds, @Nonnull Long userId);
 
   /**
    * Make a list of users to stop following a specific user.
-   * {@link UserService#unfollowUser(Long, List)}
+   * {@link UserService#unfollowUser(List, Long)}
    *
-   * @param userId      The id of the user to be unfollowed.
    * @param followerIds List of the ids of the followers.
+   * @param userId      The id of the user to be unfollowed.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
    */
-  void unfollowUser(@Nonnull Long userId, @Nonnull List<Long> followerIds);
+  void unfollowUser(@Nonnull List<Long> followerIds, @Nonnull Long userId);
 }

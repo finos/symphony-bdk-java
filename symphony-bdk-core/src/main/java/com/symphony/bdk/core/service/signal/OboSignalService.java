@@ -103,7 +103,7 @@ public interface OboSignalService {
 
   /**
    * Subscribe a list of users to a signal.
-   * {@link SignalService#subscribeSignal(String, Boolean, List)}
+   * {@link SignalService#subscribeUsersToSignal(String, Boolean, List)}
    *
    * @param id      The id of the signal to be subscribed.
    * @param pushed  Prevents the user from unsubscribing from the Signal (only for bulk subscriptions).
@@ -112,18 +112,18 @@ public interface OboSignalService {
    * @return The subscription information.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribe-signal">Subscribe Signal</a>
    */
-  ChannelSubscriptionResponse subscribeSignal(@Nonnull String id, @Nullable Boolean pushed, @Nullable List<Long> userIds);
+  ChannelSubscriptionResponse subscribeUsersToSignal(@Nonnull String id, @Nullable Boolean pushed, @Nullable List<Long> userIds);
 
   /**
    * Unsubscribe a list of users from a signal.
-   * {@link SignalService#unsubscribeSignal(String, List)}
+   * {@link SignalService#unsubscribeUsersFromSignal(String, List)}
    *
    * @param id      The id of the signal to be unsubscribed.
    * @param userIds The list of user ids to unsubscribe from the signal.
    * @return The unsubscription information.
    * @see <a href="https://developers.symphony.com/restapi/reference#unsubscribe-signal">Unsubscribe Signal</a>
    */
-  ChannelSubscriptionResponse unsubscribeSignal(@Nonnull String id, @Nullable List<Long> userIds);
+  ChannelSubscriptionResponse unsubscribeUsersFromSignal(@Nonnull String id, @Nullable List<Long> userIds);
 
   /**
    * Get the subscribers for a specified signal.

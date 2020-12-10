@@ -1,5 +1,6 @@
 package com.symphony.bdk.spring.events;
 
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
@@ -27,7 +28,7 @@ import org.springframework.context.ApplicationEventPublisher;
  * This component publishes Real Time Events as Spring {@link org.springframework.context.ApplicationEvent}. The event
  * payload and {@link V4Initiator} are wrapped into generic {@link RealTimeEvent}.
  * <p>
- * Events are dispatched asynchronously to avoid blocking the {@link com.symphony.bdk.core.service.datafeed.DatafeedService}
+ * Events are dispatched asynchronously to avoid blocking the {@link DatafeedLoop}
  * thread.
  * </p>
  * <p>

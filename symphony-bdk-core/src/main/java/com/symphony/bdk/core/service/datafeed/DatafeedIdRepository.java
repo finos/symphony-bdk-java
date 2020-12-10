@@ -1,12 +1,13 @@
 package com.symphony.bdk.core.service.datafeed;
 
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import org.apiguardian.api.API;
 
 import java.util.Optional;
 
 /**
  * A repository interface for storing a datafeed id.
- * By using {@link com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1},
+ * By using {@link DatafeedLoopV1},
  * the created datafeed id and agent base url should be persisted manually on the BDK side.
  */
 @API(status = API.Status.STABLE)
