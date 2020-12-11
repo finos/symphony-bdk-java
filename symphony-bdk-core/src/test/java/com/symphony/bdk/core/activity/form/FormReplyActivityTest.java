@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
@@ -25,7 +25,8 @@ class FormReplyActivityTest {
 
   private TestFormReplyActivity act;
 
-  @Mock DatafeedService datafeedService;
+  @Mock
+  DatafeedLoop datafeedService;
 
   @BeforeEach
   void setUp() {

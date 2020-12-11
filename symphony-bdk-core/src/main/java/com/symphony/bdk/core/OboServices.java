@@ -6,6 +6,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.presence.OboPresenceService;
+import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.signal.OboSignalService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.user.OboUserService;
@@ -24,6 +25,7 @@ public class OboServices {
   private final OboPresenceService oboPresenceService;
   private final OboConnectionService oboConnectionService;
   private final OboSignalService oboSignalService;
+  private final OboSessionService oboSessionService;
 
   public OboServices(BdkConfig config, AuthSession oboSession) {
     final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config);
@@ -34,6 +36,7 @@ public class OboServices {
     oboPresenceService = serviceFactory.getPresenceService();
     oboConnectionService = serviceFactory.getConnectionService();
     oboSignalService = serviceFactory.getSignalService();
+    oboSessionService = serviceFactory.getSessionService();
   }
 
   /**
@@ -90,5 +93,15 @@ public class OboServices {
    */
   public OboMessageService messages() {
     return oboMessageService;
+  }
+
+  /**
+   * Get the {@link OboSessionService} using the provided OBO session in constructor.
+   * The returned session service instance.
+   *
+   * @return an {@link OboSessionService} instance with the provided OBO session.
+   */
+  public OboSessionService sessions() {
+    return oboSessionService;
   }
 }

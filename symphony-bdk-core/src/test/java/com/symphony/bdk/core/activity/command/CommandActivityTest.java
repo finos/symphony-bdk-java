@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.activity.TestCommandActivity;
 import com.symphony.bdk.core.activity.exception.FatalActivityExecutionException;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -28,7 +28,8 @@ class CommandActivityTest {
 
   private TestCommandActivity act;
 
-  @Mock DatafeedService datafeedService;
+  @Mock
+  DatafeedLoop datafeedService;
 
   @BeforeEach
   void setUp() {

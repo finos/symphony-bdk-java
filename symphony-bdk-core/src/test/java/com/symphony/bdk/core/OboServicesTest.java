@@ -9,6 +9,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.presence.OboPresenceService;
+import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.signal.OboSignalService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
 
@@ -60,5 +61,11 @@ public class OboServicesTest {
   void testOboSignals() {
     OboSignalService signalService = oboServices.signals();
     assertNotNull(signalService);
+  }
+
+  @Test
+  void testOboSessions() {
+    OboSessionService sessionService = oboServices.sessions();
+    assertNotNull(sessionService);
   }
 }

@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A class for implementing the datafeed v2 service.
+ * A class for implementing the datafeed v2 loop service.
  * <p>
- * This service will be started by calling {@link DatafeedServiceV2#start()}
+ * This service will be started by calling {@link DatafeedLoopV2#start()}
  * <p>
  * At the beginning, the BDK bot will try to retrieve the list of datafeed to which it is listening. Since each bot
  * should only listening to just one datafeed, the first datafeed in the list will be used by the bot to be listened to.
@@ -32,20 +32,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * If this datafeed becomes stale or faulty, the BDK bot will create the new one for listening.
  * <p>
- * This service will be stopped by calling {@link DatafeedServiceV2#stop()}
+ * This service will be stopped by calling {@link DatafeedLoopV2#stop()}
  * <p>
  * If the datafeed service is stopped during a read datafeed call, it has to wait until the last read finish to be
  * really stopped
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class DatafeedServiceV2 extends AbstractDatafeedService {
+public class DatafeedLoopV2 extends AbstractDatafeedLoop {
 
   private final AtomicBoolean started = new AtomicBoolean();
   private final AckId ackId;
   private V5Datafeed datafeed;
 
-  public DatafeedServiceV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+  public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     super(datafeedApi, authSession, config);
     this.ackId = new AckId().ackId("");
   }

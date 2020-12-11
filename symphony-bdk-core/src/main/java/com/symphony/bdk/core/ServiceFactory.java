@@ -8,10 +8,10 @@ import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
-import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV1;
-import com.symphony.bdk.core.service.datafeed.impl.DatafeedServiceV2;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.signal.SignalService;
@@ -49,7 +49,7 @@ import org.apiguardian.api.API;
  *   <li>{@link UserService}</li>
  *   <li>{@link StreamService}</li>
  *   <li>{@link MessageService}</li>
- *   <li>{@link DatafeedService}</li>
+ *   <li>{@link DatafeedLoop}</li>
  *   <li>{@link SessionService}</li>
  * </ul>
  */
@@ -101,20 +101,20 @@ class ServiceFactory {
    * @return a new {@link SessionService} instance.
    */
   public SessionService getSessionService() {
-    return new SessionService(new SessionApi(podClient),
+    return new SessionService(new SessionApi(podClient), authSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   /**
-   * Returns a fully initialized {@link DatafeedService}.
+   * Returns a fully initialized {@link DatafeedLoop}.
    *
-   * @return a new {@link DatafeedService} instance.
+   * @return a new {@link DatafeedLoop} instance.
    */
-  public DatafeedService getDatafeedService() {
+  public DatafeedLoop getDatafeedLoop() {
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedServiceV2(new DatafeedApi(datafeedAgentClient), authSession, config);
+      return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config);
     }
-    return new DatafeedServiceV1(new DatafeedApi(datafeedAgentClient), authSession, config);
+    return new DatafeedLoopV1(new DatafeedApi(datafeedAgentClient), authSession, config);
   }
 
   /**
