@@ -182,5 +182,45 @@ public class Example {
   }
 }
 ```
+
+### BDK running without Bot username (service account) configured
+
+When the bot `username` (service account) is not configured in the Bdk configuration, the bot project will be still runnable but only in the
+OBO mode if the app authentication is well-configured. 
+
+The `config.yaml` requires at least the application configuration:
+
+```yaml
+host: acme.symphony.com
+app:
+    appId: app-id
+    privateKey:
+      path: /path/to/private-key.pem
+```
+
+If users still try to access to Bdk services directly from `SymphonyBdk` facade object,
+a `NoBotConfigException` will be thrown.
+
+The following example shows how a bot project works without bot `username` configured:
+
+```java
+public class Example {
+
+  public static void main(String[] args) throws BdkConfigException, AuthInitializationException, AuthUnauthorizedException {
+
+    // setup SymphonyBdk facade object
+    // a warning will be logged to warn that the bot project will be runnable only in OBO mode 
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("no_bot_config.yaml"));
+    
+    final AuthSession oboSessionUsername = bdk.obo("user.name");
+    
+    // if user call bdk.streams().listStreams(new StreamFilter()), a NoBotConfigException will be thrown
+    // list streams OBO user "user.name"
+    bdk.obo(oboSessionUsername).streams().listStreams(new StreamFilter());
+
+  }
+}
+```
+
 ----
 [Home :house:](./index.md)
