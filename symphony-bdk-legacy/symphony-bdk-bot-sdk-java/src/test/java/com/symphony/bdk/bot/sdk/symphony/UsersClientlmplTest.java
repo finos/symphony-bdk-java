@@ -158,7 +158,6 @@ public class UsersClientlmplTest {
   @Test
   public void testGetUsersFromIdList() throws NoContentException, SymphonyClientException {
     final List<Long> ids = Arrays.asList(1L, 2L);
-    assertNotNull(ids);
 
     Mockito.when(this.usersClient.getUsersFromIdList(ids, true)).thenReturn(Arrays.asList(this
         .userInfo1, this.userInfo2));
@@ -172,7 +171,6 @@ public class UsersClientlmplTest {
   @Test
   public void testGetUsersFromIdListWithNoContent() throws NoContentException, SymphonyClientException {
     final List<Long> ids = Arrays.asList(1L, 2L);
-    assertNotNull(ids);
 
     Mockito.when(this.usersClient.getUsersFromIdList(ids, true)).thenThrow(NoContentException.class);
 
@@ -184,7 +182,6 @@ public class UsersClientlmplTest {
   @Test(expected = SymphonyClientException.class)
   public void testGetUsersFromIdListWithException() throws NoContentException, SymphonyClientException {
     final List<Long> ids = Arrays.asList(1L, 2L);
-    assertNotNull(ids);
 
     Mockito.when(this.usersClient.getUsersFromIdList(ids, true)).thenThrow(SymClientException.class);
 
@@ -194,7 +191,6 @@ public class UsersClientlmplTest {
   @Test
   public void testGetUsersFromEmailList() throws NoContentException, SymphonyClientException {
     final List<String> emails = Arrays.asList("test1@symphony.com", "test2@symphony.com");
-    assertNotNull(emails);
 
     Mockito.when(this.usersClient.getUsersFromEmailList(emails, true)).thenReturn(Arrays.asList(this
         .userInfo1, this.userInfo2));
@@ -208,7 +204,6 @@ public class UsersClientlmplTest {
   @Test
   public void testGetUsersFromEmailListWithNoContent() throws NoContentException, SymphonyClientException {
     final List<String> emails = Arrays.asList("test1@symphony.com", "test2@symphony.com");
-    assertNotNull(emails);
 
     Mockito.when(this.usersClient.getUsersFromEmailList(emails, true)).thenThrow(NoContentException.class);
 
@@ -220,7 +215,6 @@ public class UsersClientlmplTest {
   @Test(expected = SymphonyClientException.class)
   public void testGetUsersFromEmailListWithException() throws NoContentException, SymphonyClientException {
     final List<String> emails = Arrays.asList("test1@symphony.com", "test2@symphony.com");
-    assertNotNull(emails);
 
     Mockito.when(this.usersClient.getUsersFromEmailList(emails, true)).thenThrow(SymClientException.class);
 
