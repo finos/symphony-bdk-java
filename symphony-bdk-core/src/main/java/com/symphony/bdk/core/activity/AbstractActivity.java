@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.core.activity.model.ActivityInfo;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 
@@ -40,7 +41,7 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
   /**
    * Bind an Activity to its real-time event.
    *
-   * @param realTimeEventsSource The real-time events source, issued from the {@link com.symphony.bdk.core.service.datafeed.DatafeedService}.
+   * @param realTimeEventsSource The real-time events source, issued from the {@link DatafeedLoop}.
    */
   protected abstract void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource);
 

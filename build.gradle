@@ -1,4 +1,4 @@
-ext.projectVersion = '1.6.0-SNAPSHOT'
+ext.projectVersion = '1.7.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'

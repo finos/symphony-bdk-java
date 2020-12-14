@@ -1,7 +1,7 @@
 package com.symphony.bdk.spring.service;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.http.api.ApiException;
 
@@ -15,21 +15,21 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 /**
- * Async Launcher for the {@link DatafeedService} that call the {@link DatafeedService#start()} method in a separate
+ * Async Launcher for the {@link DatafeedLoop} that call the {@link DatafeedLoop#start()} method in a separate
  * thread.
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
 public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHandler {
 
-  private final DatafeedService datafeedService;
+  private final DatafeedLoop datafeedLoop;
   private final List<RealTimeEventListener> realTimeEventListeners;
 
   public DatafeedAsyncLauncherService(
-      final DatafeedService datafeedService,
+      final DatafeedLoop datafeedLoop,
       final List<RealTimeEventListener> realTimeEventListeners
   ) {
-    this.datafeedService = datafeedService;
+    this.datafeedLoop = datafeedLoop;
     this.realTimeEventListeners = realTimeEventListeners;
   }
 
@@ -38,11 +38,11 @@ public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHan
    */
   @PostConstruct
   public void registerListeners() {
-    this.realTimeEventListeners.forEach(this.datafeedService::subscribe);
+    this.realTimeEventListeners.forEach(this.datafeedLoop::subscribe);
   }
 
   /**
-   * Asynchronous execution of the {@link DatafeedService#start()} method.
+   * Asynchronous execution of the {@link DatafeedLoop#start()} method.
    */
   public void start() {
     final Thread datafeedThread = new Thread(MDCUtils.wrap(this::uncheckedStart), "SymphonyBdk_DatafeedThread");
@@ -51,10 +51,10 @@ public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHan
   }
 
   /**
-   * Wrapper for the {@link DatafeedService#stop()} method.
+   * Wrapper for the {@link DatafeedLoop#stop()} method.
    */
   public void stop() {
-    this.datafeedService.stop();
+    this.datafeedLoop.stop();
   }
 
   @Override
@@ -75,12 +75,12 @@ public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHan
   }
 
   /**
-   * Wraps the {@link DatafeedService#start()} by encapsulating the potential {@link AuthUnauthorizedException} and
+   * Wraps the {@link DatafeedLoop#start()} by encapsulating the potential {@link AuthUnauthorizedException} and
    * {@link ApiException} as a {@link RuntimeException}.
    */
   private void uncheckedStart() {
     try {
-      this.datafeedService.start();
+      this.datafeedLoop.start();
     } catch (AuthUnauthorizedException | ApiException e) {
       throw new RuntimeException(e);
     }

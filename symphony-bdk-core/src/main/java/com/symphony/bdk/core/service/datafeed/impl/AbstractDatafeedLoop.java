@@ -5,7 +5,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-abstract class AbstractDatafeedService implements DatafeedService {
+abstract class AbstractDatafeedLoop implements DatafeedLoop {
 
   protected final AuthSession authSession;
   protected final BdkConfig bdkConfig;
@@ -33,7 +33,7 @@ abstract class AbstractDatafeedService implements DatafeedService {
   protected DatafeedApi datafeedApi;
   protected ApiClient apiClient;
 
-  public AbstractDatafeedService(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+  public AbstractDatafeedLoop(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     this.datafeedApi = datafeedApi;
     this.listeners = new ArrayList<>();
     this.authSession = authSession;

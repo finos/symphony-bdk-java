@@ -5,7 +5,6 @@ import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
-import com.symphony.bdk.gen.api.model.V2HealthCheckResponse;
 import com.symphony.bdk.gen.api.model.V3Health;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -36,7 +35,7 @@ public class HealthService {
    * @return {@link V3Health} the connectivity status of your Agent server.
    * @see <a href="https://developers.symphony.com/restapi/reference#health-check-v3">Health Check v3</a>
    */
-  public V3Health v3HealthCheck() {
+  public V3Health healthCheck() {
     return execute(systemApi::v3Health);
   }
 
@@ -47,23 +46,8 @@ public class HealthService {
    * @return {@link V3Health} the connectivity status of the Agent services as well as users connectivity.
    * @see <a href="https://developers.symphony.com/restapi/reference#health-check-extended-v3">Healt Check Extended v3</a>
    */
-  public V3Health v3ExtendedHealthCheck() {
+  public V3Health healthCheckExtended() {
     return execute(systemApi::v3ExtendedHealth);
-  }
-
-  /**
-   * Returns the connectivity status of your pod and key manager, as well as the Agent version.
-   * Available on Agent 2.0.0 and above.
-   *
-   * @return {@link V2HealthCheckResponse} the connectivity status of your pod and key manager, as well as the Agent version.
-   * @see <a href="https://developers.symphony.com/restapi/reference#health-check-v2">Health Check v2</a>
-   */
-  public V2HealthCheckResponse v2HeathCheck() {
-    return execute(() -> systemApi.v2HealthCheckGet(true, true,
-        true, true,
-        true, true,
-        true, true,
-        authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
   /**

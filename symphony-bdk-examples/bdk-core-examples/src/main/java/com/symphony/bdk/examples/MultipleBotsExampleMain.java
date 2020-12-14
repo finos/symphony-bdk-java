@@ -6,7 +6,7 @@ import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
-import com.symphony.bdk.core.service.datafeed.DatafeedService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.V4Initiator;
@@ -62,7 +62,7 @@ public class MultipleBotsExampleMain {
     mario.messages().send(stream.getId(), "<messageML>Very well thank you! And you Luigi?</messageML>");
   }
 
-  private static void startDatafeedAsync(DatafeedService datafeedService) {
+  private static void startDatafeedAsync(DatafeedLoop datafeedService) {
     Executors.newSingleThreadExecutor().execute(() -> {
       try {
         datafeedService.start();

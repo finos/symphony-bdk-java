@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
@@ -38,7 +39,7 @@ class SessionServiceTest {
 
   @BeforeEach
   void setUp() {
-    this.service = new SessionService(this.sessionApi,
+    this.service = new SessionService(this.sessionApi, this.authSession,
         new RetryWithRecoveryBuilder().retryConfig(ofMinimalInterval(1)));
   }
 
@@ -47,7 +48,7 @@ class SessionServiceTest {
     final String sessionToken = UUID.randomUUID().toString();
     when(this.authSession.getSessionToken()).thenReturn(sessionToken);
     when(this.sessionApi.v2SessioninfoGet(eq(sessionToken))).thenReturn(new UserV2());
-    final UserV2 session = this.service.getSession(this.authSession);
+    final UserV2 session = this.service.getSession();
     assertNotNull(session);
   }
 
@@ -56,6 +57,12 @@ class SessionServiceTest {
     final String sessionToken = UUID.randomUUID().toString();
     when(this.authSession.getSessionToken()).thenReturn(sessionToken);
     when(this.sessionApi.v2SessioninfoGet(eq(sessionToken))).thenThrow(new ApiException(401, "Auth error"));
-    assertThrows(ApiRuntimeException.class, () -> this.service.getSession(this.authSession));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getSession());
+  }
+
+  @Test
+  void oboSessionServiceTest() {
+    final OboSessionService oboSessionService = this.service.obo(this.authSession);
+    assertNotNull(oboSessionService);
   }
 }

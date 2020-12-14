@@ -6,10 +6,10 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import org.apiguardian.api.API;
 
 /**
- * Interface definition for a service to be used for handling the datafeed API.
+ * Interface definition for a loop service to be used for handling the datafeed API.
  */
 @API(status = API.Status.STABLE)
-public interface DatafeedService {
+public interface DatafeedLoop {
 
     /**
      * Start the datafeed events service

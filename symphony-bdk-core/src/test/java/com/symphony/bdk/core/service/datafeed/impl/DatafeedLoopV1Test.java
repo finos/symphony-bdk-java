@@ -71,11 +71,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.ProcessingException;
 
-class DatafeedServiceV1Test {
+class DatafeedLoopV1Test {
 
   public static final String DEFAULT_AGENT_BASE_PATH = "https://agent:8443/context";
 
-  private DatafeedServiceV1 datafeedService;
+  private DatafeedLoopV1 datafeedService;
   private BdkConfig bdkConfig;
   private DatafeedIdRepository datafeedIdRepository;
   private ApiClient datafeedApiClient;
@@ -121,7 +121,7 @@ class DatafeedServiceV1Test {
   }
 
   private void initializeDatafeedService() {
-    this.datafeedService = new DatafeedServiceV1(
+    this.datafeedService = new DatafeedLoopV1(
         this.datafeedApi,
         this.authSession,
         this.bdkConfig,
@@ -357,7 +357,7 @@ class DatafeedServiceV1Test {
 
   @Test
   void retrieveDatafeedIdFromDatafeedDir(@TempDir Path tempDir) throws IOException {
-    InputStream inputStream = DatafeedServiceV1Test.class.getResourceAsStream("/datafeed/datafeedId");
+    InputStream inputStream = DatafeedLoopV1Test.class.getResourceAsStream("/datafeed/datafeedId");
     Path datafeedFile = tempDir.resolve("datafeed.id");
     Files.copy(inputStream, datafeedFile);
 
@@ -365,7 +365,7 @@ class DatafeedServiceV1Test {
     datafeedConfig.setIdFilePath(tempDir.toString());
     bdkConfig.setDatafeed(datafeedConfig);
 
-    Optional<String> datafeedId = new DatafeedServiceV1(this.datafeedApi, this.authSession, this.bdkConfig)
+    Optional<String> datafeedId = new DatafeedLoopV1(this.datafeedApi, this.authSession, this.bdkConfig)
         .retrieveDatafeed();
 
     assertTrue(datafeedId.isPresent());
@@ -374,7 +374,7 @@ class DatafeedServiceV1Test {
 
   @Test
   void retrieveDatafeedIdFromDatafeedFile(@TempDir Path tempDir) throws IOException {
-    InputStream inputStream = DatafeedServiceV1Test.class.getResourceAsStream("/datafeed/datafeedId");
+    InputStream inputStream = DatafeedLoopV1Test.class.getResourceAsStream("/datafeed/datafeedId");
     Path datafeedFile = tempDir.resolve("datafeed.id");
     Files.copy(inputStream, datafeedFile);
 
@@ -383,7 +383,7 @@ class DatafeedServiceV1Test {
     bdkConfig.setDatafeed(datafeedConfig);
 
     Optional<String> datafeedId =
-        new DatafeedServiceV1(this.datafeedApi, this.authSession, this.bdkConfig).retrieveDatafeed();
+        new DatafeedLoopV1(this.datafeedApi, this.authSession, this.bdkConfig).retrieveDatafeed();
     assertTrue(datafeedId.isPresent());
     assertEquals(datafeedId.get(), "8e7c8672-220");
   }

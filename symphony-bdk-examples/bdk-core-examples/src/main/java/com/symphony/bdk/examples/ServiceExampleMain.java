@@ -54,8 +54,8 @@ public class ServiceExampleMain {
     log.info("Signal name: {}", signalList.get(0).getName());
     log.info("Signal query: {}", signalList.get(0).getQuery());
 
-    bdk.users().followUser(13056700579873L, Collections.singletonList(13056700579879L));
-    bdk.users().unfollowUser(13056700579873L, Collections.singletonList(13056700579879L));
+    bdk.users().followUser(Collections.singletonList(13056700579879L), 13056700579873L);
+    bdk.users().unfollowUser(Collections.singletonList(13056700579879L), 13056700579873L);
 
     final FollowersListResponse followersList =
         bdk.users().listUserFollowers(13056700579873L, new CursorPaginationAttribute(4, 0, 10));

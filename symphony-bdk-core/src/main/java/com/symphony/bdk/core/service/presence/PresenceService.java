@@ -67,8 +67,8 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
    * {@inheritDoc}
    */
   @Override
-  public List<V2Presence> listPresencesOfAllUsers(@Nullable Long lastUserId, @Nullable Integer limit) {
-    return executeAndRetry("getAllUsersPresence",
+  public List<V2Presence> listPresences(@Nullable Long lastUserId, @Nullable Integer limit) {
+    return executeAndRetry("listPresences",
         () -> presenceApi.v2UsersPresenceGet(authSession.getSessionToken(), lastUserId, limit));
   }
 

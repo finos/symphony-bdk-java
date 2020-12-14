@@ -106,8 +106,8 @@ public class ApplicationService {
    * @return The list of application entitlements.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-app-entitlements">List App Entitlements</a>
    */
-  public List<PodAppEntitlement> listAppEntitlements() {
-    return executeAndRetry("listAppEntitlements",
+  public List<PodAppEntitlement> listApplicationEntitlements() {
+    return executeAndRetry("listApplicationEntitlements",
         () -> appEntitlementApi.v1AdminAppEntitlementListGet(authSession.getSessionToken()));
   }
 
@@ -118,8 +118,8 @@ public class ApplicationService {
    * @return The updated list of entitlements.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-application-entitlements">Update App Entitlements</a>
    */
-  public List<PodAppEntitlement> updateAppEntitlements(@Nonnull List<PodAppEntitlement> entitlementList) {
-    return executeAndRetry("updateAppEntitlements",
+  public List<PodAppEntitlement> updateApplicationEntitlements(@Nonnull List<PodAppEntitlement> entitlementList) {
+    return executeAndRetry("updateApplicationEntitlements",
         () -> appEntitlementApi.v1AdminAppEntitlementListPost(authSession.getSessionToken(), entitlementList));
   }
 

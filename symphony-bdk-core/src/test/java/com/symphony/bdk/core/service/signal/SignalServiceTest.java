@@ -255,7 +255,7 @@ public class SignalServiceTest {
             + "}");
 
     ChannelSubscriptionResponse response =
-        this.service.subscribeSignal("1234", true, Arrays.asList(1234L, 1235L, 1236L));
+        this.service.subscribeUsersToSignal("1234", true, Arrays.asList(1234L, 1235L, 1236L));
 
     verify(spiedSignalApi).v1SignalsIdSubscribePost("1234", "1234", "1234", true, Arrays.asList(1234L, 1235L, 1236L));
     assertEquals(response.getRequestedSubscription(), 3);
@@ -267,7 +267,7 @@ public class SignalServiceTest {
     this.mockApiClient.onPost(400, V1_SUBSCRIBE_SIGNAL.replace("{id}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.subscribeSignal("1234", true, Collections.singletonList(1234L)));
+        () -> this.service.subscribeUsersToSignal("1234", true, Collections.singletonList(1234L)));
   }
 
   @Test
@@ -280,7 +280,7 @@ public class SignalServiceTest {
             + "    \"subscriptionErrors\": []\n"
             + "}");
 
-    ChannelSubscriptionResponse response = this.service.unsubscribeSignal("1234", Arrays.asList(1234L, 1235L, 1236L));
+    ChannelSubscriptionResponse response = this.service.unsubscribeUsersFromSignal("1234", Arrays.asList(1234L, 1235L, 1236L));
 
     verify(spiedSignalApi).v1SignalsIdUnsubscribePost("1234", "1234", "1234", Arrays.asList(1234L, 1235L, 1236L));
     assertEquals(response.getSuccessfulSubscription(), 3);
@@ -292,7 +292,7 @@ public class SignalServiceTest {
     this.mockApiClient.onPost(400, V1_UNSUBSCRIBE_SIGNAL.replace("{id}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.unsubscribeSignal("1234", Collections.singletonList(1234L)));
+        () -> this.service.unsubscribeUsersFromSignal("1234", Collections.singletonList(1234L)));
   }
 
   @Test

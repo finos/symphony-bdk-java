@@ -138,9 +138,9 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public ChannelSubscriptionResponse subscribeSignal(@Nonnull String id, @Nullable Boolean pushed,
+  public ChannelSubscriptionResponse subscribeUsersToSignal(@Nonnull String id, @Nullable Boolean pushed,
       @Nullable List<Long> userIds) {
-    return executeAndRetry("subscribeSignal",
+    return executeAndRetry("subscribeUsersToSignal",
         () -> signalsApi.v1SignalsIdSubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             pushed, userIds));
   }
@@ -149,8 +149,8 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public ChannelSubscriptionResponse unsubscribeSignal(@Nonnull String id, @Nullable List<Long> userIds) {
-    return executeAndRetry("unsubscribeSignal",
+  public ChannelSubscriptionResponse unsubscribeUsersFromSignal(@Nonnull String id, @Nullable List<Long> userIds) {
+    return executeAndRetry("unsubscribeUsersFromSignal",
         () -> signalsApi.v1SignalsIdUnsubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             userIds));
   }
@@ -160,7 +160,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   public List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("subscribers",
+    return executeAndRetry("listSubscribers",
         () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             pagination.getSkip(), pagination.getLimit())).getData();
   }
@@ -170,7 +170,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   public List<ChannelSubscriber> listSubscribers(@Nonnull String id) {
-    return executeAndRetry("subscribers",
+    return executeAndRetry("listSubscribers",
         () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             null, null)).getData();
   }
