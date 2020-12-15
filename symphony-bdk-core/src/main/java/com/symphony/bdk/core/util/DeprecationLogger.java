@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 @API(status = API.Status.INTERNAL)
 public final class DeprecationLogger {
 
-  public static final String LOGGER_NAME = "deprecation";
+  public static final String LOGGER_NAME = "com.symphony.bdk.deprecation";
   private static final Logger log = LoggerFactory.getLogger(LOGGER_NAME);
 
   private DeprecationLogger() {
