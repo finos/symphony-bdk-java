@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.config.model;
 
+import static com.symphony.bdk.core.util.DeprecationLogger.logDeprecation;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import lombok.Getter;
@@ -102,7 +103,7 @@ public class BdkAuthenticationConfig {
     if (certificate != null && certificate.isConfigured()) {
       return certificate;
     }
-    log.warn("Certificate should be configured under \"certificate\" field");
+    logDeprecation("Certificate should be configured under \"certificate\" field");
     return new BdkCertificateConfig(certificatePath, certificateContent, certificatePassword);
   }
 }
