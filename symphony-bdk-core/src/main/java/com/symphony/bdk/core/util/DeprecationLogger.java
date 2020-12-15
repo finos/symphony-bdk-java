@@ -1,28 +1,27 @@
 package com.symphony.bdk.core.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
-
-@Slf4j
-@API(status = API.Status.INTERNAL)
 /**
- * Class to log deprecation message except if system property bdk.warning.mode is set to none.
+ * Class to log deprecation message using "deprecation" logger
  */
-public class DeprecationLogger {
+@API(status = API.Status.INTERNAL)
+public final class DeprecationLogger {
 
-  private static final boolean shouldLogDeprecationMessages = !Objects.equals(System.getProperty("bdk.warning.mode"),
-      "none");
+  private static final Logger log = LoggerFactory.getLogger("deprecation");
+
+  private DeprecationLogger() {
+    // to avoid instantiation
+  }
 
   /**
-   * Logs a WARN message except if system property bdk.warning.mode=none
+   * Logs a WARN deprecation message
    *
    * @param message deprecation message to log.
    */
   public static void logDeprecation(String message) {
-    if (shouldLogDeprecationMessages) {
-      log.warn(message);
-    }
+    log.warn(message);
   }
 }

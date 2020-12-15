@@ -1,5 +1,7 @@
 # API Change management
 
+You can check our existing change management policy for our HTTP API [here](https://developers.symphony.com/restapi/docs/api-change-management).
+
 Rationale of our change management policy is to be backward compatible on existing features
 (classes, methods or [configuration](../configuration.md) fields) whenever possible.
 
