@@ -1,7 +1,6 @@
 package com.symphony.bdk.bot.sdk.symphony;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -57,7 +56,6 @@ public class StreamsClientImplTest {
   @Before
   public void initBot(){
     final SymConfig symConfig = SymConfigLoader.loadConfig("src/test/resources/sym-config.json");
-    assertNotNull(symConfig);
 
     this.symBotClient = Mockito.mock(SymBotClient.class);
     Mockito.when(this.symBotClient.getConfig()).thenReturn(symConfig);
@@ -67,7 +65,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.symBotClient.getStreamsClient()).thenReturn(this.streamsClient);
 
     this.streamsClientImpl = new StreamsClientImpl(this.symBotClient);
-    assertNotNull(this.streamsClientImpl);
   }
 
   @Test
@@ -107,7 +104,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.createRoom(any(Room.class))).thenReturn(roomInfo);
 
     final SymphonyRoom symphonyRoomResult = this.streamsClientImpl.createRoom(symphonyRoom);
-    assertNotNull(symphonyRoomResult);
     assertEquals(symphonyRoomResult, symphonyRoom);
   }
 
@@ -164,7 +160,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.getRoomInfo(streamId)).thenReturn(this.initRoomInfo("Name"));
     final SymphonyRoom symphonyRoomResult = this.streamsClientImpl.getRoomInfo(streamId);
 
-    assertNotNull(symphonyRoomResult);
     assertEquals(symphonyRoomResult, symphonyRoom);
   }
 
@@ -185,7 +180,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.updateRoom(anyString(), any(Room.class))).thenReturn(roomInfo);
 
     final SymphonyRoom symphonyRoomResult = this.streamsClientImpl.updateRoom(steamId, symphonyRoom);
-    assertNotNull(symphonyRoomResult);
     assertEquals(symphonyRoomResult, symphonyRoom);
   }
 
@@ -207,7 +201,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.getStreamInfo(anyString())).thenReturn(streamInfo);
 
     final SymphonyStream symphonyStreamResult = this.streamsClientImpl.getStreamInfo(streamId);
-    assertNotNull(symphonyStreamResult);
     assertEquals(symphonyStreamResult, symphonyStream);
   }
 
@@ -230,7 +223,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.getRoomMembers(streamId)).thenReturn(roomMembersList);
 
     final List<SymphonyRoomMember> symphonyRoomMembersListResult = this.streamsClientImpl.getRoomMembers(streamId);
-    assertNotNull(symphonyRoomMembersListResult);
     assertEquals(symphonyRoomMembersListResult, symphonyRoomMembersList);
   }
 
@@ -301,7 +293,6 @@ public class StreamsClientImplTest {
 
     Mockito.when(this.streamsClient.searchRooms(any(RoomSearchQuery.class), anyInt(), anyInt())).thenReturn(roomSearchResult);
     final SymphonyRoomSearchResult symphonyRoomSearchResult = this.streamsClientImpl.searchRooms(symphonyRoomSearchQuery);
-    assertNotNull(symphonyRoomSearchResult);
     assertEquals(symphonyRoomSearchResultExpected, symphonyRoomSearchResult);
   }
 
@@ -313,7 +304,6 @@ public class StreamsClientImplTest {
 
     Mockito.when(this.streamsClient.searchRooms(any(RoomSearchQuery.class), anyInt(), anyInt())).thenThrow(NoContentException.class);
     final SymphonyRoomSearchResult symphonyRoomSearchResult = this.streamsClientImpl.searchRooms(symphonyRoomSearchQuery);
-    assertNotNull(symphonyRoomSearchResult);
     assertEquals(symphonyRoomSearchResultExpected, symphonyRoomSearchResult);
   }
 
@@ -350,7 +340,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.getUserWallStream()).thenReturn(streamListItem);
 
     final SymphonyStream symphonyStreamResult = this.streamsClientImpl.getUserWallStream();
-    assertNotNull(symphonyStreamResult);
     assertEquals(symphonyStreamResult, symphonyStream);
   }
 
@@ -382,7 +371,6 @@ public class StreamsClientImplTest {
     Mockito.when(this.streamsClient.getUserStreams(anyList(), anyBoolean())).thenReturn(streamListItems);
 
     final List<SymphonyStream> symphonyStreamsResult = this.streamsClientImpl.getUserStreams(streamTypes, includeInactiveStreams);
-    assertNotNull(symphonyStreamsResult);
     assertEquals(symphonyStreamsResult, symphonyStreams);
   }
 
