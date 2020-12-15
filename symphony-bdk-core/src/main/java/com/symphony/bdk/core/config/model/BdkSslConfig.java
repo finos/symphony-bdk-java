@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.config.model;
 
+import static com.symphony.bdk.core.util.DeprecationLogger.logDeprecation;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
@@ -53,7 +54,7 @@ public class BdkSslConfig {
 
     final BdkCertificateConfig sslTruststoreConfig = new BdkCertificateConfig(trustStorePath, trustStorePassword);
     if (sslTruststoreConfig.isConfigured()) {
-      log.warn("Truststore should be configured under \"trustStore\" field");
+      logDeprecation("Truststore should be configured under \"trustStore\" field");
     }
     return sslTruststoreConfig;
   }

@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth;
 
+import static com.symphony.bdk.core.util.DeprecationLogger.logDeprecation;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
@@ -171,7 +172,7 @@ public class AuthenticatorFactory {
           privateKey = loadPrivateKey(privateKeyPath);
         }
       } else {
-        log.warn("RSA private key should be configured under \"privateKey\" field");
+        logDeprecation("RSA private key should be configured under \"privateKey\" field");
         if (isNotEmpty(config.getPrivateKeyContent())) {
           privateKey = new String(config.getPrivateKeyContent(), StandardCharsets.UTF_8);
         } else {
