@@ -10,7 +10,8 @@ import org.slf4j.LoggerFactory;
 @API(status = API.Status.INTERNAL)
 public final class DeprecationLogger {
 
-  private static final Logger log = LoggerFactory.getLogger("deprecation");
+  public static final String LOGGER_NAME = "deprecation";
+  private static final Logger log = LoggerFactory.getLogger(LOGGER_NAME);
 
   private DeprecationLogger() {
     // to avoid instantiation
