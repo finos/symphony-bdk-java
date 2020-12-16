@@ -62,10 +62,17 @@ public class MessageClientImplTest {
   }
 
   @Test
-  public void testSendMessageSymphonyMessage() throws SymphonyClientException {
+  public void testSendNonEnrichedSymphonyMessage() throws SymphonyClientException {
     final String streamId = "streamId";
-    this.testSendMessage(streamId, true);
-    this.testSendMessage(streamId, false);
+    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(false);
+    this.messageClientImpl.sendMessage(streamId, symphonyMessage);
+  }
+
+  @Test
+  public void testSendMessageEnrichedSymphonyMessage() throws SymphonyClientException {
+    final String streamId = "streamId";
+    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(true);
+    this.messageClientImpl.sendMessage(streamId, symphonyMessage);
   }
 
   @Test
@@ -104,7 +111,8 @@ public class MessageClientImplTest {
     final byte[] fileContent1 = new byte[] {(byte) 6789, (byte) 47, (byte) 567};
     final byte[] fileContent2 = new byte[] {(byte) 990, (byte) 467, (byte) 5654};
     final byte[] fileContent3 = new byte[] {(byte) 687, (byte) 479, (byte) 574};
-    final List<FileAttachment> fileAttachmentList = this.initFileAttachmentsList(fileContent1, fileContent2, fileContent3);
+    final List<FileAttachment> fileAttachmentList =
+        this.initFileAttachmentsList(fileContent1, fileContent2, fileContent3);
 
     Mockito.when(this.messagesClient.getMessageAttachments(any(InboundMessage.class))).thenReturn(fileAttachmentList);
 
@@ -132,21 +140,23 @@ public class MessageClientImplTest {
   }
 
   @Test
-  public void test_sendMessage() {
+  public void test_sendEnrichedMessage() {
     final String streamId = "streamId";
-    this.test_sendMessage(streamId, true);
-    this.test_sendMessage(streamId, false);
+    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(true);
+    this.messageClientImpl._sendMessage(streamId, symphonyMessage);
+  }
+
+  @Test
+  public void test_sendNonEnrichedMessage() {
+    final String streamId = "streamId";
+    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(false);
+    this.messageClientImpl._sendMessage(streamId, symphonyMessage);
   }
 
   @Test(expected = SymClientException.class)
-  public void test_sendMessageWithException() {
+  public void test_sendEnrichedMessageWithException() {
     final String streamId = "streamId";
-    this.testSendMessageWithException(streamId, true);
-    this.testSendMessageWithException(streamId, false);
-  }
-
-  private void testSendMessageWithException(final String streamId, final boolean enrichedMessage) {
-    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(enrichedMessage);
+    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(true);
 
     Mockito.doThrow(SymClientException.class)
         .when(this.messageClientImplMocked)
@@ -155,17 +165,24 @@ public class MessageClientImplTest {
     this.messageClientImplMocked._sendMessage(streamId, symphonyMessage);
   }
 
-  private void test_sendMessage(final String streamId, final boolean enrichedMessage) {
-    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(enrichedMessage);
-    this.messageClientImpl._sendMessage(streamId, symphonyMessage);
+  @Test(expected = SymClientException.class)
+  public void test_sendNonEnrichedMessageWithException() {
+    final String streamId = "streamId";
+    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(false);
+
+    Mockito.doThrow(SymClientException.class)
+        .when(this.messageClientImplMocked)
+        ._sendMessage(anyString(), any(SymphonyMessage.class));
+
+    this.messageClientImplMocked._sendMessage(streamId, symphonyMessage);
   }
 
   private void verifyMessageAttachmentFile(final byte[] fileContent,
-      final List<MessageAttachmentFile> messageAttachmentFileList, final String fileName, final int rang,
+      final List<MessageAttachmentFile> messageAttachmentFileList, final String fileName, final int index,
       final long size) {
-    assertEquals(fileName, messageAttachmentFileList.get(rang).getFileName());
-    assertEquals(fileContent, messageAttachmentFileList.get(rang).getFileContent());
-    assertEquals(size, messageAttachmentFileList.get(rang).getSize().longValue());
+    assertEquals(fileName, messageAttachmentFileList.get(index).getFileName());
+    assertEquals(fileContent, messageAttachmentFileList.get(index).getFileContent());
+    assertEquals(size, messageAttachmentFileList.get(index).getSize().longValue());
   }
 
   private List<FileAttachment> initFileAttachmentsList(byte[] fileContent1, byte[] fileContent2, byte[] fileContent3) {
@@ -279,11 +296,6 @@ public class MessageClientImplTest {
     imageInfo.setId(id);
     imageInfo.setDimension("small");
     return imageInfo;
-  }
-
-  private void testSendMessage(final String streamId, final boolean enrichedMessage) throws SymphonyClientException {
-    final SymphonyMessage symphonyMessage = this.initSymphonyMessage(enrichedMessage);
-    this.messageClientImpl.sendMessage(streamId, symphonyMessage);
   }
 
   private SymphonyMessage initSymphonyMessage(final boolean enrichedMessage) {
