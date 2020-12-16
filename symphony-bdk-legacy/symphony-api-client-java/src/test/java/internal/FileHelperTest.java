@@ -29,4 +29,24 @@ public class FileHelperTest {
   public void fail_to_read_file() throws FileNotFoundException {
     FileHelper.readFile(UUID.randomUUID().toString() + ".abc");
   }
+
+  @Test
+  public void classpath_path_with_slash_on_first() {
+    assertEquals("classpath:/path/to/file.pem", FileHelper.path("classpath:/path/to/", "file.pem"));
+  }
+
+  @Test
+  public void classpath_path_with_slash_on_second() {
+    assertEquals("classpath:/path/to/file.pem", FileHelper.path("classpath:/path/to", "/file.pem"));
+  }
+
+  @Test
+  public void classpath_path_with_two_slashes() {
+    assertEquals("classpath:/path/to/file.pem", FileHelper.path("classpath:/path/to/", "/file.pem"));
+  }
+
+  @Test
+  public void classpath_path_with_no_slashes() {
+    assertEquals("classpath:/path/to/file.pem", FileHelper.path("classpath:/path/to", "file.pem"));
+  }
 }

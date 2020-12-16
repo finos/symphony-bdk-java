@@ -28,30 +28,33 @@ public class FileHelper {
    */
   @SneakyThrows
   public static byte[] readFile(@Nonnull final String path) throws FileNotFoundException {
-
-    byte[] content;
-
-    if(!isClasspath(path) && new File(path).exists()) {
-      try(FileInputStream fis = new FileInputStream(path)) {
-          content = toByteArray(fis);
-          logger.debug("File loaded from system path : {}", path);
-        }
-        catch (Exception ex) {
-          throw new FileNotFoundException("Unable to load file from path : " + path);
-        }
-    }
-    else if (FileHelper.class.getResource(classpath(path)) != null) {
-      content = toByteArray(FileHelper.class.getResourceAsStream(classpath(path)));
+    if (!isClasspath(path) && new File(path).exists()) {
+      try (FileInputStream fis = new FileInputStream(path)) {
+        logger.debug("File loaded from system path : {}", path);
+        return toByteArray(fis);
+      } catch (Exception ex) {
+        throw new FileNotFoundException("Unable to load file from path : " + path);
+      }
+    } else if (FileHelper.class.getResource(classpath(path)) != null) {
       logger.debug("File loaded from classpath location : {}", path);
+      return toByteArray(FileHelper.class.getResourceAsStream(classpath(path)));
     }
-    else {
-      throw new FileNotFoundException("Unable to load file from path : " + path);
-    }
-    return content;
+    throw new FileNotFoundException("Unable to load file from path : " + path);
   }
 
-  public static String path(String first, String... more) {
-    return Paths.get(first, more).toString();
+  public static String path(String first, String second) {
+    return isClasspath(first) ? classpathPath(first, second) : Paths.get(first, second).toString();
+  }
+
+  private static String classpathPath(String first, String second) {
+    // classpath paths are always with '/'
+    if (first.endsWith("/") && second.startsWith("/")) {
+      return first + second.substring(1);
+    }
+    if (!first.endsWith("/") && !second.startsWith("/")) {
+      return first + "/" + second;
+    }
+    return first + second;
   }
 
   private static String classpath(String path) {
