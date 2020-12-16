@@ -54,6 +54,12 @@ public class ExtensionAppAuthClientTest {
   }
 
   @Test
+  public void validateTokensFalseTest() {
+    when(extensionAppAuthenticator.validateTokens("appToken", "symphonyToken")).thenReturn(false);
+    assertFalse(extensionAppAuthClient.validateTokens("appToken", "symphonyToken"));
+  }
+
+  @Test
   public void verifyJWTTest() {
     UserInfo userInfo = new UserInfo();
     userInfo.setId(123456L);
