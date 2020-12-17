@@ -1,6 +1,7 @@
 package internal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
@@ -49,4 +50,20 @@ public class FileHelperTest {
   public void classpath_path_with_no_slashes() {
     assertEquals("classpath:/path/to/file.pem", FileHelper.path("classpath:/path/to", "file.pem"));
   }
+
+  @Test
+  public void only_classpath_on_first_slash_on_first() {
+    assertEquals("classpath:/file.pem", FileHelper.path("classpath:/", "file.pem"));
+  }
+
+  @Test
+  public void only_classpath_on_first_slash_on_second() {
+    assertEquals("classpath:/file.pem", FileHelper.path("classpath:", "/file.pem"));
+  }
+
+  @Test
+  public void only_classpath_first_with_no_slash() {
+    assertEquals("classpath:/file.pem", FileHelper.path("classpath:", "file.pem"));
+  }
+
 }

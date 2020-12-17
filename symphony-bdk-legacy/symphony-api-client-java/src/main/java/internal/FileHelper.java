@@ -30,16 +30,14 @@ public class FileHelper {
   public static byte[] readFile(@Nonnull final String path) throws FileNotFoundException {
     if (!isClasspath(path) && new File(path).exists()) {
       try (FileInputStream fis = new FileInputStream(path)) {
-        logger.debug("File loaded from system path : {}", path);
+        logger.debug("File loaded from system path: {}", path);
         return toByteArray(fis);
-      } catch (Exception ex) {
-        throw new FileNotFoundException("Unable to load file from path : " + path);
       }
     } else if (FileHelper.class.getResource(classpath(path)) != null) {
-      logger.debug("File loaded from classpath location : {}", path);
+      logger.debug("File loaded from classpath location: {}", path);
       return toByteArray(FileHelper.class.getResourceAsStream(classpath(path)));
     }
-    throw new FileNotFoundException("Unable to load file from path : " + path);
+    throw new FileNotFoundException("Unable to load file from path: " + path);
   }
 
   public static String path(String first, String second) {
@@ -47,7 +45,7 @@ public class FileHelper {
   }
 
   private static String classpathPath(String first, String second) {
-    // classpath paths are always with '/'
+    // Path separator for classpath paths is always '/' regardless of the OS
     if (first.endsWith("/") && second.startsWith("/")) {
       return first + second.substring(1);
     }
