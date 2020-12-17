@@ -20,6 +20,9 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.INTERNAL)
 public class FileHelper {
 
+  // Path separator for classpath paths is always '/' regardless of the OS
+  private static final String CLASSPATH_PATH_SEPARATOR = "/";
+
   /**
    * Loads file content (as byte[]) from either system or classpath location.
    *
@@ -45,12 +48,11 @@ public class FileHelper {
   }
 
   private static String classpathPath(String first, String second) {
-    // Path separator for classpath paths is always '/' regardless of the OS
-    if (first.endsWith("/") && second.startsWith("/")) {
+    if (first.endsWith(CLASSPATH_PATH_SEPARATOR) && second.startsWith(CLASSPATH_PATH_SEPARATOR)) {
       return first + second.substring(1);
     }
-    if (!first.endsWith("/") && !second.startsWith("/")) {
-      return first + "/" + second;
+    if (!first.endsWith(CLASSPATH_PATH_SEPARATOR) && !second.startsWith(CLASSPATH_PATH_SEPARATOR)) {
+      return first + CLASSPATH_PATH_SEPARATOR + second;
     }
     return first + second;
   }
