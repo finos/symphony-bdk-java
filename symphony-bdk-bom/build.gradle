@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:2.4.0')
+    api platform('org.springframework.boot:spring-boot-dependencies:2.4.1')
 
     // define all our dependencies versions
     constraints {
@@ -30,28 +30,28 @@ dependencies {
         api "com.symphony.platformsolutions:symphony-bdk-template-handlebars:$project.version"
 
         // External dependencies
-        api 'org.projectlombok:lombok:1.18.12'
+        api 'org.projectlombok:lombok:1.18.16'
 
         api 'org.apiguardian:apiguardian-api:1.1.0'
 
         api 'org.slf4j:slf4j-api:1.7.30'
         api 'org.slf4j:slf4j-log4j12:1.7.30'
 
-        api 'commons-io:commons-io:2.6'
+        api 'commons-io:commons-io:2.8.0'
         api 'commons-codec:commons-codec:1.15'
         api 'commons-beanutils:commons-beanutils:1.9.4'
-        api 'org.apache.commons:commons-lang3:3.9'
+        api 'org.apache.commons:commons-lang3:3.11'
         api 'commons-logging:commons-logging:1.2'
         api 'com.brsanthu:migbase64:2.2'
         api 'io.jsonwebtoken:jjwt:0.9.1'
         api 'org.bouncycastle:bcpkix-jdk15on:1.66'
         api 'com.google.code.findbugs:jsr305:3.0.2'
 
-        api 'io.github.resilience4j:resilience4j-retry:1.4.0'
+        api 'io.github.resilience4j:resilience4j-retry:1.6.1'
 
-        api 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
-        api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.2'
-        api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.2'
+        api 'com.fasterxml.jackson.core:jackson-databind:2.11.4'
+        api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.4'
+        api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.4'
 
         api 'io.swagger:swagger-annotations:1.6.0'
         api 'org.openapitools:jackson-databind-nullable:0.2.1'
@@ -72,8 +72,8 @@ dependencies {
         api 'ch.qos.logback:logback-classic:1.2.3'
         api 'com.tngtech.archunit:archunit-junit5:0.14.1'
         api 'org.mock-server:mockserver-netty:5.11.1'
-        api 'org.mockito:mockito-core:3.4.6'
-        api 'org.mockito:mockito-junit-jupiter:3.4.6'
+        api 'org.mockito:mockito-core:3.6.28'
+        api 'org.mockito:mockito-junit-jupiter:3.6.28'
     }
 }
 
