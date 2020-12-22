@@ -30,7 +30,7 @@ The following listing shows the `pom.xml` file that has to be created when using
             <dependency>
                 <groupId>com.symphony.platformsolutions</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
-                <version>1.3.2.BETA</version>
+                <version>2.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -65,7 +65,7 @@ plugins {
 }
 
 dependencies {
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.2.BETA')
+    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:2.0.0')
     
     implementation 'com.symphony.platformsolutions:symphony-bdk-app-spring-boot-starter'
 }

@@ -89,18 +89,16 @@ public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
   }
 
   public SymOBOUserAuth getUserAuth(final String username) {
-        SymOBOUserAuth userAuth = new SymOBOUserAuth(config,
-                sessionAuthClient, username, this);
-        userAuth.authenticate();
-        return userAuth;
-    }
+    SymOBOUserAuth userAuth = new SymOBOUserAuth(config, sessionAuthClient, username, this, timeout);
+    userAuth.authenticate();
+    return userAuth;
+  }
 
-    public SymOBOUserAuth getUserAuth(final Long uid) {
-        SymOBOUserAuth userAuth = new SymOBOUserAuth(config, sessionAuthClient,
-                uid, this);
-        userAuth.authenticate();
-        return userAuth;
-    }
+  public SymOBOUserAuth getUserAuth(final Long uid) {
+    SymOBOUserAuth userAuth = new SymOBOUserAuth(config, sessionAuthClient, uid, this, timeout);
+    userAuth.authenticate();
+    return userAuth;
+  }
 
     public void sessionAppAuthenticate() {
         if (config != null) {
@@ -115,8 +113,7 @@ public final class SymOBOAuth extends APIClient implements ISymOBOAuth {
                 try {
                     handleError(response, null);
                 } catch (Exception e) {
-                    logger.error("Unexpected error, "
-                            + "retry authentication in " + this.timeout + " seconds");
+                  logger.error("Unexpected error, retry authentication in {} seconds", this.timeout);
                 }
                 try {
                     TimeUnit.SECONDS.sleep(this.timeout);
