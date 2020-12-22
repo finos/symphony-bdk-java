@@ -14,7 +14,10 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MultiResponseComposerImplTest {
 
@@ -36,6 +39,9 @@ public class MultiResponseComposerImplTest {
     final ComposerMessageDefinition composerMessageDefinition = this.multiResponseComposerImpl.compose();
     assertFalse(this.multiResponseComposerImpl.isComplete());
     assertEquals(composerMessageDefinition, this.multiResponseComposerImpl);
+
+    final Map<SymphonyMessage, Set<String>> expectedComposedResponse = new HashMap<>();
+    assertEquals(expectedComposedResponse, this.multiResponseComposerImpl.getComposedResponse());
   }
 
   @Test
