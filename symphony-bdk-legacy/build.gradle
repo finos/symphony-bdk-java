@@ -66,8 +66,8 @@ subprojects {
 
     dependencies {
         constraints {
-            compileOnly 'org.projectlombok:lombok:1.18.12'
-            annotationProcessor 'org.projectlombok:lombok:1.18.12'
+            compileOnly 'org.projectlombok:lombok:1.18.16'
+            annotationProcessor 'org.projectlombok:lombok:1.18.16'
 
             implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
 
@@ -115,8 +115,8 @@ subprojects {
             implementation 'org.symphonyoss.symphony:messageml:0.9.60'
             implementation 'io.micrometer:micrometer-registry-prometheus:1.5.1'
 
-            testCompileOnly 'org.projectlombok:lombok:1.18.12'
-            testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+            testCompileOnly 'org.projectlombok:lombok:1.18.16'
+            testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 
             implementation 'junit:junit:4.13.1'
             implementation 'org.mockito:mockito-core:3.6.0'

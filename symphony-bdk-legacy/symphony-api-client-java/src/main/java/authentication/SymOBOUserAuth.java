@@ -2,14 +2,16 @@ package authentication;
 
 import clients.symphony.api.APIClient;
 import configuration.SymConfig;
+import model.SessionToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.TimeUnit;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import model.SessionToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class SymOBOUserAuth extends APIClient implements ISymAuth {
   private final Logger logger = LoggerFactory.getLogger(SymOBOUserAuth.class);
@@ -34,11 +36,31 @@ public final class SymOBOUserAuth extends APIClient implements ISymAuth {
 
   public SymOBOUserAuth(final SymConfig config,
       final Client sessionAuthClient,
+      final Long uid, final ISymOBOAuth appAuth, int timeout) {
+    this.config = config;
+    this.sessionAuthClient = sessionAuthClient;
+    this.uid = uid;
+    this.appAuth = appAuth;
+    this.timeout = timeout;
+  }
+
+  public SymOBOUserAuth(final SymConfig config,
+      final Client sessionAuthClient,
       final String username, final ISymOBOAuth appAuth) {
     this.config = config;
     this.sessionAuthClient = sessionAuthClient;
     this.username = username;
     this.appAuth = appAuth;
+  }
+
+  public SymOBOUserAuth(final SymConfig config,
+      final Client sessionAuthClient,
+      final String username, final ISymOBOAuth appAuth, int timeout) {
+    this.config = config;
+    this.sessionAuthClient = sessionAuthClient;
+    this.username = username;
+    this.appAuth = appAuth;
+    this.timeout = timeout;
   }
 
   /** Constructor for testing purpose only */
