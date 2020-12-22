@@ -261,7 +261,6 @@ class ApiClientWebClientTest {
         httpRequest -> httpRequest
             .withMethod("POST")
             .withPath("/test-api")
-            .withHeader(Header.header("Content-Type", "multipart/form-data;boundary=.*;charset=UTF-8"))
             .withHeader(Header.header("sessionToken", "test-token"))
             .withBody(anyString())
             .withCookie("cookie", "test-cookie"),
