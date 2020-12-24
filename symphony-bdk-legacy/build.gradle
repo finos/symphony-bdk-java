@@ -112,7 +112,7 @@ subprojects {
             implementation 'org.springframework.boot:spring-boot-starter-test:2.3.5.RELEASE'
             implementation 'org.springframework.security:spring-security-test:5.3.5.RELEASE'
 
-            implementation 'org.symphonyoss.symphony:messageml:0.9.60'
+            implementation 'org.symphonyoss.symphony:messageml:0.9.64'
             implementation 'io.micrometer:micrometer-registry-prometheus:1.5.1'
 
             testCompileOnly 'org.projectlombok:lombok:1.18.12'
