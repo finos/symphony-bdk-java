@@ -3,28 +3,24 @@ package com.symphony.bdk.bot.sdk.symphony;
 import static org.junit.Assert.assertEquals;
 
 import com.symphony.bdk.bot.sdk.lib.restclient.RestClient;
-import com.symphony.bdk.bot.sdk.lib.restclient.RestClientConnectionException;
-import com.symphony.bdk.bot.sdk.lib.restclient.RestClientImpl;
+import com.symphony.bdk.bot.sdk.lib.restclient.model.RestResponse;
 import com.symphony.bdk.bot.sdk.symphony.model.HealthCheckInfo;
 
 import clients.SymBotClient;
+import clients.symphony.api.HealthcheckClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
-import io.github.resilience4j.bulkhead.BulkheadConfig;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import model.HealthcheckResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.client.RestTemplate;
-
-import java.time.Duration;
 
 public class HealthCheckClientImplTest {
 
   private SymBotClient symBotClient;
   private RestClient restClient;
+  private HealthcheckResponse healthcheckResponse;
   private HealthcheckClientImpl healthcheckClientImpl;
 
   @Value("${management.symphony-api-client-version}")
@@ -32,34 +28,46 @@ public class HealthCheckClientImplTest {
 
   @Before
   public void initBot() {
-    this.initRestClient();
+    this.initHealthCheckResponse();
 
     final SymConfig symConfig = SymConfigLoader.loadConfig("src/test/resources/sym-config.json");
+
+    final HealthcheckClient healthcheckClient = Mockito.mock(HealthcheckClient.class);
+    Mockito.when(healthcheckClient.performHealthCheck()).thenReturn(healthcheckResponse);
+
     this.symBotClient = Mockito.mock(SymBotClient.class);
     Mockito.when(this.symBotClient.getConfig()).thenReturn(symConfig);
+    Mockito.when(this.symBotClient.getHealthcheckClient()).thenReturn(healthcheckClient);
 
-    this.healthcheckClientImpl = Mockito.mock(HealthcheckClientImpl.class);
+    this.initRestClient();
+
+    this.healthcheckClientImpl = new HealthcheckClientImpl(this.symBotClient, this.restClient);
   }
 
   @Test
-  public void testHealthCheckWithoutMock() {
-    final HealthCheckInfo healthCheckInfoExpected = this.initHealthCheckInfoWithoutMock();
-
-    Mockito.when(this.healthcheckClientImpl.healthCheck()).thenReturn(healthCheckInfoExpected);
+  public void testHealthCheck() {
+    final HealthCheckInfo healthCheckInfoExpected = this.initHealthCheckInfo();
 
     final HealthCheckInfo healthCheckInfo = this.healthcheckClientImpl.healthCheck();
     assertEquals(healthCheckInfoExpected, healthCheckInfo);
   }
 
-  private HealthCheckInfo initHealthCheckInfoWithoutMock() {
-    final HealthcheckResponse healthcheckResponse = this.initHealthCheckResponse();
-    final HealthCheckInfo healthCheckInfo =
-        new HealthCheckInfo(healthcheckResponse, false, this.symphonyApiClientVersion);
-    return healthCheckInfo;
+  private void initRestClient() {
+    this.restClient = Mockito.mock(RestClient.class);
+
+    final RestResponse<String> restResponse = new RestResponse<>();
+
+    Mockito.when(this.restClient.getRequest(
+        "https://localhost/pod/v1/podcert", String.class
+    )).thenReturn(restResponse);
   }
 
-  private HealthcheckResponse initHealthCheckResponse() {
-    final HealthcheckResponse healthcheckResponse = new HealthcheckResponse();
+  private HealthCheckInfo initHealthCheckInfo() {
+    return new HealthCheckInfo(this.healthcheckResponse, true, this.symphonyApiClientVersion);
+  }
+
+  private void initHealthCheckResponse() {
+    this.healthcheckResponse = new HealthcheckResponse();
     healthcheckResponse.setPodConnectivity(false);
     healthcheckResponse.setPodConnectivityError(null);
     healthcheckResponse.setKeyManagerConnectivity(false);
@@ -74,21 +82,5 @@ public class HealthCheckClientImplTest {
     healthcheckResponse.setAgentServiceUserError(null);
     healthcheckResponse.setCeServiceUser(false);
     healthcheckResponse.setCeServiceUserError(null);
-    return healthcheckResponse;
-  }
-
-  private void initRestClient() {
-    final CircuitBreakerConfig cbConfig = CircuitBreakerConfig.custom()
-        .slidingWindowSize(20)
-        .waitDurationInOpenState(Duration.ofSeconds(30))
-        .recordExceptions(RestClientConnectionException.class)
-        .build();
-
-    final BulkheadConfig bhConfig = BulkheadConfig.custom()
-        .maxConcurrentCalls(30)
-        .maxWaitDuration(Duration.ofMillis(500))
-        .build();
-
-    this.restClient = new RestClientImpl(new RestTemplate(), cbConfig, bhConfig);
   }
 }
