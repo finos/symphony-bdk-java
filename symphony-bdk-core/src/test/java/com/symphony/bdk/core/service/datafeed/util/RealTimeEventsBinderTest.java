@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
+import com.symphony.bdk.gen.api.model.V4RoomCreated;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,15 @@ class RealTimeEventsBinderTest {
     final BiConsumer<V4Initiator, V4SymphonyElementsAction> methodToBind = (initiator, v4SymphonyElementsAction) -> methodCalled.set(true);
     RealTimeEventsBinder.bindOnSymphonyElementsAction(this.realTimeEventsProvider::setListener, methodToBind);
     this.realTimeEventsProvider.trigger(l -> l.onSymphonyElementsAction(new V4Initiator(), new V4SymphonyElementsAction()));
+    assertTrue(methodCalled.get());
+  }
+
+  @Test
+  void testBindOnRoomCreated() {
+    final AtomicBoolean methodCalled = new AtomicBoolean(false);
+    final BiConsumer<V4Initiator, V4RoomCreated> methodToBind = (initiator, v4RoomCreated) -> methodCalled.set(true);
+    RealTimeEventsBinder.bindOnRoomCreated(this.realTimeEventsProvider::setListener, methodToBind);
+    this.realTimeEventsProvider.trigger(l -> l.onRoomCreated(new V4Initiator(), new V4RoomCreated()));
     assertTrue(methodCalled.get());
   }
 
