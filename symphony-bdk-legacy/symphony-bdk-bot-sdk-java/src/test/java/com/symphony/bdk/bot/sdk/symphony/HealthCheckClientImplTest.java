@@ -11,8 +11,10 @@ import clients.symphony.api.HealthcheckClient;
 import configuration.SymConfig;
 import configuration.SymConfigLoader;
 import model.HealthcheckResponse;
+import org.apache.commons.io.serialization.ClassNameMatcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -50,6 +52,18 @@ public class HealthCheckClientImplTest {
 
     final HealthCheckInfo healthCheckInfo = this.healthcheckClientImpl.healthCheck();
     assertEquals(healthCheckInfoExpected, healthCheckInfo);
+  }
+
+  @Test(expected = Exception.class)
+  public void testHealthCheckWithException(){
+    Mockito.when(this.symBotClient.getHealthcheckClient().performHealthCheck()).thenThrow(Exception.class);
+    this.healthcheckClientImpl.healthCheck();
+  }
+
+  @Test(expected = Exception.class)
+  public void testInitRestClientWithException(){
+    Mockito.when(this.restClient.getRequest(ArgumentMatchers.anyString(), ClassNameMatcher.class)).thenThrow(Exception.class);
+    this.restClient.getRequest("https://localhost/pod/v1/podcert", String.class);
   }
 
   private void initRestClient() {
