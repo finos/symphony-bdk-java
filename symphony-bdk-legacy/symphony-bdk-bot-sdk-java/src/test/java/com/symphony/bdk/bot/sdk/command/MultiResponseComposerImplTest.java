@@ -12,8 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,70 +49,135 @@ public class MultiResponseComposerImplTest {
   @Test
   public void testWithMessage() {
     final String message = "message1";
+    final String streamId = "streamId1";
 
     final ComposerAttachmentOrStreamDefinition composerAttachmentOrStreamDefinition =
-        this.multiResponseComposerImpl.withMessage(message);
+        this.multiResponseComposerImpl.compose().withMessage(message);
     assertEquals(composerAttachmentOrStreamDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(message, streamId, "simple");
+  }
+
+  private void testMessagesMap(final String message, final String streamId, final String type) {
+    this.multiResponseComposerImpl.toStreams(streamId);
+
+    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
+    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
+
+    assertEquals(1, entries.size());
+
+    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
+    if ("message".equals(type)) {
+      assertEquals(message, entry.getKey().getMessage());
+    } else if ("templateString".equals(type)) {
+      assertEquals(message, entry.getKey().getTemplateString());
+    } else if ("templateFile".equals(type)) {
+      assertEquals(message, entry.getKey().getTemplateFile());
+    }
+    assertEquals(Collections.singleton(streamId), entry.getValue());
+  }
+
+  private void testMessagesMap(final List<MessageAttachmentFile> messageAttachmentFiles, final String streamId) {
+    this.multiResponseComposerImpl.toStreams(streamId);
+
+    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
+    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
+
+    assertEquals(1, entries.size());
+
+    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
+    assertEquals(messageAttachmentFiles, entry.getKey().getAttachments());
+    assertEquals(Collections.singleton(streamId), entry.getValue());
+  }
+
+  private void testMessagesMap(final Collection<MessageAttachmentFile> messageAttachmentFiles, final String streamId) {
+    this.multiResponseComposerImpl.toStreams(streamId);
+
+    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
+    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
+
+    assertEquals(1, entries.size());
+
+    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
+    assertEquals(messageAttachmentFiles, entry.getKey().getAttachments());
+    assertEquals(Collections.singleton(streamId), entry.getValue());
   }
 
   @Test
   public void testWithEnrichedMessage() {
     final String message = "message2";
+    final String streamId = "streamId2";
     final String entityName = "entityName";
     final Object entity = new Object();
     final String version = "version";
 
     final ComposerAttachmentOrStreamDefinition composerAttachmentOrStreamDefinition =
-        this.multiResponseComposerImpl.withEnrichedMessage(message, entityName, entity, version);
+        this.multiResponseComposerImpl.compose().withEnrichedMessage(message, entityName, entity, version);
     assertEquals(composerAttachmentOrStreamDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(message, streamId, "message");
   }
 
   @Test
   public void testWithTemplateMessage() {
     final String templateMessage = "template message";
+    final String streamId = "streamId3";
     final Object templateData = new Object();
 
     final ComposerAttachmentOrStreamDefinition composerAttachmentOrStreamDefinition =
-        this.multiResponseComposerImpl.withTemplateMessage(templateMessage, templateData);
+        this.multiResponseComposerImpl.compose().withTemplateMessage(templateMessage, templateData);
     assertEquals(composerAttachmentOrStreamDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(templateMessage, streamId, "templateString");
   }
 
   @Test
   public void testWithEnrichedTemplateMessage() {
     final String templateMessage = "template message 1";
+    final String streamId = "streamId4";
     final Object templateData = new Object();
     final String entityName = "entityName 1";
     final Object entity = new Object();
     final String version = "version1";
 
     final ComposerAttachmentOrStreamDefinition composerAttachmentOrStreamDefinition =
-        this.multiResponseComposerImpl.withEnrichedTemplateMessage(templateMessage, templateData, entityName, entity,
-            version);
+        this.multiResponseComposerImpl.compose()
+            .withEnrichedTemplateMessage(templateMessage, templateData, entityName, entity,
+                version);
     assertEquals(composerAttachmentOrStreamDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(templateMessage, streamId, "templateString");
   }
 
   @Test
   public void testWithTemplateFile() {
     final String templateFile = "template file";
+    final String streamId = "streamId5";
     final Object templateData = new Object();
 
     final ComposerAttachmentOrStreamDefinition composerAttachmentOrStreamDefinition =
-        this.multiResponseComposerImpl.withTemplateFile(templateFile, templateData);
+        this.multiResponseComposerImpl.compose().withTemplateFile(templateFile, templateData);
     assertEquals(composerAttachmentOrStreamDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(templateFile, streamId, "templateFile");
   }
 
   @Test
   public void testWithEnrichedTemplateFile() {
     final String templateFile = "template file 1";
+    final String streamId = "streamId5";
     final Object templateData = new Object();
     final String entityName = "entityName 2";
     final Object entity = new Object();
     final String version = "version2";
 
     final ComposerAttachmentOrStreamDefinition composerAttachmentOrStreamDefinition =
-        this.multiResponseComposerImpl.withEnrichedTemplateFile(templateFile, templateData, entityName, entity,
-            version);
+        this.multiResponseComposerImpl.compose()
+            .withEnrichedTemplateFile(templateFile, templateData, entityName, entity,
+                version);
     assertEquals(composerAttachmentOrStreamDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(templateFile, streamId, "templateFile");
   }
 
   @Test
@@ -146,23 +213,30 @@ public class MultiResponseComposerImplTest {
     final MessageAttachmentFile messageAttachmentFile2 = messageAttachmentFiles.get(1);
     final MessageAttachmentFile messageAttachmentFile3 = messageAttachmentFiles.get(2);
 
-    this.multiResponseComposerImpl.withMessage("Message"); // to initialize message
+    final String streamId = "streamId6";
+
+    this.multiResponseComposerImpl.compose().withMessage("Message"); // to initialize message
 
     final ComposerStreamsDefinition composerStreamsDefinition =
         this.multiResponseComposerImpl.withAttachments(messageAttachmentFile1, messageAttachmentFile2,
             messageAttachmentFile3);
     assertEquals(composerStreamsDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(messageAttachmentFiles, streamId);
   }
 
   @Test
   public void testWithAttachmentsCollection() {
     final Collection<MessageAttachmentFile> messageAttachmentFiles = this.symphonyMessage.getAttachments();
+    final String streamId = "streamId7";
 
-    this.multiResponseComposerImpl.withMessage("Message"); // to initialize message
+    this.multiResponseComposerImpl.compose().withMessage("Message"); // to initialize message
 
     final ComposerStreamsDefinition composerStreamsDefinition =
         this.multiResponseComposerImpl.withAttachments(messageAttachmentFiles);
     assertEquals(composerStreamsDefinition, this.multiResponseComposerImpl);
+
+    this.testMessagesMap(messageAttachmentFiles, streamId);
   }
 
   @Test
