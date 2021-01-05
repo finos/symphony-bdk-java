@@ -12,6 +12,19 @@ import org.apiguardian.api.API;
 public interface RealTimeEventListener {
 
     /**
+     * Check if the event is accepted to be handled.
+     *
+     * @param event     Event to be verified.
+     * @param username  Username of the bot itself.
+     * @return the event is accepted or not
+     */
+    default boolean isAcceptingEvent(V4Event event, String username) {
+      return event.getInitiator() != null && event.getInitiator().getUser() != null
+          && event.getInitiator().getUser().getUsername() != null
+          && !event.getInitiator().getUser().getUsername().equals(username);
+    }
+
+    /**
      * Called when a MESSAGESENT event is received.
      * @param initiator Event initiator.
      * @param event Message sent payload.
