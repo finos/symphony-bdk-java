@@ -11,7 +11,7 @@ import org.apiguardian.api.API;
 import java.util.function.Consumer;
 
 /**
- * A room created activity corresponds to an Room Created event.
+ * A room created activity corresponds to a Room Created event.
  */
 @API(status = API.Status.STABLE)
 public abstract class RoomCreatedActivity<C extends RoomCreatedContext> extends AbstractActivity<V4RoomCreated, C> {
