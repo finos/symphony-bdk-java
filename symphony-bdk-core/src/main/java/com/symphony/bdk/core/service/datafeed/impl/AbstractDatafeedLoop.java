@@ -76,7 +76,8 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
       if (event == null || event.getType() == null) {
         continue;
       }
-      if (this.isSelfGeneratedEvent(event)) {
+      if (!event.getType().equals(RealTimeEventType.ROOMCREATED.name())
+          && this.isSelfGeneratedEvent(event)) {
         continue;
       }
       try {

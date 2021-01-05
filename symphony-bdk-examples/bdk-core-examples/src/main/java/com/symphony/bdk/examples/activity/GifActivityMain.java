@@ -54,6 +54,8 @@ public class GifActivityMain {
     // register a "formReply" activity that handles the Gif category form submission
     bdk.activities().register(new GifFormReplyActivity());
 
+    bdk.activities().register(new GifRoomCreatedActivity());
+
     // display activities documentation in the console
     reportActivities(bdk.activities());
 
