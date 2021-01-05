@@ -1,6 +1,7 @@
 package com.symphony.bdk.bot.sdk.symphony;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import com.symphony.bdk.bot.sdk.lib.restclient.RestClient;
 import com.symphony.bdk.bot.sdk.lib.restclient.model.RestResponse;
@@ -20,6 +21,7 @@ public class HealthCheckClientImplTest {
 
   private SymBotClient symBotClient;
   private RestClient restClient;
+  private HealthcheckClient healthcheckClient;
   private HealthcheckResponse healthcheckResponse;
   private HealthcheckClientImpl healthcheckClientImpl;
 
@@ -40,6 +42,8 @@ public class HealthCheckClientImplTest {
     Mockito.when(this.symBotClient.getHealthcheckClient()).thenReturn(healthcheckClient);
 
     this.initRestClient();
+
+    this.healthcheckClient = Mockito.mock(HealthcheckClient.class);
 
     this.healthcheckClientImpl = new HealthcheckClientImpl(this.symBotClient, this.restClient);
   }
@@ -65,6 +69,27 @@ public class HealthCheckClientImplTest {
     Mockito.when(this.restClient.getRequest(
         "https://localhost/pod/v1/podcert", String.class
     )).thenThrow(new Exception());
+  }
+
+  @Test
+  public void testCheckAgentStatusFailure(){
+    Mockito.when(this.healthcheckClient.performHealthCheck()).thenThrow(new RuntimeException());
+
+    this.verifyOverallStatusIsFalse();
+  }
+
+  @Test
+  public void testPodStatusFailure(){
+    Mockito.when(this.restClient.getRequest(
+        "https://localhost/pod/v1/podcert", String.class
+    )).thenThrow(new RuntimeException());
+
+    this.verifyOverallStatusIsFalse();
+  }
+
+  private void verifyOverallStatusIsFalse() {
+    final HealthCheckInfo healthCheckInfo = this.healthcheckClientImpl.healthCheck();
+    assertFalse(healthCheckInfo.checkOverallStatus());
   }
 
   private void initRestClient() {
