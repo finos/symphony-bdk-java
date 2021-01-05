@@ -24,7 +24,7 @@ public class DatafeedExampleMain {
       }
     });
 
-    bdk.activities().register(slash("/hello", context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>")));
+    bdk.activities().register(slash("/hello", context -> bdk.messages().send(context.getStreamId(), "<messageML>Hello, World!</messageML>"), "Hello Command"));
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       log.info("Stopping Datafeed...");

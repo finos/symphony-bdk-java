@@ -1,11 +1,15 @@
 package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.core.activity.command.CommandActivity;
+import com.symphony.bdk.core.activity.command.CommandActivityInfo;
+import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.core.service.message.MessageService;
+import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.gen.api.model.UserV2;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -18,7 +22,6 @@ import java.util.function.Consumer;
  * It also maintains the list of registered activities.
  */
 @Slf4j
-@RequiredArgsConstructor
 @API(status = API.Status.STABLE)
 public class ActivityRegistry {
 
@@ -28,8 +31,36 @@ public class ActivityRegistry {
   /** The bot session forwarded to command-based activities only */
   private final UserV2 botSession;
 
+  private final MessageService messageService;
+
+  private SlashCommand helpCommand;
+
   /** The Datafeed real-time events source, or Datafeed listener */
   private final Consumer<RealTimeEventListener> realTimeEventsSource;
+
+  public ActivityRegistry(UserV2 botSession, Consumer<RealTimeEventListener> realTimeEventsSource , MessageService messageService) {
+    this.botSession = botSession;
+    this.realTimeEventsSource = realTimeEventsSource;
+    this.messageService = messageService;
+
+    this.registerHelpCommand();
+  }
+
+  private void registerHelpCommand() {
+    this.helpCommand = SlashCommand.slash("/help", commandContext -> {
+      List<String> commands = new ArrayList<>();
+      for (AbstractActivity<?, ?> activity : activityList) {
+        ActivityInfo info = activity.getInfo();
+        if (info instanceof CommandActivityInfo) {
+          CommandActivityInfo commandInfo = (CommandActivityInfo) info;
+          commands.add("<li>" + commandInfo.commandName() + ": " + commandInfo.summary() + "</li>");
+        }
+      }
+      String message = "<ul>" + String.join("\n", commands) + "</ul>";
+      this.messageService.send(commandContext.getStreamId(), Message.builder().content(message).build());
+    }, "Bdk Help Command");
+    this.register(this.helpCommand);
+  }
 
   /**
    * Registers an activity within the registry.
