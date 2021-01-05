@@ -58,51 +58,6 @@ public class MultiResponseComposerImplTest {
     this.testMessagesMap(message, streamId, "simple");
   }
 
-  private void testMessagesMap(final String message, final String streamId, final String type) {
-    this.multiResponseComposerImpl.toStreams(streamId);
-
-    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
-    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
-
-    assertEquals(1, entries.size());
-
-    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
-    if ("message".equals(type)) {
-      assertEquals(message, entry.getKey().getMessage());
-    } else if ("templateString".equals(type)) {
-      assertEquals(message, entry.getKey().getTemplateString());
-    } else if ("templateFile".equals(type)) {
-      assertEquals(message, entry.getKey().getTemplateFile());
-    }
-    assertEquals(Collections.singleton(streamId), entry.getValue());
-  }
-
-  private void testMessagesMap(final List<MessageAttachmentFile> messageAttachmentFiles, final String streamId) {
-    this.multiResponseComposerImpl.toStreams(streamId);
-
-    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
-    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
-
-    assertEquals(1, entries.size());
-
-    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
-    assertEquals(messageAttachmentFiles, entry.getKey().getAttachments());
-    assertEquals(Collections.singleton(streamId), entry.getValue());
-  }
-
-  private void testMessagesMap(final Collection<MessageAttachmentFile> messageAttachmentFiles, final String streamId) {
-    this.multiResponseComposerImpl.toStreams(streamId);
-
-    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
-    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
-
-    assertEquals(1, entries.size());
-
-    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
-    assertEquals(messageAttachmentFiles, entry.getKey().getAttachments());
-    assertEquals(Collections.singleton(streamId), entry.getValue());
-  }
-
   @Test
   public void testWithEnrichedMessage() {
     final String message = "message2";
@@ -272,6 +227,51 @@ public class MultiResponseComposerImplTest {
     this.multiResponseComposerImpl.toStreams(streamId1, streamId2, streamId3);
 
     assertTrue(this.multiResponseComposerImpl.hasContent());
+  }
+
+  private void testMessagesMap(final String message, final String streamId, final String type) {
+    this.multiResponseComposerImpl.toStreams(streamId);
+
+    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
+    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
+
+    assertEquals(1, entries.size());
+
+    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
+    if ("message".equals(type)) {
+      assertEquals(message, entry.getKey().getMessage());
+    } else if ("templateString".equals(type)) {
+      assertEquals(message, entry.getKey().getTemplateString());
+    } else if ("templateFile".equals(type)) {
+      assertEquals(message, entry.getKey().getTemplateFile());
+    }
+    assertEquals(Collections.singleton(streamId), entry.getValue());
+  }
+
+  private void testMessagesMap(final List<MessageAttachmentFile> messageAttachmentFiles, final String streamId) {
+    this.multiResponseComposerImpl.toStreams(streamId);
+
+    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
+    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
+
+    assertEquals(1, entries.size());
+
+    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
+    assertEquals(messageAttachmentFiles, entry.getKey().getAttachments());
+    assertEquals(Collections.singleton(streamId), entry.getValue());
+  }
+
+  private void testMessagesMap(final Collection<MessageAttachmentFile> messageAttachmentFiles, final String streamId) {
+    this.multiResponseComposerImpl.toStreams(streamId);
+
+    final Map<SymphonyMessage, Set<String>> composedResponse = this.multiResponseComposerImpl.getComposedResponse();
+    final List<Map.Entry<SymphonyMessage, Set<String>>> entries = new ArrayList(composedResponse.entrySet());
+
+    assertEquals(1, entries.size());
+
+    final Map.Entry<SymphonyMessage, Set<String>> entry = entries.get(0);
+    assertEquals(messageAttachmentFiles, entry.getKey().getAttachments());
+    assertEquals(Collections.singleton(streamId), entry.getValue());
   }
 
   private SymphonyMessage initSymphonyMessage() {
