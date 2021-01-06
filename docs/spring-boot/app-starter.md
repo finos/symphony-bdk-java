@@ -95,7 +95,7 @@ bdk-app:
     cors: # enable Cross-Origin Resource Sharing (CORS) communication
       "[/**]": # url mapping
         allowed-origins: "*" # list of allowed origins path pattern that be specific origins,
-        allowed-credentials: true # Access-Control-Allow-Credentials response header for CORS request
+        allowed-credentials: false # Access-Control-Allow-Credentials response header for CORS request
         allowed-method: ["POST", "GET"] # list of HTTP methods to allow
         allowed-headers: "*" # list of headers that a request can list as allowed (multiple values allowed by using ["header-name-1", "header-name-2"])
         exposed-headers: ["header-name-1", "header-name-2"] # list of response headers that a response can have and can be exposed, the value "*" is not allowed for this field.
