@@ -204,6 +204,22 @@ look like:
   }
 }
 ``` 
+
+In both formats, you can use system properties. For instance, `${user.home}` in any field will be replaced by the actual
+value of system property `user.home`. Therefore, the following is a valid configuration file:
+
+```json
+{
+  "host": "acme.symphony.com",
+  "bot": {
+    "username": "bot-username",
+    "privateKey": {
+      "path": "${user.home}/rsa-private-key.pem"
+    }
+  }
+}
+```
+
 Reading a `JSON` configuration file is completely transparent: 
 ```java
 public class Example {
