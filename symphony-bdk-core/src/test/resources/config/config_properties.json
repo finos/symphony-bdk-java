@@ -1,0 +1,21 @@
+{
+    "_version": "2.0",
+
+    "pod": {
+        "host": "devx1.symphony.com"
+    },
+    "agent": {
+        "host": "devx1.symphony.com"
+    },
+    "keyManager": {
+        "host": "devx1.symphony.com"
+    },
+    "bot": {
+        "username": "tibot",
+        "privateKeyPath": "${my.property}/privatekey.pem"
+    },
+    "app": {
+        "appId": "tibapp",
+        "privateKeyPath": "/Users/local/conf/agent/privatekey.pem"
+    }
+}

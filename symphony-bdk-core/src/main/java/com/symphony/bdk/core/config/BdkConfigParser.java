@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringSubstitutor;
 import org.apiguardian.api.API;
 
 import java.io.BufferedReader;
@@ -27,10 +28,11 @@ class BdkConfigParser {
     public static JsonNode parse(InputStream inputStream) throws BdkConfigException {
         JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        String content = new BufferedReader(
-                new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-                .lines()
-                .collect(Collectors.joining("\n"));
+
+      String content = StringSubstitutor.replaceSystemProperties(new BufferedReader(
+          new InputStreamReader(inputStream, StandardCharsets.UTF_8))
+          .lines()
+          .collect(Collectors.joining("\n")));
         try {
             return JSON_MAPPER.readTree(content);
         } catch (IOException e) {
