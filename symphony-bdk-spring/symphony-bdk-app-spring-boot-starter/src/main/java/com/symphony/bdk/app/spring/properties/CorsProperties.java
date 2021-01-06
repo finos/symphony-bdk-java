@@ -20,7 +20,7 @@ public class CorsProperties {
   private List<String> allowedOrigins = Collections.singletonList("/**");
 
   /**
-   * [deprecated] use property "allow-credentials" instead
+   * @deprecated use property "allow-credentials" instead
    */
   @Deprecated
   @API(status = API.Status.DEPRECATED, since = "2.0")
@@ -42,7 +42,7 @@ public class CorsProperties {
   private List<String> exposedHeaders = Collections.emptyList();
 
   /**
-   * [deprecated] use property "allow-credentials" instead
+   * @deprecated use property "allow-credentials" instead
    */
   @Deprecated
   @API(status = API.Status.DEPRECATED, since = "2.0")
