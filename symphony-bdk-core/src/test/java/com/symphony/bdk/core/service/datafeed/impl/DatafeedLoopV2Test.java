@@ -74,7 +74,12 @@ public class DatafeedLoopV2Test {
                 bdkConfig
         );
         this.listener = new RealTimeEventListener() {
-            @Override
+          @Override
+          public boolean isAcceptingEvent(V4Event event, String username) {
+            return true;
+          }
+
+          @Override
             public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
                 datafeedService.stop();
             }
@@ -128,7 +133,12 @@ public class DatafeedLoopV2Test {
 
         this.datafeedService.unsubscribe(this.listener);
         this.datafeedService.subscribe(new RealTimeEventListener() {
-            @Override
+          @Override
+          public boolean isAcceptingEvent(V4Event event, String username) {
+            return true;
+          }
+
+          @Override
             public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
                 try {
                     datafeedService.start();

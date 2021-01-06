@@ -76,24 +76,18 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
       if (event == null || event.getType() == null) {
         continue;
       }
-      if (this.isSelfGeneratedEvent(event)) {
-        continue;
-      }
+
       try {
         RealTimeEventType eventType = RealTimeEventType.valueOf(event.getType());
         for (RealTimeEventListener listener : listeners) {
-          eventType.dispatch(listener, event);
+          if (listener.isAcceptingEvent(event, bdkConfig.getBot().getUsername())) {
+            eventType.dispatch(listener, event);
+          }
         }
       } catch (IllegalArgumentException e) {
         log.warn("Receive events with unknown type: {}", event.getType());
       }
     }
-  }
-
-  private boolean isSelfGeneratedEvent(V4Event event) {
-    return event.getInitiator() != null && event.getInitiator().getUser() != null
-        && event.getInitiator().getUser().getUsername() != null
-        && event.getInitiator().getUser().getUsername().equals(this.bdkConfig.getBot().getUsername());
   }
 
   protected void refresh() throws AuthUnauthorizedException {
