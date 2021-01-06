@@ -20,6 +20,7 @@ public interface RealTimeEventListener {
      * @param username  Username of the bot itself.
      * @return the event is accepted or not
      */
+    @API(status = API.Status.EXPERIMENTAL)
     default boolean isAcceptingEvent(V4Event event, String username) {
       return event.getInitiator() != null && event.getInitiator().getUser() != null
           && event.getInitiator().getUser().getUsername() != null
