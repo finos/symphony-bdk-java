@@ -27,7 +27,9 @@ public class BdkExtAppSecurityConfigTest {
     final SymphonyBdkAppProperties props = new SymphonyBdkAppProperties();
     final CorsProperties cors = new CorsProperties();
     cors.setAllowedMethod(Collections.singletonList("POST"));
+    cors.setAllowedMethods(Collections.singletonList("POST"));
     cors.setAllowedCredentials(true);
+    cors.setAllowCredentials(true);
     cors.setExposedHeaders(Arrays.asList("header1", "header2"));
     cors.setAllowedHeaders(Arrays.asList("header1", "header2"));
     props.setCors(Collections.singletonMap("*", cors));
