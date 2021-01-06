@@ -46,18 +46,18 @@ public class SlashAnnotationProcessorTest {
   @Test
   void slashMethodShouldBeRegistered() {
 
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(4);
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(5);
 
     assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(SlashCommand.class)));
     assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(TestFormReplyActivity.class)));
 
     // for lazy beans, slash activity is added once bean initialized
     this.applicationContext.getBean("foobar-lazy");
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(5);
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(6);
 
     // verify that slash activity is not added twice in the registry for a lazy bean
     this.applicationContext.getBean("foobar-lazy");
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(5);
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(6);
   }
 
   @Test
