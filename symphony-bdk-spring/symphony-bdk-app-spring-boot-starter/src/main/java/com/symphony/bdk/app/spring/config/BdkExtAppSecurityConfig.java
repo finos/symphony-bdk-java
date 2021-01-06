@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +23,10 @@ public class BdkExtAppSecurityConfig {
   }
 
   static class BdkExtAppWebMvcConfigurer implements WebMvcConfigurer {
+
+    private static final String WARN_MSG = "CORS property '{}' (mapping '{}') is now deprecated and has been replaced by '{}'. "
+        + "Please update your application.yaml accordingly.";
+
     private final SymphonyBdkAppProperties properties;
 
     public BdkExtAppWebMvcConfigurer(SymphonyBdkAppProperties properties) {
@@ -32,26 +37,39 @@ public class BdkExtAppSecurityConfig {
     public void addCorsMappings(CorsRegistry registry) {
       for (Map.Entry<String, CorsProperties> urlMapping : this.properties.getCors().entrySet()) {
         final CorsProperties corsProperties = urlMapping.getValue();
-        warnDeprecatedProperties(corsProperties);
         registry.addMapping(urlMapping.getKey())
             .allowedOrigins(corsProperties.getAllowedOrigins().toArray(new String[0]))
-            .allowCredentials(corsProperties.getAllowCredentials())
+            .allowCredentials(getAllowCredentials(urlMapping.getKey(), corsProperties))
             .allowedHeaders(corsProperties.getAllowedHeaders().toArray(new String[0]))
-            .allowedMethods(corsProperties.getAllowedMethods().toArray(new String[0]))
+            .allowedMethods(getAllowedMethods(urlMapping.getKey(), corsProperties).toArray(new String[0]))
             .exposedHeaders(corsProperties.getExposedHeaders().toArray(new String[0]));
       }
     }
 
-    private static void warnDeprecatedProperties(CorsProperties corsProperties) {
-      final String msg = "CORS property '{}' is now deprecated and has been replaced by '{}'. "
-          + "Please update your application.yaml accordingly.";
+    /**
+     * Preserve backward compatibility after renaming 'allowed-method' property to 'allowed-methods'
+     */
+    private static List<String> getAllowedMethods(String urlMapping, CorsProperties corsProperties) {
+
+      if (corsProperties.getAllowedMethod() != null) {
+        log.warn(WARN_MSG, "allowed-method", urlMapping, "allowed-methods");
+        return corsProperties.getAllowedMethod();
+      }
+
+      return corsProperties.getAllowedMethods();
+    }
+
+    /**
+     * Preserve backward compatibility after renaming 'allowed-credentials' property to 'allow-credentials'
+     */
+    private static boolean getAllowCredentials(String urlMapping, CorsProperties corsProperties) {
 
       if (corsProperties.getAllowedCredentials() != null) {
-        log.warn(msg, "allowed-credentials", "allow-credentials");
+        log.warn(WARN_MSG, "allowed-credentials", urlMapping, "allow-credentials");
+        return corsProperties.getAllowedCredentials();
       }
-      if (corsProperties.getAllowedMethod() != null) {
-        log.warn(msg, "allowed-method", "allowed-methods");
-      }
+
+      return corsProperties.getAllowCredentials();
     }
   }
 }
