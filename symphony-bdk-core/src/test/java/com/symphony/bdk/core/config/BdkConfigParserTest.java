@@ -6,23 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 
 public class BdkConfigParserTest {
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         System.clearProperty("my.property");
+        System.clearProperty("recursive");
     }
 
     @Test
     void parseJsonConfigTest() throws BdkConfigException {
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.json");
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("tibot", jsonNode.at("/bot").at("/username").asText());
+        assertEquals("tibot", jsonNode.at("/bot/username").asText());
     }
 
     @Test
@@ -31,7 +32,7 @@ public class BdkConfigParserTest {
 
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot").at("/privateKeyPath").asText());
+        assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
     @Test
@@ -40,14 +41,31 @@ public class BdkConfigParserTest {
 
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("propvalue:\"\n/privatekey.pem", jsonNode.at("/bot").at("/privateKeyPath").asText());
+        assertEquals("propvalue:\"\n/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
+    }
+
+    @Test
+    void parseJsonConfigWithRecursivePropertyShouldNotWorkTest() throws BdkConfigException {
+        System.setProperty("recursive", "my.property");
+        System.setProperty("my.property", "propvalue");
+
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_recursive_props.json");
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        assertEquals("${${recursive}}/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
+    }
+
+    @Test
+    void parseJsonConfigWithUndefinedPropertyTest() throws BdkConfigException {
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        assertEquals("${my.property}/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
     @Test
     void parseYamlConfigTest() throws BdkConfigException {
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.yaml");
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("tibot", jsonNode.at("/bot").at("/username").asText());
+        assertEquals("tibot", jsonNode.at("/bot/username").asText());
     }
 
     @Test
@@ -56,7 +74,7 @@ public class BdkConfigParserTest {
 
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.yaml");
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot").at("/privateKey").at("/path").asText());
+        assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKey/path").asText());
     }
 
     @Test
