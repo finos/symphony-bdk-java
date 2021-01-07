@@ -36,7 +36,7 @@ public class BdkActivityConfig {
   ) {
     log.debug("Retrieving bot session info");
     final UserV2 botSessionInfo = sessionService.getSession();
-    final ActivityRegistry activityRegistry = new ActivityRegistry(botSessionInfo, datafeedLoop::subscribe, messageService);
+    final ActivityRegistry activityRegistry = new ActivityRegistry(botSessionInfo, datafeedLoop::subscribe);
     log.debug("{} activities found from context", activities.size());
     activities.forEach(activityRegistry::register);
     return activityRegistry;

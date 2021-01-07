@@ -22,7 +22,7 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
   private final String slashCommandName;
   private final boolean requiresBotMention;
   private final Consumer<CommandContext> callback;
-  private final String summary;
+  private final String description;
 
   /**
    * Returns a new {@link SlashCommand} instance.
@@ -52,11 +52,11 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
    *
    * @param slashCommandName   Identifier of the command (ex: '/gif' or 'gif').
    * @param callback           Callback to be processed when command is detected.
-   * @param summary            The summary of the command.
+   * @param description            The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandName, @Nonnull Consumer<CommandContext> callback, String summary) {
-    return slash(slashCommandName, true, callback, summary);
+  public static SlashCommand slash(@Nonnull String slashCommandName, @Nonnull Consumer<CommandContext> callback, String description) {
+    return slash(slashCommandName, true, callback, description);
   }
 
   /**
@@ -65,19 +65,19 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
    * @param slashCommandName   Identifier of the command (ex: '/gif' or 'gif').
    * @param requiresBotMention Indicates whether the bot has to be mentioned in order to trigger the command.
    * @param callback           Callback to be processed when command is detected.
-   * @param summary            The summary of the command.
+   * @param description            The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
   public static SlashCommand slash(@Nonnull String slashCommandName, boolean requiresBotMention,
-      @Nonnull Consumer<CommandContext> callback, String summary) {
-    return new SlashCommand(slashCommandName, requiresBotMention, callback, summary);
+      @Nonnull Consumer<CommandContext> callback, String description) {
+    return new SlashCommand(slashCommandName, requiresBotMention, callback, description);
   }
 
   /**
    * Default private constructor, new instances from static methods only.
    */
   private SlashCommand(@Nonnull String slashCommandName, boolean requiresBotMention,
-      @Nonnull Consumer<CommandContext> callback, String summary) {
+      @Nonnull Consumer<CommandContext> callback, String description) {
 
     if (StringUtils.isEmpty(slashCommandName)) {
       throw new IllegalArgumentException("The slash command name cannot be empty.");
@@ -86,7 +86,7 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
     this.slashCommandName = slashCommandName;
     this.requiresBotMention = requiresBotMention;
     this.callback = callback;
-    this.summary = summary;
+    this.description = description;
   }
 
   @Override
@@ -102,11 +102,7 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new CommandActivityInfo().commandName(this.slashCommandName)
-        .summary(this.summary)
-        .type(ActivityType.COMMAND)
-        .name("Slash command '" + this.slashCommandName + "'")
-        .description("Usage: " + (this.requiresBotMention ? "@BotMention " : "") + this.slashCommandName);
+    return new ActivityInfo(ActivityType.COMMAND, this.slashCommandName, this.description);
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
+import com.symphony.bdk.core.activity.command.HelpCommand;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
@@ -56,6 +57,8 @@ public class SymphonyBdk {
   private final SessionService sessionService;
   private final HealthService healthService;
 
+  private final HelpCommand helpCommand;
+
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
   }
@@ -95,7 +98,14 @@ public class SymphonyBdk {
 
     // setup activities
     this.activityRegistry =
-        this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop::subscribe, this.messageService) : null;
+        this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop::subscribe) : null;
+
+    this.helpCommand = this.activityRegistry != null && this.messageService != null ?
+        new HelpCommand(this.activityRegistry, this.messageService) : null;
+
+    if (this.activityRegistry != null) {
+      this.activityRegistry.register(this.helpCommand);
+    }
   }
 
   /**

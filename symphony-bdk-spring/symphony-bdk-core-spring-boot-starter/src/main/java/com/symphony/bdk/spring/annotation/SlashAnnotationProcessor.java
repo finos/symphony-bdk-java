@@ -141,7 +141,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
 
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
     this.registry.register(
-        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method))
+        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method), annotation.description())
     );
   }
 

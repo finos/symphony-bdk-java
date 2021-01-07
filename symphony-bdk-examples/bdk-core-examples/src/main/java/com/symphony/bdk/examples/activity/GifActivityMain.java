@@ -71,9 +71,9 @@ public class GifActivityMain {
     log.info("-- ACTIVITIES REPORT --");
     for (ActivityInfo info : infos) {
       log.info("--");
-      log.info("TYPE: {}", info.type());
-      log.info("NAME: {}", info.name());
-      log.info("DESC: {}", info.description());
+      log.info("TYPE: {}", info.getType());
+      log.info("NAME: {}", info.getName());
+      log.info("DESC: {}", info.getDescription());
     }
     log.info("--");
   }

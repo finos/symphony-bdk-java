@@ -18,7 +18,7 @@ public class TestCommandActivity extends CommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.COMMAND);
+    return new ActivityInfo(ActivityType.COMMAND, "", "");
   }
 
   @Override

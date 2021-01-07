@@ -40,16 +40,16 @@ class ActivityRegistryTest {
   @BeforeEach
   void setUp() {
     when(botSession.getDisplayName()).thenReturn(UUID.randomUUID().toString());
-    this.registry = new ActivityRegistry(this.botSession, this.datafeedService::subscribe, this.messageService);
+    this.registry = new ActivityRegistry(this.botSession, this.datafeedService::subscribe);
   }
 
   @Test
   void shouldRegisterActivity() {
     final CommandActivity<?> act = new TestCommandActivity();
-    assertEquals(1, this.registry.getActivityList().size());
+    assertEquals(0, this.registry.getActivityList().size());
     this.registry.register(act);
-    assertEquals(2, this.registry.getActivityList().size(), "Registry must contain 2 activity");
-    verify(this.datafeedService, times(2)).subscribe(any(RealTimeEventListener.class));
+    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain 2 activity");
+    verify(this.datafeedService, times(1)).subscribe(any(RealTimeEventListener.class));
     assertEquals(this.botSession.getDisplayName(), act.getBotDisplayName());
   }
 }

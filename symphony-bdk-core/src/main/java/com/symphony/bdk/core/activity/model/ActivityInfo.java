@@ -1,8 +1,8 @@
 package com.symphony.bdk.core.activity.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import org.apiguardian.api.API;
 
 /**
@@ -14,7 +14,7 @@ import org.apiguardian.api.API;
  */
 @Getter
 @Setter
-@Accessors(fluent = true)
+@AllArgsConstructor
 @API(status = API.Status.EXPERIMENTAL)
 public class ActivityInfo {
 
