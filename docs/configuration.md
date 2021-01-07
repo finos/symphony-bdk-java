@@ -213,6 +213,26 @@ look like:
   }
 }
 ``` 
+
+### Field interpolation using system properties
+In both formats, you can use system properties as field values. For instance, `${user.home}` in any field will be
+replaced by the actual value of system property `user.home`. If a property is not defined, no interpolation will be done
+and string will be left as is. A default value can be provided after `:-`, for instance `${property.name:-defaultValue}`.
+Therefore, the following is a valid configuration file:
+
+```json
+{
+  "host": "${subdomain:-acme}.symphony.com",
+  "bot": {
+    "username": "bot-username",
+    "privateKey": {
+      "path": "${user.home}/rsa-private-key.pem"
+    }
+  }
+}
+```
+Please mind that if you want to escape the `$` sign, `$${value}` will be replaced by `${value}`.
+
 Reading a `JSON` configuration file is completely transparent: 
 ```java
 public class Example {
