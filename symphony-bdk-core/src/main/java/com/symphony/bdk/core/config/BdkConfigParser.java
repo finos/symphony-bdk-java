@@ -63,8 +63,8 @@ class BdkConfigParser {
 
     public static void interpolateProperties(JsonNode jsonNode) {
         if (jsonNode.isArray()) {
-            for (final JsonNode objNode : jsonNode) {
-                interpolateProperties(objNode);
+            for (final JsonNode arrayItem : jsonNode) {
+                interpolateProperties(arrayItem);
             }
         } else if (jsonNode.isObject()) {
             interpolatePropertiesInObject((ObjectNode) jsonNode);
@@ -72,9 +72,9 @@ class BdkConfigParser {
     }
 
     private static void interpolatePropertiesInObject(ObjectNode objectNode) {
-        final Iterator<String> stringIterator = objectNode.fieldNames();
-        while (stringIterator.hasNext()) {
-            interpolatePropertyInField(objectNode, stringIterator.next());
+        final Iterator<String> fieldNames = objectNode.fieldNames();
+        while (fieldNames.hasNext()) {
+            interpolatePropertyInField(objectNode, fieldNames.next());
         }
     }
 
