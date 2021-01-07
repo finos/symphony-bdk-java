@@ -32,7 +32,9 @@ public class BdkConfigParserTest {
 
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+
         assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
+        assertEquals("default/value/privatekey.pem", jsonNode.at("/app/privateKeyPath").asText());
     }
 
     @Test
