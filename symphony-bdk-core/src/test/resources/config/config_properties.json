@@ -1,6 +1,8 @@
 {
     "_version": "2.0",
 
+    "host" : "$${escaped}",
+
     "bot": {
         "username": "tibot",
         "privateKeyPath": "${my.property}/privatekey.pem"
