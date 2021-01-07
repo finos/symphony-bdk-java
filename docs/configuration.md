@@ -205,9 +205,10 @@ look like:
 }
 ``` 
 
-In both formats, you can use system properties. For instance, `${user.home}` in any field will be replaced by the actual
-value of system property `user.home`. If a property is not defined, no interpolation will be done and string will be left as is.
-A default value can be provided after `:-`, for instance `${property.name:-defaultValue}`.
+### Field interpolation using system properties
+In both formats, you can use system properties as field values. For instance, `${user.home}` in any field will be
+replaced by the actual value of system property `user.home`. If a property is not defined, no interpolation will be done
+and string will be left as is. A default value can be provided after `:-`, for instance `${property.name:-defaultValue}`.
 Therefore, the following is a valid configuration file:
 
 ```json
