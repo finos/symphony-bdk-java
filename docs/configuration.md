@@ -139,10 +139,12 @@ the appId, the private key or the certificate for authenticating the extension a
 - `datafeed` contains information of the datafeed service to be used by the bot.
 - `retry` contains information for retry mechanism to be used by the bot.
 
-Although not recommended for RSA private keys, you can specify paths to classpath resources for the following fields:
+Although not recommended for RSA private keys, you can specify absolute paths to classpath resources for the following fields:
 - `bot.privateKey.path`, `bot.certificate.path`
 - `app.privateKey.path`, `app.certificate.path`
 - `ssl.trustStore.path`
+
+Only absolute paths to classpath resources are supported (i.e. paths beginning with `/`).
 
 #### Retry Configuration
 The retry mechanism used by the bot will be configured by these following properties:
