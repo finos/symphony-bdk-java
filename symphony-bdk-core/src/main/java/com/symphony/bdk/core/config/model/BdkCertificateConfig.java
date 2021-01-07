@@ -73,7 +73,10 @@ public class BdkCertificateConfig {
     try {
       if (filePath.startsWith("classpath:")) {
         final URL resource = getClass().getResource(filePath.replace("classpath:", ""));
-        return Files.readAllBytes(Paths.get(resource.toURI()));
+        if (resource != null) {
+          return Files.readAllBytes(Paths.get(resource.toURI()));
+        }
+        throw new ApiClientInitializationException("File not found in classpath: " + filePath);
       }
       return Files.readAllBytes(new File(filePath).toPath());
     } catch (IOException | URISyntaxException e) {
