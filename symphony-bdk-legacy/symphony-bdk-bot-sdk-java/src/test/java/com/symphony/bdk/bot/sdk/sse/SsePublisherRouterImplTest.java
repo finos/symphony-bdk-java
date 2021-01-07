@@ -1,7 +1,6 @@
 package com.symphony.bdk.bot.sdk.sse;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,25 +44,14 @@ public class SsePublisherRouterImplTest {
     final List<String> eventTypes = this.initStringsList();
     Mockito.when(this.ssePublisher.getEventTypes()).thenReturn(eventTypes);
 
-    // We have to register at least 2 ssePublishers in the list with a common event type to get a non-empty list
-    this.ssePublisherRouterImpl.register(this.ssePublisher);
     this.ssePublisherRouterImpl.register(this.ssePublisher);
 
     final List<SsePublisher<?>> publishers = this.ssePublisherRouterImpl.findPublishers(eventTypes);
     assertNotNull(publishers);
-    assertEquals(2, publishers.size());
-    for (final SsePublisher<?> publisher : publishers) {
-      assertFalse(publisher.getEventTypes().isEmpty());
+    assertEquals(1, publishers.size());
 
-      final List<String> eventTypesPublisher = publisher.getEventTypes();
-      assertEquals(3, eventTypesPublisher.size());
-
-      int step = 0;
-      for (final String eventType : eventTypesPublisher) {
-        step++;
-        assertEquals("string" + step, eventType);
-      }
-    }
+    final SsePublisher<?> publisher = publishers.get(0);
+    assertEquals(eventTypes, publisher.getEventTypes());
   }
 
   @Test
