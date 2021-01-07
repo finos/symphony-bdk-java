@@ -221,6 +221,7 @@ Therefore, the following is a valid configuration file:
   }
 }
 ```
+Please mind that if you want to escape the `$` sign, `$${value}` will be replaced by `${value}`.
 
 Reading a `JSON` configuration file is completely transparent: 
 ```java
