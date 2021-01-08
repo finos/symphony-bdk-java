@@ -1,7 +1,6 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.activity.command.HelpCommand;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
@@ -95,15 +94,7 @@ public class SymphonyBdk {
     this.botInfo = sessionService != null ? sessionService.getSession() : null;
 
     // setup activities
-    if (this.datafeedLoop != null) {
-      this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedLoop);
-      if (this.messageService != null) {
-        HelpCommand helpCommand = new HelpCommand(this.activityRegistry, this.messageService);
-        this.activityRegistry.register(helpCommand);
-      }
-    } else {
-      this.activityRegistry = null;
-    }
+    this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
   }
 
   /**
