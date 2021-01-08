@@ -14,5 +14,9 @@ public enum ActivityType {
   /**
    * Form submitted.
    */
-  FORM
+  FORM,
+  /**
+   * User joined room.
+   */
+  USER_JOINED_ROOM
 }
