@@ -5,6 +5,8 @@ import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
+import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
+
 import org.apiguardian.api.API;
 
 import java.util.function.BiConsumer;
@@ -47,6 +49,21 @@ public class RealTimeEventsBinder {
 
       @Override
       public void onSymphonyElementsAction(V4Initiator initiator, V4SymphonyElementsAction event) {
+        target.accept(initiator, event);
+      }
+    });
+  }
+
+  /**
+   * Bind "onUserJoinedRoom" real-time event to a target method.
+   *
+   * @param subscriber The Datafeed real-time events subscriber.
+   * @param target Target method.
+   */
+  public static void bindOnUserJoinedRoom(Consumer<RealTimeEventListener> subscriber, BiConsumer<V4Initiator, V4UserJoinedRoom> target) {
+    subscriber.accept(new RealTimeEventListener() {
+      @Override
+      public void onUserJoinedRoom(V4Initiator initiator, V4UserJoinedRoom event) {
         target.accept(initiator, event);
       }
     });
