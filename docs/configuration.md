@@ -42,7 +42,7 @@ public class Example {
 ```
 1. Load configuration from a system location path
 2. Load configuration from a classpath location
-3. Load configuration from an [`InputStream`](https://docs.oracle.com/javase/7/docs/api/java/io/InputStream.html)
+3. Load configuration from an [`InputStream`](https://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html)
 4. Load configuration from the Symphony directory. The Symphony directory is located under your `${user.home}/.symphony` 
     folder. It can be useful when you don't want to share your own Symphony credentials within your project codebase
 5. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object) 
@@ -84,17 +84,21 @@ sessionAuth:
 
 bot:
   username: bot-name
-  privateKeyPath: /path/to/bot/rsa-private-key.pem
-  certificatePath: /path/to/bot-certificate.p12
-  certificatePassword: changeit
+  privateKey:
+    path: /path/to/bot/rsa-private-key.pem
+  certificate:
+    path: /path/to/bot-certificate.p12
+    password: changeit
 
 ssl:
-  trustStorePath: /path/to/all_symphony_certs_truststore
-  trustStorePassword: changeit
+  trustStore:
+    path: /path/to/all_symphony_certs_truststore
+    password: changeit
 
 app:
   appId: app-id
-  privateKeyPath: path/to/private-key.pem
+  privateKey:
+    path: path/to/private-key.pem
 
 datafeed:
   version: v1
@@ -134,6 +138,13 @@ the appId, the private key or the certificate for authenticating the extension a
 - `ssl` contains trustStore and trustStore password for SSL communication.
 - `datafeed` contains information of the datafeed service to be used by the bot.
 - `retry` contains information for retry mechanism to be used by the bot.
+
+Although not recommended for RSA private keys, you can specify absolute paths to classpath resources for the following fields:
+- `bot.privateKey.path`, `bot.certificate.path`
+- `app.privateKey.path`, `app.certificate.path`
+- `ssl.trustStore.path`
+
+Only absolute paths to classpath resources are supported (i.e. paths beginning with `/`).
 
 #### Retry Configuration
 The retry mechanism used by the bot will be configured by these following properties:
@@ -204,6 +215,26 @@ look like:
   }
 }
 ``` 
+
+### Field interpolation using system properties
+In both formats, you can use system properties as field values. For instance, `${user.home}` in any field will be
+replaced by the actual value of system property `user.home`. If a property is not defined, no interpolation will be done
+and string will be left as is. A default value can be provided after `:-`, for instance `${property.name:-defaultValue}`.
+Therefore, the following is a valid configuration file:
+
+```json
+{
+  "host": "${subdomain:-acme}.symphony.com",
+  "bot": {
+    "username": "bot-username",
+    "privateKey": {
+      "path": "${user.home}/rsa-private-key.pem"
+    }
+  }
+}
+```
+Please mind that if you want to escape the `$` sign, `$${value}` will be replaced by `${value}`.
+
 Reading a `JSON` configuration file is completely transparent: 
 ```java
 public class Example {
