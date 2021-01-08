@@ -1,14 +1,14 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-import com.symphony.bdk.core.auth.OboAuthenticator;
-import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +74,7 @@ public class BdkCoreConfig {
 
   @Bean
   @ConditionalOnMissingBean
+  @ConditionalOnProperty("bdk.bot.username")
   public AuthSession botSession(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getBotAuthenticator().authenticateBot();

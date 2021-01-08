@@ -35,6 +35,7 @@ import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 
 import org.apiguardian.api.API;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
@@ -42,6 +43,7 @@ import org.springframework.context.annotation.Bean;
  * Injection of Core services within the Spring application context.
  */
 @API(status = API.Status.EXPERIMENTAL)
+@ConditionalOnBean(name = "botSession")
 public class BdkServiceConfig {
 
   @Bean
