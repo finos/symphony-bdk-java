@@ -68,4 +68,14 @@ public class RealTimeEventsBinder {
       }
     });
   }
+
+  /**
+   * Bind a {@link RealTimeEventListener} to datafeed loop method.
+   *
+   * @param consumer Datafeed Loop subscribe/unsubscribe method.
+   * @param listener RealTime event listener.
+   */
+  public static void bindRealTimeListener(Consumer<RealTimeEventListener> consumer, RealTimeEventListener listener) {
+    consumer.accept(listener);
+  }
 }
