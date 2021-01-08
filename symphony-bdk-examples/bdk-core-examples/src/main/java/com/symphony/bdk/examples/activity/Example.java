@@ -48,6 +48,8 @@ class HelloFormReplyActivity extends FormReplyActivity<FormReplyContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.FORM).name("Hello Form Reply Activity");
+    return new ActivityInfo()
+        .type(ActivityType.FORM)
+        .name("Hello Form Reply Activity");
   }
 }
