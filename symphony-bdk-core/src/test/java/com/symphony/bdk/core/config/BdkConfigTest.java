@@ -1,8 +1,12 @@
 package com.symphony.bdk.core.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkBotConfig;
+import com.symphony.bdk.core.config.model.BdkCertificateConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 
@@ -11,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class BdkConfigTest {
 
   @Test
-  public void testIsBotCertificateAuthenticationConfigured() {
+  void testIsBotCertificateAuthenticationConfigured() {
     assertIsCertificateAuthenticationConfigured(null, null, false);
     assertIsCertificateAuthenticationConfigured("", "", false);
 
@@ -22,7 +26,7 @@ public class BdkConfigTest {
   }
 
   @Test
-  public void testIsOboConfigured() {
+  void testIsOboConfigured() {
     assertIsOboConfigured(null, "pk", null, null, false);
     assertIsOboConfigured(null, null, "cert", "pass", false);
 
@@ -35,6 +39,22 @@ public class BdkConfigTest {
     assertIsOboConfigured("appId", null, "cert", "", true);
     assertIsOboConfigured("appId", null, "cert", "pass", true);
   }
+
+  @Test
+  void testBdkCertificateConfigFromClasspath() {
+    BdkCertificateConfig certificateConfig = new BdkCertificateConfig("classpath:/certs/identity.p12", "password");
+    final byte[] certificateBytes = certificateConfig.getCertificateBytes();
+
+    assertTrue(certificateBytes != null && certificateBytes.length > 0);
+  }
+
+  @Test
+  void testBdkCertificateConfigNotFoundInClasspath() {
+    BdkCertificateConfig certificateConfig = new BdkCertificateConfig("classpath:/certs/notfound", "password");
+
+    assertThrows(ApiClientInitializationException.class, () -> certificateConfig.getCertificateBytes());
+  }
+
 
   private void assertIsCertificateAuthenticationConfigured(String certificatePath, String certificatePassword,
       boolean expected) {
