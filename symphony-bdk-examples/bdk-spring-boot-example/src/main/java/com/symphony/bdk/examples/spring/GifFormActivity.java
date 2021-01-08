@@ -51,8 +51,9 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo(ActivityType.FORM,
-        "Gif Display category form command",
-        "\"Form handler for the Gif Category form\"");
+    return new ActivityInfo()
+        .type(ActivityType.FORM)
+        .name("Gif Display category form command")
+        .description("\"Form handler for the Gif Category form\"");
   }
 }

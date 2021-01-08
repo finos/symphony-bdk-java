@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.activity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,16 +41,21 @@ class ActivityRegistryTest {
   @BeforeEach
   void setUp() {
     when(botSession.getDisplayName()).thenReturn(UUID.randomUUID().toString());
-    this.registry = new ActivityRegistry(this.botSession, this.datafeedService::subscribe);
+    this.registry = new ActivityRegistry(this.botSession, this.datafeedService);
   }
 
   @Test
   void shouldRegisterActivity() {
     final CommandActivity<?> act = new TestCommandActivity();
-    assertEquals(0, this.registry.getActivityList().size());
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+
     this.registry.register(act);
-    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain 2 activity");
+    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain only 1 activity");
     verify(this.datafeedService, times(1)).subscribe(any(RealTimeEventListener.class));
     assertEquals(this.botSession.getDisplayName(), act.getBotDisplayName());
+
+    this.registry.register(new TestCommandActivity());
+    assertEquals(1, this.registry.getActivityList().size(), "Registry should still contain only 1 activity");
+    verify(this.datafeedService, times(1)).unsubscribe(any(RealTimeEventListener.class));
   }
 }

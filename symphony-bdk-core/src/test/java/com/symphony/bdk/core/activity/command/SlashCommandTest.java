@@ -78,8 +78,8 @@ class SlashCommandTest {
   void testVerifyBotInfo() {
     final SlashCommand cmd = SlashCommand.slash("/test", c -> {});
     final ActivityInfo info = cmd.getInfo();
-    assertEquals(ActivityType.COMMAND, info.getType());
-    assertEquals("/test", info.getName());
+    assertEquals(ActivityType.COMMAND, info.type());
+    assertEquals("/test", info.name());
   }
 
   private static class RealTimeEventsProvider {

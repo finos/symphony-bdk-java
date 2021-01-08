@@ -3,7 +3,6 @@ package com.symphony.bdk.core.activity.command;
 import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +18,6 @@ import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Stream;
-import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,17 +38,12 @@ public class HelpCommandTest {
   @Mock
   private ActivityRegistry activityRegistry;
 
-  @Mock
-  private TemplateEngine templateEngine;
-
   @Test
   void testHelpCommandSuccess() {
     List<AbstractActivity<?, ?>> activities = new ArrayList<>();
     activities.add(slash("/test", commandContext -> {}, "test command"));
 
     when(this.activityRegistry.getActivityList()).thenReturn(activities);
-    when(this.templateEngine.newTemplateFromClasspath(anyString())).thenReturn(parameters -> "test-template");
-    when(this.messageService.templates()).thenReturn(this.templateEngine);
 
     final HelpCommand helpCommand = new HelpCommand(this.activityRegistry, this.messageService);
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
@@ -68,9 +61,9 @@ public class HelpCommandTest {
     final HelpCommand command = new HelpCommand(this.activityRegistry, this.messageService);
     final ActivityInfo info = command.getInfo();
 
-    assertEquals(ActivityType.COMMAND, info.getType());
-    assertEquals("/help", info.getName());
-    assertEquals("List available commands", info.getDescription());
+    assertEquals(ActivityType.COMMAND, info.type());
+    assertEquals("/help", info.name());
+    assertEquals("List available commands", info.description());
   }
 
   private static class RealTimeEventsProvider {

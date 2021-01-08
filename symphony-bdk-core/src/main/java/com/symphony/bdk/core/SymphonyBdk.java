@@ -57,8 +57,6 @@ public class SymphonyBdk {
   private final SessionService sessionService;
   private final HealthService healthService;
 
-  private final HelpCommand helpCommand;
-
   public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, new ApiClientFactory(config));
   }
@@ -97,14 +95,14 @@ public class SymphonyBdk {
     this.botInfo = sessionService != null ? sessionService.getSession() : null;
 
     // setup activities
-    this.activityRegistry =
-        this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop::subscribe) : null;
-
-    this.helpCommand = this.activityRegistry != null && this.messageService != null ?
-        new HelpCommand(this.activityRegistry, this.messageService) : null;
-
-    if (this.activityRegistry != null) {
-      this.activityRegistry.register(this.helpCommand);
+    if (this.datafeedLoop != null) {
+      this.activityRegistry = new ActivityRegistry(this.botInfo, this.datafeedLoop);
+      if (this.messageService != null) {
+        HelpCommand helpCommand = new HelpCommand(this.activityRegistry, this.messageService);
+        this.activityRegistry.register(helpCommand);
+      }
+    } else {
+      this.activityRegistry = null;
     }
   }
 

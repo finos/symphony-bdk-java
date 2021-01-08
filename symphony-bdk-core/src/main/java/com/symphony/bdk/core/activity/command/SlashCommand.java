@@ -102,7 +102,10 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo(ActivityType.COMMAND, this.slashCommandName, this.description);
+    return new ActivityInfo()
+        .type(ActivityType.COMMAND)
+        .name(this.slashCommandName)
+        .description(this.description);
   }
 
   @Override

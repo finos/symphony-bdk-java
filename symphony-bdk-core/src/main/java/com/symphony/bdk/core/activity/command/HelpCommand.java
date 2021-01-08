@@ -6,11 +6,9 @@ import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
-import com.symphony.bdk.template.api.Template;
 
 import org.apiguardian.api.API;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -47,14 +45,15 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
    */
   @Override
   protected void onActivity(CommandContext context) {
-    List<ActivityInfo> infos = this.activityRegistry.getActivityList()
+    List<String> infos = this.activityRegistry.getActivityList()
         .stream()
         .filter(act -> !(act instanceof HelpCommand))
         .map(AbstractActivity::getInfo)
-        .filter(info -> info.getType().equals(ActivityType.COMMAND))
+        .filter(info -> info.type().equals(ActivityType.COMMAND))
+        .map(info -> "<li>" + info.name() + " - " + info.description() + "</li>")
         .collect(Collectors.toList());
-    Template template = this.messageService.templates().newTemplateFromClasspath("/template/default_help_command.ftl");
-    this.messageService.send(context.getStreamId(), Message.builder().template(template, Collections.singletonMap("commands", infos)).build());
+    String message = "<ul>" + String.join("\n", infos) + "</ul>";
+    this.messageService.send(context.getStreamId(), Message.builder().content(message).build());
   }
 
   /**
@@ -62,6 +61,9 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
    */
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo(ActivityType.COMMAND, HELP_COMMAND, DEFAULT_DESCRIPTION);
+    return new ActivityInfo()
+        .type(ActivityType.COMMAND)
+        .name(HELP_COMMAND)
+        .description(DEFAULT_DESCRIPTION);
   }
 }
