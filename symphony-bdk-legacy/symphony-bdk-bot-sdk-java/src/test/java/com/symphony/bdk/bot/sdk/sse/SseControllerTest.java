@@ -31,10 +31,8 @@ public class SseControllerTest {
 
   @Test
   public void subscribeSseTest() {
-    List<String> eventTypes = new ArrayList<>();
-    eventTypes.add("eventTest");
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put("Test 1", "Test");
+    List<String> eventTypes = Collections.singletonList("eventTest");
+    Map<String, String> metadata = Collections.singletonMap("Test 1", "Test");
     HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
     List<SsePublisher<?>> ssePublishers = new ArrayList<>();
     ssePublishers.add(mock(SsePublisher.class));
@@ -45,10 +43,8 @@ public class SseControllerTest {
 
   @Test
   public void subscribeSseNoPublisherFoundTest() {
-    List<String> eventTypes = new ArrayList<>();
-    eventTypes.add("eventTest");
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put("Test 1", "Test");
+    List<String> eventTypes = Collections.singletonList("eventTest");
+    Map<String, String> metadata = Collections.singletonMap("Test 1", "Test");
     HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
     List<SsePublisher<?>> ssePublishers = new ArrayList<>();
     when(this.ssePublisherRouter.findPublishers(any())).thenReturn(ssePublishers);
@@ -59,10 +55,8 @@ public class SseControllerTest {
 
   @Test
   public void subscribeSseBadUserIdTest() {
-    List<String> eventTypes = new ArrayList<>();
-    eventTypes.add("eventTest");
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put("Test 1", "Test");
+    List<String> eventTypes = Collections.singletonList("eventTest");
+    Map<String, String> metadata = Collections.singletonMap("Test 1", "Test");
     HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
     List<SsePublisher<?>> ssePublishers = new ArrayList<>();
     ssePublishers.add(mock(SsePublisher.class));
@@ -75,10 +69,8 @@ public class SseControllerTest {
 
   @Test
   public void subscribeSseBindFailedTest() {
-    List<String> eventTypes = new ArrayList<>();
-    eventTypes.add("eventTest");
-    Map<String, String> metadata = new HashMap<>();
-    metadata.put("Test 1", "Test");
+    List<String> eventTypes = Collections.singletonList("eventTest");
+    Map<String, String> metadata = Collections.singletonMap("Test 1", "Test");
     HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
     List<SsePublisher<?>> ssePublishers = new ArrayList<>();
     ssePublishers.add(mock(SsePublisher.class));
