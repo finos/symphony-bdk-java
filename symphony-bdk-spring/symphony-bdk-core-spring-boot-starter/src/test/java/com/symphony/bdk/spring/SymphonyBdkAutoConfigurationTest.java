@@ -8,6 +8,8 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
+import com.symphony.bdk.spring.config.BdkActivityConfig;
+import com.symphony.bdk.spring.config.BdkServiceConfig;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.keyManager.host=localhost",
 
             "bdk.bot.username=tibot",
-            "bdk.bot.privateKeyPath=classpath:/privatekey.pem"
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
@@ -63,10 +65,10 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.context=context",
 
             "bdk.bot.username=testbot",
-            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
 
             "bdk.app.appId=testapp",
-            "bdk.app.privateKeyPath=classpath:/privatekey.pem"
+            "bdk.app.privateKey.path=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
@@ -86,7 +88,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.context=context",
 
             "bdk.bot.username=testbot",
-            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
 
             "bdk.app.appId=testapp"
         )
@@ -109,7 +111,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.context=context",
 
             "bdk.bot.username=testbot",
-            "bdk.bot.privateKeyPath=classpath:/privatekey.pem"
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
@@ -130,7 +132,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.context=context",
 
             "bdk.bot.username=testbot",
-            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
 
             "bdk.agent.loadBalancing.mode=roundRobin",
             "bdk.agent.loadBalancing.nodes[0].host=agent-lb"
@@ -154,7 +156,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.host=localhost",
 
             "bdk.bot.username=testbot",
-            "bdk.bot.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
 
             "bdk.datafeed.enabled=false"
         )
@@ -171,6 +173,29 @@ class SymphonyBdkAutoConfigurationTest {
       assertThat(context).doesNotHaveBean(DatafeedAsyncLauncherService.class);
       assertThat(context).doesNotHaveBean(ActivityRegistry.class);
       assertThat(context).doesNotHaveBean(SlashAnnotationProcessor.class);
+    });
+  }
+
+  @Test
+  void shouldNotInitializeBotSessionWhenOboOnly() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.host=localhost",
+
+            "bdk.app.appId=my-app",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
+
+      assertThat(context).doesNotHaveBean("botSession");
+      assertThat(context).doesNotHaveBean(BdkServiceConfig.class);
+      assertThat(context).doesNotHaveBean(DatafeedLoop.class);
+      assertThat(context).doesNotHaveBean(DatafeedAsyncLauncherService.class);
+      assertThat(context).doesNotHaveBean(BdkActivityConfig.class);
     });
   }
 }
