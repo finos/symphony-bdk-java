@@ -79,7 +79,7 @@ class SlashCommandTest {
     final SlashCommand cmd = SlashCommand.slash("/test", c -> {});
     final ActivityInfo info = cmd.getInfo();
     assertEquals(ActivityType.COMMAND, info.type());
-    assertEquals("Slash command '/test'", info.name());
+    assertEquals("/test", info.name());
   }
 
   private static class RealTimeEventsProvider {

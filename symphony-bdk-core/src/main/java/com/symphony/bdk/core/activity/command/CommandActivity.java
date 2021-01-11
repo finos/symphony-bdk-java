@@ -1,12 +1,13 @@
 package com.symphony.bdk.core.activity.command;
 
-import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.bindOnMessageSent;
+import static com.symphony.bdk.core.service.datafeed.util.RealTimeEventsBinder.bindRealTimeListener;
 
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.exception.FatalActivityExecutionException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
-import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
+import com.symphony.bdk.core.service.message.util.PresentationMLParser;
+import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
 import lombok.Getter;
@@ -29,11 +30,24 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
   @Getter @Setter private String botDisplayName;
 
   /**
+   * The dedicated {@link RealTimeEventListener} for the activity
+   */
+  private RealTimeEventListener listener;
+
+  /**
    * {@inheritDoc}
    */
   @Override
   protected void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
-    bindOnMessageSent(realTimeEventsSource, this::processEvent);
+    if (listener == null) {
+      listener = new RealTimeEventListener() {
+        @Override
+        public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
+          processEvent(initiator, event);
+        }
+      };
+    }
+    bindRealTimeListener(realTimeEventsSource, listener);
   }
 
   /**
