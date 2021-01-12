@@ -48,6 +48,8 @@ public abstract class RetryWithRecovery<T> {
       return retry.execute();
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
+    } catch (RuntimeException e) {
+      throw e;
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }

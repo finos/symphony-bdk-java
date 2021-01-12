@@ -1,8 +1,6 @@
 package com.symphony.bdk.core.service.user;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -12,8 +10,8 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
@@ -82,20 +80,36 @@ class UserServiceTest {
   private UserService service;
   private UserApi spiedUserApi;
   private MockApiClient mockApiClient;
+  private UsersApi spiedUsersApi;
+  private AuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
+    this.authSession = mock(AuthSession.class);
+
     ApiClient podClient = mockApiClient.getApiClient("/pod");
-    UserApi userApi = new UserApi(podClient);
-    this.spiedUserApi = spy(userApi);
-    UsersApi usersApi = new UsersApi(podClient);
-    UsersApi spiedUsersApi = spy(usersApi);
+    this.spiedUserApi = spy(new UserApi(podClient));
+    this.spiedUsersApi = spy(new UsersApi(podClient));
     this.service = new UserService(this.spiedUserApi, spiedUsersApi, authSession, new RetryWithRecoveryBuilder());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
+  }
+
+  @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    this.service = new UserService(this.spiedUserApi, spiedUsersApi, new RetryWithRecoveryBuilder());
+    assertThrows(NullPointerException.class, () -> this.service.getUserDetail(1234L));
+  }
+
+  @Test
+  void listUsersByIdOboMode() throws IOException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(SEARCH_USERS_V3, response);
+
+    List<UserV2> users = this.service.obo(this.authSession).listUsersByIds(Collections.singletonList(1234L));
+    assertEquals(users.size(), 1);
   }
 
   @Test
