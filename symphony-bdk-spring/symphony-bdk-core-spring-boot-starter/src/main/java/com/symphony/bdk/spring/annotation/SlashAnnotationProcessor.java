@@ -142,7 +142,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
 
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
     if (this.registry == null) {
-      registry = applicationContext.getBeanFactory().getBean(ActivityRegistry.class);
+      this.registry = applicationContext.getBeanFactory().getBean(ActivityRegistry.class);
     }
     this.registry.register(
         SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method), annotation.description())
