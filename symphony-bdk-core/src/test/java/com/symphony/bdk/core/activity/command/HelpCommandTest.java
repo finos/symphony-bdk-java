@@ -4,8 +4,7 @@ import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
@@ -25,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -54,6 +54,22 @@ public class HelpCommandTest {
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), event));
 
     verify(this.messageService).send(eq(event.getMessage().getStream().getStreamId()), any(Message.class));
+  }
+
+  @Test
+  void testHelpCommandWithNoCommandActivityRegistry() {
+    final HelpCommand helpCommand = new HelpCommand(this.activityRegistry, this.messageService);
+
+    when(this.activityRegistry.getActivityList()).thenReturn(Collections.singletonList(helpCommand));
+
+    final RealTimeEventsProvider provider = new RealTimeEventsProvider();
+    helpCommand.setBotDisplayName("BotMention");
+    helpCommand.bindToRealTimeEventsSource(provider::setListener);
+
+    V4MessageSent event = createMessageSentEvent();
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), event));
+
+    verify(this.messageService, never()).send(anyString(), any(Message.class));
   }
 
   @Test
