@@ -126,7 +126,7 @@ You can finally run your Spring Boot application and verify that your bot always
 
 ### OBO (On behalf of) usecases
 It is possible to run an application with no bot service account configured in order to accommodate OBO usecases only.
-For instance the following configuration will work:
+For instance the following configuration is valid:
 ```yaml
 bdk:
     host: acme.symphony.com
@@ -136,8 +136,8 @@ bdk:
         path: /path/to/rsa/privatekey.pem
 ```
 
-This will cause all features related to the datafeed loop such as Real Time Events, activities, slash commands to be deactivated.
-However, service beans with OBO-enabled endpoints will be available can be used as following:
+This will cause all features related to the datafeed loop such as Real Time Events, activities, slash commands, etc. to be deactivated.
+However, service beans with OBO-enabled endpoints will be available and can be used as following:
 ```java
 @Component
 public class OboUsecase {
@@ -158,7 +158,7 @@ public class OboUsecase {
 }
 ```
 
-Any attempt to use a non-obo service endpoint will fail with a NullPointerException.
+Any attempt to use a non-OBO service endpoint will fail with a NullPointerException.
 
 ## Subscribe to Real Time Events
 The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html) 
