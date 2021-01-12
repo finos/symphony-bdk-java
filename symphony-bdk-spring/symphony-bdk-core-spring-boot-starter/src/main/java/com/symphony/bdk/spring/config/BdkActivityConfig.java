@@ -43,7 +43,7 @@ public class BdkActivityConfig {
   }
 
   @Bean
-  public SlashAnnotationProcessor slashAnnotationProcessor(ActivityRegistry registry) {
-    return new SlashAnnotationProcessor(registry);
+  public static SlashAnnotationProcessor slashAnnotationProcessor() {
+    return new SlashAnnotationProcessor();
   }
 }
