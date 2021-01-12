@@ -47,9 +47,10 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
   };
 
   /**
-   * The {@link ActivityRegistry} is used here to register the slash activities
+   * The {@link ActivityRegistry} is used here to register the slash activities.
+   * Lazy-loaded from application context to make sure the processor is registered first before starting to create beans.
    */
-  private final ActivityRegistry registry;
+  private ActivityRegistry registry;
 
   private ConfigurableApplicationContext applicationContext;
 
@@ -140,6 +141,9 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
   }
 
   private void registerSlashMethod(Object bean, Method method, Slash annotation) {
+    if (this.registry == null) {
+      this.registry = applicationContext.getBeanFactory().getBean(ActivityRegistry.class);
+    }
     this.registry.register(
         SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method), annotation.description())
     );
