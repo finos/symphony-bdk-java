@@ -52,8 +52,10 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
         .filter(info -> info.type().equals(ActivityType.COMMAND))
         .map(info -> "<li>" + info.name() + " - " + info.description() + "</li>")
         .collect(Collectors.toList());
-    String message = "<ul>" + String.join("\n", infos) + "</ul>";
-    this.messageService.send(context.getStreamId(), Message.builder().content(message).build());
+    if (!infos.isEmpty()) {
+      String message = "<ul>" + String.join("\n", infos) + "</ul>";
+      this.messageService.send(context.getStreamId(), Message.builder().content(message).build());
+    }
   }
 
   /**
