@@ -70,7 +70,17 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
+      RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.streamsApi = streamsApi;
+    this.roomMembershipApi = membershipApi;
+    this.shareApi = shareApi;
+    this.authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**

@@ -41,7 +41,14 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
   public ConnectionService(ConnectionApi connectionApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.connectionApi = connectionApi;
     this. authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public ConnectionService(ConnectionApi connectionApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.connectionApi = connectionApi;
+    this. authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**

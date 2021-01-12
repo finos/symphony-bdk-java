@@ -43,7 +43,14 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
   public PresenceService(PresenceApi presenceApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.presenceApi = presenceApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public PresenceService(PresenceApi presenceApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.presenceApi = presenceApi;
+    this.authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**

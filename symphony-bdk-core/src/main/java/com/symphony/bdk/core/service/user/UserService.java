@@ -77,7 +77,15 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     this.userApi = userApi;
     this.usersApi = usersApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public UserService(UserApi userApi, UsersApi usersApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.userApi = userApi;
+    this.usersApi = usersApi;
+    this.authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   @Override
