@@ -94,8 +94,7 @@ public class SymphonyBdk {
     this.botInfo = sessionService != null ? sessionService.getSession() : null;
 
     // setup activities
-    this.activityRegistry =
-        this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop::subscribe) : null;
+    this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
   }
 
   /**

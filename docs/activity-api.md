@@ -111,6 +111,37 @@ public class Example {
 3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the 
 event, or the event initiator (i.e. user that triggered the command)
 
+### Help Command
+
+_Help_ command is a BDK built-in command which will list out all the commands registered in the `ActivityRegistry` of the BDK by:
+```
+$ @BotMention /help
+``` 
+The help command can be instantiated by passing an `ActivityRegistry` and `MessageService` instances to the constructor,
+ then added manually to the BDK activity registry:
+```java
+public class Example {
+
+  public static void main(String[] args) throws Exception {
+
+    // setup SymphonyBdk facade object
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+
+    bdk.activities().register(SlashCommand.slash("/hello",    
+                                                 true,        
+                                                 context -> { 
+
+      log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
+    }));
+    
+    bdk.activities().register(new HelpCommand(bdk.activities(), bdk.messages()));
+
+    // finally, start the datafeed loop
+    bdk.datafeed().start();
+  }
+}
+```
+
 ## Form Activity
 A form activity is triggered when an end-user reply or submit to an _Elements_ form. 
 

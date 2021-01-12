@@ -35,4 +35,9 @@ public @interface Slash {
    * True if bot needs to be mentioned to trigger the command, false otherwise.
    */
   boolean mentionBot() default true;
+
+  /**
+   * Description of the {@link com.symphony.bdk.core.activity.command.SlashCommand}
+   */
+  String description() default "";
 }
