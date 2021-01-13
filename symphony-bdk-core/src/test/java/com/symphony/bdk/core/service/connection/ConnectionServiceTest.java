@@ -2,7 +2,10 @@ package com.symphony.bdk.core.service.connection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -10,7 +13,6 @@ import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.model.UserConnection;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -32,18 +34,42 @@ public class ConnectionServiceTest {
   private ConnectionService service;
   private ConnectionApi spiedConnectionApi;
   private MockApiClient mockApiClient;
+  private AuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
-    ApiClient podClient = mockApiClient.getApiClient("/pod");
-    ConnectionApi connectionApi = new ConnectionApi(podClient);
-    this.spiedConnectionApi = spy(connectionApi);
+    this.authSession = mock(AuthSession.class);
+    this.spiedConnectionApi = spy(new ConnectionApi(mockApiClient.getApiClient("/pod")));
     this.service = new ConnectionService(this.spiedConnectionApi, authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
+  }
+
+  @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    this.service = new ConnectionService(this.spiedConnectionApi, new RetryWithRecoveryBuilder<>());
+
+    assertThrows(IllegalStateException.class, () -> this.service.createConnection(1234L));
+  }
+
+  @Test
+  void testAcceptConnectionOboMode() {
+    this.mockApiClient.onPost(V1_ACCEPT_CONNECTION,
+        "{\n"
+            + "  \"userId\": 7078106169577,\n"
+            + "  \"status\": \"ACCEPTED\",\n"
+            + "  \"firstRequestedAt\": 1471046357339,\n"
+            + "  \"updatedAt\": 1471046517684,\n"
+            + "  \"requestCounter\": 1\n"
+            + "}");
+
+
+    this.service = new ConnectionService(this.spiedConnectionApi, new RetryWithRecoveryBuilder<>());
+    UserConnection connection = this.service.obo(this.authSession).acceptConnection(7078106169577L);
+
+    assertEquals(connection.getStatus(), UserConnection.StatusEnum.ACCEPTED);
   }
 
   @Test

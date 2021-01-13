@@ -18,7 +18,6 @@ import com.symphony.bdk.gen.api.model.BaseSignal;
 import com.symphony.bdk.gen.api.model.ChannelSubscriber;
 import com.symphony.bdk.gen.api.model.ChannelSubscriptionResponse;
 import com.symphony.bdk.gen.api.model.Signal;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -45,18 +44,42 @@ public class SignalServiceTest {
   private SignalService service;
   private SignalsApi spiedSignalApi;
   private MockApiClient mockApiClient;
+  private AuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
-    ApiClient agentClient = mockApiClient.getApiClient("/agent");
-    SignalsApi signalsApi = new SignalsApi(agentClient);
-    this.spiedSignalApi = spy(signalsApi);
+    this.authSession = mock(AuthSession.class);
+    this.spiedSignalApi = spy(new SignalsApi(mockApiClient.getApiClient("/agent")));
     this.service = new SignalService(spiedSignalApi, authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
+  }
+
+  @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    service = new SignalService(spiedSignalApi, new RetryWithRecoveryBuilder<>());
+
+    assertThrows(IllegalStateException.class, () -> service.getSignal(""));
+  }
+
+  @Test
+  void testGetSignalOboMode() {
+    this.mockApiClient.onGet(V1_GET_SIGNAL.replace("{id}", "1234"),
+        "{\n"
+            + "    \"name\": \"my signal\",\n"
+            + "    \"query\": \"HASHTAG:hashtag AND CASHTAG:cash\",\n"
+            + "    \"visibleOnProfile\": true,\n"
+            + "    \"companyWide\": false,\n"
+            + "    \"id\": \"5a8daa0bb9d82100011d5095\",\n"
+            + "    \"timestamp\": 1519233547982\n"
+            + "}");
+
+    this.service = new SignalService(this.spiedSignalApi, new RetryWithRecoveryBuilder<>());
+    final Signal signal = this.service.obo(this.authSession).getSignal("1234");
+
+    assertEquals(signal.getId(), "5a8daa0bb9d82100011d5095");
   }
 
   @Test
@@ -280,7 +303,8 @@ public class SignalServiceTest {
             + "    \"subscriptionErrors\": []\n"
             + "}");
 
-    ChannelSubscriptionResponse response = this.service.unsubscribeUsersFromSignal("1234", Arrays.asList(1234L, 1235L, 1236L));
+    ChannelSubscriptionResponse response =
+        this.service.unsubscribeUsersFromSignal("1234", Arrays.asList(1234L, 1235L, 1236L));
 
     verify(spiedSignalApi).v1SignalsIdUnsubscribePost("1234", "1234", "1234", Arrays.asList(1234L, 1235L, 1236L));
     assertEquals(response.getSuccessfulSubscription(), 3);

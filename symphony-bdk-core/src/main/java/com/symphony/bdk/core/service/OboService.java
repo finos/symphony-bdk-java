@@ -19,4 +19,11 @@ public interface OboService<S> {
    * @return the instance of the service class with OBO-enabled endpoints
    */
   S obo(AuthSession oboSession);
+
+  default void checkAuthSession(AuthSession oboSession) {
+    if (oboSession == null) {
+      throw new IllegalStateException("Trying to call an endpoint with no configured bot session, "
+          + "please call method obo(oboSession) first");
+    }
+  }
 }

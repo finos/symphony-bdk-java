@@ -61,7 +61,7 @@ class BdkCoreConfigTest {
 
   @Test
   void shouldCreateExtensionAppAuthenticator() throws AuthInitializationException {
-    final BdkCoreConfig config = new BdkCoreConfig();
+    final BdkOboServiceConfig config = new BdkOboServiceConfig();
     final AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
     final ExtensionAppAuthenticator appAuthenticator = mock(ExtensionAppAuthenticator.class);
 
@@ -71,7 +71,7 @@ class BdkCoreConfigTest {
 
   @Test
   void shouldFailCreateExtensionAppAuthenticator() throws AuthInitializationException {
-    final BdkCoreConfig config = new BdkCoreConfig();
+    final BdkOboServiceConfig config = new BdkOboServiceConfig();
     final AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
 
     when(authenticatorFactory.getExtensionAppAuthenticator()).thenThrow(AuthInitializationException.class);
@@ -80,7 +80,7 @@ class BdkCoreConfigTest {
 
   @Test
   void shouldCreateOboAuthenticator() throws AuthInitializationException {
-    final BdkCoreConfig config = new BdkCoreConfig();
+    final BdkOboServiceConfig config = new BdkOboServiceConfig();
     final AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
     final OboAuthenticator oboAuthenticator = mock(OboAuthenticator.class);
 
@@ -90,7 +90,7 @@ class BdkCoreConfigTest {
 
   @Test
   void shouldFailCreateOboAuthenticator() throws AuthInitializationException {
-    final BdkCoreConfig config = new BdkCoreConfig();
+    final BdkOboServiceConfig config = new BdkOboServiceConfig();
     final AuthenticatorFactory authenticatorFactory = mock(AuthenticatorFactory.class);
 
     when(authenticatorFactory.getOboAuthenticator()).thenThrow(AuthInitializationException.class);
