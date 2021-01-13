@@ -153,12 +153,12 @@ public class OboUsecase {
       final OboMessageService obo = messageService.obo(oboSession);
       obo.send("stream.id", "Hello from OBO"); // works
 
-      messageService.send("stream.id", "Hello world"); // fails with a NullPointerException
+      messageService.send("stream.id", "Hello world"); // fails with an IllegalStateException
   }
 }
 ```
 
-Any attempt to use a non-OBO service endpoint will fail with a NullPointerException.
+Any attempt to use a non-OBO service endpoint will fail with an IllegalStateException.
 
 ## Subscribe to Real Time Events
 The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html) 
