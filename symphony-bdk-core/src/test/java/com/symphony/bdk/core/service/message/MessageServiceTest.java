@@ -129,7 +129,7 @@ class MessageServiceTest {
     messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
         attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(NullPointerException.class, () -> messageService.getMessage("message.id"));
+    assertThrows(IllegalStateException.class, () -> messageService.getMessage("message.id"));
   }
 
   @Test

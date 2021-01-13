@@ -56,7 +56,7 @@ public class PresenceServiceTest {
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
     this.service = new PresenceService(spiedPresenceApi, new RetryWithRecoveryBuilder<>());
-    assertThrows(NullPointerException.class, () -> this.service.getPresence());
+    assertThrows(IllegalStateException.class, () -> this.service.getPresence());
   }
 
   @Test

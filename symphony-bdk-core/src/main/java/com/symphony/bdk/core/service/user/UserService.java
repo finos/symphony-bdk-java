@@ -605,7 +605,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   public FollowingListResponse listUsersFollowing(@Nonnull Long userId) {
     return executeAndRetry("listUsersFollowing",
-        () -> userApi.v1UserUidFollowingGet("listUsersFollowing", userId, null, null, null));
+        () -> userApi.v1UserUidFollowingGet(authSession.getSessionToken(), userId, null, null, null));
   }
 
   /**
@@ -653,9 +653,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies() // to remove refresh on bot session put by default
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    checkAuthSession(authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

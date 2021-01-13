@@ -47,7 +47,7 @@ class SessionServiceTest {
   void nonOboEndpointShouldThrowExceptionInOboMode() {
     this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(NullPointerException.class, () -> this.service.getSession());
+    assertThrows(IllegalStateException.class, () -> this.service.getSession());
   }
 
   @Test

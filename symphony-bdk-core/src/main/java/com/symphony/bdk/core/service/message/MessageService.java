@@ -418,6 +418,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    checkAuthSession(authSession);
     return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

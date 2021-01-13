@@ -100,7 +100,7 @@ public class StreamServiceTest {
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
         new RetryWithRecoveryBuilder<>());
 
-    assertThrows(NullPointerException.class, () -> this.service.getStream(""));
+    assertThrows(IllegalStateException.class, () -> this.service.getStream(""));
   }
 
   @Test

@@ -61,7 +61,7 @@ public class SignalServiceTest {
   void nonOboEndpointShouldThrowExceptionInOboMode() {
     service = new SignalService(spiedSignalApi, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(NullPointerException.class, () -> service.getSignal(""));
+    assertThrows(IllegalStateException.class, () -> service.getSignal(""));
   }
 
   @Test

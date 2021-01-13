@@ -51,7 +51,7 @@ public class ConnectionServiceTest {
   void nonOboEndpointShouldThrowExceptionInOboMode() {
     this.service = new ConnectionService(this.spiedConnectionApi, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(NullPointerException.class, () -> this.service.createConnection(1234L));
+    assertThrows(IllegalStateException.class, () -> this.service.createConnection(1234L));
   }
 
   @Test

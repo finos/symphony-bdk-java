@@ -100,7 +100,7 @@ class UserServiceTest {
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
     this.service = new UserService(this.spiedUserApi, spiedUsersApi, new RetryWithRecoveryBuilder());
-    assertThrows(NullPointerException.class, () -> this.service.getUserDetail(1234L));
+    assertThrows(IllegalStateException.class, () -> this.service.getUserDetail(1234L));
   }
 
   @Test
