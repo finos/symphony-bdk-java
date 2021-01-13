@@ -89,7 +89,31 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     this.authSession = authSession;
     this.templateEngine = templateEngine;
     this.defaultApi = defaultApi;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public MessageService(
+      final MessagesApi messagesApi,
+      final MessageApi messageApi,
+      final MessageSuppressionApi messageSuppressionApi,
+      final StreamsApi streamsApi,
+      final PodApi podApi,
+      final AttachmentsApi attachmentsApi,
+      final DefaultApi defaultApi,
+      final TemplateEngine templateEngine,
+      final RetryWithRecoveryBuilder<?> retryBuilder
+  ) {
+    this.messagesApi = messagesApi;
+    this.messageApi = messageApi;
+    this.messageSuppressionApi = messageSuppressionApi;
+    this.streamsApi = streamsApi;
+    this.podApi = podApi;
+    this.attachmentsApi = attachmentsApi;
+    this.authSession = null;
+    this.templateEngine = templateEngine;
+    this.defaultApi = defaultApi;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   @Override
@@ -394,6 +418,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    checkAuthSession(authSession);
     return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
   }
 }

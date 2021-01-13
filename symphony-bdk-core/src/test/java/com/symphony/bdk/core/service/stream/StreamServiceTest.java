@@ -74,21 +74,46 @@ public class StreamServiceTest {
   private StreamService service;
   private MockApiClient mockApiClient;
   private RoomMembershipApi spyRoomMembershipApi;
+  private AuthSession authSession;
+  private StreamsApi streamsApi;
+  private ShareApi shareApi;
 
   @BeforeEach
   void setUp() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
+    this.authSession = mock(AuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
-    RoomMembershipApi roomMembershipApi = new RoomMembershipApi(podClient);
-    this.spyRoomMembershipApi = spy(roomMembershipApi);
-    this.service =
-        new StreamService(new StreamsApi(podClient), this.spyRoomMembershipApi, new ShareApi(agentClient),
-            authSession, new RetryWithRecoveryBuilder<>());
+
+    this.spyRoomMembershipApi = spy(new RoomMembershipApi(podClient));
+    this.streamsApi = new StreamsApi(podClient);
+    this.shareApi = new ShareApi(agentClient);
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
+        this.authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
+  }
+
+  @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
+        new RetryWithRecoveryBuilder<>());
+
+    assertThrows(IllegalStateException.class, () -> this.service.getStream(""));
+  }
+
+  @Test
+  void getStreamInOboMode() throws IOException {
+    this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"),
+        JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
+
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
+        new RetryWithRecoveryBuilder<>());
+    V2StreamAttributes stream = this.service.obo(this.authSession).getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
+
+    assertEquals(stream.getId(), "p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
+    assertEquals(stream.getOrigin(), "INTERNAL");
   }
 
   @Test
@@ -463,7 +488,8 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V1_STREAM_MEMBERS.replace("{id}", "1234"),
         JsonHelper.readFromClasspath("/stream/v2_membership_list.json"));
 
-    List<V2MemberInfo> membersList = this.service.listAllStreamMembers("1234", new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
+    List<V2MemberInfo> membersList =
+        this.service.listAllStreamMembers("1234", new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
 
     assertEquals(membersList.size(), 2);
     assertEquals(membersList.get(0).getJoinDate(), 1485366753320L);

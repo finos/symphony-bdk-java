@@ -44,6 +44,25 @@ class SessionServiceTest {
   }
 
   @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder<>());
+
+    assertThrows(IllegalStateException.class, () -> this.service.getSession());
+  }
+
+  @Test
+  void testGetSessionOboMode() throws ApiException {
+    final String sessionToken = UUID.randomUUID().toString();
+    when(this.authSession.getSessionToken()).thenReturn(sessionToken);
+    when(this.sessionApi.v2SessioninfoGet(eq(sessionToken))).thenReturn(new UserV2());
+
+    this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder<>());
+    final UserV2 session = this.service.obo(this.authSession).getSession();
+
+    assertNotNull(session);
+  }
+
+  @Test
   void testGetSessionSuccess() throws Exception {
     final String sessionToken = UUID.randomUUID().toString();
     when(this.authSession.getSessionToken()).thenReturn(sessionToken);
