@@ -3,6 +3,7 @@ package com.symphony.bdk.spring;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
@@ -76,7 +77,31 @@ class SymphonyBdkAutoConfigurationTest {
 
     contextRunner.run(context -> {
       assertThat(context).hasBean("oboAuthenticator");
+      assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
       assertThat(context).hasSingleBean(OboAuthenticator.class);
+      assertThat(context).hasSingleBean(ExtensionAppAuthenticator.class);
+
+      assertThat(context).hasBean("botSession");
+      assertThat(context).hasSingleBean(BdkServiceConfig.class);
+      assertThat(context).hasSingleBean(DatafeedLoop.class);
+      assertThat(context).hasSingleBean(DatafeedAsyncLauncherService.class);
+      assertThat(context).hasSingleBean(BdkActivityConfig.class);
+
+      assertThat(context).hasBean("sessionService");
+      assertThat(context).hasBean("streamService");
+      assertThat(context).hasBean("userService");
+      assertThat(context).hasBean("presenceService");
+      assertThat(context).hasBean("connectionService");
+      assertThat(context).hasBean("signalService");
+      assertThat(context).hasBean("messageService");
+
+      assertThat(context).doesNotHaveBean("oboSessionService");
+      assertThat(context).doesNotHaveBean("oboStreamService");
+      assertThat(context).doesNotHaveBean("oboUserService");
+      assertThat(context).doesNotHaveBean("oboPresenceService");
+      assertThat(context).doesNotHaveBean("oboConnectionService");
+      assertThat(context).doesNotHaveBean("oboSignalService");
+      assertThat(context).doesNotHaveBean("oboMessageService");
     });
   }
 
