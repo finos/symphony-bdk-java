@@ -150,8 +150,7 @@ public class OboUsecase {
 
   public void doStuff() {
       final AuthSession oboSession = oboAuthenticator.authenticateByUsername("user.name");
-      final OboMessageService obo = messageService.obo(oboSession);
-      obo.send("stream.id", "Hello from OBO"); // works
+      final V4Message message = messageService.obo(oboSession).send("stream.id", "Hello from OBO"); // works
 
       messageService.send("stream.id", "Hello world"); // fails with an IllegalStateException
   }
