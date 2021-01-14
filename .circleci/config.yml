@@ -1,16 +1,22 @@
-# Java Gradle CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
-version: 2
+version: 2.1
+
+workflows:
+  build-workflow:
+    jobs:
+      - build
+      - snyk:
+          context:
+            - devx
+          filters:
+            branches:
+              only: master
+
 jobs:
   build:
     docker:
       - image: cimg/openjdk:8.0
 
     working_directory: ~/repo
-
-    environment:
 
     steps:
       - checkout
@@ -23,7 +29,7 @@ jobs:
             - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle" }}
             - gradle-repo-v1-{{ .Branch }}-
             - gradle-repo-v1-
-          # run tests!
+
       - run:
           name: Build
           # Jacoco does not support incremental build so we don't run it automatically with check
@@ -66,3 +72,29 @@ jobs:
           paths:
             - ~/.gradle
           key: gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle" }}
+
+  snyk:
+    docker:
+      - image: cimg/openjdk:8.0
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          keys:
+            # when lock file changes, use increasingly general patterns to restore cache
+            - gradle-repo-v1-{{ .Branch }}-{{ checksum "build.gradle" }}
+            - gradle-repo-v1-{{ .Branch }}-
+            - gradle-repo-v1-
+
+      - run:
+          name: Snyk 2.0
+          command: ./gradlew snyk-test snyk-monitor
+
+      - run:
+          name: Snyk legacy
+          command: cd symphony-bdk-legacy && ./gradlew snyk-test snyk-monitor
