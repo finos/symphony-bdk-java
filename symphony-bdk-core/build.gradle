@@ -1,8 +1,9 @@
 plugins {
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
     // beta version provides incremental build support
-    id "org.openapi.generator" version "5.0.0-beta2"
-    id "de.undercouch.download" version "4.1.1"
-    id "java-library"
+    id 'org.openapi.generator' version '5.0.0-beta2'
+    id 'de.undercouch.download' version '4.1.1'
 }
 
 description = 'Symphony Java BDK Core'

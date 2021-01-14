@@ -1,5 +1,6 @@
 plugins {
-    id 'java-library'
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
 }
 
 description = 'Spring Boot Starter that ease Application developments'
@@ -35,7 +36,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    testCompile project(':symphony-bdk-core').sourceSets.test.output
+    testImplementation project(':symphony-bdk-core').sourceSets.test.output
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
         exclude group: 'junit', module: 'junit'

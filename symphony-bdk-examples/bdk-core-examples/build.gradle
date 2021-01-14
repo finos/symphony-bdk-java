@@ -1,3 +1,7 @@
+plugins {
+    id 'bdk.java-common-conventions'
+}
+
 description = 'Symphony Java BDK Examples - Core'
 
 dependencies {
