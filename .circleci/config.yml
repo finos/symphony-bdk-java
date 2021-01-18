@@ -72,7 +72,7 @@ jobs:
           path: ~/code-coverage/jacoco
 
       - store_artifacts:
-          path: ~/reports/depedency-license
+          path: ~/reports/dependency-license
 
       - save_cache:
           paths:
