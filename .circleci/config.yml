@@ -59,7 +59,7 @@ jobs:
           name: Save license check results
           command: |
             mkdir -p ~/reports/dependency-license/
-            find . -type d -regex "./build/reports/dependency-license" -exec cp --parents -r {} ~/reports/depedency-license/ \;
+            find . -type d -regex "./build/reports/dependency-license" -exec cp --parents -r {} ~/reports/dependency-license/ \;
           when: always
 
       - store_test_results:
