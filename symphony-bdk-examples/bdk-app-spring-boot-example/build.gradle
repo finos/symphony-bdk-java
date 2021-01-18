@@ -12,7 +12,3 @@ dependencies {
 }
 
 uploadArchives.enabled = false
-
-bootJar {
-    enabled = false
-}

@@ -58,7 +58,7 @@ jobs:
       - run:
           name: Save license check results
           command: |
-            mkdir -p ~/reports/depedency-license/
+            mkdir -p ~/reports/dependency-license/
             find . -type d -regex "./build/reports/dependency-license" -exec cp --parents -r {} ~/reports/depedency-license/ \;
           when: always
 

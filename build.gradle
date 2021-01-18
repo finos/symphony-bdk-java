@@ -58,5 +58,5 @@ snyk {
 }
 
 licenseReport {
-    allowedLicensesFile = new File("$projectDir/.circleci/allowed-licenses.json")
+    allowedLicensesFile = new File("$projectDir/buildSrc/allowed-licenses.json")
 }
