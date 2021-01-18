@@ -33,7 +33,7 @@ jobs:
       - run:
           name: Build
           # Jacoco does not support incremental build so we don't run it automatically with check
-          command: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
+          command: ./gradlew build jacocoTestReport jacocoTestCoverageVerification checkLicense
 
       - run:
           name: Build Legacy
@@ -55,6 +55,13 @@ jobs:
             find . -type d -regex ".*/build/reports/jacoco/test/html" -exec cp --parents -r {} ~/code-coverage/jacoco/ \;
           when: always
 
+      - run:
+          name: Save license check results
+          command: |
+            mkdir -p ~/reports/depedency-license/
+            find . -type d -regex "./build/reports/dependency-license" -exec cp --parents -r {} ~/reports/depedency-license/ \;
+          when: always
+
       - store_test_results:
           path: ~/test-results
 
@@ -63,6 +70,9 @@ jobs:
 
       - store_artifacts:
           path: ~/code-coverage/jacoco
+
+      - store_artifacts:
+          path: ~/reports/depedency-license
 
       - save_cache:
           paths:
