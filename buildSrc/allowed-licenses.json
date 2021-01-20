@@ -1,0 +1,43 @@
+{
+    "allowedLicenses": [
+        {
+            "moduleLicense": ".*Apache.*2.0",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "Bouncy Castle Licence",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "EPL 2.0",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "CC0",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "Eclipse Public License.*",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "MIT License",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "GNU.*General Public License.*",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "GPL2 w/ CPE",
+            "moduleName": ".*"
+        },
+        {
+            "moduleLicense": "Prior BSD License",
+            "moduleName": ".*"
+        },
+        {
+            "moduleName": "org.springframework.boot:spring-boot-dependencies"
+        }
+    ]
+}
