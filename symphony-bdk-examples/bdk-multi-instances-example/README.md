@@ -20,7 +20,7 @@ export BOT_USERNAME=changeit
 export BOT_PK_PATH=/path/to/bot/privatekey.pem 
 gradle build && docker-compose up --build
 ```
-Once your bot instances successfully starter, you should observe:
+Once your bot instances successfully started, you should observe:
 ```
 5:40:35pm User:
 > hello 
