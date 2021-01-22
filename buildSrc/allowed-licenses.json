@@ -38,6 +38,9 @@
         },
         {
             "moduleName": "org.springframework.boot:spring-boot-dependencies"
+        },
+        {
+            "moduleName": "com.github.luben:zstd-jni"
         }
     ]
 }
