@@ -1,0 +1,48 @@
+
+bdk:
+  host: acme.symphony.com
+  bot:
+    username: changeit
+    privateKey:
+      path: ${user.home}/.symphony/privatekey.pem
+
+my-bot:
+  isProducer: true
+  topic: rte-topic
+  consumer-id: bot-consumer-01
+  nb-consumer: 1
+
+spring:
+  kafka:
+    consumer:
+      group-id: ${my-bot.topic}
+      auto-offset-reset: latest
+
+logging:
+  level:
+    com.symphony: debug
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  kafka:
+    consumer:
+      bootstrap-servers: ${my-bot.kafka-bootstrap-servers}
+      group-id: ${KAFKA_GROUP_ID}
+    producer:
+      bootstrap-servers: ${my-bot.kafka-bootstrap-servers}
+
+bdk:
+  host: ${BOT_HOST}
+  bot:
+    username: ${BOT_USERNAME}
+    privateKey:
+      path: ${BOT_PK}
+
+my-bot:
+  isProducer: ${BOT_IS_PRODUCER}
+  consumer-id: ${BOT_CONSUMER_ID}
+  nb-consumers: ${BOT_NB_CONSUMERS:1}
+  kafka-bootstrap-servers: kafka:19092
