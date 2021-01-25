@@ -662,6 +662,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link V2UserDetail} with created user details.
    * @see <a href="https://developers.symphony.com/restapi/reference#create-user-v2">Create User v2</a>
    */
+  @API(status = API.Status.STABLE)
   public V2UserDetail create(@Nonnull V2UserCreate payload) {
     return executeAndRetry("createUser",
         () -> userApi.v2AdminUserCreatePost(authSession.getSessionToken(), payload));
@@ -675,6 +676,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return {@link V2UserDetail} with updated user details.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-user-v2">Update User v2</a>
    */
+  @API(status = API.Status.STABLE)
   public V2UserDetail update(@Nonnull Long userId, @Nonnull V2UserAttributes payload) {
     return executeAndRetry("updateUser",
         () -> userApi.v2AdminUserUidUpdatePost(authSession.getSessionToken(), userId, payload));
