@@ -23,12 +23,15 @@ import com.symphony.bdk.gen.api.model.FollowersList;
 import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.StringId;
+import com.symphony.bdk.gen.api.model.UserCreate;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.gen.api.model.V2UserAttributes;
+import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserList;
 import com.symphony.bdk.http.api.ApiException;
@@ -650,6 +653,31 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     PaginatedApi<Long> api =
         (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  /**
+   * Return a {@link V2UserDetail} with created user details.
+   *
+   * @param payload User's details to create.
+   * @return a {@link V2UserDetail} with created user details.
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-user-v2">Create User v2</a>
+   */
+  public V2UserDetail create(@Nonnull V2UserCreate payload) {
+    return executeAndRetry("createUser",
+        () -> userApi.v2AdminUserCreatePost(authSession.getSessionToken(), payload));
+  }
+
+  /**
+   * Updates an existing V2 Users
+   *
+   * @param userId    User Id
+   * @param payload   User's new attributes for update.
+   * @return {@link V2UserDetail} with updated user details.
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-v2">Update User v2</a>
+   */
+  public V2UserDetail update(@Nonnull Long userId, @Nonnull V2UserAttributes payload) {
+    return executeAndRetry("updateUser",
+        () -> userApi.v2AdminUserUidUpdatePost(authSession.getSessionToken(), userId, payload));
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
