@@ -8,10 +8,26 @@ import com.symphony.bdk.gen.api.DisclaimerApi;
 import com.symphony.bdk.gen.api.model.Disclaimer;
 import com.symphony.bdk.http.api.ApiException;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
+
 import javax.annotation.Nonnull;
 
 import java.util.List;
 
+/**
+ * Service class for managing disclaimers.
+ * <p>
+ * This service performs some actions related to
+ * disclaimers like:
+ * <p><ul>
+ * <li>GET details of a disclaimer given by its id</li>
+ * <li>GET the list of all disclaimers for a given pod</li>
+ * <li>Get the list of all users for a given disclaimer</li>
+ * </ul></p>
+ */
+@Slf4j
+@API(status = API.Status.STABLE)
 public class DisclaimerService {
 
   private final DisclaimerApi disclaimerApi;
