@@ -14,6 +14,7 @@ import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -76,8 +77,8 @@ public class BdkOboServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserService oboUserService(UserApi userApi, UsersApi usersApi, BdkConfig config) {
-    return new UserService(userApi, usersApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public UserService oboUserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, BdkConfig config) {
+    return new UserService(userApi, usersApi, auditTrailApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

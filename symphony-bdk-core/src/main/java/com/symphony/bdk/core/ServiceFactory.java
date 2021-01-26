@@ -20,6 +20,7 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.DefaultApi;
@@ -79,7 +80,7 @@ class ServiceFactory {
    * @return a new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession, retryBuilder);
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(podClient), authSession, retryBuilder);
   }
 
   /**

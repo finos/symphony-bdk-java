@@ -15,6 +15,7 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -59,8 +60,8 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserService userService(UserApi userApi, UsersApi usersApi, AuthSession botSession, BdkConfig config) {
-    return new UserService(userApi, usersApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession botSession, BdkConfig config) {
+    return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
