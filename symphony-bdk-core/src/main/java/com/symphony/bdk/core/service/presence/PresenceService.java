@@ -141,6 +141,6 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
     final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .clearRecoveryStrategies()
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, presenceApi.getApiClient().getBasePath(), supplier);
   }
 }

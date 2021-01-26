@@ -33,7 +33,8 @@ public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
    */
   @Override
   public String getNewBasePath() {
-    String basePath = executeAndRetry(retryBuilder, "agent-info", () -> signalsApi.v1InfoGet().getServerFqdn());
+    String basePath = executeAndRetry(retryBuilder, "agent-info", signalsApi.getApiClient()
+        .getBasePath(), () -> signalsApi.v1InfoGet().getServerFqdn());
     if (basePath.endsWith("/")) {
       basePath = basePath.substring(0, basePath.length() - 1);
     }

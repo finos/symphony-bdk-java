@@ -648,6 +648,6 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .clearRecoveryStrategies() // to remove refresh on bot session put by default
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, userApi.getApiClient().getBasePath(), supplier);
   }
 }

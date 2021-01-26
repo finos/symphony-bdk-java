@@ -114,6 +114,6 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
     final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .clearRecoveryStrategies() // to remove refresh on bot session put by default
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, connectionApi.getApiClient().getBasePath(), supplier);
   }
 }

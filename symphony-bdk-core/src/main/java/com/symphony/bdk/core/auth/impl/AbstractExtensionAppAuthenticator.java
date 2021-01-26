@@ -55,7 +55,7 @@ public abstract class AbstractExtensionAppAuthenticator implements ExtensionAppA
   @Override
   public PodCertificate getPodCertificate() {
     return RetryWithRecovery.executeAndRetry(podCertificateRetryBuilder,
-        "AbstractExtensionAppAuthenticator.getPodCertificate", this::callGetPodCertificate);
+        "AbstractExtensionAppAuthenticator.getPodCertificate", getBasePath(), this::callGetPodCertificate);
   }
 
   protected ExtensionAppTokens retrieveExtensionAppSession(String appToken) throws AuthUnauthorizedException {
@@ -71,11 +71,13 @@ public abstract class AbstractExtensionAppAuthenticator implements ExtensionAppA
     final String unauthorizedErrorMessage = "Unable to authenticate app with ID : " + appId + ". "
         + "It usually happens when the app has not been configured or is not activated.";
 
-    return authenticationRetry.executeAndRetry("AbstractExtensionAppAuthenticator.retrieveExtAppTokens",
+    return authenticationRetry.executeAndRetry("AbstractExtensionAppAuthenticator.retrieveExtAppTokens", getBasePath(),
         () -> authenticateAndRetrieveTokens(appToken), unauthorizedErrorMessage);
   }
 
   protected abstract PodCertificate callGetPodCertificate() throws ApiException;
 
   protected abstract ExtensionAppTokens authenticateAndRetrieveTokens(String appToken) throws ApiException;
+
+  protected abstract String getBasePath();
 }

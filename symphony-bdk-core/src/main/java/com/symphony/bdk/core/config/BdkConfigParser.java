@@ -34,16 +34,18 @@ class BdkConfigParser {
         try {
             return JSON_MAPPER.readTree(content);
         } catch (IOException e) {
-            log.debug("Config file is not in JSON format");
+            log.debug("Config file is not in JSON format, checking for YAML format..");
         }
 
         try {
             JsonNode jsonNode =  YAML_MAPPER.readTree(content);
-            if (jsonNode.isContainerNode()) return jsonNode;
-            log.debug("Config file is not in YAML format");
+            if (jsonNode.isContainerNode()) {
+              log.debug("Config file found in YAML format.");
+              return jsonNode;
+            }
         } catch (IOException e) {
-            log.debug("Config file is not in YAML format");
+            log.debug("Config file is not in YAML format.");
         }
-        throw new BdkConfigException("Config file is not in a valid format");
+        throw new BdkConfigException("Config file format is not valid. Only YAML or JSON are allowed.");
     }
 }

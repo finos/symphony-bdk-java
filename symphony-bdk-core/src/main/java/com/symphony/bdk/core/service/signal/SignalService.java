@@ -203,6 +203,6 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
     final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .clearRecoveryStrategies()
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, signalsApi.getApiClient().getBasePath(), supplier);
   }
 }

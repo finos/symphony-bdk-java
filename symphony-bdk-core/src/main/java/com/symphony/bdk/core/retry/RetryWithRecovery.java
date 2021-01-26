@@ -8,6 +8,8 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -37,7 +39,7 @@ public abstract class RetryWithRecovery<T> {
    * @throws ApiRuntimeException if a non-handled {@link ApiException} thrown or if the max number of retries has been reached.
    * @throws RuntimeException    if any other exception thrown.
    */
-  public static <T> T executeAndRetry(RetryWithRecoveryBuilder baseRetryBuilder, String name,
+  public static <T> T executeAndRetry(RetryWithRecoveryBuilder baseRetryBuilder, String name, String address,
       SupplierWithApiException<T> supplier) {
     RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
@@ -49,7 +51,13 @@ public abstract class RetryWithRecovery<T> {
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
-      throw new RuntimeException(t);
+      if (t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException) {
+        String service = address.contains("/agent") ? "AGENT" : "POD";
+        String timeoutMessageError = String.format(
+            "Failed while trying to connect to the \"%s\" at the following address: %s. "
+                + "Please check that the address is correct and make sure the service is up and running.", service, address);
+        throw new RuntimeException(timeoutMessageError, t);
+      } else { throw new RuntimeException(t); }
     }
   }
 

@@ -40,6 +40,6 @@ public class SessionService implements OboSessionService, OboService<OboSessionS
   protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier, AuthSession authSession) {
     final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, sessionApi.getApiClient().getBasePath(), supplier);
   }
 }

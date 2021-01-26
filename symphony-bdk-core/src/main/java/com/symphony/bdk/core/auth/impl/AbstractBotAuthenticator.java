@@ -25,7 +25,7 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
     final String unauthorizedMessage = "Service account is not authorized to authenticate. "
         + "Check if credentials are valid.";
 
-    return authenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveToken",
+    return authenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveToken", client.getBasePath(),
         () -> authenticateAndGetToken(client), unauthorizedMessage);
   }
 

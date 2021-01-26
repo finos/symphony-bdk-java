@@ -229,7 +229,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenReturn(value);
 
-    assertEquals(value, Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier));
+    assertEquals(value, Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier, "serviceName"));
   }
 
   @Test
@@ -238,7 +238,7 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ApiException(500, ""));
 
     assertThrows(ApiRuntimeException.class,
-        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier));
+        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier, "serviceName"));
   }
 
   @Test
@@ -247,6 +247,6 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ArrayIndexOutOfBoundsException());
 
     assertThrows(RuntimeException.class,
-        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier));
+        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier, "serviceName"));
   }
 }
