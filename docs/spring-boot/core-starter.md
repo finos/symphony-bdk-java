@@ -72,7 +72,7 @@ plugins {
 }
 
 dependencies {
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:1.3.2.BETA')
+    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:2.0.0')
     
     implementation 'com.symphony.platformsolutions:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter'
@@ -123,6 +123,41 @@ public class HelloBot {
 ``` 
 
 You can finally run your Spring Boot application and verify that your bot always replies with `Hello!`. 
+
+### OBO (On behalf of) usecases
+It is possible to run an application with no bot service account configured in order to accommodate OBO usecases only.
+For instance the following configuration is valid:
+```yaml
+bdk:
+    host: acme.symphony.com
+    app:
+      appId: app-id
+      privateKey:
+        path: /path/to/rsa/privatekey.pem
+```
+
+This will cause all features related to the datafeed loop such as Real Time Events, activities, slash commands, etc. to be deactivated.
+However, service beans with OBO-enabled endpoints will be available and can be used as following:
+```java
+@Component
+public class OboUsecase {
+
+  @Autowired
+  private MessageService messageService;
+
+  @Autowired
+  private OboAuthenticator oboAuthenticator;
+
+  public void doStuff() {
+      final AuthSession oboSession = oboAuthenticator.authenticateByUsername("user.name");
+      final V4Message message = messageService.obo(oboSession).send("stream.id", "Hello from OBO"); // works
+
+      messageService.send("stream.id", "Hello world"); // fails with an IllegalStateException
+  }
+}
+```
+
+Any attempt to use a non-OBO service endpoint will fail with an IllegalStateException.
 
 ## Subscribe to Real Time Events
 The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html) 

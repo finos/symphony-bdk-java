@@ -1,3 +1,8 @@
+plugins {
+    id 'bdk.java-common-conventions'
+    id 'bdk.java-publish-conventions'
+}
+
 description = 'Symphony Java BDK Core Http API'
 
 dependencies {

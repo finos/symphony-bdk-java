@@ -46,7 +46,14 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   public SignalService(SignalsApi signalsApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.signalsApi = signalsApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public SignalService(SignalsApi signalsApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.signalsApi = signalsApi;
+    this.authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**
@@ -200,9 +207,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies()
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, signalsApi.getApiClient().getBasePath(), supplier);
+    checkAuthSession(authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, signalsApi.getApiClient().getBasePath(), supplier);
   }
 }

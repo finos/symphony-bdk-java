@@ -12,7 +12,10 @@ import org.apiguardian.api.API;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Getter
 @Setter
@@ -83,8 +86,15 @@ public class BdkCertificateConfig {
 
   private byte[] getBytesFromFile(String filePath) {
     try {
+      if (filePath.startsWith("classpath:")) {
+        final URL resource = getClass().getResource(filePath.replace("classpath:", ""));
+        if (resource != null) {
+          return Files.readAllBytes(Paths.get(resource.toURI()));
+        }
+        throw new ApiClientInitializationException("File not found in classpath: " + filePath);
+      }
       return Files.readAllBytes(new File(filePath).toPath());
-    } catch (IOException e) {
+    } catch (IOException | URISyntaxException e) {
       throw new ApiClientInitializationException("Could not read file " + filePath, e);
     }
   }

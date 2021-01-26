@@ -95,6 +95,11 @@ class MessageServiceTest {
   private AttachmentsApi attachmentsApi;
   private TemplateEngine templateEngine;
   private AuthSession authSession;
+  private MessagesApi messagesApi;
+  private MessageApi messageApi;
+  private MessageSuppressionApi messageSuppressionApi;
+  private PodApi podApi;
+  private DefaultApi defaultApi;
 
   @BeforeEach
   void setUp() {
@@ -109,10 +114,34 @@ class MessageServiceTest {
     templateEngine = mock(TemplateEngine.class);
     streamsApi = spy(new StreamsApi(podClient));
     attachmentsApi = spy(new AttachmentsApi(agentClient));
+    messagesApi = new MessagesApi(agentClient);
+    messageApi = new MessageApi(podClient);
+    messageSuppressionApi = new MessageSuppressionApi(podClient);
+    podApi = new PodApi(podClient);
+    defaultApi = new DefaultApi(podClient);
 
-    messageService = new MessageService(new MessagesApi(agentClient), new MessageApi(podClient),
-        new MessageSuppressionApi(podClient), streamsApi, new PodApi(podClient),
-        attachmentsApi, new DefaultApi(podClient), authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
+        attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+  }
+
+  @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
+        attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
+
+    assertThrows(IllegalStateException.class, () -> messageService.getMessage("message.id"));
+  }
+
+  @Test
+  void testSendMessageObo() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
+        attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
+    final V4Message sentMessage = messageService.obo(authSession).send(STREAM_ID, MESSAGE);
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
   }
 
   @Test

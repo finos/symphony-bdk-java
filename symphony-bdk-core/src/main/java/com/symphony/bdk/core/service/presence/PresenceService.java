@@ -43,7 +43,14 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
   public PresenceService(PresenceApi presenceApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.presenceApi = presenceApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public PresenceService(PresenceApi presenceApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.presenceApi = presenceApi;
+    this.authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**
@@ -138,9 +145,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies()
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, presenceApi.getApiClient().getBasePath(), supplier);
+    checkAuthSession(authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, presenceApi.getApiClient().getBasePath(), supplier);
   }
 }

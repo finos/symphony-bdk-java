@@ -1,4 +1,11 @@
-ext.projectVersion = '1.7.0-SNAPSHOT'
+plugins {
+    id "io.codearte.nexus-staging" version "0.22.0"
+    id "io.snyk.gradle.plugin.snykplugin" version "0.4"
+
+    id 'com.github.jk1.dependency-license-report' version '1.16'
+}
+
+ext.projectVersion = '2.1.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
@@ -35,108 +42,21 @@ allprojects {
     defaultTasks 'build'
 }
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
-    }
-}
-
-apply plugin: 'io.codearte.nexus-staging'
-
-subprojects {
-    apply plugin: 'signing'
-}
-
-tasks.withType(Sign) {
-    onlyIf { ext.isReleaseVersion }
-}
-
 nexusStaging {
     username = rootProject.ext.symphonyRepoUser
     password = rootProject.ext.symphonyRepoPassword
 }
 
-configure(subprojects.findAll { it.name != 'symphony-bdk-bom' }) {
-    apply plugin: 'java'
-    apply plugin: 'jacoco'
-    apply plugin: 'maven-publish'
-
-    repositories {
-        mavenCentral()
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                from(components.java)
-                pom(rootProject.ext.pomDefinition)
-                pom.withXml {
-                    // otherwise project description is evaluated too early
-                    asNode().children().first().plus {
-                        setResolveStrategy(Closure.DELEGATE_FIRST)
-                        'name' project.name
-                        'description' project.description
-                    }
-                }
-            }
-        }
-    }
-
-    signing {
-        required { rootProject.isReleaseVersion }
-        sign publishing.publications.maven
-    }
-
-    sourceCompatibility = '1.8'
-
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
-
-    javadoc {
-        options.encoding = 'UTF-8'
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-
-    java {
-        withJavadocJar()
-        withSourcesJar()
-    }
-
-    jar {
-        manifest {
-            attributes("Implementation-Title": project.name,
-                    "Implementation-Version": project.version)
-        }
-    }
-
-    test {
-        useJUnitPlatform()
-    }
-
-    dependencies {
-        implementation platform(project(':symphony-bdk-bom'))
-        annotationProcessor platform(project(':symphony-bdk-bom'))
-        testAnnotationProcessor platform(project(':symphony-bdk-bom'))
-    }
+// Required for Snyk plugin to work (https://github.com/snyk/gradle-plugin/issues/1)
+repositories {
+    mavenCentral()
 }
 
-// do not publish example modules
-configure(subprojects.findAll { !it.name.contains('example') }) {
-    apply plugin: 'maven-publish'
+snyk {
+    arguments = '--all-sub-projects'
+    severity = 'high'
+}
 
-    publishing {
-        repositories {
-            maven {
-                credentials {
-                    username rootProject.ext.symphonyRepoUser
-                    password rootProject.ext.symphonyRepoPassword
-                }
-                url rootProject.ext.symphonyRepoUrl
-            }
-        }
-    }
+licenseReport {
+    allowedLicensesFile = new File("$projectDir/buildSrc/allowed-licenses.json")
 }

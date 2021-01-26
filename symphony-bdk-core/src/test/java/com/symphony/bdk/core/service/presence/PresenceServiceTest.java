@@ -38,11 +38,12 @@ public class PresenceServiceTest {
   private PresenceService service;
   private PresenceApi spiedPresenceApi;
   private MockApiClient mockApiClient;
+  private AuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
+    this.authSession = mock(AuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     PresenceApi presenceApi = new PresenceApi(podClient);
     this.spiedPresenceApi = spy(presenceApi);
@@ -50,6 +51,29 @@ public class PresenceServiceTest {
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
+  }
+
+  @Test
+  void nonOboEndpointShouldThrowExceptionInOboMode() {
+    this.service = new PresenceService(spiedPresenceApi, new RetryWithRecoveryBuilder<>());
+    assertThrows(IllegalStateException.class, () -> this.service.getPresence());
+  }
+
+  @Test
+  void getPresenceOboMode() {
+    this.service = new PresenceService(spiedPresenceApi, new RetryWithRecoveryBuilder<>());
+
+    this.mockApiClient.onGet(V2_GET_PRESENCE,
+        "{\n"
+            + "    \"category\": \"AVAILABLE\",\n"
+            + "    \"userId\": 14568529068038,\n"
+            + "    \"timestamp\": 1533928483800\n"
+            + "}");
+
+    final V2Presence presence = this.service.obo(this.authSession).getPresence();
+
+    assertEquals(presence.getCategory(), "AVAILABLE");
+    assertEquals(presence.getUserId(), 14568529068038L);
   }
 
   @Test

@@ -3,6 +3,7 @@ package com.symphony.bdk.core.activity;
 import com.symphony.bdk.core.activity.command.CommandActivity;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
+
 import com.symphony.bdk.core.activity.model.ActivityType;
 
 import lombok.Setter;
@@ -18,7 +19,7 @@ public class TestCommandActivity extends CommandActivity<CommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.COMMAND);
+    return new ActivityInfo().type(ActivityType.COMMAND).name("/test");
   }
 
   @Override

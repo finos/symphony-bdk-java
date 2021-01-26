@@ -12,6 +12,22 @@ import org.apiguardian.api.API;
 public interface RealTimeEventListener {
 
     /**
+     * Check if the event is accepted to be handled.
+     * By default, all the event that is created by the bot itself will not be accepted to be handled by the listener.
+     * If you want to handle the self-created events or you want to apply your own filters for the events, you should override this method.
+     *
+     * @param event     Event to be verified.
+     * @param username  Username of the bot itself.
+     * @return the event is accepted or not
+     */
+    @API(status = API.Status.EXPERIMENTAL)
+    default boolean isAcceptingEvent(V4Event event, String username) {
+      return event.getInitiator() != null && event.getInitiator().getUser() != null
+          && event.getInitiator().getUser().getUsername() != null
+          && !event.getInitiator().getUser().getUsername().equals(username);
+    }
+
+    /**
      * Called when a MESSAGESENT event is received.
      * @param initiator Event initiator.
      * @param event Message sent payload.

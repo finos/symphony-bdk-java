@@ -12,6 +12,7 @@ import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.spring.events.RealTimeEventsDispatcher;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,6 +27,7 @@ import java.util.List;
  * Injection of the {@link DatafeedLoop} instance into the Spring application context.
  */
 @ConditionalOnProperty(value = "bdk.datafeed.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnBean(name = "botSession")
 public class BdkDatafeedConfig {
 
   @Bean

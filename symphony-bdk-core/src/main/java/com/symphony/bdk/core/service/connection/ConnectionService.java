@@ -41,7 +41,14 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
   public ConnectionService(ConnectionApi connectionApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.connectionApi = connectionApi;
     this. authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public ConnectionService(ConnectionApi connectionApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.connectionApi = connectionApi;
+    this. authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**
@@ -111,9 +118,7 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies() // to remove refresh on bot session put by default
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, connectionApi.getApiClient().getBasePath(), supplier);
+    checkAuthSession(authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, connectionApi.getApiClient().getBasePath(), supplier);
   }
 }

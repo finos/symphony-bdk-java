@@ -22,8 +22,8 @@ public class TestSlashConfig {
 
   @Lazy
   @Bean("foobar-lazy")
-  public FooBar lazyFooBar() {
-    return new FooBar();
+  public LazyFooBar lazyFooBar() {
+    return new LazyFooBar();
   }
 
   @Bean("foobar")
@@ -35,5 +35,11 @@ public class TestSlashConfig {
 
     @Slash("/foo-bar")
     public void onSlashFooBar(CommandContext commandContext) {}
+  }
+
+  public static class LazyFooBar {
+
+    @Slash("/lazy-foo-bar")
+    public void onSlashLazyFooBar(CommandContext commandContext) {}
   }
 }
