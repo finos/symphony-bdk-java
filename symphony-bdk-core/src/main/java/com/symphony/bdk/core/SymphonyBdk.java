@@ -13,6 +13,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.core.service.disclaimer.DisclaimerService;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
@@ -53,6 +54,7 @@ public class SymphonyBdk {
   private final ConnectionService connectionService;
   private final SignalService signalService;
   private final ApplicationService applicationService;
+  private final DisclaimerService disclaimerService;
   private final SessionService sessionService;
   private final HealthService healthService;
 
@@ -88,6 +90,7 @@ public class SymphonyBdk {
     this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
     this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
     this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
+    this.disclaimerService = serviceFactory != null ? serviceFactory.getDisclaimerService() : null;
     this.datafeedLoop = serviceFactory != null ? serviceFactory.getDatafeedLoop() : null;
 
     // retrieve bot session info
@@ -143,6 +146,15 @@ public class SymphonyBdk {
    */
   public StreamService streams() {
     return getOrThrowNoBotConfig(this.streamService);
+  }
+
+  /**
+   * Get the {@link DisclaimerService} from a Bdk entry point.
+   *
+   * @return {@link DisclaimerService} disclaimer service instance.
+   */
+  public DisclaimerService disclaimers() {
+    return getOrThrowNoBotConfig(this.disclaimerService);
   }
 
   /**
