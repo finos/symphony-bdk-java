@@ -1,0 +1,7 @@
+_version: '2.0'
+
+bot:
+  username: tibot
+  privateKey:
+    path: ${my.property}/privatekey.pem
+

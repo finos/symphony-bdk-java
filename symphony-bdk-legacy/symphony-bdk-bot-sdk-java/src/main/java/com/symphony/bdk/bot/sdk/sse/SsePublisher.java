@@ -1,17 +1,17 @@
 package com.symphony.bdk.bot.sdk.sse;
 
+import com.symphony.bdk.bot.sdk.sse.model.SsePublishable;
+import com.symphony.bdk.bot.sdk.sse.model.SubscriptionEvent;
+
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.symphony.bdk.bot.sdk.sse.model.SsePublishable;
-import com.symphony.bdk.bot.sdk.sse.model.SubscriptionEvent;
-
-import lombok.Setter;
 
 /**
  * Base class for Server-sent events publishers. Provides mechanisms to automatically register child
@@ -42,6 +42,14 @@ public abstract class SsePublisher<E extends SsePublishable> {
     init();
     this.ssePublisherRouter.register(this);
     this.subscribers = new ConcurrentHashMap<>();
+  }
+
+  /**
+   * We use this method in the tests to initialize the subscribers
+   * @param subscribers the subscribers list
+   */
+  protected void setSubscribers(ConcurrentHashMap<String, List<SseSubscriber>> subscribers){
+    this.subscribers = subscribers;
   }
 
   /**

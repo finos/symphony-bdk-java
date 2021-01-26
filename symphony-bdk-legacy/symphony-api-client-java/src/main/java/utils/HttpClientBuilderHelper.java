@@ -119,7 +119,7 @@ public class HttpClientBuilderHelper {
     }
 
     @SneakyThrows
-    private static SSLContext createSSLContext(
+    protected static SSLContext createSSLContext(
         @Nullable final String truststorePath,
         @Nullable final String truststorePassword,
         @Nullable final String keystorePath,

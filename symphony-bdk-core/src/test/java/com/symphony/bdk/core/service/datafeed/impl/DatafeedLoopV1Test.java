@@ -138,7 +138,8 @@ class DatafeedLoopV1Test {
   }
 
   private List<V4Event> getMessageSentEvent() {
-    final V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload());
+    final V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())
+        .initiator(new V4Initiator().user(new V4User().username("username")));
     return Collections.singletonList(event);
   }
 
@@ -442,13 +443,14 @@ class DatafeedLoopV1Test {
         .userLeftRoom(new V4UserLeftRoom())
         .userJoinedRoom(new V4UserJoinedRoom())
         .userRequestedToJoinRoom(new V4UserRequestedToJoinRoom());
-    V4Initiator initiator = new V4Initiator();
+    V4Initiator initiator = new V4Initiator().user(new V4User().username("username"));
     for (RealTimeEventType type : types) {
       V4Event event = new V4Event().type(type.name());
       event.payload(payload).initiator(initiator);
       events.add(event);
     }
     events.add(new V4Event().type("unknown-type").payload(payload));
+    events.add(new V4Event().type(null));
     events.add(new V4Event().type(types[0].name())
         .initiator(new V4Initiator().user(new V4User().username(bdkConfig.getBot().getUsername()))));
     this.datafeedService.unsubscribe(this.listener);

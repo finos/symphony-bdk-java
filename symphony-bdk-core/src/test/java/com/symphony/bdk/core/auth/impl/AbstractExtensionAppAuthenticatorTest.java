@@ -42,6 +42,11 @@ class AbstractExtensionAppAuthenticatorTest {
       return null;
     }
 
+    @Override
+    protected String getBasePath() {
+      return null;
+    }
+
     @Nonnull
     @Override
     public AppAuthSession authenticateExtensionApp(String appToken) {

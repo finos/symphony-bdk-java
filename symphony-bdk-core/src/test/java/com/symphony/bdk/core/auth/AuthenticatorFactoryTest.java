@@ -67,6 +67,24 @@ class AuthenticatorFactoryTest {
   }
 
   @Test
+  void testGetBotAuthenticatorWithValidPrivateKeyInClasspath() throws AuthInitializationException {
+    final BdkConfig config = createRsaConfig(() -> "classpath:/keys/private-key.pem");
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+    final BotAuthenticator botAuth = factory.getBotAuthenticator();
+    assertNotNull(botAuth);
+    assertEquals(BotAuthenticatorRsaImpl.class, botAuth.getClass());
+  }
+
+  @Test
+  void testGetBotAuthenticatorWithPrivateKeyNotFoundInClasspath() {
+    final BdkConfig config = createRsaConfig(() -> "classpath:/keys/notfound.pem");
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+    assertThrows(AuthInitializationException.class, () -> factory.getBotAuthenticator());
+  }
+
+  @Test
   void testGetAuthenticatorWithValidPrivateKeyContent() throws AuthInitializationException {
 
     final BdkConfig config = new BdkConfig();

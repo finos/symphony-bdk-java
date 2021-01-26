@@ -50,6 +50,8 @@ public abstract class RetryWithRecovery<T> {
       return retry.execute();
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
+    } catch (RuntimeException e) {
+      throw e;
     } catch (Throwable t) {
       if (t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException) {
         String service = address.contains("/agent") ? "AGENT" : "POD";

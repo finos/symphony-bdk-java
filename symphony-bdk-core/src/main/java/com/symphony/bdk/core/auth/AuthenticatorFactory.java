@@ -193,7 +193,7 @@ public class AuthenticatorFactory {
     }
   }
 
-  private static String loadPrivateKey(String privateKeyPath) throws IOException {
+  private static String loadPrivateKey(String privateKeyPath) throws IOException, AuthInitializationException {
     log.debug("Loading private key from : {}", privateKeyPath);
     InputStream is;
 
@@ -202,6 +202,9 @@ public class AuthenticatorFactory {
       log.warn("Warning: Keeping RSA private keys into project resources is dangerous. "
           + "You should consider another location for production.");
       is = AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
+      if (is == null) {
+        throw new AuthInitializationException("Unable to find RSA private key as classpath resource from: " + privateKeyPath);
+      }
     } else {
       is = new FileInputStream(privateKeyPath);
     }

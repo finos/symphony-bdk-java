@@ -4,16 +4,16 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.service.health.HealthService;
-import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
+import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
+import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
@@ -37,7 +37,6 @@ import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
@@ -71,9 +70,7 @@ class ServiceFactory {
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.config = config;
-    this.retryBuilder = new RetryWithRecoveryBuilder<>()
-        .retryConfig(config.getRetry())
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+    this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
   }
 
   /**

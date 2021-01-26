@@ -30,7 +30,8 @@ public class GifCommand extends PatternCommandActivity<GifCommandContext> {
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.COMMAND)
+    return new ActivityInfo()
+        .type(ActivityType.COMMAND)
         .name("Gif Random by Category command")
         .description("Usage: @BotMention /gif {category}");
   }

@@ -70,7 +70,17 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
+  }
+
+  public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
+      RetryWithRecoveryBuilder<?> retryBuilder) {
+    this.streamsApi = streamsApi;
+    this.roomMembershipApi = membershipApi;
+    this.shareApi = shareApi;
+    this.authSession = null;
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   /**
@@ -487,10 +497,9 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
         () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
   }
 
+
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
-    final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
-        .clearRecoveryStrategies() // to remove refresh on bot session put by default
-        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, address, supplier);
+    checkAuthSession(authSession);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, address, supplier);
   }
 }

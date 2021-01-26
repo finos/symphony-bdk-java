@@ -46,6 +46,16 @@ public class RetryWithRecoveryBuilder<T> {
     return copy;
   }
 
+  public static <T> RetryWithRecoveryBuilder<T> copyWithoutRecoveryStrategies(RetryWithRecoveryBuilder<?> from) {
+    RetryWithRecoveryBuilder<T> copy = new RetryWithRecoveryBuilder();
+    copy.name = from.name;
+    copy.retryConfig = from.retryConfig;
+    copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
+    copy.ignoreException = from.ignoreException;
+
+    return copy;
+  }
+
   /**
    * Checks if a throwable is a {@link ProcessingException} or a {@link ApiException} minor error.
    * This is the default function used in {@link RetryWithRecovery}

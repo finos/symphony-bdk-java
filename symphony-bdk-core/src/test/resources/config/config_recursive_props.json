@@ -1,0 +1,8 @@
+{
+    "_version": "2.0",
+
+    "bot": {
+        "username": "tibot",
+        "privateKeyPath": "${${recursive}}/privatekey.pem"
+    }
+}

@@ -25,7 +25,7 @@ class AuthenticationRetryTest {
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(1));
 
     final String output = "output";
-    assertEquals(output, authenticationRetry.executeAndRetry("test", () -> output, ""));
+    assertEquals(output, authenticationRetry.executeAndRetry("test", "addressTest",  () -> output, ""));
   }
 
   @Test
@@ -36,7 +36,7 @@ class AuthenticationRetryTest {
     when(supplier.get()).thenThrow(new ApiException(502, "")).thenReturn(output);
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
-    assertEquals(output, authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertEquals(output, authenticationRetry.executeAndRetry("test","addressTest", supplier, ""));
 
     verify(supplier, times(2)).get();
     verifyNoMoreInteractions(supplier);
@@ -51,7 +51,7 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertEquals(output, authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertEquals(output, authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(2)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -65,7 +65,7 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertEquals(output, authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertEquals(output, authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(2)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -77,7 +77,7 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(ApiRuntimeException.class, () -> authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertThrows(ApiRuntimeException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(2)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -89,7 +89,7 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(AuthUnauthorizedException.class, () -> authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertThrows(AuthUnauthorizedException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -101,7 +101,7 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(ApiRuntimeException.class, () -> authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertThrows(ApiRuntimeException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -113,7 +113,7 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(RuntimeException.class, () -> authenticationRetry.executeAndRetry("test", supplier, ""));
+    assertThrows(RuntimeException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
   }

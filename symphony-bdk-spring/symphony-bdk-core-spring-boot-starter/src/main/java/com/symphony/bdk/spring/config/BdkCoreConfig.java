@@ -1,15 +1,16 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-import com.symphony.bdk.core.auth.OboAuthenticator;
-import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
+
+import com.symphony.bdk.template.api.TemplateEngine;
+import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -74,31 +75,18 @@ public class BdkCoreConfig {
 
   @Bean
   @ConditionalOnMissingBean
+  public TemplateEngine templateEngine() {
+    return new FreeMarkerEngine();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnProperty("bdk.bot.username")
   public AuthSession botSession(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getBotAuthenticator().authenticateBot();
     } catch (AuthUnauthorizedException | AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate bot", e);
-    }
-  }
-
-  @Bean
-  @ConditionalOnProperty("bdk.app.appId")
-  public ExtensionAppAuthenticator extensionAppAuthenticator(AuthenticatorFactory authenticatorFactory) {
-    try {
-      return authenticatorFactory.getExtensionAppAuthenticator();
-    } catch (AuthInitializationException e) {
-      throw new BeanInitializationException("Unable to authenticate app", e);
-    }
-  }
-
-  @Bean
-  @ConditionalOnProperty(name = "bdk.app.appId")
-  public OboAuthenticator oboAuthenticator(AuthenticatorFactory authenticatorFactory) {
-    try {
-      return authenticatorFactory.getOboAuthenticator();
-    } catch (AuthInitializationException e) {
-      throw new BeanInitializationException("Unable to use OBO authentication", e);
     }
   }
 }

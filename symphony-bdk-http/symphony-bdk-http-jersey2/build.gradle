@@ -1,5 +1,6 @@
 plugins {
-    id 'java-library'
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
 }
 
 description = 'Symphony Java BDK Core Http Jersey2'

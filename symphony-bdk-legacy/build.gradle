@@ -40,17 +40,32 @@ allprojects {
 buildscript {
     repositories {
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
+        classpath 'gradle.plugin.io.snyk.gradle.plugin:snyk:0.4'
     }
 }
 
 apply plugin: 'io.codearte.nexus-staging'
+apply plugin: 'io.snyk.gradle.plugin.snykplugin'
 
 nexusStaging {
     username = rootProject.ext.symphonyRepoUser
     password = rootProject.ext.symphonyRepoPassword
+}
+
+// Required for Snyk plugin to work (https://github.com/snyk/gradle-plugin/issues/1)
+repositories {
+    mavenCentral()
+}
+
+snyk {
+    arguments = '--all-sub-projects'
+    severity = 'high'
 }
 
 subprojects {
@@ -66,8 +81,8 @@ subprojects {
 
     dependencies {
         constraints {
-            compileOnly 'org.projectlombok:lombok:1.18.12'
-            annotationProcessor 'org.projectlombok:lombok:1.18.12'
+            compileOnly 'org.projectlombok:lombok:1.18.16'
+            annotationProcessor 'org.projectlombok:lombok:1.18.16'
 
             implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.2'
 
@@ -112,11 +127,11 @@ subprojects {
             implementation 'org.springframework.boot:spring-boot-starter-test:2.3.5.RELEASE'
             implementation 'org.springframework.security:spring-security-test:5.3.5.RELEASE'
 
-            implementation 'org.symphonyoss.symphony:messageml:0.9.60'
+            implementation 'org.symphonyoss.symphony:messageml:0.9.64'
             implementation 'io.micrometer:micrometer-registry-prometheus:1.5.1'
 
-            testCompileOnly 'org.projectlombok:lombok:1.18.12'
-            testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+            testCompileOnly 'org.projectlombok:lombok:1.18.16'
+            testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 
             implementation 'junit:junit:4.13.1'
             implementation 'org.mockito:mockito-core:3.6.0'
