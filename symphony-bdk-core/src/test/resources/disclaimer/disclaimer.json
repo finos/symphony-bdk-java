@@ -1,0 +1,10 @@
+{
+    "id": "571d20dae4b042aaf06d2e7c",
+    "name": "New Enterprise Disclaimer",
+    "content": "This is a second enterprise disclaimer.",
+    "frequencyInHours": 168,
+    "isDefault": false,
+    "isActive": true,
+    "createdDate": 1461526746875,
+    "modifiedDate": 1461526746875
+}

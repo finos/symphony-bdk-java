@@ -12,6 +12,7 @@ import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -29,6 +30,9 @@ import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorList;
+import com.symphony.bdk.gen.api.model.V2UserAttributes;
+import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserList;
 import com.symphony.bdk.http.api.ApiException;
@@ -69,28 +73,31 @@ public class UserService implements OboUserService, OboService<OboUserService> {
 
   private final UserApi userApi;
   private final UsersApi usersApi;
+  private final AuditTrailApi auditTrailApi;
   private final AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuthSession authSession,
+  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession authSession,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
+    this.auditTrailApi = auditTrailApi;
     this.authSession = authSession;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
-  public UserService(UserApi userApi, UsersApi usersApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
+    this.auditTrailApi = auditTrailApi;
     this.authSession = null;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   @Override
   public OboUserService obo(AuthSession oboSession) {
-    return new UserService(userApi, usersApi, oboSession, retryBuilder);
+    return new UserService(userApi, usersApi, auditTrailApi, oboSession, retryBuilder);
   }
 
   /**
@@ -650,6 +657,54 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     PaginatedApi<Long> api =
         (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  /**
+   * Creates a new user.
+   *
+   * @param payload User's details to create.
+   * @return a {@link V2UserDetail} with created user details.
+   * @see <a href="https://developers.symphony.com/restapi/reference#create-user-v2">Create User v2</a>
+   */
+  public V2UserDetail create(@Nonnull V2UserCreate payload) {
+    return executeAndRetry("create",
+        () -> userApi.v2AdminUserCreatePost(authSession.getSessionToken(), payload));
+  }
+
+  /**
+   * Updates an existing user
+   *
+   * @param userId    User Id
+   * @param payload   User's new attributes for update.
+   * @return {@link V2UserDetail} with updated user details.
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-v2">Update User v2</a>
+   */
+  public V2UserDetail update(@Nonnull Long userId, @Nonnull V2UserAttributes payload) {
+    return executeAndRetry("update",
+        () -> userApi.v2AdminUserUidUpdatePost(authSession.getSessionToken(), userId, payload));
+  }
+
+  /**
+   * Returns audit trail of actions performed by a privileged user in a given period of time.
+   *
+   * @param startTimestamp  The start time of the period to retrieve the data.
+   * @param endTimestamp    The end time of the period to retrieve the data.
+   * @param pagination      The range and limit for pagination of data.
+   * @param initiatorId     Privileged user id to list audit trail for.
+   * @param role            Role to list audit trail for.
+   * @return  {@link V1AuditTrailInitiatorList} with items and pagination.
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-audit-trail-v1">List Audit Trail v1</a>
+   */
+  public V1AuditTrailInitiatorList listAuditTrail(@Nonnull Long startTimestamp, Long endTimestamp,
+      CursorPaginationAttribute pagination, Long initiatorId, String role) {
+
+    String before = pagination != null ? pagination.getBefore().toString() : null;
+    String after = pagination != null ? pagination.getAfter().toString() : null;
+    Integer limit = pagination != null ? pagination.getLimit() : null;
+
+    return executeAndRetry("listAuditTrail",
+        () -> auditTrailApi.v1AudittrailPrivilegeduserGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
+            startTimestamp, endTimestamp, before, after, limit, initiatorId, role));
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {

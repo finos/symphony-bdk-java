@@ -10,6 +10,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
+import com.symphony.bdk.core.service.disclaimer.DisclaimerService;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
@@ -20,9 +21,11 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.DefaultApi;
+import com.symphony.bdk.gen.api.DisclaimerApi;
 import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
@@ -79,7 +82,7 @@ class ServiceFactory {
    * @return a new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), authSession, retryBuilder);
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession, retryBuilder);
   }
 
   /**
@@ -90,6 +93,10 @@ class ServiceFactory {
   public StreamService getStreamService() {
     return new StreamService(new StreamsApi(podClient), new RoomMembershipApi(podClient), new ShareApi(agentClient),
         authSession, retryBuilder);
+  }
+
+  public DisclaimerService getDisclaimerService() {
+    return new DisclaimerService(new DisclaimerApi(podClient), authSession, retryBuilder);
   }
 
   /**
