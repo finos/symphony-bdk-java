@@ -47,6 +47,8 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -56,6 +58,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class UserServiceTest {
   private static final String V2_USER_DETAIL_BY_ID = "/pod/v2/admin/user/{uid}";
@@ -84,6 +87,15 @@ class UserServiceTest {
   private static final String V1_LIST_FOLLOWING = "/pod/v1/user/{uid}/following";
   private static final String V1_AUDIT_TRAIL_PRIVILEGED_USER = "/agent/v1/audittrail/privilegeduser";
   private static final String MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE = "Missing the required parameter '%s' when calling %s";
+
+  private static Stream<CursorPaginationAttribute> paginationStream() {
+    return Stream.of(
+        null,
+        new CursorPaginationAttribute(null,null,null),
+        new CursorPaginationAttribute(null,null,3),
+        new CursorPaginationAttribute(1,3,2)
+    );
+  }
 
   private UserService service;
   private UserApi spiedUserApi;
@@ -958,5 +970,18 @@ class UserServiceTest {
 
     assertTrue(exception.getMessage().contains(
         String.format(MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE, "startTimestamp", "v1AudittrailPrivilegeduserGet")));
+  }
+
+  @ParameterizedTest
+  @MethodSource("paginationStream")
+  void listAuditTrailPagination(CursorPaginationAttribute cursorPaginationAttribute) throws IOException {
+    String response = JsonHelper.readFromClasspath("/audit_trail/audit_trail_initiator_list_v1.json");
+    this.mockApiClient.onGet(V1_AUDIT_TRAIL_PRIVILEGED_USER, response);
+
+    V1AuditTrailInitiatorList v1AuditTrailInitiatorList =  this.service.listAuditTrail(1551888601279L, 1551888601279L,
+        cursorPaginationAttribute,1353716993L, "SUPER_ADMINISTRATOR");
+
+    assertEquals(v1AuditTrailInitiatorList.getItems().size(), 2);
+    assertEquals(v1AuditTrailInitiatorList.getPagination(), null);
   }
 }

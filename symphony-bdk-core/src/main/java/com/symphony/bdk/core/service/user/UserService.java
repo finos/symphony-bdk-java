@@ -698,9 +698,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   public V1AuditTrailInitiatorList listAuditTrail(@Nonnull Long startTimestamp, Long endTimestamp,
       CursorPaginationAttribute pagination, Long initiatorId, String role) {
 
-    String before = pagination != null ? pagination.getBefore().toString() : null;
-    String after = pagination != null ? pagination.getAfter().toString() : null;
-    Integer limit = pagination != null ? pagination.getLimit() : null;
+    String before = (pagination != null && pagination.getBefore() != null) ? pagination.getBefore().toString() : null;
+    String after = (pagination != null && pagination.getAfter() != null) ? pagination.getAfter().toString() : null;
+    Integer limit = (pagination != null && pagination.getLimit() != null) ? pagination.getLimit() : null;
 
     return executeAndRetry("listAuditTrail",
         () -> auditTrailApi.v1AudittrailPrivilegeduserGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
