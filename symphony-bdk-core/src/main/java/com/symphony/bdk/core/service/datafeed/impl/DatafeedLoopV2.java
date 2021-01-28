@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueError;
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -73,7 +73,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      throw networkIssueError(throwable , datafeedApi.getApiClient().getBasePath());
+      log.error(networkIssueMessageError(throwable,datafeedApi.getApiClient().getBasePath()), throwable);
     }
   }
 

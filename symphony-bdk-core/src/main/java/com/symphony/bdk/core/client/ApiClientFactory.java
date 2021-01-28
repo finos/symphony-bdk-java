@@ -169,6 +169,7 @@ public class ApiClientFactory {
     catch (IllegalStateException e){
       String failedCertificateMessage = String.format("Failed while trying to parse the certificate at following path: %s."
           + " Check configuration is done properly and that certificate is in the correct format.", certificateConfig.getPath());
+      log.error(failedCertificateMessage);
       throw new IllegalStateException(failedCertificateMessage, e);
     }
     return apiClient;
@@ -201,7 +202,7 @@ public class ApiClientFactory {
     }
   }
 
-  @API(status = API.Status.EXPERIMENTAL)
+  @API(status = API.Status.INTERNAL)
   public enum ServiceEnum {
     AGENT,
     KEY_MANAGER,

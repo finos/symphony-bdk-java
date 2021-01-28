@@ -6,7 +6,6 @@ import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
-import io.netty.channel.ConnectTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -53,25 +52,8 @@ public abstract class RetryWithRecovery<T> {
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
-      throw networkIssueError(t, address);
+      throw new RuntimeException(networkIssueMessageError(t, address), t);
     }
-  }
-
-  public static RuntimeException networkIssueError(Throwable t, String address) {
-    String service = ApiClientFactory.getServiceNameFromBasePath(address).toString();
-    if (t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectTimeoutException) {
-      String timeoutMessageError = String.format(
-          "Timeout occurred while trying to connect to the \"%s\" at the following address: %s. "
-              + "Please check that the address is correct. Also consider checking your proxy/firewall connections.", service, address);
-      return new RuntimeException(timeoutMessageError, t);
-    }
-    if (t.getCause() instanceof ConnectException) {
-      String connectionRefused = String.format(
-          "Connection refused while trying to connect to the \"%s\" at the following address: %s. "
-              + "Please check if this remote address/port is reachable. Also consider checking your proxy/firewall connections.", service, address);
-      return new RuntimeException(connectionRefused, t);
-    }
-    return new RuntimeException(t);
   }
 
   public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<Exception> ignoreException,
@@ -114,6 +96,31 @@ public abstract class RetryWithRecovery<T> {
       handleRecovery(e);
       throw e;
     }
+  }
+
+  /**
+   * This methods check if the type of exception thrown in the retry and depending on that it wraps the Exception
+   * in a {@link RuntimeException} with an error message explaining the cause of the issue.
+   * @param t RuntimeException found
+   * @param address that is not reachable
+   * @return RuntimeException to be thrown
+   */
+  public static String networkIssueMessageError(Throwable t, String address) {
+    String messageError = "An unknown error occurred. Please check below for more information: ";
+    String service = ApiClientFactory.getServiceNameFromBasePath(address).toString();
+    if (t.getCause() instanceof SocketTimeoutException) {
+      messageError = String.format(
+          "Timeout occurred while trying to connect to the \"%s\" at the following address: %s. "
+              + "Please check that the address is correct. Also consider checking your proxy/firewall connections.", service, address);
+      log.error(messageError);
+    }
+    if (t.getCause() instanceof ConnectException) {
+      messageError = String.format(
+          "Connection refused while trying to connect to the \"%s\" at the following address: %s. "
+              + "Please check if this remote address/port is reachable. Also consider checking your proxy/firewall connections.", service, address);
+      log.error(messageError);
+    }
+    return messageError;
   }
 
   private void handleRecovery(Exception e) throws Throwable {

@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
-import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueError;
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
@@ -10,6 +10,7 @@ import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import javax.ws.rs.ProcessingException;
@@ -20,6 +21,7 @@ import javax.ws.rs.ProcessingException;
  *
  * @param <T> the type returned by the authentication call.
  */
+@Slf4j
 @API(status = API.Status.INTERNAL)
 class AuthenticationRetry<T> {
 
@@ -81,11 +83,12 @@ class AuthenticationRetry<T> {
       return retry.execute();
     } catch (ApiException e) {
       if (e.isUnauthorized()) {
+        log.error(unauthorizedErrorMessage);
         throw new AuthUnauthorizedException(unauthorizedErrorMessage, e);
       }
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
-      throw networkIssueError(t,address);
+      throw new RuntimeException(networkIssueMessageError(t,address), t);
     }
   }
 
