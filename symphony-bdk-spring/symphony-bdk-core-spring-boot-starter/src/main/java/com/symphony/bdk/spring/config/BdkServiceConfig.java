@@ -5,6 +5,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
+import com.symphony.bdk.core.service.disclaimer.DisclaimerService;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.presence.PresenceService;
@@ -15,8 +16,10 @@ import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.AttachmentsApi;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DefaultApi;
+import com.symphony.bdk.gen.api.DisclaimerApi;
 import com.symphony.bdk.gen.api.MessageApi;
 import com.symphony.bdk.gen.api.MessageSuppressionApi;
 import com.symphony.bdk.gen.api.MessagesApi;
@@ -59,8 +62,14 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserService userService(UserApi userApi, UsersApi usersApi, AuthSession botSession, BdkConfig config) {
-    return new UserService(userApi, usersApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession botSession, BdkConfig config) {
+    return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public DisclaimerService disclaimerService(DisclaimerApi disclaimerApi, AuthSession botSession, BdkConfig config) {
+    return new DisclaimerService(disclaimerApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

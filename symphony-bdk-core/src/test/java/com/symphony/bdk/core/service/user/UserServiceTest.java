@@ -18,6 +18,7 @@ import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
+import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -36,6 +37,9 @@ import com.symphony.bdk.gen.api.model.UserSearchFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorList;
+import com.symphony.bdk.gen.api.model.V2UserAttributes;
+import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
@@ -56,6 +60,8 @@ import java.util.stream.Collectors;
 class UserServiceTest {
   private static final String V2_USER_DETAIL_BY_ID = "/pod/v2/admin/user/{uid}";
   private static final String V2_USER_LIST = "/pod/v2/admin/user/list";
+  private static final String V2_USER_CREATE = "/pod/v2/admin/user/create";
+  private static final String V2_USER_UPDATE = "/pod/v2/admin/user/{uid}/update";
   private static final String USER_FIND = "/pod/v1/admin/user/find";
   private static final String ADD_ROLE_TO_USER = "/pod/v1/admin/user/{uid}/roles/add";
   private static final String REMOVE_ROLE_FROM_USER = "/pod/v1/admin/user/{uid}/roles/remove";
@@ -76,11 +82,14 @@ class UserServiceTest {
   private static final String V1_USER_UNFOLLOW = "/pod/v1/user/{uid}/unfollow";
   private static final String V1_LIST_FOLLOWERS = "/pod/v1/user/{uid}/followers";
   private static final String V1_LIST_FOLLOWING = "/pod/v1/user/{uid}/following";
+  private static final String V1_AUDIT_TRAIL_PRIVILEGED_USER = "/agent/v1/audittrail/privilegeduser";
+  private static final String MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE = "Missing the required parameter '%s' when calling %s";
 
   private UserService service;
   private UserApi spiedUserApi;
   private MockApiClient mockApiClient;
   private UsersApi spiedUsersApi;
+  private AuditTrailApi spiedAuditTrailApi;
   private AuthSession authSession;
 
   @BeforeEach
@@ -89,9 +98,11 @@ class UserServiceTest {
     this.authSession = mock(AuthSession.class);
 
     ApiClient podClient = mockApiClient.getApiClient("/pod");
+    ApiClient agentClient = mockApiClient.getApiClient("/agent");
     this.spiedUserApi = spy(new UserApi(podClient));
     this.spiedUsersApi = spy(new UsersApi(podClient));
-    this.service = new UserService(this.spiedUserApi, spiedUsersApi, authSession, new RetryWithRecoveryBuilder());
+    this.spiedAuditTrailApi = spy(new AuditTrailApi(agentClient));
+    this.service = new UserService(this.spiedUserApi, spiedUsersApi, this.spiedAuditTrailApi, authSession, new RetryWithRecoveryBuilder());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
@@ -99,7 +110,7 @@ class UserServiceTest {
 
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
-    this.service = new UserService(this.spiedUserApi, spiedUsersApi, new RetryWithRecoveryBuilder());
+    this.service = new UserService(this.spiedUserApi, spiedUsersApi, this.spiedAuditTrailApi, new RetryWithRecoveryBuilder());
     assertThrows(IllegalStateException.class, () -> this.service.getUserDetail(1234L));
   }
 
@@ -128,11 +139,11 @@ class UserServiceTest {
   void listUsersDetailTest() throws IOException {
     String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
     this.mockApiClient.onGet(V2_USER_LIST, responseV2);
-    List<V2UserDetail> UserDetails = this.service.listUsersDetail();
+    List<V2UserDetail> userDetails = this.service.listUsersDetail();
 
-    assertEquals(UserDetails.size(), 5);
-    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
-    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+    assertEquals(userDetails.size(), 5);
+    assertEquals(userDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(userDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
   }
 
   @Test
@@ -146,34 +157,34 @@ class UserServiceTest {
   void listUsersDetailSkipLimitTest() throws IOException {
     String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
     this.mockApiClient.onGet(V2_USER_LIST, responseV2);
-    List<V2UserDetail> UserDetails = this.service.listUsersDetail(new PaginationAttribute(0, 100));
+    List<V2UserDetail> userDetails = this.service.listUsersDetail(new PaginationAttribute(0, 100));
 
-    assertEquals(UserDetails.size(), 5);
-    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
-    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+    assertEquals(userDetails.size(), 5);
+    assertEquals(userDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(userDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
   }
 
   @Test
   void listAllUsersDetailTest() throws IOException {
     String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
     this.mockApiClient.onGet(V2_USER_LIST, responseV2);
-    List<V2UserDetail> UserDetails = this.service.listAllUsersDetail().collect(Collectors.toList());
+    List<V2UserDetail> userDetails = this.service.listAllUsersDetail().collect(Collectors.toList());
 
-    assertEquals(UserDetails.size(), 5);
-    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
-    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+    assertEquals(userDetails.size(), 5);
+    assertEquals(userDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(userDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
   }
 
   @Test
   void listAllUsersDetailPaginationTest() throws IOException {
     String responseV2 = JsonHelper.readFromClasspath("/user/list_users_detail_v2.json");
     this.mockApiClient.onGet(V2_USER_LIST, responseV2);
-    List<V2UserDetail> UserDetails =
+    List<V2UserDetail> userDetails =
         this.service.listAllUsersDetail(new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
 
-    assertEquals(UserDetails.size(), 5);
-    assertEquals(UserDetails.get(0).getUserAttributes().getUserName(), "agentservice");
-    assertEquals(UserDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
+    assertEquals(userDetails.size(), 5);
+    assertEquals(userDetails.get(0).getUserAttributes().getUserName(), "agentservice");
+    assertEquals(userDetails.get(1).getUserAttributes().getUserName(), "bot.user1");
   }
 
   @Test
@@ -867,5 +878,85 @@ class UserServiceTest {
     V2UserDetail userDetail1 = UserDetailMapper.INSTANCE.userDetailToV2UserDetail(
         new UserDetail().userAttributes(new UserAttributes().accountType(null)));
     assertNull(userDetail1.getUserAttributes().getAccountType());
+  }
+
+  @Test
+  void createUser() throws IOException {
+    String responseV2 = JsonHelper.readFromClasspath("/user/user_detail.json");
+    this.mockApiClient.onPost(V2_USER_CREATE, responseV2);
+    V2UserDetail userDetails = this.service.create(new V2UserCreate());
+
+    assertEquals(userDetails.getUserAttributes().getUserName(), "johndoe");
+  }
+
+  @Test
+  void createUserMissingPayload() {
+    Exception exception = assertThrows(ApiRuntimeException.class, () -> this.service.create(null));
+    assertTrue(exception.getMessage().contains(
+        String.format(MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE, "payload", "v2AdminUserCreatePost")));
+  }
+
+  @Test
+  void updateUser() throws IOException {
+    String responseV2 = JsonHelper.readFromClasspath("/user/user_detail.json");
+    responseV2 = responseV2.replace("\"userName\": \"johndoe\"", "\"userName\": \"johndoe-UPDATED\"");
+    Long userId = 7215545078461L;
+
+    this.mockApiClient.onPost(V2_USER_UPDATE.replace("{uid}", userId+""), responseV2);
+    V2UserDetail userDetails = this.service.update(userId, new V2UserAttributes());
+
+    assertEquals(userDetails.getUserAttributes().getUserName(), "johndoe-UPDATED");
+  }
+
+  @Test
+  void updateUserMissingPayload() {
+    this.mockApiClient.onPost(V2_USER_UPDATE.replace("{uid}", "123L"), "resContent");
+    Exception exception = assertThrows(ApiRuntimeException.class, () -> this.service.update(123L, null));
+
+    assertTrue(exception.getMessage().contains(
+        String.format(MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE, "payload", "v2AdminUserUidUpdatePost")));
+  }
+
+  @Test
+  void updateUserMissingUserId() {
+    this.mockApiClient.onPost(V2_USER_UPDATE.replace("{uid}", "123L"), "resContent");
+    Exception exception = assertThrows(ApiRuntimeException.class, () -> this.service.update(null, new V2UserAttributes()));
+
+    assertTrue(exception.getMessage().contains(
+        String.format(MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE, "uid", "v2AdminUserUidUpdatePost")));
+  }
+
+  @Test
+  void listAuditTrail() throws IOException {
+    String response = JsonHelper.readFromClasspath("/audit_trail/audit_trail_initiator_list_v1.json");
+    this.mockApiClient.onGet(V1_AUDIT_TRAIL_PRIVILEGED_USER, response);
+
+    V1AuditTrailInitiatorList v1AuditTrailInitiatorList = this.service.listAuditTrail(1551888601279L, 1551888601279L,
+        new CursorPaginationAttribute(1,3,2),1353716993L, "SUPER_ADMINISTRATOR");
+
+    assertEquals(v1AuditTrailInitiatorList.getItems().size(), 2);
+    assertEquals(v1AuditTrailInitiatorList.getPagination(), null);
+  }
+
+  @Test
+  void listAuditTrailOnlyRequiredParams() throws IOException {
+    String response = JsonHelper.readFromClasspath("/audit_trail/audit_trail_initiator_list_v1.json");
+    this.mockApiClient.onGet(V1_AUDIT_TRAIL_PRIVILEGED_USER, response);
+
+    V1AuditTrailInitiatorList v1AuditTrailInitiatorList = this.service.listAuditTrail(1551888601279L, null,
+        null, null, null);
+
+    assertEquals(v1AuditTrailInitiatorList.getItems().size(), 2);
+    assertEquals(v1AuditTrailInitiatorList.getPagination(), null);
+  }
+
+  @Test
+  void listAuditTrailRequiredParamsMissing() throws IOException {
+    this.mockApiClient.onGet(V1_AUDIT_TRAIL_PRIVILEGED_USER, "resContent");
+    Exception exception = assertThrows(ApiRuntimeException.class, () -> this.service.listAuditTrail(null, 1551888601279L,
+        new CursorPaginationAttribute(1,3,2),1353716993L, "SUPER_ADMINISTRATOR"));
+
+    assertTrue(exception.getMessage().contains(
+        String.format(MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE, "startTimestamp", "v1AudittrailPrivilegeduserGet")));
   }
 }
