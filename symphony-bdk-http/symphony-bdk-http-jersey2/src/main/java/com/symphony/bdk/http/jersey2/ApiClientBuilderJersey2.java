@@ -205,6 +205,10 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
           .keyStoreBytes(keyStoreBytes)
           .keyStorePassword(keyStorePassword);
     }
-    return sslConfig.createSSLContext();
+    try {
+      return sslConfig.createSSLContext();
+    } catch (IllegalStateException e) {
+        throw new IllegalStateException(e.getCause().getMessage(), e);
+    }
   }
 }
