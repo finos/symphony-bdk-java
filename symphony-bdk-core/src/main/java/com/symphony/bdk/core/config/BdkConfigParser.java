@@ -48,7 +48,7 @@ class BdkConfigParser {
         try {
             return JSON_MAPPER.readTree(content);
         } catch (IOException e) {
-            log.debug("Config file is not in JSON format, checking for YAML format..");
+            log.debug("Config file is not in JSON format, checking for YAML format.");
         }
 
         try {

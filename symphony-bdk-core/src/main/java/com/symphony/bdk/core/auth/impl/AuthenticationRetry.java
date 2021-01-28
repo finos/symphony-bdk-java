@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueError;
+
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
@@ -9,9 +11,6 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.apiguardian.api.API;
-
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 
 import javax.ws.rs.ProcessingException;
 
@@ -86,23 +85,8 @@ class AuthenticationRetry<T> {
       }
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
-      if (t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException) {
-        String timeoutMessageError = String.format("Failed while trying to connect to the \"%s\" at the following address: %s . "
-            + "Please check that the address is correct and make sure the service is up and running.", getServiceName(address), address);
-        throw new RuntimeException(timeoutMessageError, t);
-      } else {
-        throw new RuntimeException(t);
-      }
+      throw networkIssueError(t,address);
     }
   }
 
-  private String getServiceName(String address) {
-    if(address.contains("/relay") || address.contains("/keyauth")){
-      return "KEY MANAGER";
-    }
-    if (address.contains("/sessionauth")){
-      return "SESSION AUTH";
-    }
-    else return "POD";
-  }
 }

@@ -205,13 +205,6 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
           .keyStoreBytes(keyStoreBytes)
           .keyStorePassword(keyStorePassword);
     }
-    SSLContext sslContext;
-    try {
-      sslContext = sslConfig.createSSLContext();
-    } catch (IllegalStateException e){
-      throw new IllegalStateException("Failed while creating the SSL context. Could be caused by a wrong key/trust store "
-          + "configuration (ex. failed loading the file or found in a wrong format).", e);
-    }
-    return sslContext;
+    return sslConfig.createSSLContext();
   }
 }

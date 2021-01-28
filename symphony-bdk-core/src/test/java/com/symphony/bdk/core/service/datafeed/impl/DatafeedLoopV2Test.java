@@ -260,6 +260,10 @@ public class DatafeedLoopV2Test {
         when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
         when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ProcessingException(new SocketTimeoutException()));
 
+        ApiClient client = mock(ApiClient.class);
+        when(datafeedApi.getApiClient()).thenReturn(client);
+        when(client.getBasePath()).thenReturn("path/to/the/agent");
+
         this.datafeedService.start();
         verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
         verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);

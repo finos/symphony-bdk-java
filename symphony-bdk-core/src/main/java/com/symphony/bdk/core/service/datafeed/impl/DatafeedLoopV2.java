@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueError;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -16,7 +18,6 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.net.ConnectException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -72,12 +73,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      if (throwable.getCause() instanceof ConnectException) {
-        throw new RuntimeException(
-            "Failed while trying to connect to the \"AGENT\" at the following address: " + apiClient.getBasePath(),
-            throwable);
-      }
-      log.error("Unknown error occurred", throwable);
+      throw networkIssueError(throwable , datafeedApi.getApiClient().getBasePath());
     }
   }
 

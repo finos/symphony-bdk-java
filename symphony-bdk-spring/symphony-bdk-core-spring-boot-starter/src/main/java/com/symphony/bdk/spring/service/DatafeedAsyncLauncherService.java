@@ -4,7 +4,6 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.tracing.MDCUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +67,8 @@ public class DatafeedAsyncLauncherService implements Thread.UncaughtExceptionHan
     } else if (cause.getClass().equals(ApiException.class)) {
       log.error("An API error has been received while starting the Datafeed loop in a separate thread, "
           + "please check error below:", cause);
+    } else if(source.getClass().equals(RuntimeException.class)){
+      log.error(source.getMessage(), cause);
     } else {
       log.error("An unknown error has occurred while starting the Datafeed loop, "
           + "please check error below:", cause);

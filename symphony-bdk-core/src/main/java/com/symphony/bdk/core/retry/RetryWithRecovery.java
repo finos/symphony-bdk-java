@@ -1,10 +1,12 @@
 package com.symphony.bdk.core.retry;
 
 
+import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
+import io.netty.channel.ConnectTimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -50,17 +52,26 @@ public abstract class RetryWithRecovery<T> {
       return retry.execute();
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
-    } catch (RuntimeException e) {
-      throw e;
     } catch (Throwable t) {
-      if (t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException) {
-        String service = address.contains("/agent") ? "AGENT" : "POD";
-        String timeoutMessageError = String.format(
-            "Failed while trying to connect to the \"%s\" at the following address: %s. "
-                + "Please check that the address is correct and make sure the service is up and running.", service, address);
-        throw new RuntimeException(timeoutMessageError, t);
-      } else { throw new RuntimeException(t); }
+      throw networkIssueError(t, address);
     }
+  }
+
+  public static RuntimeException networkIssueError(Throwable t, String address) {
+    String service = ApiClientFactory.getServiceNameFromBasePath(address).toString();
+    if (t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectTimeoutException) {
+      String timeoutMessageError = String.format(
+          "Timeout occurred while trying to connect to the \"%s\" at the following address: %s. "
+              + "Please check that the address is correct. Also consider checking your proxy/firewall connections.", service, address);
+      return new RuntimeException(timeoutMessageError, t);
+    }
+    if (t.getCause() instanceof ConnectException) {
+      String connectionRefused = String.format(
+          "Connection refused while trying to connect to the \"%s\" at the following address: %s. "
+              + "Please check if this remote address/port is reachable. Also consider checking your proxy/firewall connections.", service, address);
+      return new RuntimeException(connectionRefused, t);
+    }
+    return new RuntimeException(t);
   }
 
   public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<Exception> ignoreException,
