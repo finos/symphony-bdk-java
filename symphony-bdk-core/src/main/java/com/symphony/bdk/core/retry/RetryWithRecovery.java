@@ -101,11 +101,11 @@ public abstract class RetryWithRecovery<T> {
   }
 
   /**
-   * This methods check if the type of exception thrown in the retry and depending on that it wraps the Exception
-   * in a {@link RuntimeException} with an error message explaining the cause of the issue.
-   * @param t RuntimeException found
-   * @param address that is not reachable
-   * @return RuntimeException to be thrown
+   * This methods check the type of exception thrown in the retry and depending on that it created a clear
+   * error message suggesting the possible cause of the issue.
+   * @param t exception found
+   * @param address that the retry is trying to reach
+   * @return error message
    */
   public static String networkIssueMessageError(Throwable t, String address) {
     String messageError = "An unknown error occurred. Please check below for more information: ";
