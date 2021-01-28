@@ -108,7 +108,7 @@ class JwtHelperTest {
   @SneakyThrows
   private static String generatePkcs8RsaPrivateKey() {
     final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-    kpg.initialize(4096);
+    kpg.initialize(1024);
     final KeyPair kp = kpg.generateKeyPair();
     return "-----BEGIN PRIVATE KEY-----\n" +
         Base64.encodeToString(kp.getPrivate().getEncoded(), true) +
@@ -118,7 +118,7 @@ class JwtHelperTest {
   @SneakyThrows
   private static String generatePkcs1RsaPrivateKey() {
     final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-    kpg.initialize(4096);
+    kpg.initialize(1024);
     final KeyPair kp = kpg.generateKeyPair();
 
     final PrivateKeyInfo pkInfo = PrivateKeyInfo.getInstance(kp.getPrivate().getEncoded());
