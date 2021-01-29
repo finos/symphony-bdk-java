@@ -111,10 +111,10 @@ public abstract class RetryWithRecovery<T> {
     String messageError = "An unknown error occurred. Please check below for more information: ";
     String service = ApiClientFactory.getServiceNameFromBasePath(address).toString();
     if (t.getCause() instanceof SSLHandshakeException) {
-      messageError =
+      messageError = String.format(
           "Network error occurred while trying to connect to the \"%s\" at the following address: %s. "
               + "Error while trying to validate certificate for the trust store. This type of error typically means "
-              + "that your network is using a self-signed certificate.";
+              + "that your network is using a self-signed certificate.", service, address);
       log.error(messageError);
     } else if (t.getCause() instanceof SocketTimeoutException) {
       messageError = String.format(
