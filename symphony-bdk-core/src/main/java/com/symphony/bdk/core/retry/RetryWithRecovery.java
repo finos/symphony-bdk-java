@@ -11,6 +11,7 @@ import org.apiguardian.api.API;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -115,6 +116,12 @@ public abstract class RetryWithRecovery<T> {
           "Network error occurred while trying to connect to the \"%s\" at the following address: %s. "
               + "Error while trying to validate certificate for the trust store. This type of error typically means "
               + "that your network is using a self-signed certificate.", service, address);
+      log.error(messageError);
+    } else if (t.getCause() instanceof UnknownHostException) {
+      messageError = String.format(
+          "Network error occurred while trying to connect to the \"%s\" at the following address: %s. Your host is unknown, "
+              + "please check that the address is correct. Also consider checking your proxy/firewall connections.",
+          service, address);
       log.error(messageError);
     } else if (t.getCause() instanceof SocketTimeoutException) {
       messageError = String.format(
