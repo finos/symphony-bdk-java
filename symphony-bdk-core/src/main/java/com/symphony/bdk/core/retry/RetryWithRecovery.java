@@ -112,7 +112,8 @@ public abstract class RetryWithRecovery<T> {
     String service = ApiClientFactory.getServiceNameFromBasePath(address).toString();
     if (t.getCause() instanceof SSLHandshakeException) {
       messageError =
-          "Error while trying to validate certificate for the trust store. This type of error typically means "
+          "Network error occurred while trying to connect to the \"%s\" at the following address: %s. "
+              + "Error while trying to validate certificate for the trust store. This type of error typically means "
               + "that your network is using a self-signed certificate.";
       log.error(messageError);
     } else if (t.getCause() instanceof SocketTimeoutException) {
