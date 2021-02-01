@@ -23,6 +23,7 @@ import com.symphony.bdk.gen.api.model.Feature;
 import com.symphony.bdk.gen.api.model.FollowersList;
 import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
+import com.symphony.bdk.gen.api.model.RoleDetail;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
@@ -371,6 +372,17 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     StringId stringId = new StringId().id(roleId.name());
     executeAndRetry("addRole",
         () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), userId, stringId));
+  }
+
+  /**
+   * List all roles in the pod
+   *
+   * @return List {@link RoleDetail} of all roles in the pod.
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-roles">List Roles</a>
+   */
+  public List<RoleDetail> listRoles() {
+    return executeAndRetry("listRoles",
+        () -> userApi.v1AdminSystemRolesListGet(authSession.getSessionToken()));
   }
 
   /**
