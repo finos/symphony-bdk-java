@@ -77,13 +77,13 @@ class AuthenticationRetry<T> {
       throws AuthUnauthorizedException {
     final RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
+        .basePath(address)
         .supplier(supplier).build();
 
     try {
       return retry.execute();
     } catch (ApiException e) {
       if (e.isUnauthorized()) {
-        log.error(unauthorizedErrorMessage);
         throw new AuthUnauthorizedException(unauthorizedErrorMessage, e);
       }
       throw new ApiRuntimeException(e);

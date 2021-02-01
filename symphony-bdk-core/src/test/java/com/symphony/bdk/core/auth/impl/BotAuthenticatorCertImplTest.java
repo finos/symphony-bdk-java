@@ -28,7 +28,7 @@ public class BotAuthenticatorCertImplTest {
   @BeforeEach
   void init(final BdkMockServer mockServer) {
     this.authenticator = new BotAuthenticatorCertImpl(
-        ofMinimalInterval(1),
+        ofMinimalInterval(1), "botUsername",
         mockServer.newApiClient("/sessionauth"),
         mockServer.newApiClient("/keyauth"));
 

@@ -211,16 +211,15 @@ public class ApiClientFactory {
   }
 
   public static ServiceEnum getServiceNameFromBasePath(String basePath) {
-    if(basePath.contains("/relay") || basePath.contains("/keyauth")){
+    if (basePath.contains("/relay") || basePath.contains("/keyauth")) {
       return ServiceEnum.KEY_MANAGER;
     }
-    if (basePath.contains("/sessionauth")){
+    if (basePath.contains("/sessionauth")) {
       return ServiceEnum.SESSION_AUTH;
     }
-    if(basePath.contains("/agent")) {
+    if (basePath.contains("/agent")) {
       return ServiceEnum.AGENT;
-    }
-    else return ServiceEnum.POD;
+    } else { return ServiceEnum.POD; }
   }
 
 }

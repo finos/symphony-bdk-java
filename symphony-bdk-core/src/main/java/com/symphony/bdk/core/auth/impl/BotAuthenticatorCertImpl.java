@@ -24,14 +24,17 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
 
   private final ApiClient sessionAuthClient;
   private final ApiClient keyAuthClient;
+  private final String username;
 
   public BotAuthenticatorCertImpl(
       @Nonnull BdkRetryConfig retryConfig,
+      @Nonnull String username,
       @Nonnull ApiClient sessionAuthClient,
       @Nonnull ApiClient keyAuthClient) {
     super(retryConfig);
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
+    this.username = username;
   }
 
   /**
@@ -62,6 +65,11 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
     final Token token = new CertificateAuthenticationApi(client).v1AuthenticatePost();
     log.debug("{} successfully retrieved.", token.getName());
     return token.getToken();
+  }
+
+  @Override
+  protected String getBotUsername() {
+    return username;
   }
 
 }

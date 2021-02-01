@@ -40,6 +40,11 @@ class AbstractBotAuthenticatorTest {
     }
 
     @Override
+    protected String getBotUsername() {
+      return null;
+    }
+
+    @Override
     @Nonnull
     public AuthSession authenticateBot() {
       return mock(AuthSession.class);

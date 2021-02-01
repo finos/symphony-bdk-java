@@ -56,7 +56,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenReturn(value);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name","localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> false,
         Collections.emptyList());
 
@@ -73,7 +73,7 @@ class Resilience4jRetryWithRecoveryTest {
         .thenThrow(new ApiException(400, "error"))
         .thenReturn(value);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isClientError(),
         Collections.emptyList());
@@ -87,7 +87,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> false, Collections.emptyList());
 
@@ -102,7 +102,8 @@ class Resilience4jRetryWithRecoveryTest {
 
     final BdkRetryConfig retryConfig = ofMinimalInterval();
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", retryConfig, supplier, (t) -> true,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
+        retryConfig, supplier, (t) -> true,
         Collections.emptyList());
 
     assertThrows(ApiException.class, () -> r.execute());
@@ -114,7 +115,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isServerError(),
         Collections.emptyList());
@@ -128,7 +129,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> true,
         (e) -> true, Collections.emptyList());
 
@@ -145,7 +146,7 @@ class Resilience4jRetryWithRecoveryTest {
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> true,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, e -> true, consumer)));
 
@@ -167,7 +168,7 @@ class Resilience4jRetryWithRecoveryTest {
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> true,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, e -> e.isClientError(), consumer)));
 
@@ -187,7 +188,7 @@ class Resilience4jRetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, ApiException::isClientError, consumer)));
@@ -211,7 +212,7 @@ class Resilience4jRetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> true,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, ApiException::isClientError, consumer)));

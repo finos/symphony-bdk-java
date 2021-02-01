@@ -44,7 +44,7 @@ class AbstractExtensionAppAuthenticatorTest {
 
     @Override
     protected String getBasePath() {
-      return null;
+      return "localhost.symphony.com";
     }
 
     @Nonnull

@@ -28,24 +28,27 @@ import java.util.List;
 import java.util.UUID;
 
 class BdkConfigLoaderTest {
+  private final static String YAML_CONFIG_PATH = "/config/config.yaml";
+  private final static String JSON_CONFIG_PATH = "/config/config.json";
+
 
   @Test
   void loadFromYamlInputStreamTest() throws BdkConfigException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.yaml");
-    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
+    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(YAML_CONFIG_PATH);
+    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream, YAML_CONFIG_PATH);
     assertEquals(config.getBot().getUsername(), "tibot");
   }
 
   @Test
   void loadFromJsonInputStreamTest() throws BdkConfigException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.json");
-    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
+    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(JSON_CONFIG_PATH);
+    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream, JSON_CONFIG_PATH);
     assertEquals(config.getBot().getUsername(), "tibot");
   }
 
   @Test
   void loadFromYamlFileTest(@TempDir Path tempDir) throws BdkConfigException, IOException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.yaml");
+    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(YAML_CONFIG_PATH);
     Path configPath = tempDir.resolve("config.yaml");
     Files.copy(inputStream, configPath);
     BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
@@ -54,7 +57,7 @@ class BdkConfigLoaderTest {
 
   @Test
   void loadFromJsonFileTest(@TempDir Path tempDir) throws BdkConfigException, IOException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.json");
+    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(JSON_CONFIG_PATH);
     Path configPath = tempDir.resolve("config.json");
     Files.copy(inputStream, configPath);
     BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
@@ -63,13 +66,13 @@ class BdkConfigLoaderTest {
 
   @Test
   void loadFromJsonClasspathTest() throws BdkConfigException {
-    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.json");
+    BdkConfig config = BdkConfigLoader.loadFromClasspath(JSON_CONFIG_PATH);
     assertEquals(config.getBot().getUsername(), "tibot");
   }
 
   @Test
   void loadFromYamlClasspathTest() throws BdkConfigException {
-    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    BdkConfig config = BdkConfigLoader.loadFromClasspath(YAML_CONFIG_PATH);
     assertEquals(config.getBot().getUsername(), "tibot");
   }
 
@@ -84,8 +87,9 @@ class BdkConfigLoaderTest {
 
   @Test
   void loadLegacyFromInputStreamTest() throws BdkConfigException {
-    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/legacy_config.json");
-    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
+    String configPath = "/config/legacy_config.json";
+    InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream, configPath);
     assertEquals(config.getBot().getUsername(), "tibot");
     assertEquals(config.getBot().getPrivateKeyPath(), "/Users/local/conf/agent/privatekey.pem");
     assertEquals(config.getApp().getPrivateKeyPath(), "/Users/local/conf/agent/privatekey.pem");

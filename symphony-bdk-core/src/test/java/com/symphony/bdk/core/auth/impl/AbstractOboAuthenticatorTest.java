@@ -49,7 +49,7 @@ class AbstractOboAuthenticatorTest {
 
     @Override
     protected String getBasePath() {
-      return null;
+      return "localhost.symphony.com";
     }
 
     @Nonnull

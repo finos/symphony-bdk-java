@@ -65,6 +65,7 @@ public class AuthenticatorFactory {
       }
       return new BotAuthenticatorCertImpl(
           this.config.getRetry(),
+          this.config.getBot().getUsername(),
           this.apiClientFactory.getSessionAuthClient(),
           this.apiClientFactory.getKeyAuthClient()
       );
@@ -184,18 +185,16 @@ public class AuthenticatorFactory {
       }
       return JwtHelper.parseRsaPrivateKey(privateKey);
     } catch (GeneralSecurityException e) {
-      final String message = "Unable to parse RSA Private Key. Check if the format is correct.";
-      log.error(message, e);
+      final String message = String.format("Unable to parse RSA Private Key from path %s. Check if the format is "
+          + "correct.", privateKeyPath);
       throw new AuthInitializationException(message, e);
     } catch (IOException e) {
       final String message = "Unable to read or find RSA Private Key from path " + privateKeyPath;
-      log.error(message, e);
       throw new AuthInitializationException(message, e);
     }
   }
 
   private static String loadPrivateKey(String privateKeyPath) throws IOException, AuthInitializationException {
-    log.debug("Loading private key from : {}", privateKeyPath);
     InputStream is;
 
     // useful for testing when private key is located into resources

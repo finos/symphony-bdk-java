@@ -29,6 +29,7 @@ public abstract class RetryWithRecovery<T> {
   private SupplierWithApiException<T> supplier;
   private Predicate<Exception> ignoreException;
   private List<RecoveryStrategy> recoveryStrategies;
+  private String address;
 
   /**
    * This is a helper function designed to cover most of the retry cases.
@@ -48,6 +49,7 @@ public abstract class RetryWithRecovery<T> {
     RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
         .supplier(supplier)
+        .basePath(address)
         .build();
 
     try {
@@ -60,10 +62,11 @@ public abstract class RetryWithRecovery<T> {
   }
 
   public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<Exception> ignoreException,
-      List<RecoveryStrategy> recoveryStrategies) {
+      List<RecoveryStrategy> recoveryStrategies, String address) {
     this.supplier = supplier;
     this.ignoreException = ignoreException;
     this.recoveryStrategies = recoveryStrategies;
+    this.address = address;
   }
 
   /**
@@ -109,32 +112,29 @@ public abstract class RetryWithRecovery<T> {
    * @return error message
    */
   public static String networkIssueMessageError(Throwable t, String address) {
-    String messageError = "An unknown error occurred. Please check below for more information: ";
+    String messageError = String.format("An unknown error occurred while trying to connect to %s. Please check below "
+        + "for more information: ", address);
     String service = ApiClientFactory.getServiceNameFromBasePath(address).toString();
     if (t.getCause() instanceof SSLHandshakeException) {
       messageError = String.format(
           "Network error occurred while trying to connect to the \"%s\" at the following address: %s. "
               + "Error while trying to validate certificate for the trust store. This type of error typically means "
               + "that your network is using a self-signed certificate.", service, address);
-      log.error(messageError);
     } else if (t.getCause() instanceof UnknownHostException) {
       messageError = String.format(
           "Network error occurred while trying to connect to the \"%s\" at the following address: %s. Your host is unknown, "
               + "please check that the address is correct. Also consider checking your proxy/firewall connections.",
           service, address);
-      log.error(messageError);
     } else if (t.getCause() instanceof SocketTimeoutException) {
       messageError = String.format(
           "Timeout occurred while trying to connect to the \"%s\" at the following address: %s. "
               + "Please check that the address is correct. Also consider checking your proxy/firewall connections.",
           service, address);
-      log.error(messageError);
     } else if (t.getCause() instanceof ConnectException) {
       messageError = String.format(
           "Connection refused while trying to connect to the \"%s\" at the following address: %s. "
               + "Please check if this remote address/port is reachable. Also consider checking your proxy/firewall connections.",
           service, address);
-      log.error(messageError);
     }
     return messageError;
   }
@@ -151,7 +151,7 @@ public abstract class RetryWithRecovery<T> {
     }
 
     if (!recoveryTriggered) {
-      log.error("Exception of type {} not recovered: {}", e.getClass().getCanonicalName(), e.getMessage());
+      log.error(networkIssueMessageError(e, address) + e.getMessage());
     }
   }
 }

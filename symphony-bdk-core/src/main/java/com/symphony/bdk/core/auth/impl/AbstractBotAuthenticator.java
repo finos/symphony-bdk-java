@@ -22,12 +22,15 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
   }
 
   protected String retrieveToken(ApiClient client) throws AuthUnauthorizedException {
-    final String unauthorizedMessage = "Service account is not authorized to authenticate. "
-        + "Check if credentials are valid.";
+    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
+        + "Check if credentials are valid.", getBotUsername());
 
     return authenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveToken", client.getBasePath(),
         () -> authenticateAndGetToken(client), unauthorizedMessage);
   }
 
   protected abstract String authenticateAndGetToken(ApiClient client) throws ApiException;
+
+  protected abstract String getBotUsername();
+
 }
