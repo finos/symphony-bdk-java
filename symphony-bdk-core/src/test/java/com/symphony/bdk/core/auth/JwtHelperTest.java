@@ -29,7 +29,6 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Date;
 
 /**
@@ -52,7 +51,7 @@ class JwtHelperTest {
     String invalidPkc8PrivateKey = "-----BEGIN PRIVATE KEY-----\n"
         + "abcdef\n"
         + "-----END PRIVATE KEY-----";
-    assertThrows(InvalidKeySpecException.class, () -> JwtHelper.parseRsaPrivateKey(invalidPkc8PrivateKey));
+    assertThrows(GeneralSecurityException.class, () -> JwtHelper.parseRsaPrivateKey(invalidPkc8PrivateKey));
   }
 
   @Test

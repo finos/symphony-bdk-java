@@ -80,6 +80,11 @@ public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthen
   }
 
   @Override
+  protected String getBasePath() {
+    return authenticationApi.getApiClient().getBasePath();
+  }
+
+  @Override
   protected PodCertificate callGetPodCertificate() throws ApiException {
     return this.podApi.v1PodcertGet();
   }

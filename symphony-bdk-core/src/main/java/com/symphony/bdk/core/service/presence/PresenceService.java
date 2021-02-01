@@ -146,6 +146,6 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, presenceApi.getApiClient().getBasePath(), supplier);
   }
 }

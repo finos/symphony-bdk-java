@@ -35,9 +35,9 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    * @param recoveryStrategies mapping between {@link Predicate<ApiException>} and the corresponding recovery functions to be executed before retrying.
    *                           If several predicates match, all corresponding consumers will be executed.
    */
-  public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
+  public Resilience4jRetryWithRecovery(String name, String address, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
       Predicate<Throwable> retryOnExceptionPredicate, List<RecoveryStrategy> recoveryStrategies) {
-    this(name, bdkRetryConfig, supplier, retryOnExceptionPredicate, (e) -> false, recoveryStrategies);
+    this(name, address, bdkRetryConfig, supplier, retryOnExceptionPredicate, (e) -> false, recoveryStrategies);
   }
 
   /**
@@ -52,9 +52,9 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
    * @param recoveryStrategies mapping between {@link Predicate<ApiException>} and the corresponding recovery functions to be executed before retrying.
    *                           If several predicates match, all corresponding consumers will be executed.
    */
-  public Resilience4jRetryWithRecovery(String name, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
+  public Resilience4jRetryWithRecovery(String name, String address, BdkRetryConfig bdkRetryConfig, SupplierWithApiException<T> supplier,
       Predicate<Throwable> retryOnExceptionPredicate, Predicate<Exception> ignoreException, List<RecoveryStrategy> recoveryStrategies) {
-    super(supplier, ignoreException, recoveryStrategies);
+    super(supplier, ignoreException, recoveryStrategies, address);
     this.retry = createRetry(name, bdkRetryConfig, retryOnExceptionPredicate);
   }
 

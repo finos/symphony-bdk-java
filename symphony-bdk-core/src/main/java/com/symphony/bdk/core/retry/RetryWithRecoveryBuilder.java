@@ -22,6 +22,7 @@ import javax.ws.rs.ProcessingException;
 @API(status = API.Status.INTERNAL)
 public class RetryWithRecoveryBuilder<T> {
   private String name;
+  private String address;
   private BdkRetryConfig retryConfig;
   private SupplierWithApiException<T> supplier;
   private Predicate<Throwable> retryOnExceptionPredicate;
@@ -38,6 +39,7 @@ public class RetryWithRecoveryBuilder<T> {
   public static <T> RetryWithRecoveryBuilder<T> from(RetryWithRecoveryBuilder<?> from) {
     RetryWithRecoveryBuilder<T> copy = new RetryWithRecoveryBuilder();
     copy.name = from.name;
+    copy.address = from.address;
     copy.retryConfig = from.retryConfig;
     copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
     copy.ignoreException = from.ignoreException;
@@ -49,6 +51,7 @@ public class RetryWithRecoveryBuilder<T> {
   public static <T> RetryWithRecoveryBuilder<T> copyWithoutRecoveryStrategies(RetryWithRecoveryBuilder<?> from) {
     RetryWithRecoveryBuilder<T> copy = new RetryWithRecoveryBuilder();
     copy.name = from.name;
+    copy.address = from.address;
     copy.retryConfig = from.retryConfig;
     copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
     copy.ignoreException = from.ignoreException;
@@ -122,6 +125,17 @@ public class RetryWithRecoveryBuilder<T> {
    */
   public RetryWithRecoveryBuilder<T> retryConfig(BdkRetryConfig retryConfig) {
     this.retryConfig = retryConfig;
+    return this;
+  }
+
+  /**
+   * Sets the address and returns the modified builder.
+   *
+   * @param address that we are trying to reach.
+   * @return the modified builder instance.
+   */
+  public RetryWithRecoveryBuilder<T> basePath(String address) {
+    this.address = address;
     return this;
   }
 
@@ -205,7 +219,7 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<>(name, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
+    return new Resilience4jRetryWithRecovery<>(name, address, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
         recoveryStrategies);
   }
 }

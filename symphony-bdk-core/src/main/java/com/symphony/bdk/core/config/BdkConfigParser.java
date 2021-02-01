@@ -33,14 +33,14 @@ class BdkConfigParser {
         YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public static JsonNode parse(InputStream inputStream) throws BdkConfigException {
-        final JsonNode jsonNode = parseJsonNode(inputStream);
+    public static JsonNode parse(InputStream inputStream, String configPath) throws BdkConfigException {
+        final JsonNode jsonNode = parseJsonNode(inputStream, configPath);
         interpolateProperties(jsonNode);
 
         return jsonNode;
     }
 
-    public static JsonNode parseJsonNode(InputStream inputStream) throws BdkConfigException {
+    public static JsonNode parseJsonNode(InputStream inputStream, String configPath) throws BdkConfigException {
         String content = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
@@ -48,17 +48,20 @@ class BdkConfigParser {
         try {
             return JSON_MAPPER.readTree(content);
         } catch (IOException e) {
-            log.debug("Config file is not in JSON format");
+            log.debug("Config file is not in JSON format, checking for YAML format.");
         }
 
         try {
-            JsonNode jsonNode = YAML_MAPPER.readTree(content);
-            if (jsonNode.isContainerNode()) { return jsonNode; }
-            log.debug("Config file is not in YAML format");
+            JsonNode jsonNode =  YAML_MAPPER.readTree(content);
+            if (jsonNode.isContainerNode()) {
+              log.debug("Config file found in YAML format.");
+              return jsonNode;
+            }
         } catch (IOException e) {
-            log.debug("Config file is not in YAML format");
+            log.debug("Config file is not in YAML format.");
         }
-        throw new BdkConfigException("Config file is not in a valid format");
+        throw new BdkConfigException(String.format("Config file format found at the following path %s is not valid. "
+            + "Only YAML or JSON are allowed.", configPath));
     }
 
     public static void interpolateProperties(JsonNode jsonNode) {

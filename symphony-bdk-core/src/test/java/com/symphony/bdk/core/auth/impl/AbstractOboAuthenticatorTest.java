@@ -47,6 +47,11 @@ class AbstractOboAuthenticatorTest {
       return null;
     }
 
+    @Override
+    protected String getBasePath() {
+      return "localhost.symphony.com";
+    }
+
     @Nonnull
     @Override
     public AuthSession authenticateByUsername(String username) {

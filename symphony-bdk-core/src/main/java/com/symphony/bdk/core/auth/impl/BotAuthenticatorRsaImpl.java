@@ -77,4 +77,9 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
     return token.getToken();
   }
 
+  @Override
+  protected String getBotUsername() {
+    return username;
+  }
+
 }

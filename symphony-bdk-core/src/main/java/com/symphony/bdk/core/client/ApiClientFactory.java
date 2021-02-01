@@ -160,10 +160,19 @@ public class ApiClientFactory {
     }
 
     final BdkCertificateConfig certificateConfig = config.getCertificateConfig();
-
-    return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy())
-        .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
-        .build();
+    ApiClient apiClient = null;
+    try {
+      apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy())
+          .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
+          .build();
+    }
+    catch (IllegalStateException e){
+      String failedCertificateMessage = String.format("Failed while trying to parse the certificate at following path: %s."
+          + " Check configuration is done properly and that certificate is in the correct format.", certificateConfig.getPath());
+      log.error(failedCertificateMessage);
+      throw new IllegalStateException(failedCertificateMessage, e);
+    }
+    return apiClient;
   }
 
   private ApiClientBuilder getApiClientBuilder(String basePath, BdkProxyConfig proxyConfig) {
@@ -192,4 +201,25 @@ public class ApiClientFactory {
           .withProxyCredentials(proxyConfig.getUsername(), proxyConfig.getPassword());
     }
   }
+
+  @API(status = API.Status.INTERNAL)
+  public enum ServiceEnum {
+    AGENT,
+    KEY_MANAGER,
+    POD,
+    SESSION_AUTH
+  }
+
+  public static ServiceEnum getServiceNameFromBasePath(String basePath) {
+    if (basePath.contains("/relay") || basePath.contains("/keyauth")) {
+      return ServiceEnum.KEY_MANAGER;
+    }
+    if (basePath.contains("/sessionauth")) {
+      return ServiceEnum.SESSION_AUTH;
+    }
+    if (basePath.contains("/agent")) {
+      return ServiceEnum.AGENT;
+    } else { return ServiceEnum.POD; }
+  }
+
 }

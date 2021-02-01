@@ -168,7 +168,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("getMessages", () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
+    return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
+        () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), pagination.getSkip(), pagination.getLimit()));
   }
 
@@ -182,7 +183,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
    */
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
-    return executeAndRetry("getMessages", () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
+    return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
+        () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
         authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
   }
 
@@ -215,9 +217,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
-    return this.executeAndRetry("send", () ->
-        this.doSendMessage(streamId, message)
-    );
+    return this.executeAndRetry("send", messagesApi.getApiClient().getBasePath(),
+        () -> this.doSendMessage(streamId, message));
   }
 
   /**
@@ -229,7 +230,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#blast-message">Blast Message</a>
    */
   public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
-    return this.executeAndRetry("sendBlast", () -> doSendBlast(streamIds, message));
+    return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
+        () -> doSendBlast(streamIds, message));
   }
 
   /**
@@ -303,7 +305,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
   public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
-    return executeAndRetry("getAttachment",
+    return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
         () -> attachmentsApi.v1StreamSidAttachmentGet(streamId, attachmentId, messageId,
             authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
@@ -316,8 +318,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#import-message-v4">Import Message</a>
    */
   public List<V4ImportResponse> importMessages(@Nonnull List<V4ImportedMessage> messages) {
-    return executeAndRetry("importMessages", () -> messagesApi.v4MessageImportPost(authSession.getSessionToken(),
-        authSession.getKeyManagerToken(), messages));
+    return executeAndRetry("importMessages", messagesApi.getApiClient().getBasePath(),
+        () -> messagesApi.v4MessageImportPost(authSession.getSessionToken(), authSession.getKeyManagerToken(), messages));
   }
 
   /**
@@ -328,8 +330,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#suppress-message">Suppress Message</a>
    */
   public MessageSuppressionResponse suppressMessage(@Nonnull String messageId) {
-    return executeAndRetry("suppressMessage", () ->
-        messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(messageId, authSession.getSessionToken()));
+    return executeAndRetry("suppressMessage", messageSuppressionApi.getApiClient().getBasePath(),
+        () -> messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(messageId, authSession.getSessionToken()));
   }
 
   /**
@@ -341,7 +343,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#message-status">Message Status</a>
    */
   public MessageStatus getMessageStatus(@Nonnull String messageId) {
-    return executeAndRetry("getMessageStatus",
+    return executeAndRetry("getMessageStatus", messageApi.getApiClient().getBasePath(),
         () -> messageApi.v1MessageMidStatusGet(messageId, authSession.getSessionToken()));
   }
 
@@ -352,7 +354,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
    */
   public List<String> getAttachmentTypes() {
-    return executeAndRetry("getAttachmentTypes", () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
+    return executeAndRetry("getAttachmentTypes", podApi.getApiClient().getBasePath(),
+        () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
   }
 
   /**
@@ -363,8 +366,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
    */
   public V4Message getMessage(@Nonnull String messageId) {
-    return executeAndRetry("getMessage", () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(),
-        authSession.getKeyManagerToken(), messageId));
+    return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
+        () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(), authSession.getKeyManagerToken(), messageId));
   }
 
   /**
@@ -382,8 +385,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort) {
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
-    return executeAndRetry("listAttachments", () ->
-        streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since),
+    return executeAndRetry("listAttachments", streamsApi.getApiClient().getBasePath(),
+        () -> streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since),
             getEpochMillis(to), limit, sortDir));
   }
 
@@ -395,7 +398,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#list-message-receipts">List Message Receipts</a>
    */
   public MessageReceiptDetailResponse listMessageReceipts(@Nonnull String messageId) {
-    return executeAndRetry("listMessageReceipts", () ->
+    return executeAndRetry("listMessageReceipts", defaultApi.getApiClient().getBasePath(), () ->
         defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), messageId, null, null));
   }
 
@@ -409,16 +412,17 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#message-metadata-relationship">Message Metadata</a>
    */
   public MessageMetadataResponse getMessageRelationships(@Nonnull String messageId) {
-    return executeAndRetry("getMessageRelationships", () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
-        authSession.getSessionToken(), ApiUtils.getUserAgent(), messageId));
+    return executeAndRetry("getMessageRelationships", defaultApi.getApiClient().getBasePath(),
+        () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
+            authSession.getSessionToken(), ApiUtils.getUserAgent(), messageId));
   }
 
   private static Long getEpochMillis(Instant instant) {
     return instant == null ? null : instant.toEpochMilli();
   }
 
-  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+  private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, address, supplier);
   }
 }

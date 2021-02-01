@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,9 @@ class ExternalLoadBalancingStrategyTest {
   public void setUp() {
     signalsApi = mock(SignalsApi.class);
     loadBalancingStrategy = new ExternalLoadBalancingStrategy(ofMinimalInterval(1), signalsApi);
+    ApiClient apiClient = mock(ApiClient.class);
+    when(signalsApi.getApiClient()).thenReturn(apiClient);
+    when(apiClient.getBasePath()).thenReturn("pathToTheAgent");
   }
 
   @Test

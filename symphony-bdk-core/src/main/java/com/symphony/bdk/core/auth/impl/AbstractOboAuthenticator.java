@@ -32,7 +32,7 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
     final String unauthorizedErrorMessage = "Unable to authenticate on-behalf-of user with ID '" + userId + "'. "
         + "It usually happens when the user has not installed the app with ID : " + appId;
 
-    return authenticationRetry.executeAndRetry("AbstractOboAuthenticator.retrieveOboSessionTokenByUserId",
+    return authenticationRetry.executeAndRetry("AbstractOboAuthenticator.retrieveOboSessionTokenByUserId", getBasePath(),
         () -> authenticateAndRetrieveOboSessionToken(appSessionToken, userId), unauthorizedErrorMessage);
   }
 
@@ -43,7 +43,7 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
         "Unable to authenticate on-behalf-of user with username '" + username + "'. "
             + "It usually happens when the user has not installed the app with ID : " + appId;
 
-    return authenticationRetry.executeAndRetry("AbstractOboAuthenticator.retrieveOboSessionTokenByUsername",
+    return authenticationRetry.executeAndRetry("AbstractOboAuthenticator.retrieveOboSessionTokenByUsername", getBasePath(),
         () -> authenticateAndRetrieveOboSessionToken(appSessionToken, username), unauthorizedErrorMessage);
   }
 
@@ -53,7 +53,7 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
     final String unauthorizedErrorMessage = "Unable to authenticate app with ID : " + appId + ". "
         + "It usually happens when the app has not been configured or is not activated.";
 
-    return authenticationRetry.executeAndRetry("AbstractOboAuthenticator.retrieveAppSessionToken",
+    return authenticationRetry.executeAndRetry("AbstractOboAuthenticator.retrieveAppSessionToken", getBasePath(),
         this::authenticateAndRetrieveAppSessionToken, unauthorizedErrorMessage);
   }
 
@@ -64,4 +64,6 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
       @Nonnull String username) throws ApiException;
 
   protected abstract String authenticateAndRetrieveAppSessionToken() throws ApiException;
+
+  protected abstract String getBasePath();
 }

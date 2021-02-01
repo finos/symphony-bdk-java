@@ -63,4 +63,9 @@ public class OboAuthenticatorCertImpl extends AbstractOboAuthenticator {
   protected String authenticateAndRetrieveAppSessionToken() throws ApiException {
     return this.authenticationApi.v1AppAuthenticatePost().getToken();
   }
+
+  @Override
+  protected String getBasePath() {
+    return authenticationApi.getApiClient().getBasePath();
+  }
 }

@@ -16,6 +16,7 @@ import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -98,6 +99,10 @@ class LoadBalancingStrategyTest {
         .thenReturn(new AgentInfo().serverFqdn("https://agent2:443"))
         .thenReturn(new AgentInfo().serverFqdn("https://agent3:443"));
 
+    ApiClient apiClient = mock(ApiClient.class);
+    when(signalsApi.getApiClient()).thenReturn(apiClient);
+    when(apiClient.getBasePath()).thenReturn("pathToTheAgent");
+
     ExternalLoadBalancingStrategy loadBalancingStrategy =
         new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
 
@@ -112,6 +117,10 @@ class LoadBalancingStrategyTest {
     SignalsApi signalsApi = mock(SignalsApi.class);
     when(signalsApi.v1InfoGet())
         .thenThrow(new ApiException(500, "error"));
+
+    ApiClient apiClient = mock(ApiClient.class);
+    when(signalsApi.getApiClient()).thenReturn(apiClient);
+    when(apiClient.getBasePath()).thenReturn("pathToTheAgent");
 
     ExternalLoadBalancingStrategy loadBalancingStrategy =
         new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);

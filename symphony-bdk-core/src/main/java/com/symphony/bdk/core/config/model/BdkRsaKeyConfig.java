@@ -4,10 +4,12 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 @Getter
 @Setter
+@Slf4j
 @API(status = API.Status.STABLE)
 public class BdkRsaKeyConfig {
 
@@ -20,6 +22,10 @@ public class BdkRsaKeyConfig {
    * @return true if the RSA authentication is configured
    */
   public boolean isConfigured() {
+    if(isNotEmpty(path) && isNotEmpty(content)){
+      log.error("Found both \"content\" and \"path\" field while configuring RSA authentication, only one is allowed");
+      return false;
+    }
     return isNotEmpty(path) || isNotEmpty(content);
   }
 

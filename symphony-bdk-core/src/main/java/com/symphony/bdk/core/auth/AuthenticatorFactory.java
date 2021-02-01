@@ -65,6 +65,7 @@ public class AuthenticatorFactory {
       }
       return new BotAuthenticatorCertImpl(
           this.config.getRetry(),
+          this.config.getBot().getUsername(),
           this.apiClientFactory.getSessionAuthClient(),
           this.apiClientFactory.getKeyAuthClient()
       );
@@ -161,13 +162,14 @@ public class AuthenticatorFactory {
 
   private PrivateKey loadPrivateKeyFromAuthenticationConfig(BdkAuthenticationConfig config)
       throws AuthInitializationException {
+    String privateKeyPath = "";
     try {
       String privateKey;
       if (config.getPrivateKey() != null && config.getPrivateKey().isConfigured()) {
         if (isNotEmpty(config.getPrivateKey().getContent())) {
           privateKey = new String(config.getPrivateKey().getContent(), StandardCharsets.UTF_8);
         } else {
-          String privateKeyPath = config.getPrivateKey().getPath();
+          privateKeyPath = config.getPrivateKey().getPath();
           log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
           privateKey = loadPrivateKey(privateKeyPath);
         }
@@ -176,25 +178,23 @@ public class AuthenticatorFactory {
         if (isNotEmpty(config.getPrivateKeyContent())) {
           privateKey = new String(config.getPrivateKeyContent(), StandardCharsets.UTF_8);
         } else {
-          String privateKeyPath = config.getPrivateKeyPath();
+          privateKeyPath = config.getPrivateKeyPath();
           log.debug("Loading RSA privateKey from path : {}", privateKeyPath);
           privateKey = loadPrivateKey(privateKeyPath);
         }
       }
       return JwtHelper.parseRsaPrivateKey(privateKey);
     } catch (GeneralSecurityException e) {
-      final String message = "Unable to parse RSA Private Key";
-      log.error(message, e);
+      final String message = String.format("Unable to parse RSA Private Key from path %s. Check if the format is "
+          + "correct.", privateKeyPath);
       throw new AuthInitializationException(message, e);
     } catch (IOException e) {
-      final String message = "Unable to read or find RSA Private Key from path " + config.getPrivateKeyPath();
-      log.error(message, e);
+      final String message = "Unable to read or find RSA Private Key from path " + privateKeyPath;
       throw new AuthInitializationException(message, e);
     }
   }
 
   private static String loadPrivateKey(String privateKeyPath) throws IOException, AuthInitializationException {
-    log.debug("Loading private key from : {}", privateKeyPath);
     InputStream is;
 
     // useful for testing when private key is located into resources

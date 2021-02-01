@@ -41,7 +41,7 @@ public class BdkConfigLoader {
     try {
       File file = new File(configPath);
       InputStream inputStream = new FileInputStream(file);
-      return loadFromInputStream(inputStream);
+      return loadFromInputStream(inputStream, configPath);
     } catch (FileNotFoundException e) {
       throw new BdkConfigException("Config file has not been found", e);
     }
@@ -53,8 +53,8 @@ public class BdkConfigLoader {
    * @param inputStream InputStream
    * @return Symphony Bot Configuration
    */
-  public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
-    return parseConfig(BdkConfigParser.parse(inputStream));
+  public static BdkConfig loadFromInputStream(InputStream inputStream, String configPath) throws BdkConfigException {
+    return parseConfig(BdkConfigParser.parse(inputStream, configPath));
   }
 
   private static BdkConfig parseConfig(JsonNode jsonNode) {
@@ -85,7 +85,7 @@ public class BdkConfigLoader {
     final Path configPath = symphonyDirPath.resolve(relPath);
     log.debug("Loading configuration from the Symphony directory : {}", configPath);
     try {
-      return loadFromInputStream(new FileInputStream(configPath.toFile()));
+      return loadFromInputStream(new FileInputStream(configPath.toFile()), configPath.toString());
     } catch (FileNotFoundException e) {
       throw new BdkConfigException("Unable to load configuration from the .symphony directory", e);
     }
@@ -100,7 +100,7 @@ public class BdkConfigLoader {
   public static BdkConfig loadFromClasspath(String configPath) throws BdkConfigException {
     InputStream inputStream = BdkConfigLoader.class.getResourceAsStream(configPath);
     if (inputStream != null) {
-      return loadFromInputStream(inputStream);
+      return loadFromInputStream(inputStream, configPath);
     }
     throw new BdkConfigException("Config file is not found");
   }

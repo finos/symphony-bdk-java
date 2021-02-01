@@ -7,7 +7,7 @@ import org.apiguardian.api.API;
 import javax.annotation.Nonnull;
 
 /**
- * When thrown, it means that authentication cannot be performed for several raisons depending on the context :
+ * When thrown, it means that authentication cannot be performed for several reasons depending on the context :
  * <ul>
  *   <li>Regular Bot authentication</li>
  *   <li>OBO authentication</li>

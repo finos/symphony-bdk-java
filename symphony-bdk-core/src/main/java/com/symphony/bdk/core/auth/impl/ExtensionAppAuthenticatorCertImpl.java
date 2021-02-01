@@ -74,4 +74,9 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   public UserClaim validateJwt(String jwt) throws AuthInitializationException {
     return JwtHelper.validateJwt(jwt, this.getPodCertificate().getCertificate());
   }
+
+  @Override
+  protected String getBasePath(){
+    return certificatePodApi.getApiClient().getBasePath();
+  }
 }

@@ -8,6 +8,7 @@ import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
+import io.netty.channel.ConnectTimeoutException;
 import org.apiguardian.api.API;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.FileSystemResource;
@@ -25,6 +26,7 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -143,6 +145,8 @@ public class ApiClientWebClient implements ApiClient {
       Throwable unwrap = Exceptions.unwrap(e);
       if (unwrap instanceof ApiException) {
         throw (ApiException) unwrap;
+      } if(e.getCause() instanceof ConnectTimeoutException){
+        throw new RuntimeException(new SocketTimeoutException(e.getMessage()));
       } else {
         throw e;
       }

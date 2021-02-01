@@ -1,11 +1,13 @@
 package com.symphony.bdk.core.config.model;
 
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.nio.file.Paths;
 
 @Getter
 @Setter
+@Slf4j
 @API(status = API.Status.STABLE)
 public class BdkCertificateConfig {
 
@@ -44,6 +47,17 @@ public class BdkCertificateConfig {
    * @return true if the certificate authentication is configured
    */
   public boolean isConfigured() {
+    if(password == null && (isNotEmpty(path) || isNotEmpty(content)) ) {
+      log.error("Field \"password\" is missing for certificate authentication.");
+      return false;
+    }
+    if(isNotEmpty(path) && isNotEmpty(content)){
+      log.error("Found both \"content\" and \"path\" field while configuring certificate authentication, only one is allowed");
+    }
+    if(password != null && isEmpty(path) && isEmpty(content)){
+      log.error("At least one between \"content\" and \"path\" field should be configured for certificate authentication");
+      return false;
+    }
     return (isNotEmpty(path) || isNotEmpty(content)) && password != null;
   }
 
