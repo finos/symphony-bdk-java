@@ -121,6 +121,19 @@ class AuthenticatorFactoryTest {
   }
 
   @Test
+  void testGetBotAuthenticatorWithInvalidPrivateKeyUsingDeprecatedField(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfigDeprecatedPath(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath("invalid-private-key-content", privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+
+    final AuthenticatorFactory factory = new AuthenticatorFactory(config, DUMMY_API_CLIENT_FACTORY);
+    assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
+  }
+
+  @Test
   void testGetBotAuthenticatorWithNotFoundPrivateKey(@TempDir Path tempDir) {
 
     final BdkConfig config = createRsaConfig(() -> tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem").toAbsolutePath().toString());
@@ -358,6 +371,16 @@ class AuthenticatorFactoryTest {
 
     config.getApp().getPrivateKey().setPath(privateKeyPathSupplier.get());
     config.getApp().setAppId("app-" + UUID.randomUUID().toString());
+
+    return config;
+  }
+
+  @SneakyThrows
+  private BdkConfig createRsaConfigDeprecatedPath(Supplier<String> privateKeyPathSupplier) {
+    final BdkConfig config = new BdkConfig();
+
+    config.getBot().setPrivateKeyPath(privateKeyPathSupplier.get());
+    config.getBot().setUsername("bot-" + UUID.randomUUID().toString());
 
     return config;
   }
