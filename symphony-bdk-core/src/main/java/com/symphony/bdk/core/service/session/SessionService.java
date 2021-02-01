@@ -50,6 +50,6 @@ public class SessionService implements OboSessionService, OboService<OboSessionS
 
   protected <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, sessionApi.getApiClient().getBasePath(), supplier);
   }
 }

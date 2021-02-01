@@ -1,17 +1,19 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.http.api.ApiException;
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5EventList;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -71,7 +73,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      log.error("Unknown error", throwable);
+      log.error(networkIssueMessageError(throwable,datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
     }
   }
 

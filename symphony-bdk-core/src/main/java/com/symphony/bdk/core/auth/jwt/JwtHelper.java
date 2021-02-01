@@ -84,7 +84,8 @@ public class JwtHelper {
 	 * @return a {@link PrivateKey} instance
 	 * @throws GeneralSecurityException On invalid Private Key
 	 */
-	public static PrivateKey parseRsaPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
+	public static PrivateKey parseRsaPrivateKey(final String pemPrivateKey)
+      throws GeneralSecurityException {
 
 		// PKCS#8 format
 		if (pemPrivateKey.contains(PEM_PRIVATE_START)) {
@@ -96,7 +97,7 @@ public class JwtHelper {
 		}
 		// format not detected
 		else {
-			throw new GeneralSecurityException("Invalid private key. Header not recognized.");
+			throw new GeneralSecurityException("Invalid private key. Header not recognized, only PKCS8 and PKCS1 format are allowed.");
 		}
 	}
 
@@ -137,22 +138,25 @@ public class JwtHelper {
 
 			return new JcaPEMKeyConverter().getPrivateKey(PrivateKeyInfoFactory.createPrivateKeyInfo(privateKeyParameter));
 		} catch (IOException | IllegalStateException | IllegalArgumentException e) {
-			throw new GeneralSecurityException("Invalid private key.", e);
+			throw new GeneralSecurityException("Unable to parse the private key. Check if the format of your private key is correct.", e);
 		}
 	}
 
-	private static PrivateKey parsePKCS8PrivateKey(String pemPrivateKey) throws InvalidKeySpecException, NoSuchAlgorithmException {
+	private static PrivateKey parsePKCS8PrivateKey(String pemPrivateKey) throws GeneralSecurityException {
+    try {
+      final String privateKeyString = pemPrivateKey
+          .replace(PEM_PRIVATE_START, "")
+          .replace(PEM_PRIVATE_END, "")
+          .replace("\\n", "\n")
+          .replaceAll("\\s", "");
 
-		final String privateKeyString = pemPrivateKey
-			.replace(PEM_PRIVATE_START, "")
-			.replace(PEM_PRIVATE_END, "")
-			.replace("\\n", "\n")
-			.replaceAll("\\s", "");
+      final byte[] keyBytes = Base64.getDecoder().decode(privateKeyString.getBytes(StandardCharsets.UTF_8));
 
-		final byte[] keyBytes = Base64.getDecoder().decode(privateKeyString.getBytes(StandardCharsets.UTF_8));
-
-		return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
-	}
+      return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
+    } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+      throw new GeneralSecurityException("Unable to parse the pem private key. Check if the format of your private key is correct.", e);
+    }
+  }
 
   protected static Certificate parseX509Certificate(String certificate) throws AuthInitializationException {
     try {
@@ -165,7 +169,7 @@ public class JwtHelper {
 
       return CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(decoded));
     } catch (CertificateException e) {
-      throw new AuthInitializationException("Unable to parse certificate", e);
+      throw new AuthInitializationException("Unable to parse the certificate. Check if the format of your certificate is correct.", e);
     }
   }
 }

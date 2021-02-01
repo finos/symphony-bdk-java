@@ -11,9 +11,9 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 import java.util.List;
+
+import javax.annotation.Nonnull;
 
 /**
  * Service class for managing disclaimers.
@@ -77,7 +77,7 @@ public class DisclaimerService {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, disclaimerApi.getApiClient().getBasePath(), supplier);
   }
 
 }

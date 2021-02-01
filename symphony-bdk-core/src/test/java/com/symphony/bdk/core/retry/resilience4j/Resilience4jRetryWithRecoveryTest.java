@@ -24,6 +24,9 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Collections;
 
 /**
@@ -53,7 +56,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenReturn(value);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name","localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> false,
         Collections.emptyList());
 
@@ -70,7 +73,7 @@ class Resilience4jRetryWithRecoveryTest {
         .thenThrow(new ApiException(400, "error"))
         .thenReturn(value);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isClientError(),
         Collections.emptyList());
@@ -84,7 +87,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> false, Collections.emptyList());
 
@@ -99,7 +102,8 @@ class Resilience4jRetryWithRecoveryTest {
 
     final BdkRetryConfig retryConfig = ofMinimalInterval();
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", retryConfig, supplier, (t) -> true,
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
+        retryConfig, supplier, (t) -> true,
         Collections.emptyList());
 
     assertThrows(ApiException.class, () -> r.execute());
@@ -111,7 +115,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException && ((ApiException) t).isServerError(),
         Collections.emptyList());
@@ -125,7 +129,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenThrow(new ApiException(400, "error"));
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> true,
         (e) -> true, Collections.emptyList());
 
@@ -142,7 +146,7 @@ class Resilience4jRetryWithRecoveryTest {
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> true,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, e -> true, consumer)));
 
@@ -164,7 +168,7 @@ class Resilience4jRetryWithRecoveryTest {
 
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier, (t) -> true,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, e -> e.isClientError(), consumer)));
 
@@ -184,7 +188,7 @@ class Resilience4jRetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> t instanceof ApiException,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, ApiException::isClientError, consumer)));
@@ -208,7 +212,7 @@ class Resilience4jRetryWithRecoveryTest {
     ConcreteConsumer consumer = mock(ConcreteConsumer.class);
     doThrow(new IndexOutOfBoundsException()).when(consumer).consume();
 
-    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name",
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
         ofMinimalInterval(), supplier,
         (t) -> true,
         Collections.singletonList(new RecoveryStrategy(ApiException.class, ApiException::isClientError, consumer)));
@@ -229,7 +233,7 @@ class Resilience4jRetryWithRecoveryTest {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
     when(supplier.get()).thenReturn(value);
 
-    assertEquals(value, Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier));
+    assertEquals(value, Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "serviceName", supplier));
   }
 
   @Test
@@ -238,7 +242,49 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ApiException(500, ""));
 
     assertThrows(ApiRuntimeException.class,
-        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier));
+        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "serviceName", supplier));
+  }
+
+  @Test
+  void testExecuteAndRetryShouldThrowRuntimeExceptionWhenUnknownHost() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new RuntimeException(new UnknownHostException("Unknown host")));
+
+    try {
+      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "localhost.symphony.com", supplier);
+    } catch (RuntimeException e){
+      assertEquals("Network error occurred while trying to connect to the \"POD\" at the following address: "
+          + "localhost.symphony.com. Your host is unknown, please check that the address is correct. Also consider "
+          + "checking your proxy/firewall connections.", e.getMessage());
+    }
+ }
+
+  @Test
+  void testExecuteAndRetryShouldThrowRuntimeExceptionWhenConnectionTimeout() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new RuntimeException(new SocketTimeoutException("Connection timeout")));
+
+    try {
+      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "localhost.symphony.com", supplier);
+    } catch (RuntimeException e){
+      assertEquals("Timeout occurred while trying to connect to the \"POD\" at the following address: "
+          + "localhost.symphony.com. Please check that the address is correct. Also consider checking your "
+          + "proxy/firewall connections.", e.getMessage());
+    }
+  }
+
+  @Test
+  void testExecuteAndRetryShouldThrowRuntimeExceptionWhenConnectionRefused() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new RuntimeException(new ConnectException("Connection refused")));
+
+    try {
+      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "localhost.symphony.com", supplier);
+    } catch (RuntimeException e){
+      assertEquals("Connection refused while trying to connect to the \"POD\" at the following address: "
+          + "localhost.symphony.com. Please check if this remote address/port is reachable. Also consider checking your "
+          + "proxy/firewall connections.", e.getMessage());
+    }
   }
 
   @Test
@@ -247,6 +293,6 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new ArrayIndexOutOfBoundsException());
 
     assertThrows(RuntimeException.class,
-        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", supplier));
+        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "serviceName", supplier));
   }
 }

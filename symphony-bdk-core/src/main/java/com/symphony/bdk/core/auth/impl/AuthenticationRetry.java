@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
+
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
@@ -8,6 +10,7 @@ import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import javax.ws.rs.ProcessingException;
@@ -15,8 +18,10 @@ import javax.ws.rs.ProcessingException;
 /**
  * Class used to implement the specific logic for authentication calls.
  * Delegates the retry mechanism to {@link RetryWithRecovery}.
+ *
  * @param <T> the type returned by the authentication call.
  */
+@Slf4j
 @API(status = API.Status.INTERNAL)
 class AuthenticationRetry<T> {
 
@@ -68,10 +73,11 @@ class AuthenticationRetry<T> {
    * @return output of the call in case of success.
    * @throws AuthUnauthorizedException in case of unauthorized error.
    */
-  public T executeAndRetry(String name, SupplierWithApiException<T> supplier, String unauthorizedErrorMessage)
+  public T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier, String unauthorizedErrorMessage)
       throws AuthUnauthorizedException {
     final RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
+        .basePath(address)
         .supplier(supplier).build();
 
     try {
@@ -82,7 +88,8 @@ class AuthenticationRetry<T> {
       }
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
-      throw new RuntimeException(t);
+      throw new RuntimeException(networkIssueMessageError(t,address), t);
     }
   }
+
 }

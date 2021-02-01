@@ -21,17 +21,18 @@ public class BdkConfigParserTest {
 
     @Test
     void parseJsonConfigTest() throws BdkConfigException {
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.json");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config.json";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
         assertEquals("tibot", jsonNode.at("/bot/username").asText());
     }
 
     @Test
     void parseJsonConfigWithPropertyTest() throws BdkConfigException {
         System.setProperty("my.property", "propvalue");
-
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config_properties.json";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
 
         assertEquals("${escaped}", jsonNode.at("/host").asText());
         assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
@@ -41,9 +42,9 @@ public class BdkConfigParserTest {
     @Test
     void parseJsonConfigWithPropertyContainingSpecialCharsTest() throws BdkConfigException {
         System.setProperty("my.property", "propvalue:\"\n");
-
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config_properties.json";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
         assertEquals("propvalue:\"\n/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
@@ -51,41 +52,43 @@ public class BdkConfigParserTest {
     void parseJsonConfigWithRecursivePropertyShouldNotWorkTest() throws BdkConfigException {
         System.setProperty("recursive", "my.property");
         System.setProperty("my.property", "propvalue");
-
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_recursive_props.json");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config_recursive_props.json";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
         assertEquals("${${recursive}}/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
     @Test
     void parseJsonConfigWithUndefinedPropertyTest() throws BdkConfigException {
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.json");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config_properties.json";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
         assertEquals("${my.property}/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
     @Test
     void parseYamlConfigTest() throws BdkConfigException {
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config.yaml");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config.yaml";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
         assertEquals("tibot", jsonNode.at("/bot/username").asText());
     }
 
     @Test
     void parseYamlConfigWithPropertyTest() throws BdkConfigException {
         System.setProperty("my.property", "propvalue");
-
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_properties.yaml");
-        JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+        String configPath = "/config/config_properties.yaml";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        JsonNode jsonNode = BdkConfigParser.parse(inputStream, configPath);
         assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKey/path").asText());
     }
 
     @Test
     void parseYamlConfigWithPropertiesInArray() throws BdkConfigException {
         System.setProperty("my.property", "agent-lb.acme.org");
-
-        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/config_lb_properties.yaml");
-        final JsonNode loadBalancing = BdkConfigParser.parse(inputStream).at("/agent/loadBalancing");
+        String configPath = "/config/config_lb_properties.yaml";
+        InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+        final JsonNode loadBalancing = BdkConfigParser.parse(inputStream, configPath).at("/agent/loadBalancing");
 
         assertEquals("roundRobin", loadBalancing.at("/mode").asText());
         assertEquals(true, loadBalancing.at("/stickiness").asBoolean());
@@ -98,19 +101,23 @@ public class BdkConfigParserTest {
 
     @Test
     void parseInvalidConfigTest() {
+        String configPath = "/config/invalid_config.html";
         BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
-            InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/invalid_config.html");
-            BdkConfigParser.parse(inputStream);
+            InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+            BdkConfigParser.parse(inputStream, configPath);
         });
-        assertEquals("Config file is not in a valid format", exception.getMessage());
+        assertEquals("Config file format found at the following path /config/invalid_config.html is not valid. "
+            + "Only YAML or JSON are allowed.", exception.getMessage());
     }
 
     @Test
     void parseInvalidYamlConfigTest() {
+        String configPath = "/config/invalid_config.yaml";
         BdkConfigException exception = assertThrows(BdkConfigException.class, () -> {
-            InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("/config/invalid_config.yaml");
-            BdkConfigParser.parse(inputStream);
+            InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+            BdkConfigParser.parse(inputStream, configPath);
         });
-        assertEquals("Config file is not in a valid format", exception.getMessage());
+        assertEquals("Config file format found at the following path /config/invalid_config.yaml is not valid. "
+            + "Only YAML or JSON are allowed.", exception.getMessage());
     }
 }

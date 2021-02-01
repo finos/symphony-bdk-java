@@ -4,6 +4,7 @@ import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInter
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
@@ -12,6 +13,7 @@ import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -55,7 +57,9 @@ class SessionServiceTest {
     final String sessionToken = UUID.randomUUID().toString();
     when(this.authSession.getSessionToken()).thenReturn(sessionToken);
     when(this.sessionApi.v2SessioninfoGet(eq(sessionToken))).thenReturn(new UserV2());
-
+    ApiClient apiClient = mock(ApiClient.class);
+    when(sessionApi.getApiClient()).thenReturn(apiClient);
+    when(apiClient.getBasePath()).thenReturn("pathToThePod");
     this.service = new SessionService(this.sessionApi, new RetryWithRecoveryBuilder<>());
     final UserV2 session = this.service.obo(this.authSession).getSession();
 
@@ -67,6 +71,9 @@ class SessionServiceTest {
     final String sessionToken = UUID.randomUUID().toString();
     when(this.authSession.getSessionToken()).thenReturn(sessionToken);
     when(this.sessionApi.v2SessioninfoGet(eq(sessionToken))).thenReturn(new UserV2());
+    ApiClient apiClient = mock(ApiClient.class);
+    when(sessionApi.getApiClient()).thenReturn(apiClient);
+    when(apiClient.getBasePath()).thenReturn("pathToThePod");
     final UserV2 session = this.service.getSession();
     assertNotNull(session);
   }
@@ -76,6 +83,9 @@ class SessionServiceTest {
     final String sessionToken = UUID.randomUUID().toString();
     when(this.authSession.getSessionToken()).thenReturn(sessionToken);
     when(this.sessionApi.v2SessioninfoGet(eq(sessionToken))).thenThrow(new ApiException(401, "Auth error"));
+    ApiClient apiClient = mock(ApiClient.class);
+    when(sessionApi.getApiClient()).thenReturn(apiClient);
+    when(apiClient.getBasePath()).thenReturn("pathToThePod");
     assertThrows(ApiRuntimeException.class, () -> this.service.getSession());
   }
 

@@ -58,7 +58,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-application-with-an-rsa-public-key">Create Application with an RSA Public Key</a>
    */
   public ApplicationDetail createApplication(@Nonnull ApplicationDetail applicationDetail) {
-    return executeAndRetry("createApplication",
+    return executeAndRetry("createApplication", applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppCreatePost(authSession.getSessionToken(), applicationDetail));
   }
 
@@ -73,7 +73,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#update-application-with-an-rsa-public-key">Update Application with an RSA Public Key</a>
    */
   public ApplicationDetail updateApplication(@Nonnull String appId, @Nonnull ApplicationDetail applicationDetail) {
-    return executeAndRetry("updateApplication",
+    return executeAndRetry("updateApplication",  applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppIdUpdatePost(authSession.getSessionToken(), appId, applicationDetail));
   }
 
@@ -84,7 +84,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#delete-application">Delete Application</a>
    */
   public void deleteApplication(@Nonnull String appId) {
-    executeAndRetry("deleteApplication",
+    executeAndRetry("deleteApplication",  applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppIdDeletePost(authSession.getSessionToken(), appId));
   }
 
@@ -96,7 +96,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#get-application">Get Application</a>
    */
   public ApplicationDetail getApplication(@Nonnull String appId) {
-    return executeAndRetry("getApplication",
+    return executeAndRetry("getApplication",  applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppIdGetGet(authSession.getSessionToken(), appId));
   }
 
@@ -107,7 +107,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#list-app-entitlements">List App Entitlements</a>
    */
   public List<PodAppEntitlement> listApplicationEntitlements() {
-    return executeAndRetry("listApplicationEntitlements",
+    return executeAndRetry("listApplicationEntitlements", applicationApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminAppEntitlementListGet(authSession.getSessionToken()));
   }
 
@@ -119,7 +119,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#update-application-entitlements">Update App Entitlements</a>
    */
   public List<PodAppEntitlement> updateApplicationEntitlements(@Nonnull List<PodAppEntitlement> entitlementList) {
-    return executeAndRetry("updateApplicationEntitlements",
+    return executeAndRetry("updateApplicationEntitlements", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminAppEntitlementListPost(authSession.getSessionToken(), entitlementList));
   }
 
@@ -131,7 +131,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference#user-apps">User Apps</a>
    */
   public List<UserAppEntitlement> listUserApplications(@Nonnull Long userId) {
-    return executeAndRetry("listUserApplications",
+    return executeAndRetry("listUserApplications", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminUserUidAppEntitlementListGet(authSession.getSessionToken(), userId));
   }
 
@@ -145,15 +145,15 @@ public class ApplicationService {
    */
   public List<UserAppEntitlement> updateUserApplications(@Nonnull Long userId,
       @Nonnull List<UserAppEntitlement> userAppEntitlementList) {
-    return executeAndRetry("updateUserApplications",
+    return executeAndRetry("updateUserApplications", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminUserUidAppEntitlementListPost(authSession.getSessionToken(), userId,
             userAppEntitlementList));
   }
 
-  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+  private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
     final RetryWithRecoveryBuilder<?> retryBuilderWithAuthSession = RetryWithRecoveryBuilder.from(retryBuilder)
         .clearRecoveryStrategies()
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
-    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilderWithAuthSession, name, address, supplier);
   }
 }

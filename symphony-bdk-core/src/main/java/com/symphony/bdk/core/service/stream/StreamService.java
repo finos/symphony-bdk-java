@@ -96,7 +96,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public V2StreamAttributes getStream(@Nonnull String streamId) {
-    return executeAndRetry("getStreamInfo",
+    return executeAndRetry("getStreamInfo", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken()));
   }
 
@@ -105,7 +105,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public List<StreamAttributes> listStreams(@Nullable StreamFilter filter) {
-    return executeAndRetry("listStreams",
+    return executeAndRetry("listStreams", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1StreamsListPost(authSession.getSessionToken(), null, null, filter));
   }
 
@@ -114,7 +114,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public List<StreamAttributes> listStreams(@Nullable StreamFilter filter, @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("listStreams",
+    return executeAndRetry("listStreams", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1StreamsListPost(authSession.getSessionToken(), pagination.getSkip(), pagination.getLimit(),
             filter));
   }
@@ -147,7 +147,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public void addMemberToRoom(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
-    executeAndRetry("addMemberToRoom",
+    executeAndRetry("addMemberToRoom", roomMembershipApi.getApiClient().getBasePath(),
         () -> roomMembershipApi.v1RoomIdMembershipAddPost(roomId, authSession.getSessionToken(), user));
   }
 
@@ -157,7 +157,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public void removeMemberFromRoom(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
-    executeAndRetry("removeMemberFrom",
+    executeAndRetry("removeMemberFrom", roomMembershipApi.getApiClient().getBasePath(),
         () -> roomMembershipApi.v1RoomIdMembershipRemovePost(roomId, authSession.getSessionToken(), user));
   }
 
@@ -166,7 +166,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public V2Message share(@Nonnull String streamId, @Nonnull ShareContent content) {
-    return executeAndRetry("share",
+    return executeAndRetry("share", shareApi.getApiClient().getBasePath(),
         () -> shareApi.v3StreamSidSharePost(streamId, authSession.getSessionToken(), content,
             authSession.getKeyManagerToken()));
   }
@@ -177,7 +177,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public void promoteUserToRoomOwner(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
-    executeAndRetry("promoteUserToOwner",
+    executeAndRetry("promoteUserToOwner", roomMembershipApi.getApiClient().getBasePath(),
         () -> roomMembershipApi.v1RoomIdMembershipPromoteOwnerPost(roomId, authSession.getSessionToken(), user));
   }
 
@@ -187,7 +187,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public void demoteUserToRoomParticipant(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
-    executeAndRetry("demoteUserToParticipant",
+    executeAndRetry("demoteUserToParticipant", roomMembershipApi.getApiClient().getBasePath(),
         () -> roomMembershipApi.v1RoomIdMembershipDemoteOwnerPost(roomId, authSession.getSessionToken(), user));
   }
 
@@ -210,7 +210,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
 
   public Stream create(@Nonnull List<Long> uids) {
-    return executeAndRetry("createStreamByUserIds",
+    return executeAndRetry("createStreamByUserIds", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids));
   }
 
@@ -234,7 +234,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#create-room-v3">Create Room V3</a>
    */
   public V3RoomDetail create(@Nonnull V3RoomAttributes roomAttributes) {
-    return executeAndRetry("createStream",
+    return executeAndRetry("createStream", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomCreatePost(authSession.getSessionToken(), roomAttributes));
   }
 
@@ -246,7 +246,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
    */
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query) {
-    return executeAndRetry("searchRooms",
+    return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, null, null));
   }
 
@@ -259,7 +259,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
    */
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("searchRooms",
+    return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
             pagination.getLimit()));
   }
@@ -303,7 +303,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#room-info-v3">Room Info V3</a>
    */
   public V3RoomDetail getRoomInfo(@Nonnull String roomId) {
-    return executeAndRetry("getRoomInfo",
+    return executeAndRetry("getRoomInfo", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomIdInfoGet(roomId, authSession.getSessionToken()));
   }
 
@@ -316,7 +316,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#de-or-re-activate-room">De/Reactivate Room</a>
    */
   public RoomDetail setRoomActive(@Nonnull String roomId, @Nonnull Boolean active) {
-    return executeAndRetry("setRoomActive",
+    return executeAndRetry("setRoomActive", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1RoomIdSetActivePost(roomId, active, authSession.getSessionToken()));
   }
 
@@ -329,7 +329,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#update-room-v3">Update Room V3</a>
    */
   public V3RoomDetail updateRoom(@Nonnull String roomId, @Nonnull V3RoomAttributes roomAttributes) {
-    return executeAndRetry("updateRoom",
+    return executeAndRetry("updateRoom", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomIdUpdatePost(roomId, authSession.getSessionToken(), roomAttributes));
   }
 
@@ -350,7 +350,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim-admin">Create IM or MIM Non-inclusive</a>
    */
   public Stream createInstantMessageAdmin(@Nonnull List<Long> uids) {
-    return executeAndRetry("createInstantMessageAdmin",
+    return executeAndRetry("createInstantMessageAdmin", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1AdminImCreatePost(authSession.getSessionToken(), uids));
   }
 
@@ -362,7 +362,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The information of the room after being deactivated or reactivated.
    */
   public RoomDetail setRoomActiveAdmin(@Nonnull String streamId, @Nonnull Boolean active) {
-    return executeAndRetry("setRoomActiveAdmin",
+    return executeAndRetry("setRoomActiveAdmin", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1AdminRoomIdSetActivePost(streamId, active, authSession.getSessionToken()));
   }
 
@@ -374,7 +374,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#list-streams-for-enterprise-v2">List Streams for Enterprise V2</a>
    */
   public V2AdminStreamList listStreamsAdmin(@Nullable V2AdminStreamFilter filter) {
-    return executeAndRetry("listStreamsAdmin",
+    return executeAndRetry("listStreamsAdmin", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v2AdminStreamsListPost(authSession.getSessionToken(), null, null, filter));
   }
 
@@ -388,7 +388,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public V2AdminStreamList listStreamsAdmin(@Nullable V2AdminStreamFilter filter,
       @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("listStreamsAdmin",
+    return executeAndRetry("listStreamsAdmin", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v2AdminStreamsListPost(authSession.getSessionToken(), pagination.getSkip(),
             pagination.getLimit(), filter));
   }
@@ -433,7 +433,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
    */
   public V2MembershipList listStreamMembers(@Nonnull String streamId) {
-    return executeAndRetry("listStreamMembers",
+    return executeAndRetry("listStreamMembers", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1AdminStreamIdMembershipListGet(streamId, authSession.getSessionToken(), null, null));
   }
 
@@ -447,7 +447,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#stream-members">Stream Members</a>
    */
   public V2MembershipList listStreamMembers(@Nonnull String streamId, @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("listStreamMembers",
+    return executeAndRetry("listStreamMembers", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1AdminStreamIdMembershipListGet(streamId, authSession.getSessionToken(), pagination.getSkip(),
             pagination.getLimit()));
   }
@@ -493,12 +493,13 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#room-members">Room Members</a>
    */
   public List<MemberInfo> listRoomMembers(@Nonnull String roomId) {
-    return executeAndRetry("listRoomMembers",
+    return executeAndRetry("listRoomMembers", roomMembershipApi.getApiClient().getBasePath(),
         () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
   }
 
-  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+
+  private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, address, supplier);
   }
 }

@@ -721,6 +721,6 @@ public class UserService implements OboUserService, OboService<OboUserService> {
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, userApi.getApiClient().getBasePath(), supplier);
   }
 }

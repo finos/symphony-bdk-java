@@ -72,4 +72,9 @@ public class OboAuthenticatorRsaImpl extends AbstractOboAuthenticator {
 
     return this.authenticationApi.pubkeyAppAuthenticatePost(req).getToken();
   }
+
+  @Override
+  protected String getBasePath() {
+    return authenticationApi.getApiClient().getBasePath();
+  }
 }
