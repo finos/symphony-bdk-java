@@ -59,7 +59,7 @@ To install all Symphony BDK jars in your local Maven repository, use:
 
 1. Fork it (<https://github.com/SymphonyPlatformSolutions/symphony-api-client-java/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Read our [contribution guidelines](./CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
+3. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 4. Commit your changes (`git commit -am 'Add some fooBar'`)
 5. Push to the branch (`git push origin feature/fooBar`)
 6. Create a new Pull Request
