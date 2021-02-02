@@ -35,6 +35,7 @@ public class FormReplyContext extends ActivityContext<V4SymphonyElementsAction> 
 
   @API(status = API.Status.EXPERIMENTAL)
   public String getFormValue(String fieldName) {
-    return this.formValues.get(fieldName).asText();
+    return this.formValues.has(fieldName) ?
+        this.formValues.get(fieldName).asText() : null;
   }
 }
