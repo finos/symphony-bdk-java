@@ -29,6 +29,7 @@ import com.symphony.bdk.gen.api.model.Feature;
 import com.symphony.bdk.gen.api.model.FollowersList;
 import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
+import com.symphony.bdk.gen.api.model.RoleDetail;
 import com.symphony.bdk.gen.api.model.StringId;
 import com.symphony.bdk.gen.api.model.UserAttributes;
 import com.symphony.bdk.gen.api.model.UserDetail;
@@ -65,6 +66,7 @@ class UserServiceTest {
   private static final String USER_FIND = "/pod/v1/admin/user/find";
   private static final String ADD_ROLE_TO_USER = "/pod/v1/admin/user/{uid}/roles/add";
   private static final String REMOVE_ROLE_FROM_USER = "/pod/v1/admin/user/{uid}/roles/remove";
+  private static final String LIST_ROLES = "/pod/v1/admin/system/roles/list";
   private static final String GET_AVATAR_FROM_USER = "/pod/v1/admin/user/{uid}/avatar";
   private static final String UPDATE_AVATAR_OF_USER = "/pod/v1/admin/user/{uid}/avatar/update";
   private static final String GET_DISCLAIMER_OF_USER = "/pod/v1/admin/user/{uid}/disclaimer";
@@ -280,6 +282,24 @@ class UserServiceTest {
     this.mockApiClient.onPost(400, REMOVE_ROLE_FROM_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.removeRole(1234L, RoleId.INDIVIDUAL));
+  }
+
+  @Test
+  void listRoles() throws IOException {
+    String response = JsonHelper.readFromClasspath("/roles/list_roles.json");
+    this.mockApiClient.onGet(LIST_ROLES, response);
+    List<RoleDetail> roleDetails = this.service.listRoles();
+
+    assertEquals(12, roleDetails.size());
+    assertEquals("Content Management", roleDetails.get(0).getName());
+  }
+
+
+  @Test
+  void listRolesTestFailed() {
+    this.mockApiClient.onGet(400, LIST_ROLES, "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.listRoles());
   }
 
   @Test

@@ -47,6 +47,7 @@ that is available in BDK is:
 - Streams Service: `bdk.streams()`
 - Message Service: `bdk.messages()`
 - Datafeed Service: `bdk.datafeed()`
+- Disclaimer Service: `bdk.disclaimers()`
 - Activities Registry: `bdk.activities()`
 
 ----
