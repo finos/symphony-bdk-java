@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nullable;
+
 /**
  * Default implementation of the {@link ActivityContext} handled by the {@link FormReplyActivity}.
  */
@@ -33,7 +35,14 @@ public class FormReplyContext extends ActivityContext<V4SymphonyElementsAction> 
     super(initiator, eventSource);
   }
 
-  @API(status = API.Status.EXPERIMENTAL)
+  /**
+   * Get the value of specified form field
+   *
+   * @param fieldName the form field name
+   * @return the form field value. If the form reply does not contain the specified field, it returns null
+   */
+  @API(status = API.Status.STABLE)
+  @Nullable
   public String getFormValue(String fieldName) {
     return this.formValues.has(fieldName) ?
         this.formValues.get(fieldName).asText() : null;
