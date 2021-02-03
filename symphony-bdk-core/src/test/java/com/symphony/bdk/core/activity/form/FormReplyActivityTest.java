@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity.form;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -61,6 +62,7 @@ class FormReplyActivityTest {
 
     assertEquals(context.getFormId(), formId);
     assertEquals("bar", context.getFormValue("foo"));
+    assertNull(context.getFormValue("not-existing"));
   }
 
   private static FormReplyContext createContext() {
