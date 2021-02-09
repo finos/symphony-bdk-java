@@ -22,6 +22,9 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+
 import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
@@ -97,7 +100,7 @@ class AbstractExtensionAppAuthenticatorTest {
         spy(new TestExtAppAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new ProcessingException(""))
+        .doThrow(new ProcessingException(new SocketTimeoutException()))
         .doReturn(new PodCertificate().certificate(certificate))
         .when(authenticator).callGetPodCertificate();
 
@@ -158,7 +161,7 @@ class AbstractExtensionAppAuthenticatorTest {
         spy(new TestExtAppAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new ProcessingException(""))
+        .doThrow(new ProcessingException(new ConnectException()))
         .doReturn(extensionAppTokens)
         .when(authenticator).authenticateAndRetrieveTokens(anyString());
 

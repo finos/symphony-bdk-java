@@ -29,6 +29,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 
+import javax.ws.rs.ProcessingException;
+
 /**
  * Test class for {@link Resilience4jRetryWithRecovery}
  */
@@ -251,7 +253,8 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new RuntimeException(new UnknownHostException("Unknown host")));
 
     try {
-      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "localhost.symphony.com", supplier);
+      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test",
+          "localhost.symphony.com", supplier);
     } catch (RuntimeException e){
       assertEquals("Network error occurred while trying to connect to the \"POD\" at the following address: "
           + "localhost.symphony.com. Your host is unknown, please check that the address is correct. Also consider "
@@ -262,10 +265,12 @@ class Resilience4jRetryWithRecoveryTest {
   @Test
   void testExecuteAndRetryShouldThrowRuntimeExceptionWhenConnectionTimeout() throws Throwable {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
-    when(supplier.get()).thenThrow(new RuntimeException(new SocketTimeoutException("Connection timeout")));
+    when(supplier.get()).thenThrow(new ProcessingException(new SocketTimeoutException("Connection timeout")));
 
     try {
-      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "localhost.symphony.com", supplier);
+      Resilience4jRetryWithRecovery.executeAndRetry(
+          new RetryWithRecoveryBuilder<String>().retryConfig(ofMinimalInterval(3)), "test", "localhost.symphony.com",
+          supplier);
     } catch (RuntimeException e){
       assertEquals("Timeout occurred while trying to connect to the \"POD\" at the following address: "
           + "localhost.symphony.com. Please check that the address is correct. Also consider checking your "
@@ -276,10 +281,12 @@ class Resilience4jRetryWithRecoveryTest {
   @Test
   void testExecuteAndRetryShouldThrowRuntimeExceptionWhenConnectionRefused() throws Throwable {
     SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
-    when(supplier.get()).thenThrow(new RuntimeException(new ConnectException("Connection refused")));
+    when(supplier.get()).thenThrow(new ProcessingException(new ConnectException("Connection refused")));
 
     try {
-      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "localhost.symphony.com", supplier);
+      Resilience4jRetryWithRecovery.executeAndRetry(
+          new RetryWithRecoveryBuilder<String>().retryConfig(ofMinimalInterval(3)), "test", "localhost.symphony.com",
+          supplier);
     } catch (RuntimeException e){
       assertEquals("Connection refused while trying to connect to the \"POD\" at the following address: "
           + "localhost.symphony.com. Please check if this remote address/port is reachable. Also consider checking your "

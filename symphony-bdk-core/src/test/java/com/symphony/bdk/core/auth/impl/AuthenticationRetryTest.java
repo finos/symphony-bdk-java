@@ -15,8 +15,10 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 
-import javax.ws.rs.ProcessingException;
+import java.net.SocketTimeoutException;
 
 class AuthenticationRetryTest {
 
@@ -61,7 +63,8 @@ class AuthenticationRetryTest {
     final String output = "output";
 
     SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
-    when(supplier.get()).thenThrow(new ProcessingException("")).thenReturn(output);
+    when(supplier.get()).thenThrow(
+        new WebClientRequestException(new SocketTimeoutException(), HttpMethod.GET, null, null)).thenReturn(output);
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 

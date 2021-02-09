@@ -22,6 +22,8 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.SocketTimeoutException;
+
 import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
 
@@ -93,7 +95,7 @@ class AbstractBotAuthenticatorTest {
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval(4)));
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new ProcessingException(""))
+        .doThrow(new ProcessingException(new SocketTimeoutException()))
         .doReturn(token)
         .when(botAuthenticator).authenticateAndGetToken(any());
 
