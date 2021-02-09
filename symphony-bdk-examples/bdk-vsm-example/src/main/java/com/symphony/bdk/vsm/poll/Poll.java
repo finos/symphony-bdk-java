@@ -1,0 +1,39 @@
+package com.symphony.bdk.vsm.poll;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+@Getter
+@Setter
+public class Poll {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Long id;
+
+  @Enumerated(EnumType.STRING)
+  private PollStatus status = PollStatus.IN_CREATION;
+
+  private String roomId;
+  private String roomName;
+  private String creationMessageId;
+  private Long userId;
+
+  private String title;
+  private String description;
+
+  private String type; // 'single' or 'multi'
+
+  private String option1;
+  private String option2;
+  private String option3;
+  private String option4;
+}

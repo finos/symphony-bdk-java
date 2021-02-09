@@ -28,6 +28,7 @@ import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
+import com.symphony.bdk.gen.api.model.V4MessageState;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
@@ -37,6 +38,7 @@ import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.io.File;
@@ -221,6 +223,11 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
         () -> this.doSendMessage(streamId, message));
   }
 
+  public V4Message sendStatefulMessage(@Nonnull String streamId, @Nonnull Message message) {
+    return this.executeAndRetry("sendStateful", messagesApi.getApiClient().getBasePath(),
+        () -> this.doSendStatefulMessage(streamId, message));
+  }
+
   /**
    * Sends a message to multiple existing streams.
    *
@@ -235,13 +242,24 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * The generated {@link MessagesApi#v4StreamSidMessageCreatePost(String, String, String, String, String, String, File, File)}
+   * The generated {@link MessagesApi#v4StreamSidMessageCreatePost(String, String, String, String, String, String, String, File, File)}
    * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
    */
   private V4Message doSendMessage(@Nonnull String streamId, @Nonnull Message message) throws ApiException {
     final String path = "/v4/stream/" + this.messagesApi.getApiClient().escapeString(streamId) + "/message/create";
 
     return doSendFormData(path, getForm(message), new TypeReference<V4Message>() {});
+  }
+
+  /**
+   * The generated {@link MessagesApi#v4StreamSidMessageCreatePost(String, String, String, String, String, String, String, File, File)}
+   * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
+   */
+  private V4Message doSendStatefulMessage(@Nonnull String streamId, @Nonnull Message message) throws ApiException {
+    final String path = "/v4/stream/" + this.messagesApi.getApiClient().escapeString(streamId) + "/message/create";
+    final Map<String, Object> form = getForm(message);
+    form.put("isStateful", true);
+    return doSendFormData(path, form, new TypeReference<V4Message>() {});
   }
 
   /**
@@ -293,6 +311,23 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
         new String[0],
         typeReference
     ).getData();
+  }
+
+  /**
+   * Sends a facet to a given list of users.
+   *
+   * @param streamId
+   * @param messageId
+   * @param directedTo
+   * @param message
+   * @return
+   */
+  public V4MessageState sendFacet(String streamId, String messageId, List<Long> directedTo, Message message) {
+    return executeAndRetry("sendFacet", attachmentsApi.getApiClient().getBasePath(),
+        () -> this.messagesApi.v4StreamSidMessageMidFacetCreatePost(streamId, messageId,
+            authSession.getSessionToken(), authSession.getKeyManagerToken(),
+            message.getContent(), message.getData(), StringUtils.join(directedTo, ",")
+    ));
   }
 
   /**

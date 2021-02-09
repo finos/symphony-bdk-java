@@ -1,0 +1,22 @@
+bdk:
+  host: devx2.symphony.com
+  bot:
+    username: tibot
+    privateKey:
+      path: ${user.home}/.symphony/privatekey.pem
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+
+logging:
+  level:
+    com.symphony: debug
