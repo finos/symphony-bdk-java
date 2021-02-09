@@ -62,7 +62,7 @@ public class ApiClientFactory {
   }
 
   /**
-   * Returns a fully initialized {@lite: 500nk ApiClient} for Pod API.
+   * Returns a fully initialized {@link ApiClient} for Pod API.
    *
    * @return a new {@link ApiClient} instance.
    */

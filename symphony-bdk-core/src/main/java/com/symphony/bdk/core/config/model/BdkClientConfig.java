@@ -32,7 +32,7 @@ public class BdkClientConfig extends BdkServerConfig {
   }
 
   public boolean overridesParentConfig() {
-    return scheme != null || host != null || port != null || context!= null;
+    return scheme != null || host != null || port != null || context != null;
   }
 
   @Override
@@ -66,13 +66,19 @@ public class BdkClientConfig extends BdkServerConfig {
   }
 
   @Override
-  public Integer getConnectionPoolMax() { return thisOrParent(connectionPoolMax, parentConfig::getConnectionPoolMax); }
+  public Integer getConnectionPoolMax() {
+    return thisOrParent(connectionPoolMax, parentConfig::getConnectionPoolMax);
+  }
 
   @Override
-  public Integer getConnectionPoolPerRoute() { return thisOrParent(connectionPoolPerRoute, parentConfig::getConnectionPoolPerRoute); }
+  public Integer getConnectionPoolPerRoute() {
+    return thisOrParent(connectionPoolPerRoute, parentConfig::getConnectionPoolPerRoute);
+  }
 
   @Override
-  public BdkProxyConfig getProxy() { return thisOrParent(proxy, parentConfig::getProxy); }
+  public BdkProxyConfig getProxy() {
+    return thisOrParent(proxy, parentConfig::getProxy);
+  }
 
   private <T> T thisOrParent(T thisValue, Supplier<T> parentValue) {
     return thisValue == null ? parentValue.get() : thisValue;
