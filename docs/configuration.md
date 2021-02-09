@@ -53,6 +53,10 @@ public class Example {
 scheme: https
 host: localhost.symphony.com
 port: 8443
+connectionTimeout: 15000
+readTimeout: 60000
+connectionPoolMax: 20
+connectionPoolPerRoute: 20
 
 proxy:
   host: proxy.symphony.com
@@ -118,9 +122,9 @@ retry:
 ### Configuration structure
 
 The BDK configuration now includes the following properties:
-- The BDK configuration can contain the global properties for `host`, `port`, `context` and `scheme`. 
+- The BDK configuration can contain the global properties for `host`, `port`, `context`, `scheme` and the following connection parameters: `connectionTimeout`, `readTimeout`, `connectionPoolMax`, `connectionPoolPerRoute`.
 These global properties can be used by the client configuration by default or can be overridden if
-user specify the dedicated `host`, `port`, `context`, `scheme` inside the client configuration.
+user specify the dedicated `host`, `port`, `context`, `scheme` or custom connection parameters inside the client configuration. Please note that connection parameters are optional, `connectionPoolMax`, `connectionPoolPerRoute` are used only by Jersey2 connection implementation and in general default values (they are in the example file, but you can avoid specifying them explicitly if you don't want change them) fit most use cases.
 - `proxy` contains proxy related information. This field is optional.
 If set, it will use the provided `host` (mandatory), `port` (mandatory), `username` and `password`.
 It can be overridden in each of the `pod`, `agent`, `keyManager` and `sessionAuth` fields.

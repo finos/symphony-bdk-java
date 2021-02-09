@@ -13,10 +13,6 @@ public class BdkClientConfig extends BdkServerConfig {
 
   private BdkConfig parentConfig;
 
-  private Integer connectTimeout;
-  private Integer readTimeout;
-  private Integer connectionRequestTimeout;
-
   public BdkClientConfig() {
     // for Jackson deserialization
     this.scheme = null;
@@ -24,9 +20,10 @@ public class BdkClientConfig extends BdkServerConfig {
     this.port = null;
     this.context = null;
 
-    this.connectTimeout = null;
+    this.connectionTimeout = null;
     this.readTimeout = null;
-    this.connectionRequestTimeout = null;
+    this.connectionPoolMax = null;
+    this.connectionPoolPerRoute = null;
   }
 
   public BdkClientConfig(BdkConfig parentConfig) {
@@ -38,25 +35,44 @@ public class BdkClientConfig extends BdkServerConfig {
     return scheme != null || host != null || port != null || context!= null;
   }
 
+  @Override
   public String getScheme() {
     return thisOrParent(scheme, parentConfig::getScheme);
   }
 
+  @Override
   public String getHost() {
     return thisOrParent(host, parentConfig::getHost);
   }
 
+  @Override
   public Integer getPort() {
     return thisOrParent(port, parentConfig::getPort);
   }
 
+  @Override
   public String getContext() {
     return thisOrParent(context, parentConfig::getContext);
   }
 
-  public BdkProxyConfig getProxy() {
-    return thisOrParent(proxy, parentConfig::getProxy);
+  @Override
+  public Integer getConnectionTimeout() {
+    return thisOrParent(connectionTimeout, parentConfig::getConnectionTimeout);
   }
+
+  @Override
+  public Integer getReadTimeout() {
+    return thisOrParent(readTimeout, parentConfig::getReadTimeout);
+  }
+
+  @Override
+  public Integer getConnectionPoolMax() { return thisOrParent(connectionPoolMax, parentConfig::getConnectionPoolMax); }
+
+  @Override
+  public Integer getConnectionPoolPerRoute() { return thisOrParent(connectionPoolPerRoute, parentConfig::getConnectionPoolPerRoute); }
+
+  @Override
+  public BdkProxyConfig getProxy() { return thisOrParent(proxy, parentConfig::getProxy); }
 
   private <T> T thisOrParent(T thisValue, Supplier<T> parentValue) {
     return thisValue == null ? parentValue.get() : thisValue;

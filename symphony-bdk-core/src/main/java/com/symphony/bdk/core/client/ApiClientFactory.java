@@ -3,6 +3,7 @@ package com.symphony.bdk.core.client;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
+import com.symphony.bdk.core.config.model.BdkAgentConfig;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkCertificateConfig;
 import com.symphony.bdk.core.config.model.BdkClientConfig;
@@ -31,6 +32,14 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.EXPERIMENTAL)
 public class ApiClientFactory {
 
+  private final static String LOGIN_CONTEXT_PATH = "/login";
+  private final static String POD_CONTEXT_PATH = "/pod";
+  private final static String AGENT_CONTEXT_PATH = "/agent";
+  private final static String KEYMANAGER_CONTEXT_PATH = "/relay";
+  private final static String SESSIONAUTH_CONTEXT_PATH = "/sessionauth";
+  private final static String KEYAUTH_CONTEXT_PATH = "/keyauth";
+
+
   private final BdkConfig config;
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
@@ -49,16 +58,16 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getLoginClient() {
-    return buildClient(this.config.getPod(), "/login");
+    return buildClient(LOGIN_CONTEXT_PATH, this.config.getPod());
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for Pod API.
+   * Returns a fully initialized {@lite: 500nk ApiClient} for Pod API.
    *
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getPodClient() {
-    return buildClient(this.config.getPod(), "/pod");
+    return buildClient(POD_CONTEXT_PATH, this.config.getPod());
   }
 
   /**
@@ -67,7 +76,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRelayClient() {
-    return buildClient(this.config.getKeyManager(), "/relay");
+    return buildClient(KEYMANAGER_CONTEXT_PATH, this.config.getKeyManager());
   }
 
   /**
@@ -112,7 +121,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getRegularAgentClient(String agentBasePath) {
-    return buildClient(agentBasePath + "/agent", this.config.getAgent().getProxy());
+    return buildAgentClient(agentBasePath + AGENT_CONTEXT_PATH, this.config.getAgent());
   }
 
   /**
@@ -122,7 +131,7 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth(), "/sessionauth", this.config.getBot());
+    return buildClientWithCertificate(this.config.getSessionAuth(), SESSIONAUTH_CONTEXT_PATH, this.config.getBot());
   }
 
   /**
@@ -132,25 +141,25 @@ public class ApiClientFactory {
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getExtAppSessionAuthClient() {
-    return buildClientWithCertificate(this.config.getSessionAuth(), "/sessionauth", this.config.getApp());
+    return buildClientWithCertificate(this.config.getSessionAuth(), SESSIONAUTH_CONTEXT_PATH, this.config.getApp());
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for the KayAuth API. This only works with a
+   * Returns a fully initialized {@link ApiClient} for the KeyAuth API. This only works with a
    * certification configured.
    *
    * @return an new {@link ApiClient} instance.
    */
   public ApiClient getKeyAuthClient() {
-    return buildClientWithCertificate(this.config.getKeyManager(), "/keyauth", this.config.getBot());
+    return buildClientWithCertificate(this.config.getKeyManager(), KEYAUTH_CONTEXT_PATH, this.config.getBot());
   }
 
-  private ApiClient buildClient(BdkClientConfig clientConfig, String contextPath) {
-    return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy()).build();
+  private ApiClient buildClient(String contextPath, BdkClientConfig clientConfig) {
+    return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig).build();
   }
 
-  private ApiClient buildClient(String basePath, BdkProxyConfig proxyConfig) {
-    return getApiClientBuilder(basePath, proxyConfig).build();
+  private ApiClient buildAgentClient(String basePath, BdkAgentConfig agentConfig) {
+    return getApiClientBuilder(basePath, agentConfig).build();
   }
 
   private ApiClient buildClientWithCertificate(BdkClientConfig clientConfig, String contextPath, BdkAuthenticationConfig config) {
@@ -162,7 +171,7 @@ public class ApiClientFactory {
     final BdkCertificateConfig certificateConfig = config.getCertificateConfig();
     ApiClient apiClient = null;
     try {
-      apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig.getProxy())
+      apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig)
           .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
           .build();
     }
@@ -175,13 +184,17 @@ public class ApiClientFactory {
     return apiClient;
   }
 
-  private ApiClientBuilder getApiClientBuilder(String basePath, BdkProxyConfig proxyConfig) {
+  private ApiClientBuilder getApiClientBuilder(String basePath, BdkClientConfig clientConfig) {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
-        .withBasePath(basePath);
+        .withBasePath(basePath)
+        .withReadTimeout(clientConfig.getReadTimeout())
+        .withConnectionTimeout(clientConfig.getConnectionTimeout())
+        .withConnectionPoolMax(clientConfig.getConnectionPoolMax())
+        .withConnectionPoolPerRoute(clientConfig.getConnectionPoolMax());
 
     configureTruststore(apiClientBuilder);
-    configureProxy(proxyConfig, apiClientBuilder);
+    configureProxy(clientConfig.getProxy(), apiClientBuilder);
 
     return apiClientBuilder;
   }
@@ -211,13 +224,13 @@ public class ApiClientFactory {
   }
 
   public static ServiceEnum getServiceNameFromBasePath(String basePath) {
-    if (basePath.contains("/relay") || basePath.contains("/keyauth")) {
+    if (basePath.contains(KEYMANAGER_CONTEXT_PATH) || basePath.contains(KEYAUTH_CONTEXT_PATH)) {
       return ServiceEnum.KEY_MANAGER;
     }
-    if (basePath.contains("/sessionauth")) {
+    if (basePath.contains(SESSIONAUTH_CONTEXT_PATH)) {
       return ServiceEnum.SESSION_AUTH;
     }
-    if (basePath.contains("/agent")) {
+    if (basePath.contains(AGENT_CONTEXT_PATH)) {
       return ServiceEnum.AGENT;
     } else { return ServiceEnum.POD; }
   }
