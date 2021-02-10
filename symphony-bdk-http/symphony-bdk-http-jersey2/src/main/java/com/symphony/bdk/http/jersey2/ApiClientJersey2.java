@@ -33,6 +33,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -131,28 +132,7 @@ public class ApiClientJersey2 implements ApiClient {
     Entity<?> entity =
         (body == null && formParams == null) ? Entity.json("") : this.serialize(body, formParams, contentType);
 
-    Response response = null;
-
-    try {
-      if ("GET".equals(method)) {
-        response = invocationBuilder.get();
-      } else if ("POST".equals(method)) {
-        response = invocationBuilder.post(entity);
-      } else if ("PUT".equals(method)) {
-        response = invocationBuilder.put(entity);
-      } else if ("DELETE".equals(method)) {
-        response = invocationBuilder.method("DELETE", entity);
-      } else if ("PATCH".equals(method)) {
-        response = invocationBuilder.method("PATCH", entity);
-      } else if ("HEAD".equals(method)) {
-        response = invocationBuilder.head();
-      } else if ("OPTIONS".equals(method)) {
-        response = invocationBuilder.options();
-      } else if ("TRACE".equals(method)) {
-        response = invocationBuilder.trace();
-      } else {
-        throw new ApiException(500, "unknown method type " + method);
-      }
+    try(Response response = getResponse(invocationBuilder, method, entity)){
 
       int statusCode = response.getStatusInfo().getStatusCode();
       Map<String, List<String>> responseHeaders = buildResponseHeaders(response);
@@ -187,17 +167,36 @@ public class ApiClientJersey2 implements ApiClient {
             buildResponseHeaders(response),
             respBody);
       }
+    }
+  }
+
+  private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity) throws ApiException {
+    try {
+      switch(method) {
+        case HttpMethod.GET:
+          return invocationBuilder.get();
+        case HttpMethod.POST:
+          return invocationBuilder.post(entity);
+        case HttpMethod.PUT:
+          return invocationBuilder.put(entity);
+        case HttpMethod.DELETE:
+          return invocationBuilder.method(HttpMethod.DELETE, entity);
+        case HttpMethod.PATCH:
+          return invocationBuilder.method(HttpMethod.PATCH, entity);
+        case HttpMethod.HEAD:
+          return invocationBuilder.head();
+        case HttpMethod.OPTIONS:
+          return invocationBuilder.options();
+        case "TRACE":
+          return invocationBuilder.trace();
+        default:
+          throw new ApiException(500, "unknown method type " + method);
+      }
     } catch (ProcessingException e) {
       if (e.getCause() instanceof ConnectTimeoutException) {
           throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
       } else {
         throw e;
-      }
-    } finally {
-      try {
-        response.close();
-      } catch (Exception e) {
-        // it's not critical, since the response object is local in method invokeAPI; that's fine, just continue
       }
     }
   }

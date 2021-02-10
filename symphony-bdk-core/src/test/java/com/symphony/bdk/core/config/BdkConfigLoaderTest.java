@@ -110,6 +110,10 @@ class BdkConfigLoaderTest {
     assertEquals(config.getPod().getHost(), "diff-pod.symphony.com");
     assertEquals(config.getPod().getPort(), 8443);
     assertEquals(config.getPod().getContext(), "context");
+    assertEquals(config.getPod().getConnectionTimeout(), 10000);
+    assertEquals(config.getPod().getReadTimeout(), 30000);
+    assertEquals(config.getPod().getConnectionPoolMax(), 20);
+    assertEquals(config.getPod().getConnectionPoolPerRoute(), 10);
 
     assertEquals(config.getScheme(), "https");
 
@@ -117,16 +121,28 @@ class BdkConfigLoaderTest {
     assertEquals(config.getAgent().getHost(), "devx1.symphony.com");
     assertEquals(config.getAgent().getPort(), 443);
     assertEquals(config.getAgent().getFormattedContext(), "/context");
+    assertEquals(config.getAgent().getConnectionTimeout(), 20000);
+    assertEquals(config.getAgent().getReadTimeout(), 60000);
+    assertEquals(config.getAgent().getConnectionPoolMax(), 30);
+    assertEquals(config.getAgent().getConnectionPoolPerRoute(), 20);
 
     assertEquals(config.getKeyManager().getScheme(), "https");
     assertEquals(config.getKeyManager().getHost(), "devx1.symphony.com");
     assertEquals(config.getKeyManager().getPort(), 8443);
     assertEquals(config.getKeyManager().getFormattedContext(), "/diff-context");
+    assertEquals(config.getKeyManager().getConnectionTimeout(), 10000);
+    assertEquals(config.getKeyManager().getReadTimeout(), 30000);
+    assertEquals(config.getKeyManager().getConnectionPoolMax(), 20);
+    assertEquals(config.getKeyManager().getConnectionPoolPerRoute(), 10);
 
     assertEquals(config.getSessionAuth().getScheme(), "http");
     assertEquals(config.getSessionAuth().getHost(), "devx1.symphony.com");
     assertEquals(config.getSessionAuth().getPort(), 8443);
     assertEquals(config.getSessionAuth().getContext(), "context");
+    assertEquals(config.getSessionAuth().getConnectionTimeout(), 10000);
+    assertEquals(config.getSessionAuth().getReadTimeout(), 30000);
+    assertEquals(config.getSessionAuth().getConnectionPoolMax(), 20);
+    assertEquals(config.getSessionAuth().getConnectionPoolPerRoute(), 10);
   }
 
 
