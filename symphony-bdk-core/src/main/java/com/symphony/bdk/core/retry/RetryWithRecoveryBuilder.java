@@ -8,11 +8,11 @@ import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
 
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-
-import javax.ws.rs.ProcessingException;
 
 /**
  * Builder class to facilitate the instantiation of a {@link RetryWithRecovery}.
@@ -60,12 +60,12 @@ public class RetryWithRecoveryBuilder<T> {
   }
 
   /**
-   * Checks if a throwable is a {@link ProcessingException} or a {@link ApiException} minor error.
+   * Checks if a throwable is a network issue or a {@link ApiException} minor error.
    * This is the default function used in {@link RetryWithRecovery}
    * to check if a given exception thrown should lead to a retry.
    *
    * @param t the throwable to be checked.
-   * @return true if passed throwable is a {@link ProcessingException} (e.g. in case of a temporary network exception)
+   * @return true if passed throwable is either a {@link SocketTimeoutException} or {@link ConnectException}
    * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
    * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}.
    */
@@ -74,14 +74,14 @@ public class RetryWithRecoveryBuilder<T> {
       ApiException apiException = (ApiException) t;
       return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
     }
-    return t instanceof ProcessingException;
+    return t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException;
   }
 
   /**
-   * Checks if a throwable is a {@link ProcessingException} or a {@link ApiException} minor error or client error.
+   * Checks if a throwable is a network issue or a {@link ApiException} minor error or client error.
    *
    * @param t the throwable to be checked.
-   * @return true if passed throwable is a {@link ProcessingException} (e.g. in case of a temporary network exception)
+   * @return true if passed throwable is either a {@link SocketTimeoutException} or {@link ConnectException}
    * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
    * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}
    * or {@link ApiException#isClientError()}.
@@ -92,7 +92,7 @@ public class RetryWithRecoveryBuilder<T> {
       return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError()
           || apiException.isClientError();
     }
-    return t instanceof ProcessingException;
+    return t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException;
   }
 
   /**

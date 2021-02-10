@@ -52,7 +52,6 @@ dependencies {
     implementation 'io.github.resilience4j:resilience4j-retry'
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
-    implementation 'org.glassfish.jersey.core:jersey-client'
 
     testImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
     testRuntimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
@@ -60,6 +59,8 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    testImplementation 'org.glassfish.jersey.core:jersey-client'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'com.tngtech.archunit:archunit-junit5'
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'ch.qos.logback:logback-classic'
