@@ -26,10 +26,10 @@ public class CreatePollCommand {
 
   private final PollService pollService;
 
-  @Slash(value = "c", mentionBot = false)
+  @Slash("new")
   @Transactional
   public void createPoll(CommandContext context) {
-    // command can only be triggered from room
+    // TODO create ticket to add it to the SlashCommand class and @Slash annotation
     if (!context.getSourceEvent().getMessage().getStream().getStreamType().equalsIgnoreCase("im")) {
 
       final Stream im = this.streamService.create(context.getInitiator().getUser().getUserId());

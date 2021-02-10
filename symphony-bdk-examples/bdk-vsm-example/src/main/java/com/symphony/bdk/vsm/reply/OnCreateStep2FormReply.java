@@ -11,7 +11,6 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.vsm.poll.Poll;
 import com.symphony.bdk.vsm.poll.PollService;
-
 import com.symphony.bdk.vsm.poll.PollStatus;
 
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class OnCreateStep2FormReply extends FormReplyActivity<FormReplyContext> 
     final Poll poll = this.pollService.findFromCreationMessage(context.getSourceEvent().getFormMessageId());
 
     final Message message = Message.builder()
-        .content("Your poll has successfully been sent to room <b>" + poll.getRoomName() + "</b>")
+        .template(this.messageService.templates().newTemplateFromClasspath("/templates/create-step-final.ftl"), poll)
         .build();
 
     this.messageService.sendFacet(
@@ -57,11 +56,19 @@ public class OnCreateStep2FormReply extends FormReplyActivity<FormReplyContext> 
     poll.setOption4(context.getFormValue("option4"));
     poll.setStatus(PollStatus.PENDING);
 
+    // send poll to initial room
+    this.messageService.sendStatefulMessage(
+        poll.getRoomId(),
+        Message.builder()
+            .template(this.messageService.templates().newTemplateFromClasspath("/templates/poll-step-1.ftl"), poll)
+            .build()
+    );
+
     this.pollService.save(poll);
   }
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.COMMAND).name("Step 2 Form Reply");
+    return new ActivityInfo().type(ActivityType.FORM).name("Create Poll Step 2 Form Reply");
   }
 }

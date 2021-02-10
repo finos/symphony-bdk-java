@@ -11,37 +11,39 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.vsm.poll.Poll;
 import com.symphony.bdk.vsm.poll.PollService;
+import com.symphony.bdk.vsm.poll.Vote;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class OnCreateStep1FormReply extends FormReplyActivity<FormReplyContext> {
+public class OnPollStep1FormReply extends FormReplyActivity<FormReplyContext> {
 
   private final MessageService messageService;
   private final PollService pollService;
 
   @Override
   protected ActivityMatcher<FormReplyContext> matcher() {
-    return c -> c.getFormId().equals("create-step-1");
+    return c -> c.getFormId().equals("poll-step-1");
   }
 
   @Override
-  @Transactional
   protected void onActivity(FormReplyContext context) {
 
-    final Poll poll = this.pollService.findFromCreationMessage(context.getSourceEvent().getFormMessageId());
+    final long voterId = context.getInitiator().getUser().getUserId();
+    final String choice = context.getFormValue("choice");
 
-    poll.setTitle(context.getFormValue("title"));
-    poll.setDescription(context.getFormValue("description"));
+    final Poll poll = this.pollService.findById(Long.parseLong(context.getFormValue("pollId")));
+    final Vote vote = this.pollService.vote(poll, voterId, choice);
 
     final Message message = Message.builder()
-        .template(this.messageService.templates().newTemplateFromClasspath("/templates/create-step-2.ftl"), poll)
+        .template(
+            this.messageService.templates().newTemplateFromClasspath("/templates/poll-step-final.ftl"),
+            new VoteResult(poll.getTitle(), poll.getDescription(), this.pollService.getVoteValue(poll, vote)))
         .build();
 
     this.messageService.sendFacet(
@@ -50,12 +52,17 @@ public class OnCreateStep1FormReply extends FormReplyActivity<FormReplyContext> 
         singletonList(context.getInitiator().getUser().getUserId()),
         message
     );
-
-    this.pollService.save(poll);
   }
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.FORM).name("Create Poll Step 1 Form Reply");
+    return new ActivityInfo().type(ActivityType.FORM).name("Poll Step 1 Form Reply");
+  }
+
+  @Data
+  public static class VoteResult {
+    private final String title;
+    private final String description;
+    private final String value;
   }
 }
