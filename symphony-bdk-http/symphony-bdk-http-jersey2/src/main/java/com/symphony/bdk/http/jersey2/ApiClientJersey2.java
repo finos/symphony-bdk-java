@@ -8,6 +8,7 @@ import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -32,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -95,7 +98,8 @@ public class ApiClientJersey2 implements ApiClient {
     if (!DistributedTracingContext.hasTraceId()) {
       DistributedTracingContext.setTraceId();
     }
-    invocationBuilder = invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+    invocationBuilder =
+        invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Entry<String, String> entry : headerParams.entrySet()) {
@@ -125,7 +129,8 @@ public class ApiClientJersey2 implements ApiClient {
       }
     }
 
-    Entity<?> entity = (body == null && formParams == null) ? Entity.json("") : this.serialize(body, formParams, contentType);
+    Entity<?> entity =
+        (body == null && formParams == null) ? Entity.json("") : this.serialize(body, formParams, contentType);
 
     try(Response response = getResponse(invocationBuilder, method, entity)){
 
@@ -166,25 +171,33 @@ public class ApiClientJersey2 implements ApiClient {
   }
 
   private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity) throws ApiException {
-    switch(method){
-      case HttpMethod.GET:
-        return invocationBuilder.get();
-      case HttpMethod.POST:
-        return invocationBuilder.post(entity);
-      case HttpMethod.PUT:
-        return invocationBuilder.put(entity);
-      case HttpMethod.DELETE:
-        return invocationBuilder.method(HttpMethod.DELETE, entity);
-      case HttpMethod.PATCH:
-        return invocationBuilder.method(HttpMethod.PATCH, entity);
-      case HttpMethod.HEAD:
-        return invocationBuilder.head();
-      case HttpMethod.OPTIONS:
-        return invocationBuilder.options();
-      case "TRACE":
-        return invocationBuilder.trace();
-      default:
-        throw new ApiException(500, "unknown method type " + method);
+    try {
+      switch(method) {
+        case HttpMethod.GET:
+          return invocationBuilder.get();
+        case HttpMethod.POST:
+          return invocationBuilder.post(entity);
+        case HttpMethod.PUT:
+          return invocationBuilder.put(entity);
+        case HttpMethod.DELETE:
+          return invocationBuilder.method(HttpMethod.DELETE, entity);
+        case HttpMethod.PATCH:
+          return invocationBuilder.method(HttpMethod.PATCH, entity);
+        case HttpMethod.HEAD:
+          return invocationBuilder.head();
+        case HttpMethod.OPTIONS:
+          return invocationBuilder.options();
+        case "TRACE":
+          return invocationBuilder.trace();
+        default:
+          throw new ApiException(500, "unknown method type " + method);
+      }
+    } catch (ProcessingException e) {
+      if (e.getCause() instanceof ConnectTimeoutException) {
+          throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
+      } else {
+        throw e;
+      }
     }
   }
 

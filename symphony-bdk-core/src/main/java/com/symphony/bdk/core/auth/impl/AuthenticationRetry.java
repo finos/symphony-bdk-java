@@ -13,7 +13,8 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.ws.rs.ProcessingException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 /**
  * Class used to implement the specific logic for authentication calls.
@@ -43,7 +44,7 @@ class AuthenticationRetry<T> {
 
   /**
    * Predicate to check if authentication call be retried,
-   * i.e. the throwable is a {@link ProcessingException} (e.g. network issues)
+   * i.e. the throwable is either a {@link SocketTimeoutException} or {@link ConnectException} (e.g. network issues)
    * or is an {@link ApiException} with status code 429 or strictly greater than 500.
    *
    * @param t the {@link Throwable} to be checked.
@@ -54,7 +55,7 @@ class AuthenticationRetry<T> {
       ApiException apiException = (ApiException) t;
       return apiException.isServerError() || apiException.isTooManyRequestsError();
     }
-    return t instanceof ProcessingException;
+    return t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException;
   }
 
   public AuthenticationRetry(BdkRetryConfig retryConfig) {

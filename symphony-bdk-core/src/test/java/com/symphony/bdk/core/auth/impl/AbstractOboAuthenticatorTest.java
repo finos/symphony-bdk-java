@@ -18,7 +18,13 @@ import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
+import io.netty.channel.ConnectTimeoutException;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
@@ -108,7 +114,7 @@ class AbstractOboAuthenticatorTest {
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new ProcessingException(""))
+        .doThrow(new ProcessingException(new SocketTimeoutException()))
         .doReturn(token).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
 
     assertEquals(token, authenticator.retrieveOboSessionTokenByUserId(0L));
@@ -169,7 +175,7 @@ class AbstractOboAuthenticatorTest {
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new ProcessingException(""))
+        .doThrow(new WebClientRequestException(new ConnectTimeoutException(), HttpMethod.GET, null, null))
         .doReturn(token).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
     assertEquals(token, authenticator.retrieveOboSessionTokenByUsername(""));
@@ -224,7 +230,7 @@ class AbstractOboAuthenticatorTest {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new ProcessingException(""))
+        .doThrow(new ProcessingException(new ConnectException()))
         .doReturn(token).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
     assertEquals(token, authenticator.retrieveAppSessionToken());

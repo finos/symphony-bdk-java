@@ -22,6 +22,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
@@ -145,8 +146,11 @@ public class ApiClientWebClient implements ApiClient {
       Throwable unwrap = Exceptions.unwrap(e);
       if (unwrap instanceof ApiException) {
         throw (ApiException) unwrap;
-      } if(e.getCause() instanceof ConnectTimeoutException){
-        throw new RuntimeException(new SocketTimeoutException(e.getMessage()));
+      }
+      if (e instanceof WebClientRequestException && e.getCause() instanceof ConnectTimeoutException) {
+        WebClientRequestException exception = (WebClientRequestException) e;
+        throw new WebClientRequestException(new SocketTimeoutException(e.getMessage()), exception.getMethod(),
+            exception.getUri(), exception.getHeaders());
       } else {
         throw e;
       }
