@@ -63,4 +63,9 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull String streamId, @Nonnull Message message);
+
+  /**
+   * TODO document sendStatefulMessage method
+   */
+  V4Message sendStatefulMessage(@Nonnull String streamId, @Nonnull Message message);
 }

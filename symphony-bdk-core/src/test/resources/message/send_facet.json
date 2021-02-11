@@ -1,0 +1,11 @@
+{
+    "id": "facetId",
+    "messageId": "messageId",
+    "streamId": "streamId",
+    "timestamp": 1599659432866,
+    "type": "FACET",
+    "facet": {
+        "presentationML": "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello, World!</div>",
+        "entityJson": "{}"
+    }
+}

@@ -222,7 +222,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     return this.executeAndRetry("send", messagesApi.getApiClient().getBasePath(),
         () -> this.doSendMessage(streamId, message));
   }
-
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public V4Message sendStatefulMessage(@Nonnull String streamId, @Nonnull Message message) {
     return this.executeAndRetry("sendStateful", messagesApi.getApiClient().getBasePath(),
         () -> this.doSendStatefulMessage(streamId, message));
@@ -313,15 +316,6 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     ).getData();
   }
 
-  /**
-   * Sends a facet to a given list of users.
-   *
-   * @param streamId
-   * @param messageId
-   * @param directedTo
-   * @param message
-   * @return
-   */
   public V4MessageState sendFacet(String streamId, String messageId, List<Long> directedTo, Message message) {
     return executeAndRetry("sendFacet", attachmentsApi.getApiClient().getBasePath(),
         () -> this.messagesApi.v4StreamSidMessageMidFacetCreatePost(streamId, messageId,

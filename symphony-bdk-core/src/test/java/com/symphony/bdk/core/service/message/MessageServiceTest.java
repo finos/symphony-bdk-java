@@ -40,6 +40,7 @@ import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
+import com.symphony.bdk.gen.api.model.V4MessageState;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
@@ -73,6 +74,7 @@ class MessageServiceTest {
 
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
+  private static final String V4_STREAM_MESSAGE_FACET_CREATE = "/agent/v4/stream/{sid}/message/{mid}/facet/create";
   private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
   private static final String V4_BLAST_MESSAGE = "/agent/v4/message/blast";
   private static final String V1_MESSAGE_SUPPRESSION = "/pod/v1/admin/messagesuppression/{id}/suppress";
@@ -189,6 +191,28 @@ class MessageServiceTest {
 
     assertEquals(MESSAGE_ID, sentMessage.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendStateful() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    final V4Message sentMessage = messageService.sendStatefulMessage(STREAM_ID, Message.builder().content(MESSAGE).build());
+
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+  }
+
+  @Test
+  void testSendFacet() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_FACET_CREATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/send_facet.json"));
+
+    final V4MessageState facet = messageService.sendFacet(STREAM_ID, MESSAGE_ID, Collections.emptyList(), Message.builder().content(MESSAGE).build());
+
+    assertEquals(MESSAGE_ID, facet.getMessageId());
+    assertEquals(STREAM_ID, facet.getStreamId());
   }
 
   @Test
