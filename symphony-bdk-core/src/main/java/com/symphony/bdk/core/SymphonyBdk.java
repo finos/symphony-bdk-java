@@ -2,8 +2,9 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
+import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -66,7 +67,43 @@ public class SymphonyBdk {
       throws AuthInitializationException, AuthUnauthorizedException {
     this.config = config;
 
-    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
+    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactoryImpl(config, apiClientFactory);
+    this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
+    this.extensionAppAuthenticator =
+        config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
+
+    ServiceFactory serviceFactory = null;
+    if (config.isBotConfigured()) {
+      this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+      // service init
+      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
+    } else {
+      log.info(
+          "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
+      this.botSession = null;
+    }
+    this.sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
+    this.userService = serviceFactory != null ? serviceFactory.getUserService() : null;
+    this.streamService = serviceFactory != null ? serviceFactory.getStreamService() : null;
+    this.presenceService = serviceFactory != null ? serviceFactory.getPresenceService() : null;
+    this.connectionService = serviceFactory != null ? serviceFactory.getConnectionService() : null;
+    this.signalService = serviceFactory != null ? serviceFactory.getSignalService() : null;
+    this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
+    this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
+    this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
+    this.disclaimerService = serviceFactory != null ? serviceFactory.getDisclaimerService() : null;
+    this.datafeedLoop = serviceFactory != null ? serviceFactory.getDatafeedLoop() : null;
+
+    // retrieve bot session info
+    this.botInfo = sessionService != null ? sessionService.getSession() : null;
+
+    // setup activities
+    this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
+  }
+
+  protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory, AuthenticatorFactory authenticatorFactory)
+      throws AuthInitializationException, AuthUnauthorizedException {
+    this.config = config;
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
