@@ -1,6 +1,10 @@
 host: devx1.symphony.com
 context: context
 port: 8443
+connectionTimeout: 10000
+readTimeout: 30000
+connectionPoolMax: 20
+connectionPoolPerRoute: 10
 
 pod:
   host: diff-pod.symphony.com
@@ -9,6 +13,10 @@ pod:
 agent:
   host: devx1.symphony.com
   port: 443
+  connectionTimeout: 20000
+  readTimeout: 60000
+  connectionPoolMax: 30
+  connectionPoolPerRoute: 20
 
 keyManager:
   host: devx1.symphony.com

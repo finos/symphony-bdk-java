@@ -18,6 +18,10 @@ public class BdkServerConfig {
   protected String host;
   protected Integer port = DEFAULT_HTTPS_PORT;
   protected String context = "";
+  protected Integer connectionTimeout;
+  protected Integer readTimeout;
+  protected Integer connectionPoolMax;
+  protected Integer connectionPoolPerRoute;
 
   public String getBasePath() {
     return this.getScheme() + "://" + this.getHost() + this.getPortAsString() + this.getFormattedContext();
