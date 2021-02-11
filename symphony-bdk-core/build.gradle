@@ -69,25 +69,31 @@ dependencies {
 }
 
 // OpenAPI code generation
-//def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/20.10"
+def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/devx/vsm"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
-        Agent: "$rootDir/swagger/agent-api-public.yaml",
-        Pod  : "$rootDir/swagger/pod-api-public.yaml",
-        Auth : "$rootDir/swagger/authenticator-api-public.yaml",
-        Login: "$rootDir/swagger/login-api-public.yaml",
+        Agent: 'agent/agent-api-public.yaml',
+        Pod  : 'pod/pod-api-public-deprecated.yaml',
+        Auth : 'authenticator/authenticator-api-public.yaml',
+        Login: 'login/login-api-public.yaml',
 ]
 
 sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 
 apisToGenerate.each { api, path ->
+    def downloadTask = tasks.create(name: "download$api", type: Download) {
+        src "$apiBaseUrl/$path"
+        dest "$buildDir"
+        overwrite false
+    }
 
     def generateTask = tasks.create(name: "generate$api",
-            type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+            type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask,
+            dependsOn: downloadTask) {
         generatorName = 'java'
         library = 'jersey2'
         outputDir = generatedFolder
-        inputSpec = "$path"
+        inputSpec = "$buildDir/${path.split("/")[1]}"
         skipOverwrite = true
         generateApiTests = false
         generateModelTests = false
