@@ -1,7 +1,6 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -71,7 +70,7 @@ public class BdkCoreConfig {
   @Bean
   @ConditionalOnMissingBean
   public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties, ApiClientFactory apiClientFactory) {
-    return new AuthenticatorFactoryImpl(properties, apiClientFactory);
+    return new AuthenticatorFactory(properties, apiClientFactory);
   }
 
   @Bean

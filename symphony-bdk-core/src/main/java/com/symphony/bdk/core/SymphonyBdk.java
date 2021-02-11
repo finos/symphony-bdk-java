@@ -2,9 +2,8 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -67,7 +66,7 @@ public class SymphonyBdk {
       throws AuthInitializationException, AuthUnauthorizedException {
     this.config = config;
 
-    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactoryImpl(config, apiClientFactory);
+    final AuthenticatorFactory authenticatorFactory = new AuthenticatorFactory(config, apiClientFactory);
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
