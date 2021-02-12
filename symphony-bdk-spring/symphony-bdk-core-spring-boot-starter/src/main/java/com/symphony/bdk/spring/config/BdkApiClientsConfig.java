@@ -189,8 +189,8 @@ public class BdkApiClientsConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public SystemApi systemApi(@Qualifier("podApiClient") ApiClient podApiClient) {
-    return new SystemApi(podApiClient);
+  public SystemApi systemApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
+    return new SystemApi(agentApiClient);
   }
 
   @Bean
