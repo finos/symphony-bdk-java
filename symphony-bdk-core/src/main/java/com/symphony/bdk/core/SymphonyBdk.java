@@ -62,12 +62,17 @@ public class SymphonyBdk {
     this(config, new ApiClientFactory(config));
   }
 
+  public SymphonyBdk(BdkConfig config, AuthenticatorFactory authenticatorFactory)
+      throws AuthInitializationException, AuthUnauthorizedException {
+    this(config, new ApiClientFactory(config), authenticatorFactory);
+  }
+
   protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory)
       throws AuthInitializationException, AuthUnauthorizedException {
     this(config, apiClientFactory, new AuthenticatorFactory(config, apiClientFactory));
   }
 
-  public SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory, AuthenticatorFactory authenticatorFactory)
+  protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory, AuthenticatorFactory authenticatorFactory)
       throws AuthInitializationException, AuthUnauthorizedException {
     this.config = config;
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
