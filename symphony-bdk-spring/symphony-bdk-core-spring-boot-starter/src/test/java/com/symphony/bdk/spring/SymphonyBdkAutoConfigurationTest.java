@@ -8,6 +8,7 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.spring.config.BdkActivityConfig;
 import com.symphony.bdk.spring.config.BdkOboServiceConfig;
@@ -225,4 +226,17 @@ class SymphonyBdkAutoConfigurationTest {
       assertThat(context).doesNotHaveBean(BdkActivityConfig.class);
     });
   }
+
+  @Test
+  void systemApiClientShouldTargetAgentBasePath() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      String actualBasePath = context.getBeansOfType(SystemApi.class).get("systemApi").getApiClient().getBasePath();
+      assertThat(actualBasePath).isEqualTo("/agent");
+    });
+  }
+
 }
