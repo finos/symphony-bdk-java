@@ -133,8 +133,8 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder withConnectionTimeout(int connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
+  public ApiClientBuilder withConnectionTimeout(Integer connectionTimeout) {
+    this.connectionTimeout = connectionTimeout == null ? DEFAULT_CONNECT_TIMEOUT : connectionTimeout;
     return this;
   }
 
@@ -142,8 +142,8 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder withReadTimeout(int readTimeout) {
-    this.readTimeout = readTimeout;
+  public ApiClientBuilder withReadTimeout(Integer readTimeout) {
+    this.readTimeout = readTimeout == null ? DEFAULT_READ_TIMEOUT : readTimeout;
     return this;
   }
 

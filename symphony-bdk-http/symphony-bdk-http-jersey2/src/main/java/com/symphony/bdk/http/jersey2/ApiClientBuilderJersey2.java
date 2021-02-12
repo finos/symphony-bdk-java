@@ -6,8 +6,10 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
+import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -36,6 +38,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   private Map<String, String> defaultHeaders;
   private int connectionTimeout;
   private int readTimeout;
+  private int connectionPoolMax;
+  private int connectionPoolPerRoute;
   private String temporaryFolderPath;
   private String proxyUrl;
   private String proxyUser;
@@ -50,6 +54,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     defaultHeaders = new HashMap<>();
     connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
     readTimeout = DEFAULT_READ_TIMEOUT;
+    connectionPoolMax = DEFAULT_CONNECTION_POOL_MAX;
+    connectionPoolPerRoute = DEFAULT_CONNECTION_POOL_MAX;
     temporaryFolderPath = null;
     proxyUrl = null;
     proxyUser = null;
@@ -135,8 +141,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder withConnectionTimeout(int connectionTimeout) {
-    this.connectionTimeout = connectionTimeout;
+  public ApiClientBuilder withConnectionTimeout(Integer connectionTimeout) {
+    this.connectionTimeout = connectionTimeout == null ? DEFAULT_CONNECT_TIMEOUT : connectionTimeout;
     return this;
   }
 
@@ -144,8 +150,26 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    * {@inheritDoc}
    */
   @Override
-  public ApiClientBuilder withReadTimeout(int readTimeout) {
-    this.readTimeout = readTimeout;
+  public ApiClientBuilder withReadTimeout(Integer readTimeout) {
+    this.readTimeout = readTimeout == null ? DEFAULT_READ_TIMEOUT : readTimeout;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withConnectionPoolMax(Integer connectionPoolMax) {
+    this.connectionPoolMax = connectionPoolMax == null ? DEFAULT_CONNECTION_POOL_MAX : connectionPoolMax;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withConnectionPoolPerRoute(Integer connectionPoolPerRoute) {
+    this.connectionPoolPerRoute = connectionPoolPerRoute == null ? DEFAULT_CONNECTION_POOL_MAX : connectionPoolPerRoute;
     return this;
   }
 
@@ -176,6 +200,12 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     // turn off compliance validation to be able to send payloads with DELETE calls
     clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
+    // By default PoolingHttpClientConnectionManager, if not configured, has 20 connection in the
+    // pool BUT only 2 max connection per route.
+    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    connectionManager.setMaxTotal(connectionPoolMax);
+    connectionManager.setDefaultMaxPerRoute(connectionPoolPerRoute);
+    clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
 
     if (proxyUrl != null) {
       configureProxy(clientConfig);

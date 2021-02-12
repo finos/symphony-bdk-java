@@ -10,7 +10,7 @@ public interface ApiClientBuilder {
 
   int DEFAULT_READ_TIMEOUT = 60_000;
   int DEFAULT_CONNECT_TIMEOUT = 15_000;
-
+  int DEFAULT_CONNECTION_POOL_MAX = 20;
 
   /**
    * @return a new {@link ApiClient} based on the previously called methods below.
@@ -58,21 +58,49 @@ public interface ApiClientBuilder {
 
   /**
    * Sets the connection timeout (in milliseconds). A value of 0 means no timeout, otherwise values
-   * must be between 1 and {@link Integer#MAX_VALUE}. If not set, connection timeout will be 15000.
+   * must be between 1 and {@link Integer#MAX_VALUE}. If not set or set null, connection timeout will be 15000.
    *
    * @param connectionTimeout Connection timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
    */
-  ApiClientBuilder withConnectionTimeout(int connectionTimeout);
+  ApiClientBuilder withConnectionTimeout(Integer connectionTimeout);
 
   /**
    * Sets the read timeout (in milliseconds). A value of 0 means no timeout, otherwise values must be
-   * between 1 and {@link Integer#MAX_VALUE}. If not set, read timeout will be 60000.
+   * between 1 and {@link Integer#MAX_VALUE}. If not set or set null, read timeout will be 60000.
    *
    * @param readTimeout Read timeout in milliseconds
    * @return the updated instance of {@link ApiClientBuilder}
    */
-  ApiClientBuilder withReadTimeout(int readTimeout);
+  ApiClientBuilder withReadTimeout(Integer readTimeout);
+
+  /**
+   * Custom setting specific for {@link com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2} only,
+   * it set {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager#setMaxTotal}
+   * If not set or set null, maximum connections per each route will be 20
+   *
+   * @param connectionPoolMax maximum connections in the pool
+   * @return the updated instance of {@link ApiClientBuilder}
+   *
+   */
+  default ApiClientBuilder withConnectionPoolMax(Integer connectionPoolMax){
+    // Only ApiClientBuilderJersey2 override default method, otherwise it does nothing
+    return this;
+  }
+
+  /**
+   * Custom setting specific for {@link com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2} only,
+   * it set {@link org.apache.http.impl.conn.PoolingHttpClientConnectionManager#setDefaultMaxPerRoute}
+   * If not set or set null, maximum connections per each route will be 20
+   *
+   * @param connectionPoolPerRoute maximum connections per each route
+   * @return the updated instance of {@link ApiClientBuilder}
+   *
+   */
+  default ApiClientBuilder withConnectionPoolPerRoute(Integer connectionPoolPerRoute){
+    // Only ApiClientBuilderJersey2 override default method, otherwise it does nothing
+    return this;
+  }
 
   /**
    * Sets a proxy host and port.
