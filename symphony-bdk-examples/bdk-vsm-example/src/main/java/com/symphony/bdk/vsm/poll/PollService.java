@@ -7,6 +7,13 @@ import com.symphony.bdk.gen.api.model.V4User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PollService {
@@ -58,5 +65,35 @@ public class PollService {
       return poll.getOption4();
     }
     return null;
+  }
+
+  public boolean hasInProgressPoll(Long userId, String streamId) {
+    return this.pollRepository.findOneByUserIdAndRoomIdAndStatusIn(
+        userId, streamId, Arrays.asList(PollStatus.IN_CREATION, PollStatus.PENDING)).isPresent();
+  }
+
+  public Optional<Poll> findActiveByUserAndStream(Long userId, String streamId) {
+    return this.pollRepository.findOneByUserIdAndRoomIdAndStatusIn(
+        userId, streamId, Collections.singletonList(PollStatus.PENDING));
+  }
+
+  public Map<String, Integer> end(Poll poll) {
+    poll.setStatus(PollStatus.FINISHED);
+    final Map<String, Integer> results = new HashMap<>();
+
+    results.put(poll.getOption1(), computeVotesForOption("option1", poll.getVotes()));
+    results.put(poll.getOption2(), computeVotesForOption("option2", poll.getVotes()));
+    if (poll.getOption3() != null) {
+      results.put(poll.getOption3(), computeVotesForOption("option3", poll.getVotes()));
+    }
+    if (poll.getOption4() != null) {
+      results.put(poll.getOption4(), computeVotesForOption("option4", poll.getVotes()));
+    }
+
+    return results;
+  }
+
+  private static int computeVotesForOption(String value, List<Vote> votes) {
+    return (int) votes.stream().filter(v -> v.getValue().equals(value)).count();
   }
 }

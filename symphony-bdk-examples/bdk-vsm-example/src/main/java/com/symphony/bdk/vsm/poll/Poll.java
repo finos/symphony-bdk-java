@@ -28,13 +28,12 @@ public class Poll {
 
   private String roomId;
   private String roomName;
+  private String pollMessageId;
   private String creationMessageId;
   private Long userId;
 
   private String title;
   private String description;
-
-  private String type; // 'single' or 'multi'
 
   private String option1;
   private String option2;

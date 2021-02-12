@@ -9,6 +9,7 @@ import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.vsm.poll.Poll;
 import com.symphony.bdk.vsm.poll.PollService;
 import com.symphony.bdk.vsm.poll.PollStatus;
@@ -49,7 +50,6 @@ public class OnCreateStep2FormReply extends FormReplyActivity<FormReplyContext> 
         message
     );
 
-    poll.setType(context.getFormValue("type"));
     poll.setOption1(context.getFormValue("option1"));
     poll.setOption2(context.getFormValue("option2"));
     poll.setOption3(context.getFormValue("option3"));
@@ -57,12 +57,14 @@ public class OnCreateStep2FormReply extends FormReplyActivity<FormReplyContext> 
     poll.setStatus(PollStatus.PENDING);
 
     // send poll to initial room
-    this.messageService.sendStatefulMessage(
+    final V4Message pollMessage = this.messageService.sendStatefulMessage(
         poll.getRoomId(),
         Message.builder()
             .template(this.messageService.templates().newTemplateFromClasspath("/templates/poll-step-1.ftl"), poll)
             .build()
     );
+
+    poll.setPollMessageId(pollMessage.getMessageId());
 
     this.pollService.save(poll);
   }
