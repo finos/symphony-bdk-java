@@ -139,7 +139,6 @@ public class CircleOfTrustControllerTest {
 
     assertEquals(HttpStatus.OK.value(), response.getStatus());
     assertEquals(id.getUserId(), 1234L);
-
   }
 
   @Test
