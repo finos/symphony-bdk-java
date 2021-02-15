@@ -26,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -132,10 +133,13 @@ public class CircleOfTrustControllerTest {
         .andExpect(status().isOk())
         .andReturn().getResponse();
 
+    assertEquals("None", ((MockCookie) response.getCookies()[0]).getSameSite());
+
     UserId id = objectMapper.readValue(response.getContentAsString(), UserId.class);
 
     assertEquals(HttpStatus.OK.value(), response.getStatus());
     assertEquals(id.getUserId(), 1234L);
+
   }
 
   @Test

@@ -9,7 +9,6 @@ import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.SameSiteCookies;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -69,7 +68,7 @@ public class CircleOfTrustController {
         .secure(true)
         .httpOnly(true)
         .path(path)
-        .sameSite(SameSiteCookies.NONE.getValue())
+        .sameSite("None") // Cookie is always sent in cross-site requests.
         .build();
   }
 
