@@ -1,6 +1,6 @@
 package com.symphony.bdk.app.spring.auth;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -133,7 +133,12 @@ public class CircleOfTrustControllerTest {
         .andExpect(status().isOk())
         .andReturn().getResponse();
 
-    assertEquals("None", ((MockCookie) response.getCookies()[0]).getSameSite());
+    final MockCookie cookie = (MockCookie) response.getCookie("userJwt");
+    assertNotNull(cookie);
+    assertEquals("None", cookie.getSameSite());
+    assertTrue(cookie.isHttpOnly());
+    assertTrue(cookie.getSecure());
+    assertEquals(this.appProperties.getAuth().getJwtCookie().getMaxAge().getSeconds(), cookie.getMaxAge());
 
     UserId id = objectMapper.readValue(response.getContentAsString(), UserId.class);
 
