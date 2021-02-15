@@ -2,6 +2,9 @@ package com.symphony.bdk.core.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
@@ -12,6 +15,7 @@ import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
 import com.symphony.bdk.core.config.model.BdkProxyConfig;
 import com.symphony.bdk.core.config.model.BdkServerConfig;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
 import org.apache.commons.io.IOUtils;
@@ -232,6 +236,28 @@ class ApiClientFactoryTest {
 
     assertEquals(ApiClientJersey2.class, keyAuth.getClass());
     assertEquals("https://km-host:443/keyauth", keyAuth.getBasePath());
+  }
+
+  @Test
+  void testConnectionPoolConfig() {
+    final int connectionPoolMax = 21;
+    final int connectionPoolPerRoute = 19;
+    final int readTimeout = 60001;
+    final int connectionTimeout = 15001;
+
+    final BdkConfig config = this.createConfig();
+    config.setConnectionPoolMax(connectionPoolMax);
+    config.setConnectionPoolPerRoute(connectionPoolPerRoute);
+    config.setReadTimeout(readTimeout);
+    config.setConnectionTimeout(connectionTimeout);
+
+    final ApiClientBuilderJersey2 apiClientBuilder = spy(new ApiClientBuilderJersey2());
+    new ApiClientFactory(config, () -> apiClientBuilder).getLoginClient();
+
+    verify(apiClientBuilder, times(1)).withConnectionPoolMax(connectionPoolMax);
+    verify(apiClientBuilder, times(1)).withConnectionPoolPerRoute(connectionPoolPerRoute);
+    verify(apiClientBuilder, times(1)).withReadTimeout(readTimeout);
+    verify(apiClientBuilder, times(1)).withConnectionTimeout(connectionTimeout);
   }
 
   private BdkConfig createConfigWithCertificateAndTrustStore(String trustStorePath, String trustStorePassword) {
