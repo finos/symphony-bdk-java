@@ -191,7 +191,7 @@ public class ApiClientFactory {
         .withReadTimeout(clientConfig.getReadTimeout())
         .withConnectionTimeout(clientConfig.getConnectionTimeout())
         .withConnectionPoolMax(clientConfig.getConnectionPoolMax())
-        .withConnectionPoolPerRoute(clientConfig.getConnectionPoolMax());
+        .withConnectionPoolPerRoute(clientConfig.getConnectionPoolPerRoute());
 
     configureTruststore(apiClientBuilder);
     configureProxy(clientConfig.getProxy(), apiClientBuilder);
