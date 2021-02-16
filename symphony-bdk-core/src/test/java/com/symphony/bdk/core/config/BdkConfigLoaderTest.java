@@ -27,6 +27,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * TODO all asserts are inverted: expected value should go first followed by the actual value.
+ */
 class BdkConfigLoaderTest {
   private final static String YAML_CONFIG_PATH = "/config/config.yaml";
   private final static String JSON_CONFIG_PATH = "/config/config.json";
@@ -35,14 +38,14 @@ class BdkConfigLoaderTest {
   @Test
   void loadFromYamlInputStreamTest() throws BdkConfigException {
     InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(YAML_CONFIG_PATH);
-    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream, YAML_CONFIG_PATH);
+    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
     assertEquals(config.getBot().getUsername(), "tibot");
   }
 
   @Test
   void loadFromJsonInputStreamTest() throws BdkConfigException {
     InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(JSON_CONFIG_PATH);
-    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream, JSON_CONFIG_PATH);
+    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
     assertEquals(config.getBot().getUsername(), "tibot");
   }
 
@@ -82,14 +85,14 @@ class BdkConfigLoaderTest {
       String configPath = "/wrong_path/config.yaml";
       BdkConfigLoader.loadFromFile(configPath);
     });
-    assertEquals(exception.getMessage(), "Config file has not been found");
+    assertEquals( "Config file has not been found from location: /wrong_path/config.yaml", exception.getMessage());
   }
 
   @Test
   void loadLegacyFromInputStreamTest() throws BdkConfigException {
     String configPath = "/config/legacy_config.json";
     InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
-    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream, configPath);
+    BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
     assertEquals(config.getBot().getUsername(), "tibot");
     assertEquals(config.getBot().getPrivateKeyPath(), "/Users/local/conf/agent/privatekey.pem");
     assertEquals(config.getApp().getPrivateKeyPath(), "/Users/local/conf/agent/privatekey.pem");
@@ -99,7 +102,7 @@ class BdkConfigLoaderTest {
   void loadFromClasspathNotFoundTest() {
     BdkConfigException exception = assertThrows(BdkConfigException.class,
         () -> BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml"));
-    assertEquals(exception.getMessage(), "Config file is not found");
+    assertEquals(exception.getMessage(), "Config file has not found from classpath location: /wrong_classpath/config.yaml");
   }
 
   @Test
@@ -205,7 +208,7 @@ class BdkConfigLoaderTest {
     final BdkConfigException bdkConfigException = assertThrows(BdkConfigException.class,
         () -> BdkConfigLoader.loadFromClasspath("/config/config_invalid_mode.yaml"));
 
-    assertEquals("Config file is not found", bdkConfigException.getMessage());
+    assertEquals("Config file has not found from classpath location: /config/config_invalid_mode.yaml", bdkConfigException.getMessage());
   }
 
   @Test

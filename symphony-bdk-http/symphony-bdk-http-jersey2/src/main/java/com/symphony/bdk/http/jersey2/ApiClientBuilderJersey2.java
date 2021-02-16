@@ -30,37 +30,37 @@ import javax.ws.rs.client.ClientBuilder;
 @API(status = API.Status.STABLE)
 public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
-  private String basePath;
-  private byte[] keyStoreBytes;
-  private String keyStorePassword;
-  private byte[] trustStoreBytes;
-  private String trustStorePassword;
-  private Map<String, String> defaultHeaders;
-  private int connectionTimeout;
-  private int readTimeout;
-  private int connectionPoolMax;
-  private int connectionPoolPerRoute;
-  private String temporaryFolderPath;
-  private String proxyUrl;
-  private String proxyUser;
-  private String proxyPassword;
+  protected String basePath;
+  protected byte[] keyStoreBytes;
+  protected String keyStorePassword;
+  protected byte[] trustStoreBytes;
+  protected String trustStorePassword;
+  protected Map<String, String> defaultHeaders;
+  protected int connectionTimeout;
+  protected int readTimeout;
+  protected int connectionPoolMax;
+  protected int connectionPoolPerRoute;
+  protected String temporaryFolderPath;
+  protected String proxyUrl;
+  protected String proxyUser;
+  protected String proxyPassword;
 
   public ApiClientBuilderJersey2() {
-    basePath = "https://acme.symphony.com";
-    keyStoreBytes = null;
-    keyStorePassword = null;
-    trustStoreBytes = null;
-    trustStorePassword = null;
-    defaultHeaders = new HashMap<>();
-    connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
-    readTimeout = DEFAULT_READ_TIMEOUT;
-    connectionPoolMax = DEFAULT_CONNECTION_POOL_MAX;
-    connectionPoolPerRoute = DEFAULT_CONNECTION_POOL_MAX;
-    temporaryFolderPath = null;
-    proxyUrl = null;
-    proxyUser = null;
-    proxyPassword = null;
-    withUserAgent(ApiUtils.getUserAgent());
+    this.basePath = "https://acme.symphony.com";
+    this.keyStoreBytes = null;
+    this.keyStorePassword = null;
+    this.trustStoreBytes = null;
+    this.trustStorePassword = null;
+    this.defaultHeaders = new HashMap<>();
+    this.connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
+    this.readTimeout = DEFAULT_READ_TIMEOUT;
+    this.connectionPoolMax = DEFAULT_CONNECTION_POOL_MAX;
+    this.connectionPoolPerRoute = DEFAULT_CONNECTION_POOL_MAX;
+    this.temporaryFolderPath = null;
+    this.proxyUrl = null;
+    this.proxyUser = null;
+    this.proxyPassword = null;
+    this.withUserAgent(ApiUtils.getUserAgent());
   }
 
   /**
@@ -70,15 +70,15 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClient build() {
     java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
 
-    Client httpClient = ClientBuilder.newBuilder()
-        .sslContext(createSSLContext())
-        .withConfig(createClientConfig())
+    final Client httpClient = ClientBuilder.newBuilder()
+        .sslContext(this.createSSLContext())
+        .withConfig(this.createClientConfig())
         .build();
 
-    httpClient.property(ClientProperties.CONNECT_TIMEOUT, connectionTimeout);
-    httpClient.property(ClientProperties.READ_TIMEOUT, readTimeout);
+    httpClient.property(ClientProperties.CONNECT_TIMEOUT, this.connectionTimeout);
+    httpClient.property(ClientProperties.READ_TIMEOUT, this.readTimeout);
 
-    return new ApiClientJersey2(httpClient, basePath, defaultHeaders, temporaryFolderPath);
+    return new ApiClientJersey2(httpClient, this.basePath, this.defaultHeaders, this.temporaryFolderPath);
   }
 
   /**
@@ -192,36 +192,38 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return this;
   }
 
-  private ClientConfig createClientConfig() {
+  protected ClientConfig createClientConfig() {
     final ClientConfig clientConfig = new ClientConfig();
+    this.configureJackson(clientConfig);
+    if (this.proxyUrl != null) {
+      this.configureProxy(clientConfig);
+    }
     clientConfig.register(MultiPartFeature.class);
-    clientConfig.register(new JSON());
-    clientConfig.register(JacksonFeature.class);
     clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     // turn off compliance validation to be able to send payloads with DELETE calls
     clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
     // By default PoolingHttpClientConnectionManager, if not configured, has 20 connection in the
     // pool BUT only 2 max connection per route.
-    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-    connectionManager.setMaxTotal(connectionPoolMax);
-    connectionManager.setDefaultMaxPerRoute(connectionPoolPerRoute);
+    final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    connectionManager.setMaxTotal(this.connectionPoolMax);
+    connectionManager.setDefaultMaxPerRoute(this.connectionPoolPerRoute);
     clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
-
-    if (proxyUrl != null) {
-      configureProxy(clientConfig);
-    }
-
     return clientConfig;
   }
 
-  private void configureProxy(ClientConfig clientConfig) {
+  protected void configureJackson(ClientConfig clientConfig) {
+    clientConfig.register(new JSON());
+    clientConfig.register(JacksonFeature.class);
+  }
+
+  protected void configureProxy(ClientConfig clientConfig) {
     clientConfig.connectorProvider(new ApacheConnectorProvider());
     clientConfig.property(ClientProperties.PROXY_URI, proxyUrl);
     clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
     clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPassword);
   }
 
-  private SSLContext createSSLContext() {
+  protected SSLContext createSSLContext() {
     final SslConfigurator sslConfig = SslConfigurator.newInstance();
 
     if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {

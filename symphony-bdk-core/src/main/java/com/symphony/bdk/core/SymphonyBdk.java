@@ -31,6 +31,9 @@ import org.apiguardian.api.API;
 
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * BDK entry point.
  */
@@ -58,23 +61,45 @@ public class SymphonyBdk {
   private final SessionService sessionService;
   private final HealthService healthService;
 
-  public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
-    this(config, new ApiClientFactory(config));
+  /**
+   * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
+   *
+   * @return new instance of {@link SymphonyBdkBuilder}.
+   */
+  public static SymphonyBdkBuilder builder() {
+    return new SymphonyBdkBuilder();
   }
 
-  public SymphonyBdk(BdkConfig config, AuthenticatorFactory authenticatorFactory)
-      throws AuthInitializationException, AuthUnauthorizedException {
-    this(config, new ApiClientFactory(config), authenticatorFactory);
+  /**
+   * Default public constructor.
+   *
+   * <p>For more advanced initialization, consider using {@link SymphonyBdk#builder()} that
+   * provides advanced options through the {@link SymphonyBdkBuilder}.
+   *
+   * @param config Configuration properties, usually loaded from {@link com.symphony.bdk.core.config.BdkConfigLoader}.
+   * @throws AuthInitializationException when unable to read/parse a RSA Private Key or a certificate
+   * @throws AuthUnauthorizedException authentication issue (e.g. 401)
+   */
+  public SymphonyBdk(@Nonnull BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
+    this(config, null, null);
   }
 
-  protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory)
-      throws AuthInitializationException, AuthUnauthorizedException {
-    this(config, apiClientFactory, new AuthenticatorFactory(config, apiClientFactory));
-  }
+  protected SymphonyBdk(
+      @Nonnull BdkConfig config,
+      @Nullable ApiClientFactory apiClientFactory,
+      @Nullable AuthenticatorFactory authenticatorFactory
+  ) throws AuthInitializationException, AuthUnauthorizedException {
 
-  protected SymphonyBdk(BdkConfig config, ApiClientFactory apiClientFactory, AuthenticatorFactory authenticatorFactory)
-      throws AuthInitializationException, AuthUnauthorizedException {
     this.config = config;
+
+    if (apiClientFactory == null) {
+      apiClientFactory = new ApiClientFactory(this.config);
+    }
+
+    if (authenticatorFactory == null) {
+      authenticatorFactory = new AuthenticatorFactory(this.config, apiClientFactory);
+    }
+
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
@@ -285,6 +310,15 @@ public class SymphonyBdk {
   @API(status = API.Status.EXPERIMENTAL)
   public UserV2 botInfo() {
     return this.botInfo;
+  }
+
+  /**
+   * Returns the current configuration object.
+   *
+   * @return current configuration.
+   */
+  public BdkConfig config() {
+    return this.config;
   }
 
   private <T> T getOrThrowNoBotConfig(T field) {

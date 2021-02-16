@@ -13,7 +13,6 @@ import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -39,11 +38,10 @@ public class BdkConfigLoader {
    */
   public static BdkConfig loadFromFile(String configPath) throws BdkConfigException {
     try {
-      File file = new File(configPath);
-      InputStream inputStream = new FileInputStream(file);
-      return loadFromInputStream(inputStream, configPath);
+      final InputStream inputStream = new FileInputStream(configPath);
+      return loadFromInputStream(inputStream);
     } catch (FileNotFoundException e) {
-      throw new BdkConfigException("Config file has not been found", e);
+      throw new BdkConfigException("Config file has not been found from location: " + configPath, e);
     }
   }
 
@@ -53,8 +51,8 @@ public class BdkConfigLoader {
    * @param inputStream InputStream
    * @return Symphony Bot Configuration
    */
-  public static BdkConfig loadFromInputStream(InputStream inputStream, String configPath) throws BdkConfigException {
-    return parseConfig(BdkConfigParser.parse(inputStream, configPath));
+  public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
+    return parseConfig(BdkConfigParser.parse(inputStream));
   }
 
   private static BdkConfig parseConfig(JsonNode jsonNode) {
@@ -85,9 +83,10 @@ public class BdkConfigLoader {
     final Path configPath = symphonyDirPath.resolve(relPath);
     log.debug("Loading configuration from the Symphony directory : {}", configPath);
     try {
-      return loadFromInputStream(new FileInputStream(configPath.toFile()), configPath.toString());
+      return loadFromInputStream(new FileInputStream(configPath.toFile()));
     } catch (FileNotFoundException e) {
-      throw new BdkConfigException("Unable to load configuration from the .symphony directory", e);
+      throw new BdkConfigException("Unable to load configuration from the .symphony directory with relative location: "
+          + relPath, e);
     }
   }
 
@@ -100,9 +99,9 @@ public class BdkConfigLoader {
   public static BdkConfig loadFromClasspath(String configPath) throws BdkConfigException {
     InputStream inputStream = BdkConfigLoader.class.getResourceAsStream(configPath);
     if (inputStream != null) {
-      return loadFromInputStream(inputStream, configPath);
+      return loadFromInputStream(inputStream);
     }
-    throw new BdkConfigException("Config file is not found");
+    throw new BdkConfigException("Config file has not found from classpath location: " + configPath);
   }
 
 }
