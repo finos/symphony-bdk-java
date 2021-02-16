@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @API(status = API.Status.STABLE)
@@ -22,6 +24,7 @@ public class BdkServerConfig {
   protected Integer readTimeout;
   protected Integer connectionPoolMax;
   protected Integer connectionPoolPerRoute;
+  protected Map<String, String> defaultHeaders;
 
   public String getBasePath() {
     return this.getScheme() + "://" + this.getHost() + this.getPortAsString() + this.getFormattedContext();

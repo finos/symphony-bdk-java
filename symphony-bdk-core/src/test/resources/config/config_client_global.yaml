@@ -5,10 +5,16 @@ connectionTimeout: 10000
 readTimeout: 30000
 connectionPoolMax: 20
 connectionPoolPerRoute: 10
+defaultHeaders:
+  Connection: Keep-Alive
+  Keep-Alive: timeout=5, max=1000
 
 pod:
   host: diff-pod.symphony.com
   port: 8443
+  defaultHeaders:
+    Connection: Keep-Alive
+    Keep-Alive: close
 
 agent:
   host: devx1.symphony.com
