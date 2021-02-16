@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.util.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.With;
 
 import java.util.HashMap;
@@ -12,8 +13,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * HttpClient is the main entry point to fluent API used to build an {@link ApiClient} and execute
- * client requests in order to consume responses returned
+ * Generic Restful Client built on top of the {@link ApiClient}.
+ *
+ * <p>Usage example:
+ * <pre>{@code
+ *   final HttpClient httpClient = HttpClient.builder(() -> new ApiClientBuilder())
+ *       .basePath("https://localhost:8080")
+ *       .header("Connection", "Keep-Alive")
+ *       .header("Keep-Alive", "timeout=5, max=1000")
+ *       .cookie("foo", "bar")
+ *       .build();
+ *
+ *   final String response = httpClient.path("/api/v1/users")
+ *       .header("Authorization", "Bearer AbCdEf123456")
+ *       .get(new TypeReference<String>() {});
+ * }</pre>
  */
 public class HttpClient {
 
@@ -125,6 +139,7 @@ public class HttpClient {
 
   /**
    * Set request path.
+   *
    * @param path the name of the header.
    * @return the updated instance.
    */
@@ -134,6 +149,7 @@ public class HttpClient {
 
   /**
    * Add an arbitrary header.
+   *
    * @param key the name of the header.
    * @param value the value of the header.
    * @return the updated instance.
@@ -154,7 +170,7 @@ public class HttpClient {
   }
 
   /**
-   * Add the query parameter.
+   * Add a query parameter.
    *
    * @param key the name of the parameter.
    * @param value the value of the parameter.
@@ -168,13 +184,13 @@ public class HttpClient {
   }
 
   /**
-   * Add the form parameter.
+   * Add a form parameter.
    *
    * @param key the name of the parameter.
    * @param value the value of the parameter.
    * @return the updated instance.
    */
-  public HttpClient formParams(String key, Object value) {
+  public HttpClient formParam(String key, Object value) {
     return new HttpClient(
         this.apiClient,
         this.requestConfig.withFormParams(this.requestConfig.appendFormParam(key, value))
@@ -212,8 +228,9 @@ public class HttpClient {
   }
 
   /**
-   * The HttpClient Fluent API builder.
+   * The {@link HttpClient} fluent builder.
    */
+  @RequiredArgsConstructor
   public static class Builder {
 
     private final ApiClientBuilderProvider provider;
@@ -234,10 +251,6 @@ public class HttpClient {
     // common headers and cookies
     private final Map<String, String> headers = new HashMap<>();
     private final Map<String, String> cookies = new HashMap<>();
-
-    protected Builder(ApiClientBuilderProvider provider) {
-      this.provider = provider;
-    }
 
     /**
      * Add base path of the web resource target.
