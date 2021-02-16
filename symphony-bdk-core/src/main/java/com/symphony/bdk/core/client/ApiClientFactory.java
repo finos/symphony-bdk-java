@@ -39,7 +39,6 @@ public class ApiClientFactory {
   private final static String SESSIONAUTH_CONTEXT_PATH = "/sessionauth";
   private final static String KEYAUTH_CONTEXT_PATH = "/keyauth";
 
-
   private final BdkConfig config;
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
@@ -192,6 +191,10 @@ public class ApiClientFactory {
         .withConnectionTimeout(clientConfig.getConnectionTimeout())
         .withConnectionPoolMax(clientConfig.getConnectionPoolMax())
         .withConnectionPoolPerRoute(clientConfig.getConnectionPoolPerRoute());
+
+    if (clientConfig.getDefaultHeaders() != null) {
+      clientConfig.getDefaultHeaders().forEach(apiClientBuilder::withDefaultHeader);
+    }
 
     configureTruststore(apiClientBuilder);
     configureProxy(clientConfig.getProxy(), apiClientBuilder);

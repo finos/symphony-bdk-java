@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 @Getter
@@ -24,6 +25,7 @@ public class BdkClientConfig extends BdkServerConfig {
     this.readTimeout = null;
     this.connectionPoolMax = null;
     this.connectionPoolPerRoute = null;
+    this.defaultHeaders = null;
   }
 
   public BdkClientConfig(BdkConfig parentConfig) {
@@ -78,6 +80,11 @@ public class BdkClientConfig extends BdkServerConfig {
   @Override
   public BdkProxyConfig getProxy() {
     return thisOrParent(proxy, parentConfig::getProxy);
+  }
+
+  @Override
+  public Map<String, String> getDefaultHeaders() {
+    return thisOrParent(defaultHeaders, parentConfig::getDefaultHeaders);
   }
 
   private <T> T thisOrParent(T thisValue, Supplier<T> parentValue) {

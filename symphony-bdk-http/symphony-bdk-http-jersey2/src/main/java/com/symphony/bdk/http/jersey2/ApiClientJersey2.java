@@ -119,6 +119,7 @@ public class ApiClientJersey2 implements ApiClient {
       }
     }
 
+    // apply default headers, that can be set from config.yaml
     for (Entry<String, String> entry : defaultHeaderMap.entrySet()) {
       String key = entry.getKey();
       if (!headerParams.containsKey(key)) {
