@@ -2,7 +2,11 @@ package com.symphony.bdk.http.api;
 
 import com.symphony.bdk.http.api.util.TypeReference;
 
-import java.util.ArrayList;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.With;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +16,102 @@ import java.util.Map;
  * client requests in order to consume responses returned
  */
 public class HttpClient {
+
+  private final ApiClient apiClient;
+  private final RequestConfig requestConfig;
+
+  private HttpClient(ApiClient apiClient, RequestConfig requestConfig) {
+    this.apiClient = apiClient;
+    this.requestConfig = requestConfig;
+  }
+
+  /**
+   * Build a request and execute it using an arbitrary request method name.
+   *
+   * @param method request method name.
+   * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
+   * @param <T> generic response type.
+   * @return Response entity
+   * @throws ApiException if there are problems with the Api client request.
+   */
+  public <T> T method(String method, TypeReference<T> type) throws ApiException {
+
+    final ApiResponse<T> response = this.apiClient.invokeAPI(
+        this.requestConfig.getPath(),
+        method,
+        this.requestConfig.getQueryParams(),
+        this.requestConfig.getBody(),
+        this.requestConfig.getHeaders(),
+        this.requestConfig.getCookies(),
+        this.requestConfig.getFormParams(),
+        this.requestConfig.getAccept(),
+        this.requestConfig.getContentType() == null ? "application/json" : this.requestConfig.getContentType(),
+        new String[] {},
+        type
+    );
+
+    return response != null ? response.getData() : null;
+  }
+
+  /**
+   * Build a get request and execute it.
+   *
+   * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
+   * @param <T> generic response type.
+   * @return Response entity.
+   * @throws ApiException if there are problems with the Api client request.
+   */
+  public <T> T get(TypeReference<T> type) throws ApiException {
+    return this.method("GET", type);
+  }
+
+  /**
+   * Build a post request and execute it.
+   *
+   * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
+   * @param <T> generic response type.
+   * @return Response entity.
+   * @throws ApiException if there are problems with the Api client request.
+   */
+  public <T> T post(TypeReference<T> type) throws ApiException {
+    return this.method("POST", type);
+  }
+
+  /**
+   * Build a put request and execute it.
+   *
+   * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
+   * @param <T> generic response type.
+   * @return Response entity.
+   * @throws ApiException if there are problems with the Api client request.
+   */
+  public <T> T put(TypeReference<T> type) throws ApiException {
+    return this.method("PUT", type);
+  }
+
+  /**
+   * Build a patch request and execute it.
+   *
+   * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
+   * @param <T> generic response type.
+   * @return Response entity.
+   * @throws ApiException if there are problems with the Api client request.
+   */
+  public <T> T patch(TypeReference<T> type) throws ApiException {
+    return this.method("PATCH", type);
+  }
+
+  /**
+   * Build a delete request and execute it.
+   *
+   * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
+   * @param <T> generic response type.
+   * @return Response entity.
+   * @throws ApiException if there are problems with the Api client request.
+   */
+  public <T> T delete(TypeReference<T> type) throws ApiException {
+    return this.method("DELETE", type);
+  }
 
   /**
    * Build an {@link Builder} from an {@link ApiClientBuilderProvider}
@@ -24,27 +124,116 @@ public class HttpClient {
   }
 
   /**
+   * Set request path.
+   * @param path the name of the header.
+   * @return the updated instance.
+   */
+  public HttpClient path(String path) {
+    return new HttpClient(this.apiClient, this.requestConfig.withPath(path));
+  }
+
+  /**
+   * Add an arbitrary header.
+   * @param key the name of the header.
+   * @param value the value of the header.
+   * @return the updated instance.
+   */
+  public HttpClient header(String key, String value) {
+    return new HttpClient(this.apiClient, this.requestConfig.withHeaders(this.requestConfig.appendHeader(key, value)));
+  }
+
+  /**
+   * Add a cookie to be set.
+   *
+   * @param key the name of the cookie.
+   * @param value the value of the cookie.
+   * @return the updated instance.
+   */
+  public HttpClient cookie(String key, String value) {
+    return new HttpClient(this.apiClient, this.requestConfig.withCookies(this.requestConfig.appendCookie(key, value)));
+  }
+
+  /**
+   * Add the query parameter.
+   *
+   * @param key the name of the parameter.
+   * @param value the value of the parameter.
+   * @return the updated instance.
+   */
+  public HttpClient queryParam(String key, String value) {
+    return new HttpClient(
+        this.apiClient,
+        this.requestConfig.withQueryParams(this.requestConfig.appendQueryParam(key, value))
+    );
+  }
+
+  /**
+   * Add the form parameter.
+   *
+   * @param key the name of the parameter.
+   * @param value the value of the parameter.
+   * @return the updated instance.
+   */
+  public HttpClient formParams(String key, Object value) {
+    return new HttpClient(
+        this.apiClient,
+        this.requestConfig.withFormParams(this.requestConfig.appendFormParam(key, value))
+    );
+  }
+
+  /**
+   * Add the request body object.
+   *
+   * @param body the body of the request.
+   * @return the updated instance.
+   */
+  public HttpClient body(Object body) {
+    return new HttpClient(this.apiClient, this.requestConfig.withBody(body));
+  }
+
+  /**
+   * Add the accepted response media type.
+   *
+   * @param accept accepted response media type.
+   * @return the updated instance.
+   */
+  public HttpClient accept(String accept) {
+    return new HttpClient(this.apiClient, this.requestConfig.withAccept(accept));
+  }
+
+  /**
+   * Add the request's Content-Type header.
+   *
+   * @param contentType the request's Content-Type header.
+   * @return the updated instance.
+   */
+  public HttpClient contentType(String contentType) {
+    return new HttpClient(this.apiClient, this.requestConfig.withContentType(contentType));
+  }
+
+  /**
    * The HttpClient Fluent API builder.
    */
   public static class Builder {
-    private ApiClientBuilderProvider provider;
-    private final Map<String, String> headers = new HashMap<>();
-    private final Map<String, String> cookies = new HashMap<>();
-    private final Map<String, Object> formParams = new HashMap<>();
-    private final List<Pair> queryParams = new ArrayList<>();
+
+    private final ApiClientBuilderProvider provider;
+
+    // base path
     private String basePath = "";
-    private String path = "";
-    private Object body;
-    private String accept = "";
-    private String contentType = "";
+    // keystore
     private byte[] keyStore = null;
     private String keyStorePassword = "";
+    // truststore
     private byte[] trustStore = null;
     private String trustStorePassword = "";
+    // proxy
     private String proxyHost = null;
     private int proxyPort = -1;
     private String proxyUser = null;
     private String proxyPassword = null;
+    // common headers and cookies
+    private final Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> cookies = new HashMap<>();
 
     protected Builder(ApiClientBuilderProvider provider) {
       this.provider = provider;
@@ -61,17 +250,7 @@ public class HttpClient {
     }
 
     /**
-     * Add the sub-path of the HTTP URL.
-     * @param path The sub-path of the HTTP URL.
-     * @return the updated builder.
-     */
-    public Builder path(String path) {
-      this.path = path;
-      return this;
-    }
-
-    /**
-     * Add an arbitrary header.
+     * Add an arbitrary common header.
      * @param key the name of the header.
      * @param value the value of the header.
      * @return the updated builder.
@@ -82,71 +261,13 @@ public class HttpClient {
     }
 
     /**
-     * Add a cookie to be set.
-     *
-     * @param key the name of the cookie.
-     * @param value the value of the cookie.
+     * Add an arbitrary common cookie.
+     * @param key the name of the header.
+     * @param value the value of the header.
      * @return the updated builder.
      */
     public Builder cookie(String key, String value) {
       this.cookies.put(key, value);
-      return this;
-    }
-
-    /**
-     * Add the query parameter.
-     *
-     * @param key the name of the parameter.
-     * @param value the value of the parameter.
-     * @return the updated builder.
-     */
-    public Builder queryParam(String key, String value) {
-      this.queryParams.add(new Pair(key, value));
-      return this;
-    }
-
-    /**
-     * Add the form parameter.
-     *
-     * @param key the name of the parameter.
-     * @param value the value of the parameter.
-     * @return the updated builder.
-     */
-    public Builder formParams(String key, Object value) {
-      this.formParams.put(key, value);
-      return this;
-    }
-
-    /**
-     * Add the request body object.
-     *
-     * @param body the body of the request.
-     * @return the updated builder.
-     */
-    public Builder body(Object body) {
-      this.body = body;
-      return this;
-    }
-
-    /**
-     * Add the accepted response media type.
-     *
-     * @param accept accepted response media type.
-     * @return the updated builder.
-     */
-    public Builder accept(String accept) {
-      this.accept = accept;
-      return this;
-    }
-
-    /**
-     * Add the request's Content-Type header.
-     *
-     * @param contentType the request's Content-Type header.
-     * @return the updated builder.
-     */
-    public Builder contentType(String contentType) {
-      this.contentType = contentType;
       return this;
     }
 
@@ -176,31 +297,39 @@ public class HttpClient {
       return this;
     }
 
+    /**
+     * Configure proxy host and port.
+     *
+     * @param proxyHost the proxy host name.
+     * @param proxyPort the proxy port number.
+     * @return the updated builder.
+     */
     public Builder proxy(String proxyHost, int proxyPort) {
       this.proxyHost = proxyHost;
       this.proxyPort = proxyPort;
       return this;
     }
 
+    /**
+     * Configure proxy credentials.
+     *
+     * @param proxyUser proxy username.
+     * @param proxyPassword proxy password.
+     * @return the updated builder.
+     */
     public Builder proxyCredentials(String proxyUser, String proxyPassword) {
       this.proxyUser = proxyUser;
       this.proxyPassword = proxyPassword;
       return this;
     }
 
-    /**
-     * Build a request and execute it using an arbitrary request method name.
-     *
-     * @param method request method name.
-     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
-     * @param <T> generic response type.
-     * @return Response entity
-     * @throws ApiException if there are problems with the Api client request.
-     */
-    public <T> T method(String method, TypeReference<T> type) throws ApiException {
-      ApiClientBuilder builder = provider.newInstance();
-      builder.withBasePath(this.basePath);
+    public HttpClient build() {
 
+      final ApiClientBuilder builder = this.provider.newInstance();
+
+      if (this.basePath != null) {
+        builder.withBasePath(this.basePath);
+      }
       if (this.keyStore != null) {
         builder.withKeyStore(this.keyStore, this.keyStorePassword);
       }
@@ -214,50 +343,48 @@ public class HttpClient {
         builder.withProxyCredentials(this.proxyUser, this.proxyPassword);
       }
 
-      if (contentType.equals("")) {
-        contentType = "application/json";
-      }
-      ApiClient apiClient = builder.build();
-      ApiResponse<T> apiResponse = apiClient
-          .invokeAPI(this.path, method, this.queryParams, this.body, this.headers, this.cookies, this.formParams,
-              this.accept, this.contentType, new String[] {}, type);
-      return apiResponse.getData();
+      return new HttpClient(
+          builder.build(),
+          new RequestConfig()
+              .withHeaders(this.headers)
+              .withCookies(this.cookies)
+      );
+    }
+  }
+
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  private static class RequestConfig {
+
+    @With private Map<String, String> headers;
+    @With private Map<String, String> cookies;
+    @With private Map<String, Object> formParams;
+    @With private List<Pair> queryParams;
+
+    @With private String path;
+    @With private Object body;
+    @With private String accept;
+    @With private String contentType;
+
+    public Map<String, String> appendHeader(String key, String value) {
+      this.headers.put(key, value);
+      return this.headers;
     }
 
-    /**
-     * Build a get request and execute it.
-     *
-     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
-     * @param <T> generic response type.
-     * @return Response entity.
-     * @throws ApiException if there are problems with the Api client request.
-     */
-    public <T> T get(TypeReference<T> type) throws ApiException {
-      return this.method("GET", type);
+    public Map<String, String> appendCookie(String key, String value) {
+      this.cookies.put(key, value);
+      return this.cookies;
     }
 
-    /**
-     * Build a post request and execute it.
-     *
-     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
-     * @param <T> generic response type.
-     * @return Response entity.
-     * @throws ApiException if there are problems with the Api client request.
-     */
-    public <T> T post(TypeReference<T> type) throws ApiException {
-      return this.method("POST", type);
+    public List<Pair> appendQueryParam(String key, String value) {
+      this.queryParams.add(new Pair(key, value));
+      return this.queryParams;
     }
 
-    /**
-     * Build a delete request and execute it.
-     *
-     * @param type the {@link TypeReference} object representing a generic Java type the response should convert to.
-     * @param <T> generic response type.
-     * @return Response entity.
-     * @throws ApiException if there are problems with the Api client request.
-     */
-    public <T> T delete(TypeReference<T> type) throws ApiException {
-      return this.method("DELETE", type);
+    public Map<String, Object> appendFormParam(String key, Object value) {
+      this.formParams.put(key, value);
+      return this.formParams;
     }
   }
 }
