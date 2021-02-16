@@ -57,7 +57,10 @@ connectionTimeout: 15000
 readTimeout: 60000
 connectionPoolMax: 20
 connectionPoolPerRoute: 20
-
+defaultHeaders:
+  Connection: Keep-Alive
+  Keep-Alive: timeout=5, max=1000
+    
 proxy:
   host: proxy.symphony.com
   port: 1234
@@ -81,7 +84,10 @@ agent:
 keyManager:
   host: dev-key.symphony.com
   port: 8444
-
+  defaultHeaders:
+    Connection: Keep-Alive
+    Keep-Alive: close
+        
 sessionAuth:
   host: dev-session.symphony.com
   port: 8444
