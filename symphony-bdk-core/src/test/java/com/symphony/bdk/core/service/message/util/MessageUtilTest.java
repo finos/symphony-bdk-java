@@ -22,8 +22,8 @@ public class MessageUtilTest {
 
   @Test
   public void testEscapeSpecialCharsMultipleMatches() {
-    String text = "Here's multiple chars <'\"$#=";
-    String expectedText = "Here&apos;s multiple chars &lt;&apos;&quot;&#36;&#35;&#61;";
+    String text = "Here's multiple chars <'\"$#=.[]";
+    String expectedText = "Here&apos;s multiple chars &lt;&apos;&quot;&#36;&#35;&#61;&#46;&#91;&#93;";
     assertEquals(expectedText, MessageUtil.escapeSpecialChars(text));
   }
 

@@ -1,6 +1,9 @@
 package com.symphony.bdk.core.service.message.util;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apiguardian.api.API;
 
 import java.util.LinkedHashMap;
@@ -12,12 +15,10 @@ import java.util.regex.Pattern;
  * Helper class for pre-processing an outgoing message
  */
 @API(status = API.Status.EXPERIMENTAL)
-public class MessageUtil {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class MessageUtil {
   private static Map<String, String> tokens = initializeMap();
-  private static final Pattern pattern = initializePattern(tokens);
-
-  private MessageUtil() {
-  }
+  private static final Pattern PATTERN = initializePattern(tokens);
 
   /**
    * This method takes care of all special characters placed within the messageML that must be HTML-escaped
@@ -27,7 +28,7 @@ public class MessageUtil {
    * @return text in a valid messageML format
    */
   public static String escapeSpecialChars(String rawText) {
-    Matcher matcher = pattern.matcher(rawText);
+    Matcher matcher = PATTERN.matcher(rawText);
     StringBuffer parsedText = new StringBuffer();
     while (matcher.find()) {
       matcher.appendReplacement(parsedText, getReplacementOf(matcher.group(1)));
@@ -42,6 +43,10 @@ public class MessageUtil {
       replacement = tokens.get("\\" + group);
     }
     return replacement;
+  }
+
+  public static String escape(String text) {
+    return StringEscapeUtils.escapeHtml4(text);
   }
 
   private static Map<String, String> initializeMap() {

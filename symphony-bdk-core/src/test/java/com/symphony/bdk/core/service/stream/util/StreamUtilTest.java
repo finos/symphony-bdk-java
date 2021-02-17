@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 public class StreamUtilTest {
+
   @Test
   public void testToUrlSafeStreamId() {
     String streamId = "XlU3OH9eVMzq+yss7M/xyn///oxwgbtGbQ==";
@@ -15,13 +16,5 @@ public class StreamUtilTest {
   public void testToFromUrlSafeStreamId() {
     String streamId = "XlU3OH9eVMzq-yss7M_xyn___oxwgbtGbQ";
     assertEquals("XlU3OH9eVMzq+yss7M/xyn///oxwgbtGbQ==", StreamUtil.fromUrlSafeStreamId(streamId));
-  }
-
-  @Test
-  public void testParseStreamIdEmptyOrNull() {
-    assertEquals("", StreamUtil.toUrlSafeStreamId(""));
-    assertEquals("", StreamUtil.toUrlSafeStreamId(null));
-    assertEquals("", StreamUtil.fromUrlSafeStreamId(""));
-    assertEquals("", StreamUtil.fromUrlSafeStreamId(null));
   }
 }
