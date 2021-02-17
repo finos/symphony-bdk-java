@@ -203,7 +203,8 @@ public class AuthenticatorFactory {
           + "You should consider another location for production.");
       is = AuthenticatorFactory.class.getResourceAsStream(privateKeyPath.replace("classpath:", ""));
       if (is == null) {
-        throw new AuthInitializationException("Unable to find RSA private key as classpath resource from: " + privateKeyPath);
+        throw new AuthInitializationException(
+            "Unable to find RSA private key as classpath resource from: " + privateKeyPath);
       }
     } else {
       is = new FileInputStream(privateKeyPath);

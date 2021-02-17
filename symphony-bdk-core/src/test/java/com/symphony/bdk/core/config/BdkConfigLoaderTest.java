@@ -114,8 +114,12 @@ class BdkConfigLoaderTest {
     assertEquals(config.getPod().getReadTimeout(), 30000);
     assertEquals(config.getPod().getConnectionPoolMax(), 20);
     assertEquals(config.getPod().getConnectionPoolPerRoute(), 10);
+    assertEquals("Keep-Alive", config.getPod().getDefaultHeaders().get("Connection"));
+    assertEquals("close", config.getPod().getDefaultHeaders().get("Keep-Alive"));
 
     assertEquals(config.getScheme(), "https");
+    assertEquals("Keep-Alive", config.getDefaultHeaders().get("Connection"));
+    assertEquals("timeout=5, max=1000", config.getDefaultHeaders().get("Keep-Alive"));
 
     assertEquals(config.getAgent().getScheme(), "https");
     assertEquals(config.getAgent().getHost(), "devx1.symphony.com");
@@ -125,6 +129,8 @@ class BdkConfigLoaderTest {
     assertEquals(config.getAgent().getReadTimeout(), 60000);
     assertEquals(config.getAgent().getConnectionPoolMax(), 30);
     assertEquals(config.getAgent().getConnectionPoolPerRoute(), 20);
+    assertEquals("Keep-Alive", config.getAgent().getDefaultHeaders().get("Connection"));
+    assertEquals("timeout=5, max=1000", config.getAgent().getDefaultHeaders().get("Keep-Alive"));
 
     assertEquals(config.getKeyManager().getScheme(), "https");
     assertEquals(config.getKeyManager().getHost(), "devx1.symphony.com");
@@ -134,6 +140,8 @@ class BdkConfigLoaderTest {
     assertEquals(config.getKeyManager().getReadTimeout(), 30000);
     assertEquals(config.getKeyManager().getConnectionPoolMax(), 20);
     assertEquals(config.getKeyManager().getConnectionPoolPerRoute(), 10);
+    assertEquals("Keep-Alive", config.getKeyManager().getDefaultHeaders().get("Connection"));
+    assertEquals("timeout=5, max=1000", config.getKeyManager().getDefaultHeaders().get("Keep-Alive"));
 
     assertEquals(config.getSessionAuth().getScheme(), "http");
     assertEquals(config.getSessionAuth().getHost(), "devx1.symphony.com");
@@ -143,6 +151,8 @@ class BdkConfigLoaderTest {
     assertEquals(config.getSessionAuth().getReadTimeout(), 30000);
     assertEquals(config.getSessionAuth().getConnectionPoolMax(), 20);
     assertEquals(config.getSessionAuth().getConnectionPoolPerRoute(), 10);
+    assertEquals("Keep-Alive", config.getSessionAuth().getDefaultHeaders().get("Connection"));
+    assertEquals("timeout=5, max=1000", config.getSessionAuth().getDefaultHeaders().get("Keep-Alive"));
   }
 
 

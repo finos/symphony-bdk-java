@@ -114,6 +114,7 @@ public class ApiClientWebClient implements ApiClient {
       }
     }
 
+    // apply default headers, that can be set from config.yaml
     for (Map.Entry<String, String> defaultHeaderParam : this.defaultHeaderMap.entrySet()) {
       String key = defaultHeaderParam.getKey();
       if (headerParams != null && !headerParams.containsKey(key)) {
