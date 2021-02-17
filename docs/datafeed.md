@@ -65,7 +65,7 @@ the exponential backoff mechanism.
 
 ## Subscribe/Unsubscribe RealTimeEventListener
 
-[RealTimeEventListener](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/service/datafeed/RealTimeEventListener.html) is an interface definition for a callback to be invoked when a real-time event is received from the datafeed.
+[RealTimeEventListener](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/datafeed/RealTimeEventListener.html) is an interface definition for a callback to be invoked when a real-time event is received from the datafeed.
 This real-time event can be one of these following event types:
 
 - Message Sent

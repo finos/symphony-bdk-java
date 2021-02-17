@@ -36,7 +36,7 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.symphony.platformsolutions</groupId>
+                <groupId>org.finos.symphony.bdk</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
                 <version>2.0.0</version>
                 <type>pom</type>
@@ -48,16 +48,16 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
     <dependencies>
         <!-- Core dependencies -->
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-template-freemarker</artifactId>  <!-- or symphony-bdk-http-handlebars -->
             <scope>runtime</scope>
         </dependency>
@@ -91,12 +91,12 @@ repositories {
 dependencies {
 
     // import a BOM
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:2.0.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.0.0')
 
     // define dependencies without versions
-    implementation 'com.symphony.platformsolutions:symphony-bdk-core'
-    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-http-jersey2' //  or symphony-bdk-http-webclient
-    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-freemarker' // or symphony-bdk-http-handlebars
+    implementation 'org.finos.symphony.bdk:symphony-bdk-core'
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jersey2'           //  or symphony-bdk-http-webclient
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'    // or symphony-bdk-http-handlebars
 
     // logger configuration
     implementation 'org.slf4j:slf4j-api'

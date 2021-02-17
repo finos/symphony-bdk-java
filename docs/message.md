@@ -37,8 +37,8 @@ public class Example {
 ## Using templates
 The `Message.Builder` also allows you to build a message from a template. So far, the BDK supports two different template
 engine implementations: 
-- [FreeMarker](https://freemarker.apache.org/) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-freemarker`)
-- [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `com.symphony.platformsolutions:symphony-bdk-template-handlebars`)
+- [FreeMarker](https://freemarker.apache.org/) (through dependency `org.finos.symphony.bdk:symphony-bdk-template-freemarker`)
+- [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `org.finos.symphony.bdk:symphony-bdk-template-handlebars`)
 
 ### How to send a message built from a template
 > In the code examples below, we will assume that FreeMarker as been selected as template engine implementation.
@@ -96,13 +96,13 @@ With [Maven](./getting-started.md#maven-based-project):
 ```xml
 <dependencies>
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-template-freemarker</artifactId>
             <scope>runtime</scope>
         </dependency>
         <!-- or -->
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-template-handlebars</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -111,9 +111,9 @@ With [Maven](./getting-started.md#maven-based-project):
 With [Gradle](./getting-started.md#gradle-based-project): 
 ```groovy
 dependencies {
-    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-freemarker'
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'
     // or
-    runtimeOnly 'com.symphony.platformsolutions:symphony-bdk-template-handlebars'
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-handlebars'
 }
 ```
 > :warning: If multiple implementations found in classpath, an exception is throw in order to help you to define which one

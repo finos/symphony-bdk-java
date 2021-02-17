@@ -36,7 +36,7 @@ ext.pomDefinition = {
 }
 
 allprojects {
-    group = 'com.symphony.platformsolutions'
+    group = 'org.finos.symphony.bdk'
     version = projectVersion
 
     defaultTasks 'build'
