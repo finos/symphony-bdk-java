@@ -38,7 +38,7 @@ import javax.annotation.Nullable;
  * BDK entry point.
  */
 @Slf4j
-@API(status = API.Status.EXPERIMENTAL)
+@API(status = API.Status.STABLE)
 public class SymphonyBdk {
 
   private final BdkConfig config;
@@ -66,6 +66,7 @@ public class SymphonyBdk {
    *
    * @return new instance of {@link SymphonyBdkBuilder}.
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public static SymphonyBdkBuilder builder() {
     return new SymphonyBdkBuilder();
   }

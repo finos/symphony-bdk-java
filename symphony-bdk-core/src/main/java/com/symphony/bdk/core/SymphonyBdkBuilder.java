@@ -4,26 +4,24 @@ import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.config.BdkConfigLoader;
-import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-
 import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.Generated;
 import org.apiguardian.api.API;
 
-import java.io.InputStream;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
  * Fluent builder for advanced configuration of the {@link SymphonyBdk} entry point.
+ *
+ * <p>Please note that some of the parameters (such as {@link ApiClientBuilderProvider}, {@link ApiClientFactory} or
+ * {@link AuthenticatorFactory}) have to be used with caution.
  */
-@Generated // a bit tricky to get acceptable coverage
-@API(status = API.Status.STABLE)
+@Generated
+@API(status = API.Status.EXPERIMENTAL)
 public class SymphonyBdkBuilder {
 
   private BdkConfig config;
@@ -32,61 +30,17 @@ public class SymphonyBdkBuilder {
   private ApiClientFactory apiClientFactory;
 
   /**
-   * With {@link BdkConfig} POJO.
+   * With {@link BdkConfig}.
+   *
+   * <p>The config object can be loaded in different ways (file system, classpath or {@link java.io.InputStream}) using
+   * the {@link com.symphony.bdk.core.config.BdkConfigLoader}.
    *
    * @param config config POJO.
    * @return updated builder.
+   * @see com.symphony.bdk.core.config.BdkConfigLoader
    */
   public SymphonyBdkBuilder config(@Nonnull BdkConfig config) {
     this.config = config;
-    return this;
-  }
-
-  /**
-   * With config from Symphony directory.
-   *
-   * @param relPath relative configuration file location from your ${user.home}/.symphony directory.
-   * @return updated builder.
-   * @throws BdkConfigException config file loading issue.
-   */
-  public SymphonyBdkBuilder configFromSymphonyDir(@Nonnull String relPath) throws BdkConfigException {
-    this.config = BdkConfigLoader.loadFromSymphonyDir(relPath);
-    return this;
-  }
-
-  /**
-   * With config from classpath.
-   *
-   * @param configPath relative classpath location of the configuration file.
-   * @return updated builder.
-   * @throws BdkConfigException config file loading issue.
-   */
-  public SymphonyBdkBuilder configFromClasspath(@Nonnull String configPath) throws BdkConfigException {
-    this.config = BdkConfigLoader.loadFromClasspath(configPath);
-    return this;
-  }
-
-  /**
-   * With config from {@link InputStream}.
-   *
-   * @param inputStream configuration file {@link InputStream} content.
-   * @return updated builder.
-   * @throws BdkConfigException config file loading issue.
-   */
-  public SymphonyBdkBuilder configFromInputStream(@Nonnull InputStream inputStream) throws BdkConfigException {
-    this.config = BdkConfigLoader.loadFromInputStream(inputStream);
-    return this;
-  }
-
-  /**
-   * With config from file system.
-   *
-   * @param configPath absolute path to the configuration file.
-   * @return updated builder.
-   * @throws BdkConfigException config file loading issue.
-   */
-  public SymphonyBdkBuilder configFromFile(@Nonnull String configPath) throws BdkConfigException {
-    this.config = BdkConfigLoader.loadFromFile(configPath);
     return this;
   }
 

@@ -192,6 +192,11 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return this;
   }
 
+  /**
+   *
+   * @return
+   */
+  @API(status = API.Status.EXPERIMENTAL)
   protected ClientConfig createClientConfig() {
     final ClientConfig clientConfig = new ClientConfig();
     this.configureJackson(clientConfig);
@@ -211,11 +216,21 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return clientConfig;
   }
 
+  /**
+   *
+   * @param clientConfig
+   */
+  @API(status = API.Status.EXPERIMENTAL)
   protected void configureJackson(ClientConfig clientConfig) {
     clientConfig.register(new JSON());
     clientConfig.register(JacksonFeature.class);
   }
 
+  /**
+   *
+   * @param clientConfig
+   */
+  @API(status = API.Status.EXPERIMENTAL)
   protected void configureProxy(ClientConfig clientConfig) {
     clientConfig.connectorProvider(new ApacheConnectorProvider());
     clientConfig.property(ClientProperties.PROXY_URI, proxyUrl);
@@ -223,6 +238,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPassword);
   }
 
+  @API(status = API.Status.EXPERIMENTAL)
   protected SSLContext createSSLContext() {
     final SslConfigurator sslConfig = SslConfigurator.newInstance();
 

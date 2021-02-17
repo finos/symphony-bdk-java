@@ -41,9 +41,9 @@ import java.util.stream.Collectors;
 @API(status = API.Status.EXPERIMENTAL)
 public class ApiClientWebClient implements ApiClient {
 
-  protected WebClient webClient;
-  protected String basePath;
-  protected Map<String, String> defaultHeaderMap;
+  protected final WebClient webClient;
+  protected final String basePath;
+  protected final Map<String, String> defaultHeaderMap;
 
   public ApiClientWebClient(final WebClient webClient, String basePath, Map<String, String> defaultHeaders) {
     this.webClient = webClient;

@@ -2,6 +2,7 @@ package com.symphony.bdk.examples;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
@@ -25,7 +26,7 @@ public class HttpClientExampleMain {
   public static void main(String[] args) throws Exception {
 
     final SymphonyBdk bdk = SymphonyBdk.builder()
-        .configFromSymphonyDir("config.yaml")
+        .config(BdkConfigLoader.loadFromSymphonyDir("config.yaml"))
         .build();
 
     final AuthenticateRequest req = new AuthenticateRequest();

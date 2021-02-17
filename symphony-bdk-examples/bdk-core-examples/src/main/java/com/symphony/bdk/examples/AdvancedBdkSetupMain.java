@@ -1,6 +1,7 @@
 package com.symphony.bdk.examples;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.gen.api.model.V3Health;
 import com.symphony.bdk.http.api.HttpClient;
 import com.symphony.bdk.http.api.util.TypeReference;
@@ -14,12 +15,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apiguardian.api.API;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJsonProvider;
 
-import javax.annotation.Priority;
 import javax.ws.rs.ConstrainedTo;
 import javax.ws.rs.RuntimeType;
 import javax.ws.rs.client.ClientRequestContext;
@@ -30,6 +31,7 @@ import javax.ws.rs.container.PreMatching;
  * This example demonstrates advanced initialization of the {@link com.symphony.bdk.core.SymphonyBdk} entry point.
  */
 @Slf4j
+@API(status = API.Status.EXPERIMENTAL)
 public class AdvancedBdkSetupMain {
 
   public static void main(String[] args) throws Exception {
@@ -41,7 +43,7 @@ public class AdvancedBdkSetupMain {
     globalObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
     final SymphonyBdk bdk = SymphonyBdk.builder()
-        .configFromSymphonyDir("config.yaml")
+        .config(BdkConfigLoader.loadFromSymphonyDir("config.yaml"))
         .apiClientBuilderProvider(() -> new CustomApiClientBuilder(globalObjectMapper))
         .build();
 
@@ -70,9 +72,8 @@ public class AdvancedBdkSetupMain {
     }
   }
 
-  @ConstrainedTo(RuntimeType.CLIENT)
   @PreMatching
-  @Priority(2147483647)
+  @ConstrainedTo(RuntimeType.CLIENT)
   static class RequestLoggingFilter implements ClientRequestFilter {
 
     @Override
