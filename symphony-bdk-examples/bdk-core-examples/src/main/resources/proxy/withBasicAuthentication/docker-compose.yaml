@@ -1,5 +1,0 @@
-services:
-  proxy:
-    build: .
-    ports:
-    - "3128:3128"

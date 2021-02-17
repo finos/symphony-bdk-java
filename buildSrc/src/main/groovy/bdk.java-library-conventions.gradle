@@ -1,4 +1,0 @@
-plugins {
-    id 'bdk.java-common-conventions'
-    id 'java-library'
-}

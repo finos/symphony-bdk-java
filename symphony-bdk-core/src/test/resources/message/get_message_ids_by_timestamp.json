@@ -1,9 +1,0 @@
-{
-    "Data": [
-        "messageId1",
-        "messageId2"
-    ],
-    "TotalNumberFound": 2,
-    "numberReturned": 2,
-    "nextStartNumber": 0
-}
