@@ -16,12 +16,13 @@ public final class StreamUtil {
   /**
    * Convert the stream id to the corresponding URLSafe encoded stream id
    *
-   * @param streamId of the stream to be parsed
-   * @return stream id after conversion
-   *
+   * <p>Example of usage:
    * <pre>{@code
    *   String urlSafeStreamId = StreamUtil.toUrlSafeStreamId("XlU3OH9eVMzq+yss7M/xyn///oxwgbtGbQ==");
-   * }</pre>
+   * }</pre></p>
+   *
+   * @param streamId of the stream to be parsed
+   * @return stream id after conversion
    */
   public static String toUrlSafeStreamId(String streamId) {
     byte[] decodedURLBytes = Base64.getDecoder().decode(streamId);
@@ -31,12 +32,13 @@ public final class StreamUtil {
   /**
    * Convert the URLSafe encoded stream id to the corresponding original stream id
    *
-   * @param streamId of the stream to be parsed
-   * @return stream id after conversion
-   *
+   * <p>Example of usage:
    * <pre>{@code
    *   String streamId = StreamUtil.fromUrlSafeStreamId("XlU3OH9eVMzq-yss7M_xyn___oxwgbtGbQ");
-   * }</pre>
+   * }</pre></p>
+   *
+   * @param streamId of the stream to be parsed
+   * @return stream id after conversion
    */
   public static String fromUrlSafeStreamId(String streamId) {
     byte[] decodedURLBytes = Base64.getUrlDecoder().decode(streamId);
