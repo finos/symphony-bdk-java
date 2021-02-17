@@ -3,7 +3,6 @@ package com.symphony.bdk.core.service.message.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 import org.apiguardian.api.API;
 
 import java.util.LinkedHashMap;
@@ -43,10 +42,6 @@ public final class MessageUtil {
       replacement = tokens.get("\\" + group);
     }
     return replacement;
-  }
-
-  public static String escape(String text) {
-    return StringEscapeUtils.escapeHtml4(text);
   }
 
   private static Map<String, String> initializeMap() {

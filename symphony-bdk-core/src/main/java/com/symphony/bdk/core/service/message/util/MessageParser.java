@@ -35,7 +35,6 @@ public final class MessageParser {
    */
   public static List<Long> getMentions(V4Message message) throws MessageParserException {
     List<String> mentionsList = getTags(message, EntityTypeEnum.MENTION);
-    if (mentionsList.isEmpty()) { return Collections.emptyList(); }
     return mentionsList.stream().map(Long::parseLong).collect(Collectors.toList());
   }
 

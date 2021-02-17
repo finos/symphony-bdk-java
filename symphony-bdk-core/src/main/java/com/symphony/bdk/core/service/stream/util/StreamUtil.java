@@ -2,8 +2,9 @@ package com.symphony.bdk.core.service.stream.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.binary.Base64;
 import org.apiguardian.api.API;
+
+import java.util.Base64;
 
 /**
  * Helper class providing stream id conversion
@@ -23,7 +24,8 @@ public final class StreamUtil {
    * }</pre>
    */
   public static String toUrlSafeStreamId(String streamId) {
-    return Base64.encodeBase64URLSafeString(Base64.decodeBase64(streamId));
+    byte[] decodedURLBytes = Base64.getDecoder().decode(streamId);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(decodedURLBytes);
   }
 
   /**
@@ -37,6 +39,7 @@ public final class StreamUtil {
    * }</pre>
    */
   public static String fromUrlSafeStreamId(String streamId) {
-    return Base64.encodeBase64String(Base64.decodeBase64(streamId));
+    byte[] decodedURLBytes = Base64.getUrlDecoder().decode(streamId);
+    return Base64.getEncoder().encodeToString(decodedURLBytes);
   }
 }
