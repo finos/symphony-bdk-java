@@ -8,10 +8,10 @@ dependencies {
 
     implementation project(':symphony-bdk-core')
 
-    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     // for advanced configuration of the JerseyClient
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
     implementation 'org.glassfish.jersey.core:jersey-client'
     implementation 'org.glassfish.jersey.media:jersey-media-json-jackson'
     implementation 'org.glassfish.jersey.media:jersey-media-multipart'
