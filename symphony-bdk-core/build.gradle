@@ -67,6 +67,7 @@ dependencies {
     testImplementation 'org.mock-server:mockserver-netty'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
+    testImplementation 'org.assertj:assertj-core:3.19.0'
 }
 
 // OpenAPI code generation
