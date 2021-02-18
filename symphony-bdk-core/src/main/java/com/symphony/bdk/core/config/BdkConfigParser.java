@@ -33,14 +33,14 @@ class BdkConfigParser {
         YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public static JsonNode parse(InputStream inputStream, String configPath) throws BdkConfigException {
-        final JsonNode jsonNode = parseJsonNode(inputStream, configPath);
+    public static JsonNode parse(InputStream inputStream) throws BdkConfigException {
+        final JsonNode jsonNode = parseJsonNode(inputStream);
         interpolateProperties(jsonNode);
 
         return jsonNode;
     }
 
-    public static JsonNode parseJsonNode(InputStream inputStream, String configPath) throws BdkConfigException {
+    public static JsonNode parseJsonNode(InputStream inputStream) throws BdkConfigException {
         String content = new BufferedReader(
                 new InputStreamReader(inputStream, StandardCharsets.UTF_8))
                 .lines()
@@ -60,8 +60,7 @@ class BdkConfigParser {
         } catch (IOException e) {
             log.debug("Config file is not in YAML format.");
         }
-        throw new BdkConfigException(String.format("Config file format found at the following path %s is not valid. "
-            + "Only YAML or JSON are allowed.", configPath));
+        throw new BdkConfigException("Given InputStream is not valid. Only YAML or JSON are allowed.");
     }
 
     public static void interpolateProperties(JsonNode jsonNode) {

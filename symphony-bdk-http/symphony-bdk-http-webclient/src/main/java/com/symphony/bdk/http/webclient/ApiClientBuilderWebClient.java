@@ -9,6 +9,8 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import org.apiguardian.api.API;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
@@ -30,34 +32,39 @@ import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientWebClient}.
+ *
+ * <p><b>Please note that overriding this class is an {@link org.apiguardian.api.API.Status#EXPERIMENTAL} feature that we
+ * offer to developers for {@link ApiClient} customization. The internal contract of this class (e.g. protected methods)
+ * is subject to changes in the future.</b>
  */
 @API(status = API.Status.EXPERIMENTAL)
 public class ApiClientBuilderWebClient implements ApiClientBuilder {
 
-  private final Map<String, String> defaultHeaders;
-  private String basePath;
-  private byte[] keyStoreBytes;
-  private String keyStorePassword;
-  private byte[] trustStoreBytes;
-  private String trustStorePassword;
-  private int connectionTimeout;
-  private int readTimeout;
-  private String temporaryFolderPath;
-  private String proxyHost;
-  private int proxyPort;
-  private String proxyUser;
-  private String proxyPassword;
+  private static final Logger log = LoggerFactory.getLogger(ApiClientBuilderWebClient.class);
+
+  protected final Map<String, String> defaultHeaders;
+  protected String basePath;
+  protected byte[] keyStoreBytes;
+  protected String keyStorePassword;
+  protected byte[] trustStoreBytes;
+  protected String trustStorePassword;
+  protected int connectionTimeout;
+  protected int readTimeout;
+  protected String proxyHost;
+  protected int proxyPort;
+  protected String proxyUser;
+  protected String proxyPassword;
 
   public ApiClientBuilderWebClient() {
-    basePath = "";
-    defaultHeaders = new HashMap<>();
-    connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
-    readTimeout = DEFAULT_READ_TIMEOUT;
-    proxyHost = null;
-    proxyPort = -1;
-    proxyUser = null;
-    proxyPassword = null;
-    withUserAgent(ApiUtils.getUserAgent());
+    this.basePath = "";
+    this.defaultHeaders = new HashMap<>();
+    this.connectionTimeout = DEFAULT_CONNECT_TIMEOUT;
+    this.readTimeout = DEFAULT_READ_TIMEOUT;
+    this.proxyHost = null;
+    this.proxyPort = -1;
+    this.proxyUser = null;
+    this.proxyPassword = null;
+    this.withUserAgent(ApiUtils.getUserAgent());
   }
 
   /**
@@ -65,12 +72,12 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    */
   @Override
   public ApiClient build() {
-    final WebClient build = WebClient.builder()
-        .clientConnector(new ReactorClientHttpConnector(createHttpClient()))
+    final WebClient webClient = WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(this.createHttpClient()))
         .baseUrl(this.basePath)
         .build();
 
-    return new ApiClientWebClient(build, this.basePath, this.defaultHeaders);
+    return new ApiClientWebClient(webClient, this.basePath, this.defaultHeaders);
   }
 
   /**
@@ -125,7 +132,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    */
   @Override
   public ApiClientBuilder withTemporaryFolderPath(String temporaryFolderPath) {
-    this.temporaryFolderPath = temporaryFolderPath;
+    log.debug("temporaryFolderPath is not used by ApiClientBuilderWebClient");
     return this;
   }
 
@@ -167,17 +174,24 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     return this;
   }
 
-  private HttpClient createHttpClient() {
+  @API(status = API.Status.EXPERIMENTAL)
+  protected HttpClient createHttpClient() {
     HttpClient httpClient = HttpClient.create()
         .secure(t -> t.sslContext(this.createSSLContext()))
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectionTimeout)
         .doOnConnected(connection -> connection.addHandlerLast(
-            new ReadTimeoutHandler(this.readTimeout, TimeUnit.MILLISECONDS)));
+            new ReadTimeoutHandler(this.readTimeout, TimeUnit.MILLISECONDS))
+        );
 
-    return configureProxy(httpClient);
+    if (this.proxyHost != null) {
+      httpClient = this.configureProxy(httpClient);
+    }
+
+    return httpClient;
   }
 
-  private SslContext createSSLContext() {
+  @API(status = API.Status.EXPERIMENTAL)
+  protected SslContext createSSLContext() {
     try {
       SslContextBuilder builder = SslContextBuilder.forClient();
       if (this.trustStoreBytes != null) {
@@ -200,22 +214,14 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     }
   }
 
-  private HttpClient configureProxy(HttpClient httpClient) {
-    if (this.proxyHost == null) {
-      return httpClient;
-    }
-    return httpClient.proxy(p -> getProxyBuilder(p));
-  }
-
-  private ProxyProvider.Builder getProxyBuilder(ProxyProvider.TypeSpec proxySpec) {
-    ProxyProvider.Builder builder = proxySpec.type(ProxyProvider.Proxy.HTTP)
+  @API(status = API.Status.EXPERIMENTAL)
+  protected HttpClient configureProxy(HttpClient httpClient) {
+    return httpClient.proxy(p -> p.type(ProxyProvider.Proxy.HTTP)
         .host(this.proxyHost)
         .port(this.proxyPort)
-        .connectTimeoutMillis(this.connectionTimeout);
-
-    if (this.proxyUser != null && this.proxyPassword != null) {
-      builder = builder.username(this.proxyUser).password(u -> this.proxyPassword);
-    }
-    return builder;
+        .connectTimeoutMillis(this.connectionTimeout)
+        .username(this.proxyUser)
+        .password(u -> this.proxyPassword)
+    );
   }
 }

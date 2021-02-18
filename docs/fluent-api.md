@@ -20,6 +20,22 @@ public class Example {
 }
 ```
 
+### Advanced SymphonyBdk initialization
+Another way to initialize the `SymphonyBdk` entry is to use the `SymphonyBdkBuilder`. 
+
+```java
+public class Example {
+    
+    public static void main(String[] args) {
+        // Initialize the BDK entry point
+        final SymphonyBdk bdk = SymphonyBdk.builder()
+                .apiClientBuilderProvider(CustomApiClientBuilder::new)
+                .authenticatorFactory(new CustomAuthenticatorFactory())
+                .configFromClasspath("/config.yaml")
+                .build();
+    }
+}
+```
 
 ## Using BDK services from SymphonyBdk
 

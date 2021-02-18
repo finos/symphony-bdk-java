@@ -3,6 +3,7 @@ package com.symphony.bdk.http.api;
 /**
  * New {@link ApiClientBuilder} instances provider.
  */
+@FunctionalInterface
 public interface ApiClientBuilderProvider {
 
   /**
