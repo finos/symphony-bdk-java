@@ -41,7 +41,6 @@ dependencies {
 
     api 'org.apiguardian:apiguardian-api'
     implementation 'org.slf4j:slf4j-api'
-    implementation 'commons-codec:commons-codec'
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.commons:commons-text'
