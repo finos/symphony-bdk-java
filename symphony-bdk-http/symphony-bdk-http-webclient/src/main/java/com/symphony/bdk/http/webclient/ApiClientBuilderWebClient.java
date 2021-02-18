@@ -73,7 +73,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   @Override
   public ApiClient build() {
     final WebClient webClient = WebClient.builder()
-        .clientConnector(new ReactorClientHttpConnector(createHttpClient()))
+        .clientConnector(new ReactorClientHttpConnector(this.createHttpClient()))
         .baseUrl(this.basePath)
         .build();
 
@@ -187,7 +187,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
       httpClient = this.configureProxy(httpClient);
     }
 
-    return this.configureProxy(httpClient);
+    return httpClient;
   }
 
   @API(status = API.Status.EXPERIMENTAL)
