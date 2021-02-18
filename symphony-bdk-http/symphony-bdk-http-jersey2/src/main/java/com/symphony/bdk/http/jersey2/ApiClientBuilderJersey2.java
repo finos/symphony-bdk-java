@@ -26,6 +26,10 @@ import javax.ws.rs.client.ClientBuilder;
 
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientJersey2}.
+ *
+ * <p><b>Please note that overriding this class is an {@link org.apiguardian.api.API.Status#EXPERIMENTAL} feature that we
+ * offer to developers for {@link ApiClient} customization. The internal contract of this class (e.g. protected methods)
+ * is subject to changes in the future.</b>
  */
 @API(status = API.Status.STABLE)
 public class ApiClientBuilderJersey2 implements ApiClientBuilder {
@@ -95,7 +99,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
    */
   @Override
   public ApiClientBuilder withUserAgent(String userAgent) {
-    withDefaultHeader("User-Agent", userAgent);
+    this.withDefaultHeader("User-Agent", userAgent);
     return this;
   }
 
@@ -192,10 +196,6 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return this;
   }
 
-  /**
-   *
-   * @return
-   */
   @API(status = API.Status.EXPERIMENTAL)
   protected ClientConfig createClientConfig() {
     final ClientConfig clientConfig = new ClientConfig();
@@ -216,20 +216,12 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return clientConfig;
   }
 
-  /**
-   *
-   * @param clientConfig
-   */
   @API(status = API.Status.EXPERIMENTAL)
   protected void configureJackson(ClientConfig clientConfig) {
     clientConfig.register(new JSON());
     clientConfig.register(JacksonFeature.class);
   }
 
-  /**
-   *
-   * @param clientConfig
-   */
   @API(status = API.Status.EXPERIMENTAL)
   protected void configureProxy(ClientConfig clientConfig) {
     clientConfig.connectorProvider(new ApacheConnectorProvider());

@@ -32,6 +32,10 @@ import javax.net.ssl.TrustManagerFactory;
 
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientWebClient}.
+ *
+ * <p><b>Please note that overriding this class is an {@link org.apiguardian.api.API.Status#EXPERIMENTAL} feature that we
+ * offer to developers for {@link ApiClient} customization. The internal contract of this class (e.g. protected methods)
+ * is subject to changes in the future.</b>
  */
 @API(status = API.Status.EXPERIMENTAL)
 public class ApiClientBuilderWebClient implements ApiClientBuilder {
@@ -170,7 +174,8 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     return this;
   }
 
-  private HttpClient createHttpClient() {
+  @API(status = API.Status.EXPERIMENTAL)
+  protected HttpClient createHttpClient() {
     HttpClient httpClient = HttpClient.create()
         .secure(t -> t.sslContext(this.createSSLContext()))
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectionTimeout)
@@ -185,7 +190,8 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     return this.configureProxy(httpClient);
   }
 
-  private SslContext createSSLContext() {
+  @API(status = API.Status.EXPERIMENTAL)
+  protected SslContext createSSLContext() {
     try {
       SslContextBuilder builder = SslContextBuilder.forClient();
       if (this.trustStoreBytes != null) {
@@ -208,7 +214,8 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     }
   }
 
-  private HttpClient configureProxy(HttpClient httpClient) {
+  @API(status = API.Status.EXPERIMENTAL)
+  protected HttpClient configureProxy(HttpClient httpClient) {
     return httpClient.proxy(p -> p.type(ProxyProvider.Proxy.HTTP)
         .host(this.proxyHost)
         .port(this.proxyPort)
