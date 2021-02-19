@@ -5,9 +5,9 @@ name: Build
 
 on:
   push:
-    branches: [ master, legacy ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, legacy ]
+    branches: [ master ]
 
 jobs:
   build:
