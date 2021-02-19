@@ -44,9 +44,10 @@ To compile, test and build all BDK2.0 jars, use:
 ```
 To compile, test and build legacy jars:
 ```shell script
-cd symphony-bdk-legacy
+git checkout legacy
 ./gradlew
 ```
+> Legacy modules (SDK and BDK 1.0) have been moved to the [legacy](https://github.com/finos/symphony-bdk-java/tree/legacy) branch
 ### Install in local Maven repository
 To install all Symphony BDK jars in your local Maven repository, use:
 ```shell script
