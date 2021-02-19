@@ -7,7 +7,7 @@ The Symphony BDK for Java provides a _Starter_ module that aims to ease bot deve
 - Subscribe to Real Time Events from anywhere
 - Provide injectable services
 - Ease activities creation
-- Provide `@Slash` annotation to register a [slash command](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/SlashCommand.html)
+- Provide `@Slash` annotation to register a [slash command](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/SlashCommand.html)
 
 ## Installation
 
@@ -31,7 +31,7 @@ The following listing shows the `pom.xml` file that has to be created when using
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.symphony.platformsolutions</groupId>
+                <groupId>org.finos.symphony.bdk</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
                 <version>1.3.2.BETA</version>
                 <type>pom</type>
@@ -42,7 +42,7 @@ The following listing shows the `pom.xml` file that has to be created when using
 
     <dependencies>
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
@@ -72,9 +72,9 @@ plugins {
 }
 
 dependencies {
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:2.0.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.0.0')
     
-    implementation 'com.symphony.platformsolutions:symphony-bdk-core-spring-boot-starter'
+    implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter'
 }
 ```
@@ -93,7 +93,7 @@ logging:
   level:
     com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
-> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
+> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/BotApplication.java` class:
 ```java
@@ -285,9 +285,9 @@ this value using `@Slash#mentionBot` annotation parameter.
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
 
-Any service or component class that extends [`FormReplyActivity`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/activity/form/FormReplyActivity.html) 
-or [`CommandActivity`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html) 
-will be automatically registered within the [ActivityRegistry](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/activity/ActivityRegistry.html).
+Any service or component class that extends [`FormReplyActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/form/FormReplyActivity.html) 
+or [`CommandActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html) 
+will be automatically registered within the [ActivityRegistry](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/ActivityRegistry.html).
 
 ### Example of a `CommandActivity` in Spring Boot
 The following example has been described in section [Activity API documentation](../activity-api.md#how-to-create-a-command-activity).

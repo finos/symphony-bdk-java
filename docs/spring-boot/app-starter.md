@@ -28,9 +28,9 @@ The following listing shows the `pom.xml` file that has to be created when using
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.symphony.platformsolutions</groupId>
+                <groupId>org.finos.symphony.bdk</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
-                <version>2.0.0</version>
+                <version>2.1.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -39,7 +39,7 @@ The following listing shows the `pom.xml` file that has to be created when using
 
     <dependencies>
         <dependency>
-            <groupId>com.symphony.platformsolutions</groupId>
+            <groupId>org.finos.symphony.bdk</groupId>
             <artifactId>symphony-bdk-app-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
@@ -48,7 +48,7 @@ The following listing shows the `pom.xml` file that has to be created when using
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.springframework.boot</groupId>
+                    <groupId>org.finos.symphony.bdk</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>2.3.4.RELEASE</version>
                 </plugin>
@@ -65,9 +65,9 @@ plugins {
 }
 
 dependencies {
-    implementation platform('com.symphony.platformsolutions:symphony-bdk-bom:2.0.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.0')
     
-    implementation 'com.symphony.platformsolutions:symphony-bdk-app-spring-boot-starter'
+    implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter'
 }
 ```
 
@@ -107,7 +107,7 @@ logging:
     level:
         com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
-> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
+> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/ExtAppSpringApplication.java` class:
 ```java

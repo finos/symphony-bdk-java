@@ -1,17 +1,15 @@
 [![FINOS - Incubating](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-incubating.svg)](https://finosfoundation.atlassian.net/wiki/display/FINOS/Incubating)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![CircleCI](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java.svg?style=shield)](https://circleci.com/gh/SymphonyPlatformSolutions/symphony-api-client-java)
-[![Known Vulnerabilities](https://snyk.io/test/github/SymphonyPlatformSolutions/symphony-api-client-java/badge.svg)](https://snyk.io/test/github/SymphonyPlatformSolutions/symphony-api-client-java)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-bdk-bom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.symphony.platformsolutions/symphony-bdk-bom)
-[![javadoc](https://javadoc.io/badge2/com.symphony.platformsolutions/symphony-bdk-core/javadoc.svg)](https://javadoc.io/doc/com.symphony.platformsolutions/symphony-bdk-core)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.finos.symphony.bdk/symphony-bdk-bom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.finos.symphony.bdk/symphony-bdk-bom)
+[![javadoc](https://javadoc.io/badge2/org.finossymphony-bdk-core/javadoc.svg)](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core)
 
 # Symphony BDK for Java
 The Symphony BDK for Java helps you to create production-grade Chat Bots and Extension Applications on 
 top of the [Symphony REST APIs](https://developers.symphony.com/restapi/reference). 
 
 ## Installation and Getting Started
-The [reference documentation](https://symphonyplatformsolutions.github.io/symphony-api-client-java) includes detailed installation instructions as well as a comprehensive 
-[getting started](https://symphonyplatformsolutions.github.io/symphony-api-client-java/getting-started.html) guide.
+The [reference documentation](http://symphony-bdk-java.finos.org) includes detailed installation instructions as well as a comprehensive 
+[getting started](http://symphony-bdk-java.finos.org/getting-started.html) guide.
 
 Here is a quick teaser of a complete Symphony BDK application in Java:
 ```java
@@ -56,11 +54,11 @@ To install all Symphony BDK jars in your local Maven repository, use:
 ```
 
 ## Contributing
-In order to get in touch with the project team, please open a [GitHub Issue](https://github.com/SymphonyPlatformSolutions/symphony-api-client-java/issues).
+In order to get in touch with the project team, please open a [GitHub Issue](https://github.com/finos/symphony-bdk-java/issues).
 Alternatively, you can email/subscribe to [symphony@finos.org](https://groups.google.com/a/finos.org/g/symphony).
 
 
-1. Fork it (<https://github.com/SymphonyPlatformSolutions/symphony-api-client-java/fork>)
+1. Fork it (<https://github.com/finos/symphony-bdk-java/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
 4. Commit your changes (`git commit -am 'Add some fooBar'`)
