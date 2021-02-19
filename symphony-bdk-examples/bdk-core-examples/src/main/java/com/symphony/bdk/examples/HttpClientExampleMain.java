@@ -1,9 +1,8 @@
 package com.symphony.bdk.examples;
 
-import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
-
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
@@ -24,16 +23,17 @@ import java.util.UUID;
 @Slf4j
 public class HttpClientExampleMain {
 
-  public static void main(String[] args) throws Exception{
+  public static void main(String[] args) throws Exception {
 
-    final BdkConfig config = loadFromSymphonyDir("config.yaml");
-    final SymphonyBdk bdk = new SymphonyBdk(config);
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(BdkConfigLoader.loadFromSymphonyDir("config.yaml"))
+        .build();
 
     final AuthenticateRequest req = new AuthenticateRequest();
-    req.setToken(generateJwt(config));
+    req.setToken(generateJwt(bdk.config()));
 
     final HttpClient httpClient = bdk.http()
-        .basePath(config.getBasePath())
+        .basePath(bdk.config().getBasePath())
         .header("Connection", "Keep-Alive")
         .header("Keep-Alive", "timeout=5, max=1000")
         .build();

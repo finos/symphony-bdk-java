@@ -37,25 +37,25 @@ import java.io.IOException;
 
 public class SymphonyBdkTest {
 
+  static final String LOGIN_PUBKEY_AUTHENTICATE = "/login/pubkey/authenticate";
+  static final String LOGIN_PUBKEY_APP_AUTHENTICATE = "/login/pubkey/app/authenticate";
+  static final String LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE = "/login/pubkey/app/user/{userId}/authenticate";
+  static final String LOGIN_PUBKEY_OBO_USERNAME_AUTHENTICATE = "/login/pubkey/app/username/{username}/authenticate";
+  static final String LOGIN_PUBKEY_V1_EXTENSION_APP_AUTHENTICATE = "/login/v1/pubkey/app/authenticate/extensionApp";
+  static final String RELAY_PUBKEY_AUTHENTICATE = "/relay/pubkey/authenticate";
+  static final String V2_SESSION_INFO = "/pod/v2/sessioninfo";
+
   private SymphonyBdk symphonyBdk;
   private MockApiClient mockApiClient;
   private ApiClientFactory apiClientFactory;
-  private static final String LOGIN_PUBKEY_AUTHENTICATE = "/login/pubkey/authenticate";
-  private static final String LOGIN_PUBKEY_APP_AUTHENTICATE = "/login/pubkey/app/authenticate";
-  private static final String LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE = "/login/pubkey/app/user/{userId}/authenticate";
-  private static final String LOGIN_PUBKEY_OBO_USERNAME_AUTHENTICATE = "/login/pubkey/app/username/{username}/authenticate";
-  private static final String LOGIN_PUBKEY_V1_EXTENSION_APP_AUTHENTICATE = "/login/v1/pubkey/app/authenticate/extensionApp";
-  private static final String RELAY_PUBKEY_AUTHENTICATE = "/relay/pubkey/authenticate";
-  private static final String V2_SESSION_INFO = "/pod/v2/sessioninfo";
 
   @BeforeEach
   void setUp() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, IOException {
-    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
     config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
     this.mockApiClient = new MockApiClient();
-    ApiClientFactory factory = new ApiClientFactory(config);
-    apiClientFactory = spy(factory);
+    this.apiClientFactory = spy(new ApiClientFactory(config));
 
     doReturn(mockApiClient.getApiClient("/pod")).when(apiClientFactory).getPodClient();
     doReturn(mockApiClient.getApiClient("/agent")).when(apiClientFactory).getAgentClient();
@@ -68,7 +68,10 @@ public class SymphonyBdkTest {
     this.mockApiClient.onPost(RELAY_PUBKEY_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"keyManagerToken\" }");
     this.mockApiClient.onGet(V2_SESSION_INFO, JsonHelper.readFromClasspath("/res_response/bot_info.json"));
 
-    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory);
+    this.symphonyBdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .build();
   }
 
   @Test
@@ -198,10 +201,15 @@ public class SymphonyBdkTest {
   }
 
   @Test
+  void configTest() {
+    assertNotNull(this.symphonyBdk.config());
+  }
+
+  @Test
   void noBotConfigTest() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/no_bot_config.yaml");
     config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
-    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory);
+    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory, null);
 
     assertThrows(BotNotConfiguredException.class, symphonyBdk::applications);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::messages);

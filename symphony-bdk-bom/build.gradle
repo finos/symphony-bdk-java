@@ -77,6 +77,7 @@ dependencies {
         api 'org.mock-server:mockserver-netty:5.11.1'
         api 'org.mockito:mockito-core:3.6.28'
         api 'org.mockito:mockito-junit-jupiter:3.6.28'
+        api 'org.assertj:assertj-core:3.19.0'
     }
 }
 

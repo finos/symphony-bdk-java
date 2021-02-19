@@ -153,15 +153,15 @@ public class ApiClientFactory {
     return buildClientWithCertificate(this.config.getKeyManager(), KEYAUTH_CONTEXT_PATH, this.config.getBot());
   }
 
-  private ApiClient buildClient(String contextPath, BdkClientConfig clientConfig) {
+  protected ApiClient buildClient(String contextPath, BdkClientConfig clientConfig) {
     return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig).build();
   }
 
-  private ApiClient buildAgentClient(String basePath, BdkAgentConfig agentConfig) {
+  protected ApiClient buildAgentClient(String basePath, BdkAgentConfig agentConfig) {
     return getApiClientBuilder(basePath, agentConfig).build();
   }
 
-  private ApiClient buildClientWithCertificate(BdkClientConfig clientConfig, String contextPath, BdkAuthenticationConfig config) {
+  protected ApiClient buildClientWithCertificate(BdkClientConfig clientConfig, String contextPath, BdkAuthenticationConfig config) {
     if (!config.isCertificateAuthenticationConfigured()) {
       throw new ApiClientInitializationException("For certificate authentication, " +
           "certificatePath and certificatePassword must be set");
@@ -183,7 +183,7 @@ public class ApiClientFactory {
     return apiClient;
   }
 
-  private ApiClientBuilder getApiClientBuilder(String basePath, BdkClientConfig clientConfig) {
+  protected ApiClientBuilder getApiClientBuilder(String basePath, BdkClientConfig clientConfig) {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
         .withBasePath(basePath)
@@ -202,7 +202,7 @@ public class ApiClientFactory {
     return apiClientBuilder;
   }
 
-  private void configureTruststore(ApiClientBuilder apiClientBuilder) {
+  protected void configureTruststore(ApiClientBuilder apiClientBuilder) {
     final BdkCertificateConfig trustStoreConfig = this.config.getSsl().getCertificateConfig();
 
     if (trustStoreConfig.isConfigured()) {
@@ -210,7 +210,7 @@ public class ApiClientFactory {
     }
   }
 
-  private void configureProxy(BdkProxyConfig proxyConfig, ApiClientBuilder apiClientBuilder) {
+  protected void configureProxy(BdkProxyConfig proxyConfig, ApiClientBuilder apiClientBuilder) {
     if (proxyConfig != null) {
       apiClientBuilder
           .withProxy(proxyConfig.getHost(), proxyConfig.getPort())

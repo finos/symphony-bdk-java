@@ -34,6 +34,8 @@ public class Example {
 > `Message.builder().content("Hello, World!").build()` will automatically prefix and suffix content with `"<messageML>"` and `"</messageML>"`.
 > Therefore, the actual `Message.getContent()` result will be `"<messageML>Hello, World!</messageML>"`
 
+> `PresentationMLParser.getTextContent(message.getMessage())` can be used on incoming messages to extract the message content 
+> stripped of all tags.
 ## Using templates
 The `Message.Builder` also allows you to build a message from a template. So far, the BDK supports two different template
 engine implementations: 
