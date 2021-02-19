@@ -1,4 +1,4 @@
-description = 'Symphony Java BDK Legacy Module'
+description = 'Symphony Java BDK Legacy Modules'
 
 ext.projectVersion = '1.7.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
