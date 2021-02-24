@@ -40,8 +40,8 @@ allprojects {
 }
 
 nexusStaging {
-    username = rootProject.ext.symphonyRepoUser
-    password = rootProject.ext.symphonyRepoPassword
+    username = rootProject.ext.mavenRepoUsername
+    password = rootProject.ext.mavenRepoPassword
 }
 
 repositories {
