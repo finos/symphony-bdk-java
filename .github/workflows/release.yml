@@ -1,17 +1,13 @@
-# This workflow will build a Java project with Gradle
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+# Release any branch to Maven Central.
+# This workflow currently assumes that the target branch is ready to be release (i.e. version is correct)
 
-name: Build
+name: Release
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [ workflow_dispatch ]
 
 jobs:
   build:
-    name: "Build"
+    name: "Release"
 
     runs-on: ubuntu-latest
 
@@ -31,7 +27,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
     - name: Build with Gradle
-      run: ./gradlew build jacocoTestReport jacocoTestCoverageVerification
+      run: |
+        mkdir -p ~/.gnupg/
+        printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
+        ./gradlew -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }} -Psigning.keyId=${{ secrets.GPG_KEY_ID }} -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=${{ secrets.GPG_KEY_PASSPHRASE }} publish
+      env:
+        GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
     - name: Cleanup Gradle Cache
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
       # Restoring these files from a GitHub Actions cache might cause problems for future builds.
