@@ -2,12 +2,12 @@ plugins {
     id "io.codearte.nexus-staging" version "0.22.0"
 }
 
-ext.projectVersion = '2.1.0'
+ext.projectVersion = '2.1.1-RC1'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
-ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
-ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
+ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.mavenRepoUsername = project.properties['mavenRepoUser'] ?: 'Symphony artifactory user'
+ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
 
 ext.pomDefinition = {
     url = 'https://symphony-bdk-java.finos.org'
