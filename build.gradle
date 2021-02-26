@@ -3,16 +3,16 @@ description = 'Symphony Java BDK Legacy Modules'
 ext.projectVersion = '1.7.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
-ext.symphonyRepoUrl = project.properties['symphonyRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-ext.symphonyRepoUser = project.properties['symphonyRepoUser'] ?: 'Symphony artifactory user'
-ext.symphonyRepoPassword = project.properties['symphonyRepoPassword'] ?: 'Symphony artifactory password'
+ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
+ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
 
 ext.pomDefinition = {
-    url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+    url = 'https://github.com/finos/symphony-bdk-java/tree/legacy'
     licenses {
         license {
-            name = 'MIT License'
-            url = 'http://www.opensource.org/licenses/mit-license.php'
+            name = 'Apache License, Version 2.0'
+            url = 'http://www.apache.org/licenses/LICENSE-2.0'
         }
     }
     developers {
@@ -24,9 +24,9 @@ ext.pomDefinition = {
         }
     }
     scm {
-        connection = 'scm:git:git://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-        developerConnection = 'scm:git:ssh://github.com/SymphonyPlatformSolutions/symphony-api-client-java.git'
-        url = 'https://github.com/SymphonyPlatformSolutions/symphony-api-client-java'
+        connection = 'scm:git:git://github.com/finos/symphony-bdk-java.git'
+        developerConnection = 'scm:git:ssh://github.com/finos/symphony-bdk.git'
+        url = 'https://github.com/finos/symphony-bdk-java'
     }
 }
 
@@ -46,26 +46,19 @@ buildscript {
     }
     dependencies {
         classpath 'io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0'
-        classpath 'gradle.plugin.io.snyk.gradle.plugin:snyk:0.4'
     }
 }
 
 apply plugin: 'io.codearte.nexus-staging'
-apply plugin: 'io.snyk.gradle.plugin.snykplugin'
 
 nexusStaging {
-    username = rootProject.ext.symphonyRepoUser
-    password = rootProject.ext.symphonyRepoPassword
+    username = rootProject.ext.mavenRepoUsername
+    password = rootProject.ext.mavenRepoPassword
 }
 
 // Required for Snyk plugin to work (https://github.com/snyk/gradle-plugin/issues/1)
 repositories {
     mavenCentral()
-}
-
-snyk {
-    arguments = '--all-sub-projects'
-    severity = 'high'
 }
 
 subprojects {
@@ -170,10 +163,10 @@ subprojects {
         repositories {
             maven {
                 credentials {
-                    username rootProject.ext.symphonyRepoUser
-                    password rootProject.ext.symphonyRepoPassword
+                    username rootProject.ext.mavenRepoUsername
+                    password rootProject.ext.mavenRepoPassword
                 }
-                url rootProject.ext.symphonyRepoUrl
+                url rootProject.ext.mavenRepoUrl
             }
         }
 
