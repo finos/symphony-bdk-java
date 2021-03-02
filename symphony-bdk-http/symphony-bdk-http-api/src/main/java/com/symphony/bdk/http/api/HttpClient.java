@@ -2,12 +2,14 @@ package com.symphony.bdk.http.api;
 
 import com.symphony.bdk.http.api.util.TypeReference;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.With;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -368,34 +370,55 @@ public class HttpClient {
   @Getter
   @NoArgsConstructor
   @AllArgsConstructor
+  @With(AccessLevel.PROTECTED)
   private static class RequestConfig {
 
-    @With private Map<String, String> headers;
-    @With private Map<String, String> cookies;
-    @With private Map<String, Object> formParams;
-    @With private List<Pair> queryParams;
+    private Map<String, String> headers;
+    private Map<String, String> cookies;
+    private Map<String, Object> formParams;
+    private List<Pair> queryParams;
 
-    @With private String path;
-    @With private Object body;
-    @With private String accept;
-    @With private String contentType;
+    private String path;
+    private Object body;
+    private String accept;
+    private String contentType;
 
     public Map<String, String> appendHeader(String key, String value) {
+
+      if (this.headers == null) {
+        this.headers = new HashMap<>();
+      }
+
       this.headers.put(key, value);
       return this.headers;
     }
 
     public Map<String, String> appendCookie(String key, String value) {
+
+      if (this.cookies == null) {
+        this.cookies = new HashMap<>();
+      }
+
       this.cookies.put(key, value);
       return this.cookies;
     }
 
     public List<Pair> appendQueryParam(String key, String value) {
+
+      if (this.queryParams == null) {
+        this.queryParams = new ArrayList<>();
+      }
+
       this.queryParams.add(new Pair(key, value));
       return this.queryParams;
     }
 
     public Map<String, Object> appendFormParam(String key, Object value) {
+
+      if (this.formParams == null) {
+        this.formParams = new HashMap<>();
+      }
+
       this.formParams.put(key, value);
       return this.formParams;
     }
