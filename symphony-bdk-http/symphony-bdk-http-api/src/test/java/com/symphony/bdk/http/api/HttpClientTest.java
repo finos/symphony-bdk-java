@@ -21,6 +21,8 @@ class HttpClientTest {
 
     final String response = httpClient.path("/api/v1/users")
         .header("Authorization", "Bearer AbCdEf123456")
+        .queryParam("test", "test")
+        .formParam("test", "test")
         .get(new TypeReference<String>() {});
   }
 
