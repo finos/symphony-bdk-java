@@ -65,15 +65,19 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
     return this.retry.executeCheckedSupplier(this::executeOnce);
   }
 
-  private Retry createRetry(String name, BdkRetryConfig bdkRetryConfig,
-      Predicate<Throwable> retryOnExceptionPredicate) {
-    RetryConfig retryConfig = RetryConfig.custom()
+  private Retry createRetry(
+      final String name,
+      final BdkRetryConfig bdkRetryConfig,
+      final Predicate<Throwable> retryOnExceptionPredicate
+  ) {
+
+    final RetryConfig retryConfig = RetryConfig.custom()
         .maxAttempts(bdkRetryConfig.getMaxAttempts())
         .intervalFunction(BdkExponentialFunction.ofExponentialBackoff(bdkRetryConfig))
         .retryOnException(retryOnExceptionPredicate)
         .build();
 
-    Retry retry = Retry.of(name, retryConfig);
+    final Retry retry = Retry.of(name, retryConfig);
     retry.getEventPublisher().onRetry(event -> {
       double interval = event.getWaitInterval().toMillis() / 1000.0;
       if (event.getLastThrowable() != null) {
