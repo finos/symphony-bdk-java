@@ -11,7 +11,7 @@ public final class ApiUtils {
    * @return a user agent string containing the current BDK version
    */
   public static String getUserAgent() {
-    return "Symphony BDK/" + getBdkVersion() + "/java/" + System.getProperty("java.version");
+    return "Symphony-BDK-Java/" + getBdkVersion() + " Java/" + System.getProperty("java.version");
   }
 
   private static String getBdkVersion() {
