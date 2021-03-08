@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,6 +10,8 @@ import com.symphony.bdk.core.config.model.BdkBotConfig;
 import com.symphony.bdk.core.config.model.BdkCertificateConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkExtAppConfig;
+
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
 
 import org.junit.jupiter.api.Test;
 
@@ -52,9 +55,8 @@ public class BdkConfigTest {
   void testBdkCertificateConfigNotFoundInClasspath() {
     BdkCertificateConfig certificateConfig = new BdkCertificateConfig("classpath:/certs/notfound", "password");
 
-    assertThrows(ApiClientInitializationException.class, () -> certificateConfig.getCertificateBytes());
+    assertThrows(ApiClientInitializationException.class, certificateConfig::getCertificateBytes);
   }
-
 
   private void assertIsCertificateAuthenticationConfigured(String certificatePath, String certificatePassword,
       boolean expected) {
@@ -77,5 +79,23 @@ public class BdkConfigTest {
     bdkConfig.setApp(extAppConfig);
 
     assertEquals(expected, bdkConfig.isOboConfigured());
+  }
+
+  @Test
+  void checkDefaultDatafeedRetryConfiguration() throws Exception {
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/df_retry_config.yaml");
+
+    // check global retry configuration
+    // properties are different from default values
+    assertThat(config.getRetry().getMaxAttempts()).isEqualTo(2);
+    assertThat(config.getRetry().getInitialIntervalMillis()).isEqualTo(1000);
+    assertThat(config.getRetry().getMultiplier()).isEqualTo(3.0);
+    assertThat(config.getRetry().getMaxIntervalMillis()).isEqualTo(2000);
+
+    // check specific datafeed retry configuration
+    assertThat(config.getDatafeed().getRetry().getMaxAttempts()).isEqualTo(Integer.MAX_VALUE);
+    assertThat(config.getDatafeed().getRetry().getInitialIntervalMillis()).isEqualTo(BdkRetryConfig.DEFAULT_INITIAL_INTERVAL_MILLIS);
+    assertThat(config.getDatafeed().getRetry().getMultiplier()).isEqualTo(BdkRetryConfig.DEFAULT_MULTIPLIER);
+    assertThat(config.getDatafeed().getRetry().getMaxIntervalMillis()).isEqualTo(BdkRetryConfig.DEFAULT_MAX_INTERVAL_MILLIS);
   }
 }

@@ -26,10 +26,11 @@ import javax.net.ssl.SSLHandshakeException;
 @Slf4j
 @API(status = API.Status.INTERNAL)
 public abstract class RetryWithRecovery<T> {
-  private SupplierWithApiException<T> supplier;
-  private Predicate<Exception> ignoreException;
-  private List<RecoveryStrategy> recoveryStrategies;
-  private String address;
+
+  private final SupplierWithApiException<T> supplier;
+  private final Predicate<Exception> ignoreException;
+  private final List<RecoveryStrategy> recoveryStrategies;
+  private final String address;
 
   /**
    * This is a helper function designed to cover most of the retry cases.
@@ -44,9 +45,14 @@ public abstract class RetryWithRecovery<T> {
    * @throws ApiRuntimeException if a non-handled {@link ApiException} thrown or if the max number of retries has been reached.
    * @throws RuntimeException    if any other exception thrown.
    */
-  public static <T> T executeAndRetry(RetryWithRecoveryBuilder baseRetryBuilder, String name, String address,
-      SupplierWithApiException<T> supplier) {
-    RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
+  public static <T> T executeAndRetry(
+      final RetryWithRecoveryBuilder<?> baseRetryBuilder,
+      final String name,
+      final String address,
+      final SupplierWithApiException<T> supplier
+  ) {
+
+    final RetryWithRecovery<T> retry = RetryWithRecoveryBuilder.<T>from(baseRetryBuilder)
         .name(name)
         .supplier(supplier)
         .basePath(address)
@@ -61,8 +67,12 @@ public abstract class RetryWithRecovery<T> {
     }
   }
 
-  public RetryWithRecovery(SupplierWithApiException<T> supplier, Predicate<Exception> ignoreException,
-      List<RecoveryStrategy> recoveryStrategies, String address) {
+  public RetryWithRecovery(
+      SupplierWithApiException<T> supplier,
+      Predicate<Exception> ignoreException,
+      List<RecoveryStrategy> recoveryStrategies,
+      String address
+  ) {
     this.supplier = supplier;
     this.ignoreException = ignoreException;
     this.recoveryStrategies = recoveryStrategies;
