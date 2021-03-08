@@ -1,8 +1,10 @@
 package com.symphony.bdk.http.api;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.http.api.util.ApiUtils;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,11 @@ class HttpClientTest {
         .queryParam("test", "test")
         .formParam("test", "test")
         .get(new TypeReference<String>() {});
+  }
+
+  @Test
+  public void userAgent() {
+    assertTrue(ApiUtils.getUserAgent().matches("^Symphony-BDK-Java/\\S+ Java/\\S+"));
   }
 
   private ApiClientBuilder mockedApiClientBuilder() {
