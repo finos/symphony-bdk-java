@@ -1,0 +1,13 @@
+host: acme.symphony.com
+
+bot:
+  username: tibot
+  privateKeyPath: /Users/local/conf/agent/privatekey.pem
+
+retry:
+  maxAttempts: 2
+  initialIntervalMillis: 1000
+  multiplier: 3.0
+  maxIntervalMillis: 2000
+
+# here we don't want to configure datafeed retry, to ensure that it has an infinite number of retries by default

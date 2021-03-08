@@ -13,7 +13,7 @@ public class BdkDatafeedConfig {
 
     private String version = "v1";
     private String idFilePath;
-    private BdkRetryConfig retry;
+    private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
 
     public String getIdFilePath() {
         if (idFilePath == null || idFilePath.isEmpty()) {
