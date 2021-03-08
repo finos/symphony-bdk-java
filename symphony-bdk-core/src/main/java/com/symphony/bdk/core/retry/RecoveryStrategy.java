@@ -14,8 +14,8 @@ import java.util.function.Predicate;
 @API(status = API.Status.INTERNAL)
 public class RecoveryStrategy {
 
-  private Predicate<Exception> condition;
-  private ConsumerWithThrowable recovery;
+  private final Predicate<Exception> condition;
+  private final ConsumerWithThrowable recovery;
 
   /**
    *
@@ -36,15 +36,15 @@ public class RecoveryStrategy {
    * @return true if the provided exception corresponds to the recovery strategy
    */
   public boolean matches(Exception e) {
-    return condition.test(e);
+    return this.condition.test(e);
   }
 
   /**
    * Runs the recovery function.
    *
-   * @throws Throwable
+   * @throws Throwable can be thrown by {@link ConsumerWithThrowable#consume()}
    */
   public void runRecovery() throws Throwable {
-    recovery.consume();
+    this.recovery.consume();
   }
 }

@@ -63,6 +63,17 @@ Bot developers can also configure a dedicated retry mechanism which will be used
 Basically, the datafeed service retry configuration has the field same as the global retry configuration with the fields for implementing 
 the exponential backoff mechanism.
 
+### Infinite retries
+By default, Datafeed retry is configured to have an infinite number of attempts. This is equivalent to: 
+```yaml
+datafeed:
+  retry:
+    maxAttempts: -1 # infinite number of attemps
+    initialIntervalMillis: 2000
+    multiplier: 1.5
+    maxIntervalMillis: 10000
+```
+
 ## Subscribe/Unsubscribe RealTimeEventListener
 
 [RealTimeEventListener](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/service/datafeed/RealTimeEventListener.html) is an interface definition for a callback to be invoked when a real-time event is received from the datafeed.

@@ -10,9 +10,9 @@ public class BdkRetryConfigTestHelper {
 
   public static BdkRetryConfig ofMinimalInterval(int maxAttempts) {
     BdkRetryConfig retryConfig = new BdkRetryConfig();
-    retryConfig.setMultiplier(1);
-    retryConfig.setInitialIntervalMillis(10);
-    retryConfig.setMaxIntervalMillis(10);
+    retryConfig.setMultiplier(1.0);
+    retryConfig.setInitialIntervalMillis(10L);
+    retryConfig.setMaxIntervalMillis(10L);
     retryConfig.setMaxAttempts(maxAttempts);
 
     return retryConfig;

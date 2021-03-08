@@ -18,3 +18,8 @@ app:
   appId: tibapp
   privateKey:
     path: /Users/local/conf/agent/privatekey.pem
+
+datafeed:
+  retry:
+    maxAttempts: 2
+
