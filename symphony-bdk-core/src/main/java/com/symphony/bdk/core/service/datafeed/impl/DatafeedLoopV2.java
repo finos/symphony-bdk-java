@@ -73,7 +73,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      log.error(networkIssueMessageError(throwable,datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
+      log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
     }
   }
 
