@@ -28,10 +28,12 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
 
   protected final AuthSession authSession;
   protected final BdkConfig bdkConfig;
-  protected final List<RealTimeEventListener> listeners;
   protected final RetryWithRecoveryBuilder retryWithRecoveryBuilder;
   protected DatafeedApi datafeedApi;
   protected ApiClient apiClient;
+
+  // access needs to be thread safe (DF loop is usually running on its own thread)
+  private final List<RealTimeEventListener> listeners;
 
   public AbstractDatafeedLoop(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     this.datafeedApi = datafeedApi;
@@ -55,7 +57,9 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    */
   @Override
   public void subscribe(RealTimeEventListener listener) {
-    listeners.add(listener);
+    synchronized (listeners) {
+      listeners.add(listener);
+    }
   }
 
   /**
@@ -63,7 +67,9 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    */
   @Override
   public void unsubscribe(RealTimeEventListener listener) {
-    listeners.remove(listener);
+    synchronized (listeners) {
+      listeners.remove(listener);
+    }
   }
 
   /**
@@ -79,9 +85,11 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
 
       try {
         RealTimeEventType eventType = RealTimeEventType.valueOf(event.getType());
-        for (RealTimeEventListener listener : listeners) {
-          if (listener.isAcceptingEvent(event, bdkConfig.getBot().getUsername())) {
-            eventType.dispatch(listener, event);
+        synchronized (listeners) {
+          for (RealTimeEventListener listener : listeners) {
+            if (listener.isAcceptingEvent(event, bdkConfig.getBot().getUsername())) {
+              eventType.dispatch(listener, event);
+            }
           }
         }
       } catch (IllegalArgumentException e) {
