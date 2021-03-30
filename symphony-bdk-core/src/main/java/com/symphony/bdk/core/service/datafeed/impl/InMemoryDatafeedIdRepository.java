@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +13,14 @@ import org.apiguardian.api.API;
 @API(status = API.Status.INTERNAL)
 public class InMemoryDatafeedIdRepository implements DatafeedIdRepository {
 
-  private final BdkConfig config;
-  private String datafeedId = null;
-  private String agentBasePath = null;
+  private final String defaultAgentBasePath;
+  private String datafeedId;
+  private String agentBasePath;
 
-  public InMemoryDatafeedIdRepository(BdkConfig config) {
-    this.config = config;
+  public InMemoryDatafeedIdRepository(String defaultAgentBasePath) {
+    this.defaultAgentBasePath = defaultAgentBasePath;
+    this.datafeedId = null;
+    this.agentBasePath = null;
   }
 
   /**
@@ -27,9 +28,10 @@ public class InMemoryDatafeedIdRepository implements DatafeedIdRepository {
    */
   @Override
   public void write(String datafeedId) {
-    write(datafeedId, this.config.getAgent().getBasePath());
+    write(datafeedId, defaultAgentBasePath);
   }
 
+  @Override
   public void write(String datafeedId, String agentBasePath) {
     log.debug("Writing datafeed id {} to memory.", datafeedId);
     this.datafeedId = datafeedId;
@@ -41,18 +43,11 @@ public class InMemoryDatafeedIdRepository implements DatafeedIdRepository {
    */
   @Override
   public Optional<String> read() {
-    if (datafeedId == null) {
-      return Optional.empty();
-    } else {
-      return Optional.of(datafeedId);
-    }
+    return Optional.ofNullable(this.datafeedId);
   }
 
+  @Override
   public Optional<String> readAgentBasePath() {
-    if (agentBasePath == null) {
-      return Optional.empty();
-    } else {
-      return Optional.of(agentBasePath);
-    }
+    return Optional.ofNullable(this.agentBasePath);
   }
 }

@@ -24,7 +24,6 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
-import com.symphony.bdk.core.test.InMemoryDatafeedIdRepository;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.Datafeed;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;

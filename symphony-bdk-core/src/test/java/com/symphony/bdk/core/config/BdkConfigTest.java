@@ -100,12 +100,12 @@ public class BdkConfigTest {
   @Test
   void checkDatafeedPersistenceFalse() throws Exception {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/df_no_reuse.yaml");
-    assertFalse(config.getDatafeed().getReuseDatafeedId());
+    assertFalse(config.getDatafeed().isReuseDatafeedId());
   }
 
   @Test
   void checkDatafeedPersistenceNotSet() throws Exception {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
-    assertTrue(config.getDatafeed().getReuseDatafeedId());
+    assertTrue(config.getDatafeed().isReuseDatafeedId());
   }
 }

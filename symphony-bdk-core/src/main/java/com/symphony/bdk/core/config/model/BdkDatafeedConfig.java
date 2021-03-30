@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.config.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
@@ -14,6 +15,8 @@ public class BdkDatafeedConfig {
   private String version = "v1";
   private String idFilePath;
   private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
+
+  @Getter(AccessLevel.NONE)
   private Boolean reuseDatafeedId;
 
   public String getIdFilePath() {
@@ -26,7 +29,7 @@ public class BdkDatafeedConfig {
     return idFilePath;
   }
 
-  public boolean getReuseDatafeedId() {
+  public boolean isReuseDatafeedId() {
     if (reuseDatafeedId == null) {
       return true;
     } else {
