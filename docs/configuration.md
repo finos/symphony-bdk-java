@@ -117,6 +117,7 @@ datafeed:
     initialIntervalMillis: 2000
     multiplier: 1.5
     maxIntervalMillis: 10000
+  reuseDatafeedId: true
 
 retry:
   maxAttempts: 6 # set '-1' for an infinite number of attempts, default value is '10'
@@ -180,6 +181,7 @@ configuration inside service configuration to override the global one.
 The datafeed configuration will contain information about the datafeed service to be used by the bot:
 - `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v1
 service. 
+- `reuseDatafeedId`: specifies if we should read/write from `idFilePath`. If not specified, this is defaulted to true.
 - `idFilePath`: the path to the file which will be used to persist a created datafeed id in case the 
 datafeed service v1 is used.
 - `retry`: the specific retry configuration can be used to override the global retry configuration. If no
