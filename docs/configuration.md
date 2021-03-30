@@ -184,7 +184,7 @@ service.
 - `reuseDatafeedId`: specifies if we should persist the datafeed to `idFilePath`. If not specified, this is defaulted 
   to true. (Available for Datafeed v1 only)
 - `idFilePath`: the path to the file which will be used to persist a created datafeed id. 
-  (Available for Datafeed v1. `reuseDatafeedId` must be true)
+  (Available for Datafeed v1 only. `reuseDatafeedId` must be true)
 - `retry`: the specific retry configuration can be used to override the global retry configuration. If no
 retry configuration is defined, the global one will be used.
 
