@@ -1,9 +1,7 @@
 package com.symphony.bdk.core.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkBotConfig;
@@ -97,5 +95,17 @@ public class BdkConfigTest {
     assertThat(config.getDatafeed().getRetry().getInitialIntervalMillis()).isEqualTo(BdkRetryConfig.DEFAULT_INITIAL_INTERVAL_MILLIS);
     assertThat(config.getDatafeed().getRetry().getMultiplier()).isEqualTo(BdkRetryConfig.DEFAULT_MULTIPLIER);
     assertThat(config.getDatafeed().getRetry().getMaxIntervalMillis()).isEqualTo(BdkRetryConfig.DEFAULT_MAX_INTERVAL_MILLIS);
+  }
+
+  @Test
+  void checkDatafeedPersistenceFalse() throws Exception {
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/df_no_reuse.yaml");
+    assertFalse(config.getDatafeed().getReuseDatafeedId());
+  }
+
+  @Test
+  void checkDatafeedPersistenceNotSet() throws Exception {
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    assertTrue(config.getDatafeed().getReuseDatafeedId());
   }
 }

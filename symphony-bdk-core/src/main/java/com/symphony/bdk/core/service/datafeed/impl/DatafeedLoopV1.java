@@ -50,7 +50,8 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
   private String datafeedId;
 
   public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
-    this(datafeedApi, authSession, config, new OnDiskDatafeedIdRepository(config));
+    this(datafeedApi, authSession, config, config.getDatafeed().getReuseDatafeedId() ?
+        new OnDiskDatafeedIdRepository(config) : new InMemoryDatafeedIdRepository(config));
   }
 
   public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config,
