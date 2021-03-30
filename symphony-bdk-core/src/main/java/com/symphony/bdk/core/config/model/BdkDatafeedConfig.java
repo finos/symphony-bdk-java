@@ -15,9 +15,7 @@ public class BdkDatafeedConfig {
   private String version = "v1";
   private String idFilePath;
   private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
-
-  @Getter(AccessLevel.NONE)
-  private Boolean reuseDatafeedId;
+  private boolean reuseDatafeedId = true;
 
   public String getIdFilePath() {
     if (idFilePath == null || idFilePath.isEmpty()) {
@@ -27,13 +25,5 @@ public class BdkDatafeedConfig {
       return idFilePath + File.separator;
     }
     return idFilePath;
-  }
-
-  public boolean isReuseDatafeedId() {
-    if (reuseDatafeedId == null) {
-      return true;
-    } else {
-      return reuseDatafeedId;
-    }
   }
 }
