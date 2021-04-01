@@ -1,9 +1,11 @@
 package com.symphony.bdk.core.service.message;
 
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateEngine;
+
 
 import org.apiguardian.api.API;
 
@@ -63,4 +65,13 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull String streamId, @Nonnull Message message);
+
+  /**
+   * Suppresses a users message based on the messageID pass in parameter.
+   *
+   * @param messageId   the ID of the message to suppress
+   * @return a {@link MessageSuppressionResponse} object containing the details of the suppressed message
+   * @see <a href="https://developers.symphony.com/restapi/reference#suppress-message">Suppress Message</a>
+   */
+  MessageSuppressionResponse suppressMessage(@Nonnull String messageId);
 }

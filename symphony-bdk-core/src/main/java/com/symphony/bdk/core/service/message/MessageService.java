@@ -28,6 +28,7 @@ import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
+import com.symphony.bdk.gen.api.model.V4MessageSuppressed;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
