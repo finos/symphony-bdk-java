@@ -88,7 +88,7 @@ public class Example {
 At the same time, only one of path and the content of private key or certificate are allowed to be configured. If both of
 them are configured, an `AuthInitializationException` will be thrown.
 
-### Multiple bot instances
+### Multiple service accounts 
 By design, the `SymphonyBdk` object contains a single bot session. However, you might want to create an application that
 has to handle multiple bot sessions, potentially using different authentication modes. This is possible by creating 
 multiple instances of `SymphonyBdk` using different configurations:
