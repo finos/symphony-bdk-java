@@ -18,6 +18,7 @@ bdk-app:
     jwtCookie:
       enabled: true
       maxAge: 1d
+      sameSite: None
   cors:
     "[/**]":
       allowed-origins: "*"
