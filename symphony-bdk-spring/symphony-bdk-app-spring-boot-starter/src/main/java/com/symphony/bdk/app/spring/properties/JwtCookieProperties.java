@@ -22,6 +22,11 @@ public class JwtCookieProperties {
   private Boolean enabled = false;
 
   /**
+   * The SameSite attribute for JWT cookie. Default: Strict
+   */
+  private String sameSite = "Strict";
+
+  /**
    * The maximum duration that the JWT will be stored in cookie.
    */
   @DurationUnit(ChronoUnit.SECONDS)
