@@ -68,7 +68,7 @@ public class CircleOfTrustController {
         .secure(true)
         .httpOnly(true)
         .path(path)
-        .sameSite("None") // Cookie is always sent in cross-site requests.
+        .sameSite("Strict")
         .build();
   }
 
