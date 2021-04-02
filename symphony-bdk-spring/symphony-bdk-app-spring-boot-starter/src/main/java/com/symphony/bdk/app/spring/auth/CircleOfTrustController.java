@@ -61,6 +61,8 @@ public class CircleOfTrustController {
 
   private ResponseCookie jwtCookie(String jwt, String path) {
     final int maxAgeInSeconds = (int) this.properties.getAuth().getJwtCookie().getMaxAge().getSeconds();
+    final String sameSite = this.properties.getAuth().getJwtCookie().getSameSite();
+
     log.debug("Creating JWT cookie: maxAge={}s", maxAgeInSeconds);
 
     return ResponseCookie.from("userJwt", jwt)
@@ -68,7 +70,7 @@ public class CircleOfTrustController {
         .secure(true)
         .httpOnly(true)
         .path(path)
-        .sameSite("None") // Cookie is always sent in cross-site requests.
+        .sameSite(sameSite)
         .build();
   }
 
