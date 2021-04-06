@@ -91,6 +91,7 @@ bdk-app:
       enabled: true # activate the CircleOfTrust endpoints (default is true)
       jwtCookie:
         enabled: true # activate the jwt cookie storage (default is false)
+        sameSite: Strict # same site configuration to restrict the jwt cookie from cross-site domain (default is Strict)
         expireIn: 1d # jwt cookie duration (default value is 1d, see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config-conversion-duration) 
     cors: # enable Cross-Origin Resource Sharing (CORS) communication
       "[/**]": # url mapping
