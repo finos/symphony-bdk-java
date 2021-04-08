@@ -324,12 +324,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Suppresses a message, preventing its contents from being displayed to users.
-   *
-   * @param messageId the ID of the message to suppress.
-   * @return a {@link MessageSuppressionResponse} instance containing information about the message suppression.
-   * @see <a href="https://developers.symphony.com/restapi/reference#suppress-message">Suppress Message</a>
+   * {@inheritDoc}
    */
+  @Override
   public MessageSuppressionResponse suppressMessage(@Nonnull String messageId) {
     return executeAndRetry("suppressMessage", messageSuppressionApi.getApiClient().getBasePath(),
         () -> messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(messageId, authSession.getSessionToken()));
