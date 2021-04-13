@@ -12,10 +12,12 @@ import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
+import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.util.List;
@@ -43,13 +45,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @API(status = API.Status.INTERNAL)
 public class DatafeedLoopV2 extends AbstractDatafeedLoop {
 
+  /**
+   * DFv2 API authorizes a maximum length for the tag parameter,
+   * this might be an issue if bots are using very long names,
+   * in that case the differentiating part between bot's names
+   * should be put first.
+   */
+  private static final int DATAFEED_TAG_MAX_LENGTH = 100;
+
   private final AtomicBoolean started = new AtomicBoolean();
   private final AckId ackId;
+  private final String tag;
+
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
     super(datafeedApi, authSession, config);
     this.ackId = new AckId().ackId("");
+    this.tag = StringUtils.truncate(bdkConfig.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
   }
 
   /**
@@ -73,7 +86,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      log.error(networkIssueMessageError(throwable,datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
+      log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
     }
   }
 
@@ -101,7 +114,8 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
   }
 
   private V5Datafeed tryCreateDatafeed() throws ApiException {
-    return this.datafeedApi.createDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken());
+    return this.datafeedApi.createDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken(),
+        new V5DatafeedCreateBody().tag(tag));
   }
 
   private V5Datafeed retrieveDatafeed() throws Throwable {
@@ -117,9 +131,10 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
 
   private V5Datafeed tryRetrieveDatafeed() throws ApiException {
     final List<V5Datafeed> datafeeds =
-        this.datafeedApi.listDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken());
+        this.datafeedApi.listDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken(), tag);
 
     if (!datafeeds.isEmpty()) {
+      // we expect bots to only use one datafeed
       return datafeeds.get(0);
     }
     return null;
@@ -144,10 +159,17 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
         authSession.getSessionToken(),
         authSession.getKeyManagerToken(),
         ackId);
-    this.ackId.setAckId(v5EventList.getAckId());
     List<V4Event> events = v5EventList.getEvents();
-    if (events != null && !events.isEmpty()) {
-      this.handleV4EventList(events);
+    try {
+      if (events != null && !events.isEmpty()) {
+        log.debug("Received {} events and ack id {}", events.size(), this.ackId.getAckId());
+        this.handleV4EventList(events);
+      } else {
+        log.debug("Received no events and ack id {}", this.ackId.getAckId());
+      }
+      this.ackId.setAckId(v5EventList.getAckId());
+    } catch (Exception e) {
+      log.error("Failed to process events, will not update ack id", e);
     }
     return null;
   }
