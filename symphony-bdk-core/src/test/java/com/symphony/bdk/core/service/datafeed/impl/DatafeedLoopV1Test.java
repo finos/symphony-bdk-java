@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,6 +51,8 @@ import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,6 +70,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.ProcessingException;
@@ -423,10 +427,14 @@ class DatafeedLoopV1Test {
 
   @Test
   void handleV4EventTest() {
-    List<V4Event> events = new ArrayList<>();
+
+    final String traceId = UUID.randomUUID().toString();
+
+    final List<V4Event> events = new ArrayList<>();
     events.add(null);
-    RealTimeEventType[] types = RealTimeEventType.values();
-    V4Payload payload = new V4Payload()
+
+    final RealTimeEventType[] types = RealTimeEventType.values();
+    final V4Payload payload = new V4Payload()
         .messageSent(new V4MessageSent())
         .messageSuppressed(new V4MessageSuppressed())
         .symphonyElementsAction(new V4SymphonyElementsAction())
@@ -443,19 +451,32 @@ class DatafeedLoopV1Test {
         .userLeftRoom(new V4UserLeftRoom())
         .userJoinedRoom(new V4UserJoinedRoom())
         .userRequestedToJoinRoom(new V4UserRequestedToJoinRoom());
-    V4Initiator initiator = new V4Initiator().user(new V4User().username("username"));
+
+    final V4Initiator initiator = new V4Initiator().user(new V4User().username("username"));
     for (RealTimeEventType type : types) {
-      V4Event event = new V4Event().type(type.name());
-      event.payload(payload).initiator(initiator);
+      final V4Event event = new V4Event().type(type.name());
+      event.id(traceId).payload(payload).initiator(initiator);
       events.add(event);
     }
     events.add(new V4Event().type("unknown-type").payload(payload));
     events.add(new V4Event().type(null));
-    events.add(new V4Event().type(types[0].name())
-        .initiator(new V4Initiator().user(new V4User().username(bdkConfig.getBot().getUsername()))));
+    events.add(new V4Event().type(types[0].name()).initiator(
+        new V4Initiator().user(
+            new V4User().username(this.bdkConfig.getBot().getUsername()))
+        )
+    );
+
     this.datafeedService.unsubscribe(this.listener);
-    RealTimeEventListener listener = new RealTimeEventListener() {};
-    RealTimeEventListener spiedListener = Mockito.spy(listener);
+
+    final RealTimeEventListener listener = new RealTimeEventListener() {
+
+      @Override
+      public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
+        assertThat(DistributedTracingContext.getTraceId()).isEqualTo(traceId);
+      }
+    };
+
+    final RealTimeEventListener spiedListener = Mockito.spy(listener);
     this.datafeedService.subscribe(spiedListener);
     this.datafeedService.handleV4EventList(events);
 
@@ -476,5 +497,4 @@ class DatafeedLoopV1Test {
     verify(spiedListener).onUserJoinedRoom(initiator, payload.getUserJoinedRoom());
     verify(spiedListener).onUserRequestedToJoinRoom(initiator, payload.getUserRequestedToJoinRoom());
   }
-
 }
