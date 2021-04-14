@@ -474,6 +474,11 @@ class DatafeedLoopV1Test {
       public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
         assertThat(DistributedTracingContext.getTraceId()).isEqualTo(traceId);
       }
+
+      @Override
+      public void onUserJoinedRoom(V4Initiator initiator, V4UserJoinedRoom event) {
+        throw new RuntimeException("Let's try to break the DF loop!");
+      }
     };
 
     final RealTimeEventListener spiedListener = Mockito.spy(listener);
