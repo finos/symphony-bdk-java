@@ -4,7 +4,6 @@ import org.apiguardian.api.API;
 import org.slf4j.MDC;
 
 import java.security.SecureRandom;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -67,13 +66,13 @@ public final class DistributedTracingContext {
    * @param runnable the logic to be executed
    */
   public static void doWithTraceId(String traceId, Runnable runnable) {
-    final Map<String, String> backup = MDC.getCopyOfContextMap();
+    final String backup = getTraceId();
     setTraceId(traceId);
     try {
       runnable.run();
     } finally {
       clear();
-      MDC.setContextMap(backup);
+      setTraceId(backup);
     }
   }
 

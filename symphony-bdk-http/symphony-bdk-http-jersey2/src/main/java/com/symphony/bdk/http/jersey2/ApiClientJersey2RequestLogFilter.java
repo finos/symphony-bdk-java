@@ -21,7 +21,7 @@ public class ApiClientJersey2RequestLogFilter implements ClientRequestFilter, Cl
 
   private static final Logger log = getLogger("com.symphony.bdk.requests.outgoing");
 
-  private static final String INTERNAL_CLIENT_START_TIME_REQUEST_HEADER = "X-BDK-internal-request-start-time";
+  private static final String INTERNAL_CLIENT_REQUEST_START_TIME = "X-BDK-internal-request-start-time";
   private static final String INTERNAL_REQUEST_LOG_MESSAGE = "status={}, url={}, time={}";
 
   /**
@@ -30,7 +30,7 @@ public class ApiClientJersey2RequestLogFilter implements ClientRequestFilter, Cl
   @Override
   public void filter(ClientRequestContext requestContext) {
     if (log.isDebugEnabled()) {
-      requestContext.getHeaders().add(INTERNAL_CLIENT_START_TIME_REQUEST_HEADER, System.currentTimeMillis());
+      requestContext.setProperty(INTERNAL_CLIENT_REQUEST_START_TIME, System.currentTimeMillis());
     }
   }
 
@@ -40,7 +40,7 @@ public class ApiClientJersey2RequestLogFilter implements ClientRequestFilter, Cl
   @Override
   public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
     if (log.isDebugEnabled()) {
-      final Long startTimeRequest = (Long) requestContext.getHeaders().getFirst(INTERNAL_CLIENT_START_TIME_REQUEST_HEADER);
+      final Long startTimeRequest = (Long) requestContext.getProperty(INTERNAL_CLIENT_REQUEST_START_TIME);
       // might never happen we never know, custom headers could be dropped by customer infra
       if (startTimeRequest != null) {
         final long totalRequestTime = System.currentTimeMillis() - startTimeRequest;

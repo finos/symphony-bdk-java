@@ -100,11 +100,12 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
 
             if (listener.isAcceptingEvent(event, this.bdkConfig.getBot().getUsername())) {
               try {
-                log.debug("Before dispatching '{}' event to listener {} (hashcode)", event.getType(), listener.hashCode());
+                log.debug("Before dispatching '{}' event to listener {}", event.getType(), listener);
                 eventType.get().dispatch(listener, event);
-                log.debug("'{}' event successfully dispatched to listener {} (hashcode)", event.getType(), listener.hashCode());
+                log.debug("'{}' event successfully dispatched to listener {}", event.getType(), listener);
               } catch (Throwable t) {
-                log.debug("An uncaught exception has occurred while dispatching event {} to listener {} (hashcode)", event.getType(), listener.hashCode(), t);
+                log.debug("An uncaught exception has occurred while dispatching event {} to listener {}",
+                    event.getType(), listener, t);
               }
             }
           }
