@@ -95,11 +95,10 @@ public class ApiClientJersey2 implements ApiClient {
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
 
-    if (!DistributedTracingContext.hasTraceId()) {
-      DistributedTracingContext.setTraceId();
+    if (DistributedTracingContext.hasTraceId()) {
+      invocationBuilder =
+          invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
     }
-    invocationBuilder =
-        invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Entry<String, String> entry : headerParams.entrySet()) {
