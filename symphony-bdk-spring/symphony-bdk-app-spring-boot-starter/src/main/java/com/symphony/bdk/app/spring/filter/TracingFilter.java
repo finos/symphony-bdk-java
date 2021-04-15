@@ -35,7 +35,7 @@ public class TracingFilter implements Filter {
       DistributedTracingContext.setTraceId();
     } else {
       // generate new value appended to existing one
-      DistributedTracingContext.setTraceId(xTraceInHeader);
+      DistributedTracingContext.setBaseTraceId(xTraceInHeader);
     }
 
     response.setHeader(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
