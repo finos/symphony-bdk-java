@@ -171,10 +171,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     List<V4Event> events = v5EventList.getEvents();
     try {
       if (events != null && !events.isEmpty()) {
-        log.debug("Received {} events and ack id {}", events.size(), this.ackId.getAckId());
         this.handleV4EventList(events);
-      } else {
-        log.debug("Received no events and ack id {}", this.ackId.getAckId());
       }
       this.ackId.setAckId(v5EventList.getAckId());
     } catch (Exception e) {

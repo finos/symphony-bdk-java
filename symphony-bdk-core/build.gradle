@@ -72,7 +72,7 @@ dependencies {
 }
 
 // OpenAPI code generation
-def apiBaseUrl = "https://raw.githubusercontent.com/symphony-youri/symphony-api-spec/df2-tag"
+def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/master"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public.yaml',
