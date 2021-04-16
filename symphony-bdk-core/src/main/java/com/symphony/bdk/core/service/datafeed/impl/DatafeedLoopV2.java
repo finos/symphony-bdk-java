@@ -16,6 +16,8 @@ import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
 
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
@@ -73,6 +75,11 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     if (this.started.get()) {
       throw new IllegalStateException("The datafeed service is already started");
     }
+
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+    }
+
     try {
       this.datafeed = this.retrieveDatafeed();
       if (this.datafeed == null) {
@@ -86,7 +93,9 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
+      log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
+    } finally {
+      DistributedTracingContext.clear();
     }
   }
 

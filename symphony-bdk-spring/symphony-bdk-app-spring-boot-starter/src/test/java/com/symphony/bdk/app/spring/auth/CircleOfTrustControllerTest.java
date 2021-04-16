@@ -135,7 +135,7 @@ public class CircleOfTrustControllerTest {
 
     final MockCookie cookie = (MockCookie) response.getCookie("userJwt");
     assertNotNull(cookie);
-    assertEquals("None", cookie.getSameSite());
+    assertEquals("Strict", cookie.getSameSite());
     assertTrue(cookie.isHttpOnly());
     assertTrue(cookie.getSecure());
     assertEquals(this.appProperties.getAuth().getJwtCookie().getMaxAge().getSeconds(), cookie.getMaxAge());

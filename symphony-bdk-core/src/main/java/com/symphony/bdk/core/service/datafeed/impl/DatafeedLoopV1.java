@@ -14,6 +14,8 @@ import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiException;
 
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -78,6 +80,10 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
       throw new IllegalStateException("The datafeed service is already started");
     }
 
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+    }
+
     try {
       this.datafeedId = this.datafeedId == null ? this.createDatafeed() : this.datafeedId;
       log.debug("Start reading events from datafeed {}", datafeedId);
@@ -89,6 +95,8 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
       throw exception;
     } catch (Throwable throwable) {
       log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
+    } finally {
+      DistributedTracingContext.clear();
     }
   }
 

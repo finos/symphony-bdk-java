@@ -26,11 +26,24 @@ public final class DistributedTracingContext {
     // nothing to be done here
   }
 
+  /**
+   * Inits {@link MDC} X-Trace-Id entry with a generated random alphanumeric value.
+   */
   public static void setTraceId() {
     MDC.put(TRACE_ID, randomAlphanumeric(TRACE_ID_SIZE));
   }
 
-  public static void setTraceId(String baseTraceId) {
+  /**
+   * Inits {@link MDC} X-Trace-Id entry with a given value.
+   */
+  public static void setTraceId(String traceId) {
+    MDC.put(TRACE_ID, traceId);
+  }
+
+  /**
+   * Inits {@link MDC} X-Trace-Id entry with a given traceId followed by a generated random alphanumeric value.
+   */
+  public static void setBaseTraceId(String baseTraceId) {
     MDC.put(TRACE_ID, baseTraceId + TRACE_ID_SEPARATOR + randomAlphanumeric(TRACE_ID_SIZE));
   }
 
@@ -44,6 +57,23 @@ public final class DistributedTracingContext {
 
   public static void clear() {
     MDC.remove(TRACE_ID);
+  }
+
+  /**
+   * Processes any custom {@link Runnable} using a given traceId. Then backup the original
+   *
+   * @param traceId a given traceId
+   * @param runnable the logic to be executed
+   */
+  public static void doWithTraceId(String traceId, Runnable runnable) {
+    final String backup = getTraceId();
+    setTraceId(traceId);
+    try {
+      runnable.run();
+    } finally {
+      clear();
+      setTraceId(backup);
+    }
   }
 
   private static String randomAlphanumeric(int size) {

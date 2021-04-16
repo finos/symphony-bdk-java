@@ -28,6 +28,7 @@ import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
+import com.symphony.bdk.gen.api.model.V4MessageSuppressed;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
@@ -323,12 +324,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Suppresses a message, preventing its contents from being displayed to users.
-   *
-   * @param messageId the ID of the message to suppress.
-   * @return a {@link MessageSuppressionResponse} instance containing information about the message suppression.
-   * @see <a href="https://developers.symphony.com/restapi/reference#suppress-message">Suppress Message</a>
+   * {@inheritDoc}
    */
+  @Override
   public MessageSuppressionResponse suppressMessage(@Nonnull String messageId) {
     return executeAndRetry("suppressMessage", messageSuppressionApi.getApiClient().getBasePath(),
         () -> messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(messageId, authSession.getSessionToken()));
