@@ -1,4 +1,17 @@
 # How to run multiple bot instances?
+
+## Multiple instances reading the same datafeed v2
+
+If multiple instances read the same datafeed (v2) one only will receive an event. If the instance fails to process the
+event, it will be re-queued and dispatched to another instance.
+
+The [InjectorBot](./src/main/java/com/symphony/bdk/examples/df2/InjectorBot.java)
+and [ReaderBot](./src/main/java/com/symphony/bdk/examples/df2/ReaderBot.java) demo this behavior.
+
+They also make use of Hazelcast to provide a distributed cached to ensure that in the case of an event being slowly
+processed it does not get processed by another instance.
+
+## Kafka
 This example aims to demonstrate how to make your bot scalable and highly available. For that,
 [docker-compose.yml](./docker-compose.yml) creates 1 bot producer and 2 bot consumers. 
 
@@ -8,11 +21,11 @@ See [RealTimeEventsKafkaProducer.java](./src/main/java/com/symphony/bdk/examples
 The consumers are only listening to the same Kafka topic, and reply in the chat with there assigned consumer id.
 See [RealTimeEventsKafkaConsumer.java](./src/main/java/com/symphony/bdk/examples/kafka/consumer/RealTimeEventsKafkaConsumer.java).
 
-## Prerequisites
+### Prerequisites
 - [Docker](https://www.docker.com/)  
 - [Gradle](https://gradle.org/)
 
-## How to run
+### How to run
 In order to run this example, execute the following commands: 
 ```shell
 export BOT_HOST=develop2.symphony.com 

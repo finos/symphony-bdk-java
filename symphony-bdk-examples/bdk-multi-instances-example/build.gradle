@@ -12,6 +12,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.springframework.boot:spring-boot-starter'
 
+    implementation 'com.hazelcast:hazelcast:4.2'
+
     compile 'org.springframework.kafka:spring-kafka:2.6.5'
 
     compileOnly 'org.projectlombok:lombok'

@@ -10,11 +10,17 @@ import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.map.IMap;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 /**
  * A simple bot (named benchmark-reader), reading a datafeed and replying to a message with the same content.
@@ -24,6 +30,16 @@ import java.util.UUID;
 public class ReaderBot {
 
   public static void main(String[] args) throws Exception {
+
+    Config hzConfig = Config.load();
+    hzConfig.getNetworkConfig().getInterfaces().setEnabled(true);
+    // if you are connected to a VPN, you'll need this for multicast discovery to work, set it to your local network IP
+    hzConfig.getNetworkConfig().getInterfaces().addInterface("192.168.1.250");
+    HazelcastInstance hzInstance = Hazelcast.newHazelcastInstance(hzConfig);
+
+    // a distributed cache for already processed events, entries are added with a TTL
+    IMap<String, String> processedEvents = hzInstance.getMap("processed_events");
+
     String id = UUID.randomUUID().toString();
     MDC.put("BOT_ID", id);
     log.info("Running bot {}", id);
@@ -40,23 +56,27 @@ public class ReaderBot {
         try {
           String textContent = PresentationMLParser.getTextContent(event.getMessage().getMessage());
 
-          if (textContent.contains("sleep")
-              && event.getMessage().getTimestamp() > System.currentTimeMillis() - 30 * 1000) {
-            log.info("Sleeping");
-            Thread.sleep(30_000);
+          log.info("message {}, keys {}", event.getMessage().getMessageId(), processedEvents.keySet());
+
+          // we don't want multiple instances of a bot to reply to the same thread at the same time
+          // ideally locks should be destroyed at some point to release memory
+          Lock lock = hzInstance.getCPSubsystem().getLock(event.getMessage().getStream().getStreamId());
+          lock.lock();
+          try {
+            // checking that message has not already been processed before replying
+            if (processedEvents.containsKey(event.getMessage().getMessageId())) {
+              log.info("Message already processed!");
+              return;
+            }
+            bdk.messages().send(event.getMessage().getStream(),
+                String.format("<messageML><span style=\"color: %s;\">%s <b>%s</b></span></messageML>",
+                    color, textContent, id));
+            processedEvents.put(event.getMessage().getMessageId(), "processed", 1, TimeUnit.MINUTES);
+
+          } finally {
+            lock.unlock();
           }
-
-          if (textContent.contains("break")
-              && event.getMessage().getTimestamp() > System.currentTimeMillis() - 30 * 1000) {
-            log.info("Breaking");
-            throw new RuntimeException("break it");
-          }
-
-          bdk.messages().send(event.getMessage().getStream(),
-              String.format("<messageML><span style=\"color: %s;\">%s <b>%s</b></span></messageML>",
-                  color, textContent, id));
-
-        } catch (PresentationMLParserException | InterruptedException e) {
+        } catch (PresentationMLParserException e) {
           throw new RuntimeException(e);
         }
       }
@@ -73,7 +93,6 @@ public class ReaderBot {
   private static String randomColor() {
     Random random = new Random();
     int nextInt = random.nextInt(0xffffff + 1);
-    String color = String.format("#%06x", nextInt);
-    return color;
+    return String.format("#%06x", nextInt);
   }
 }
