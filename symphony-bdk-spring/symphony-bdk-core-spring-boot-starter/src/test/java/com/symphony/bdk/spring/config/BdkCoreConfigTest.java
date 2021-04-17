@@ -15,6 +15,9 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
+import com.symphony.bdk.spring.config.st.BdkCoreConfig;
+import com.symphony.bdk.spring.config.st.BdkOboServiceConfig;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanInitializationException;
 

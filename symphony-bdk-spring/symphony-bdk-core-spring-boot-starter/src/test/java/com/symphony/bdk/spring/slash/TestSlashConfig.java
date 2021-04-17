@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Scope;
 public class TestSlashConfig {
 
   /**
-   * Allows to ensure that only beans with "singleton" scope are scanned by com.symphony.bdk.spring.config.BdkActivityConfig.SlashAnnotationProcessor
+   * Allows to ensure that only beans with "singleton" scope are scanned by com.symphony.bdk.spring.config.st.BdkActivityConfig.SlashAnnotationProcessor
    */
   @Bean("foobar-with-prototype-scope")
   @Scope("prototype")

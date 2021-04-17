@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
  * Configuration and injection of the main BDK/Core classes as beans within the Spring application context.
  */
 @Slf4j
+
+@ConditionalOnProperty(prefix = "bdk", name = "multi-tenant", havingValue = "false", matchIfMissing = true)
 public class BdkCoreConfig {
 
   @Bean

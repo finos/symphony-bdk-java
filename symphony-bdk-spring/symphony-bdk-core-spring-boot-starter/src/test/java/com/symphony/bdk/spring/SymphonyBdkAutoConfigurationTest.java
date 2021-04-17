@@ -10,9 +10,9 @@ import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
-import com.symphony.bdk.spring.config.BdkActivityConfig;
-import com.symphony.bdk.spring.config.BdkOboServiceConfig;
-import com.symphony.bdk.spring.config.BdkServiceConfig;
+import com.symphony.bdk.spring.config.st.BdkActivityConfig;
+import com.symphony.bdk.spring.config.st.BdkOboServiceConfig;
+import com.symphony.bdk.spring.config.st.BdkServiceConfig;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;

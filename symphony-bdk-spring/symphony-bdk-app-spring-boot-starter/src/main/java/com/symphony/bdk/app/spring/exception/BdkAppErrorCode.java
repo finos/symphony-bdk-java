@@ -14,7 +14,8 @@ public enum BdkAppErrorCode {
   AUTH_FAILURE(HttpStatus.UNAUTHORIZED, "Failed to authenticate the extension app with appId={}"),
   INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Failed to validate the app token"),
   INVALID_JWT(HttpStatus.UNAUTHORIZED, "Failed to validate the jwt"),
-  MISSING_FIELDS(HttpStatus.BAD_REQUEST, "Some fields in the request body are missing");
+  MISSING_FIELDS(HttpStatus.BAD_REQUEST, "Some fields in the request body are missing"),
+  MISSING_TENANT_HEADERS(HttpStatus.BAD_REQUEST, "Header 'ext-tenantID' and 'X-Symphony-Host' are missing");
 
   private final HttpStatus status;
   private final String message;
