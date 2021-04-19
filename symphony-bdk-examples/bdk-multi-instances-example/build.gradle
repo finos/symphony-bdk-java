@@ -15,5 +15,3 @@ dependencies {
 
     runtimeOnly 'ch.qos.logback:logback-classic'
 }
-
-uploadArchives.enabled = false
