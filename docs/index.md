@@ -15,6 +15,7 @@ The reference documentation consists of the following sections:
 | [Authentication](./authentication.md)     | RSA or certificate authentication, OBO, extension app authentication  |
 | [Fluent API](fluent-api.md)               | Java Fluent API usage                                                 |
 | [Message API](message.md)                 | Sending or searching messages, usage of templates                     |
+| [Datafeed Loop](datafeed.md)              | Receiving real time events                                            |
 | [Activity API](activity-api.md)           | The Activity Registry, creating custom activities                     |
 
 ### Spring Boot

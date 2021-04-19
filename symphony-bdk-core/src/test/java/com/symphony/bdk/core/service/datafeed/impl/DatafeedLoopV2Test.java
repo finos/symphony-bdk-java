@@ -4,10 +4,12 @@ import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInter
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +21,7 @@ import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
+import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
@@ -36,6 +39,7 @@ import com.symphony.bdk.http.api.ApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import java.net.SocketTimeoutException;
@@ -194,10 +198,14 @@ class DatafeedLoopV2Test {
     List<V5Datafeed> datafeeds = new ArrayList<>();
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
-    AckId ackId = datafeedService.getAckId();
-    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals(""))))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals("ack-id"))))
+        .thenReturn(new V5EventList().addEventsItem(
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
 
     this.datafeedService.unsubscribe(listener);
     AtomicBoolean firstCall = new AtomicBoolean(true);
@@ -211,6 +219,7 @@ class DatafeedLoopV2Test {
       public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
         if (firstCall.get()) {
           firstCall.set(false);
+          // will still update ack id
           throw new RuntimeException("failure");
         } else {
           datafeedService.stop();
@@ -220,9 +229,58 @@ class DatafeedLoopV2Test {
     this.datafeedService.start();
 
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
-    // the ack id should stay the same since we did not process the first event
-    verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
+    // the ack id will still change because exception is silently caught
+    verify(datafeedApi, times(1)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals("")));
+    verify(datafeedApi, times(1)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals("ack-id")));
     verify(datafeedApiClient, times(0)).rotate();
+    assertEquals("ack-id2", datafeedService.getAckId().getAckId());
+  }
+
+  @Test
+  void testStartListenerFails_requeueEvent() throws ApiException, AuthUnauthorizedException {
+    List<V5Datafeed> datafeeds = new ArrayList<>();
+    datafeeds.add(new V5Datafeed().id("test-id"));
+    when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals(""))))
+        .thenReturn(new V5EventList().addEventsItem(
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals("ack-id"))))
+        .thenReturn(new V5EventList().addEventsItem(
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
+
+    this.datafeedService.unsubscribe(listener);
+    AtomicBoolean firstCall = new AtomicBoolean(true);
+    this.datafeedService.subscribe(new RealTimeEventListener() {
+      @Override
+      public boolean isAcceptingEvent(V4Event event, String username) {
+        return true;
+      }
+
+      @Override
+      public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
+        if (firstCall.get()) {
+          firstCall.set(false);
+          // will not update ack id
+          throw new EventException("failure");
+        } else {
+          datafeedService.stop();
+        }
+      }
+    });
+    this.datafeedService.start();
+
+    verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
+    // the ack id should stay the same since we did not process the first event
+    verify(datafeedApi, times(2)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals("")));
+    verify(datafeedApi, never()).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
+        argThat(argument -> argument.getAckId().equals("ack-id2")));
+    verify(datafeedApiClient, times(0)).rotate();
+    assertEquals("ack-id", datafeedService.getAckId().getAckId());
   }
 
   @Test

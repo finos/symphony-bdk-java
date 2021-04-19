@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 
@@ -27,16 +28,20 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
    * user input.
    *
    * @return an {@link ActivityMatcher} implementation.
+   * @throws EventException Throw this exception if this method should fail the current events processing
+   *                        and re-queue the events in datafeed. Other exceptions will be caught silently.
    */
-  protected abstract ActivityMatcher<C> matcher();
+  protected abstract ActivityMatcher<C> matcher() throws EventException;
 
   /**
-   * Contain the activity business logic. Executed only if the {@link ActivityMatcher#matches(ActivityContext)} retured
+   * Contain the activity business logic. Executed only if the {@link ActivityMatcher#matches(ActivityContext)} returned
    * a true value.
    *
    * @param context The activity context object.
+   * @throws EventException Throw this exception if this method should fail the current events processing
+   *                        and re-queue the events in datafeed. Other exceptions will be caught silently.
    */
-  protected abstract void onActivity(C context);
+  protected abstract void onActivity(C context) throws EventException;
 
   /**
    * Bind an Activity to its real-time event.
@@ -67,28 +72,35 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
   /**
    * This callback can be used to prepare {@link ActivityContext} before actually processing the
    * {@link com.symphony.bdk.core.activity.ActivityMatcher#matches(ActivityContext)} method.
+   *
+   * @throws EventException Throw this exception if this method should fail the current events processing
+   *                        and re-queue the events in datafeed. Other exceptions will be caught silently.
    */
-  protected void beforeMatcher(C context) {
+  protected void beforeMatcher(C context) throws EventException {
     // nothing is done here by default
   }
 
-  protected void processEvent(V4Initiator initiator, E event) {
+  protected void processEvent(V4Initiator initiator, E event) throws EventException {
 
     final C context = this.createContextInstance(initiator, event);
 
     try {
       log.trace("Before beforeMatcher execution");
       this.beforeMatcher(context);
+    } catch (EventException ex) {
+      throw ex; // to allow events to be re-queued in DFv2 loop
     } catch (Exception ex) {
       log.warn("Before matcher execution failed.", ex);
     }
 
     // executes matcher with no failure
     final Optional<Boolean> matcherResult = this.executeMatcher(context);
-    if (matcherResult.isPresent() && matcherResult.get()) {
+    if (matcherResult.isPresent() && Boolean.TRUE.equals(matcherResult.get())) {
       try {
         log.trace("Before activity execution");
         this.onActivity(context);
+      } catch (EventException ex) {
+        throw ex; // to allow events to be re-queued in DFv2 loop
       } catch (Exception ex) {
         log.warn("Activity execution failed.", ex);
       }
@@ -99,6 +111,8 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
     try {
       log.trace("Before matcher execution");
       return Optional.of(this.matcher().matches(context));
+    } catch (EventException ex) {
+      throw ex; // to allow events to be re-queued in DFv2 loop
     } catch (Exception ex) {
       log.warn("Matcher execution failed.", ex);
       return Optional.empty();

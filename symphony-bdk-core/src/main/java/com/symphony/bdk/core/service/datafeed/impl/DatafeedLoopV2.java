@@ -15,14 +15,15 @@ import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -48,15 +49,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DatafeedLoopV2 extends AbstractDatafeedLoop {
 
   /**
-   * DFv2 API authorizes a maximum length for the tag parameter,
-   * this might be an issue if bots are using very long names,
-   * in that case the differentiating part between bot's names
-   * should be put first.
+   * DFv2 API authorizes a maximum length for the tag parameter.
    */
   private static final int DATAFEED_TAG_MAX_LENGTH = 100;
 
+  /**
+   * Based on the DFv2 default visibility timeout, after which an event is re-queued.
+   */
+  private static final int EVENT_PROCESSING_MAX_DURATION_SECONDS = 30;
+
   private final AtomicBoolean started = new AtomicBoolean();
-  private final AckId ackId;
+  private AckId ackId;
   private final String tag;
 
   private V5Datafeed datafeed;
@@ -93,7 +96,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
+      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
     } finally {
       DistributedTracingContext.clear();
     }
@@ -170,12 +173,27 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
         ackId);
     List<V4Event> events = v5EventList.getEvents();
     try {
+      StopWatch stopWatch = StopWatch.createStarted();
       if (events != null && !events.isEmpty()) {
         this.handleV4EventList(events);
       }
+      stopWatch.stop();
+
+      if (stopWatch.getTime(TimeUnit.SECONDS) > EVENT_PROCESSING_MAX_DURATION_SECONDS) {
+        log.warn("Events processing took longer than {} seconds, "
+                + "this might lead to events being re-queued in datafeed and re-dispatched."
+                + " You might want to consider processing the event in a separated thread if needed.",
+            EVENT_PROCESSING_MAX_DURATION_SECONDS);
+      }
+
+      // updates ack id so that on next call DFv2 knows that events have been processed
+      this.ackId = new AckId();
       this.ackId.setAckId(v5EventList.getAckId());
+
     } catch (Exception e) {
-      log.error("Failed to process events, will not update ack id", e);
+      // can happen if developer explicitly raised a NoAckIdUpdateException in handleV4EventList
+      // we also catch all exceptions just to be extra careful and never break the DF loop
+      log.warn("Failed to process events, will not update ack id, events will be re-queued", e);
     }
     return null;
   }
