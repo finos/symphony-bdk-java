@@ -203,6 +203,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     if (this.proxyUrl != null) {
       this.configureProxy(clientConfig);
     }
+
+    clientConfig.register(ApiClientJersey2RequestLogFilter.class);
     clientConfig.register(MultiPartFeature.class);
     clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     // turn off compliance validation to be able to send payloads with DELETE calls

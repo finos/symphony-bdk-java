@@ -16,7 +16,7 @@ class DistributedTracingContextTest {
 
     assertEquals(6, baseTraceId.length());
 
-    DistributedTracingContext.setTraceId(baseTraceId);
+    DistributedTracingContext.setBaseTraceId(baseTraceId);
 
     final String updatedTraceId = DistributedTracingContext.getTraceId();
 
