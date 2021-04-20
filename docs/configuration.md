@@ -190,7 +190,7 @@ The `agent.loadBalancing` part of the configuration contains the information in 
 None of the fields `scheme`, `host`, `port`, `context` should be set if field `loadBalancing` is defined.
 Fields inside `loadBalancing` are:
 - `mode`: mandatory, can be `external`, `roundRobin` or `random`.
-- `stickiness`: optional boolean, default value is true.
+- `stickiness`: optional boolean, default value is true. (DFv2 does not need to be persisted therefore stickiness is only required for DFv1)
 - `nodes`: mandatory and must contain at least one element. List items must have at least `host` field put and can contain the following other fields: `scheme`, `port`, `context`.
 
 `roundRobin` and `random` modes mean calls to the agent are load balanced across all `nodes`, respectively in a round robin and random fashion.
