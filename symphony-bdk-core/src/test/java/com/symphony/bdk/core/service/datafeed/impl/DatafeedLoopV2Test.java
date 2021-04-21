@@ -124,10 +124,16 @@ class DatafeedLoopV2Test {
     List<V5Datafeed> datafeeds = new ArrayList<>();
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
-    AckId ackId = datafeedService.getAckId();
-    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId(""))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"))
+        .thenReturn(null); // the first df loop run should not fail
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("ack-id"))))
+        .thenReturn(new V5EventList().addEventsItem(
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("ack-id2"))))
+        .thenReturn(new V5EventList().addEventsItem(
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
 
     // remove default listener that stops the DF loop
     datafeedService.unsubscribe(listener);
@@ -156,26 +162,18 @@ class DatafeedLoopV2Test {
     // we wait until the DF loop is blocked in event dispatching
     blockDispatchingToListeners.await();
 
-    AckId ackId1 = new AckId();
-    ackId1.setAckId("ack-id");
-    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId1))
-        .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
-
     // we try to add a new listener that will cause the DF loop to run twice and then to end
     Future<Void> addANewListener = executorService.submit(() -> {
       datafeedService.subscribe(new RealTimeEventListener() {
         @Override
         public boolean isAcceptingEvent(V4Event event, String username) {
+          // once the listener is added it will stop the DF loop
           if (datafeedService.getAckId().getAckId().equals("ack-id2")) {
             datafeedService.stop();
           }
           return false;
         }
       });
-      when(datafeedApi.readDatafeed("test-id", "1234", "1234", new AckId().ackId("ack-id2")))
-          .thenReturn(new V5EventList().addEventsItem(
-              new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("finished"));
       return null;
     });
 
@@ -187,8 +185,8 @@ class DatafeedLoopV2Test {
     datafeedLoop.get();
     addANewListener.get();
 
-    // make sure we ran the DF loop twice (otherwise it could silently fail)
-    assertEquals("finished", datafeedService.getAckId().getAckId());
+    // make sure we finish with the proper ack id
+    assertEquals("ack-id2", datafeedService.getAckId().getAckId());
 
     executorService.shutdown();
   }
@@ -199,11 +197,11 @@ class DatafeedLoopV2Test {
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
     when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals(""))))
+        argThat(eqAckId(""))))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
     when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals("ack-id"))))
+        argThat(eqAckId("ack-id"))))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
 
@@ -231,9 +229,9 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     // the ack id will still change because exception is silently caught
     verify(datafeedApi, times(1)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals("")));
+        argThat(eqAckId("")));
     verify(datafeedApi, times(1)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals("ack-id")));
+        argThat(eqAckId("ack-id")));
     verify(datafeedApiClient, times(0)).rotate();
     assertEquals("ack-id2", datafeedService.getAckId().getAckId());
   }
@@ -243,12 +241,10 @@ class DatafeedLoopV2Test {
     List<V5Datafeed> datafeeds = new ArrayList<>();
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
-    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals(""))))
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId(""))))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
-    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals("ack-id"))))
+    when(datafeedApi.readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("ack-id"))))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
 
@@ -275,12 +271,14 @@ class DatafeedLoopV2Test {
 
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     // the ack id should stay the same since we did not process the first event
-    verify(datafeedApi, times(2)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals("")));
-    verify(datafeedApi, never()).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
-        argThat(argument -> argument.getAckId().equals("ack-id2")));
+    verify(datafeedApi, times(2)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("")));
+    verify(datafeedApi, never()).readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("ack-id2")));
     verify(datafeedApiClient, times(0)).rotate();
     assertEquals("ack-id", datafeedService.getAckId().getAckId());
+  }
+
+  private ArgumentMatcher<AckId> eqAckId(String ackId) {
+    return argument -> argument.getAckId().equals(ackId);
   }
 
   @Test

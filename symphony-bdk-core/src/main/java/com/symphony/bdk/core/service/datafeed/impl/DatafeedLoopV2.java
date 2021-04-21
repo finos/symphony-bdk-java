@@ -171,8 +171,8 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
         authSession.getSessionToken(),
         authSession.getKeyManagerToken(),
         ackId);
-    List<V4Event> events = v5EventList.getEvents();
     try {
+      List<V4Event> events = v5EventList.getEvents();
       StopWatch stopWatch = StopWatch.createStarted();
       if (events != null && !events.isEmpty()) {
         this.handleV4EventList(events);
