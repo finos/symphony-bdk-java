@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.activity;
 
+import com.symphony.bdk.core.service.datafeed.EventException;
+
 import org.apiguardian.api.API;
 
 /**
@@ -14,8 +16,10 @@ public interface ActivityMatcher<C extends ActivityContext<?>> {
    *
    * @param context Current activity context.
    * @return true if {@link AbstractActivity#onActivity(ActivityContext)} can be triggered, false otherwise.
+   * @throws EventException Throw this exception if this method should fail the current events processing
+   *                        and re-queue the events in datafeed. Other exceptions will be caught silently.
    */
-  boolean matches(C context);
+  boolean matches(C context) throws EventException;
 
   /**
    * Returns a matcher that always returns true.

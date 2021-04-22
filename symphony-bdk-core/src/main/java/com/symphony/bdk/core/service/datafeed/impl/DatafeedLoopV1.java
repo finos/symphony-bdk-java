@@ -114,7 +114,11 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
         datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(),
             null);
     if (events != null && !events.isEmpty()) {
-      handleV4EventList(events);
+      try {
+        handleV4EventList(events);
+      } catch (RequeueEventException e) {
+        log.warn("EventException is not supported for DFv1, events will not get re-queued", e);
+      }
     }
     return null;
   }

@@ -6,6 +6,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -81,14 +82,15 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    * Handle a received listener by using the subscribed {@link RealTimeEventListener}.
    *
    * @param events List of Datafeed events to be handled
+   * @throws RequeueEventException Raised if a listener fails and the developer wants to explicitly not update the ack id.
    */
-  protected void handleV4EventList(List<V4Event> events) {
+  protected void handleV4EventList(List<V4Event> events) throws RequeueEventException {
     for (V4Event event : events) {
 
       final Optional<RealTimeEventType> eventType = RealTimeEventType.fromV4Event(event);
 
       if (!eventType.isPresent()) {
-        log.warn("Wrong V4Event received: {}", event);
+        log.info("Unsupported event received: {}", event);
         continue;
       }
 
@@ -103,7 +105,10 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
                 log.debug("Before dispatching '{}' event to listener {}", event.getType(), listener);
                 eventType.get().dispatch(listener, event);
                 log.debug("'{}' event successfully dispatched to listener {}", event.getType(), listener);
-              } catch (Throwable t) {
+              } catch (EventException e) {
+                // rethrow this explicit exception to not update the ack id in the DFv2 loop
+                throw new RequeueEventException(event, listener, e);
+              } catch (Exception t) {
                 log.debug("An uncaught exception has occurred while dispatching event {} to listener {}",
                     event.getType(), listener, t);
               }

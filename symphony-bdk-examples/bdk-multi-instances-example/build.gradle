@@ -1,25 +1,17 @@
 plugins {
     id 'bdk.java-common-conventions'
-    id 'org.springframework.boot' version "2.4.5"
 }
 
 description = 'How to run multiple bot instances in //'
 
 dependencies {
-
-    implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
-
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.springframework.boot:spring-boot-starter'
-
-    implementation 'org.springframework.kafka:spring-kafka:2.6.5'
-
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
-}
+    implementation project(':symphony-bdk-core')
+    implementation 'org.slf4j:slf4j-api'
 
-uploadArchives.enabled = false
+    implementation 'com.hazelcast:hazelcast:4.2'
+
+    runtimeOnly 'ch.qos.logback:logback-classic'
+}
