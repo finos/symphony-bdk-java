@@ -1,5 +1,6 @@
 plugins {
     id 'bdk.java-common-conventions'
+    id 'org.springframework.boot' version "2.4.5"
 }
 
 description = 'How to run multiple bot instances in //'
