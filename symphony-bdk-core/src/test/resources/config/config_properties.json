@@ -5,7 +5,7 @@
 
     "bot": {
         "username": "tibot",
-        "privateKeyPath": "${my.property}/privatekey.pem"
+        "privateKeyPath": "${SYMPHONY_BDK_UNIT_TEST_TEMP}/${my.property}/privatekey.pem"
     },
     "app": {
         "appId": "tibapp",

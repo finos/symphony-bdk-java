@@ -11,13 +11,34 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.Map;
 
 public class BdkConfigParserTest {
+
+    //this is a disgusting hack that should only be allowed in unit tests
+    void hackEnvVar(String key, String value) throws NoSuchFieldException, IllegalAccessException {
+        Map<String, String> env = System.getenv();
+        Field field = env.getClass().getDeclaredField("m");
+        field.setAccessible(true);
+        if(value==null) {
+          ((Map<String, String>) field.get(env)).remove(key);
+        }
+        else {
+          ((Map<String, String>) field.get(env)).put(key, value);
+        }
+    }
 
     @BeforeEach
     void tearDown() {
         System.clearProperty("my.property");
         System.clearProperty("recursive");
+        try {
+          hackEnvVar("SYMPHONY_BDK_UNIT_TEST_TEMP",null);
+          hackEnvVar("my.property",null);
+        } catch (Exception e) {
+          throw new IllegalStateException("Couldn't hack environment variable", e);
+        }
     }
 
     @Test
@@ -29,24 +50,29 @@ public class BdkConfigParserTest {
     }
 
     @Test
-    void parseJsonConfigWithPropertyTest() throws BdkConfigException {
+    void parseJsonConfigWithPropertyTest() throws BdkConfigException, NoSuchFieldException, IllegalAccessException {
         System.setProperty("my.property", "propvalue");
+        hackEnvVar("SYMPHONY_BDK_UNIT_TEST_TEMP","envvalue");
+        //java vars should take precedence over env vars
+        hackEnvVar("my.property","invalid_value");
         String configPath = "/config/config_properties.json";
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
 
         assertEquals("${escaped}", jsonNode.at("/host").asText());
-        assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
+        assertEquals("envvalue/propvalue/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
         assertEquals("default/value/privatekey.pem", jsonNode.at("/app/privateKeyPath").asText());
     }
 
     @Test
-    void parseJsonConfigWithPropertyContainingSpecialCharsTest() throws BdkConfigException {
+    void parseJsonConfigWithPropertyContainingSpecialCharsTest()
+        throws BdkConfigException, NoSuchFieldException, IllegalAccessException {
         System.setProperty("my.property", "propvalue:\"\n");
+        hackEnvVar("SYMPHONY_BDK_UNIT_TEST_TEMP","envvalue");
         String configPath = "/config/config_properties.json";
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("propvalue:\"\n/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
+        assertEquals("envvalue/propvalue:\"\n/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
     @Test
@@ -64,7 +90,7 @@ public class BdkConfigParserTest {
         String configPath = "/config/config_properties.json";
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("${my.property}/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
+        assertEquals("${SYMPHONY_BDK_UNIT_TEST_TEMP}/${my.property}/privatekey.pem", jsonNode.at("/bot/privateKeyPath").asText());
     }
 
     @Test
@@ -76,28 +102,43 @@ public class BdkConfigParserTest {
     }
 
     @Test
-    void parseYamlConfigWithPropertyTest() throws BdkConfigException {
+    void parseYamlConfigWithPropertyTest() throws BdkConfigException, NoSuchFieldException, IllegalAccessException {
         System.setProperty("my.property", "propvalue");
+        hackEnvVar("SYMPHONY_BDK_UNIT_TEST_TEMP","envvalue");
+        //java vars should take precedence over env vars
+        hackEnvVar("my.property","invalid_value");
         String configPath = "/config/config_properties.yaml";
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
         JsonNode jsonNode = BdkConfigParser.parse(inputStream);
-        assertEquals("propvalue/privatekey.pem", jsonNode.at("/bot/privateKey/path").asText());
+        assertEquals("envvalue/propvalue/privatekey.pem", jsonNode.at("/bot/privateKey/path").asText());;
+        assertEquals("envvalue/propvalue/privatekey.pem", jsonNode.at("/bot/privateKey/path").asText());
     }
 
     @Test
-    void parseYamlConfigWithPropertiesInArray() throws BdkConfigException {
+    void parseYamlConfigWithPropertiesInArrayTest()
+        throws BdkConfigException, NoSuchFieldException, IllegalAccessException {
         System.setProperty("my.property", "agent-lb.acme.org");
+        hackEnvVar("SYMPHONY_BDK_UNIT_TEST_TEMP","valid_value");
+        //java vars should take precedence over env vars
+        hackEnvVar("my.property","invalid_value");
         String configPath = "/config/config_lb_properties.yaml";
         InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
         final JsonNode loadBalancing = BdkConfigParser.parse(inputStream).at("/agent/loadBalancing");
 
         assertEquals("roundRobin", loadBalancing.at("/mode").asText());
         assertTrue(loadBalancing.at("/stickiness").asBoolean());
-
         assertEquals("agent1.acme.org", loadBalancing.at("/nodes/0/host").asText());
         assertEquals(1234, loadBalancing.at("/nodes/0/port").asInt());
+        assertEquals("valid_value/agent-lb.acme.org", loadBalancing.at("/nodes/1/host").asText());
+        assertEquals("valid_value/hello", loadBalancing.at("/nodes/2/host").asText());;
+    }
 
-        assertEquals("agent-lb.acme.org", loadBalancing.at("/nodes/1/host").asText());
+    @Test
+    void parseYamlConfigWithUndefinedPropertyTest() throws BdkConfigException {
+      String configPath = "/config/config_properties.yaml";
+      InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
+      JsonNode jsonNode = BdkConfigParser.parse(inputStream);
+      assertEquals("${SYMPHONY_BDK_UNIT_TEST_TEMP}/${my.property}/privatekey.pem", jsonNode.at("/bot/privateKey/path").asText());
     }
 
     @Test

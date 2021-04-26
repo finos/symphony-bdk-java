@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringSubstitutor;
+import org.apache.commons.text.lookup.StringLookupFactory;
 import org.apiguardian.api.API;
 
 import java.io.BufferedReader;
@@ -27,10 +28,12 @@ class BdkConfigParser {
 
     private static final ObjectMapper JSON_MAPPER = new JsonMapper();
     private static final ObjectMapper YAML_MAPPER = new YAMLMapper();
+    private static final StringSubstitutor envVarStringSubstitutor;
 
     static {
         JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        envVarStringSubstitutor = new StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup());
     }
 
     public static JsonNode parse(InputStream inputStream) throws BdkConfigException {
@@ -83,7 +86,8 @@ class BdkConfigParser {
     private static void interpolatePropertyInField(ObjectNode objectNode, String field) {
         final JsonNode node = objectNode.get(field);
         if (node.isTextual()) {
-            final String interpolatedFieldValue = StringSubstitutor.replaceSystemProperties(node.asText());
+            //Start by replacing any java system properties found, then match any remaining keys with environment variables
+            final String interpolatedFieldValue = envVarStringSubstitutor.replace(StringSubstitutor.replaceSystemProperties(node.asText()));
             objectNode.set(field, new TextNode(interpolatedFieldValue));
         } else if (node.isObject() || node.isArray()) {
             interpolateProperties(node);
