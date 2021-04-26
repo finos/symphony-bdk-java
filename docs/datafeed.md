@@ -153,6 +153,18 @@ business logic of the listener leads to long operations then it is recommended h
 blocking the datafeed loop. To help you detect this situation, warning logs will be printed if the event processing time
 exceeds 30 seconds.
 
+Before shutting down a bot's instance, you want to make sure that the datafeed loop is properly stopped and that the bot
+has stopped processing events. The Spring Boot starter that starts the datafeed loop automatically also registers a
+bean _destroy method_ to support that. If you are not using the starter, a shutdown hook can be used:
+
+```
+Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+    bdk.datafeed().stop();
+}));
+```
+
+Stopping the datafeed loop might take a while (if the loop is currently waiting for new events, up to 30 seconds).
+
 ### Error handling
 
 The datafeed loop once started will keep running until the bot is stopped. So it will catch all the exceptions raised by
