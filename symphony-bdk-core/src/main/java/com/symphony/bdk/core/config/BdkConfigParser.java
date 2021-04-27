@@ -26,20 +26,22 @@ import java.util.stream.Collectors;
 @API(status = API.Status.INTERNAL)
 class BdkConfigParser {
 
-  private final ObjectMapper JSON_MAPPER = new JsonMapper();
-  private final ObjectMapper YAML_MAPPER = new YAMLMapper();
+  private static final ObjectMapper JSON_MAPPER = new JsonMapper();
+  private static final ObjectMapper YAML_MAPPER = new YAMLMapper();
   private final StringSubstitutor envVarStringSubstitutor;
+
+  static {
+    JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  }
 
   public BdkConfigParser() {
     envVarStringSubstitutor = new StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup());
-    JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    YAML_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
 
   public JsonNode parse(InputStream inputStream) throws BdkConfigException {
     final JsonNode jsonNode = parseJsonNode(inputStream);
     interpolateProperties(jsonNode);
-
     return jsonNode;
   }
 

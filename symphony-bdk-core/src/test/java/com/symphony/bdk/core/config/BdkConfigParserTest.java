@@ -29,7 +29,7 @@ public class BdkConfigParserTest {
   }
 
   @BeforeEach
-  void tearDown() {
+  void setUp() {
     System.clearProperty("my.property");
     System.clearProperty("recursive");
     try {
@@ -139,7 +139,6 @@ public class BdkConfigParserTest {
     assertEquals(1234, loadBalancing.at("/nodes/0/port").asInt());
     assertEquals("valid_value/agent-lb.acme.org", loadBalancing.at("/nodes/1/host").asText());
     assertEquals("valid_value/hello", loadBalancing.at("/nodes/2/host").asText());
-    ;
   }
 
   @Test
