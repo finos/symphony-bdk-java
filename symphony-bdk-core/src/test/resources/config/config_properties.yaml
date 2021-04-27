@@ -3,5 +3,6 @@ _version: '2.0'
 bot:
   username: tibot
   privateKey:
-    path: ${my.property}/privatekey.pem
+    path: ${SYMPHONY_BDK_UNIT_TEST_TEMP}/${my.property}/privatekey.pem
+
 
