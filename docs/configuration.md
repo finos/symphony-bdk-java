@@ -226,10 +226,11 @@ look like:
 }
 ``` 
 
-### Field interpolation using system properties
-In both formats, you can use system properties as field values. For instance, `${user.home}` in any field will be
-replaced by the actual value of system property `user.home`. If a property is not defined, no interpolation will be done
-and string will be left as is. A default value can be provided after `:-`, for instance `${property.name:-defaultValue}`.
+### Field interpolation using Java system properties or environment variables
+In both formats, you can use Java system properties and system environment variables as field values. For instance, `${user.home}` in any field will be
+replaced by the actual value of Java system property `user.home`. Likewise for `$HOME`, mapping the environment variable `HOME`. If a property is not defined, no interpolation will be done
+and string will be left as is. If the same key is defined both as a Java system property and an environment variable, the Java property value will take precedence.
+A default value can be provided after `:-`, for instance `${property.name:-defaultValue}`.
 Therefore, the following is a valid configuration file:
 
 ```json
@@ -238,12 +239,14 @@ Therefore, the following is a valid configuration file:
   "bot": {
     "username": "bot-username",
     "privateKey": {
-      "path": "${user.home}/rsa-private-key.pem"
+      "path": "${HOME}/rsa-private-key.pem"
     }
   }
 }
 ```
 Please mind that if you want to escape the `$` sign, `$${value}` will be replaced by `${value}`.
+And as the matching of environment variables is done after Java system properties, if you have a system property with **value** `${value}` and en environment variable with **key** `value`, it will substitute the value of the environment variable
+
 
 Reading a `JSON` configuration file is completely transparent: 
 ```java

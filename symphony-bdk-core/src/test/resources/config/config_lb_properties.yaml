@@ -5,4 +5,5 @@ agent:
     nodes:
       - host: agent1.acme.org
         port: 1234
-      - host: ${my.property}
+      - host: ${SYMPHONY_BDK_UNIT_TEST_TEMP}/${my.property}
+      - host: ${SYMPHONY_BDK_UNIT_TEST_TEMP}/hello
