@@ -52,7 +52,8 @@ public class BdkConfigLoader {
    * @return Symphony Bot Configuration
    */
   public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
-    return parseConfig(BdkConfigParser.parse(inputStream));
+    BdkConfigParser parser = new BdkConfigParser();
+    return parseConfig(parser.parse(inputStream));
   }
 
   private static BdkConfig parseConfig(JsonNode jsonNode) {
