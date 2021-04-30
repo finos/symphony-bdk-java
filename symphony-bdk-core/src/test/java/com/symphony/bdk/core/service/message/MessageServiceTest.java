@@ -310,7 +310,7 @@ class MessageServiceTest {
 
   @Test
   void testGetAttachmentThrowingApiException() throws ApiException {
-    doThrow(new ApiException(500, "error")).when(attachmentsApi)
+    doThrow(new ApiException(400, "error")).when(attachmentsApi)
         .v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
 
     assertThrows(ApiRuntimeException.class, () -> messageService.getAttachment(STREAM_ID, MESSAGE_ID, "attachmentId"));
