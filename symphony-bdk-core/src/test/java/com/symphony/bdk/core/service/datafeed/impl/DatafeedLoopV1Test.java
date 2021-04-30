@@ -259,7 +259,7 @@ class DatafeedLoopV1Test {
     when(datafeedApi.v4DatafeedIdReadGet("persisted-id", "1234", "1234", null))
         .thenThrow(new ApiException(400, "expired DF id"));
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234"))
-        .thenThrow(new ApiException(500, "unhandled exception"));
+        .thenThrow(new ApiException(404, "unhandled exception"));
 
     assertThrows(NestedRetryException.class, () -> this.datafeedService.start());
 
