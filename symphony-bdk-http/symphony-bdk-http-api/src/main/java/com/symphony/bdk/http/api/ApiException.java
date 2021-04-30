@@ -81,7 +81,7 @@ public class ApiException extends Exception {
      * @return true if response status strictly greater than 500, false otherwise
      */
     public boolean isServerError() {
-        return this.code > HttpURLConnection.HTTP_INTERNAL_ERROR;
+        return this.code >= HttpURLConnection.HTTP_INTERNAL_ERROR;
     }
 
     /**

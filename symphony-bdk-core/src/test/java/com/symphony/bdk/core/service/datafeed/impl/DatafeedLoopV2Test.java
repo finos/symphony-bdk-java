@@ -383,7 +383,7 @@ class DatafeedLoopV2Test {
     AckId ackId = datafeedService.getAckId();
     when(datafeedApi.listDatafeed("1234", "1234")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
-    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(500, "client-error"));
+    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(404, "client-error"));
 
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234");
