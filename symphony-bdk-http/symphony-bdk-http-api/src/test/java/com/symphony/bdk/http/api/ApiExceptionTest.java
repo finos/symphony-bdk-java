@@ -1,5 +1,6 @@
 package com.symphony.bdk.http.api;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -8,9 +9,10 @@ class ApiExceptionTest {
 
   @Test
   void isServerError() {
+    assertFalse(new ApiException(499, "An error").isServerError());
     assertTrue(new ApiException(500, "Internal Server Error").isServerError());
-    assertTrue(new ApiException(502, "Internal Server Error").isServerError());
-    assertTrue(new ApiException(503, "Internal Server Error").isServerError());
+    assertTrue(new ApiException(502, "Bad Gateway").isServerError());
+    assertTrue(new ApiException(503, "Service Unavailable").isServerError());
   }
 
   @Test
