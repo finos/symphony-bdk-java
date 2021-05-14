@@ -15,11 +15,22 @@ import java.util.function.Function;
  */
 public class TestCommandActivity extends CommandActivity<CommandContext> {
 
+  private final ActivityInfo activityInfo;
+
+  public TestCommandActivity(boolean isBotMentionRequired) {
+    this.activityInfo =
+        new ActivityInfo().type(ActivityType.COMMAND).name("/test").requiresBotMention(isBotMentionRequired);
+  }
+
+  public TestCommandActivity() {
+    this(false);
+  }
+
   @Setter private Function<CommandContext, Boolean> matcher = c -> true;
 
   @Override
   protected ActivityInfo info() {
-    return new ActivityInfo().type(ActivityType.COMMAND).name("/test");
+    return this.activityInfo;
   }
 
   @Override

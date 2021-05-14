@@ -79,6 +79,7 @@ class SlashCommandTest {
     final SlashCommand cmd = SlashCommand.slash("/test", c -> {});
     final ActivityInfo info = cmd.getInfo();
     assertEquals(ActivityType.COMMAND, info.type());
+    assertTrue(info.requiresBotMention(), "requiredBotMention is true by default in SlashCommand");
     assertEquals("/test", info.name());
   }
 

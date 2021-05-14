@@ -58,4 +58,37 @@ class ActivityRegistryTest {
     assertEquals(1, this.registry.getActivityList().size(), "Registry should still contain only 1 activity");
     verify(this.datafeedService, times(1)).unsubscribe(any(RealTimeEventListener.class));
   }
+
+  @Test
+  void shouldRegister_sameValue_differentMention(){
+    final CommandActivity<?> actMentionRequired = new TestCommandActivity(true);
+    final CommandActivity<?> actMentionNotRequired = new TestCommandActivity(false);
+
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+
+    this.registry.register(actMentionRequired);
+    this.registry.register(actMentionNotRequired);
+
+    verify(this.datafeedService, times(2)).subscribe(any(RealTimeEventListener.class));
+    verify(this.datafeedService, times(0)).unsubscribe(any(RealTimeEventListener.class));
+
+    assertEquals(2, this.registry.getActivityList().size(), "Both activities must have been registered");
+  }
+
+  @Test
+  void shouldNotRegister_sameValue_sameMention(){
+    final CommandActivity<?> actMentionRequired = new TestCommandActivity(true);
+    final CommandActivity<?> actMentionNotRequired = new TestCommandActivity(true);
+
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+
+    this.registry.register(actMentionRequired);
+    this.registry.register(actMentionNotRequired);
+
+    verify(this.datafeedService, times(2)).subscribe(any(RealTimeEventListener.class));
+    verify(this.datafeedService, times(1)).unsubscribe(any(RealTimeEventListener.class));
+
+    assertEquals(1, this.registry.getActivityList().size(), "Only one activities must have been registered");
+  }
+
 }

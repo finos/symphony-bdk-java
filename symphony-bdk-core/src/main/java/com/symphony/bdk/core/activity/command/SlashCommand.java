@@ -105,7 +105,8 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
     return new ActivityInfo()
         .type(ActivityType.COMMAND)
         .name(this.slashCommandName)
-        .description(this.description);
+        .description(this.description)
+        .requiresBotMention(this.requiresBotMention);
   }
 
   @Override

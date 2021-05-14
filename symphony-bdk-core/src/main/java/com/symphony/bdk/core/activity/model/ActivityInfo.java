@@ -27,4 +27,7 @@ public class ActivityInfo {
   /** Description of the activity (can contain multiple lines) */
   private String description;
 
+  /** Whether the bot mention is required or not */
+  private boolean requiresBotMention;
+
 }

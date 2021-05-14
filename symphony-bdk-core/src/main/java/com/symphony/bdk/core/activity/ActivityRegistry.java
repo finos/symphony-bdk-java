@@ -56,7 +56,8 @@ public class ActivityRegistry {
       Optional<AbstractActivity<?, ?>> act = this.activityList.stream()
           .filter(a -> a.getInfo().type().equals(ActivityType.COMMAND)
               && a.getInfo().name() != null
-              && a.getInfo().name().equals(activity.getInfo().name()))
+              && a.getInfo().name().equals(activity.getInfo().name())
+              && a.getInfo().requiresBotMention() == activity.getInfo().requiresBotMention())
           .findFirst();
 
       act.ifPresent(abstractActivity -> {
