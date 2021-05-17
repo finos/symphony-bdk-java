@@ -19,7 +19,7 @@ public class TestCommandActivity extends CommandActivity<CommandContext> {
 
   public TestCommandActivity(boolean isBotMentionRequired) {
     this.activityInfo =
-        new ActivityInfo().type(ActivityType.COMMAND).name("/test").requiresBotMention(isBotMentionRequired);
+        new ActivityInfo().type(ActivityType.COMMAND).name("/test").uniqueObject(isBotMentionRequired);
   }
 
   public TestCommandActivity() {

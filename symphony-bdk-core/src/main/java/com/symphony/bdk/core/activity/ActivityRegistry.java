@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.core.activity.command.CommandActivity;
-import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.model.UserV2;
 
@@ -20,13 +19,19 @@ import java.util.Optional;
 @API(status = API.Status.STABLE)
 public class ActivityRegistry {
 
-  /** List of activities */
+  /**
+   * List of activities
+   */
   private final List<AbstractActivity<?, ?>> activityList = new ArrayList<>();
 
-  /** The bot session forwarded to command-based activities only */
+  /**
+   * The bot session forwarded to command-based activities only
+   */
   private final UserV2 botSession;
 
-  /** The Datafeed real-time events source, or Datafeed listener */
+  /**
+   * The Datafeed real-time events source, or Datafeed listener
+   */
   private final DatafeedLoop datafeedLoop;
 
   public ActivityRegistry(UserV2 botSession, DatafeedLoop datafeedLoop) {
@@ -44,27 +49,24 @@ public class ActivityRegistry {
     this.activityList.add(activity);
   }
 
-  public List<AbstractActivity<? ,?>> getActivityList() {
+  public List<AbstractActivity<?, ?>> getActivityList() {
     return new ArrayList<>(activityList);
   }
 
   private void preProcessActivity(AbstractActivity<?, ?> activity) {
 
+    Optional<AbstractActivity<?, ?>> act = this.activityList.stream()
+        .filter(a -> a.getInfo().equals(activity.getInfo()))
+        .findFirst();
+
+    act.ifPresent(abstractActivity -> {
+      abstractActivity.bindToRealTimeEventsSource(this.datafeedLoop::unsubscribe);
+      this.activityList.remove(abstractActivity);
+    });
+
     // a command activity (potentially) needs the bot display name in order to parse the message text content
     // this way of passing this information is not very clean though, we should find something
     if (activity instanceof CommandActivity) {
-      Optional<AbstractActivity<?, ?>> act = this.activityList.stream()
-          .filter(a -> a.getInfo().type().equals(ActivityType.COMMAND)
-              && a.getInfo().name() != null
-              && a.getInfo().name().equals(activity.getInfo().name())
-              && a.getInfo().requiresBotMention() == activity.getInfo().requiresBotMention())
-          .findFirst();
-
-      act.ifPresent(abstractActivity -> {
-        abstractActivity.bindToRealTimeEventsSource(this.datafeedLoop::unsubscribe);
-        this.activityList.remove(abstractActivity);
-      });
-
       ((CommandActivity<?>) activity).setBotDisplayName(this.botSession.getDisplayName());
     }
 
@@ -72,3 +74,4 @@ public class ActivityRegistry {
     activity.bindToRealTimeEventsSource(this.datafeedLoop::subscribe);
   }
 }
+
