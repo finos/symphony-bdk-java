@@ -254,11 +254,6 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
       sslConfig
           .trustStoreBytes(trustStoreBytes)
           .trustStorePassword(trustStorePassword);
-
-      // if logging debug is enabled, we print the truststore entries
-      if (logger.isDebugEnabled()) {
-        this.logTrustStore();
-      }
     }
 
     if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
@@ -267,7 +262,14 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
           .keyStorePassword(keyStorePassword);
     }
     try {
-      return sslConfig.createSSLContext();
+      SSLContext sslContext = sslConfig.createSSLContext();
+
+      // if logging debug is enabled, we print the truststore entries
+      if (logger.isDebugEnabled()) {
+        this.logTrustStore();
+      }
+
+      return sslContext;
     } catch (IllegalStateException e) {
       throw new IllegalStateException(e.getCause().getMessage(), e);
     }
@@ -275,12 +277,14 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   private void logTrustStore() {
     try {
-      final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
-      truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
-      final List<String> aliases = Collections.list(truststore.aliases());
-      logger.debug("Your custom truststore contains {} entries :", aliases.size());
-      for (String alias : aliases) {
-        logger.debug("# {}", alias);
+      if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
+        final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
+        truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
+        final List<String> aliases = Collections.list(truststore.aliases());
+        logger.debug("Your custom truststore contains {} entries :", aliases.size());
+        for (String alias : aliases) {
+          logger.debug("# {}", alias);
+        }
       }
     } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
       throw new RuntimeException(e);
