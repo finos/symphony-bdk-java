@@ -47,6 +47,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   private static final Logger logger = LoggerFactory.getLogger(ApiClientBuilderJersey2.class);
   private static final String TRUSTSTORE_FORMAT = "JKS";
+
   protected String basePath;
   protected byte[] keyStoreBytes;
   protected String keyStorePassword;
@@ -253,20 +254,10 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
       sslConfig
           .trustStoreBytes(trustStoreBytes)
           .trustStorePassword(trustStorePassword);
+
       // if logging debug is enabled, we print the truststore entries
       if (logger.isDebugEnabled()) {
-        final KeyStore truststore;
-        try {
-          truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
-          truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
-          final List<String> aliases = Collections.list(truststore.aliases());
-          logger.debug("Your custom truststore contains {} entries :", aliases.size());
-          for (String alias : aliases) {
-            logger.debug("# {}", alias);
-          }
-        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-          e.printStackTrace();
-        }
+        this.logTrustStore();
       }
     }
 
@@ -278,7 +269,21 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     try {
       return sslConfig.createSSLContext();
     } catch (IllegalStateException e) {
-        throw new IllegalStateException(e.getCause().getMessage(), e);
+      throw new IllegalStateException(e.getCause().getMessage(), e);
+    }
+  }
+
+  private void logTrustStore() {
+    try {
+      final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
+      truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
+      final List<String> aliases = Collections.list(truststore.aliases());
+      logger.debug("Your custom truststore contains {} entries :", aliases.size());
+      for (String alias : aliases) {
+        logger.debug("# {}", alias);
+      }
+    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }
