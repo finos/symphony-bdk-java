@@ -68,4 +68,17 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
         .name(HELP_COMMAND)
         .description(DEFAULT_DESCRIPTION);
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+
+    if (o instanceof SlashCommand) {
+      SlashCommand that = ((SlashCommand) o);
+      return that.getInfo().name() != null && that.getInfo().name().equals(HELP_COMMAND);
+    }
+
+    return false;
+  }
+
 }

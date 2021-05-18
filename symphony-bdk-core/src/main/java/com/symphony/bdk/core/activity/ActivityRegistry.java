@@ -1,6 +1,8 @@
 package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.core.activity.command.CommandActivity;
+import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.core.activity.command.HelpCommand;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.model.UserV2;
 
@@ -14,6 +16,10 @@ import java.util.Optional;
 /**
  * This class allows to bind an {@link AbstractActivity} to the Real Time Events source, or Datafeed.
  * It also maintains the list of registered activities.
+ * <p>
+ * If an activity to be registered is already existing in the registry, then the old one will be replaced.
+ * In case of an activity of type {@link SlashCommand}, it will replace the old one if this latter has the same name and both require bot mention (or both don't).
+ * If the activity has /help as name, then it will replace {@link HelpCommand} if it is already registered.
  */
 @Slf4j
 @API(status = API.Status.STABLE)
