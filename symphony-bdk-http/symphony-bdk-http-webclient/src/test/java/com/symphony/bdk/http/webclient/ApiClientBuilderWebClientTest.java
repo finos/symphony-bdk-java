@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.util.ApiUtils;
 
 import ch.qos.logback.classic.Level;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +46,7 @@ public class ApiClientBuilderWebClientTest {
 
   @Test
   void buildTest() {
-    Logger logger = (Logger) LoggerFactory.getLogger(ApiClientBuilderWebClient.class);
+    Logger logger = (Logger) LoggerFactory.getLogger(ApiUtils.class);
     ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
     listAppender.start();
     logger.addAppender(listAppender);
@@ -61,8 +62,8 @@ public class ApiClientBuilderWebClientTest {
     // assert logs about truststore entries
     List<ILoggingEvent> logsList = listAppender.list;
     assertFalse(logsList.isEmpty(), "The list of log entries should not be empty");
-    assertEquals("Your custom truststore contains {} entries :", logsList.get(0).getMessage(),
-        "The list of logs should have an entry giving the size of truststore entries");
+    assertEquals("Loading {} from truststore", logsList.get(0).getMessage(),
+        "The list of logs should have at least on entry about one loaded cert");
     assertEquals(Level.DEBUG, logsList.get(0).getLevel(), "The entry level should be DEBUG");
   }
 

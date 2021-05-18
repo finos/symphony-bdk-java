@@ -19,21 +19,15 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientJersey2}.
@@ -45,7 +39,6 @@ import org.slf4j.LoggerFactory;
 @API(status = API.Status.STABLE)
 public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
-  private static final Logger logger = LoggerFactory.getLogger(ApiClientBuilderJersey2.class);
   private static final String TRUSTSTORE_FORMAT = "JKS";
 
   protected String basePath;
@@ -264,30 +257,15 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     try {
       SSLContext sslContext = sslConfig.createSSLContext();
 
-      // if logging debug is enabled, we print the truststore entries
-      if (logger.isDebugEnabled()) {
-        this.logTrustStore();
+      if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
+        ApiUtils.createAndLogTrustStore(TRUSTSTORE_FORMAT, new ByteArrayInputStream(trustStoreBytes),
+            trustStorePassword.toCharArray());
       }
 
       return sslContext;
-    } catch (IllegalStateException e) {
+    } catch (IllegalStateException | KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
       throw new IllegalStateException(e.getCause().getMessage(), e);
     }
   }
 
-  private void logTrustStore() {
-    try {
-      if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
-        final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
-        truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
-        final List<String> aliases = Collections.list(truststore.aliases());
-        logger.debug("Your custom truststore contains {} entries :", aliases.size());
-        for (String alias : aliases) {
-          logger.debug("# {}", alias);
-        }
-      }
-    } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

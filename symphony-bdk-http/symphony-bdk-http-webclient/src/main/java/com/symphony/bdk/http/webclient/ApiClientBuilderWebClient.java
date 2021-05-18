@@ -23,9 +23,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -203,21 +201,14 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         trustManagerFactory.init(trustStore);
         builder.trustManager(trustManagerFactory);
         if (this.keyStoreBytes != null) {
-          final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
           final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-          keyStore.load(new ByteArrayInputStream(this.keyStoreBytes), this.keyStorePassword.toCharArray());
+          final KeyStore keyStore =
+              ApiUtils.createAndLogTrustStore(KeyStore.getDefaultType(), new ByteArrayInputStream(this.keyStoreBytes),
+                  this.keyStorePassword.toCharArray());
           keyManagerFactory.init(keyStore, this.keyStorePassword.toCharArray());
           builder.keyManager(keyManagerFactory);
         }
 
-        // if logging debug is enabled, we print the truststore entries
-        if (log.isDebugEnabled()) {
-          final List<String> aliases = Collections.list(trustStore.aliases());
-          log.debug("Your custom truststore contains {} entries :", aliases.size());
-          for (String alias : aliases) {
-            log.debug("# {}", alias);
-          }
-        }
       }
       return builder.build();
     } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
