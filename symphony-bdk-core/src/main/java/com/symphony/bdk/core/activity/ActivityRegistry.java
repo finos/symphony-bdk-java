@@ -56,12 +56,14 @@ public class ActivityRegistry {
   private void preProcessActivity(AbstractActivity<?, ?> activity) {
 
     Optional<AbstractActivity<?, ?>> act = this.activityList.stream()
-        .filter(a -> a.getInfo().equals(activity.getInfo()))
+        .filter(a -> a.equals(activity))
         .findFirst();
 
     act.ifPresent(abstractActivity -> {
       abstractActivity.bindToRealTimeEventsSource(this.datafeedLoop::unsubscribe);
       this.activityList.remove(abstractActivity);
+      log.debug("One activity '{}' has been removed/unsubscribed in order to be replaced",
+          abstractActivity.getInfo().name());
     });
 
     // a command activity (potentially) needs the bot display name in order to parse the message text content

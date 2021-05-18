@@ -79,7 +79,6 @@ class SlashCommandTest {
     final SlashCommand cmd = SlashCommand.slash("/test", c -> {});
     final ActivityInfo info = cmd.getInfo();
     assertEquals(ActivityType.COMMAND, info.type());
-    assertTrue((Boolean) info.uniqueObject(), "Unique object is a boolean and true by default in SlashCommand");
     assertEquals("/test", info.name());
   }
 

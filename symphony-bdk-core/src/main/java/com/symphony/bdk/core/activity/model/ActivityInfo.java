@@ -29,8 +29,6 @@ public class ActivityInfo {
   /** Description of the activity (can contain multiple lines) */
   private String description;
 
-  /** Whether the bot mention is required or not */
-  private Object uniqueObject;
 
   @Override
   public boolean equals(Object o) {
@@ -43,6 +41,6 @@ public class ActivityInfo {
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, name, uniqueObject);
+    return Objects.hash(type, name);
   }
 }

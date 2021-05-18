@@ -8,6 +8,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -105,12 +106,24 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
     return new ActivityInfo()
         .type(ActivityType.COMMAND)
         .name(this.slashCommandName)
-        .description(this.description)
-        .uniqueObject(this.requiresBotMention);
+        .description(this.description);
   }
 
   @Override
   protected CommandContext createContextInstance(V4Initiator initiator, V4MessageSent event) {
     return new CommandContext(initiator, event);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
+    SlashCommand that = (SlashCommand) o;
+    return requiresBotMention == that.requiresBotMention && slashCommandName.equals(that.slashCommandName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(slashCommandName, requiresBotMention);
   }
 }
