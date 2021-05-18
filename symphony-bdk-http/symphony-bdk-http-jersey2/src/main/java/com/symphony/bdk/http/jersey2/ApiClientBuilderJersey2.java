@@ -19,6 +19,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -258,8 +259,9 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
       SSLContext sslContext = sslConfig.createSSLContext();
 
       if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
-        ApiUtils.createAndLogTrustStore(TRUSTSTORE_FORMAT, new ByteArrayInputStream(trustStoreBytes),
-            trustStorePassword.toCharArray());
+        final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
+        truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
+        ApiUtils.logTrustStore(truststore);
       }
 
       return sslContext;

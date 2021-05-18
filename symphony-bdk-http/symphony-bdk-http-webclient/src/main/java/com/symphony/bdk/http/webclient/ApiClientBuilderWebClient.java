@@ -200,15 +200,15 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         trustStore.load(new ByteArrayInputStream(this.trustStoreBytes), this.trustStorePassword.toCharArray());
         trustManagerFactory.init(trustStore);
         builder.trustManager(trustManagerFactory);
+        ApiUtils.logTrustStore(trustStore);
+
         if (this.keyStoreBytes != null) {
+          final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
           final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-          final KeyStore keyStore =
-              ApiUtils.createAndLogTrustStore(KeyStore.getDefaultType(), new ByteArrayInputStream(this.keyStoreBytes),
-                  this.keyStorePassword.toCharArray());
+          keyStore.load(new ByteArrayInputStream(this.keyStoreBytes), this.keyStorePassword.toCharArray());
           keyManagerFactory.init(keyStore, this.keyStorePassword.toCharArray());
           builder.keyManager(keyManagerFactory);
         }
-
       }
       return builder.build();
     } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
