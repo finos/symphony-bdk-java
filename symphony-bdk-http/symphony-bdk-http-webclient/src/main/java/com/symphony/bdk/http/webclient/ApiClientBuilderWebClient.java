@@ -200,6 +200,8 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         trustStore.load(new ByteArrayInputStream(this.trustStoreBytes), this.trustStorePassword.toCharArray());
         trustManagerFactory.init(trustStore);
         builder.trustManager(trustManagerFactory);
+        ApiUtils.logTrustStore(trustStore);
+
         if (this.keyStoreBytes != null) {
           final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
           final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());

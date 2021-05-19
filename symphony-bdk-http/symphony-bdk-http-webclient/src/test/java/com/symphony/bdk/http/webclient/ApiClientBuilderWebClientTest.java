@@ -2,14 +2,23 @@ package com.symphony.bdk.http.webclient;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.util.ApiUtils;
 
+import ch.qos.logback.classic.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.slf4j.LoggerFactory;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
 import java.io.IOException;
+import java.util.List;
 
 public class ApiClientBuilderWebClientTest {
 
@@ -37,6 +46,11 @@ public class ApiClientBuilderWebClientTest {
 
   @Test
   void buildTest() {
+    Logger logger = (Logger) LoggerFactory.getLogger(ApiUtils.class);
+    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
     builder.withTrustStore(truststore, "changeit");
     builder.withKeyStore(keystore, "password");
 
@@ -44,6 +58,13 @@ public class ApiClientBuilderWebClientTest {
 
     assertEquals(apiClient.getClass(), ApiClientWebClient.class);
     assertEquals(apiClient.getBasePath(), "test-base-path");
+
+    // assert logs about truststore entries
+    List<ILoggingEvent> logsList = listAppender.list;
+    assertFalse(logsList.isEmpty(), "The list of log entries should not be empty");
+    assertEquals("Loading {} from truststore", logsList.get(0).getMessage(),
+        "The list of logs should have at least on entry about one loaded cert");
+    assertEquals(Level.DEBUG, logsList.get(0).getLevel(), "The entry level should be DEBUG");
   }
 
   @Test
