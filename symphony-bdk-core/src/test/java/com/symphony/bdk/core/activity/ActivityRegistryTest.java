@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.activity.command.CommandActivity;
 import com.symphony.bdk.core.activity.command.CommandContext;
+import com.symphony.bdk.core.activity.command.HelpCommand;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
@@ -62,6 +63,50 @@ class ActivityRegistryTest {
     this.registry.register(new TestCommandActivity("test"));
     assertEquals(1, this.registry.getActivityList().size(), "Registry should still contain only 1 activity");
     verify(this.datafeedService, times(1)).unsubscribe(any(RealTimeEventListener.class));
+  }
+
+  @Test
+  void shouldReplaceHelpActivity() {
+    final HelpCommand helpCommand = new HelpCommand(this.registry, this.messageService);
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+
+    this.registry.register(helpCommand);
+    verify(this.datafeedService, times(1)).subscribe(any(RealTimeEventListener.class));
+    verify(this.datafeedService, never()).unsubscribe(any(RealTimeEventListener.class));
+    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain only 1 activity");
+    assertEquals(helpCommand, this.registry.getActivityList().get(0));
+
+    // override help command with a slash command
+    final AtomicBoolean handlerCalled = new AtomicBoolean(false);
+    final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
+    final SlashCommand helpCommandSlash = SlashCommand.slash("/help", true, handler);
+    this.registry.register(helpCommandSlash);
+
+    verify(this.datafeedService, times(2)).subscribe(any(RealTimeEventListener.class));
+    verify(this.datafeedService, times(1)).unsubscribe(any(RealTimeEventListener.class));
+    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain only 1 activity");
+    assertEquals(helpCommandSlash, this.registry.getActivityList().get(0), "Help command was replaced");
+  }
+
+  @Test
+  void shouldNotReplaceHelpActivity() {
+    final HelpCommand helpCommand = new HelpCommand(this.registry, this.messageService);
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+
+    this.registry.register(helpCommand);
+    verify(this.datafeedService, times(1)).subscribe(any(RealTimeEventListener.class));
+    verify(this.datafeedService, never()).unsubscribe(any(RealTimeEventListener.class));
+    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain only 1 activity");
+    assertEquals(helpCommand, this.registry.getActivityList().get(0));
+
+    TestCommandActivity testCommandActivity = new TestCommandActivity("test");
+    this.registry.register(testCommandActivity);
+
+    verify(this.datafeedService, times(2)).subscribe(any(RealTimeEventListener.class));
+    verify(this.datafeedService, never()).unsubscribe(any(RealTimeEventListener.class));
+    assertEquals(2, this.registry.getActivityList().size(), "Registry must contain both activities");
+    assertTrue(this.registry.getActivityList().contains(helpCommand), "Help command was not replaced");
+    assertTrue(this.registry.getActivityList().contains(testCommandActivity), "Help command was not replaced");
   }
 
   @Test
