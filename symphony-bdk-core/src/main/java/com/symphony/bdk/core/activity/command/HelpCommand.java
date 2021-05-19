@@ -10,6 +10,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -81,4 +82,8 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    return Objects.hash(activityRegistry, messageService);
+  }
 }
