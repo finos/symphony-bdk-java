@@ -5,8 +5,6 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apiguardian.api.API;
 
-import java.util.Objects;
-
 /**
  * {@link com.symphony.bdk.core.activity.AbstractActivity} information/documentation model.
  * <p>
@@ -28,19 +26,4 @@ public class ActivityInfo {
 
   /** Description of the activity (can contain multiple lines) */
   private String description;
-
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) { return true; }
-    if (o == null || getClass() != o.getClass()) { return false; }
-    ActivityInfo that = (ActivityInfo) o;
-
-    return this.hashCode() == that.hashCode();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(type, name);
-  }
 }

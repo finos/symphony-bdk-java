@@ -51,7 +51,10 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
         .filter(act -> !(act instanceof HelpCommand))
         .map(AbstractActivity::getInfo)
         .filter(info -> info.type().equals(ActivityType.COMMAND))
-        .map(info -> "<li>" + info.name() + " - " + info.description() + "</li>")
+        .map(info -> {
+          String str = "<li>" + info.name() + "%s" + "</li>";
+          return info.description().isEmpty() ? String.format(str, "") : String.format(str, " - " + info.description());
+        })
         .collect(Collectors.toList());
     if (!infos.isEmpty()) {
       String message = "<ul>" + String.join("\n", infos) + "</ul>";
