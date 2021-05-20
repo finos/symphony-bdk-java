@@ -46,6 +46,7 @@ import org.apiguardian.api.API;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -109,7 +110,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, local, active));
-    return v2UserList.getUsers();
+    return this.getUsersOrEmpty(v2UserList);
   }
 
   /**
@@ -120,7 +121,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), uids, null, null, false, null));
-    return v2UserList.getUsers();
+    return this.getUsersOrEmpty(v2UserList);
   }
 
   /**
@@ -132,7 +133,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, local, active));
-    return v2UserList.getUsers();
+    return this.getUsersOrEmpty(v2UserList);
   }
 
   /**
@@ -143,7 +144,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, emails, null, false, null));
-    return v2UserList.getUsers();
+    return this.getUsersOrEmpty(v2UserList);
   }
 
   /**
@@ -154,7 +155,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     String usernames = String.join(",", usernameList);
     V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true, active));
-    return v2UserList.getUsers();
+    return this.getUsersOrEmpty(v2UserList);
   }
 
   /**
@@ -165,6 +166,14 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     String usernames = String.join(",", usernameList);
     V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
         () -> usersApi.v3UsersGet(authSession.getSessionToken(), null, null, usernames, true, null));
+    return this.getUsersOrEmpty(v2UserList);
+  }
+
+  private List<UserV2> getUsersOrEmpty(V2UserList v2UserList) {
+    if (v2UserList == null || v2UserList.getUsers() == null) {
+      return Collections.emptyList();
+    }
+
     return v2UserList.getUsers();
   }
 

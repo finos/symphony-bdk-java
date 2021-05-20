@@ -597,6 +597,48 @@ class UserServiceTest {
   }
 
   @Test
+  void searchUserV3ByIds_withParams_Content() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByIds(Collections.singletonList(1234L), true, true));
+  }
+
+  @Test
+  void searchUserV3ByIds_noParams_noContent() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByIds(Collections.singletonList(1234L)));
+  }
+
+  @Test
+  void searchUserV3ByEmails_withParams_noContent() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByEmails(Collections.singletonList("x@x.com"), true, true));
+  }
+
+  @Test
+  void searchUserV3ByUsernames_noParams_noContent() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByEmails(Collections.singletonList("user-name")));
+  }
+
+  @Test
+  void searchUserV3ByUsernames_withParams_noContent() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByUsernames(Collections.singletonList("user-name"), true));
+  }
+
+  @Test
+  void searchUserV3ByEmails_noParams_noContent() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByUsernames(Collections.singletonList("x@x.com")));
+  }
+
+  @Test
   void searchUserBySearchQueryTest() throws IOException {
     String response = JsonHelper.readFromClasspath("/user/users_by_query.json");
     this.mockApiClient.onPost(SEARCH_USER_BY_QUERY, response);
