@@ -26,5 +26,4 @@ public class ActivityInfo {
 
   /** Description of the activity (can contain multiple lines) */
   private String description;
-
 }

@@ -10,6 +10,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,10 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
         .filter(act -> !(act instanceof HelpCommand))
         .map(AbstractActivity::getInfo)
         .filter(info -> info.type().equals(ActivityType.COMMAND))
-        .map(info -> "<li>" + info.name() + " - " + info.description() + "</li>")
+        .map(info -> {
+          String str = "<li>" + info.name() + "%s" + "</li>";
+          return info.description().isEmpty() ? String.format(str, "") : String.format(str, " - " + info.description());
+        })
         .collect(Collectors.toList());
     if (!infos.isEmpty()) {
       String message = "<ul>" + String.join("\n", infos) + "</ul>";
@@ -67,5 +71,22 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
         .type(ActivityType.COMMAND)
         .name(HELP_COMMAND)
         .description(DEFAULT_DESCRIPTION);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+
+    if (o instanceof SlashCommand) {
+      SlashCommand that = ((SlashCommand) o);
+      return that.getInfo().name() != null && that.getInfo().name().equals(HELP_COMMAND);
+    }
+
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(activityRegistry, messageService);
   }
 }

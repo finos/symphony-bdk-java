@@ -8,6 +8,7 @@ import com.symphony.bdk.gen.api.model.V4MessageSent;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -50,12 +51,13 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
   /**
    * Returns a new {@link SlashCommand} instance.
    *
-   * @param slashCommandName   Identifier of the command (ex: '/gif' or 'gif').
-   * @param callback           Callback to be processed when command is detected.
-   * @param description            The summary of the command.
+   * @param slashCommandName Identifier of the command (ex: '/gif' or 'gif').
+   * @param callback         Callback to be processed when command is detected.
+   * @param description      The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandName, @Nonnull Consumer<CommandContext> callback, String description) {
+  public static SlashCommand slash(@Nonnull String slashCommandName, @Nonnull Consumer<CommandContext> callback,
+      String description) {
     return slash(slashCommandName, true, callback, description);
   }
 
@@ -65,7 +67,7 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
    * @param slashCommandName   Identifier of the command (ex: '/gif' or 'gif').
    * @param requiresBotMention Indicates whether the bot has to be mentioned in order to trigger the command.
    * @param callback           Callback to be processed when command is detected.
-   * @param description            The summary of the command.
+   * @param description        The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
   public static SlashCommand slash(@Nonnull String slashCommandName, boolean requiresBotMention,
@@ -105,11 +107,29 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
     return new ActivityInfo()
         .type(ActivityType.COMMAND)
         .name(this.slashCommandName)
-        .description(this.description);
+        .description(this.buildCommandDescription());
   }
 
   @Override
   protected CommandContext createContextInstance(V4Initiator initiator, V4MessageSent event) {
     return new CommandContext(initiator, event);
+  }
+
+  private String buildCommandDescription() {
+    return this.requiresBotMention ? this.description + " (mention required)"
+        : this.description + " (mention not required)";
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
+    SlashCommand that = (SlashCommand) o;
+    return requiresBotMention == that.requiresBotMention && slashCommandName.equals(that.slashCommandName);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(slashCommandName, requiresBotMention);
   }
 }
