@@ -1,6 +1,6 @@
 plugins {
     id 'bdk.java-common-conventions'
-    id 'org.springframework.boot' version "2.4.5"
+    id 'org.springframework.boot' version "2.4.6"
 }
 
 description = 'Symphony Java BDK Examples for the SpringBoot integration'
