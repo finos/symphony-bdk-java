@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:2.4.5')
+    api platform('org.springframework.boot:spring-boot-dependencies:2.4.6')
 
     // define all our dependencies versions
     constraints {
@@ -74,7 +74,7 @@ dependencies {
         api 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
         api 'ch.qos.logback:logback-classic:1.2.3'
         api 'com.tngtech.archunit:archunit-junit5:0.14.1'
-        api 'org.mock-server:mockserver-netty:5.11.1'
+        api 'org.mock-server:mockserver-netty:5.11.2'
         api 'org.mockito:mockito-core:3.6.28'
         api 'org.mockito:mockito-junit-jupiter:3.6.28'
         api 'org.assertj:assertj-core:3.19.0'
