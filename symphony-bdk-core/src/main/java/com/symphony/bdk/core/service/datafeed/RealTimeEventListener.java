@@ -16,15 +16,19 @@ public interface RealTimeEventListener {
      * By default, all the event that is created by the bot itself will not be accepted to be handled by the listener.
      * If you want to handle the self-created events or you want to apply your own filters for the events, you should override this method.
      *
-     * @param event     Event to be verified.
-     * @param username  Username of the bot itself.
+     * <p>
+     * Account user ID is used to determine if the event has been sent by the bot itself.
+     *
+     * @param event   Event to be verified.
+     * @param botInfo Bot information retrieved from the {@link com.symphony.bdk.core.service.session.SessionService}.
      * @return the event is accepted or not
      */
     @API(status = API.Status.EXPERIMENTAL)
-    default boolean isAcceptingEvent(V4Event event, String username) {
-      return event.getInitiator() != null && event.getInitiator().getUser() != null
-          && event.getInitiator().getUser().getUsername() != null
-          && !event.getInitiator().getUser().getUsername().equals(username);
+    default boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
+      return event.getInitiator() != null
+          && event.getInitiator().getUser() != null
+          && event.getInitiator().getUser().getUserId() != null
+          && !event.getInitiator().getUser().getUserId().equals(botInfo.getId());
     }
 
     /**

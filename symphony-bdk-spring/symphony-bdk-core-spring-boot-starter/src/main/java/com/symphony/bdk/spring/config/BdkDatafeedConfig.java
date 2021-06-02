@@ -46,7 +46,7 @@ public class BdkDatafeedConfig {
   ) {
 
     if (datafeedVersion == DatafeedVersion.V2) {
-      return new DatafeedLoopV2(datafeedApi, botSession, properties);
+      return new DatafeedLoopV2(datafeedApi, botSession, properties, botInfo);
     }
 
     return new DatafeedLoopV1(datafeedApi, botSession, properties);

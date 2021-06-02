@@ -11,6 +11,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiException;
 
@@ -51,13 +52,13 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
   private final DatafeedIdRepository datafeedRepository;
   private String datafeedId;
 
-  public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
-    this(datafeedApi, authSession, config, new OnDiskDatafeedIdRepository(config));
+  public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+    this(datafeedApi, authSession, config, new OnDiskDatafeedIdRepository(config), botInfo);
   }
 
   public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config,
-      DatafeedIdRepository repository) {
-    super(datafeedApi, authSession, config);
+      DatafeedIdRepository repository, UserV2 botInfo) {
+    super(datafeedApi, authSession, config, botInfo);
 
     this.started.set(false);
     this.datafeedRepository = repository;
