@@ -28,6 +28,7 @@ import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.core.test.InMemoryDatafeedIdRepository;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.Datafeed;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -85,12 +86,14 @@ class DatafeedLoopV1Test {
   private ApiClient datafeedApiClient;
   private DatafeedApi datafeedApi;
   private AuthSession authSession;
+  private UserV2 botInfo;
   private RealTimeEventListener listener;
 
   @BeforeEach
   void init() throws BdkConfigException {
     initializeAuthSession();
     initializeBdkConfig();
+    initializeBotInfo();
 
     //datafeed service
     this.datafeedIdRepository = new InMemoryDatafeedIdRepository(DEFAULT_AGENT_BASE_PATH);
@@ -113,6 +116,11 @@ class DatafeedLoopV1Test {
     this.bdkConfig.setRetry(ofMinimalInterval(2));
   }
 
+  private void initializeBotInfo() {
+    this.botInfo = mock(UserV2.class);
+    when(botInfo.getId()).thenReturn(1234L);
+  }
+
   private void initializeDatafeedApiClient() {
     this.datafeedApiClient = mock(ApiClient.class);
     doNothing().when(this.datafeedApiClient).rotate();
@@ -129,6 +137,7 @@ class DatafeedLoopV1Test {
         this.datafeedApi,
         this.authSession,
         this.bdkConfig,
+        this.botInfo,
         this.datafeedIdRepository
     );
 
@@ -143,7 +152,7 @@ class DatafeedLoopV1Test {
 
   private List<V4Event> getMessageSentEvent() {
     final V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())
-        .initiator(new V4Initiator().user(new V4User().username("username")));
+        .initiator(new V4Initiator().user(new V4User().username("username").userId(123456789L)));
     return Collections.singletonList(event);
   }
 
@@ -370,7 +379,7 @@ class DatafeedLoopV1Test {
     datafeedConfig.setIdFilePath(tempDir.toString());
     bdkConfig.setDatafeed(datafeedConfig);
 
-    Optional<String> datafeedId = new DatafeedLoopV1(this.datafeedApi, this.authSession, this.bdkConfig)
+    Optional<String> datafeedId = new DatafeedLoopV1(this.datafeedApi, this.authSession, this.bdkConfig, this.botInfo)
         .retrieveDatafeed();
 
     assertTrue(datafeedId.isPresent());
@@ -388,7 +397,7 @@ class DatafeedLoopV1Test {
     bdkConfig.setDatafeed(datafeedConfig);
 
     Optional<String> datafeedId =
-        new DatafeedLoopV1(this.datafeedApi, this.authSession, this.bdkConfig).retrieveDatafeed();
+        new DatafeedLoopV1(this.datafeedApi, this.authSession, this.bdkConfig, this.botInfo).retrieveDatafeed();
     assertTrue(datafeedId.isPresent());
     assertEquals(datafeedId.get(), "8e7c8672-220");
   }
@@ -452,7 +461,7 @@ class DatafeedLoopV1Test {
         .userJoinedRoom(new V4UserJoinedRoom())
         .userRequestedToJoinRoom(new V4UserRequestedToJoinRoom());
 
-    final V4Initiator initiator = new V4Initiator().user(new V4User().username("username"));
+    final V4Initiator initiator = new V4Initiator().user(new V4User().username("username").userId(123456789L));
     for (RealTimeEventType type : types) {
       final V4Event event = new V4Event().type(type.name());
       event.id(traceId).payload(payload).initiator(initiator);
@@ -462,7 +471,7 @@ class DatafeedLoopV1Test {
     events.add(new V4Event().type(null));
     events.add(new V4Event().type(types[0].name()).initiator(
         new V4Initiator().user(
-            new V4User().username(this.bdkConfig.getBot().getUsername()))
+            new V4User().username(this.bdkConfig.getBot().getUsername()).userId(123456789L))
         )
     );
 

@@ -23,6 +23,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -34,10 +35,12 @@ public class ServiceFactoryTest {
   private ApiClientFactory apiClientFactory;
   private AuthSession mAuthSession;
   private BdkConfig config;
+  private UserV2 botInfo;
 
   @BeforeEach
   void setUp() throws BdkConfigException {
     this.config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    this.botInfo = mock(UserV2.class);
     this.mAuthSession = mock(AuthSession.class);
     ApiClient mPodClient = mock(ApiClient.class);
     ApiClient mAgentClient = mock(ApiClient.class);
@@ -109,13 +112,13 @@ public class ServiceFactoryTest {
     datafeedConfig.setVersion("v1");
 
     this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
-    DatafeedLoop datafeedServiceV1 = this.serviceFactory.getDatafeedLoop();
+    DatafeedLoop datafeedServiceV1 = this.serviceFactory.getDatafeedLoop(botInfo);
     assertNotNull(datafeedServiceV1);
     assertEquals(datafeedServiceV1.getClass(), DatafeedLoopV1.class);
 
     datafeedConfig.setVersion("v2");
     this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
-    DatafeedLoop datafeedServiceV2 = this.serviceFactory.getDatafeedLoop();
+    DatafeedLoop datafeedServiceV2 = this.serviceFactory.getDatafeedLoop(botInfo);
     assertNotNull(datafeedServiceV2);
     assertEquals(datafeedServiceV2.getClass(), DatafeedLoopV2.class);
 

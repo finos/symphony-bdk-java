@@ -18,16 +18,16 @@ public interface RealTimeEventListener {
    * If you want to handle the self-created events or you want to apply your own filters for the events, you should override this method.
    *
    * @param event    Event to be verified.
-   * @param username Username of the bot itself.
+   * @param botInfo  General bot info object.
    * @return The event is accepted or not.
    * @throws EventException Throw this exception if this method should fail the current events processing
    *                        and re-queue the events in datafeed. Other exceptions will be caught silently.
    */
   @API(status = API.Status.EXPERIMENTAL)
-  default boolean isAcceptingEvent(V4Event event, String username) throws EventException {
+  default boolean isAcceptingEvent(V4Event event, UserV2 botInfo) throws EventException {
     return event.getInitiator() != null && event.getInitiator().getUser() != null
-        && event.getInitiator().getUser().getUsername() != null
-        && !event.getInitiator().getUser().getUsername().equals(username);
+        && event.getInitiator().getUser().getUserId() != null
+        && !event.getInitiator().getUser().getUserId().equals(botInfo.getId());
   }
 
   /**
