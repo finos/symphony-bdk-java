@@ -125,10 +125,11 @@ public class SymphonyBdk {
     this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
     this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
     this.disclaimerService = serviceFactory != null ? serviceFactory.getDisclaimerService() : null;
-    this.datafeedLoop = serviceFactory != null ? serviceFactory.getDatafeedLoop() : null;
 
     // retrieve bot session info
     this.botInfo = sessionService != null ? sessionService.getSession() : null;
+
+    this.datafeedLoop = serviceFactory != null ? serviceFactory.getDatafeedLoop(this.botInfo) : null;
 
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
