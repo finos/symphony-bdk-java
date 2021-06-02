@@ -39,6 +39,7 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.template.api.TemplateEngine;
 
@@ -113,12 +114,13 @@ class ServiceFactory {
    * Returns a fully initialized {@link DatafeedLoop}.
    *
    * @return a new {@link DatafeedLoop} instance.
+   * @param botInfo
    */
-  public DatafeedLoop getDatafeedLoop() {
+  public DatafeedLoop getDatafeedLoop(UserV2 botInfo) {
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config);
+      return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
     }
-    return new DatafeedLoopV1(new DatafeedApi(datafeedAgentClient), authSession, config);
+    return new DatafeedLoopV1(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
   }
 
   /**

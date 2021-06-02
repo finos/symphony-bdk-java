@@ -8,6 +8,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
@@ -36,15 +37,17 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   @Setter
   protected DatafeedApi datafeedApi;
   protected ApiClient apiClient;
+  private final UserV2 botInfo;
 
   // access needs to be thread safe (DF loop is usually running on its own thread)
   private final List<RealTimeEventListener> listeners;
 
-  public AbstractDatafeedLoop(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
+  public AbstractDatafeedLoop(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
     this.datafeedApi = datafeedApi;
     this.listeners = new ArrayList<>();
     this.authSession = authSession;
     this.bdkConfig = config;
+    this.botInfo = botInfo;
     this.apiClient = datafeedApi.getApiClient();
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
@@ -98,7 +101,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
         synchronized (this.listeners) {
           for (RealTimeEventListener listener : this.listeners) {
 
-            if (listener.isAcceptingEvent(event, this.bdkConfig.getBot().getUsername())) {
+            if (listener.isAcceptingEvent(event, this.botInfo)) {
               try {
                 log.debug("Before dispatching '{}' event to listener {}", event.getType(), listener);
                 eventType.get().dispatch(listener, event);

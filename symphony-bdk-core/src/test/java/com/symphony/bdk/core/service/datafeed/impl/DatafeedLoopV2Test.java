@@ -20,13 +20,7 @@ import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.gen.api.model.AckId;
-import com.symphony.bdk.gen.api.model.V4Event;
-import com.symphony.bdk.gen.api.model.V4Initiator;
-import com.symphony.bdk.gen.api.model.V4MessageSent;
-import com.symphony.bdk.gen.api.model.V4Payload;
-import com.symphony.bdk.gen.api.model.V5Datafeed;
-import com.symphony.bdk.gen.api.model.V5EventList;
+import com.symphony.bdk.gen.api.model.*;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 
@@ -54,6 +48,7 @@ class DatafeedLoopV2Test {
   private DatafeedApi datafeedApi;
   private AuthSession authSession;
   private RealTimeEventListener listener;
+  private final UserV2 botInfo = new UserV2().id(1234L);
 
   @BeforeEach
   void setUp() throws BdkConfigException {
@@ -76,11 +71,12 @@ class DatafeedLoopV2Test {
     this.datafeedService = new DatafeedLoopV2(
         this.datafeedApi,
         this.authSession,
-        bdkConfig
+        bdkConfig,
+        this.botInfo
     );
     this.listener = new RealTimeEventListener() {
       @Override
-      public boolean isAcceptingEvent(V4Event event, String username) {
+      public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
         return true;
       }
 
@@ -127,7 +123,7 @@ class DatafeedLoopV2Test {
     CountDownLatch blockNewListenerIsAdded = new CountDownLatch(1);
     datafeedService.subscribe(new RealTimeEventListener() {
       @Override
-      public boolean isAcceptingEvent(V4Event event, String username) {
+      public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
         blockDispatchingToListeners.countDown();
         try {
           blockNewListenerIsAdded.await();
@@ -151,7 +147,7 @@ class DatafeedLoopV2Test {
     Future<Void> addANewListener = executorService.submit(() -> {
       datafeedService.subscribe(new RealTimeEventListener() {
         @Override
-        public boolean isAcceptingEvent(V4Event event, String username) {
+        public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
           if(datafeedService.getAckId().getAckId().equals("finished")){
             datafeedService.stop();
           }
@@ -210,7 +206,7 @@ class DatafeedLoopV2Test {
     this.datafeedService.unsubscribe(this.listener);
     this.datafeedService.subscribe(new RealTimeEventListener() {
       @Override
-      public boolean isAcceptingEvent(V4Event event, String username) {
+      public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
         return true;
       }
 
