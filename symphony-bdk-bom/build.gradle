@@ -59,6 +59,7 @@ dependencies {
         api 'io.swagger:swagger-annotations:1.6.0'
         api 'org.openapitools:jackson-databind-nullable:0.2.1'
 
+        api 'org.glassfish.jersey.core:jersey-common:2.34'
         api 'org.glassfish.jersey.core:jersey-client:2.34'
         api 'org.glassfish.jersey.inject:jersey-hk2:2.34'
         api 'org.glassfish.jersey.media:jersey-media-multipart:2.34'

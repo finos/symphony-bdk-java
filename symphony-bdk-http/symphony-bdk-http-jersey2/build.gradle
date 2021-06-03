@@ -25,7 +25,10 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'org.openapitools:jackson-databind-nullable'
-    implementation 'org.glassfish.jersey.media:jersey-media-json-jackson'
+    implementation ('org.glassfish.jersey.media:jersey-media-json-jackson') {
+        exclude group: 'org.glassfish.jersey.core', module: 'jersey-common'
+    }
+    implementation 'org.glassfish.jersey.core:jersey-common'
     implementation 'org.glassfish.jersey.core:jersey-client'
     implementation 'org.glassfish.jersey.inject:jersey-hk2'
     implementation 'org.glassfish.jersey.media:jersey-media-multipart'
