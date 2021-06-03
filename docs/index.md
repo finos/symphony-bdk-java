@@ -11,6 +11,7 @@ The reference documentation consists of the following sections:
 | Section                                   | Description                                                           |
 |-------------------------------------------|:---------------------------------------------------------------------:|
 | [Getting Started](./getting-started.md)   | Introducing Symphony BDK for beginners                                |
+| [Migration Guide](./migration.md)         | Guide to migrate to Symphony BDK 2.0                                  |
 | [Configuration](./configuration.md)       | Configuration structure, formats, how to load from code               |
 | [Authentication](./authentication.md)     | RSA or certificate authentication, OBO, extension app authentication  |
 | [Fluent API](fluent-api.md)               | Java Fluent API usage                                                 |
