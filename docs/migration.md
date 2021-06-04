@@ -1,6 +1,6 @@
 # Migration guide to Symphony BDK 2.0
 
-This guide provides information about how to migrate from Symphony SDK to BDK 2.0. Migration for the following topics will be detailed here:
+This guide provides information about how to migrate from Symphony BDK 1.0 to BDK 2.0. Migration for the following topics will be detailed here:
 - Dependencies
 - Bot's configuration
 - Symphony BDK entry point
@@ -8,12 +8,13 @@ This guide provides information about how to migrate from Symphony SDK to BDK 2.
 - Event listeners
 
 ## Dependencies
-In Java SDK, the bot had to have dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
+In Java BDK 1.0, the bot had to have dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
+If your project is no framework based, dependencies *jersey* and *freemarker* dependencies should be added as well.
 ### Spring Boot based project
 
 <table>
 <tr>
-<th>Java SDK</th>
+<th>Java BDK 1.0</th>
 <th>Java BDK 2.0</th>
 </tr>
 <tr>
@@ -70,7 +71,7 @@ In Java SDK, the bot had to have dependencies on `symphony-api-client-java` in a
 
 <table>
 <tr>
-<th>Java SDK</th>
+<th>Java BDK 1.0</th>
 <th>Java BDK 2.0</th>
 </tr>
 <tr>
@@ -102,10 +103,20 @@ In Java SDK, the bot had to have dependencies on `symphony-api-client-java` in a
 </dependencyManagement>
 
 <dependencies>
-<dependency>
-    <groupId>org.finos.symphony.bdk</groupId>
-    <artifactId>symphony-bdk-core</artifactId>
-</dependency>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-template-freemarker</artifactId>  <!-- or symphony-bdk-http-handlebars -->
+        <scope>runtime</scope>
+    </dependency>
 </dependencies>
 ```
 </td>
@@ -113,7 +124,7 @@ In Java SDK, the bot had to have dependencies on `symphony-api-client-java` in a
 </table>
 
 ## Bot's configuration
-In Java SDK, two configuration files were required : `application.yaml` (or `application.config`) and `bot-config.json`. Java BDK 2.0 lightened the configuration. Therefore, only `src/main/resources/config.yaml` file is required with a minimum of configuration.
+In Java BDK 1.0, two configuration files were required : `application.yaml` (or `application.config`) and `bot-config.json`. Java BDK 2.0 lightened the configuration. Therefore, only `src/main/resources/config.yaml` file is required with a minimum of configuration.
 
 Bot’s configuration in Java BDK 2.0 should have the following properties:
 - `host`: pod’s host name
@@ -138,7 +149,7 @@ If your bot is deployed on premise, the following properties are required as wel
 #### Spring Boot based project
 <table>
 <tr>
-<th>Java SDK</th>
+<th>Java BDK 1.0</th>
 <th>Java BDK 2.0</th>
 </tr>
 <tr>
@@ -227,13 +238,13 @@ If you use a Spring Boot based project, BDK services can be directly injected in
 To illustrate this, let's take an example of a bot reacting to *ping pong* messages.
 <table>
 <tr>
-<th>Java SDK</th>
+<th>Java BDK 1.0</th>
 <th>Java BDK 2.0</th>
 </tr>
 <tr>
 <td>
 
-In Java SDK, the main class should have *SymBotClient* object that the bot service can use to call `sendMessage()` method.
+In Java BDK 1.0, the main class should have *SymBotClient* object that the bot service can use to call `sendMessage()` method.
 
 ```java
 @Slf4j
@@ -241,7 +252,7 @@ In Java SDK, the main class should have *SymBotClient* object that the bot servi
 public class PingPongBotService {
   public handleIncomingMessage(InboundMessage message, StreamTypes streamType) {
       String streamId = message.getStream().getStreamId();
-      String messageText. message.getMessageText();
+      String messageText = message.getMessageText();
 
       switch (messageText) {
           case "/ping":
@@ -250,6 +261,9 @@ public class PingPongBotService {
           case "/pong":
               PingPongBot.sendMessage(streamId, "ping");
               break;
+          default:
+            PingPongBot.sendMessage(streamId, "Sorry, I don't understand!");
+            break;
       }
   }
 }
@@ -258,15 +272,13 @@ public class PingPongBotService {
 public class PingPongBot {
   private static SymBotClient botClient;
   
-  public PingPongBot(IMListenerImpl imListener, RoomListenerImpl roomListener, 
-                     ElementsListenerImpl elementsListener) {
+  public PingPongBot(IMListenerImpl imListener, RoomListenerImpl roomListener, ElementsListenerImpl elementsListener) {
       try {
           // Bot init
           botClient = SymBotClient.initBotRsa("config.json");
       
           // Bot listeners
-          botClient.getDatafeedEventsService().addListeners(imListener, roomListener, 
-                  elementsListener);
+          botClient.getDatafeedEventsService().addListeners(imListener, roomListener, elementsListener);
       } catch (Exception e) {
         log.error("Error: {}", e.getMessage());
       }
@@ -304,6 +316,9 @@ public class PingPongBotService {
             case "/pong":
                 this.messageService.send(streamId, "ping");
                 break;
+            default:
+                this.messageService.send(streamId, "Sorry, I don't understand!");
+                break;
         }
     }
 }
@@ -312,15 +327,15 @@ public class PingPongBotService {
 @Component
 public class RealTimeEventComponent {
 
-    private final PollService pollService;
+    private final PingPongBotService pingPongBotService;
 
-    public RealTimeEventComponent(PollService pollService) {
-        this.pollService = pollService;
+    public RealTimeEventComponent(PingPongBotService pingPongBotService) {
+        this.pingPongBotService = pingPongBotService;
     }
 
     @EventListener
     public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
-        this.pollService.handleIncomingMessage(event.getSource().getMessage,
+        this.pingPongBotService.handleIncomingMessage(event.getSource().getMessage,
                 StreamType.TypeEnum.formValue(event.getSource().getMessage.getStream.getStreamType()));
     }
 }
@@ -358,13 +373,13 @@ public class GreetingsAllRoomsBot {
 Java BDK 2.0 comes with a simplified way to handle event listeners.
 <table>
 <tr>
-<th>Java SDK</th>
+<th>Java BDK 1.0</th>
 <th>Java BDK 2.0</th>
 </tr>
 <tr>
 <td>
 
-In Java SDK, the bot had to implement 3 listeners classes: 
+In Java BDK 1.0, the bot had to implement 3 listeners classes: 
 - one for IM (1 to 1 conversation)
 - one for MIM (room)
 - one for Symphony elements
@@ -392,11 +407,7 @@ public class RoomListenerImpl implements RoomListener {
 
 In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implemented with two methods having `@EventListener` annotation. The 3 classes can be factored in one single component. *(The example below uses a Spring Boot based project)* 
 ```java
-@Component
 public class RealTimeEventComponent {
-    @Autowired
-    private MessageService messageService;
-
     @EventListener
     public void onMessageSent() {...}
 
@@ -409,8 +420,10 @@ public class RealTimeEventComponent {
 </table>
 
 ## Models
-Some models names have been changed in Java BDK 2.0. This requires to change some variables types names in your legacy bots.
-For example : *(non exhaustive list)*
+Models names have been changed in Java BDK 2.0. They actually follow the models in Swagger specification of Symphony's public API. Field names in Java classes correspond to the field names in API's JSON payloads. 
+This requires to change some variables names in your legacy bots.
+
+Example of types to change : *(non exhaustive list, please refer to [REST API's documentation](//developers.symphony.com/restapi/reference)*)
 - `SymphonyElementsAction` → `V4SymphonyElementsAction`
 - `User` → `V4User`
 - `InboundMessage` → `V4Message`
