@@ -177,12 +177,9 @@ bot-config: /path/to/bot-config.json
   "podPort": 443,
   "agentHost": "agent.symphony.com",
   "agentPort": 443,
-  "appId": "myapp",
-  "appPrivateKeyPath": "certs/",
-  "appPrivateKeyName": "app_private.pkcs8",
   "botPrivateKeyPath": "certs/",
-  "botPrivateKeyName": "bot_private.pkcs8",
-  "botUsername": "mybot",
+  "botPrivateKeyName": "/path/to/bot/rsa-privatekey.pem",
+  "botUsername": "bot-username",
   "authTokenRefreshPeriod": "30",
   "authenticationFilterUrlPattern": "/secure/",
   "showFirehoseErrors": false,
@@ -209,6 +206,18 @@ Only `config.yaml`  file is required. It can be in *JSON*
         "privateKey": {
             "path": "/path/to/bot/rsa-privatekey.pem"
         }
+    },
+    "proxy": {
+        "host": "proxy.symphony.com",
+        "port": 1234,
+        "username": "proxyuser",
+        "password": "proxypassword"
+    },
+    "keyManager": {
+        "host": "km.proxy.symphony.com",
+        "port": 1234,
+        "username": "km.proxy.username",
+        "password": "km.proxy.password"
     }
 }
 ```
@@ -217,11 +226,24 @@ or *YAML* format.
 
 ```yaml
 host: acme.symphony.com
-
+    
 bot:
   username: bot-username
   privateKey:
     path: /path/to/bot/rsa-privatekey.pem
+
+proxy:
+    host: proxy.symphony.com
+    port: 1234
+    username: proxyuser
+    password: proxypassword
+
+keyManager:
+    proxy:
+        host: km.proxy.symphony.com
+        port: 1234
+        username: km.proxy.username
+        password: km.proxy.password
 ```
 </td>
 </tr>
