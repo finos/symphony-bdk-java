@@ -8,8 +8,8 @@ This guide provides information about how to migrate from Symphony BDK 1.0 to BD
 - Event listeners
 
 ## Dependencies
-In Java BDK 1.0, the bot had to have dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
-If your project is no framework based, dependencies *jersey* and *freemarker* dependencies should be added as well.
+In Java BDK 1.0, the bot had dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
+If your project is not framework based, dependencies such as *jersey* and *freemarker* should be added as well.
 ### Spring Boot based project
 
 <table>
@@ -67,7 +67,7 @@ If your project is no framework based, dependencies *jersey* and *freemarker* de
 </tr>
 </table>
 
-### No framework based project
+### Non framework based project
 
 <table>
 <tr>
@@ -195,29 +195,33 @@ bot-config: /path/to/bot-config.json
 </td>
 <td>
 
-Only `config.yaml`  file is required. It can be in *JSON* 
+Only `config.yaml` file is required. It can be in *JSON* 
 
 
 ```json
 {
-    "host": "acme.symphony.com",
-    "bot": {
-        "username": "bot-username",
-        "privateKey": {
-            "path": "/path/to/bot/rsa-privatekey.pem"
-        }
-    },
-    "proxy": {
-        "host": "proxy.symphony.com",
-        "port": 1234,
-        "username": "proxyuser",
-        "password": "proxypassword"
-    },
-    "keyManager": {
-        "host": "km.proxy.symphony.com",
-        "port": 1234,
-        "username": "km.proxy.username",
-        "password": "km.proxy.password"
+    "bdk": {
+        "host": "acme.symphony.com",
+        "bot": {
+            "username": "bot-username",
+            "privateKey": {
+                "path": "/path/to/bot/rsa-privatekey.pem"
+            }
+        },
+        "proxy": {
+            "host": "proxy.symphony.com",
+            "port": 1234,
+            "username": "proxyuser",
+            "password": "proxypassword"
+        },
+        "keyManager": {
+            "proxy": {
+                "host": "km.proxy.symphony.com",
+                "port": 1234,
+                "username": "km.proxy.username",
+                "password": "km.proxy.password"
+            }
+        }   
     }
 }
 ```
@@ -225,25 +229,117 @@ Only `config.yaml`  file is required. It can be in *JSON*
 or *YAML* format.
 
 ```yaml
-host: acme.symphony.com
-    
-bot:
-  username: bot-username
-  privateKey:
-    path: /path/to/bot/rsa-privatekey.pem
-
-proxy:
-    host: proxy.symphony.com
-    port: 1234
-    username: proxyuser
-    password: proxypassword
-
-keyManager:
+bdk:
+    host: acme.symphony.com
+    bot:
+        username: bot-username
+        privateKey:
+            path: "/path/to/bot/rsa-privatekey.pem"
     proxy:
-        host: km.proxy.symphony.com
+        host: proxy.symphony.com
         port: 1234
-        username: km.proxy.username
-        password: km.proxy.password
+        username: proxyuser
+        password: proxypassword
+    keyManager:
+        proxy:
+            host: km.proxy.symphony.com
+            port: 1234
+            username: km.proxy.username
+            password: km.proxy.passwor
+```
+</td>
+</tr>
+</table>
+
+#### Non framework based project
+<table>
+<tr>
+<th>Java BDK 1.0</th>
+<th>Java BDK 2.0</th>
+</tr>
+<tr>
+<td>
+
+#### **`bot-config.json`:**
+```json
+{
+  "sessionAuthHost": "session.symphony.com",
+  "sessionAuthPort": 443,
+  "keyAuthHost": "km.symphony.com",
+  "keyAuthPort": 443,
+  "podHost": "pod.symphony.com",
+  "podPort": 443,
+  "agentHost": "agent.symphony.com",
+  "agentPort": 443,
+  "botPrivateKeyPath": "certs/",
+  "botPrivateKeyName": "/path/to/bot/rsa-privatekey.pem",
+  "botUsername": "bot-username",
+  "authTokenRefreshPeriod": "30",
+  "authenticationFilterUrlPattern": "/secure/",
+  "showFirehoseErrors": false,
+  "connectionTimeout": 45000, 
+  "proxyURL": "proxy.symphony.com",
+  "proxyUsername": "proxy.username",
+  "proxyPassword": "proxy.password",
+  "keyManagerProxyURL": "km.proxy.symphony.com",
+  "keyManagerProxyUsername": "km.proxy.username",
+  "keyManagerProxyPassword": "km.proxy.password"
+}
+```
+</td>
+<td>
+
+Only `config.yaml` file is required. It can be in *JSON*
+
+
+```json
+{
+    "bdk": {
+        "host": "acme.symphony.com",
+        "bot": {
+            "username": "bot-username",
+            "privateKey": {
+                "path": "/path/to/bot/rsa-privatekey.pem"
+            }
+        },
+        "proxy": {
+            "host": "proxy.symphony.com",
+            "port": 1234,
+            "username": "proxyuser",
+            "password": "proxypassword"
+        },
+        "keyManager": {
+            "proxy": {
+                "host": "km.proxy.symphony.com",
+                "port": 1234,
+                "username": "km.proxy.username",
+                "password": "km.proxy.password"
+            }
+        }
+    }
+}
+```
+
+or *YAML* format.
+
+```yaml
+bdk:
+    host: acme.symphony.com
+    bot:
+        username: bot-username
+        privateKey:
+            path: "/path/to/bot/rsa-privatekey.pem"
+    proxy:
+        host: proxy.symphony.com
+        port: 1234
+        username: proxyuser
+        password: proxypassword
+    keyManager:
+        proxy:
+            host: km.proxy.symphony.com
+            port: 1234
+            username: km.proxy.username
+            password: km.proxy.passwor
 ```
 </td>
 </tr>
@@ -366,7 +462,7 @@ public class RealTimeEventComponent {
 </tr>
 </table>
 
-An example of no framework based project using `SymphonyBdk` to retrieve BDK services:
+An example of non framework based project using `SymphonyBdk` to retrieve BDK services:
 ````java
 @Slf4j
 public class GreetingsAllRoomsBot {
@@ -389,7 +485,7 @@ public class GreetingsAllRoomsBot {
   }
 }
 ````
-> A list of BDL available services can be found [here](./fluent-api.md)
+> A list of BDK available services can be found [here](./fluent-api.md)
 
 ## Event listeners
 Java BDK 2.0 comes with a simplified way to handle event listeners.
@@ -427,7 +523,7 @@ public class RoomListenerImpl implements RoomListener {
 </td>
 <td>
 
-In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implemented with two methods having `@EventListener` annotation. The 3 classes can be factored in one single component. *(The example below uses a Spring Boot based project)* 
+In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implemented with two methods having `@EventListener` annotation: This works provided we have the correct parameters with correct types. The 3 classes can be factored in one single component. *(The example below uses a Spring Boot based project)* 
 ```java
 public class RealTimeEventComponent {
     @EventListener
@@ -445,7 +541,7 @@ public class RealTimeEventComponent {
 Models names have been changed in Java BDK 2.0. They actually follow the models in Swagger specification of Symphony's public API. Field names in Java classes correspond to the field names in API's JSON payloads. 
 This requires to change some variables names in your legacy bots.
 
-Example of types to change : *(non exhaustive list, please refer to our [public API specs](//https://github.com/symphonyoss/symphony-api-spec)*)
+Example of types to change : *(non exhaustive list, please refer to our [public API specs](//https://github.com/symphonyoss/symphony-api-spec))*
 - `SymphonyElementsAction` → `V4SymphonyElementsAction`
 - `User` → `V4User`
 - `InboundMessage` → `V4Message`
