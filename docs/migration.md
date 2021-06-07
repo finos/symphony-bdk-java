@@ -195,7 +195,7 @@ bot-config: /path/to/bot-config.json
 </td>
 <td>
 
-Only `config.yaml` file is required. It can be in *JSON* 
+Only `application.yaml` file is required. It can be in *JSON* 
 
 
 ```json
@@ -294,27 +294,25 @@ Only `config.yaml` file is required. It can be in *JSON*
 
 ```json
 {
-    "bdk": {
-        "host": "acme.symphony.com",
-        "bot": {
-            "username": "bot-username",
-            "privateKey": {
-                "path": "/path/to/bot/rsa-privatekey.pem"
-            }
-        },
+    "host": "acme.symphony.com",
+    "bot": {
+        "username": "bot-username",
+        "privateKey": {
+            "path": "/path/to/bot/rsa-privatekey.pem"
+        }
+    },
+    "proxy": {
+        "host": "proxy.symphony.com",
+        "port": 1234,
+        "username": "proxyuser",
+        "password": "proxypassword"
+    },
+    "keyManager": {
         "proxy": {
-            "host": "proxy.symphony.com",
+            "host": "km.proxy.symphony.com",
             "port": 1234,
-            "username": "proxyuser",
-            "password": "proxypassword"
-        },
-        "keyManager": {
-            "proxy": {
-                "host": "km.proxy.symphony.com",
-                "port": 1234,
-                "username": "km.proxy.username",
-                "password": "km.proxy.password"
-            }
+            "username": "km.proxy.username",
+            "password": "km.proxy.password"
         }
     }
 }
@@ -323,23 +321,22 @@ Only `config.yaml` file is required. It can be in *JSON*
 or *YAML* format.
 
 ```yaml
-bdk:
-    host: acme.symphony.com
-    bot:
-        username: bot-username
-        privateKey:
-            path: "/path/to/bot/rsa-privatekey.pem"
+host: acme.symphony.com
+bot:
+    username: bot-username
+    privateKey:
+        path: "/path/to/bot/rsa-privatekey.pem"
+proxy:
+    host: proxy.symphony.com
+    port: 1234
+    username: proxyuser
+    password: proxypassword
+keyManager:
     proxy:
-        host: proxy.symphony.com
+        host: km.proxy.symphony.com
         port: 1234
-        username: proxyuser
-        password: proxypassword
-    keyManager:
-        proxy:
-            host: km.proxy.symphony.com
-            port: 1234
-            username: km.proxy.username
-            password: km.proxy.passwor
+        username: km.proxy.username
+        password: km.proxy.password
 ```
 </td>
 </tr>
