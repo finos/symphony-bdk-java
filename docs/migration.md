@@ -502,19 +502,19 @@ In Java BDK 1.0, the bot had to implement 3 listeners classes:
 @Slf4j
 @Service
 public class ElementsListenerImpl implements ElementsListener {
-    public void onElementsAction() {...}
+    public void onElementsAction(User initiator, SymphonyElementsAction action) {...}
 }
 
 @Slf4j
 @Service
-public class ElementsListenerImpl implements ElementsListener {
-    public void onIMMessage() {...}
+public class IMListenerImpl implements ElementsListener {
+    public void onIMMessage(InboundMessage msg) {...}
 }
 
 @Slf4j
 @Service
 public class RoomListenerImpl implements RoomListener {
-    public void onRoomMessage() {...}
+    public void onRoomMessage(InboundMessage msg) {...}
 }
 ```
 </td>
@@ -524,10 +524,10 @@ In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implement
 ```java
 public class RealTimeEventComponent {
     @EventListener
-    public void onMessageSent() {...}
+    public void onMessageSent(RealTimeEvent<V4MessageSent> event) {...}
 
     @EventListener
-    public onElementsAction() {...}
+    public onElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {...}
 }
 ```
 </td>
