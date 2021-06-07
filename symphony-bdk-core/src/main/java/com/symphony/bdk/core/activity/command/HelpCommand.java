@@ -48,7 +48,6 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
   protected void onActivity(CommandContext context) {
     List<String> infos = this.activityRegistry.getActivityList()
         .stream()
-        .filter(act -> !(act instanceof HelpCommand))
         .map(AbstractActivity::getInfo)
         .filter(info -> info.type().equals(ActivityType.COMMAND))
         .map(info -> {
