@@ -77,7 +77,8 @@ public class HelpCommandTest {
     verify(this.messageService, times(1)).send(anyString(), argumentCaptor.capture());
     Message message = argumentCaptor.getValue();
     assertNotNull(argumentCaptor.getValue());
-    assertEquals("<messageML><ul><li>/help - List available commands</li></ul></messageML>", message.getContent(), "The help command infos should be sent in response");
+    assertEquals("<messageML><ul><li>/help - List available commands (mention required)</li></ul></messageML>",
+        message.getContent(), "The help command infos should be sent in response");
   }
 
   @Test
@@ -87,7 +88,7 @@ public class HelpCommandTest {
 
     assertEquals(ActivityType.COMMAND, info.type());
     assertEquals("/help", info.name());
-    assertEquals("List available commands", info.description());
+    assertEquals("List available commands (mention required)", info.description());
   }
 
   private static class RealTimeEventsProvider {

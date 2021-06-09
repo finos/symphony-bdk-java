@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 public class HelpCommand extends PatternCommandActivity<CommandContext> {
 
   private static final String HELP_COMMAND = "/help";
-  private static final String DEFAULT_DESCRIPTION = "List available commands";
+  private static final String DEFAULT_DESCRIPTION = "List available commands (mention required)";
   private final ActivityRegistry activityRegistry;
   private final MessageService messageService;
 
