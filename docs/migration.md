@@ -19,50 +19,45 @@ If your project is not framework based, dependencies such as *jersey* and *freem
 </tr>
 <tr>
 <td>
+<pre>&lt;<span class="pl-ent">parent</span>&gt;
+    &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-parent&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;2.3.5.RELEASE&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">relativePath</span>/&gt;
+&lt;/<span class="pl-ent">parent</span>&gt;
 
-```xml
-<parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.3.5.RELEASE</version>
-    <relativePath/>
-</parent>
-
-<dependencies>
-    <dependency>
-        <groupId>com.symphony.platformsolutions</groupId>
-        <artifactId>symphony-api-client-java</artifactId>
-        <version>1.3.3</version>
-    </dependency>      
-</dependencies>
-```
+&lt;<span class="pl-ent">dependencies</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;com.symphony.platformsolutions&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;symphony-api-client-java&lt;/<span class="pl-ent">artifactId</span>&gt;
+        &lt;<span class="pl-ent">version</span>&gt;1.3.3&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;      
+&lt;/<span class="pl-ent">dependencies</span>&gt;</pre>
 </td>
+
 <td>
+<pre>&lt;<span class="pl-ent">dependencyManagement</span>&gt;
+    &lt;<span class="pl-ent">dependencies</span>&gt;
+        &lt;<span class="pl-ent">dependency</span>&gt;
+            &lt;<span class="pl-ent">groupId</span>&gt;org.finos.symphony.bdk&lt;/<span class="pl-ent">groupId</span>&gt;
+            &lt;<span class="pl-ent">artifactId</span>&gt;symphony-bdk-bom&lt;/<span class="pl-ent">artifactId</span>&gt;
+            &lt;<span class="pl-ent">version</span>&gt;2.1.1&lt;/<span class="pl-ent">version</span>&gt;
+            &lt;<span class="pl-ent">type</span>&gt;pom&lt;/<span class="pl-ent">type</span>&gt;
+            &lt;<span class="pl-ent">scope</span>&gt;import&lt;/<span class="pl-ent">scope</span>&gt;
+        &lt;/<span class="pl-ent">dependency</span>&gt;
+    &lt;/<span class="pl-ent">dependencies</span>&gt;
+&lt;/<span class="pl-ent">dependencyManagement</span>&gt;
 
-```xml
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.finos.symphony.bdk</groupId>
-            <artifactId>symphony-bdk-bom</artifactId>
-            <version>2.1.1</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-
-<dependencies>
-<dependency>
-    <groupId>org.finos.symphony.bdk</groupId>
-    <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter</artifactId>
-</dependency>
-</dependencies>
-```
+&lt;<span class="pl-ent">dependencies</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;org.finos.symphony.bdk&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;symphony-bdk-core-spring-boot-starter&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;
+&lt;/<span class="pl-ent">dependencies</span>&gt;</pre>
 </td>
 </tr>
 </table>
@@ -77,48 +72,44 @@ If your project is not framework based, dependencies such as *jersey* and *freem
 <tr>
 <td>
 
-```xml
-<dependencies>
-    <dependency>
-        <groupId>com.symphony.platformsolutions</groupId>
-        <artifactId>symphony-api-client-java</artifactId>
-        <version>1.3.3</version>
-    </dependency>
-</dependencies>
-```
+<pre>&lt;<span class="pl-ent">dependencies</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;com.symphony.platformsolutions&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;symphony-api-client-java&lt;/<span class="pl-ent">artifactId</span>&gt;
+        &lt;<span class="pl-ent">version</span>&gt;1.3.3&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;
+&lt;/<span class="pl-ent">dependencies</span>&gt;</pre>
 </td>
 <td>
 
-```xml
-<dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.finos.symphony.bdk</groupId>
-            <artifactId>symphony-bdk-bom</artifactId>
-            <version>2.1.1</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
+<pre>&lt;<span class="pl-ent">dependencyManagement</span>&gt;
+    &lt;<span class="pl-ent">dependencies</span>&gt;
+        &lt;<span class="pl-ent">dependency</span>&gt;
+            &lt;<span class="pl-ent">groupId</span>&gt;org.finos.symphony.bdk&lt;/<span class="pl-ent">groupId</span>&gt;
+            &lt;<span class="pl-ent">artifactId</span>&gt;symphony-bdk-bom&lt;/<span class="pl-ent">artifactId</span>&gt;
+            &lt;<span class="pl-ent">version</span>&gt;2.1.1&lt;/<span class="pl-ent">version</span>&gt;
+            &lt;<span class="pl-ent">type</span>&gt;pom&lt;/<span class="pl-ent">type</span>&gt;
+            &lt;<span class="pl-ent">scope</span>&gt;import&lt;/<span class="pl-ent">scope</span>&gt;
+        &lt;/<span class="pl-ent">dependency</span>&gt;
+    &lt;/<span class="pl-ent">dependencies</span>&gt;
+&lt;/<span class="pl-ent">dependencyManagement</span>&gt;
 
-<dependencies>
-    <dependency>
-        <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-core</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
-        <scope>runtime</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-template-freemarker</artifactId>  <!-- or symphony-bdk-http-handlebars -->
-        <scope>runtime</scope>
-    </dependency>
-</dependencies>
-```
+&lt;<span class="pl-ent">dependencies</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;org.finos.symphony.bdk&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;symphony-bdk-core&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;org.finos.symphony.bdk&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;symphony-bdk-http-jersey2&lt;/<span class="pl-ent">artifactId</span>&gt; <span class="pl-c"><span class="pl-c">&lt;!--</span> or symphony-bdk-http-webclient <span class="pl-c">--&gt;</span></span>
+        &lt;<span class="pl-ent">scope</span>&gt;runtime&lt;/<span class="pl-ent">scope</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">dependency</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;org.finos.symphony.bdk&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;symphony-bdk-template-freemarker&lt;/<span class="pl-ent">artifactId</span>&gt;  <span class="pl-c"><span class="pl-c">&lt;!--</span> or symphony-bdk-http-handlebars <span class="pl-c">--&gt;</span></span>
+        &lt;<span class="pl-ent">scope</span>&gt;runtime&lt;/<span class="pl-ent">scope</span>&gt;
+    &lt;/<span class="pl-ent">dependency</span>&gt;
+&lt;/<span class="pl-ent">dependencies</span>&gt;</pre>
 </td>
 </tr>
 </table>
@@ -155,98 +146,92 @@ If your bot is deployed on premise, the following properties are required as wel
 <tr>
 <td>
 
-#### **`application.yaml`:**
-```yaml
-server:
-    port: 8080
-    servlet:
-        context-path: "/botapp"
+<h4><a id="user-content-applicationyaml" class="anchor" aria-hidden="true" href="#applicationyaml"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a><strong><code>application.yaml</code>:</strong></h4>
 
-certs: /path/to/private/key
-bot-config: /path/to/bot-config.json
-```
+<pre><span class="pl-ent">server</span>:
+    <span class="pl-ent">port</span>: <span class="pl-c1">8080</span>
+    <span class="pl-ent">servlet</span>:
+        <span class="pl-ent">context-path</span>: <span class="pl-s"><span class="pl-pds">"</span>/botapp<span class="pl-pds">"</span></span>
 
-#### **`bot-config.json`:**
-```json
-{
-  "sessionAuthHost": "session.symphony.com",
-  "sessionAuthPort": 443,
-  "keyAuthHost": "km.symphony.com",
-  "keyAuthPort": 443,
-  "podHost": "pod.symphony.com",
-  "podPort": 443,
-  "agentHost": "agent.symphony.com",
-  "agentPort": 443,
-  "botPrivateKeyPath": "certs/",
-  "botPrivateKeyName": "/path/to/bot/rsa-privatekey.pem",
-  "botUsername": "bot-username",
-  "authTokenRefreshPeriod": "30",
-  "authenticationFilterUrlPattern": "/secure/",
-  "showFirehoseErrors": false,
-  "connectionTimeout": 45000, 
-  "proxyURL": "proxy.symphony.com",
-  "proxyUsername": "proxy.username",
-  "proxyPassword": "proxy.password",
-  "keyManagerProxyURL": "km.proxy.symphony.com",
-  "keyManagerProxyUsername": "km.proxy.username",
-  "keyManagerProxyPassword": "km.proxy.password"
-}
-```
+<span class="pl-ent">certs</span>: <span class="pl-s">/path/to/private/key</span>
+<span class="pl-ent">bot-config</span>: <span class="pl-s">/path/to/bot-config.json</span></pre>
+
+<h4><a id="user-content-bot-configjson" class="anchor" aria-hidden="true" href="#bot-configjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a><strong><code>bot-config.json</code>:</strong></h4>
+
+<pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>sessionAuthHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>session.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>sessionAuthPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyAuthHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyAuthPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>podHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>pod.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>podPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>agentHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>agent.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>agentPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>botPrivateKeyPath<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>certs/<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>botPrivateKeyName<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/path/to/bot/rsa-privatekey.pem<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>botUsername<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>bot-username<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>authTokenRefreshPeriod<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>30<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>authenticationFilterUrlPattern<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/secure/<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>showFirehoseErrors<span class="pl-pds">"</span></span>: <span class="pl-c1">false</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>connectionTimeout<span class="pl-pds">"</span></span>: <span class="pl-c1">45000</span>, 
+  <span class="pl-s"><span class="pl-pds">"</span>proxyURL<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>proxyUsername<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.username<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>proxyPassword<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.password<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyManagerProxyURL<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyManagerProxyUsername<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.username<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyManagerProxyPassword<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.password<span class="pl-pds">"</span></span>
+}</pre>
 </td>
 <td>
 
-Only `application.yaml` file is required. It can be in *JSON* 
+<p>Only <code>application.yaml</code> file is required. It can be in <em>JSON</em></p> 
 
 
-```json
-{
-    "bdk": {
-        "host": "acme.symphony.com",
-        "bot": {
-            "username": "bot-username",
-            "privateKey": {
-                "path": "/path/to/bot/rsa-privatekey.pem"
+<pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>bdk<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>acme.symphony.com<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>bot<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>bot-username<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>privateKey<span class="pl-pds">"</span></span>: {
+                <span class="pl-s"><span class="pl-pds">"</span>path<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/path/to/bot/rsa-privatekey.pem<span class="pl-pds">"</span></span>
             }
         },
-        "proxy": {
-            "host": "proxy.symphony.com",
-            "port": 1234,
-            "username": "proxyuser",
-            "password": "proxypassword"
+        <span class="pl-s"><span class="pl-pds">"</span>proxy<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.symphony.com<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>port<span class="pl-pds">"</span></span>: <span class="pl-c1">1234</span>,
+            <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxyuser<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>password<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxypassword<span class="pl-pds">"</span></span>
         },
-        "keyManager": {
-            "proxy": {
-                "host": "km.proxy.symphony.com",
-                "port": 1234,
-                "username": "km.proxy.username",
-                "password": "km.proxy.password"
+        <span class="pl-s"><span class="pl-pds">"</span>keyManager<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>proxy<span class="pl-pds">"</span></span>: {
+                <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.symphony.com<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>port<span class="pl-pds">"</span></span>: <span class="pl-c1">1234</span>,
+                <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.username<span class="pl-pds">"</span></span>,
+                <span class="pl-s"><span class="pl-pds">"</span>password<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.password<span class="pl-pds">"</span></span>
             }
         }   
     }
-}
-```
+}</pre>
 
-or *YAML* format.
+<p>or <em>YAML</em> format.</p>
 
-```yaml
-bdk:
-    host: acme.symphony.com
-    bot:
-        username: bot-username
-        privateKey:
-            path: "/path/to/bot/rsa-privatekey.pem"
-    proxy:
-        host: proxy.symphony.com
-        port: 1234
-        username: proxyuser
-        password: proxypassword
-    keyManager:
-        proxy:
-            host: km.proxy.symphony.com
-            port: 1234
-            username: km.proxy.username
-            password: km.proxy.passwor
-```
+<pre><span class="pl-ent">bdk</span>:
+    <span class="pl-ent">host</span>: <span class="pl-s">acme.symphony.com</span>
+    <span class="pl-ent">bot</span>:
+        <span class="pl-ent">username</span>: <span class="pl-s">bot-username</span>
+        <span class="pl-ent">privateKey</span>:
+            <span class="pl-ent">path</span>: <span class="pl-s"><span class="pl-pds">"</span>/path/to/bot/rsa-privatekey.pem<span class="pl-pds">"</span></span>
+    <span class="pl-ent">proxy</span>:
+        <span class="pl-ent">host</span>: <span class="pl-s">proxy.symphony.com</span>
+        <span class="pl-ent">port</span>: <span class="pl-c1">1234</span>
+        <span class="pl-ent">username</span>: <span class="pl-s">proxyuser</span>
+        <span class="pl-ent">password</span>: <span class="pl-s">proxypassword</span>
+    <span class="pl-ent">keyManager</span>:
+        <span class="pl-ent">proxy</span>:
+            <span class="pl-ent">host</span>: <span class="pl-s">km.proxy.symphony.com</span>
+            <span class="pl-ent">port</span>: <span class="pl-c1">1234</span>
+            <span class="pl-ent">username</span>: <span class="pl-s">km.proxy.username</span>
+            <span class="pl-ent">password</span>: <span class="pl-s">km.proxy.passwor</span></pre>
 </td>
 </tr>
 </table>
@@ -260,84 +245,78 @@ bdk:
 <tr>
 <td>
 
-#### **`bot-config.json`:**
-```json
-{
-  "sessionAuthHost": "session.symphony.com",
-  "sessionAuthPort": 443,
-  "keyAuthHost": "km.symphony.com",
-  "keyAuthPort": 443,
-  "podHost": "pod.symphony.com",
-  "podPort": 443,
-  "agentHost": "agent.symphony.com",
-  "agentPort": 443,
-  "botPrivateKeyPath": "certs/",
-  "botPrivateKeyName": "/path/to/bot/rsa-privatekey.pem",
-  "botUsername": "bot-username",
-  "authTokenRefreshPeriod": "30",
-  "authenticationFilterUrlPattern": "/secure/",
-  "showFirehoseErrors": false,
-  "connectionTimeout": 45000, 
-  "proxyURL": "proxy.symphony.com",
-  "proxyUsername": "proxy.username",
-  "proxyPassword": "proxy.password",
-  "keyManagerProxyURL": "km.proxy.symphony.com",
-  "keyManagerProxyUsername": "km.proxy.username",
-  "keyManagerProxyPassword": "km.proxy.password"
-}
-```
+<h4><a id="user-content-bot-configjson-1" class="anchor" aria-hidden="true" href="#bot-configjson-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a><strong><code>bot-config.json</code>:</strong></h4>
+
+<pre>{
+  <span class="pl-s"><span class="pl-pds">"</span>sessionAuthHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>session.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>sessionAuthPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyAuthHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyAuthPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>podHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>pod.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>podPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>agentHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>agent.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>agentPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>botPrivateKeyPath<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>certs/<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>botPrivateKeyName<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/path/to/bot/rsa-privatekey.pem<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>botUsername<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>bot-username<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>authTokenRefreshPeriod<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>30<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>authenticationFilterUrlPattern<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/secure/<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>showFirehoseErrors<span class="pl-pds">"</span></span>: <span class="pl-c1">false</span>,
+  <span class="pl-s"><span class="pl-pds">"</span>connectionTimeout<span class="pl-pds">"</span></span>: <span class="pl-c1">45000</span>, 
+  <span class="pl-s"><span class="pl-pds">"</span>proxyURL<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>proxyUsername<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.username<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>proxyPassword<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.password<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyManagerProxyURL<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.symphony.com<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyManagerProxyUsername<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.username<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>keyManagerProxyPassword<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.password<span class="pl-pds">"</span></span>
+}</pre>
 </td>
 <td>
 
-Only `config.yaml` file is required. It can be in *JSON*
+<p>Only <code>config.yaml</code> file is required. It can be in <em>JSON</em></p>
 
-
-```json
-{
-    "host": "acme.symphony.com",
-    "bot": {
-        "username": "bot-username",
-        "privateKey": {
-            "path": "/path/to/bot/rsa-privatekey.pem"
+<pre>{
+    <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>acme.symphony.com<span class="pl-pds">"</span></span>,
+    <span class="pl-s"><span class="pl-pds">"</span>bot<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>bot-username<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>privateKey<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>path<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>/path/to/bot/rsa-privatekey.pem<span class="pl-pds">"</span></span>
         }
     },
-    "proxy": {
-        "host": "proxy.symphony.com",
-        "port": 1234,
-        "username": "proxyuser",
-        "password": "proxypassword"
+    <span class="pl-s"><span class="pl-pds">"</span>proxy<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxy.symphony.com<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>port<span class="pl-pds">"</span></span>: <span class="pl-c1">1234</span>,
+        <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxyuser<span class="pl-pds">"</span></span>,
+        <span class="pl-s"><span class="pl-pds">"</span>password<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>proxypassword<span class="pl-pds">"</span></span>
     },
-    "keyManager": {
-        "proxy": {
-            "host": "km.proxy.symphony.com",
-            "port": 1234,
-            "username": "km.proxy.username",
-            "password": "km.proxy.password"
+    <span class="pl-s"><span class="pl-pds">"</span>keyManager<span class="pl-pds">"</span></span>: {
+        <span class="pl-s"><span class="pl-pds">"</span>proxy<span class="pl-pds">"</span></span>: {
+            <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.symphony.com<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>port<span class="pl-pds">"</span></span>: <span class="pl-c1">1234</span>,
+            <span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.username<span class="pl-pds">"</span></span>,
+            <span class="pl-s"><span class="pl-pds">"</span>password<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>km.proxy.password<span class="pl-pds">"</span></span>
         }
     }
-}
-```
+}</pre>
 
-or *YAML* format.
+<p>or <em>YAML</em> format.</p>
 
-```yaml
-host: acme.symphony.com
-bot:
-    username: bot-username
-    privateKey:
-        path: "/path/to/bot/rsa-privatekey.pem"
-proxy:
-    host: proxy.symphony.com
-    port: 1234
-    username: proxyuser
-    password: proxypassword
-keyManager:
-    proxy:
-        host: km.proxy.symphony.com
-        port: 1234
-        username: km.proxy.username
-        password: km.proxy.password
-```
+<pre><span class="pl-ent">host</span>: <span class="pl-s">acme.symphony.com</span>
+<span class="pl-ent">bot</span>:
+    <span class="pl-ent">username</span>: <span class="pl-s">bot-username</span>
+    <span class="pl-ent">privateKey</span>:
+        <span class="pl-ent">path</span>: <span class="pl-s"><span class="pl-pds">"</span>/path/to/bot/rsa-privatekey.pem<span class="pl-pds">"</span></span>
+<span class="pl-ent">proxy</span>:
+    <span class="pl-ent">host</span>: <span class="pl-s">proxy.symphony.com</span>
+    <span class="pl-ent">port</span>: <span class="pl-c1">1234</span>
+    <span class="pl-ent">username</span>: <span class="pl-s">proxyuser</span>
+    <span class="pl-ent">password</span>: <span class="pl-s">proxypassword</span>
+<span class="pl-ent">keyManager</span>:
+    <span class="pl-ent">proxy</span>:
+        <span class="pl-ent">host</span>: <span class="pl-s">km.proxy.symphony.com</span>
+        <span class="pl-ent">port</span>: <span class="pl-c1">1234</span>
+        <span class="pl-ent">username</span>: <span class="pl-s">km.proxy.username</span>
+        <span class="pl-ent">password</span>: <span class="pl-s">km.proxy.password</span></pre>
 </td>
 </tr>
 </table>
@@ -359,130 +338,126 @@ To illustrate this, let's take an example of a bot reacting to *ping pong* messa
 <tr>
 <td>
 
-In Java BDK 1.0, the main class should have *SymBotClient* object that the bot service can use to call `sendMessage()` method.
+<p>In Java BDK 1.0, the main class should have <em>SymBotClient</em> object that the bot service can use to call <code>sendMessage()</code> method.</p>
 
-```java
-@Slf4j
-@Service
-public class PingPongBotService {
-  public handleIncomingMessage(InboundMessage message, StreamTypes streamType) {
-      String streamId = message.getStream().getStreamId();
-      String messageText = message.getMessageText();
+<pre><span class="pl-k">@Slf4j</span>
+<span class="pl-k">@Service</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">PingPongBotService</span> {
+  <span class="pl-k">public</span> <span class="pl-en">handleIncomingMessage</span>(<span class="pl-smi">InboundMessage</span> <span class="pl-v">message</span>, <span class="pl-smi">StreamTypes</span> <span class="pl-v">streamType</span>) {
+      <span class="pl-smi">String</span> streamId <span class="pl-k">=</span> message<span class="pl-k">.</span>getStream()<span class="pl-k">.</span>getStreamId();
+      <span class="pl-smi">String</span> messageText <span class="pl-k">=</span> message<span class="pl-k">.</span>getMessageText();
 
-      switch (messageText) {
-          case "/ping":
-              PingPongBot.sendMessage(streamId, "pong");
-              break;
-          case "/pong":
-              PingPongBot.sendMessage(streamId, "ping");
-              break;
-          default:
-            PingPongBot.sendMessage(streamId, "Sorry, I don't understand!");
-            break;
+      <span class="pl-k">switch</span> (messageText) {
+          <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">"</span>/ping<span class="pl-pds">"</span></span><span class="pl-k">:</span>
+              <span class="pl-smi">PingPongBot</span><span class="pl-k">.</span>sendMessage(streamId, <span class="pl-s"><span class="pl-pds">"</span>pong<span class="pl-pds">"</span></span>);
+              <span class="pl-k">break</span>;
+          <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">"</span>/pong<span class="pl-pds">"</span></span><span class="pl-k">:</span>
+              <span class="pl-smi">PingPongBot</span><span class="pl-k">.</span>sendMessage(streamId, <span class="pl-s"><span class="pl-pds">"</span>ping<span class="pl-pds">"</span></span>);
+              <span class="pl-k">break</span>;
+          <span class="pl-k">default</span><span class="pl-k">:</span>
+            <span class="pl-smi">PingPongBot</span><span class="pl-k">.</span>sendMessage(streamId, <span class="pl-s"><span class="pl-pds">"</span>Sorry, I don't understand!<span class="pl-pds">"</span></span>);
+            <span class="pl-k">break</span>;
       }
   }
 }
 
-@Slf4j
-public class PingPongBot {
-  private static SymBotClient botClient;
+<span class="pl-k">@Slf4j</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">PingPongBot</span> {
+  <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-smi">SymBotClient</span> botClient;
   
-  public PingPongBot(IMListenerImpl imListener, RoomListenerImpl roomListener, ElementsListenerImpl elementsListener) {
-      try {
-          // Bot init
-          botClient = SymBotClient.initBotRsa("config.json");
+  <span class="pl-k">public</span> <span class="pl-en">PingPongBot</span>(<span class="pl-smi">IMListenerImpl</span> <span class="pl-v">imListener</span>, <span class="pl-smi">RoomListenerImpl</span> <span class="pl-v">roomListener</span>, <span class="pl-smi">ElementsListenerImpl</span> <span class="pl-v">elementsListener</span>) {
+      <span class="pl-k">try</span> {
+          <span class="pl-c"><span class="pl-c">//</span> Bot init</span>
+          botClient <span class="pl-k">=</span> <span class="pl-smi">SymBotClient</span><span class="pl-k">.</span>initBotRsa(<span class="pl-s"><span class="pl-pds">"</span>config.json<span class="pl-pds">"</span></span>);
       
-          // Bot listeners
-          botClient.getDatafeedEventsService().addListeners(imListener, roomListener, elementsListener);
-      } catch (Exception e) {
-        log.error("Error: {}", e.getMessage());
+          <span class="pl-c"><span class="pl-c">//</span> Bot listeners</span>
+          botClient<span class="pl-k">.</span>getDatafeedEventsService()<span class="pl-k">.</span>addListeners(imListener, roomListener, elementsListener);
+      } <span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> e) {
+        log<span class="pl-k">.</span>error(<span class="pl-s"><span class="pl-pds">"</span>Error: {}<span class="pl-pds">"</span></span>, e<span class="pl-k">.</span>getMessage());
       }
   }
   
-  public static void sendMessage(String streamId, String message) {
-      botClient.getMessageClient.sendMessage(streamId, new OutboundMessage(message));
+  <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">void</span> <span class="pl-en">sendMessage</span>(<span class="pl-smi">String</span> <span class="pl-v">streamId</span>, <span class="pl-smi">String</span> <span class="pl-v">message</span>) {
+      botClient<span class="pl-k">.</span>getMessageClient<span class="pl-k">.</span>sendMessage(streamId, <span class="pl-k">new</span> <span class="pl-smi">OutboundMessage</span>(message));
   }
-}
-```
+}</pre>
 </td>
 <td>
 
-In Java BDK 2.0, `MessageService` can be injected in the Bot service class to directly call `send()` without needing `SymBotClient`. *(The example below uses a Spring Boot based project)*  
+<p>In Java BDK 2.0, <code>MessageService</code> can be injected in the Bot service class to directly call <code>send()</code> without needing <code>SymBotClient</code>. <em>(The example below uses a Spring Boot based project)</em></p>
 
-```java
-@Slf4j
-@Service
-public class PingPongBotService {
+<pre><span class="pl-k">@Slf4j</span>
+<span class="pl-k">@Service</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">PingPongBotService</span> {
 
-    private final MessageService messageService;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">MessageService</span> messageService;
 
-    public PingPongBotService(MessageService messageService) {
-        this.messageService = messageService;
+    <span class="pl-k">public</span> <span class="pl-en">PingPongBotService</span>(<span class="pl-smi">MessageService</span> <span class="pl-v">messageService</span>) {
+        <span class="pl-c1">this</span><span class="pl-k">.</span>messageService <span class="pl-k">=</span> messageService;
     }
 
-    public handleIncomingMessage(V4Message message, StreamType.TypeEnum streamType) {
-        String streamId = message.getStream().getStreamId();
-        String messageText = message.getMessage();
+    <span class="pl-k">public</span> <span class="pl-en">handleIncomingMessage</span>(<span class="pl-smi">V4Message</span> <span class="pl-v">message</span>, <span class="pl-smi">StreamType</span>.<span class="pl-smi">TypeEnum</span> <span class="pl-v">streamType</span>) {
+        <span class="pl-smi">String</span> streamId <span class="pl-k">=</span> message<span class="pl-k">.</span>getStream()<span class="pl-k">.</span>getStreamId();
+        <span class="pl-smi">String</span> messageText <span class="pl-k">=</span> message<span class="pl-k">.</span>getMessage();
 
-        switch (messageText) {
-            case "/ping":
-                this.messageService.send(streamId, "pong");
-                break;
-            case "/pong":
-                this.messageService.send(streamId, "ping");
-                break;
-            default:
-                this.messageService.send(streamId, "Sorry, I don't understand!");
-                break;
+        <span class="pl-k">switch</span> (messageText) {
+            <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">"</span>/ping<span class="pl-pds">"</span></span><span class="pl-k">:</span>
+                <span class="pl-c1">this</span><span class="pl-k">.</span>messageService<span class="pl-k">.</span>send(streamId, <span class="pl-s"><span class="pl-pds">"</span>pong<span class="pl-pds">"</span></span>);
+                <span class="pl-k">break</span>;
+            <span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">"</span>/pong<span class="pl-pds">"</span></span><span class="pl-k">:</span>
+                <span class="pl-c1">this</span><span class="pl-k">.</span>messageService<span class="pl-k">.</span>send(streamId, <span class="pl-s"><span class="pl-pds">"</span>ping<span class="pl-pds">"</span></span>);
+                <span class="pl-k">break</span>;
+            <span class="pl-k">default</span><span class="pl-k">:</span>
+                <span class="pl-c1">this</span><span class="pl-k">.</span>messageService<span class="pl-k">.</span>send(streamId, <span class="pl-s"><span class="pl-pds">"</span>Sorry, I don't understand!<span class="pl-pds">"</span></span>);
+                <span class="pl-k">break</span>;
         }
     }
 }
 
 
-@Component
-public class RealTimeEventComponent {
+<span class="pl-k">@Component</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">RealTimeEventComponent</span> {
 
-    private final PingPongBotService pingPongBotService;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">PingPongBotService</span> pingPongBotService;
 
-    public RealTimeEventComponent(PingPongBotService pingPongBotService) {
-        this.pingPongBotService = pingPongBotService;
+    <span class="pl-k">public</span> <span class="pl-en">RealTimeEventComponent</span>(<span class="pl-smi">PingPongBotService</span> <span class="pl-v">pingPongBotService</span>) {
+        <span class="pl-c1">this</span><span class="pl-k">.</span>pingPongBotService <span class="pl-k">=</span> pingPongBotService;
     }
 
-    @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
-        this.pingPongBotService.handleIncomingMessage(event.getSource().getMessage,
-                StreamType.TypeEnum.formValue(event.getSource().getMessage.getStream.getStreamType()));
+    <span class="pl-k">@EventListener</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onMessageSent</span>(<span class="pl-k">RealTimeEvent&lt;<span class="pl-smi">V4MessageSent</span>&gt;</span> <span class="pl-v">event</span>) {
+        <span class="pl-c1">this</span><span class="pl-k">.</span>pingPongBotService<span class="pl-k">.</span>handleIncomingMessage(event<span class="pl-k">.</span>getSource()<span class="pl-k">.</span>getMessage,
+                <span class="pl-smi">StreamType</span><span class="pl-k">.</span><span class="pl-smi">TypeEnum</span><span class="pl-k">.</span>formValue(event<span class="pl-k">.</span>getSource()<span class="pl-k">.</span>getMessage<span class="pl-k">.</span>getStream<span class="pl-k">.</span>getStreamType()));
     }
-}
-```
+}</pre>
 </td>
 </tr>
 </table>
 
-An example of non framework based project using `SymphonyBdk` to retrieve BDK services:
-````java
-@Slf4j
-public class GreetingsAllRoomsBot {
+<p>An example of non framework based project using <code>SymphonyBdk</code> to retrieve BDK services:</p>
 
-  public static void main(String[] args) throws Exception {
+<pre><span class="pl-k">@Slf4j</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">GreetingsAllRoomsBot</span> {
 
-    final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
+  <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-k">void</span> <span class="pl-en">main</span>(<span class="pl-k">String</span>[] <span class="pl-v">args</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span> {
 
-    // list all rooms
-    Stream<StreamAttributes> rooms = bdk.streams().listAllStreams(new StreamFilter());
+    <span class="pl-k">final</span> <span class="pl-smi">SymphonyBdk</span> bdk <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-smi">SymphonyBdk</span>(loadFromSymphonyDir(<span class="pl-s"><span class="pl-pds">"</span>config.yaml<span class="pl-pds">"</span></span>));
+
+    <span class="pl-c"><span class="pl-c">//</span> list all rooms</span>
+    <span class="pl-k">Stream&lt;<span class="pl-smi">StreamAttributes</span>&gt;</span> rooms <span class="pl-k">=</span> bdk<span class="pl-k">.</span>streams()<span class="pl-k">.</span>listAllStreams(<span class="pl-k">new</span> <span class="pl-smi">StreamFilter</span>());
     
-    rooms.forEach(streamAttributes -> {
-          // send message to room
-          bdk.messages().send(streamAttributes.getId(), "Hello world!");
-          log.info("Message sent to room with: id:{}, name:{}", streamAttributes.getId(),
-              streamAttributes.getRoomAttributes().getName());
+    rooms<span class="pl-k">.</span>forEach(streamAttributes <span class="pl-k">-</span><span class="pl-k">&gt;</span> {
+          <span class="pl-c"><span class="pl-c">//</span> send message to room</span>
+          bdk<span class="pl-k">.</span>messages()<span class="pl-k">.</span>send(streamAttributes<span class="pl-k">.</span>getId(), <span class="pl-s"><span class="pl-pds">"</span>Hello world!<span class="pl-pds">"</span></span>);
+          log<span class="pl-k">.</span>info(<span class="pl-s"><span class="pl-pds">"</span>Message sent to room with: id:{}, name:{}<span class="pl-pds">"</span></span>, streamAttributes<span class="pl-k">.</span>getId(),
+              streamAttributes<span class="pl-k">.</span>getRoomAttributes()<span class="pl-k">.</span>getName());
     });
     
-    bdk.datafeed().start();
+    bdk<span class="pl-k">.</span>datafeed()<span class="pl-k">.</span>start();
   }
-}
-````
-> A list of BDK available services can be found [here](./fluent-api.md)
+}</pre>
+
+<p>A list of BDK available services can be found <a href="/finos/symphony-bdk-java/blob/main/docs/fluent-api.md">here</a></p>
 
 ## Event listeners
 Java BDK 2.0 comes with a simplified way to handle event listeners.
@@ -498,38 +473,36 @@ In Java BDK 1.0, the bot had to implement 3 listeners classes:
 - one for IM (1 to 1 conversation)
 - one for MIM (room)
 - one for Symphony elements
-```java
-@Slf4j
-@Service
-public class ElementsListenerImpl implements ElementsListener {
-    public void onElementsAction(User initiator, SymphonyElementsAction action) {...}
+
+<pre><span class="pl-k">@Slf4j</span>
+<span class="pl-k">@Service</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">ElementsListenerImpl</span> <span class="pl-k">implements</span> <span class="pl-e">ElementsListener</span> {
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onElementsAction</span>(<span class="pl-smi">User</span> <span class="pl-v">initiator</span>, <span class="pl-smi">SymphonyElementsAction</span> <span class="pl-v">action</span>) {<span class="pl-c1">...</span>}
 }
 
-@Slf4j
-@Service
-public class IMListenerImpl implements ElementsListener {
-    public void onIMMessage(InboundMessage msg) {...}
+<span class="pl-k">@Slf4j</span>
+<span class="pl-k">@Service</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">IMListenerImpl</span> <span class="pl-k">implements</span> <span class="pl-e">ElementsListener</span> {
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onIMMessage</span>(<span class="pl-smi">InboundMessage</span> <span class="pl-v">msg</span>) {<span class="pl-c1">...</span>}
 }
 
-@Slf4j
-@Service
-public class RoomListenerImpl implements RoomListener {
-    public void onRoomMessage(InboundMessage msg) {...}
-}
-```
+<span class="pl-k">@Slf4j</span>
+<span class="pl-k">@Service</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">RoomListenerImpl</span> <span class="pl-k">implements</span> <span class="pl-e">RoomListener</span> {
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onRoomMessage</span>(<span class="pl-smi">InboundMessage</span> <span class="pl-v">msg</span>) {<span class="pl-c1">...</span>}
+}</pre>
+
 </td>
 <td>
 
-In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implemented with two methods having `@EventListener` annotation: This works provided we have the correct parameters with correct types. The 3 classes can be factored in one single component. *(The example below uses a Spring Boot based project)* 
-```java
-public class RealTimeEventComponent {
-    @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event) {...}
+<p>In Java BDK 2.0, only one component <code>RealTimeEventComponent</code> has to be implemented with two methods having <code>@EventListener</code> annotation: This works provided we have the correct parameters with correct types. The 3 classes can be factored in one single component. <em>(The example below uses a Spring Boot based project)</em></p>
+<pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">RealTimeEventComponent</span> {
+    <span class="pl-k">@EventListener</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onMessageSent</span>(<span class="pl-k">RealTimeEvent&lt;<span class="pl-smi">V4MessageSent</span>&gt;</span> <span class="pl-v">event</span>) {<span class="pl-c1">...</span>}
 
-    @EventListener
-    public onElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {...}
-}
-```
+    <span class="pl-k">@EventListener</span>
+    <span class="pl-k">public</span> <span class="pl-en">onElementsAction</span>(<span class="pl-k">RealTimeEvent&lt;<span class="pl-smi">V4SymphonyElementsAction</span>&gt;</span> <span class="pl-v">event</span>) {<span class="pl-c1">...</span>}
+}</pre>
 </td>
 </tr>
 </table>
