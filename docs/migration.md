@@ -146,7 +146,7 @@ If your bot is deployed on premise, the following properties are required as wel
 <tr>
 <td>
 
-<h4><a id="user-content-applicationyaml" class="anchor" aria-hidden="true" href="#applicationyaml"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a><strong><code>application.yaml</code>:</strong></h4>
+<p><code>application.yaml</code>:</p>
 
 <pre><span class="pl-ent">server</span>:
     <span class="pl-ent">port</span>: <span class="pl-c1">8080</span>
@@ -156,7 +156,7 @@ If your bot is deployed on premise, the following properties are required as wel
 <span class="pl-ent">certs</span>: <span class="pl-s">/path/to/private/key</span>
 <span class="pl-ent">bot-config</span>: <span class="pl-s">/path/to/bot-config.json</span></pre>
 
-<h4><a id="user-content-bot-configjson" class="anchor" aria-hidden="true" href="#bot-configjson"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a><strong><code>bot-config.json</code>:</strong></h4>
+<p><code>bot-config.json</code>:</p>
 
 <pre>{
   <span class="pl-s"><span class="pl-pds">"</span>sessionAuthHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>session.symphony.com<span class="pl-pds">"</span></span>,
@@ -184,7 +184,7 @@ If your bot is deployed on premise, the following properties are required as wel
 </td>
 <td>
 
-<p>Only <code>application.yaml</code> file is required. It can be in <em>JSON</em></p> 
+<p>Only <code>application.yaml</code> file is required. <br/> It can be in <em>JSON:</em></p> 
 
 
 <pre>{
@@ -213,7 +213,7 @@ If your bot is deployed on premise, the following properties are required as wel
     }
 }</pre>
 
-<p>or <em>YAML</em> format.</p>
+<p>or <em>YAML</em> format:</p>
 
 <pre><span class="pl-ent">bdk</span>:
     <span class="pl-ent">host</span>: <span class="pl-s">acme.symphony.com</span>
@@ -245,8 +245,7 @@ If your bot is deployed on premise, the following properties are required as wel
 <tr>
 <td>
 
-<h4><a id="user-content-bot-configjson-1" class="anchor" aria-hidden="true" href="#bot-configjson-1"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"></path></svg></a><strong><code>bot-config.json</code>:</strong></h4>
-
+<p><code>bot-config.json</code>:</p>
 <pre>{
   <span class="pl-s"><span class="pl-pds">"</span>sessionAuthHost<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>session.symphony.com<span class="pl-pds">"</span></span>,
   <span class="pl-s"><span class="pl-pds">"</span>sessionAuthPort<span class="pl-pds">"</span></span>: <span class="pl-c1">443</span>,
@@ -273,7 +272,7 @@ If your bot is deployed on premise, the following properties are required as wel
 </td>
 <td>
 
-<p>Only <code>config.yaml</code> file is required. It can be in <em>JSON</em></p>
+<p>Only <code>config.yaml</code> file is required. <br/>It can be in <em>JSON:</em></p>
 
 <pre>{
     <span class="pl-s"><span class="pl-pds">"</span>host<span class="pl-pds">"</span></span>: <span class="pl-s"><span class="pl-pds">"</span>acme.symphony.com<span class="pl-pds">"</span></span>,
@@ -299,7 +298,7 @@ If your bot is deployed on premise, the following properties are required as wel
     }
 }</pre>
 
-<p>or <em>YAML</em> format.</p>
+<p>or <em>YAML</em> format:</p>
 
 <pre><span class="pl-ent">host</span>: <span class="pl-s">acme.symphony.com</span>
 <span class="pl-ent">bot</span>:
