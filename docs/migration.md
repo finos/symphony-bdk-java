@@ -122,6 +122,8 @@ If your bot is deployed on premise, the following properties are required as wel
 - `ssl.trustStore`: trust store path and password
 
 > Click [here](./configuration.md) for more detailed documentation about BDK configuration
+
+<!-- -->
 ### Minimal configuration example
 #### Spring Boot based project
 ##### Java BDK 1.0
@@ -301,6 +303,8 @@ keyManager:
 The `SymphonyBdk` class acts as an entry point into the library and provides a [fluent API](./fluent-api.md) to access to the main BDK features such as [Datafeed](./datafeed.md), services or [Activities](./activity-api.md).
 With this class, all BDK services are auto-configured and can be directly accessed without any bot client. Examples of this class usage will be provided in next parts.
 > Click [here](./fluent-api.md) for more detailed documentation about Symphony BDK fluent api
+
+<!-- -->
 ## BDK services
 If you use a Spring Boot based project, BDK services can be directly injected in your bot service. If it is not a framework based project, BDK services can be retrieved with Symphony BDK entry point.
 To illustrate this, let's take an example of a bot reacting to *ping pong* messages.
