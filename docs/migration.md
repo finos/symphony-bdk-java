@@ -36,6 +36,7 @@ If your project is not framework based, dependencies such as *jersey* and *freem
     </dependency>      
 </dependencies>
 ```
+
 </td>
 <td>
 
@@ -63,6 +64,7 @@ If your project is not framework based, dependencies such as *jersey* and *freem
 </dependency>
 </dependencies>
 ```
+
 </td>
 </tr>
 </table>
