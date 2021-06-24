@@ -6,6 +6,11 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
@@ -82,9 +87,10 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClient build() {
     java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
 
+    SSLContext sslContext = this.createSSLContext();
     final Client httpClient = ClientBuilder.newBuilder()
-        .sslContext(this.createSSLContext())
-        .withConfig(this.createClientConfig())
+        .sslContext(sslContext)
+        .withConfig(this.createClientConfig(sslContext))
         .build();
 
     httpClient.property(ClientProperties.CONNECT_TIMEOUT, this.connectionTimeout);
@@ -205,7 +211,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   }
 
   @API(status = API.Status.EXPERIMENTAL)
-  protected ClientConfig createClientConfig() {
+  protected ClientConfig createClientConfig(SSLContext sslContext) {
     final ClientConfig clientConfig = new ClientConfig();
     this.configureJackson(clientConfig);
     if (this.proxyUrl != null) {
@@ -217,12 +223,20 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     // turn off compliance validation to be able to send payloads with DELETE calls
     clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
+
+    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext);
+    Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+        .register("https", sslConnectionSocketFactory)
+        .register("http", new PlainConnectionSocketFactory())
+        .build();
+
     // By default PoolingHttpClientConnectionManager, if not configured, has 20 connection in the
     // pool BUT only 2 max connection per route.
-    final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
     connectionManager.setMaxTotal(this.connectionPoolMax);
     connectionManager.setDefaultMaxPerRoute(this.connectionPoolPerRoute);
     clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
+    clientConfig.connectorProvider(new ApacheConnectorProvider());
     return clientConfig;
   }
 
@@ -234,7 +248,6 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   @API(status = API.Status.EXPERIMENTAL)
   protected void configureProxy(ClientConfig clientConfig) {
-    clientConfig.connectorProvider(new ApacheConnectorProvider());
     clientConfig.property(ClientProperties.PROXY_URI, proxyUrl);
     clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
     clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPassword);
