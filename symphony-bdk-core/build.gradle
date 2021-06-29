@@ -1,8 +1,7 @@
 plugins {
     id 'bdk.java-library-conventions'
     id 'bdk.java-publish-conventions'
-    // beta version provides incremental build support
-    id 'org.openapi.generator' version '5.0.0-beta2'
+    id 'org.openapi.generator' version '5.1.1'
     id 'de.undercouch.download' version '4.1.1'
 }
 
@@ -86,7 +85,7 @@ sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 apisToGenerate.each { api, path ->
     def downloadTask = tasks.create(name: "download$api", type: Download) {
         src "$apiBaseUrl/$path"
-        dest "$buildDir"
+        dest "$buildDir/openapi/$api/${path.split("/")[1]}"
         overwrite false
     }
 
@@ -96,7 +95,7 @@ apisToGenerate.each { api, path ->
         generatorName = 'java'
         library = 'jersey2'
         outputDir = generatedFolder
-        inputSpec = "$buildDir/${path.split("/")[1]}"
+        inputSpec = "$buildDir/openapi/$api/${path.split("/")[1]}"
         skipOverwrite = true
         generateApiTests = false
         generateModelTests = false
@@ -117,6 +116,8 @@ apisToGenerate.each { api, path ->
     }
 
     compileJava.dependsOn generateTask
+    sourcesJar.dependsOn downloadTask
+    sourcesJar.dependsOn generateTask
 }
 
 // Duplicated AuthRequest class, we need the one from auth API, so task order matters here
