@@ -1,9 +1,9 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -82,7 +82,7 @@ class LoadBalancingStrategyTest {
     mockApiClient.onGet("/agent/v1/info", "{ \"serverFqdn\": \"https://agent1:443/context\" }");
 
     ApiClientFactory apiClientFactory = mock(ApiClientFactory.class);
-    when(apiClientFactory.getRegularAgentClient(eq("https://agent-lb:443")))
+    when(apiClientFactory.getRegularAgentClient("https://agent-lb:443"))
         .thenReturn(mockApiClient.getApiClient("/agent"));
 
     BdkConfig config = getBdkConfig(BdkLoadBalancingMode.EXTERNAL, Collections.singletonList("agent-lb"));
@@ -123,15 +123,15 @@ class LoadBalancingStrategyTest {
     when(apiClient.getBasePath()).thenReturn("pathToTheAgent");
 
     ExternalLoadBalancingStrategy loadBalancingStrategy =
-        new ExternalLoadBalancingStrategy(new BdkRetryConfig(), signalsApi);
+        new ExternalLoadBalancingStrategy(new BdkRetryConfig(1), signalsApi);
 
     assertThrows(ApiRuntimeException.class, loadBalancingStrategy::getNewBasePath);
   }
 
   @Test
   void testLoadBalancingStrategyFactoryConstructor() {
-    //otherwise `gradle jacocoTestCoverageVerification` will fail on LoadBalancingStrategyFactory
-    new LoadBalancingStrategyFactory();
+    // otherwise `gradle jacocoTestCoverageVerification` will fail on LoadBalancingStrategyFactory
+    assertDoesNotThrow(LoadBalancingStrategyFactory::new);
   }
 
   private LoadBalancingStrategy getLoadBalancingStrategy(BdkLoadBalancingMode mode) {
