@@ -28,7 +28,9 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
@@ -61,6 +63,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   protected String proxyUrl;
   protected String proxyUser;
   protected String proxyPassword;
+  protected List<Object> filters;
 
   public ApiClientBuilderJersey2() {
     this.basePath = "https://acme.symphony.com";
@@ -77,6 +80,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     this.proxyUrl = null;
     this.proxyUser = null;
     this.proxyPassword = null;
+    this.filters = new ArrayList<>();
     this.withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -95,6 +99,8 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
     httpClient.property(ClientProperties.CONNECT_TIMEOUT, this.connectionTimeout);
     httpClient.property(ClientProperties.READ_TIMEOUT, this.readTimeout);
+
+    filters.forEach(httpClient::register);
 
     return new ApiClientJersey2(httpClient, this.basePath, this.defaultHeaders, this.temporaryFolderPath);
   }
@@ -207,6 +213,12 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword) {
     this.proxyUser = proxyUser;
     this.proxyPassword = proxyPassword;
+    return this;
+  }
+
+  @Override
+  public ApiClientBuilder addFilter(Object filter) {
+    this.filters.add(filter);
     return this;
   }
 

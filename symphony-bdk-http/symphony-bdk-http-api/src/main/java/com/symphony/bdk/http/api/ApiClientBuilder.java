@@ -81,9 +81,8 @@ public interface ApiClientBuilder {
    *
    * @param connectionPoolMax maximum connections in the pool
    * @return the updated instance of {@link ApiClientBuilder}
-   *
    */
-  default ApiClientBuilder withConnectionPoolMax(Integer connectionPoolMax){
+  default ApiClientBuilder withConnectionPoolMax(Integer connectionPoolMax) {
     // Only ApiClientBuilderJersey2 override default method, otherwise it does nothing
     return this;
   }
@@ -95,9 +94,8 @@ public interface ApiClientBuilder {
    *
    * @param connectionPoolPerRoute maximum connections per each route
    * @return the updated instance of {@link ApiClientBuilder}
-   *
    */
-  default ApiClientBuilder withConnectionPoolPerRoute(Integer connectionPoolPerRoute){
+  default ApiClientBuilder withConnectionPoolPerRoute(Integer connectionPoolPerRoute) {
     // Only ApiClientBuilderJersey2 override default method, otherwise it does nothing
     return this;
   }
@@ -119,4 +117,14 @@ public interface ApiClientBuilder {
    * @return the updated instance of {@link ApiClientBuilder}
    */
   ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword);
+
+  /**
+   * Add a request/response interceptor/filter for the HTTP client.
+   *
+   * @param filter Concrete implementation depends on the underlying HTTP client implementation.
+   *                    For Jersey ClientRequestFilter and/or ClientResponseFilter are expected.
+   *                    For Spring WebClient, an ExchangeFilterFunction implementation is expected.
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  ApiClientBuilder addFilter(Object filter);
 }
