@@ -1,8 +1,5 @@
 package com.symphony.bdk.bot.sdk.monitoring;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.symphony.bdk.bot.sdk.symphony.HealthcheckClient;
 import com.symphony.bdk.bot.sdk.symphony.model.HealthCheckInfo;
 
@@ -11,13 +8,16 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.binder.MeterBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * Retrieves health details for Symphony components (e.g. POD, agent) to be
  * exposed by prometheus endpoint.
  *
  * @author Marcus Secato
- *
  */
 public class SymphonyHealthMeterBinder implements MeterBinder {
   private static final Logger LOGGER = LoggerFactory.getLogger(SymphonyHealthMeterBinder.class);
@@ -48,9 +48,9 @@ public class SymphonyHealthMeterBinder implements MeterBinder {
     Gauge.builder(METRIC_NAME, this, value -> value.status().checkOverallStatus() ? 1.0 : 0.0)
         .description(METRIC_DESCRIPTION)
         .tags(Tags.of(
-            Tag.of(TAG_POD_VERSION, healthStatus.getPodVersion()),
-            Tag.of(TAG_AGENT_VERSION, healthStatus.getAgentVersion()),
-            Tag.of(TAG_API_VERSION, healthStatus.getSymphonyApiClientVersion())))
+            Tag.of(TAG_POD_VERSION, Objects.toString(healthStatus.getPodVersion(), "")),
+            Tag.of(TAG_AGENT_VERSION, Objects.toString(healthStatus.getAgentVersion())),
+            Tag.of(TAG_API_VERSION, Objects.toString(healthStatus.getSymphonyApiClientVersion()))))
         .baseUnit(BASE_UNIT)
         .register(registry);
   }
