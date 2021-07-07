@@ -35,6 +35,14 @@ public class PresentationMLParserTest {
   }
 
   @Test
+  void getMessageFromPresentationMLWithEscapedContentTest() throws PresentationMLParserException {
+    String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\">&nbsp;</div>";
+    String content = PresentationMLParser.getTextContent(presentationML, false);
+
+    assertNotEquals(content, "&#160;");
+  }
+
+  @Test
   void getMessageFromPresentationMLFailedToParse() {
     String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\"> \n"
         + "  <a href=\"http://www.symphony.com\">This is a link to Symphony's Website<a> \n"
