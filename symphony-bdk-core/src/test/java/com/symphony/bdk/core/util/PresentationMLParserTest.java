@@ -36,10 +36,10 @@ public class PresentationMLParserTest {
 
   @Test
   void getMessageFromPresentationMLWithEscapedContentTest() throws PresentationMLParserException {
-    String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\">&nbsp;</div>";
+    String presentationML = "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&nbsp;World</div>";
     String content = PresentationMLParser.getTextContent(presentationML, false);
 
-    assertNotEquals(content, "&#160;");
+    assertEquals("Hello World", content);
   }
 
   @Test
