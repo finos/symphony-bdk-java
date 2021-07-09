@@ -7,32 +7,23 @@ import internal.FileHelper;
 import internal.jersey.NoCacheFeature;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.ClientBuilder;
 
 /**
@@ -131,6 +122,7 @@ public class HttpClientBuilderHelper {
             final byte[] trustStoreBytes = FileHelper.readFile(truststorePath);
             final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
             truststore.load(new ByteArrayInputStream(trustStoreBytes), truststorePassword.toCharArray());
+            addDefaultRootCaCertificates(truststore);
             // if logging debug is enabled, we print the truststore entries
             if(logger.isDebugEnabled()) {
                 final List<String> aliases = Collections.list(truststore.aliases());
@@ -154,5 +146,18 @@ public class HttpClientBuilderHelper {
 
   private static String getOr(final String preferredValue, final String fallbackValue) {
     return !isEmpty(preferredValue) ? preferredValue : fallbackValue;
+  }
+
+  private static void addDefaultRootCaCertificates(KeyStore trustStore) throws GeneralSecurityException {
+    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    // Loads default Root CA certificates (generally, from JAVA_HOME/lib/cacerts)
+    trustManagerFactory.init((KeyStore)null);
+    for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+      if (trustManager instanceof X509TrustManager) {
+        for (X509Certificate acceptedIssuer : ((X509TrustManager) trustManager).getAcceptedIssuers()) {
+          trustStore.setCertificateEntry(acceptedIssuer.getSubjectDN().getName(), acceptedIssuer);
+        }
+      }
+    }
   }
 }
