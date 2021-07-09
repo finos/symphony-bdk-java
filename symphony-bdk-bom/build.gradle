@@ -70,6 +70,8 @@ dependencies {
         api 'org.freemarker:freemarker:2.3.30'
         api 'org.reflections:reflections:0.9.12'
 
+        api 'com.github.wnameless.json:json-flattener:0.12.0'
+
         api 'org.junit.jupiter:junit-jupiter:5.7.0'
         api 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
         api 'ch.qos.logback:logback-classic:1.2.3'

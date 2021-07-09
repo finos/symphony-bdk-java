@@ -22,25 +22,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 class BdkConfigLoaderTest {
 
   private final static String YAML_CONFIG_PATH = "/config/config.yaml";
   private final static String JSON_CONFIG_PATH = "/config/config.json";
+  private final static String JSON_CONFIG_GLOBAL_PATH = "/config/config_client_global.yaml";
+  private final static String BOT_USERNAME = "tibot";
 
   @Test
   void loadFromYamlInputStreamTest() throws BdkConfigException {
     final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(YAML_CONFIG_PATH);
     final BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
   }
 
   @Test
   void loadFromJsonInputStreamTest() throws BdkConfigException {
     final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(JSON_CONFIG_PATH);
     final BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
   }
 
   @Test
@@ -49,28 +53,28 @@ class BdkConfigLoaderTest {
     final Path configPath = tempDir.resolve("config.yaml");
     Files.copy(inputStream, configPath);
     final BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
   }
 
   @Test
   void loadFromJsonFileTest(@TempDir Path tempDir) throws BdkConfigException, IOException {
-    final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(JSON_CONFIG_PATH);
+    final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("");
     final Path configPath = tempDir.resolve("config.json");
     Files.copy(inputStream, configPath);
     final BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
   }
 
   @Test
   void loadFromJsonClasspathTest() throws BdkConfigException {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath(JSON_CONFIG_PATH);
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
   }
 
   @Test
   void loadFromYamlClasspathTest() throws BdkConfigException {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath(YAML_CONFIG_PATH);
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
   }
 
   @Test
@@ -85,7 +89,7 @@ class BdkConfigLoaderTest {
     final String configPath = "/config/legacy_config.json";
     final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
     final BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
-    assertThat(config.getBot().getUsername()).isEqualTo("tibot");
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
     assertThat(config.getBot().getPrivateKeyPath()).isEqualTo("/Users/local/conf/agent/privatekey.pem");
     assertThat(config.getApp().getPrivateKeyPath()).isEqualTo("/Users/local/conf/agent/privatekey.pem");
   }
@@ -98,56 +102,31 @@ class BdkConfigLoaderTest {
   }
 
   @Test
+  void loadFromPropertiesTest() throws BdkConfigException, IOException {
+    Properties properties = new Properties();
+    properties.load(BdkConfigLoaderTest.class.getResourceAsStream("/config/config_flat_client_global.properties"));
+
+    BdkConfig config = BdkConfigLoader.loadFromProperties(properties);
+
+    assertConfigMatchesValuesFromGlobalConfigFile(config);
+  }
+
+  @Test
+  void loadFromPropertyMapTest() throws BdkConfigException, IOException {
+    Properties properties = new Properties();
+    properties.load(BdkConfigLoaderTest.class.getResourceAsStream("/config/config_flat_client_global.properties"));
+    Map<String, String> propertiesMap = (Map) properties;
+
+    BdkConfig config = BdkConfigLoader.loadFromPropertyMap(propertiesMap);
+
+    assertConfigMatchesValuesFromGlobalConfigFile(config);
+  }
+
+  @Test
   void loadClientGlobalConfig() throws BdkConfigException {
-    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_client_global.yaml");
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath(JSON_CONFIG_GLOBAL_PATH);
 
-    assertThat(config.getScheme()).isEqualTo("https");
-    assertThat(config.getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
-    assertThat(config.getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
-
-    assertThat(config.getPod().getScheme()).isEqualTo("https");
-    assertThat(config.getPod().getHost()).isEqualTo("diff-pod.symphony.com");
-    assertThat(config.getPod().getPort()).isEqualTo(8443);
-    assertThat(config.getPod().getContext()).isEqualTo("context");
-    assertThat(config.getPod().getConnectionTimeout()).isEqualTo(10000);
-    assertThat(config.getPod().getReadTimeout()).isEqualTo(30000);
-    assertThat(config.getPod().getConnectionPoolMax()).isEqualTo(20);
-    assertThat(config.getPod().getConnectionPoolPerRoute()).isEqualTo(10);
-    assertThat(config.getPod().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
-    assertThat(config.getPod().getDefaultHeaders().get("Keep-Alive")).isEqualTo("close");
-
-    assertThat(config.getAgent().getScheme()).isEqualTo("https");
-    assertThat(config.getAgent().getHost()).isEqualTo("devx1.symphony.com");
-    assertThat(config.getAgent().getPort()).isEqualTo(443);
-    assertThat(config.getAgent().getFormattedContext()).isEqualTo("/context");
-    assertThat(config.getAgent().getConnectionTimeout()).isEqualTo(20000);
-    assertThat(config.getAgent().getReadTimeout()).isEqualTo(60000);
-    assertThat(config.getAgent().getConnectionPoolMax()).isEqualTo(30);
-    assertThat(config.getAgent().getConnectionPoolPerRoute()).isEqualTo(20);
-    assertThat(config.getAgent().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
-    assertThat(config.getAgent().getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
-
-    assertThat(config.getKeyManager().getScheme()).isEqualTo("https");
-    assertThat(config.getKeyManager().getHost()).isEqualTo("devx1.symphony.com");
-    assertThat(config.getKeyManager().getPort()).isEqualTo(8443);
-    assertThat(config.getKeyManager().getFormattedContext()).isEqualTo("/diff-context");
-    assertThat(config.getKeyManager().getConnectionTimeout()).isEqualTo(10000);
-    assertThat(config.getKeyManager().getReadTimeout()).isEqualTo(30000);
-    assertThat(config.getKeyManager().getConnectionPoolMax()).isEqualTo(20);
-    assertThat(config.getKeyManager().getConnectionPoolPerRoute()).isEqualTo(10);
-    assertThat(config.getKeyManager().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
-    assertThat(config.getKeyManager().getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
-
-    assertThat(config.getSessionAuth().getScheme()).isEqualTo("http");
-    assertThat(config.getSessionAuth().getHost()).isEqualTo("devx1.symphony.com");
-    assertThat(config.getSessionAuth().getPort()).isEqualTo(8443);
-    assertThat(config.getSessionAuth().getContext()).isEqualTo("context");
-    assertThat(config.getSessionAuth().getConnectionTimeout()).isEqualTo(10000);
-    assertThat(config.getSessionAuth().getReadTimeout()).isEqualTo(30000);
-    assertThat(config.getSessionAuth().getConnectionPoolMax()).isEqualTo(20);
-    assertThat(config.getSessionAuth().getConnectionPoolPerRoute()).isEqualTo(10);
-    assertThat(config.getSessionAuth().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
-    assertThat(config.getSessionAuth().getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
+    assertConfigMatchesValuesFromGlobalConfigFile(config);
   }
 
   @Test
@@ -216,5 +195,56 @@ class BdkConfigLoaderTest {
     assertThat(config).isNotNull();
 
     Files.delete(tmpConfigPath);
+  }
+
+  private void assertConfigMatchesValuesFromGlobalConfigFile(BdkConfig config) {
+    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
+    assertThat(config.getScheme()).isEqualTo("https");
+    assertThat(config.getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
+    assertThat(config.getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
+
+    assertThat(config.getPod().getScheme()).isEqualTo("https");
+    assertThat(config.getPod().getHost()).isEqualTo("diff-pod.symphony.com");
+    assertThat(config.getPod().getPort()).isEqualTo(8443);
+    assertThat(config.getPod().getContext()).isEqualTo("context");
+    assertThat(config.getPod().getConnectionTimeout()).isEqualTo(10000);
+    assertThat(config.getPod().getReadTimeout()).isEqualTo(30000);
+    assertThat(config.getPod().getConnectionPoolMax()).isEqualTo(20);
+    assertThat(config.getPod().getConnectionPoolPerRoute()).isEqualTo(10);
+    assertThat(config.getPod().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
+    assertThat(config.getPod().getDefaultHeaders().get("Keep-Alive")).isEqualTo("close");
+
+    assertThat(config.getAgent().getScheme()).isEqualTo("https");
+    assertThat(config.getAgent().getHost()).isEqualTo("devx1.symphony.com");
+    assertThat(config.getAgent().getPort()).isEqualTo(443);
+    assertThat(config.getAgent().getFormattedContext()).isEqualTo("/context");
+    assertThat(config.getAgent().getConnectionTimeout()).isEqualTo(20000);
+    assertThat(config.getAgent().getReadTimeout()).isEqualTo(60000);
+    assertThat(config.getAgent().getConnectionPoolMax()).isEqualTo(30);
+    assertThat(config.getAgent().getConnectionPoolPerRoute()).isEqualTo(20);
+    assertThat(config.getAgent().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
+    assertThat(config.getAgent().getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
+
+    assertThat(config.getKeyManager().getScheme()).isEqualTo("https");
+    assertThat(config.getKeyManager().getHost()).isEqualTo("devx1.symphony.com");
+    assertThat(config.getKeyManager().getPort()).isEqualTo(8443);
+    assertThat(config.getKeyManager().getFormattedContext()).isEqualTo("/diff-context");
+    assertThat(config.getKeyManager().getConnectionTimeout()).isEqualTo(10000);
+    assertThat(config.getKeyManager().getReadTimeout()).isEqualTo(30000);
+    assertThat(config.getKeyManager().getConnectionPoolMax()).isEqualTo(20);
+    assertThat(config.getKeyManager().getConnectionPoolPerRoute()).isEqualTo(10);
+    assertThat(config.getKeyManager().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
+    assertThat(config.getKeyManager().getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
+
+    assertThat(config.getSessionAuth().getScheme()).isEqualTo("http");
+    assertThat(config.getSessionAuth().getHost()).isEqualTo("devx1.symphony.com");
+    assertThat(config.getSessionAuth().getPort()).isEqualTo(8443);
+    assertThat(config.getSessionAuth().getContext()).isEqualTo("context");
+    assertThat(config.getSessionAuth().getConnectionTimeout()).isEqualTo(10000);
+    assertThat(config.getSessionAuth().getReadTimeout()).isEqualTo(30000);
+    assertThat(config.getSessionAuth().getConnectionPoolMax()).isEqualTo(20);
+    assertThat(config.getSessionAuth().getConnectionPoolPerRoute()).isEqualTo(10);
+    assertThat(config.getSessionAuth().getDefaultHeaders().get("Connection")).isEqualTo("Keep-Alive");
+    assertThat(config.getSessionAuth().getDefaultHeaders().get("Keep-Alive")).isEqualTo("timeout=5, max=1000");
   }
 }
