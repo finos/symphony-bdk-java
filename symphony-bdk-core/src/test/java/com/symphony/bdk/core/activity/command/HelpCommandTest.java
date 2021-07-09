@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity.command;
 
 import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -20,6 +21,7 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -69,7 +71,14 @@ public class HelpCommandTest {
     V4MessageSent event = createMessageSentEvent();
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), event));
 
-    verify(this.messageService, never()).send(anyString(), any(Message.class));
+    ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
+
+    // The build in /help command should be returned
+    verify(this.messageService, times(1)).send(anyString(), argumentCaptor.capture());
+    Message message = argumentCaptor.getValue();
+    assertNotNull(argumentCaptor.getValue());
+    assertEquals("<messageML><ul><li>/help - List available commands (mention required)</li></ul></messageML>",
+        message.getContent(), "The help command infos should be sent in response");
   }
 
   @Test
@@ -79,7 +88,7 @@ public class HelpCommandTest {
 
     assertEquals(ActivityType.COMMAND, info.type());
     assertEquals("/help", info.name());
-    assertEquals("List available commands", info.description());
+    assertEquals("List available commands (mention required)", info.description());
   }
 
   private static class RealTimeEventsProvider {

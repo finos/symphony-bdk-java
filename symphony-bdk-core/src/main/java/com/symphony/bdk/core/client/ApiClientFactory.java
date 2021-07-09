@@ -32,12 +32,12 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.EXPERIMENTAL)
 public class ApiClientFactory {
 
-  private final static String LOGIN_CONTEXT_PATH = "/login";
-  private final static String POD_CONTEXT_PATH = "/pod";
-  private final static String AGENT_CONTEXT_PATH = "/agent";
-  private final static String KEYMANAGER_CONTEXT_PATH = "/relay";
-  private final static String SESSIONAUTH_CONTEXT_PATH = "/sessionauth";
-  private final static String KEYAUTH_CONTEXT_PATH = "/keyauth";
+  private static final String LOGIN_CONTEXT_PATH = "/login";
+  private static final String POD_CONTEXT_PATH = "/pod";
+  private static final String AGENT_CONTEXT_PATH = "/agent";
+  private static final String KEYMANAGER_CONTEXT_PATH = "/relay";
+  private static final String SESSIONAUTH_CONTEXT_PATH = "/sessionauth";
+  private static final String KEYAUTH_CONTEXT_PATH = "/keyauth";
 
   private final BdkConfig config;
   private final ApiClientBuilderProvider apiClientBuilderProvider;
@@ -168,9 +168,8 @@ public class ApiClientFactory {
     }
 
     final BdkCertificateConfig certificateConfig = config.getCertificateConfig();
-    ApiClient apiClient = null;
     try {
-      apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig)
+      return getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig)
           .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
           .build();
     }
@@ -180,7 +179,6 @@ public class ApiClientFactory {
       log.error(failedCertificateMessage);
       throw new IllegalStateException(failedCertificateMessage, e);
     }
-    return apiClient;
   }
 
   protected ApiClientBuilder getApiClientBuilder(String basePath, BdkClientConfig clientConfig) {

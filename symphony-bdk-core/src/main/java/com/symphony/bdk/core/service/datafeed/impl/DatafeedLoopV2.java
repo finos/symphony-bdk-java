@@ -10,6 +10,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
+import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
@@ -64,8 +65,8 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
 
   private V5Datafeed datafeed;
 
-  public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config) {
-    super(datafeedApi, authSession, config);
+  public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+    super(datafeedApi, authSession, config, botInfo);
     this.ackId = new AckId().ackId("");
     this.tag = StringUtils.truncate(bdkConfig.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
   }
