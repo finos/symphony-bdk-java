@@ -13,7 +13,6 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
@@ -29,7 +28,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -275,6 +273,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
         truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
         addDefaultRootCaCertificates(truststore);
         sslConfig.trustStore(truststore);
+        ApiUtils.logTrustStore(truststore);
       }
       if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
         sslConfig
