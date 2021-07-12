@@ -1,5 +1,6 @@
 package com.symphony.bdk.http.jersey2;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.addDefaultRootCaCertificates;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.http.api.ApiClient;
@@ -14,6 +15,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apiguardian.api.API;
+import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -266,22 +269,20 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   @API(status = API.Status.EXPERIMENTAL)
   protected SSLContext createSSLContext() {
     try {
-      SSLContextBuilder builder = new SSLContextBuilder();
-      final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
+      final SslConfigurator sslConfig = SslConfigurator.newInstance();
       if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
+        final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
         truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
-      } else {
-        truststore.load(null, null);
+        addDefaultRootCaCertificates(truststore);
+        sslConfig.trustStore(truststore);
       }
       if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
-        final KeyStore keystore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
-        keystore.load(new ByteArrayInputStream(keyStoreBytes), keyStorePassword.toCharArray());
-        builder.loadKeyMaterial(keystore, null);
+        sslConfig
+            .keyStoreBytes(keyStoreBytes)
+            .keyStorePassword(keyStorePassword);
       }
-      ApiUtils.addDefaultRootCaCertificates(truststore);
-      builder.loadTrustMaterial(truststore, null);
-      return builder.build();
-    }  catch (IOException | GeneralSecurityException e) {
+      return sslConfig.createSSLContext();
+    } catch (IOException | GeneralSecurityException e) {
       throw new IllegalStateException(e.getCause().getMessage(), e);
     }
   }
