@@ -4,8 +4,14 @@ import org.apiguardian.api.API;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
 
 @API(status = API.Status.INTERNAL)
@@ -26,6 +32,22 @@ public final class ApiUtils {
     if (log.isDebugEnabled()) {
       for (String alias : Collections.list(trustStore.aliases())) {
         log.debug("Loading {} from truststore", alias);
+      }
+    }
+  }
+
+  /**
+   * Used to load the system truststore to be used in the ssl context
+   */
+  public static void addDefaultRootCaCertificates(KeyStore trustStore) throws GeneralSecurityException {
+    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    // Loads default Root CA certificates (generally, from JAVA_HOME/lib/cacerts)
+    trustManagerFactory.init((KeyStore)null);
+    for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+      if (trustManager instanceof X509TrustManager) {
+        for (X509Certificate acceptedIssuer : ((X509TrustManager) trustManager).getAcceptedIssuers()) {
+          trustStore.setCertificateEntry(acceptedIssuer.getSubjectDN().getName(), acceptedIssuer);
+        }
       }
     }
   }

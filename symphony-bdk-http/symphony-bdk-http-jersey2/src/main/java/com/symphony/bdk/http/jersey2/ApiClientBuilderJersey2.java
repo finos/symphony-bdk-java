@@ -1,5 +1,6 @@
 package com.symphony.bdk.http.jersey2;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.addDefaultRootCaCertificates;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.http.api.ApiClient;
@@ -24,10 +25,8 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -267,32 +266,23 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   @API(status = API.Status.EXPERIMENTAL)
   protected SSLContext createSSLContext() {
-    final SslConfigurator sslConfig = SslConfigurator.newInstance();
-
-    if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
-      sslConfig
-          .trustStoreBytes(trustStoreBytes)
-          .trustStorePassword(trustStorePassword);
-    }
-
-    if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
-      sslConfig
-          .keyStoreBytes(keyStoreBytes)
-          .keyStorePassword(keyStorePassword);
-    }
     try {
-      SSLContext sslContext = sslConfig.createSSLContext();
-
+      final SslConfigurator sslConfig = SslConfigurator.newInstance();
       if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
         final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
         truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
+        addDefaultRootCaCertificates(truststore);
+        sslConfig.trustStore(truststore);
         ApiUtils.logTrustStore(truststore);
       }
-
-      return sslContext;
-    } catch (IllegalStateException | KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+      if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
+        sslConfig
+            .keyStoreBytes(keyStoreBytes)
+            .keyStorePassword(keyStorePassword);
+      }
+      return sslConfig.createSSLContext();
+    } catch (IOException | GeneralSecurityException e) {
       throw new IllegalStateException(e.getCause().getMessage(), e);
     }
   }
-
 }

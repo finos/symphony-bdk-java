@@ -19,11 +19,8 @@ import reactor.netty.transport.ProxyProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -217,6 +214,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
         final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustStore.load(new ByteArrayInputStream(this.trustStoreBytes), this.trustStorePassword.toCharArray());
+        ApiUtils.addDefaultRootCaCertificates(trustStore);
         trustManagerFactory.init(trustStore);
         builder.trustManager(trustManagerFactory);
         ApiUtils.logTrustStore(trustStore);
@@ -230,7 +228,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         }
       }
       return builder.build();
-    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
+    } catch (GeneralSecurityException | IOException e) {
       throw new RuntimeException(e);
     }
   }
