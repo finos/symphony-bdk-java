@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @ExtendWith(BdkMockServerExtension.class)
 class ApiClientWebClientTest {
@@ -54,21 +53,6 @@ class ApiClientWebClientTest {
     assertThrows(ApiException.class, () -> this.apiClient.invokeAPI("/test-api", null, null, null,
         Collections.singletonMap("sessionToken", "test-token"),
         null, null, null, null, new String[] {}, new TypeReference<Response>() {}));
-  }
-
-  @Test
-  void testInvokeApiWithFilter(final BdkMockServer mockServer) throws ApiException {
-    AtomicBoolean filterHasBeenCalled = new AtomicBoolean(false);
-    this.apiClient = mockServer.newApiClient("", (request, next) -> {
-      filterHasBeenCalled.set(true);
-      return next.exchange(request);
-    });
-
-    this.apiClient.invokeAPI("/test-api", "GET", null, null,
-        Collections.singletonMap("sessionToken", "test-token"),
-        null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
-
-    assertTrue(filterHasBeenCalled.get());
   }
 
   @Test

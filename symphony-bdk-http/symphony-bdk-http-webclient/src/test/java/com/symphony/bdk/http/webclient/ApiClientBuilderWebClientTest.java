@@ -1,7 +1,6 @@
 package com.symphony.bdk.http.webclient;
 
 import static org.apache.commons.io.IOUtils.toByteArray;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -10,18 +9,18 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
 import ch.qos.logback.classic.Level;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 import java.io.IOException;
 import java.util.List;
 
-class ApiClientBuilderWebClientTest {
+public class ApiClientBuilderWebClientTest {
 
   private ApiClientBuilderWebClient builder;
   private byte[] truststore;
@@ -74,17 +73,5 @@ class ApiClientBuilderWebClientTest {
     builder.withKeyStore(keystore, "wrongPassword");
 
     assertThrows(RuntimeException.class, this.builder::build);
-  }
-
-  @Test
-  void addFilterWrongImplementation() {
-    assertThrows(IllegalArgumentException.class, () -> builder.addFilter(new Object()));
-  }
-
-  @Test
-  void addFilterCorrectImplementation() {
-    builder.addFilter((ExchangeFilterFunction) (request, next) -> next.exchange(request));
-
-    assertDoesNotThrow(this.builder::build);
   }
 }
