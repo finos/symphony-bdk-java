@@ -1,7 +1,6 @@
 package com.symphony.bdk.http.jersey2;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
@@ -24,9 +23,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.ws.rs.client.ClientRequestFilter;
 
 class ApiClientBuilderJersey2Test {
 
@@ -65,24 +61,6 @@ class ApiClientBuilderJersey2Test {
             null, "application/json", "", null, null);
 
     assertEquals(200, response.getStatusCode());
-  }
-
-  @Test
-  void addFilter() {
-    AtomicBoolean filterHasBeenCalled = new AtomicBoolean(false);
-    ApiClient client = new ApiClientBuilderJersey2()
-        .withBasePath("http://localhost:" + mockServer.getPort())
-        .addFilter((ClientRequestFilter) requestContext -> filterHasBeenCalled.set(true))
-        .build();
-
-    try {
-      client.invokeAPI("/test", "GET", Collections.emptyList(), null, Collections.emptyMap(), Collections.emptyMap(),
-          null, "application/json", "", null, null);
-    } catch (ApiException e) {
-      // nothing implemented, calls fail but filter should be called before
-    }
-
-    assertTrue(filterHasBeenCalled.get());
   }
 
   private ByteArrayOutputStream getMockServerKeyStore()

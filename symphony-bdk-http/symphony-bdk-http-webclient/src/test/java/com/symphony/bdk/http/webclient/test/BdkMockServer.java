@@ -11,7 +11,6 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.MediaType;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 import java.util.function.Consumer;
 
@@ -34,13 +33,6 @@ public class BdkMockServer {
   public ApiClient newApiClient(String contextPath) {
     return new ApiClientBuilderWebClient()
         .withBasePath("http://localhost:" + this.mockServer.getPort() + contextPath)
-        .build();
-  }
-
-  public ApiClient newApiClient(String contextPath, ExchangeFilterFunction filter) {
-    return new ApiClientBuilderWebClient()
-        .withBasePath("http://localhost:" + this.mockServer.getPort() + contextPath)
-        .addFilter(filter)
         .build();
   }
 
