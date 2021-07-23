@@ -58,7 +58,7 @@ class BdkConfigLoaderTest {
 
   @Test
   void loadFromJsonFileTest(@TempDir Path tempDir) throws BdkConfigException, IOException {
-    final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream("");
+    final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(JSON_CONFIG_PATH);
     final Path configPath = tempDir.resolve("config.json");
     Files.copy(inputStream, configPath);
     final BdkConfig config = BdkConfigLoader.loadFromFile(configPath.toString());
