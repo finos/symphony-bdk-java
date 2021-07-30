@@ -10,6 +10,7 @@ import org.apiguardian.api.API;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -33,7 +34,7 @@ public class RetryWithRecoveryBuilder<T> {
    * Copies all fields of an existing builder except the {@link #supplier}.
    *
    * @param from the {@link RetryWithRecovery} to be copied.
-   * @param <T> the target parametrized type.
+   * @param <T>  the target parametrized type.
    * @return a copy of the builder passed as parameter.
    */
   public static <T> RetryWithRecoveryBuilder<T> from(RetryWithRecoveryBuilder<?> from) {
@@ -81,7 +82,9 @@ public class RetryWithRecoveryBuilder<T> {
    * Checks if a throwable is a network issue or a {@link ApiException} minor error or client error.
    *
    * @param t the throwable to be checked.
-   * @return true if passed throwable is either a {@link SocketTimeoutException} or {@link ConnectException}
+   * @return true if passed throwable is either a {@link SocketTimeoutException}
+   * or {@link ConnectException}
+   * or {@link UnknownHostException}
    * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
    * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}
    * or {@link ApiException#isClientError()}.
@@ -92,7 +95,10 @@ public class RetryWithRecoveryBuilder<T> {
       return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError()
           || apiException.isClientError();
     }
-    return t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException;
+    // keep the datafeed loop running for errors that might be temporary network errors
+    return t.getCause() instanceof SocketTimeoutException
+        || t.getCause() instanceof ConnectException
+        || t.getCause() instanceof UnknownHostException;
   }
 
   /**
@@ -180,10 +186,11 @@ public class RetryWithRecoveryBuilder<T> {
    * and of a corresponding recovery function to be executed when condition is met.
    *
    * @param condition the predicate to check if the exception should lead to the execution of the recovery function.
-   * @param recovery the recovery function to be executed when condition is fulfilled.
+   * @param recovery  the recovery function to be executed when condition is fulfilled.
    * @return the modified builder instance.
    */
-  public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition, ConsumerWithThrowable recovery) {
+  public RetryWithRecoveryBuilder<T> recoveryStrategy(Predicate<ApiException> condition,
+      ConsumerWithThrowable recovery) {
     this.recoveryStrategies.add(new RecoveryStrategy(ApiException.class, condition, recovery));
     return this;
   }
@@ -193,8 +200,8 @@ public class RetryWithRecoveryBuilder<T> {
    * and of a corresponding recovery function to be executed when exception is of the given provided type.
    *
    * @param exceptionType the actual exception class
-   * @param recovery the recovery function to be executed when condition is fulfilled.
-   * @param <E> the actual exception class
+   * @param recovery      the recovery function to be executed when condition is fulfilled.
+   * @param <E>           the actual exception class
    * @return the modified builder instance.
    */
   public <E extends Exception> RetryWithRecoveryBuilder<T> recoveryStrategy(Class<? extends E> exceptionType,
@@ -219,7 +226,8 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<>(name, address, retryConfig, supplier, retryOnExceptionPredicate, ignoreException,
+    return new Resilience4jRetryWithRecovery<>(name, address, retryConfig, supplier, retryOnExceptionPredicate,
+        ignoreException,
         recoveryStrategies);
   }
 }

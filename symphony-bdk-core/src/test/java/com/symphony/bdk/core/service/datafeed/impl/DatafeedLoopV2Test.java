@@ -44,6 +44,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -492,6 +493,24 @@ class DatafeedLoopV2Test {
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(
         new ProcessingException(new SocketTimeoutException()));
+
+    ApiClient client = mock(ApiClient.class);
+    when(datafeedApi.getApiClient()).thenReturn(client);
+    when(client.getBasePath()).thenReturn("path/to/the/agent");
+
+    this.datafeedService.start();
+    verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
+    verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
+    verify(datafeedApiClient, times(2)).rotate();
+  }
+
+  @Test
+  void testStartUnknownHostReadDatafeed() throws ApiException, AuthUnauthorizedException {
+    AckId ackId = datafeedService.getAckId();
+    when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
+        Collections.singletonList(new V5Datafeed().id("test-id")));
+    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(
+        new ProcessingException(new UnknownHostException()));
 
     ApiClient client = mock(ApiClient.class);
     when(datafeedApi.getApiClient()).thenReturn(client);
