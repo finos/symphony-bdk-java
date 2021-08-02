@@ -64,6 +64,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -337,6 +338,17 @@ class DatafeedLoopV1Test {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
     when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
         .thenThrow(new ProcessingException(new SocketTimeoutException()));
+
+    this.datafeedService.start();
+    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApiClient, times(2)).rotate();
+  }
+
+  @Test
+  void startTestFailedUnknownHost() throws ApiException, AuthUnauthorizedException {
+    when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+        .thenThrow(new ProcessingException(new UnknownHostException()));
 
     this.datafeedService.start();
     verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
