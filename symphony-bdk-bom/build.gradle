@@ -60,10 +60,12 @@ dependencies {
         api 'org.openapitools:jackson-databind-nullable:0.2.1'
 
         api 'org.glassfish.jersey.core:jersey-client:2.34'
+        api 'org.glassfish.jersey.core:jersey-common:2.34'
         api 'org.glassfish.jersey.inject:jersey-hk2:2.34'
         api 'org.glassfish.jersey.media:jersey-media-multipart:2.34'
         api 'org.glassfish.jersey.media:jersey-media-json-jackson:2.34'
         api 'org.glassfish.jersey.connectors:jersey-apache-connector:2.34'
+        api 'org.glassfish.jersey.ext:jersey-entity-filtering:2.34'
 
         api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
