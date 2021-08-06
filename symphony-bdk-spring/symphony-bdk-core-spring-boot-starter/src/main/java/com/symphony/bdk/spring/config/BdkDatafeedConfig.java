@@ -70,6 +70,7 @@ public class BdkDatafeedConfig {
    * Allows to publish application {@link RealTimeEvent} asynchronously from {@link RealTimeEventsDispatcher}.
    */
   @Bean(name = "applicationEventMulticaster")
+  @ConditionalOnProperty(value = "bdk.datafeed.event.async", havingValue = "true", matchIfMissing = true)
   public ApplicationEventMulticaster simpleApplicationEventMulticaster() {
     final SimpleApplicationEventMulticaster eventMulticaster = new SimpleApplicationEventMulticaster();
     eventMulticaster.setTaskExecutor(new SimpleAsyncTaskExecutor());
