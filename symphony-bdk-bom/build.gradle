@@ -57,7 +57,6 @@ dependencies {
         api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.4'
         api 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.11.4'
 
-
         api 'io.swagger:swagger-annotations:1.6.0'
         api 'org.openapitools:jackson-databind-nullable:0.2.1'
 
