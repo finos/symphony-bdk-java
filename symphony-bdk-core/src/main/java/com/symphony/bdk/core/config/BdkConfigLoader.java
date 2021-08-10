@@ -1,7 +1,5 @@
 package com.symphony.bdk.core.config;
 
-import com.github.wnameless.json.unflattener.JsonUnflattener;
-
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.legacy.LegacyConfigMapper;
 import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
@@ -11,38 +9,32 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @API(status = API.Status.STABLE)
 public class BdkConfigLoader {
 
   private static final ObjectMapper JSON_MAPPER;
-  private static final Set<String> BDK_PROPERTY_PREFIXES;
-  private static final Set<String> BDK_PROPERTY_KEYS;
+  private static final JavaPropsMapper PROPS_MAPPER;
 
   static {
     JSON_MAPPER = new JsonMapper();
+    PROPS_MAPPER = new JavaPropsMapper();
+    PROPS_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    BDK_PROPERTY_PREFIXES = Stream.of("pod.", "bot.", "keyManager.", "agent.", "sessionAuth.", "datafeed.", "retry.",
-        "app.", "ssl.", "proxy.", "defaultHeaders.").collect(Collectors.toSet());
-    BDK_PROPERTY_KEYS = Stream.of("scheme", "host", "port", "connectionTimeout", "readTimeout", "connectionPoolMax",
-        "connectionPoolPerRoute").collect(Collectors.toSet());
   }
 
   /**
@@ -126,7 +118,7 @@ public class BdkConfigLoader {
    * @param properties {@link Properties} with BDK properties
    * @return Symphony Bot Configuration
    */
-  public static BdkConfig loadFromProperties(Properties properties) throws BdkConfigException {
+  public static BdkConfig loadFromProperties(Properties properties) throws IOException {
     final Map<String, String> propertyMap = (Map) properties;
     return loadFromPropertyMap(propertyMap);
   }
@@ -137,17 +129,8 @@ public class BdkConfigLoader {
    * @param properties Property map with BDK properties
    * @return Symphony Bot Configuration
    */
-  public static BdkConfig loadFromPropertyMap(Map<String, String> properties) throws BdkConfigException {
-    Map<String, String> bdkProperties = properties.entrySet().stream()
-        .filter(entry -> isBDKProperty(entry.getKey()))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    String unflattenedPropertyJson = JsonUnflattener.unflatten(bdkProperties);
-    return BdkConfigLoader.loadFromInputStream(new ByteArrayInputStream(unflattenedPropertyJson.getBytes(
-        StandardCharsets.UTF_8)));
+  public static BdkConfig loadFromPropertyMap(Map<String, String> properties) throws IOException {
+    return PROPS_MAPPER.readMapAs(properties, BdkConfig.class);
   }
 
-  private static boolean isBDKProperty(String propertyName) {
-    return BDK_PROPERTY_PREFIXES.stream().anyMatch(propertyName::startsWith) ||
-        BDK_PROPERTY_KEYS.stream().anyMatch(propertyName::equals);
-  }
 }

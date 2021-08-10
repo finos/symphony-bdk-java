@@ -102,7 +102,7 @@ class BdkConfigLoaderTest {
   }
 
   @Test
-  void loadFromPropertiesTest() throws BdkConfigException, IOException {
+  void loadFromPropertiesTest() throws IOException {
     Properties properties = new Properties();
     properties.load(BdkConfigLoaderTest.class.getResourceAsStream("/config/config_flat_client_global.properties"));
 
@@ -112,7 +112,7 @@ class BdkConfigLoaderTest {
   }
 
   @Test
-  void loadFromPropertyMapTest() throws BdkConfigException, IOException {
+  void loadFromPropertyMapTest() throws IOException {
     Properties properties = new Properties();
     properties.load(BdkConfigLoaderTest.class.getResourceAsStream("/config/config_flat_client_global.properties"));
     Map<String, String> propertiesMap = (Map) properties;

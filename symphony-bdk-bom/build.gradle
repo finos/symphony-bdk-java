@@ -55,6 +55,8 @@ dependencies {
         api 'com.fasterxml.jackson.core:jackson-databind:2.11.4'
         api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.4'
         api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.11.4'
+        api 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.11.4'
+
 
         api 'io.swagger:swagger-annotations:1.6.0'
         api 'org.openapitools:jackson-databind-nullable:0.2.1'
@@ -71,8 +73,6 @@ dependencies {
 
         api 'org.freemarker:freemarker:2.3.30'
         api 'org.reflections:reflections:0.9.12'
-
-        api 'com.github.wnameless.json:json-flattener:0.12.0'
 
         api 'org.junit.jupiter:junit-jupiter:5.7.0'
         api 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
