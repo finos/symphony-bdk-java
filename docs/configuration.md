@@ -54,7 +54,7 @@ public class Example {
 4. Load configuration from the Symphony directory. The Symphony directory is located under your `${user.home}/.symphony` 
     folder. It can be useful when you don't want to share your own Symphony credentials within your project codebase
 5. Load configuration from [`Map`](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html) of properties
-6. Load configuration from [`Properties`](https://docs.oracle.com/javase/7/docs/api/java/util/Properties.html)
+6. Load configuration from [`Properties`](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html)
 7. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object)
     and load it from any external system
 
