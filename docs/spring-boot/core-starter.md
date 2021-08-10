@@ -223,6 +223,15 @@ public class RealTimeEvents {
 }
 ```
 
+By default, the RealTimeEvents are going to be processed asynchronously in the listeners, in case this is not the preferred behavior, one
+can deactivate it by updating the application.yaml file as
+```yaml
+bdk:
+    datafeed:
+        event:
+            async: false
+```
+
 ## Inject Services
 The Core Starter injects services within the Spring application context:
 ```java
