@@ -32,8 +32,16 @@ public class Example {
       final BdkConfig config03 = BdkConfigLoader.loadFromInputStream(configInputStream);                    // (3)
 
       final BdkConfig config04 = BdkConfigLoader.loadFromSymphonyDir("config.yaml");                        // (4)
-  
-      final BdkConfig config05 = new BdkConfig();                                                           // (5)
+
+      final Map<String, String> propertyMap = new HashMap<>();
+      propertyMap.put("bot.username","bot-username");
+      final BdkConfig config05 = BdkConfigLoader.loadFromPropertyMap(propertyMap);                          // (5)
+
+      final Properties properties = new Properties();
+      properties.put("bot.username","bot-username");
+      final BdkConfig config06 = BdkConfigLoader.loadFromProperties(properties);                            // (6)
+
+      final BdkConfig config07 = new BdkConfig();                                                           // (7)
       config05.setHost("acme.symphony.com");
       config05.getBot().setUsername("bot-username");
       config05.getBot().getPrivateKey().setPath("/path/to/bot/rsa-private-key.pem");
@@ -45,7 +53,9 @@ public class Example {
 3. Load configuration from an [`InputStream`](https://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html)
 4. Load configuration from the Symphony directory. The Symphony directory is located under your `${user.home}/.symphony` 
     folder. It can be useful when you don't want to share your own Symphony credentials within your project codebase
-5. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object) 
+5. Load configuration from [`Map`](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html) of properties
+6. Load configuration from [`Properties`](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html)
+7. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object)
     and load it from any external system
 
 ## Full configuration example
