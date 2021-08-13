@@ -12,7 +12,7 @@ The [reference documentation](http://symphony-bdk-java.finos.org) includes detai
 [getting started](http://symphony-bdk-java.finos.org/getting-started.html) guide.
 
 Here is a quick teaser of a complete Symphony BDK application in Java:
-```java
+```javasd
 public class BotApplication {
     
     public static void main(String[] args) {
