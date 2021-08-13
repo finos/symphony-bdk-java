@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.finos.symphony.bdk/symphony-bdk-bom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.finos.symphony.bdk/symphony-bdk-bom)
 [![javadoc](https://javadoc.io/badge2/org.finos.symphony.bdk/symphony-bdk-core/javadoc.svg)](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core)
 
-# Symphony BDK for Java
+# Symphony BDK for Java a
 The **official** Symphony BDK for Java helps you to create production-grade Chat Bots and Extension Applications on 
 top of the [Symphony REST APIs](https://developers.symphony.com/restapi/reference). 
 
