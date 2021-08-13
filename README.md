@@ -58,7 +58,7 @@ To install all Symphony BDK jars in your local Maven repository, use:
 In order to get in touch with the project team, please open a [GitHub Issue](https://github.com/finos/symphony-bdk-java/issues).
 Alternatively, you can email/subscribe to [symphony@finos.org](https://groups.google.com/a/finos.org/g/symphony).
 
-
+sd
 1. Fork it (<https://github.com/finos/symphony-bdk-java/fork>)
 2. Create your feature branch (`git checkout -b feature/fooBar`)
 3. Read our [contribution guidelines](.github/CONTRIBUTING.md) and [Community Code of Conduct](https://www.finos.org/code-of-conduct)
