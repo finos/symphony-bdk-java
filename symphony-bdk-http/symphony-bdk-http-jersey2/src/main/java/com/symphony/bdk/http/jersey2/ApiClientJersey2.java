@@ -56,7 +56,8 @@ public class ApiClientJersey2 implements ApiClient {
   protected Map<String, String> defaultHeaderMap;
   protected String tempFolderPath;
 
-  public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders, String temporaryFolderPath) {
+  public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders,
+      String temporaryFolderPath) {
     this.httpClient = httpClient;
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
@@ -129,10 +130,17 @@ public class ApiClientJersey2 implements ApiClient {
       }
     }
 
+    // https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/client.html#connectors.warning
+    // by setting this header now instead of org.glassfish.jersey.media.multipart.internal.MultiPartWriter
+    // we avoid the warning
+    if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
+      invocationBuilder.header("MIME-Version", "1.0");
+    }
+
     Entity<?> entity =
         (body == null && formParams == null) ? Entity.json("") : this.serialize(body, formParams, contentType);
 
-    try(Response response = getResponse(invocationBuilder, method, entity)){
+    try (Response response = getResponse(invocationBuilder, method, entity)) {
 
       int statusCode = response.getStatusInfo().getStatusCode();
       Map<String, List<String>> responseHeaders = buildResponseHeaders(response);
@@ -158,7 +166,7 @@ public class ApiClientJersey2 implements ApiClient {
             respBody = String.valueOf(response.readEntity(String.class));
             message = respBody;
           } catch (RuntimeException e) {
-            // e.printStackTrace();
+            // ignored if we cannot read the response body
           }
         }
         throw new ApiException(
@@ -170,9 +178,10 @@ public class ApiClientJersey2 implements ApiClient {
     }
   }
 
-  private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity) throws ApiException {
+  private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity)
+      throws ApiException {
     try {
-      switch(method) {
+      switch (method) {
         case HttpMethod.GET:
           return invocationBuilder.get();
         case HttpMethod.POST:
@@ -194,7 +203,7 @@ public class ApiClientJersey2 implements ApiClient {
       }
     } catch (ProcessingException e) {
       if (e.getCause() instanceof ConnectTimeoutException) {
-          throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
+        throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
       } else {
         throw e;
       }
@@ -232,7 +241,7 @@ public class ApiClientJersey2 implements ApiClient {
    */
   @Override
   public List<Pair> parameterToPairs(String collectionFormat, String name, Object value) {
-    List<Pair> params = new ArrayList<Pair>();
+    List<Pair> params = new ArrayList<>();
 
     // preconditions
     if (name == null || name.isEmpty() || value == null) {
@@ -356,21 +365,19 @@ public class ApiClientJersey2 implements ApiClient {
    * Serialize the given Java object into string entity according the given
    * Content-Type (only JSON is supported for now).
    *
-   * @param obj Object
-   * @param formParams Form parameters
+   * @param obj         Object
+   * @param formParams  Form parameters
    * @param contentType Context type
    * @return Entity
    */
   protected Entity<?> serialize(Object obj, Map<String, Object> formParams, String contentType) {
     if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
       return this.serializeMultiPartFormDataEntity(formParams);
-    }
-    else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED)) {
+    } else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED)) {
       final Form form = new Form();
       formParams.forEach((key, value) -> form.param(key, parameterToString(value)));
       return Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-    }
-    else {
+    } else {
       // We let jersey handle the serialization
       return Entity.entity(obj, contentType);
     }
@@ -399,17 +406,18 @@ public class ApiClientJersey2 implements ApiClient {
       // if part is a ApiClientBodyPart[]
       else if (param.getValue() instanceof ApiClientBodyPart[]) {
         for (ApiClientBodyPart attachment : (ApiClientBodyPart[]) param.getValue()) {
-          final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
+          final StreamDataBodyPart streamPart =
+              new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
           multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
         }
       }
       // if part is a single ApiClientBodyPart
       else if (param.getValue() instanceof ApiClientBodyPart) {
         final ApiClientBodyPart part = (ApiClientBodyPart) param.getValue();
-        final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename());
+        final StreamDataBodyPart streamPart =
+            new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename());
         multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
-      }
-      else {
+      } else {
         multiPart = multiPart.field(param.getKey(), this.parameterToString(param.getValue()));
       }
     }
@@ -420,8 +428,8 @@ public class ApiClientJersey2 implements ApiClient {
   /**
    * Deserialize response body to Java object according to the Content-Type.
    *
-   * @param <T> Type
-   * @param response Response
+   * @param <T>        Type
+   * @param response   Response
    * @param returnType Return type
    * @return Deserialize object
    * @throws ApiException API exception
