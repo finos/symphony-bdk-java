@@ -2,19 +2,36 @@ package com.symphony.bdk.core.service.stream.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.util.Base64;
 
 /**
- * Helper class providing stream id conversion
+ * Helper class providing Base64 id conversion.
  */
 @API(status = API.Status.EXPERIMENTAL)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StreamUtil {
 
+  private static final char[] NOT_URL_SAFE_BASE_64_CHARS = new char[] {'+', '/', '='};
+
   /**
-   * Convert the stream id to the corresponding URLSafe encoded stream id
+   * Convert the Base64 id to its URL-safe Base64 version. Useful for stream or message ids.
+   *
+   * @param id Base64 id.
+   * @return Base64 URL-safe id.
+   */
+  public static String toUrlSafeId(String id) {
+    if (StringUtils.containsAny(id, NOT_URL_SAFE_BASE_64_CHARS)) {
+      return toUrlSafeStreamId(id);
+    } else {
+      return id;
+    }
+  }
+
+  /**
+   * Convert the stream id to the corresponding URL-safe encoded stream id.
    *
    * <p>Example of usage:
    * <pre>{@code
@@ -30,7 +47,7 @@ public final class StreamUtil {
   }
 
   /**
-   * Convert the URLSafe encoded stream id to the corresponding original stream id
+   * Convert the URL-safe encoded stream id to the corresponding original stream id.
    *
    * <p>Example of usage:
    * <pre>{@code
