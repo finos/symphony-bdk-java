@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.stream;
 
-import static com.symphony.bdk.core.service.stream.util.StreamUtil.fromUrlSafeStreamId;
+import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -236,7 +236,7 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
         JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
 
-    V3RoomDetail roomDetail = this.service.getRoomInfo(fromUrlSafeStreamId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"));
+    V3RoomDetail roomDetail = this.service.getRoomInfo(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"));
 
     assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
   }

@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.message;
 
-import static com.symphony.bdk.core.service.stream.util.StreamUtil.toUrlSafeId;
+import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
@@ -170,7 +170,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeId(streamId), getEpochMillis(since),
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
             authSession.getSessionToken(), authSession.getKeyManagerToken(), pagination.getSkip(),
             pagination.getLimit()));
   }
@@ -186,7 +186,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeId(streamId), getEpochMillis(since),
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
             authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
   }
 
@@ -203,7 +203,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
-    return this.send(toUrlSafeId(streamId), Message.builder().content(message).build());
+    return this.send(toUrlSafeIdIfNeeded(streamId), Message.builder().content(message).build());
   }
 
   /**
@@ -242,7 +242,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   private V4Message doSendMessage(@Nonnull String streamId, @Nonnull Message message) throws ApiException {
     final String path =
-        "/v4/stream/" + this.messagesApi.getApiClient().escapeString(toUrlSafeId(streamId)) + "/message/create";
+        "/v4/stream/" + this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(streamId)) + "/message/create";
 
     return doSendFormData(path, getForm(message), new TypeReference<V4Message>() {});
   }
@@ -309,7 +309,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
     return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
-        () -> attachmentsApi.v1StreamSidAttachmentGet(toUrlSafeId(streamId), attachmentId, messageId,
+        () -> attachmentsApi.v1StreamSidAttachmentGet(toUrlSafeIdIfNeeded(streamId), attachmentId, messageId,
             authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
@@ -345,7 +345,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public MessageStatus getMessageStatus(@Nonnull String messageId) {
     return executeAndRetry("getMessageStatus", messageApi.getApiClient().getBasePath(),
-        () -> messageApi.v1MessageMidStatusGet(toUrlSafeId(messageId), authSession.getSessionToken()));
+        () -> messageApi.v1MessageMidStatusGet(toUrlSafeIdIfNeeded(messageId), authSession.getSessionToken()));
   }
 
   /**
@@ -369,7 +369,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public V4Message getMessage(@Nonnull String messageId) {
     return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
-            toUrlSafeId(messageId)));
+            toUrlSafeIdIfNeeded(messageId)));
   }
 
   /**
@@ -388,7 +388,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
     return executeAndRetry("listAttachments", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1StreamsSidAttachmentsGet(toUrlSafeId(streamId), authSession.getSessionToken(),
+        () -> streamsApi.v1StreamsSidAttachmentsGet(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(),
             getEpochMillis(since), getEpochMillis(to), limit, sortDir));
   }
 
@@ -401,7 +401,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public MessageReceiptDetailResponse listMessageReceipts(@Nonnull String messageId) {
     return executeAndRetry("listMessageReceipts", defaultApi.getApiClient().getBasePath(), () ->
-        defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), toUrlSafeId(messageId), null,
+        defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), toUrlSafeIdIfNeeded(messageId), null,
             null));
   }
 
@@ -417,7 +417,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public MessageMetadataResponse getMessageRelationships(@Nonnull String messageId) {
     return executeAndRetry("getMessageRelationships", defaultApi.getApiClient().getBasePath(),
         () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
-            authSession.getSessionToken(), ApiUtils.getUserAgent(), toUrlSafeId(messageId)));
+            authSession.getSessionToken(), ApiUtils.getUserAgent(), toUrlSafeIdIfNeeded(messageId)));
   }
 
   private static Long getEpochMillis(Instant instant) {

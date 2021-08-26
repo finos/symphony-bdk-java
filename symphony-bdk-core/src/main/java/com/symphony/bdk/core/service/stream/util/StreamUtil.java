@@ -1,34 +1,22 @@
 package com.symphony.bdk.core.service.stream.util;
 
+import com.symphony.bdk.core.util.IdUtil;
+
 import lombok.AccessLevel;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
-import java.util.Base64;
-
 /**
- * Helper class providing Base64 id conversion.
+ * Helper class providing Base64 id conversion. Preserved to avoid breaking changes for external users of this class.
+ *
+ * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil} instead.
  */
+@Deprecated
+@Generated
 @API(status = API.Status.EXPERIMENTAL)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StreamUtil {
-
-  private static final char[] NOT_URL_SAFE_BASE_64_CHARS = new char[] {'+', '/', '='};
-
-  /**
-   * Convert the Base64 id to its URL-safe Base64 version. Useful for stream or message ids.
-   *
-   * @param id Base64 id.
-   * @return Base64 URL-safe id.
-   */
-  public static String toUrlSafeId(String id) {
-    if (StringUtils.containsAny(id, NOT_URL_SAFE_BASE_64_CHARS)) {
-      return toUrlSafeStreamId(id);
-    } else {
-      return id;
-    }
-  }
 
   /**
    * Convert the stream id to the corresponding URL-safe encoded stream id.
@@ -40,10 +28,10 @@ public final class StreamUtil {
    *
    * @param streamId of the stream to be parsed
    * @return stream id after conversion
+   * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil#toUrlSafeId(String)} instead.
    */
   public static String toUrlSafeStreamId(String streamId) {
-    byte[] decodedURLBytes = Base64.getDecoder().decode(streamId);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(decodedURLBytes);
+    return IdUtil.toUrlSafeIdIfNeeded(streamId);
   }
 
   /**
@@ -56,9 +44,9 @@ public final class StreamUtil {
    *
    * @param streamId of the stream to be parsed
    * @return stream id after conversion
+   * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil#fromUrlSafeId(String)} instead.
    */
   public static String fromUrlSafeStreamId(String streamId) {
-    byte[] decodedURLBytes = Base64.getUrlDecoder().decode(streamId);
-    return Base64.getEncoder().encodeToString(decodedURLBytes);
+    return IdUtil.fromUrlSafeId(streamId);
   }
 }
