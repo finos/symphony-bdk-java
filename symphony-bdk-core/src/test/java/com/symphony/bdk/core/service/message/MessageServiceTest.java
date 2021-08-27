@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.message;
 
+import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -366,6 +367,16 @@ class MessageServiceTest {
     final V4Message message = messageService.getMessage(MESSAGE_ID);
     assertEquals("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ", message.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", message.getStream().getStreamId());
+  }
+
+  @Test
+  void testGetMessage_base64() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_GET.replace("{id}", "E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ"),
+        JsonHelper.readFromClasspath("/message/get_message.json"));
+
+    final V4Message message = messageService.getMessage(fromUrlSafeId("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ"));
+
+    assertEquals("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ", message.getMessageId());
   }
 
   @Test

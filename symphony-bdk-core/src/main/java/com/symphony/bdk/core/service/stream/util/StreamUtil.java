@@ -1,20 +1,25 @@
 package com.symphony.bdk.core.service.stream.util;
 
+import com.symphony.bdk.core.util.IdUtil;
+
 import lombok.AccessLevel;
+import lombok.Generated;
 import lombok.NoArgsConstructor;
 import org.apiguardian.api.API;
 
-import java.util.Base64;
-
 /**
- * Helper class providing stream id conversion
+ * Helper class providing Base64 id conversion. Preserved to avoid breaking changes for external users of this class.
+ *
+ * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil} instead.
  */
+@Deprecated
+@Generated
 @API(status = API.Status.EXPERIMENTAL)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StreamUtil {
 
   /**
-   * Convert the stream id to the corresponding URLSafe encoded stream id
+   * Convert the stream id to the corresponding URL-safe encoded stream id.
    *
    * <p>Example of usage:
    * <pre>{@code
@@ -23,14 +28,14 @@ public final class StreamUtil {
    *
    * @param streamId of the stream to be parsed
    * @return stream id after conversion
+   * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil#toUrlSafeId(String)} instead.
    */
   public static String toUrlSafeStreamId(String streamId) {
-    byte[] decodedURLBytes = Base64.getDecoder().decode(streamId);
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(decodedURLBytes);
+    return IdUtil.toUrlSafeIdIfNeeded(streamId);
   }
 
   /**
-   * Convert the URLSafe encoded stream id to the corresponding original stream id
+   * Convert the URL-safe encoded stream id to the corresponding original stream id.
    *
    * <p>Example of usage:
    * <pre>{@code
@@ -39,9 +44,9 @@ public final class StreamUtil {
    *
    * @param streamId of the stream to be parsed
    * @return stream id after conversion
+   * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil#fromUrlSafeId(String)} instead.
    */
   public static String fromUrlSafeStreamId(String streamId) {
-    byte[] decodedURLBytes = Base64.getUrlDecoder().decode(streamId);
-    return Base64.getEncoder().encodeToString(decodedURLBytes);
+    return IdUtil.fromUrlSafeId(streamId);
   }
 }

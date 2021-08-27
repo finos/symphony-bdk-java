@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.stream;
 
+import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -97,7 +99,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public V2StreamAttributes getStream(@Nonnull String streamId) {
     return executeAndRetry("getStreamInfo", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v2StreamsSidInfoGet(streamId, authSession.getSessionToken()));
+        () -> streamsApi.v2StreamsSidInfoGet(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken()));
   }
 
   /**
@@ -148,7 +150,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public void addMemberToRoom(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("addMemberToRoom", roomMembershipApi.getApiClient().getBasePath(),
-        () -> roomMembershipApi.v1RoomIdMembershipAddPost(roomId, authSession.getSessionToken(), user));
+        () -> roomMembershipApi.v1RoomIdMembershipAddPost(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken(), user));
   }
 
   /**
@@ -158,7 +160,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public void removeMemberFromRoom(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("removeMemberFrom", roomMembershipApi.getApiClient().getBasePath(),
-        () -> roomMembershipApi.v1RoomIdMembershipRemovePost(roomId, authSession.getSessionToken(), user));
+        () -> roomMembershipApi.v1RoomIdMembershipRemovePost(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken(), user));
   }
 
   /**
@@ -167,7 +169,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public V2Message share(@Nonnull String streamId, @Nonnull ShareContent content) {
     return executeAndRetry("share", shareApi.getApiClient().getBasePath(),
-        () -> shareApi.v3StreamSidSharePost(streamId, authSession.getSessionToken(), content,
+        () -> shareApi.v3StreamSidSharePost(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(), content,
             authSession.getKeyManagerToken()));
   }
 
@@ -178,7 +180,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public void promoteUserToRoomOwner(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("promoteUserToOwner", roomMembershipApi.getApiClient().getBasePath(),
-        () -> roomMembershipApi.v1RoomIdMembershipPromoteOwnerPost(roomId, authSession.getSessionToken(), user));
+        () -> roomMembershipApi.v1RoomIdMembershipPromoteOwnerPost(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken(),
+            user));
   }
 
   /**
@@ -188,7 +191,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public void demoteUserToRoomParticipant(@Nonnull Long userId, @Nonnull String roomId) {
     UserId user = new UserId().id(userId);
     executeAndRetry("demoteUserToParticipant", roomMembershipApi.getApiClient().getBasePath(),
-        () -> roomMembershipApi.v1RoomIdMembershipDemoteOwnerPost(roomId, authSession.getSessionToken(), user));
+        () -> roomMembershipApi.v1RoomIdMembershipDemoteOwnerPost(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken(),
+            user));
   }
 
   /**
@@ -304,7 +308,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public V3RoomDetail getRoomInfo(@Nonnull String roomId) {
     return executeAndRetry("getRoomInfo", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v3RoomIdInfoGet(roomId, authSession.getSessionToken()));
+        () -> streamsApi.v3RoomIdInfoGet(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken()));
   }
 
   /**
@@ -317,7 +321,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public RoomDetail setRoomActive(@Nonnull String roomId, @Nonnull Boolean active) {
     return executeAndRetry("setRoomActive", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1RoomIdSetActivePost(roomId, active, authSession.getSessionToken()));
+        () -> streamsApi.v1RoomIdSetActivePost(toUrlSafeIdIfNeeded(roomId), active, authSession.getSessionToken()));
   }
 
   /**
@@ -330,7 +334,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public V3RoomDetail updateRoom(@Nonnull String roomId, @Nonnull V3RoomAttributes roomAttributes) {
     return executeAndRetry("updateRoom", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v3RoomIdUpdatePost(roomId, authSession.getSessionToken(), roomAttributes));
+        () -> streamsApi.v3RoomIdUpdatePost(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken(), roomAttributes));
   }
 
   /**
@@ -363,7 +367,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public RoomDetail setRoomActiveAdmin(@Nonnull String streamId, @Nonnull Boolean active) {
     return executeAndRetry("setRoomActiveAdmin", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1AdminRoomIdSetActivePost(streamId, active, authSession.getSessionToken()));
+        () -> streamsApi.v1AdminRoomIdSetActivePost(toUrlSafeIdIfNeeded(streamId), active, authSession.getSessionToken()));
   }
 
   /**
@@ -434,7 +438,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public V2MembershipList listStreamMembers(@Nonnull String streamId) {
     return executeAndRetry("listStreamMembers", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1AdminStreamIdMembershipListGet(streamId, authSession.getSessionToken(), null, null));
+        () -> streamsApi.v1AdminStreamIdMembershipListGet(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(), null,
+            null));
   }
 
   /**
@@ -448,8 +453,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public V2MembershipList listStreamMembers(@Nonnull String streamId, @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("listStreamMembers", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1AdminStreamIdMembershipListGet(streamId, authSession.getSessionToken(), pagination.getSkip(),
-            pagination.getLimit()));
+        () -> streamsApi.v1AdminStreamIdMembershipListGet(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(),
+            pagination.getSkip(), pagination.getLimit()));
   }
 
   /**
@@ -463,7 +468,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V2MemberInfo> listAllStreamMembers(@Nonnull String streamId) {
     PaginatedApi<V2MemberInfo> api =
-        (offset, limit) -> listStreamMembers(streamId, new PaginationAttribute(offset, limit)).getMembers();
+        (offset, limit) -> listStreamMembers(toUrlSafeIdIfNeeded(streamId),
+            new PaginationAttribute(offset, limit)).getMembers();
     return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
@@ -481,7 +487,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public java.util.stream.Stream<V2MemberInfo> listAllStreamMembers(@Nonnull String streamId,
       @Nonnull StreamPaginationAttribute pagination) {
     PaginatedApi<V2MemberInfo> api =
-        (offset, limit) -> listStreamMembers(streamId, new PaginationAttribute(offset, limit)).getMembers();
+        (offset, limit) -> listStreamMembers(toUrlSafeIdIfNeeded(streamId),
+            new PaginationAttribute(offset, limit)).getMembers();
     return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
@@ -494,7 +501,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public List<MemberInfo> listRoomMembers(@Nonnull String roomId) {
     return executeAndRetry("listRoomMembers", roomMembershipApi.getApiClient().getBasePath(),
-        () -> roomMembershipApi.v2RoomIdMembershipListGet(roomId, authSession.getSessionToken()));
+        () -> roomMembershipApi.v2RoomIdMembershipListGet(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken()));
   }
 
 

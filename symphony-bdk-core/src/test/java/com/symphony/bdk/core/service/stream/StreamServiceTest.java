@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.stream;
 
+import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -228,6 +229,16 @@ public class StreamServiceTest {
     assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
     assertEquals(roomDetail.getRoomAttributes().getDescription(), "Created via the API");
     assertEquals(roomDetail.getRoomSystemInfo().getId(), "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
+  }
+
+  @Test
+  void getRoomInfoTest_base64() throws IOException {
+    this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomDetail roomDetail = this.service.getRoomInfo(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"));
+
+    assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
   }
 
   @Test
