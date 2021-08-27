@@ -96,10 +96,12 @@ public class ApiClientJersey2 implements ApiClient {
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
 
-    if (DistributedTracingContext.hasTraceId()) {
-      invocationBuilder =
-          invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
     }
+
+    invocationBuilder =
+        invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Entry<String, String> entry : headerParams.entrySet()) {
@@ -175,6 +177,8 @@ public class ApiClientJersey2 implements ApiClient {
             buildResponseHeaders(response),
             respBody);
       }
+    } finally {
+      DistributedTracingContext.clear();
     }
   }
 
