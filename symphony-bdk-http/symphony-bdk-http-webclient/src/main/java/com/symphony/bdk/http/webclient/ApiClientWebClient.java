@@ -90,9 +90,13 @@ public class ApiClientWebClient implements ApiClient {
       requestBodySpec.accept(MediaType.valueOf(accept));
     }
 
+    boolean clearTraceId = false;
+
     if (!DistributedTracingContext.hasTraceId()) {
       DistributedTracingContext.setTraceId();
+      clearTraceId = true;
     }
+
     requestBodySpec =
         requestBodySpec.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
@@ -154,6 +158,10 @@ public class ApiClientWebClient implements ApiClient {
             exception.getUri(), exception.getHeaders());
       } else {
         throw e;
+      }
+    } finally {
+      if (clearTraceId) {
+        DistributedTracingContext.clear();
       }
     }
   }
