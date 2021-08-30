@@ -293,7 +293,7 @@ class ApiClientWebClientTest {
             .withHeader("sessionToken", "test-token"),
         httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
 
-    assertTrue(DistributedTracingContext.getTraceId().isEmpty());
+    DistributedTracingContext.clear();
 
     this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
             null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});

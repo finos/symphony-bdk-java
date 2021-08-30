@@ -55,7 +55,7 @@ class ApiClientJersey2Test {
 
   @Test
   void shouldClearTraceIdIfNotSet() throws ApiException {
-    assertTrue(DistributedTracingContext.getTraceId().isEmpty());
+    DistributedTracingContext.clear();
     this.doInvokeAPI();
     assertTrue(DistributedTracingContext.getTraceId().isEmpty());
   }
