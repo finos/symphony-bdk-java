@@ -3,6 +3,7 @@ package com.symphony.bdk.core.service.message;
 import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static org.apache.commons.lang3.StringUtils.equalsAny;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
@@ -10,6 +11,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.message.model.SortDir;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.core.util.function.SupplierWithApiException;
@@ -22,6 +24,7 @@ import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
+import com.symphony.bdk.gen.api.model.MessageSearchQuery;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
@@ -188,6 +191,69 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
         () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
             authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
+  }
+
+  /**
+   * Searches for messages in the context of a specified user, given an argument-based query.
+   *
+   * @param query the search query arguments
+   * @return the list of matching messages
+   * @see <a href="https://developers.symphony.com/restapi/reference#message-search-post">Message Search (using POST)</a>
+   */
+  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query) {
+    return this.searchMessages(query, null);
+  }
+
+  /**
+   * Searches for messages in the context of a specified user, given an argument-based query.
+   *
+   * @param query      The search query arguments
+   * @param pagination The skip and limit for pagination. The maximum limit value is 1000;
+   * @return the list of matching messages
+   * @see <a href="https://developers.symphony.com/restapi/reference#message-search-post">Message Search (using POST)</a>
+   */
+  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination) {
+    return this.searchMessages(query, pagination, null);
+  }
+
+  /**
+   * Searches for messages in the context of a specified user, given an argument-based query.
+   *
+   * @param query      The search query arguments
+   * @param pagination The skip and limit for pagination. The maximum limit value is 1000.
+   * @param sortDir    Sorting direction for response. Possible values are desc (default) and asc.
+   * @return the list of matching messages
+   * @see <a href="https://developers.symphony.com/restapi/reference#message-search-post">Message Search (using POST)</a>
+   */
+  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination,
+      @Nullable SortDir sortDir) {
+    validateMessageSearchQuery(query);
+    return executeAndRetry("searchMessages", messageApi.getApiClient().getBasePath(),
+        () -> messagesApi.v1MessageSearchPost(authSession.getSessionToken(), authSession.getKeyManagerToken(), query,
+            pagination != null ? pagination.getSkip() : null,
+            pagination != null ? pagination.getLimit() : null,
+            // 'scope' argument is not documented for POST search, but is for GET:
+            // "Specifies against which connector to perform the search, either Symphony content or one connector.".
+            // We will assume (for now) that it as no real usage.
+            null,
+            sortDir != null ? sortDir.name().toLowerCase() : null)
+    );
+  }
+
+  private static void validateMessageSearchQuery(@Nonnull MessageSearchQuery query) {
+
+    // checks streamType value among accepted ones
+    if (query.getStreamType() != null && !equalsAny(query.getStreamType(), "CHAT", "IM", "MIM", "ROOM", "POST")) {
+      String errorMsg = "Wrong stream type '" + query.getStreamType() +
+          "'. Accepted values are: CHAT (1-1 instant messages and multi-party instant messages), "
+          + "IM (1-1 instant message), MIM (multi-party instant message), ROOM or POST (user profile wall posts)";
+      throw new IllegalArgumentException(errorMsg);
+    }
+
+    // text queries require streamId to be provided
+    if (query.getText() != null && query.getStreamId() == null) {
+      throw new IllegalArgumentException("Message text queries require a streamId to be provided.");
+    }
   }
 
   /**
