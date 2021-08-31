@@ -10,6 +10,7 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.http.webclient.test.BdkMockServer;
 import com.symphony.bdk.http.webclient.test.BdkMockServerExtension;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @ExtendWith(BdkMockServerExtension.class)
 class ApiClientWebClientTest {
@@ -280,6 +282,41 @@ class ApiClientWebClientTest {
 
     assertEquals(200, response.getData().getCode());
     assertEquals("success", response.getData().getMessage());
+  }
+
+  @Test
+  void shouldClearTraceIdIfNotSet(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(200,
+        httpRequest -> httpRequest
+            .withMethod("GET")
+            .withPath("/test-api")
+            .withHeader("sessionToken", "test-token"),
+        httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
+
+    DistributedTracingContext.clear();
+
+    this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
+            null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+
+    assertTrue(DistributedTracingContext.getTraceId().isEmpty());
+  }
+
+  @Test
+  void shouldPreserveExistingTraceId(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(200,
+        httpRequest -> httpRequest
+            .withMethod("GET")
+            .withPath("/test-api")
+            .withHeader("sessionToken", "test-token"),
+        httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
+
+    String traceId = UUID.randomUUID().toString();
+    DistributedTracingContext.setTraceId(traceId);
+
+    this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
+        null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+
+    assertEquals(traceId, DistributedTracingContext.getTraceId());
   }
 
   @Test

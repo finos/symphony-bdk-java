@@ -95,11 +95,15 @@ public class ApiClientJersey2 implements ApiClient {
     }
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
+    boolean clearTraceId = false;
 
-    if (DistributedTracingContext.hasTraceId()) {
-      invocationBuilder =
-          invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+      clearTraceId = true;
     }
+
+    invocationBuilder =
+        invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Entry<String, String> entry : headerParams.entrySet()) {
@@ -174,6 +178,10 @@ public class ApiClientJersey2 implements ApiClient {
             message,
             buildResponseHeaders(response),
             respBody);
+      }
+    } finally {
+      if (clearTraceId) {
+        DistributedTracingContext.clear();
       }
     }
   }

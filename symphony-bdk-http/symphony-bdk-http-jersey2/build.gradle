@@ -37,5 +37,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'ch.qos.logback:logback-classic'
     testImplementation 'org.mock-server:mockserver-netty'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
 }
 
