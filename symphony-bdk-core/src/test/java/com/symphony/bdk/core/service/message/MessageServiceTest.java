@@ -35,6 +35,7 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponseParent;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
+import com.symphony.bdk.gen.api.model.MessageSearchQuery;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
@@ -73,6 +74,7 @@ import java.util.stream.Stream;
 class MessageServiceTest {
 
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
+  private static final String V4_SEARCH_MESSAGES = "/agent/v1/message/search";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
   private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
   private static final String V4_BLAST_MESSAGE = "/agent/v4/message/blast";
@@ -179,6 +181,34 @@ class MessageServiceTest {
     assertEquals(2, messages.size());
     assertEquals(Arrays.asList("messageId1", "messageId2"),
         messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+
+  @Test
+  void testSearchMessages() throws IOException {
+    mockApiClient.onPost(V4_SEARCH_MESSAGES,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final List<V4Message> messages = messageService.searchMessages(new MessageSearchQuery());
+
+    assertEquals(2, messages.size());
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testSearchMessagesQueryValidation() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> messageService.searchMessages(new MessageSearchQuery().streamType("FOO")),
+        "checks if streamType value is a valid one"
+    );
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> messageService.searchMessages(new MessageSearchQuery().text("foo")),
+        "text require streamId arg to be provided"
+    );
   }
 
   @Test

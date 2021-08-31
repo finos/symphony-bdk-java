@@ -4,6 +4,7 @@ The Message API aims to cover the Messages part of the [REST API documentation](
 More precisely:
 * [Get a message](https://developers.symphony.com/restapi/reference#get-message-v1)
 * [Get messages](https://developers.symphony.com/restapi/reference#messages-v4)
+* [Search messages](https://developers.symphony.com/restapi/reference#message-search-post)
 * [Get message IDs by timestamp](https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp)
 * [Send message](https://developers.symphony.com/restapi/reference#create-message-v4)
 * [Import messages](https://developers.symphony.com/restapi/reference#import-message-v4)
