@@ -42,7 +42,7 @@ import java.util.Date;
 @API(status = API.Status.INTERNAL)
 public class JwtHelper {
 
-  // Expiration of the jwt, 5 minutes maximum, use a little less than that in case of clock differents
+  // Expiration of the jwt, 5 minutes maximum, use a little less than that in case of different clock skews
   public static final Long JWT_EXPIRATION_MILLIS = 240_000L;
 
 	// PKCS#8 format
