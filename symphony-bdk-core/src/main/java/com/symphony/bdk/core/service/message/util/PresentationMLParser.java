@@ -32,7 +32,7 @@ public class PresentationMLParser {
    * @param trim            flag if we want to trim the text result
    * @return the message text content extracted from the given PresentationML
    */
-  public static String getTextContent(String presentationML, boolean trim) throws PresentationMLParserException {
+  public static String getTextContent(String presentationML, Boolean trim) throws PresentationMLParserException {
     try {
       final Document doc = LOCAL_BUILDER.get().parse(
           new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
