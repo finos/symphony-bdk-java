@@ -8,6 +8,7 @@ import org.apiguardian.api.API;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage user connection status.
@@ -38,7 +39,7 @@ public interface OboConnectionService {
    * @return List of connection statuses with the specified users and status.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-connections">List Connections</a>
    */
-  List<UserConnection> listConnections(@Nonnull ConnectionStatus status, @Nonnull List<Long> userIds);
+  List<UserConnection> listConnections(@Nullable ConnectionStatus status, @Nullable List<Long> userIds);
 
   /**
    * Sends a connection request to another user.
