@@ -17,7 +17,8 @@ repositories {
 dependencies {
     // import Spring Boot's BOM
     api platform('org.springframework.boot:spring-boot-dependencies:2.5.4')
-
+    // import Jackson's BOM
+    api platform('com.fasterxml.jackson:jackson-bom:2.12.5')
     // define all our dependencies versions
     constraints {
         // Internal modules dependencies (Keep them first)
@@ -52,11 +53,6 @@ dependencies {
 
         api 'io.github.resilience4j:resilience4j-retry:1.7.1'
 
-        api 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
-        api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.5'
-        api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5'
-        api 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.12.5'
-
         api 'io.swagger:swagger-annotations:1.6.0'
         api 'org.openapitools:jackson-databind-nullable:0.2.1'
 
@@ -71,6 +67,7 @@ dependencies {
         api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
         api 'org.freemarker:freemarker:2.3.31'
+        api 'com.github.jknack:handlebars:4.2.0'
         api 'org.reflections:reflections:0.9.12'
 
         api 'org.junit.jupiter:junit-jupiter:5.8.0'

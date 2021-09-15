@@ -10,7 +10,7 @@ dependencies {
 
     implementation 'org.apiguardian:apiguardian-api'
 
-    implementation 'com.github.jknack:handlebars:4.2.0'
+    implementation 'com.github.jknack:handlebars'
     implementation 'commons-io:commons-io'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
