@@ -3,9 +3,6 @@ package com.symphony.bdk.http.api;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Pair of string values. Used by generated code only.
  */
@@ -23,19 +20,6 @@ public class Pair {
 
   public static Pair pair(String name, String value) {
     return new Pair(name, value);
-  }
-
-  public static List<Pair> pairs(String... pairs) {
-
-    if (pairs.length % 2 != 0) {
-      throw new IllegalArgumentException("Length of arguments should be a multiple of 2.");
-    }
-
-    List<Pair> result = new ArrayList<>();
-    for (int i = 0; i < pairs.length; i+=2) {
-      result.add(pair(pairs[i], pairs[i + 1]));
-    }
-    return result;
   }
 
   private void setName(String name) {
