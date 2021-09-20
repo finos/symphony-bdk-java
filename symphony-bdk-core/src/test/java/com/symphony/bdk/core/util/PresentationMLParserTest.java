@@ -20,11 +20,14 @@ class PresentationMLParserTest {
   static Stream<Arguments> validPresentationMLs() {
     return Stream.of(
         arguments(
-            "<div data-format=\"PresentationML\" data-version=\"2.0\">\n<a href=\"http://www.symphony.com\">This is a link to Symphony's Website</a>\n</div>",
+            "<div data-format=\"PresentationML\" data-version=\"2.0\">\n"
+                + "<a href=\"http://www.symphony.com\">This is a link to Symphony's Website</a>\n</div>",
             "This is a link to Symphony's Website"),
         arguments("<div data-format=\"PresentationML\" data-version=\"2.0\"> <p>/test &lt;/messageML&gt;</p> </div>",
             "/test </messageML>"),
-        arguments("<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&#xA0;World</div>", "Hello World"));
+        arguments("<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&#xA0;World</div>", "Hello World"),
+        arguments("<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&nbsp;World&nbsp;Again</div>",
+            "Hello World Again"));
   }
 
 
