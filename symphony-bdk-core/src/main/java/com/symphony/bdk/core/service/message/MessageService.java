@@ -297,6 +297,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Message v4</a>
    */
+  @API(status = API.Status.EXPERIMENTAL)
   public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message message) {
     return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(), () ->  {
       final String path = String.format(
