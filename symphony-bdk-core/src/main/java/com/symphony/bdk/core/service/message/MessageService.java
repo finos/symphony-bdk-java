@@ -290,6 +290,25 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
+   * Update an existing message. The existing message must be a valid social message, that has not been deleted.
+   *
+   * @param streamId the ID of the stream to send the message to
+   * @param messageId the ID of the message to be
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Message v4</a>
+   */
+  public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message message) {
+    return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(), () ->  {
+      final String path = String.format(
+          "/v4/stream/%s/message/%s/update",
+          this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(streamId)),
+          this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(messageId))
+      );
+      return doSendFormData(path, getForm(message), new TypeReference<V4Message>() {});
+    });
+  }
+
+  /**
    * Sends a message to multiple existing streams.
    *
    * @param streamIds the list of stream IDs to send the message to
