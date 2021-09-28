@@ -292,20 +292,34 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
    *
-   * @param streamId the ID of the stream to send the message to
-   * @param messageId the ID of the message to be
+   * @param messageToUpdate the message to be updated
+   * @param content the update content (attachments are not supported yet)
    * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Message v4</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message message) {
+  public V4Message update(@Nonnull V4Message messageToUpdate, @Nonnull Message content) {
+    return this.update(messageToUpdate.getStream().getStreamId(), messageToUpdate.getMessageId(), content);
+  }
+
+  /**
+   * Update an existing message. The existing message must be a valid social message, that has not been deleted.
+   *
+   * @param streamId the ID of the stream where the message to be updated comes from
+   * @param messageId the ID of the message to be updated
+   * @param content the update content (attachments are not supported yet)
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message content) {
     return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(), () ->  {
       final String path = String.format(
           "/v4/stream/%s/message/%s/update",
           this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(streamId)),
           this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(messageId))
       );
-      return doSendFormData(path, getForm(message), new TypeReference<V4Message>() {});
+      return doSendFormData(path, getForm(content), new TypeReference<V4Message>() {});
     });
   }
 

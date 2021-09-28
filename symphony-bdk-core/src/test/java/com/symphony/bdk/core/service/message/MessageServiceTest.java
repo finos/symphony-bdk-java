@@ -334,8 +334,9 @@ class MessageServiceTest {
     mockApiClient.onPost(V4_STREAM_MESSAGE_UPDATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
         JsonHelper.readFromClasspath("/message/update_message.json"));
 
-    final Message message = Message.builder().content("This is a message update").build();
-    final V4Message updateMessage = messageService.update(STREAM_ID, MESSAGE_ID, message);
+    final V4Message messageToUpdate = new V4Message().stream(new V4Stream().streamId(STREAM_ID)).messageId(MESSAGE_ID);
+    final Message content = Message.builder().content("This is a message update").build();
+    final V4Message updateMessage = this.messageService.update(messageToUpdate, content);
 
     assertEquals(MESSAGE_ID, updateMessage.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", updateMessage.getStream().getStreamId());
