@@ -37,7 +37,7 @@ public class MessageUpdateExampleMain {
         "cat", "dromedary_camel", "dolphin", "dog", "hamster", "goat", "panda_face", "koala", "frog", "penguin"
     }[index];
 
-    V4Message previousMessage = bdk.messages().send(streamId, "Let's the show begin!");
+    V4Message previousMessage = bdk.messages().send(streamId, "Let the show begin!");
     pinMessage(bdk, previousMessage);
 
     for (int i = 0; i < 10; i++) {
