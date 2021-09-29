@@ -76,6 +76,7 @@ class MessageServiceTest {
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
   private static final String V4_SEARCH_MESSAGES = "/agent/v1/message/search";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
+  private static final String V4_STREAM_MESSAGE_UPDATE = "/agent/v4/stream/{sid}/message/{mid}/update";
   private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
   private static final String V4_BLAST_MESSAGE = "/agent/v4/message/blast";
   private static final String V1_MESSAGE_SUPPRESSION = "/pod/v1/admin/messagesuppression/{id}/suppress";
@@ -326,6 +327,22 @@ class MessageServiceTest {
     assertEquals("2.0", message.getVersion());
     assertEquals(MESSAGE, message.getContent());
     assertEquals("test.doc", message.getAttachments().get(0).getFilename());
+  }
+
+  @Test
+  void testMessageUpdate() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_UPDATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/update_message.json"));
+
+    final V4Message messageToUpdate = new V4Message().stream(new V4Stream().streamId(STREAM_ID)).messageId(MESSAGE_ID);
+    final Message content = Message.builder().content("This is a message update").build();
+    final V4Message updateMessage = this.messageService.update(messageToUpdate, content);
+
+    assertEquals(MESSAGE_ID, updateMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", updateMessage.getStream().getStreamId());
+    assertEquals("vanscOQk6IJXm-6XAN3B33___oiRvNNKdA", updateMessage.getInitialMessageId());
+    assertEquals("j7-VAoCY_1pGAYSye_MtI3___oPXo8VHbQ", updateMessage.getReplacing());
+    assertEquals(1599659432867L, updateMessage.getInitialTimestamp());
   }
 
   @Test
