@@ -28,17 +28,17 @@ public class PresentationMLParser {
   /**
    * Get text content from PresentationML
    *
-   * @param presentationML  the PresentationML to be parsed
-   * @param trim            flag if we want to trim the text result
+   * @param presentationML the PresentationML to be parsed
+   * @param trim           flag if we want to trim the text result
    * @return the message text content extracted from the given PresentationML
    */
   public static String getTextContent(String presentationML, Boolean trim) throws PresentationMLParserException {
     try {
-      String escapedPresentationML = StringEscapeUtils.unescapeHtml4(presentationML);
       final Document doc = LOCAL_BUILDER.get().parse(
-          new ByteArrayInputStream(escapedPresentationML.getBytes(StandardCharsets.UTF_8)));
+          new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
       String textContent = doc.getChildNodes().item(0).getTextContent();
-      return trim ? textContent.trim() : textContent;
+      String escapedPresentationML = StringEscapeUtils.unescapeHtml4(textContent);
+      return trim ? escapedPresentationML.trim() : escapedPresentationML;
     } catch (SAXException | IOException e) {
       throw new PresentationMLParserException(presentationML, "Failed to parse the PresentationML", e);
     }
@@ -47,7 +47,7 @@ public class PresentationMLParser {
   /**
    * Get trimmed text content from PresentationML
    *
-   * @param presentationML  the PresentationML to be parsed
+   * @param presentationML the PresentationML to be parsed
    * @return the message text content extracted from the given PresentationML
    */
   public static String getTextContent(String presentationML) throws PresentationMLParserException {
