@@ -35,10 +35,6 @@ public class PresentationMLParser {
    */
   public static String getTextContent(String presentationML, Boolean trim) throws PresentationMLParserException {
     try {
-      if (presentationML.contains(NBSP)) {
-        presentationML = presentationML.replace(NBSP, " ");
-      }
-
       final Document doc = LOCAL_BUILDER.get().parse(
           new ByteArrayInputStream(presentationML.getBytes(StandardCharsets.UTF_8)));
       String textContent = doc.getChildNodes().item(0).getTextContent();

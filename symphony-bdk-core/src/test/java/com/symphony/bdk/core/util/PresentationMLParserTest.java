@@ -25,9 +25,7 @@ class PresentationMLParserTest {
             "This is a link to Symphony's Website"),
         arguments("<div data-format=\"PresentationML\" data-version=\"2.0\"> <p>/test &lt;/messageML&gt;</p> </div>",
             "/test </messageML>"),
-        arguments("<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&#xA0;World</div>", "Hello World"),
-        arguments("<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&nbsp;World&nbsp;Again</div>",
-            "Hello World Again"));
+        arguments("<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&#xA0;World</div>", "Hello World"));
   }
 
 
@@ -36,6 +34,13 @@ class PresentationMLParserTest {
   void getMessageFromPresentationMLTest(String presentationML, String expectedContent)
       throws PresentationMLParserException {
     assertEquals(expectedContent, PresentationMLParser.getTextContent(presentationML));
+  }
+
+  @Test
+  void unsupportedEntitiesParsingTest() {
+    assertThrows(PresentationMLParserException.class,
+        () -> PresentationMLParser.getTextContent(
+            "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello&nbsp;World&nbsp;Again</div>"));
   }
 
   @Test
