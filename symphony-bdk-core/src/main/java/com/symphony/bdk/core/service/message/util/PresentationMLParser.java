@@ -24,7 +24,6 @@ public class PresentationMLParser {
 
   private static final ThreadLocal<DocumentBuilder> LOCAL_BUILDER = ThreadLocal.withInitial(
       PresentationMLParser::initBuilder);
-  private static final String NBSP = "&nbsp;";
 
   /**
    * Get text content from PresentationML
