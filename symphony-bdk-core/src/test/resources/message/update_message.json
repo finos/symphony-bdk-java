@@ -1,0 +1,33 @@
+{
+    "messageId": "messageId",
+    "timestamp": 1599659432866,
+    "message": "<div data-format=\"PresentationML\" data-version=\"2.0\">Hello, World!</div>",
+    "sharedMessage": null,
+    "data": null,
+    "attachments": null,
+    "user": {
+        "userId": 12987981103694,
+        "firstName": null,
+        "lastName": null,
+        "displayName": "bot-name",
+        "email": "fakemail@symphony.com",
+        "username": "bot-name"
+    },
+    "stream": {
+        "streamId": "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA",
+        "streamType": "IM",
+        "roomName": null,
+        "members": null,
+        "external": null,
+        "crossPod": null
+    },
+    "externalRecipients": null,
+    "diagnostic": null,
+    "userAgent": "user-agent",
+    "originalFormat": "com.symphony.messageml.v2",
+    "disclaimer": null,
+    "sid": "6ca2b92d-f198-4059-9073-9701c26ab5f3",
+    "initialMessageId": "vanscOQk6IJXm-6XAN3B33___oiRvNNKdA",
+    "initialTimestamp": 1599659432867,
+    "replacing": "j7-VAoCY_1pGAYSye_MtI3___oPXo8VHbQ"
+}
