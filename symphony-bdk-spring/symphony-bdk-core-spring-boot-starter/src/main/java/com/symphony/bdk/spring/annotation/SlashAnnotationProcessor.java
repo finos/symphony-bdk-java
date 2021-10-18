@@ -8,17 +8,16 @@ import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 
 import lombok.Generated;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils;
 import org.springframework.aop.scope.ScopedObject;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.MethodIntrospector;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -30,12 +29,10 @@ import java.util.stream.Stream;
  * Registers {@link Slash} methods as individual {@link com.symphony.bdk.core.activity.command.SlashCommand} instances
  * within the {@link ActivityRegistry}.
  *
- * @see <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-extension-bpp">BeanPostProcessor</a>
  * @see <a href="https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/context/event/EventListenerMethodProcessor.java">EventListenerMethodProcessor.java</a>
  */
 @Slf4j
-@RequiredArgsConstructor
-public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
+public class SlashAnnotationProcessor implements SmartInitializingSingleton, BeanFactoryPostProcessor {
 
   /**
    * The list of packages to be ignored from application context scanning
@@ -50,40 +47,42 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
    * The {@link ActivityRegistry} is used here to register the slash activities.
    * Lazy-loaded from application context to make sure the processor is registered first before starting to create beans.
    */
-  private ActivityRegistry registry;
-
-  private ConfigurableApplicationContext applicationContext;
+  private ActivityRegistry activityRegistry;
+  private ConfigurableListableBeanFactory beanFactory;
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    this.applicationContext = (ConfigurableApplicationContext) applicationContext;
+  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    this.beanFactory = beanFactory;
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+  public void afterSingletonsInstantiated() {
+    Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
 
-    if (!ScopedProxyUtils.isScopedTarget(beanName)) {
+    final String[] beanNames = this.beanFactory.getBeanNamesForType(Object.class);
 
-      final Class<?> type = this.determineTargetClass(beanName);
+    for (String beanName : beanNames) {
+      if (!ScopedProxyUtils.isScopedTarget(beanName)) {
 
-      if (type != null && isCandidateClass(type, Slash.class) && !isClassLocatedInPackages(type, IGNORED_PACKAGES)) {
-        try {
-          this.processBean(bean, beanName, type);
-        } catch (Throwable ex) {
-          // just alert the developer
-          log.warn("Failed to process @Slash annotation on bean with name '{}'", beanName, ex);
+        final Class<?> type = this.determineTargetClass(beanName);
+
+        if (type != null && isCandidateClass(type, Slash.class) && !isClassLocatedInPackages(type, IGNORED_PACKAGES)) {
+          try {
+            this.processBean(beanName, type);
+          } catch (Throwable ex) {
+            // just alert the developer
+            log.warn("Failed to process @Slash annotation on bean with name '{}'", beanName, ex);
+          }
         }
       }
     }
-
-    return bean;
   }
 
   @Generated // means excluded from test coverage (hard to test error cases)
   private Class<?> determineTargetClass(String beanName) {
     Class<?> type = null;
     try {
-      type = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), beanName);
+      type = AutoProxyUtils.determineTargetClass(this.beanFactory, beanName);
     } catch (Throwable ex) {
       // An unresolvable bean type, probably from a lazy bean - let's ignore it.
       log.trace("Could not resolve target class for bean with name '{}'", beanName, ex);
@@ -92,7 +91,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     if (type != null && ScopedObject.class.isAssignableFrom(type)) {
       try {
         Class<?> targetClass = AutoProxyUtils.determineTargetClass(
-            this.applicationContext.getBeanFactory(),
+            this.beanFactory,
             ScopedProxyUtils.getTargetBeanName(beanName)
         );
         if (targetClass != null) {
@@ -107,7 +106,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return type;
   }
 
-  private void processBean(final Object bean, final String beanName, final Class<?> targetType) {
+  private void processBean(final String beanName, final Class<?> targetType) {
 
     final Map<Method, Slash> annotatedMethods = this.getSlashAnnotatedMethods(beanName, targetType);
 
@@ -116,7 +115,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
       final Slash annotation = annotatedMethods.get(m);
 
       if (isMethodPrototypeValid(m)) {
-        this.registerSlashMethod(bean, m, annotation);
+        this.registerSlashMethod(beanName, m, annotation);
       } else {
         log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
             + "It must accept a single argument of type '{}'", m, CommandContext.class);
@@ -140,12 +139,15 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return annotatedMethods == null ? Collections.emptyMap() : annotatedMethods;
   }
 
-  private void registerSlashMethod(Object bean, Method method, Slash annotation) {
-    if (this.registry == null) {
-      this.registry = applicationContext.getBeanFactory().getBean(ActivityRegistry.class);
+  private void registerSlashMethod(String beanName, Method method, Slash annotation) {
+    final Object bean = this.beanFactory.getBean(beanName);
+
+    if (this.activityRegistry == null) {
+      this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
     }
-    this.registry.register(
-        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method), annotation.description())
+    this.activityRegistry.register(
+        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method),
+            annotation.description())
     );
   }
 
