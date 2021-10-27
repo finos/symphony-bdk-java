@@ -368,7 +368,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return  IM information after the update
    * @see <a href="https://developers.symphony.com/restapi/v20.13/reference#update-im">Update IM</a>
    */
-  public V1IMDetail updateIM(@Nonnull String imId, @Nonnull V1IMAttributes imAttributes) {
+  public V1IMDetail updateInstantMessage(@Nonnull String imId, @Nonnull V1IMAttributes imAttributes) {
     return executeAndRetry("updateIM", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1ImIdUpdatePost(imId, authSession.getSessionToken(), imAttributes));
   }
@@ -380,7 +380,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return The information about the IM with the given id
    * @see <a href="https://developers.symphony.com/restapi/reference#im-info">IM Info</a>
    */
-  public V1IMDetail getIMInfo(@Nonnull String imId) {
+  public V1IMDetail getInstantMessageInfo(@Nonnull String imId) {
     return executeAndRetry("getIMInfo", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1ImIdInfoGet(imId, authSession.getSessionToken()));
   }

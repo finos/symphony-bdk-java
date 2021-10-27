@@ -384,7 +384,7 @@ public class StreamServiceTest {
 
     V1IMAttributes attributes = new V1IMAttributes();
     attributes.setPinnedMessageId("vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ");
-    V1IMDetail imDetail = this.service.updateIM("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA", attributes);
+    V1IMDetail imDetail = this.service.updateInstantMessage("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA", attributes);
 
     assertEquals(imDetail.getImSystemInfo().getId(), "usnBKBkH_BVrGOiVpaupEH___okFfE7QdA");
     assertEquals(imDetail.getV1IMAttributes().getPinnedMessageId(), "vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ");
@@ -394,7 +394,7 @@ public class StreamServiceTest {
   void updateIMTestFail() {
     this.mockApiClient.onPost(400, V1_IM_UPDATE.replace("{id}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.updateIM("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", new V1IMAttributes()));
+    assertThrows(ApiRuntimeException.class, () -> this.service.updateInstantMessage("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", new V1IMAttributes()));
   }
 
   @Test
@@ -402,7 +402,7 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V1_IM_INFO.replace("{id}", "usnBKBkH_BVrGOiVpaupEH___okFfE7QdA"),
         JsonHelper.readFromClasspath("/stream/im_info.json"));
 
-    V1IMDetail imDetail = this.service.getIMInfo("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA");
+    V1IMDetail imDetail = this.service.getInstantMessageInfo("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA");
 
     assertEquals(imDetail.getImSystemInfo().getId(), "usnBKBkH_BVrGOiVpaupEH___okFfE7QdA");
     assertEquals(imDetail.getV1IMAttributes().getPinnedMessageId(), "vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ");
@@ -412,7 +412,7 @@ public class StreamServiceTest {
   void getIMInfoTestFail() {
     this.mockApiClient.onGet(400, V1_IM_INFO.replace("{id}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getIMInfo("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getInstantMessageInfo("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
   }
 
   @Test
