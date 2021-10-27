@@ -21,6 +21,8 @@ import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.UserId;
+import com.symphony.bdk.gen.api.model.V1IMAttributes;
+import com.symphony.bdk.gen.api.model.V1IMDetail;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamInfo;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
@@ -356,6 +358,31 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public Stream createInstantMessageAdmin(@Nonnull List<Long> uids) {
     return executeAndRetry("createInstantMessageAdmin", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1AdminImCreatePost(authSession.getSessionToken(), uids));
+  }
+
+  /**
+   * Updates attributes on an existing IM
+   *
+   * @param imId  The id or the IM to be updated
+   * @param imAttributes  The attributes to be updated in the IM
+   * @return  IM information after the update
+   * @see <a href="https://developers.symphony.com/restapi/v20.13/reference#update-im">Update IM</a>
+   */
+  public V1IMDetail updateInstantMessage(@Nonnull String imId, @Nonnull V1IMAttributes imAttributes) {
+    return executeAndRetry("updateIM", streamsApi.getApiClient().getBasePath(),
+        () -> streamsApi.v1ImIdUpdatePost(imId, authSession.getSessionToken(), imAttributes));
+  }
+
+  /**
+   * Returns information about a particular IM.
+   *
+   * @param imId The id of the IM.
+   * @return The information about the IM with the given id
+   * @see <a href="https://developers.symphony.com/restapi/reference#im-info">IM Info</a>
+   */
+  public V1IMDetail getInstantMessageInfo(@Nonnull String imId) {
+    return executeAndRetry("getIMInfo", streamsApi.getApiClient().getBasePath(),
+        () -> streamsApi.v1ImIdInfoGet(imId, authSession.getSessionToken()));
   }
 
   /**
