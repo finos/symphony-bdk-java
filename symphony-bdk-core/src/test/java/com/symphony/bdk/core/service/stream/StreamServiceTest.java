@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,6 +49,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -91,7 +94,7 @@ public class StreamServiceTest {
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
 
     this.spyRoomMembershipApi = spy(new RoomMembershipApi(podClient));
-    this.streamsApi = new StreamsApi(podClient);
+    this.streamsApi = spy(new StreamsApi(podClient));
     this.shareApi = new ShareApi(agentClient);
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
         this.authSession, new RetryWithRecoveryBuilder<>());
@@ -283,6 +286,24 @@ public class StreamServiceTest {
   }
 
   @Test
+  void updateRoomTest_base64() throws IOException, ApiException {
+    this.mockApiClient.onPost(V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomAttributes attributes =  new V3RoomAttributes();
+    attributes.setPinnedMessageId(fromUrlSafeId("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ"));
+    this.service.updateRoom(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), attributes);
+
+    final ArgumentCaptor<V3RoomAttributes> attributesArgumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
+    final ArgumentCaptor<String> idArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(streamsApi).v3RoomIdUpdatePost(idArgumentCaptor.capture(), any(String.class), attributesArgumentCaptor.capture());
+
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", idArgumentCaptor.getValue());
+    assertEquals("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ", attributesArgumentCaptor.getValue().getPinnedMessageId());
+  }
+
+  @Test
   void updateRoomTestFailed() {
     this.mockApiClient.onPost(400, V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), "{}");
 
@@ -388,6 +409,24 @@ public class StreamServiceTest {
 
     assertEquals(imDetail.getImSystemInfo().getId(), "usnBKBkH_BVrGOiVpaupEH___okFfE7QdA");
     assertEquals(imDetail.getV1IMAttributes().getPinnedMessageId(), "vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ");
+  }
+
+  @Test
+  void updateIMTest_base64() throws IOException, ApiException {
+    this.mockApiClient.onPost(V1_IM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/im_info.json"));
+
+    V1IMAttributes attributes =  new V1IMAttributes();
+    attributes.setPinnedMessageId(fromUrlSafeId("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ"));
+    this.service.updateInstantMessage(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), attributes);
+
+    final ArgumentCaptor<V1IMAttributes> attributesArgumentCaptor = ArgumentCaptor.forClass(V1IMAttributes.class);
+    final ArgumentCaptor<String> idArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(streamsApi).v1ImIdUpdatePost(idArgumentCaptor.capture(), any(String.class), attributesArgumentCaptor.capture());
+
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", idArgumentCaptor.getValue());
+    assertEquals("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ", attributesArgumentCaptor.getValue().getPinnedMessageId());
   }
 
   @Test
