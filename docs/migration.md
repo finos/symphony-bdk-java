@@ -1,6 +1,6 @@
 # Migration guide to Symphony BDK 2.0
 
-This guide provides information about how to migrate from Symphony BDK 1.0 to BDK 2.0. Migration for the following topics will be detailed here:
+This guide provides information about how to migrate from Symphony SDK 1.0 to BDK 2.0. Migration for the following topics will be detailed here:
 - Dependencies
 - Bot's configuration
 - Symphony BDK entry point
@@ -8,11 +8,11 @@ This guide provides information about how to migrate from Symphony BDK 1.0 to BD
 - Event listeners
 
 ## Dependencies
-In Java BDK 1.0, the bot had dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
+In Java SDK 1.0, the bot had dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
 If your project is not framework based, dependencies such as *jersey* and *freemarker* should be added as well.
 ### Spring Boot based project
 
-#### Java BDK 1.0
+#### Java SDK 1.0
 ```xml
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -57,7 +57,7 @@ If your project is not framework based, dependencies such as *jersey* and *freem
 ```
 
 ### Non framework based project
-#### Java BDK 1.0
+#### Java SDK 1.0
 
 ```xml
 <dependencies>
@@ -102,7 +102,7 @@ If your project is not framework based, dependencies such as *jersey* and *freem
 ```
 
 ## Bot's configuration
-In Java BDK 1.0, two configuration files were required : `application.yaml` (or `application.config`) and `bot-config.json`. Java BDK 2.0 lightened the configuration. Therefore, only `src/main/resources/config.yaml` file is required with a minimum of configuration.
+In Java SDK 1.0, two configuration files were required : `application.yaml` (or `application.config`) and `bot-config.json`. Java BDK 2.0 lightened the configuration. Therefore, only `src/main/resources/config.yaml` file is required with a minimum of configuration.
 
 Bot’s configuration in Java BDK 2.0 should have the following properties:
 - `host`: pod’s host name
@@ -126,7 +126,7 @@ If your bot is deployed on premise, the following properties are required as wel
 <!-- -->
 ### Minimal configuration example
 #### Spring Boot based project
-##### Java BDK 1.0
+##### Java SDK 1.0
 #### **`application.yaml`:**
 ```yaml
 server:
@@ -219,7 +219,7 @@ bdk:
 ```
 
 #### Non framework based project
-#### Java BDK 1.0
+#### Java SDK 1.0
 #### **`bot-config.json`:**
 ```json
 {
@@ -309,8 +309,8 @@ With this class, all BDK services are auto-configured and can be directly access
 If you use a Spring Boot based project, BDK services can be directly injected in your bot service. If it is not a framework based project, BDK services can be retrieved with Symphony BDK entry point.
 To illustrate this, let's take an example of a bot reacting to *ping pong* messages.
 
-#### Java BDK 1.0
-In Java BDK 1.0, the main class should have *SymBotClient* object that the bot service can use to call `sendMessage()` method.
+#### Java SDK 1.0
+In Java SDK 1.0, the main class should have *SymBotClient* object that the bot service can use to call `sendMessage()` method.
 
 ```java
 @Slf4j
@@ -421,8 +421,8 @@ public class GreetingsAllRoomsBot {
 ## Event listeners
 Java BDK 2.0 comes with a simplified way to handle event listeners.
 
-#### Java BDK 1.0
-In Java BDK 1.0, the bot had to implement 3 listeners classes:
+#### Java SDK 1.0
+In Java SDK 1.0, the bot had to implement 3 listeners classes:
 - one for IM (1 to 1 conversation)
 - one for MIM (room)
 - one for Symphony elements
@@ -446,7 +446,7 @@ public class RoomListenerImpl implements RoomListener {
 }
 ```
 
-#### Java BDK 2.0
+#### Java § 2.0
 In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implemented with two methods having `@EventListener` annotation: This works provided we have the correct parameters with correct types. The 3 classes can be factored in one single component. *(The example below uses a Spring Boot based project)*
 ```java
 public class RealTimeEventComponent {
