@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth.impl;
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,6 +44,16 @@ class ExtensionAppAuthenticatorRsaImplTest {
         mockApiClient.getApiClient("/login"),
         mockApiClient.getApiClient("/pod"),
         tokensRepository);
+  }
+
+  @Test
+  void testConstructObject() {
+    authenticator = new ExtensionAppAuthenticatorRsaImpl(
+        ofMinimalInterval(1),
+        "appId",
+        PRIVATE_KEY,
+        mockApiClient.getApiClient("/login"),
+        mockApiClient.getApiClient("/pod"));
   }
 
   @Test

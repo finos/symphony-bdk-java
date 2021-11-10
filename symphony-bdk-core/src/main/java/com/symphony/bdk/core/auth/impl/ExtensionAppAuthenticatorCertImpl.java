@@ -33,9 +33,7 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   private final CertificatePodApi certificatePodApi;
 
   public ExtensionAppAuthenticatorCertImpl(BdkRetryConfig retryConfig, String appId, ApiClient sessionAuthClient) {
-    super(retryConfig, appId);
-    this.certificateAuthenticationApi = new CertificateAuthenticationApi(sessionAuthClient);
-    this.certificatePodApi = new CertificatePodApi(sessionAuthClient);
+    this(retryConfig, appId, sessionAuthClient, new InMemoryTokensRepository());
   }
 
   public ExtensionAppAuthenticatorCertImpl(BdkRetryConfig retryConfig, String appId, ApiClient sessionAuthClient,
