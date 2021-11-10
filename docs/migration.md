@@ -446,7 +446,7 @@ public class RoomListenerImpl implements RoomListener {
 }
 ```
 
-#### Java § 2.0
+#### Java BDK 2.0
 In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implemented with two methods having `@EventListener` annotation: This works provided we have the correct parameters with correct types. The 3 classes can be factored in one single component. *(The example below uses a Spring Boot based project)*
 ```java
 public class RealTimeEventComponent {
