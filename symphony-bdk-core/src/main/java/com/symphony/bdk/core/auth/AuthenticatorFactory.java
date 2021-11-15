@@ -8,6 +8,7 @@ import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
@@ -41,10 +42,17 @@ public class AuthenticatorFactory {
 
   private final BdkConfig config;
   private final ApiClientFactory apiClientFactory;
+  private final ExtensionAppTokensRepository extensionAppTokensRepository;
 
   public AuthenticatorFactory(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClientFactory apiClientFactory) {
+    this(bdkConfig, apiClientFactory, new InMemoryTokensRepository());
+  }
+
+  public AuthenticatorFactory(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClientFactory apiClientFactory,
+      @Nonnull ExtensionAppTokensRepository extensionAppTokensRepository) {
     this.config = bdkConfig;
     this.apiClientFactory = apiClientFactory;
+    this.extensionAppTokensRepository = extensionAppTokensRepository;
   }
 
   /**
@@ -142,7 +150,8 @@ public class AuthenticatorFactory {
       return new ExtensionAppAuthenticatorCertImpl(
           this.config.getRetry(),
           this.config.getApp().getAppId(),
-          this.apiClientFactory.getExtAppSessionAuthClient());
+          this.apiClientFactory.getExtAppSessionAuthClient(),
+          extensionAppTokensRepository);
     }
     if (this.config.getApp().isRsaAuthenticationConfigured()) {
       if (!this.config.getApp().isRsaConfigurationValid()) {
@@ -154,7 +163,8 @@ public class AuthenticatorFactory {
           this.config.getApp().getAppId(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
           this.apiClientFactory.getLoginClient(),
-          this.apiClientFactory.getPodClient()
+          this.apiClientFactory.getPodClient(),
+          extensionAppTokensRepository
       );
     }
     throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
