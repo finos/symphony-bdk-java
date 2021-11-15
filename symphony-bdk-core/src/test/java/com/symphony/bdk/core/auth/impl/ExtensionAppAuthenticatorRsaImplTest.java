@@ -48,12 +48,12 @@ class ExtensionAppAuthenticatorRsaImplTest {
 
   @Test
   void testConstructObject() {
-    authenticator = new ExtensionAppAuthenticatorRsaImpl(
+    assertNotNull(new ExtensionAppAuthenticatorRsaImpl(
         ofMinimalInterval(1),
         "appId",
         PRIVATE_KEY,
         mockApiClient.getApiClient("/login"),
-        mockApiClient.getApiClient("/pod"));
+        mockApiClient.getApiClient("/pod")));
   }
 
   @Test
