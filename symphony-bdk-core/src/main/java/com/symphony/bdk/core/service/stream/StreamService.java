@@ -335,6 +335,10 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/reference#update-room-v3">Update Room V3</a>
    */
   public V3RoomDetail updateRoom(@Nonnull String roomId, @Nonnull V3RoomAttributes roomAttributes) {
+    if(roomAttributes.getPinnedMessageId() != null) {
+      String pinnedMessageId = toUrlSafeIdIfNeeded(roomAttributes.getPinnedMessageId());
+      roomAttributes.setPinnedMessageId(pinnedMessageId);
+    }
     return executeAndRetry("updateRoom", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomIdUpdatePost(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken(), roomAttributes));
   }
@@ -369,8 +373,12 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @see <a href="https://developers.symphony.com/restapi/v20.13/reference#update-im">Update IM</a>
    */
   public V1IMDetail updateInstantMessage(@Nonnull String imId, @Nonnull V1IMAttributes imAttributes) {
+    if (imAttributes.getPinnedMessageId() != null) {
+      String pinnedMessageId = toUrlSafeIdIfNeeded(imAttributes.getPinnedMessageId());
+      imAttributes.setPinnedMessageId(pinnedMessageId);
+    }
     return executeAndRetry("updateIM", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1ImIdUpdatePost(imId, authSession.getSessionToken(), imAttributes));
+        () -> streamsApi.v1ImIdUpdatePost(toUrlSafeIdIfNeeded(imId), authSession.getSessionToken(), imAttributes));
   }
 
   /**
@@ -382,7 +390,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   public V1IMDetail getInstantMessageInfo(@Nonnull String imId) {
     return executeAndRetry("getIMInfo", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1ImIdInfoGet(imId, authSession.getSessionToken()));
+        () -> streamsApi.v1ImIdInfoGet(toUrlSafeIdIfNeeded(imId), authSession.getSessionToken()));
   }
 
   /**

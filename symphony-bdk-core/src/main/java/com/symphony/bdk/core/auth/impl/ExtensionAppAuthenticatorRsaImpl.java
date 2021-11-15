@@ -40,10 +40,7 @@ public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthen
       PrivateKey appPrivateKey,
       ApiClient loginApiClient,
       ApiClient podApiClient) {
-    super(retryConfig, appId);
-    this.appPrivateKey = appPrivateKey;
-    this.authenticationApi = new AuthenticationApi(loginApiClient);
-    this.podApi = new PodApi(podApiClient);
+    this(retryConfig, appId, appPrivateKey, loginApiClient, podApiClient, new InMemoryTokensRepository());
   }
 
   public ExtensionAppAuthenticatorRsaImpl(BdkRetryConfig retryConfig,

@@ -2,9 +2,12 @@ package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
@@ -69,8 +72,14 @@ public class BdkCoreConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties, ApiClientFactory apiClientFactory) {
-    return new AuthenticatorFactory(properties, apiClientFactory);
+  public ExtensionAppTokensRepository extensionAppTokensRepository() {
+    return new InMemoryTokensRepository();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties, ApiClientFactory apiClientFactory, ExtensionAppTokensRepository extensionAppTokensRepository) {
+    return new AuthenticatorFactory(properties, apiClientFactory, extensionAppTokensRepository);
   }
 
   @Bean
