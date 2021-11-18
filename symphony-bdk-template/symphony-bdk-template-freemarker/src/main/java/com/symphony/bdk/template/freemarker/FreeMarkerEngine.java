@@ -5,6 +5,7 @@ import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.api.TemplateException;
 
 import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.TemplateExceptionHandler;
 import org.apache.commons.io.FilenameUtils;
 import org.apiguardian.api.API;
@@ -59,6 +60,10 @@ public class FreeMarkerEngine implements TemplateEngine {
     cfg.setLogTemplateExceptions(false);
     cfg.setWrapUncheckedExceptions(true);
     cfg.setFallbackOnNullLoopVariable(false);
+    cfg.setNumberFormat("0.######");
+    DefaultObjectWrapperBuilder owb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_29);
+    owb.setMethodAppearanceFineTuner((in, out) -> out.setMethodShadowsProperty(false));
+    cfg.setObjectWrapper(owb.build());
     return cfg;
   }
 }
