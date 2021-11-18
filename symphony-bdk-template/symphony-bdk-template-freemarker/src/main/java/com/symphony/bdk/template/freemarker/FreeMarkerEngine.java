@@ -60,7 +60,7 @@ public class FreeMarkerEngine implements TemplateEngine {
     cfg.setLogTemplateExceptions(false);
     cfg.setWrapUncheckedExceptions(true);
     cfg.setFallbackOnNullLoopVariable(false);
-    cfg.setNumberFormat("0.######");
+    cfg.setNumberFormat("computer");
     DefaultObjectWrapperBuilder owb = new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_29);
     owb.setMethodAppearanceFineTuner((in, out) -> out.setMethodShadowsProperty(false));
     cfg.setObjectWrapper(owb.build());
