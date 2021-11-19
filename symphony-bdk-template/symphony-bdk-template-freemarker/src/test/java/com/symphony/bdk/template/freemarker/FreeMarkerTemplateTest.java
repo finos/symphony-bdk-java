@@ -9,6 +9,7 @@ import com.symphony.bdk.template.api.TemplateException;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,6 +69,28 @@ public class FreeMarkerTemplateTest {
   }
 
   @Test
+  public void testFromClasspathWithObjects() {
+    Class1 class1 = new Class1();
+    class1.setParameter1(Collections.singletonMap("message", "Hello"));
+    Map<String, Object> params = new HashMap<>();
+    params.put("test", class1);
+
+    Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("/subFolder/testWithObject.ftl");
+    assertTemplateProducesOutput(freeMarkerTemplate, params, "Hello world!\n");
+  }
+
+  @Test
+  public void testFromClasspathWithLong() {
+    Long userId = 12345678L;
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("userId", userId);
+
+    Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromClasspath("/subFolder/testWithLong.ftl");
+    assertTemplateProducesOutput(freeMarkerTemplate, parameters,
+        "<messageML>Hello <mention uid='" + userId + "'/></messageML>\n");
+  }
+
+  @Test
   public void testWithNotFoundResource() {
     assertThrows(TemplateException.class, () -> new FreeMarkerEngine().newTemplateFromClasspath("./not/found.ftl"));
   }
@@ -83,6 +106,18 @@ public class FreeMarkerTemplateTest {
       {
     assertEquals(FreeMarkerTemplate.class, freeMarkerTemplate.getClass());
     assertEquals(expectedOutput, freeMarkerTemplate.process(parameters));
+  }
+
+  public static class Class1 {
+    private Map<String, String>  parameter;
+
+    public Map<String, String> getParameter() {
+      return parameter;
+    }
+
+    public void setParameter1(Map<String, String> parameter) {
+      this.parameter = parameter;
+    }
   }
 
 }
