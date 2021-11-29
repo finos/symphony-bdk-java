@@ -134,6 +134,20 @@ class UserServiceTest {
 
     assertEquals(userDetail.getUserAttributes().getCompanyName(), "Company");
     assertEquals(userDetail.getUserAttributes().getUserName(), "johndoe");
+    assertEquals(V2UserAttributes.AccountTypeEnum.NORMAL, userDetail.getUserAttributes().getAccountType());
+    assertEquals(userDetail.getRoles().size(), 6);
+  }
+
+  @Test
+  void getUserDetailWithUnknownAccountType() throws IOException {
+    String response = JsonHelper.readFromClasspath("/user/user_detail_unknown_account_type.json");
+    this.mockApiClient.onGet(V2_USER_DETAIL_BY_ID.replace("{uid}", "1234"), response);
+
+    V2UserDetail userDetail = this.service.getUserDetail(1234L);
+
+    assertEquals(userDetail.getUserAttributes().getCompanyName(), "Company");
+    assertEquals(userDetail.getUserAttributes().getUserName(), "johndoe");
+    assertNull(userDetail.getUserAttributes().getAccountType());
     assertEquals(userDetail.getRoles().size(), 6);
   }
 
