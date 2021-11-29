@@ -8,6 +8,7 @@ import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
@@ -212,7 +214,12 @@ public class ApiClientJersey2 implements ApiClient {
     } catch (ProcessingException e) {
       if (e.getCause() instanceof ConnectTimeoutException) {
         throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
-      } else {
+      }
+      else if (e.getCause() instanceof NoHttpResponseException) {
+        // ensures that it will be caught later in the retry strategy
+        throw new ProcessingException(new SocketException(e.getCause().getMessage()));
+      }
+      else {
         throw e;
       }
     }
