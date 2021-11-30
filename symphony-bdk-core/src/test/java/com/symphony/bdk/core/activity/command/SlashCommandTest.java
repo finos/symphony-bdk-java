@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -50,9 +51,9 @@ class SlashCommandTest {
   void testSlashCommandsWithArgs() {
     final AtomicBoolean handlerCalled = new AtomicBoolean(false);
     Map<String, String> args = new HashMap<>();
-    final Consumer<ArgumentCommandContext> handler = c -> {
+    final BiConsumer<CommandContext, Map<String, String>> handler = (c, a) -> {
       handlerCalled.set(true);
-      args.putAll(c.getArguments());
+      args.putAll(a);
     };
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
@@ -76,10 +77,8 @@ class SlashCommandTest {
   @Test
   void testSlashWithArgsNotMatching() {
     final AtomicBoolean handlerCalled = new AtomicBoolean(false);
-    Map<String, String> args = new HashMap<>();
-    final Consumer<ArgumentCommandContext> handler = c -> {
+    final BiConsumer<CommandContext, Map<String, String>> handler = (c, a) -> {
       handlerCalled.set(true);
-      args.putAll(c.getArguments());
     };
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();

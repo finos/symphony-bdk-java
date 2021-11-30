@@ -8,21 +8,21 @@ import com.symphony.bdk.core.util.AntPathMatcher;
 import org.apiguardian.api.API;
 
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 
 @API(status = API.Status.EXPERIMENTAL)
-public class SlashArgumentActivity extends CommandActivity<ArgumentCommandContext> {
+public class SlashArgumentActivity extends CommandActivity<CommandContext> {
 
   private final String slashCommandPattern;
   private final boolean requiresBotMention;
-  private final Consumer<ArgumentCommandContext> callback;
+  private final BiConsumer<CommandContext, Map<String, String>> callback;
   private final AntPathMatcher antMatcher; // spring core....
 
   public SlashArgumentActivity(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-      @Nonnull Consumer<ArgumentCommandContext> callback) {
+      @Nonnull BiConsumer<CommandContext, Map<String, String>> callback) {
     this.slashCommandPattern = slashCommandPattern;
     this.requiresBotMention = requiresBotMention;
     this.callback = callback;
@@ -30,7 +30,7 @@ public class SlashArgumentActivity extends CommandActivity<ArgumentCommandContex
   }
 
   @Override
-  protected ActivityMatcher<ArgumentCommandContext> matcher() throws EventException {
+  protected ActivityMatcher<CommandContext> matcher() throws EventException {
     return c -> this.antMatcher.match(patternSupplier().get(), c.getTextContent());
   }
 
@@ -42,11 +42,10 @@ public class SlashArgumentActivity extends CommandActivity<ArgumentCommandContex
   }
 
   @Override
-  protected void onActivity(ArgumentCommandContext context) throws EventException {
+  protected void onActivity(CommandContext context) throws EventException {
     final Map<String, String> arguments =
         this.antMatcher.extractUriTemplateVariables(this.patternSupplier().get(), context.getTextContent());
-    context.setArguments(arguments);
-    this.callback.accept(context);
+    this.callback.accept(context, arguments);
   }
 
   @Override
