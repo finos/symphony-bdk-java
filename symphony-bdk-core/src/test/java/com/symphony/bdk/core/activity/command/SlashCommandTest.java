@@ -15,6 +15,8 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -42,6 +44,57 @@ class SlashCommandTest {
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, "/test")));
     assertTrue(handlerCalled.get());
+  }
+
+  @Test
+  void testSlashCommandsWithArgs() {
+    final AtomicBoolean handlerCalled = new AtomicBoolean(false);
+    Map<String, String> args = new HashMap<>();
+    final Consumer<ArgumentCommandContext> handler = c -> {
+      handlerCalled.set(true);
+      args.putAll(c.getArguments());
+    };
+
+    final RealTimeEventsProvider provider = new RealTimeEventsProvider();
+    final SlashArgumentActivity cmd = new SlashArgumentActivity("/test {a} {b}", true, handler);
+    cmd.setBotDisplayName("BotMention");
+    cmd.bindToRealTimeEventsSource(provider::setListener);
+
+    final V4MessageSent event = new V4MessageSent().message(new V4Message().stream(new V4Stream()));
+    event.getMessage().getStream().setStreamId(UUID.randomUUID().toString());
+    event.getMessage().setMessageId(UUID.randomUUID().toString());
+    String botMentionString = "<span>@BotMention</span> ";
+    event.getMessage().setMessage("<div><p>" + botMentionString + "/test asdf cvcx" + "</p></div>");
+
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), event));
+    assertTrue(handlerCalled.get());
+    assertEquals(2, args.size());
+    assertEquals("asdf", args.get("a"));
+    assertEquals("cvcx", args.get("b"));
+  }
+
+  @Test
+  void testSlashWithArgsNotMatching() {
+    final AtomicBoolean handlerCalled = new AtomicBoolean(false);
+    Map<String, String> args = new HashMap<>();
+    final Consumer<ArgumentCommandContext> handler = c -> {
+      handlerCalled.set(true);
+      args.putAll(c.getArguments());
+    };
+
+    final RealTimeEventsProvider provider = new RealTimeEventsProvider();
+    final SlashArgumentActivity cmd = new SlashArgumentActivity("/test {a} {b}", true, handler);
+    cmd.setBotDisplayName("BotMention");
+    cmd.bindToRealTimeEventsSource(provider::setListener);
+
+    final V4MessageSent event = new V4MessageSent().message(new V4Message().stream(new V4Stream()));
+    event.getMessage().getStream().setStreamId(UUID.randomUUID().toString());
+    event.getMessage().setMessageId(UUID.randomUUID().toString());
+    String botMentionString = "<span>@BotMention</span> ";
+    event.getMessage().setMessage("<div><p>" + botMentionString + "/test asdf" + "</p></div>");
+
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), event));
+    assertFalse(handlerCalled.get());
   }
 
   @Test
