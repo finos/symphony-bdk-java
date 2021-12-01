@@ -14,7 +14,6 @@ import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A class for implementing the datafeed v1 loop service.
@@ -48,8 +46,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @API(status = API.Status.INTERNAL)
 public class DatafeedLoopV1 extends AbstractDatafeedLoop {
 
-  private final AtomicBoolean started = new AtomicBoolean();
   private final DatafeedIdRepository datafeedRepository;
+  private final RetryWithRecovery<Void> readDatafeed;
+  private final RetryWithRecovery<String> createDatafeed;
   private String datafeedId;
 
   public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
@@ -65,11 +64,21 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
 
     this.datafeedId = this.retrieveDatafeed().orElse(null);
     if (this.apiClient instanceof LoadBalancedApiClient) {
-      final Optional<String> basePath = this.datafeedRepository.readAgentBasePath();
-      if (basePath.isPresent()) {
-        ((LoadBalancedApiClient) this.apiClient).setBasePath(basePath.get());
-      }
+      this.datafeedRepository.readAgentBasePath()
+          .ifPresent(s -> ((LoadBalancedApiClient) this.apiClient).setBasePath(s));
     }
+
+    this.readDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Read Datafeed V1")
+        .supplier(this::readAndHandleEvents)
+        .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorErrorOrClientError)
+        .build();
+
+    this.createDatafeed = RetryWithRecoveryBuilder.<String>from(retryWithRecoveryBuilder)
+        .name("Create Datafeed V1")
+        .supplier(this::createDatafeedAndPersist)
+        .build();
   }
 
   /**
@@ -86,75 +95,54 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
     }
 
     try {
-      this.datafeedId = this.datafeedId == null ? this.createDatafeed() : this.datafeedId;
+      this.datafeedId = this.datafeedId == null ? this.createDatafeed.execute() : this.datafeedId;
       log.debug("Start reading events from datafeed {}", datafeedId);
       this.started.set(true);
       do {
-        readDatafeed();
+
+        this.readDatafeed.execute();
+
       } while (this.started.get());
+      log.info("Datafeed loop successfully stopped.");
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
     } catch (Throwable throwable) {
-      log.error(networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()) + "\n" + throwable);
+      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
     } finally {
       DistributedTracingContext.clear();
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-    log.info("Stop the datafeed service");
-    this.started.set(false);
-  }
-
   private Void readAndHandleEvents() throws ApiException {
-    List<V4Event> events =
-        datafeedApi.v4DatafeedIdReadGet(datafeedId, authSession.getSessionToken(), authSession.getKeyManagerToken(),
-            null);
-    if (events != null && !events.isEmpty()) {
-      try {
-        handleV4EventList(events);
-      } catch (RequeueEventException e) {
-        log.warn("EventException is not supported for DFv1, events will not get re-queued", e);
-      }
-    }
-    return null;
-  }
+    List<V4Event> events = this.datafeedApi.v4DatafeedIdReadGet(
+        datafeedId,
+        authSession.getSessionToken(),
+        authSession.getKeyManagerToken(),
+        null
+    );
 
-  private void readDatafeed() throws Throwable {
-    final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
-        .name("Read Datafeed V1")
-        .supplier(this::readAndHandleEvents)
-        .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
-        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrMinorErrorOrClientError)
-        .build();
-    retry.execute();
+    try {
+
+      super.handleV4EventList(events);
+
+    } catch (RequeueEventException e) {
+      log.warn("EventException is not supported for DFv1, events will not get re-queued", e);
+    }
+
+    return null;
   }
 
   private void recreateDatafeed() {
     log.info("Recreate a new datafeed and try again");
     try {
-      datafeedId = createDatafeed();
+      datafeedId = this.createDatafeed.execute();
     } catch (Throwable throwable) {
       throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }
 
-  protected String createDatafeed() throws Throwable {
-    log.debug("Start creating a new datafeed and persisting it");
-    final RetryWithRecovery<String> retry = RetryWithRecoveryBuilder.<String>from(retryWithRecoveryBuilder)
-        .name("Create Datafeed V1")
-        .supplier(this::createDatafeedAndPersist)
-        .build();
-    return retry.execute();
-  }
-
   private String createDatafeedAndPersist() throws ApiException {
-    String id =
-        datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
+    String id = datafeedApi.v4DatafeedCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken()).getId();
     datafeedRepository.write(id, getBasePathWithoutTrailingAgent());
     log.debug("Datafeed: {} was created and persisted", id);
     return id;

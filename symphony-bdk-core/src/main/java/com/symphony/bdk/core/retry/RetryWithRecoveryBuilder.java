@@ -26,8 +26,6 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.INTERNAL)
 public class RetryWithRecoveryBuilder<T> {
 
-  private static final int MAX_CAUSE_DEPTH = 10;
-
   private String name;
   private String address;
   private BdkRetryConfig retryConfig;
@@ -38,12 +36,12 @@ public class RetryWithRecoveryBuilder<T> {
 
   /**
    * Default constructor which ignores no exception
-   * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}.
+   * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkIssueOrMinorError}.
    */
   public RetryWithRecoveryBuilder() {
     this.recoveryStrategies = new ArrayList<>();
     this.ignoreException = e -> false;
-    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrMinorError;
+    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkIssueOrMinorError;
     this.retryConfig = new BdkRetryConfig();
   }
 
@@ -80,46 +78,41 @@ public class RetryWithRecoveryBuilder<T> {
    * a {@link ConnectException}, a {@link UnknownHostException} or if it's am {@link ApiException} that verifies
    * {@link ApiException#isServerError()}, {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}.
    */
-  public static boolean isNetworkOrMinorError(Throwable t) {
+  public static boolean isNetworkIssueOrMinorError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
       return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
     }
     // keep the datafeed loop running for errors that might be temporary network errors
-    return rootCauseCouldBe(t, SocketException.class)
-        || rootCauseCouldBe(t, ConnectException.class)
-        || rootCauseCouldBe(t, SocketTimeoutException.class)
-        || rootCauseCouldBe(t, UnknownHostException.class);
+    return hasRootCause(t, SocketException.class)
+        || hasRootCause(t, ConnectException.class)
+        || hasRootCause(t, SocketTimeoutException.class)
+        || hasRootCause(t, UnknownHostException.class);
   }
 
   /**
    * Checks if a throwable is a network issue or a {@link ApiException} minor error or client error.
    *
    * @param t the throwable to be checked.
-   * @return true if passed throwable verifies {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}
+   * @return true if passed throwable verifies {@link RetryWithRecoveryBuilder#isNetworkIssueOrMinorError}
    * and also {@link ApiException#isClientError()}
    */
-  public static boolean isNetworkOrMinorErrorOrClientError(Throwable t) {
-    return isNetworkOrMinorError(t) || (t instanceof ApiException && ((ApiException) t).isClientError());
+  public static boolean isNetworkIssueOrMinorErrorOrClientError(Throwable t) {
+    return isNetworkIssueOrMinorError(t) || (t instanceof ApiException && ((ApiException) t).isClientError());
   }
 
   /**
    * Depending on the HTTP client implementation (jersey2 or webclient for instance), Java native network exceptions can be
    * located at different level of the list of causes. This method aims to process the list of underlying causes starting
    * from a given root exception.
-   * <p>
-   * For safety, the {@link RetryWithRecoveryBuilder#MAX_CAUSE_DEPTH} constant ensures that this method will not keep
-   * looping indefinitely due to the usage of a while loop.
    */
-  private static boolean rootCauseCouldBe(@Nonnull Throwable root, @Nonnull Class<? extends Exception> candidate) {
+  private static boolean hasRootCause(@Nonnull Throwable root, @Nonnull Class<? extends Exception> candidate) {
     Throwable ex = root;
-    int i = 0;
-    while (ex != null && i < MAX_CAUSE_DEPTH) {
+    while (ex != null) {
       if (ex.getClass().equals(candidate)) {
         return true;
       }
       ex = ex.getCause();
-      i++;
     }
     return false;
   }
@@ -238,8 +231,14 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<>(name, address, retryConfig, supplier, retryOnExceptionPredicate,
-        ignoreException,
-        recoveryStrategies);
+    return new Resilience4jRetryWithRecovery<>(
+        this.name,
+        this.address,
+        this.retryConfig,
+        this.supplier,
+        this.retryOnExceptionPredicate,
+        this.ignoreException,
+        this.recoveryStrategies
+    );
   }
 }

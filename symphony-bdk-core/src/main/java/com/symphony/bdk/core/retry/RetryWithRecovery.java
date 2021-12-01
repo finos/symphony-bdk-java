@@ -34,7 +34,7 @@ public abstract class RetryWithRecovery<T> {
 
   /**
    * This is a helper function designed to cover most of the retry cases.
-   * It retries on the conditions defined by {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}
+   * It retries on the conditions defined by {@link RetryWithRecoveryBuilder#isNetworkIssueOrMinorError}
    * and refreshes the authSession if we get an unauthorized error.
    *
    * @param baseRetryBuilder the {@link RetryWithRecoveryBuilder} containing the base settings for the retry mechanism.
