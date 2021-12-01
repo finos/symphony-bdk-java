@@ -13,7 +13,6 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
 import lombok.Setter;
@@ -23,6 +22,9 @@ import org.apiguardian.api.API;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.annotation.Nullable;
 
 /**
  * Base class for implementing the datafeed services. A datafeed services can help a bot subscribe or unsubscribe
@@ -35,7 +37,8 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   protected final AuthSession authSession;
   protected final BdkConfig bdkConfig;
   protected final UserV2 botInfo;
-  protected final RetryWithRecoveryBuilder retryWithRecoveryBuilder;
+  protected final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
+  protected final AtomicBoolean started = new AtomicBoolean();
   @Setter
   protected DatafeedApi datafeedApi;
   protected ApiClient apiClient;
@@ -52,7 +55,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
     this.apiClient = datafeedApi.getApiClient();
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
-        .recoveryStrategy(Exception.class, () -> this.apiClient.rotate())  //always rotate in case of any error
+        .recoveryStrategy(Exception.class, () -> this.apiClient.rotate())  // always rotate in case of any error
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
     final BdkLoadBalancingConfig loadBalancing = config.getAgent().getLoadBalancing();
@@ -82,12 +85,26 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stop() {
+    log.info("Stopping the datafeed loop (will happen once the current read is finished)...");
+    this.started.set(false);
+  }
+
+  /**
    * Handle a received listener by using the subscribed {@link RealTimeEventListener}.
    *
    * @param events List of Datafeed events to be handled
    * @throws RequeueEventException Raised if a listener fails and the developer wants to explicitly not update the ack id.
    */
-  protected void handleV4EventList(List<V4Event> events) throws RequeueEventException {
+  protected void handleV4EventList(@Nullable List<V4Event> events) throws RequeueEventException {
+
+    if (events == null || events.isEmpty()) {
+      return;
+    }
+
     for (V4Event event : events) {
 
       final Optional<RealTimeEventType> eventType = RealTimeEventType.fromV4Event(event);

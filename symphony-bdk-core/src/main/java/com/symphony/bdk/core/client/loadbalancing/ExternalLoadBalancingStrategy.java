@@ -22,7 +22,7 @@ public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
     this.signalsApi = signalsApi;
     this.retryBuilder = new RetryWithRecoveryBuilder<String>()
         .retryConfig(retryConfig)
-        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrMinorError);
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorError);
   }
 
   /**

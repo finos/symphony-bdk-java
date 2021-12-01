@@ -9,11 +9,14 @@ import com.symphony.bdk.http.api.ApiException;
 import org.apiguardian.api.API;
 
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+
+import javax.annotation.Nonnull;
 
 /**
  * Builder class to facilitate the instantiation of a {@link RetryWithRecovery}.
@@ -22,6 +25,7 @@ import java.util.function.Predicate;
  */
 @API(status = API.Status.INTERNAL)
 public class RetryWithRecoveryBuilder<T> {
+
   private String name;
   private String address;
   private BdkRetryConfig retryConfig;
@@ -31,6 +35,17 @@ public class RetryWithRecoveryBuilder<T> {
   private List<RecoveryStrategy> recoveryStrategies;
 
   /**
+   * Default constructor which ignores no exception
+   * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkIssueOrMinorError}.
+   */
+  public RetryWithRecoveryBuilder() {
+    this.recoveryStrategies = new ArrayList<>();
+    this.ignoreException = e -> false;
+    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkIssueOrMinorError;
+    this.retryConfig = new BdkRetryConfig();
+  }
+
+  /**
    * Copies all fields of an existing builder except the {@link #supplier}.
    *
    * @param from the {@link RetryWithRecovery} to be copied.
@@ -38,78 +53,68 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a copy of the builder passed as parameter.
    */
   public static <T> RetryWithRecoveryBuilder<T> from(RetryWithRecoveryBuilder<?> from) {
-    RetryWithRecoveryBuilder<T> copy = new RetryWithRecoveryBuilder();
-    copy.name = from.name;
-    copy.address = from.address;
-    copy.retryConfig = from.retryConfig;
-    copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
-    copy.ignoreException = from.ignoreException;
+    final RetryWithRecoveryBuilder<T> copy = copyWithoutRecoveryStrategies(from);
     copy.recoveryStrategies = new ArrayList<>(from.recoveryStrategies);
-
     return copy;
   }
 
   public static <T> RetryWithRecoveryBuilder<T> copyWithoutRecoveryStrategies(RetryWithRecoveryBuilder<?> from) {
-    RetryWithRecoveryBuilder<T> copy = new RetryWithRecoveryBuilder();
+    final RetryWithRecoveryBuilder<T> copy = new RetryWithRecoveryBuilder<>();
     copy.name = from.name;
     copy.address = from.address;
     copy.retryConfig = from.retryConfig;
     copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
     copy.ignoreException = from.ignoreException;
-
     return copy;
   }
 
   /**
    * Checks if a throwable is a network issue or a {@link ApiException} minor error.
-   * This is the default function used in {@link RetryWithRecovery}
-   * to check if a given exception thrown should lead to a retry.
+   * <p>This is the default function used in {@link RetryWithRecovery} to check if a given exception thrown should lead
+   * to a retry or not.
    *
    * @param t the throwable to be checked.
-   * @return true if passed throwable is either a {@link SocketTimeoutException} or {@link ConnectException}
-   * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
-   * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}.
+   * @return true if a given throwable is either a {@link SocketTimeoutException}, a {@link SocketException},
+   * a {@link ConnectException}, a {@link UnknownHostException} or if it's am {@link ApiException} that verifies
+   * {@link ApiException#isServerError()}, {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}.
    */
-  public static boolean isNetworkOrMinorError(Throwable t) {
+  public static boolean isNetworkIssueOrMinorError(Throwable t) {
     if (t instanceof ApiException) {
       ApiException apiException = (ApiException) t;
       return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError();
     }
-    return t.getCause() instanceof SocketTimeoutException || t.getCause() instanceof ConnectException;
+    // keep the datafeed loop running for errors that might be temporary network errors
+    return hasRootCause(t, SocketException.class)
+        || hasRootCause(t, ConnectException.class)
+        || hasRootCause(t, SocketTimeoutException.class)
+        || hasRootCause(t, UnknownHostException.class);
   }
 
   /**
    * Checks if a throwable is a network issue or a {@link ApiException} minor error or client error.
    *
    * @param t the throwable to be checked.
-   * @return true if passed throwable is either a {@link SocketTimeoutException}
-   * or {@link ConnectException}
-   * or {@link UnknownHostException}
-   * or if it is a {@link ApiException} which {@link ApiException#isServerError()}
-   * or {@link ApiException#isUnauthorized()} or {@link ApiException#isTooManyRequestsError()}
-   * or {@link ApiException#isClientError()}.
+   * @return true if passed throwable verifies {@link RetryWithRecoveryBuilder#isNetworkIssueOrMinorError}
+   * and also {@link ApiException#isClientError()}
    */
-  public static boolean isNetworkOrMinorErrorOrClientError(Throwable t) {
-    if (t instanceof ApiException) {
-      ApiException apiException = (ApiException) t;
-      return apiException.isServerError() || apiException.isUnauthorized() || apiException.isTooManyRequestsError()
-          || apiException.isClientError();
-    }
-    // keep the datafeed loop running for errors that might be temporary network errors
-    return t.getCause() instanceof SocketTimeoutException
-        || t.getCause() instanceof ConnectException
-        || t.getCause() instanceof UnknownHostException;
+  public static boolean isNetworkIssueOrMinorErrorOrClientError(Throwable t) {
+    return isNetworkIssueOrMinorError(t) || (t instanceof ApiException && ((ApiException) t).isClientError());
   }
 
   /**
-   * Default constructor which ignores no exception
-   * and retries exceptions fulfilling {@link RetryWithRecoveryBuilder#isNetworkOrMinorError}.
+   * Depending on the HTTP client implementation (jersey2 or webclient for instance), Java native network exceptions can be
+   * located at different level of the list of causes. This method aims to process the list of underlying causes starting
+   * from a given root exception.
    */
-  public RetryWithRecoveryBuilder() {
-    this.recoveryStrategies = new ArrayList<>();
-    this.ignoreException = e -> false;
-    this.retryOnExceptionPredicate = RetryWithRecoveryBuilder::isNetworkOrMinorError;
-    this.retryConfig = new BdkRetryConfig();
+  private static boolean hasRootCause(@Nonnull Throwable root, @Nonnull Class<? extends Exception> candidate) {
+    Throwable ex = root;
+    while (ex != null) {
+      if (ex.getClass().equals(candidate)) {
+        return true;
+      }
+      ex = ex.getCause();
+    }
+    return false;
   }
 
   /**
@@ -226,8 +231,14 @@ public class RetryWithRecoveryBuilder<T> {
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
    */
   public RetryWithRecovery<T> build() {
-    return new Resilience4jRetryWithRecovery<>(name, address, retryConfig, supplier, retryOnExceptionPredicate,
-        ignoreException,
-        recoveryStrategies);
+    return new Resilience4jRetryWithRecovery<>(
+        this.name,
+        this.address,
+        this.retryConfig,
+        this.supplier,
+        this.retryOnExceptionPredicate,
+        this.ignoreException,
+        this.recoveryStrategies
+    );
   }
 }
