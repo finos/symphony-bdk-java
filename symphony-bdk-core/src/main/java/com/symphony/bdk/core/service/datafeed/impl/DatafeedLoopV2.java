@@ -25,7 +25,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apiguardian.api.API;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,7 +60,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
   private static final int EVENT_PROCESSING_MAX_DURATION_SECONDS = 30;
 
   private final RetryWithRecovery<Void> readDatafeed;
-  private final RetryWithRecovery<Optional<V5Datafeed>> retrieveDatafeed;
+  private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
   private final String tag;
@@ -83,7 +82,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
         .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
         .build();
 
-    this.retrieveDatafeed = RetryWithRecoveryBuilder.<Optional<V5Datafeed>>from(retryWithRecoveryBuilder)
+    this.retrieveDatafeed = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
         .name("Retrieve Datafeed V2")
         .supplier(this::doRetrieveDatafeed)
         .build();
@@ -114,7 +113,10 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     }
 
     try {
-      this.datafeed = this.retrieveDatafeed.execute().orElse(this.createDatafeed.execute());
+      this.datafeed = this.retrieveDatafeed.execute();
+      if (this.datafeed == null) {
+        this.datafeed = this.createDatafeed.execute();
+      }
       log.debug("Start reading events from datafeed {}", this.datafeed.getId());
       this.started.set(true);
       do {
@@ -140,14 +142,14 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     );
   }
 
-  private Optional<V5Datafeed> doRetrieveDatafeed() throws ApiException {
+  private V5Datafeed doRetrieveDatafeed() throws ApiException {
     final List<V5Datafeed> feeds = this.datafeedApi.listDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
         this.tag
     );
 
-    return feeds.stream().findFirst();
+    return feeds.stream().findFirst().orElse(null);
   }
 
   private Void readAndHandleEvents() throws ApiException {
@@ -184,7 +186,7 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
 
   private void recreateDatafeed() {
     try {
-      log.info("Try to delete the faulty datafeed");
+      log.info("Try to delete the stale datafeed");
       this.deleteDatafeed.execute();
       log.info("Recreate a new datafeed and try again");
       this.datafeed = this.createDatafeed.execute();
