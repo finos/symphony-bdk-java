@@ -7,6 +7,7 @@ import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.spring.annotation.Slash;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -33,7 +34,8 @@ public class ArchitectureTest {
         .that()
           .areAnnotatedWith(Slash.class)
         .should()
-          .haveRawParameterTypes(CommandContext.class)
+        .haveRawParameterTypes(DescribedPredicate.describe("First param of type CommandContext, others of type String",
+            l -> l.get(0).isEquivalentTo(CommandContext.class) && l.subList(1, l.size()).stream().allMatch(t -> t.isEquivalentTo(String.class))))
     .check(classes);
   }
 

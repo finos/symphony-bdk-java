@@ -5,6 +5,7 @@ import static org.springframework.core.annotation.AnnotationUtils.isCandidateCla
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
+import com.symphony.bdk.core.activity.command.SlashArgumentActivity;
 import com.symphony.bdk.core.activity.command.SlashCommand;
 
 import lombok.Generated;
@@ -20,8 +21,11 @@ import org.springframework.core.MethodIntrospector;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -78,6 +82,13 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     }
   }
 
+  private ActivityRegistry getActivityRegistry() {
+    if (this.activityRegistry == null) {
+      this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
+    }
+    return this.activityRegistry;
+  }
+
   @Generated // means excluded from test coverage (hard to test error cases)
   private Class<?> determineTargetClass(String beanName) {
     Class<?> type = null;
@@ -114,12 +125,36 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
 
       final Slash annotation = annotatedMethods.get(m);
 
-      if (isMethodPrototypeValid(m)) {
-        this.registerSlashMethod(beanName, m, annotation);
+      if (annotation.value().contains("{") && annotation.value().contains("}")) {
+        processSlashCommandsWithArguments(beanName, m, annotation);
       } else {
-        log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
-            + "It must accept a single argument of type '{}'", m, CommandContext.class);
+        processSlashCommandsWithoutArgument(beanName, m, annotation);
       }
+    }
+  }
+
+  private void processSlashCommandsWithArguments(String beanName, Method m, Slash annotation) {
+    if (isMethodPrototypeValidForSlashArguments(m)) {
+      registerSlashArgumentActivity(beanName, m, annotation);
+    } else {
+      log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
+          + "It must accept a first argument of type '{}' and following arguments of type String", m, CommandContext.class);
+    }
+  }
+
+  private void registerSlashArgumentActivity(String beanName, Method m, Slash annotation) {
+    final Object bean = this.beanFactory.getBean(beanName);
+
+    getActivityRegistry().register(
+        new SlashArgumentActivity(annotation.value(), annotation.mentionBot(), createSlashCommandWithArgumentsCallback(bean, m)));
+  }
+
+  private void processSlashCommandsWithoutArgument(String beanName, Method m, Slash annotation) {
+    if (isMethodPrototypeValid(m)) {
+      this.registerSlashMethod(beanName, m, annotation);
+    } else {
+      log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
+          + "It must accept a single argument of type '{}'", m, CommandContext.class);
     }
   }
 
@@ -142,10 +177,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   private void registerSlashMethod(String beanName, Method method, Slash annotation) {
     final Object bean = this.beanFactory.getBean(beanName);
 
-    if (this.activityRegistry == null) {
-      this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
-    }
-    this.activityRegistry.register(
+    getActivityRegistry().register(
         SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method),
             annotation.description())
     );
@@ -162,8 +194,59 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     };
   }
 
+  protected static BiConsumer<CommandContext, Map<String, String>> createSlashCommandWithArgumentsCallback(Object bean, Method method) {
+    Map<String, Integer> methodArgsNameToIndex = buildArgNameToIndexMap(method);
+
+    return (c, args) -> {
+      try {
+        if (!args.keySet().equals(methodArgsNameToIndex.keySet())) {
+          log.error("Unable to invoke @Slash method {} from bean {} because of argument mismatch. Slash command arguments in command pattern: {} vs arguments in the method: {}", method.getName(), bean.getClass(), args.keySet(), methodArgsNameToIndex.keySet());
+          return;
+        }
+
+        Object[] methodArguments = buildSlashMethodParameters(methodArgsNameToIndex, c, args);
+
+        method.invoke(bean, methodArguments);
+      } catch (Throwable e) {
+        log.error("Unable to invoke @Slash method {} from bean {}", method.getName(), bean.getClass(), e);
+      }
+    };
+  }
+
+  private static Object[] buildSlashMethodParameters(Map<String, Integer> methodArgsNameToIndex, CommandContext c,
+      Map<String, String> args) {
+    Object[] methodArguments = new Object[methodArgsNameToIndex.size() + 1];
+    methodArguments[0] = c;
+    methodArgsNameToIndex.forEach((k, v) -> methodArguments[v] = args.get(k));
+    return methodArguments;
+  }
+
+  private static Map<String, Integer> buildArgNameToIndexMap(Method method) {
+    Map<String, Integer> argsNameToIndex = new HashMap<>();
+
+    final Parameter[] parameters = method.getParameters();
+    for (int i = 1; i < parameters.length; i++) {
+      argsNameToIndex.put(parameters[i].getName(), i);
+    }
+    return argsNameToIndex;
+  }
+
   private static boolean isMethodPrototypeValid(Method m) {
     return m.getParameterCount() == 1 && m.getParameters()[0].getType().equals(CommandContext.class);
+  }
+
+  private static boolean isMethodPrototypeValidForSlashArguments(Method m) {
+    final Parameter[] parameters = m.getParameters();
+
+    if (!(m.getParameterCount() >= 1 && parameters[0].getType().equals(CommandContext.class))) {
+      return false;
+    }
+    for (int i = 1; i < parameters.length; i++) {
+      if (!parameters[i].getType().equals(String.class)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static boolean isClassLocatedInPackages(Class<?> clazz, String... packagePrefixes) {

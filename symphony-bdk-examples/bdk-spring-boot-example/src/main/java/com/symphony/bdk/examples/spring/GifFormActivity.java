@@ -37,6 +37,11 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
     this.messageService.send(context.getStreamId(), message);
   }
 
+  @Slash("/echo {one} {two}")
+  public void echo(CommandContext context, String one, String two) {
+    this.messageService.send(context.getStreamId(), "Echo: " + one + ", " + two);
+  }
+
   @Override
   public ActivityMatcher<FormReplyContext> matcher() {
     return context -> "gif-category-form".equals(context.getFormId())
