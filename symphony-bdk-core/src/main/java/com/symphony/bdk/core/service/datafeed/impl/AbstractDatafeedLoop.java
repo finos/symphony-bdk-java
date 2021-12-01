@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -55,10 +56,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .retryConfig(config.getDatafeedRetryConfig())
         .recoveryStrategy(Exception.class, () -> this.apiClient.rotate())  // always rotate in case of any error
-        .recoveryStrategy(ApiException::isUnauthorized, () -> {
-          log.info("Re-authenticate and try again");
-          this.authSession.refresh();
-        });
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
     final BdkLoadBalancingConfig loadBalancing = config.getAgent().getLoadBalancing();
     if (loadBalancing != null && !loadBalancing.isStickiness()) {
@@ -139,5 +137,10 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
         }
       });
     }
+  }
+
+  protected void refresh() throws AuthUnauthorizedException {
+    log.info("Re-authenticate and try again");
+    this.authSession.refresh();
   }
 }
