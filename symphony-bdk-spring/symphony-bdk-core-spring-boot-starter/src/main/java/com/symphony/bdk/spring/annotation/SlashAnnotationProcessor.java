@@ -194,7 +194,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     };
   }
 
-  protected static BiConsumer<CommandContext, Map<String, String>> createSlashCommandWithArgumentsCallback(Object bean, Method method) {
+  protected static BiConsumer<CommandContext, Map<String, Object>> createSlashCommandWithArgumentsCallback(Object bean, Method method) {
     Map<String, Integer> methodArgsNameToIndex = buildArgNameToIndexMap(method);
 
     return (c, args) -> {
@@ -214,7 +214,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   }
 
   private static Object[] buildSlashMethodParameters(Map<String, Integer> methodArgsNameToIndex, CommandContext c,
-      Map<String, String> args) {
+      Map<String, Object> args) {
     Object[] methodArguments = new Object[methodArgsNameToIndex.size() + 1];
     methodArguments[0] = c;
     methodArgsNameToIndex.forEach((k, v) -> methodArguments[v] = args.get(k));

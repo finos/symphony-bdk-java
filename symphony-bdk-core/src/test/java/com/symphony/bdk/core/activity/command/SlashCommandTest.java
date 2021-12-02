@@ -50,8 +50,8 @@ class SlashCommandTest {
   @Test
   void testSlashCommandsWithArgs() {
     final AtomicBoolean handlerCalled = new AtomicBoolean(false);
-    Map<String, String> args = new HashMap<>();
-    final BiConsumer<CommandContext, Map<String, String>> handler = (c, a) -> {
+    Map<String, Object> args = new HashMap<>();
+    final BiConsumer<CommandContext, Map<String, Object>> handler = (c, a) -> {
       handlerCalled.set(true);
       args.putAll(a);
     };
@@ -77,7 +77,7 @@ class SlashCommandTest {
   @Test
   void testSlashWithArgsNotMatching() {
     final AtomicBoolean handlerCalled = new AtomicBoolean(false);
-    final BiConsumer<CommandContext, Map<String, String>> handler = (c, a) -> {
+    final BiConsumer<CommandContext, Map<String, Object>> handler = (c, a) -> {
       handlerCalled.set(true);
     };
 

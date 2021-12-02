@@ -5,8 +5,13 @@ import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.util.AntPathMatcher;
 
+import com.symphony.bdk.gen.api.model.V4Initiator;
+
+import com.symphony.bdk.gen.api.model.V4MessageSent;
+
 import org.apiguardian.api.API;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -17,12 +22,12 @@ import javax.annotation.Nonnull;
 public class SlashArgumentActivity extends CommandActivity<CommandContext> {
 
   private final String slashCommandPattern;
-  private final boolean requiresBotMention;
-  private final BiConsumer<CommandContext, Map<String, String>> callback;
-  private final AntPathMatcher antMatcher; // spring core....
+  protected final boolean requiresBotMention;
+  protected final BiConsumer<CommandContext, Map<String, Object>> callback;
+  protected final AntPathMatcher antMatcher;
 
   public SlashArgumentActivity(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-      @Nonnull BiConsumer<CommandContext, Map<String, String>> callback) {
+      @Nonnull BiConsumer<CommandContext, Map<String, Object>> callback) {
     this.slashCommandPattern = slashCommandPattern;
     this.requiresBotMention = requiresBotMention;
     this.callback = callback;
@@ -34,7 +39,7 @@ public class SlashArgumentActivity extends CommandActivity<CommandContext> {
     return c -> this.antMatcher.match(patternSupplier().get(), c.getTextContent());
   }
 
-  private Supplier<String> patternSupplier() {
+  protected Supplier<String> patternSupplier() {
     return () -> {
       final String botMention = this.requiresBotMention ? "@" + this.getBotDisplayName() + " " : "";
       return botMention + this.slashCommandPattern;
@@ -43,13 +48,16 @@ public class SlashArgumentActivity extends CommandActivity<CommandContext> {
 
   @Override
   protected void onActivity(CommandContext context) throws EventException {
-    final Map<String, String> arguments =
-        this.antMatcher.extractUriTemplateVariables(this.patternSupplier().get(), context.getTextContent());
+    final Map<String, Object> arguments = new HashMap<>(this.antMatcher.extractUriTemplateVariables(this.patternSupplier().get(), context.getTextContent()));
     this.callback.accept(context, arguments);
   }
 
   @Override
   protected ActivityInfo info() {
     return null;
+  }
+
+  protected CommandContext createContextInstance(V4Initiator initiator, V4MessageSent event) {
+    return new CommandContext(initiator, event);
   }
 }

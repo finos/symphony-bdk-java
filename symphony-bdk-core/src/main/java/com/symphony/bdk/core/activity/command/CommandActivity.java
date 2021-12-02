@@ -6,16 +6,22 @@ import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.exception.FatalActivityExecutionException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.message.exception.PresentationMLParserException;
+import com.symphony.bdk.core.service.message.util.MessageParser;
 import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * A form reply activity corresponds to any message send in a chat where the bot is part of.
@@ -53,10 +59,23 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
   /**
    * {@inheritDoc}
    */
+  @SneakyThrows
   protected void beforeMatcher(C context) {
     try {
-      context.setTextContent(
-          PresentationMLParser.getTextContent(context.getSourceEvent().getMessage().getMessage()));
+      final String textContent =
+          PresentationMLParser.getTextContent(context.getSourceEvent().getMessage().getMessage());
+      context.setTextContent(textContent);
+
+      // Fails if message contains a word beginning with @ without being an actual mention
+      List<String> mentionsText = Arrays.stream(textContent.split("\\s+")).filter(s -> s.startsWith("@")).collect(Collectors.toList());
+      final List<Long> userIds = MessageParser.getMentions(context.getSourceEvent().getMessage());
+
+      List<Mention> mentions = new ArrayList<>();
+      for (int i = 0; i < userIds.size(); i++) {
+        mentions.add(new Mention(mentionsText.get(i), userIds.get(i)));
+      }
+
+      context.setMentions(mentions);
     } catch (PresentationMLParserException e) {
       throw new FatalActivityExecutionException(this.getInfo(), "Unable to parse presentationML", e);
     }
