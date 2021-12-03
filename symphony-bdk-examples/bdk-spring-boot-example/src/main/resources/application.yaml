@@ -1,15 +1,10 @@
 
 bdk:
-  host: devx1.symphony.com
-
+  host: acme.symphony.com
   bot:
-    username: postman-ecroze
+    username: mybot
     privateKey:
-      path: /Users/elias.croze/.symphony/fbbot_privatekey.pkcs8
-
-  datafeed:
-    version: v2
-
+      path: path/to/bot-privatekey.pem
 
 logging:
   level:
