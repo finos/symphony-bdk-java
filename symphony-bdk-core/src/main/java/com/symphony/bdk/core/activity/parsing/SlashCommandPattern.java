@@ -3,6 +3,10 @@ package com.symphony.bdk.core.activity.parsing;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import com.symphony.bdk.core.service.message.util.PresentationMLParser;
+import com.symphony.bdk.gen.api.model.V4Message;
+
+import lombok.SneakyThrows;
 import org.apiguardian.api.API;
 
 import java.util.Arrays;
@@ -36,8 +40,8 @@ public class SlashCommandPattern {
         .collect(Collectors.toList());
   }
 
-  public MatchResult getMatchResult(String input) {
-    final List<String> inputTokens = getInputTokens(input);
+  public MatchResult getMatchResult(V4Message message) {
+    final List<String> inputTokens = getInputTokens(message);
 
     if (!matches(inputTokens)) {
       return new MatchResult(false);
@@ -57,8 +61,9 @@ public class SlashCommandPattern {
     return matchesEveryToken(inputTokens);
   }
 
-  private List<String> getInputTokens(String input) {
-    return Arrays.stream(input.trim().split("\\s+"))
+  @SneakyThrows
+  private List<String> getInputTokens(V4Message message) {
+    return Arrays.stream(PresentationMLParser.getTextContent(message.getMessage()).trim().split("\\s+"))
         .filter(s -> isNotBlank(s))
         .collect(Collectors.toList());
   }

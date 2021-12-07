@@ -97,13 +97,11 @@ public final class MessageParser {
   }
 
   private static JsonNode getJsonNode(String data) throws MessageParserException {
-    JsonNode dataJson;
     try {
-      dataJson = MAPPER.readTree(data);
+      return MAPPER.readTree(data);
     } catch (JsonProcessingException e) {
       throw new MessageParserException("Failed to extract payload from message data", e);
     }
-    return dataJson;
   }
 
   private static boolean isType(EntityTypeEnum type, JsonNode node) {

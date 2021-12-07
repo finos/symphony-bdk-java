@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.symphony.bdk.gen.api.model.V4Message;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -19,8 +21,8 @@ class SlashCommandPatternTest {
 
     assertTrue(pattern.getTokens().isEmpty());
 
-    assertTrue(pattern.getMatchResult("").isMatching());
-    assertFalse(pattern.getMatchResult("d").isMatching());
+    assertTrue(getMatchResult(pattern,"").isMatching());
+    assertFalse(getMatchResult(pattern,"d").isMatching());
   }
 
   @Test
@@ -31,11 +33,11 @@ class SlashCommandPatternTest {
     assertEquals(1, tokens.size());
     assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
 
-    assertFalse(pattern.getMatchResult("").isMatching());
-    assertFalse(pattern.getMatchResult("a").isMatching());
-    assertTrue(pattern.getMatchResult("/command").isMatching());
-    assertTrue(pattern.getMatchResult(" /command  ").isMatching());
-    assertFalse(pattern.getMatchResult(" /command toto").isMatching());
+    assertFalse(getMatchResult(pattern,"").isMatching());
+    assertFalse(getMatchResult(pattern,"a").isMatching());
+    assertTrue(getMatchResult(pattern,"/command").isMatching());
+    assertTrue(getMatchResult(pattern," /command  ").isMatching());
+    assertFalse(getMatchResult(pattern," /command toto").isMatching());
   }
 
   @Test
@@ -56,13 +58,13 @@ class SlashCommandPatternTest {
     assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
     assertEquals("^ab$", tokens.get(1).getRegexPattern().pattern());
 
-    assertFalse(pattern.getMatchResult("").isMatching());
-    assertFalse(pattern.getMatchResult("a").isMatching());
-    assertFalse(pattern.getMatchResult("/command").isMatching());
-    assertFalse(pattern.getMatchResult(" /command toto").isMatching());
-    assertTrue(pattern.getMatchResult("/command ab").isMatching());
-    assertTrue(pattern.getMatchResult(" /command  ab ").isMatching());
-    assertFalse(pattern.getMatchResult("/command ab toto").isMatching());
+    assertFalse(getMatchResult(pattern,"").isMatching());
+    assertFalse(getMatchResult(pattern,"a").isMatching());
+    assertFalse(getMatchResult(pattern,"/command").isMatching());
+    assertFalse(getMatchResult(pattern," /command toto").isMatching());
+    assertTrue(getMatchResult(pattern,"/command ab").isMatching());
+    assertTrue(getMatchResult(pattern," /command  ab ").isMatching());
+    assertFalse(getMatchResult(pattern,"/command ab toto").isMatching());
   }
 
   @Test
@@ -86,14 +88,14 @@ class SlashCommandPatternTest {
 
     assertEquals(Collections.singletonList(argumentName), pattern.getArgumentNames());
 
-    final MatchResult matchResultEmptyInput = pattern.getMatchResult("");
+    final MatchResult matchResultEmptyInput = getMatchResult(pattern,"");
     assertFalse(matchResultEmptyInput.isMatching());
     assertTrue(matchResultEmptyInput.getArguments().isEmpty());
 
-    assertFalse(pattern.getMatchResult("ab cd").isMatching());
+    assertFalse(getMatchResult(pattern,"ab cd").isMatching());
 
     final String input = "a1454#";
-    final MatchResult matchResult = pattern.getMatchResult(input);
+    final MatchResult matchResult = getMatchResult(pattern,input);
     assertTrue(matchResult.isMatching());
     assertEquals(Collections.singletonMap(argumentName, input), matchResult.getArguments());
   }
@@ -110,12 +112,12 @@ class SlashCommandPatternTest {
 
     assertEquals(Collections.singletonList(argumentName), pattern.getArgumentNames());
 
-    final MatchResult matchResultEmptyInput = pattern.getMatchResult("/command");
+    final MatchResult matchResultEmptyInput = getMatchResult(pattern,"/command");
     assertFalse(matchResultEmptyInput.isMatching());
     assertTrue(matchResultEmptyInput.getArguments().isEmpty());
 
     final String input = "a1454#";
-    final MatchResult matchResult = pattern.getMatchResult("/command " + input);
+    final MatchResult matchResult = getMatchResult(pattern,"/command " + input);
     assertTrue(matchResult.isMatching());
     assertEquals(Collections.singletonMap(argumentName, input), matchResult.getArguments());
   }
@@ -134,16 +136,24 @@ class SlashCommandPatternTest {
 
     assertEquals(Arrays.asList(firstArgName, secondArgName), pattern.getArgumentNames());
 
-    final MatchResult matchResultEmptyInput = pattern.getMatchResult("/command");
+    final MatchResult matchResultEmptyInput = getMatchResult(pattern,"/command");
     assertFalse(matchResultEmptyInput.isMatching());
     assertTrue(matchResultEmptyInput.getArguments().isEmpty());
 
     final String firstArgValue = "ab";
     final String secondArgValue = "def";
-    final MatchResult matchResult = pattern.getMatchResult("/command " + firstArgValue + " " + secondArgValue);
+    final MatchResult matchResult = getMatchResult(pattern,"/command " + firstArgValue + " " + secondArgValue);
     assertTrue(matchResult.isMatching());
     assertEquals(2, matchResult.getArguments().size());
     assertEquals(firstArgValue, matchResult.getArguments().get(firstArgName));
     assertEquals(secondArgValue, matchResult.getArguments().get(secondArgName));
+  }
+
+  private MatchResult getMatchResult(SlashCommandPattern pattern, String textContent) {
+    return pattern.getMatchResult(buildMessage(textContent));
+  }
+
+  private V4Message buildMessage(String textContent) {
+    return new V4Message().message("<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\"><p>" + textContent + "</p></div>");
   }
 }
