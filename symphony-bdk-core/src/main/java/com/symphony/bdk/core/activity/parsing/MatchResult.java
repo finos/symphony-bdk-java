@@ -11,13 +11,13 @@ import java.util.Map;
 public class MatchResult {
 
   private boolean isMatching;
-  private Map<String, String> arguments;
+  private Map<String, Object> arguments;
 
   public MatchResult(boolean isMatching) {
     this(isMatching, Collections.emptyMap());
   }
 
-  public MatchResult(boolean isMatching, Map<String, String> arguments) {
+  public MatchResult(boolean isMatching, Map<String, Object> arguments) {
     this.isMatching = isMatching;
     this.arguments = arguments;
   }

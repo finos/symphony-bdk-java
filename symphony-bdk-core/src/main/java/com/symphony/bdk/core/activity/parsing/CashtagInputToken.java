@@ -1,5 +1,8 @@
 package com.symphony.bdk.core.activity.parsing;
 
+import org.apiguardian.api.API;
+
+@API(status = API.Status.INTERNAL)
 public class CashtagInputToken implements InputToken<Cashtag> {
 
   private Cashtag cashtag;

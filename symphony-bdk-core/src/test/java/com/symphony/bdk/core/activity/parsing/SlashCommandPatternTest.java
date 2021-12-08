@@ -149,6 +149,31 @@ class SlashCommandPatternTest {
     assertEquals(secondArgValue, matchResult.getArguments().get(secondArgName));
   }
 
+  @Test
+  void oneMention() {
+    String argName = "myarg";
+    SlashCommandPattern pattern = new SlashCommandPattern("{@" + argName + "}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof MentionArgumentToken);
+
+    V4Message message = new V4Message().message("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>")
+        .data("{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertTrue(matchResult.isMatching());
+    assertEquals(1, matchResult.getArguments().size());
+
+    final Object actual = matchResult.getArguments().get(argName);
+    assertTrue(actual instanceof Mention);
+
+    final Mention mention = (Mention) actual;
+    assertEquals(12345678L, mention.getUserId());
+    assertEquals("jane-doe", mention.getUserDisplayName());
+    assertEquals("@jane-doe", mention.getText());
+  }
+
   private MatchResult getMatchResult(SlashCommandPattern pattern, String textContent) {
     return pattern.getMatchResult(buildMessage(textContent));
   }

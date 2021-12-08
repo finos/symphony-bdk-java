@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class SlashCommandPattern {
 
   // Checking for valid java variable names enclosed by braces, see https://stackoverflow.com/a/17564142
-  private static final Pattern ARGUMENT_PATTERN = Pattern.compile("^\\{[a-zA-Z_$][a-zA-Z_$0-9]*\\}$");
+  private static final Pattern ARGUMENT_PATTERN = Pattern.compile("^\\{@?[a-zA-Z_$][a-zA-Z_$0-9]*\\}$");
 
   private final List<CommandToken> tokens;
 
@@ -60,7 +60,7 @@ public class SlashCommandPattern {
 
   private boolean matchesEveryToken(List<InputToken<?>> inputTokens) {
     for (int i = 0; i < tokens.size(); i++) {
-      if (!tokens.get(i).matches(inputTokens.get(i).getContentAsString())) {
+      if (!tokens.get(i).matches(inputTokens.get(i).getContent())) {
         return false;
       }
     }
@@ -76,20 +76,23 @@ public class SlashCommandPattern {
     return Arrays.stream(tokens).map(SlashCommandPattern::buildCommandToken).collect(Collectors.toList());
   }
 
-  private static CommandToken buildCommandToken(String t) {
-    if (ARGUMENT_PATTERN.matcher(t).matches()) {
-      return new ArgumentCommandToken(t);
+  private static CommandToken buildCommandToken(String token) {
+    if (ARGUMENT_PATTERN.matcher(token).matches()) {
+      if (token.startsWith("{@")) {
+        return new MentionArgumentToken(token);
+      }
+      return new ArgumentCommandToken(token);
     }
-    return new StaticCommandToken(t);
+    return new StaticCommandToken(token);
   }
 
-  private Map<String, String> getArguments(List<InputToken<?>> inputTokens) {
+  private Map<String, Object> getArguments(List<InputToken<?>> inputTokens) {
     // we assume inputTokens are matching
-    Map<String, String> arguments = new HashMap<>();
+    Map<String, Object> arguments = new HashMap<>();
 
     for (int i = 0; i < tokens.size(); i++) {
       if (tokens.get(i) instanceof ArgumentCommandToken) {
-        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i).getContentAsString());
+        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i).getContent());
       }
     }
     return arguments;

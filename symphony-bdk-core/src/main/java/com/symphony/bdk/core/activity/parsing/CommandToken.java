@@ -9,7 +9,7 @@ public interface CommandToken {
 
   Pattern getRegexPattern();
 
-  default boolean matches(String inputToken) {
-    return getRegexPattern().matcher(inputToken).matches();
+  default boolean matches(Object inputToken) {
+    return getRegexPattern().matcher(inputToken.toString()).matches();
   }
 }
