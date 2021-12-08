@@ -96,24 +96,4 @@ public class InputTokenizer {
       tokenize(node.getChildNodes().item(i), tokens, buf);
     }
   }
-
-  //  @SneakyThrows
-//  public static String getTextContent(String presentationMl) {
-//    final Document doc = DOCUMENT_BUILDER.parse(
-//        new ByteArrayInputStream(presentationMl.getBytes(StandardCharsets.UTF_8)));
-//    StringBuffer buf = new StringBuffer();
-//    tokenizeAux(doc, buf);
-//
-//    return buf.toString();
-//  }
-//
-//  private static void tokenizeAux(Node node, StringBuffer buf) {
-//    final String nodeValue = node.getNodeValue();
-//    if (nodeValue != null) {
-//      buf.append(nodeValue);
-//    }
-//    for (int i = 0; i < node.getChildNodes().getLength(); i++) {
-//      tokenizeAux(node.getChildNodes().item(i), buf);
-//    }
-//  }
 }

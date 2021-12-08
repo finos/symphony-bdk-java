@@ -1,9 +1,9 @@
 package com.symphony.bdk.core.activity.parsing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import lombok.SneakyThrows;
@@ -24,6 +24,7 @@ class InputTokenizerTest {
 
     assertEquals(1, tokens.size());
     assertEquals("hello", tokens.get(0).getContent());
+    assertFalse(tokens.get(0).isMention());
   }
 
   @Test
@@ -32,6 +33,7 @@ class InputTokenizerTest {
 
     assertEquals(1, tokens.size());
     assertEquals("hello", tokens.get(0).getContent());
+    assertFalse(tokens.get(0).isMention());
   }
 
   @Test
@@ -40,7 +42,9 @@ class InputTokenizerTest {
 
     assertEquals(2, tokens.size());
     assertEquals("hello", tokens.get(0).getContent());
+    assertFalse(tokens.get(0).isMention());
     assertEquals("world", tokens.get(1).getContent());
+    assertFalse(tokens.get(1).isMention());
   }
 
   @Test
@@ -49,7 +53,9 @@ class InputTokenizerTest {
 
     assertEquals(2, tokens.size());
     assertEquals("hello", tokens.get(0).getContent());
+    assertFalse(tokens.get(0).isMention());
     assertEquals("world", tokens.get(1).getContent());
+    assertFalse(tokens.get(1).isMention());
   }
 
   @Test
@@ -58,31 +64,29 @@ class InputTokenizerTest {
 
     assertEquals(3, tokens.size());
     assertEquals("hello", tokens.get(0).getContent());
+    assertFalse(tokens.get(0).isMention());
     assertEquals("world", tokens.get(1).getContent());
+    assertFalse(tokens.get(1).isMention());
     assertEquals("azxcds", tokens.get(2).getContent());
+    assertFalse(tokens.get(2).isMention());
   }
 
   @SneakyThrows
   @Test
-  void testSimple() {
-//    final V4Message message = buildMessage(
-//        "<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\"><p><span class=\"entity\" data-entity-id=\"0\">@jane-doe</span></p></div>",
-//        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12987981103694\"}],\"type\":\"com.symphony.user.mention\"}}");
-//
-//    final List<Long> mentions = MessageParser.getMentions(message);
-//    assertEquals(1, mentions.size());
-//    assertEquals("@jane-doe", PresentationMLParser.getTextContent(message.getMessage()));
-
-    final String presentationML = buildMessageContent("ttt<p>ddd</p> edc rtf");
-    assertEquals(InputTokenizer.getTextContent(presentationML), PresentationMLParser.getTextContent(presentationML));
+  void testWithInsideTags() {
+    final List<InputToken> tokens = getTokens("ttt<p>ddd</p> edc rtf");
+    assertEquals("tttddd", tokens.get(0).getContent());
+    assertFalse(tokens.get(0).isMention());
+    assertEquals("edc", tokens.get(1).getContent());
+    assertFalse(tokens.get(1).isMention());
+    assertEquals("rtf", tokens.get(2).getContent());
+    assertFalse(tokens.get(2).isMention());
   }
 
   @SneakyThrows
   @Test
   void oneMention() {
     String presentationML = buildMessageContent("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>");
-
-    assertEquals(InputTokenizer.getTextContent(presentationML), PresentationMLParser.getTextContent(presentationML));
 
     final List<InputToken> tokenize = InputTokenizer.getTokens(new V4Message().message(presentationML));
     assertEquals(1, tokenize.size());
@@ -101,9 +105,5 @@ class InputTokenizerTest {
   private String buildMessageContent(String textContent) {
     return
         "<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\"><p>" + textContent + "</p></div>";
-  }
-
-  private V4Message buildMessage(String textContent, String data) {
-    return buildMessage(textContent).data(data);
   }
 }
