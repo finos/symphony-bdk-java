@@ -143,6 +143,19 @@ class InputTokenizerTest {
     assertEquals("mycashtag", cashtag.getValue());
   }
 
+  @Test
+  void oneHashtag() {
+    final List<InputToken<?>> tokens = getTokens("<span class=\"entity\" data-entity-id=\"0\">#myhashtag</span>",
+        "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.taxonomy.hashtag\",\"value\":\"myhashtag\"}],\"type\":\"org.symphonyoss.taxonomy\"}}");
+
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0).getContent() instanceof Hashtag);
+
+    Hashtag cashtag = (Hashtag) tokens.get(0).getContent();
+    assertEquals("#myhashtag", cashtag.getText());
+    assertEquals("myhashtag", cashtag.getValue());
+  }
+
   private List<InputToken<?>> getTokens(String textContent) {
     return new InputTokenizer(buildMessage(textContent)).getTokens();
   }

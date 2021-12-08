@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,6 +41,7 @@ public class InputTokenizer {
 
   private static final String SYMPHONY_USER_ID_TYPE = "com.symphony.user.userId";
   private static final String CASHTAG_VALUE_TYPE = "org.symphonyoss.fin.security.id.ticker";
+  private static final String HASHTAG_VALUE_TYPE = "org.symphonyoss.taxonomy.hashtag";
 
   @SneakyThrows
   private static DocumentBuilder initBuilder() {
@@ -74,21 +76,43 @@ public class InputTokenizer {
   }
 
   private void tokenize(Node node) {
-    if (isEntityNode(node, EntityTypeEnum.MENTION)) {
-      tokenizeMentionNode(node);
-    } else if (isEntityNode(node, EntityTypeEnum.CASHTAG)) {
-      tokenizeCashtagNode(node);
+    if (isEntityNode(node)) {
+      final String entityType = getEntityType(node);
+      if (isEntitySupported(entityType)) {
+        tokenizeEntityNode(node, entityType);
+      } else {
+        // entity type is not recognized, falling back to regular text
+        tokenizeRegularNode(node);
+      }
     } else {
       tokenizeRegularNode(node);
     }
   }
 
-  private boolean isEntityNode(Node node, EntityTypeEnum type) {
-    if (!isEntityNode(node)) {
-      return false;
+  private void tokenizeEntityNode(Node node, String entityType) {
+    tokenizeRegularContent(); // tokenize buffer as usual
+    buffer.delete(0, buffer.length()); // clear the buffer
+
+    if (entityType.equals(EntityTypeEnum.MENTION.getValue())) {
+      final String userIdAsString = extractEntityValue(node, SYMPHONY_USER_ID_TYPE);
+      final Long userId = userIdAsString == null ? null : Long.parseLong(userIdAsString);
+      tokens.add(new MentionInputToken(node.getTextContent(), userId));
+    } else if (entityType.equals(EntityTypeEnum.CASHTAG.getValue())) {
+      tokens.add(new CashtagInputToken(node.getTextContent(), extractEntityValue(node, CASHTAG_VALUE_TYPE)));
+    } else if (entityType.equals(EntityTypeEnum.HASHTAG.getValue())) {
+      tokens.add(new HashtagInputToken(node.getTextContent(), extractEntityValue(node, HASHTAG_VALUE_TYPE)));
     }
+  }
+
+  private boolean isEntitySupported(String entityType) {
+    return Stream.of(EntityTypeEnum.MENTION, EntityTypeEnum.CASHTAG, EntityTypeEnum.HASHTAG)
+        .map(EntityTypeEnum::getValue)
+        .anyMatch(t -> t.equals(entityType));
+  }
+
+  private String getEntityType(Node node) {
     String entityId = node.getAttributes().getNamedItem(DATA_ENTITY_ID).getNodeValue();
-    return dataNode.get(entityId).get(TYPE).asText().equals(type.getValue());
+    return dataNode.get(entityId).get(TYPE).asText();
   }
 
   private boolean isEntityNode(Node node) {
@@ -114,35 +138,11 @@ public class InputTokenizer {
     return true;
   }
 
-  private void tokenizeMentionNode(Node node) {
-    tokenizeRegularContent(); // tokenize buffer as usual
-    buffer.delete(0, buffer.length()); // clear the buffer
-
-    tokens.add(new MentionInputToken(node.getTextContent(), getUserIdInMention(node)));
-  }
-
-  private void tokenizeCashtagNode(Node node) {
-    tokenizeRegularContent(); // tokenize buffer as usual
-    buffer.delete(0, buffer.length()); // clear the buffer
-
-    tokens.add(new CashtagInputToken(node.getTextContent(), getCashtagValue(node)));
-  }
-
-  private String getCashtagValue(Node node) {
+  private String extractEntityValue(Node node, String type) {
     String entityId = node.getAttributes().getNamedItem(DATA_ENTITY_ID).getNodeValue();
     for (JsonNode id : dataNode.get(entityId).get(ID)) {
-      if (id.get(TYPE).asText().equals(CASHTAG_VALUE_TYPE)) {
+      if (id.get(TYPE).asText().equals(type)) {
         return id.get(VALUE).asText();
-      }
-    }
-    return null;
-  }
-
-  private Long getUserIdInMention(Node node) {
-    String entityId = node.getAttributes().getNamedItem(DATA_ENTITY_ID).getNodeValue();
-    for (JsonNode id : dataNode.get(entityId).get(ID)) {
-      if (id.get(TYPE).asText().equals(SYMPHONY_USER_ID_TYPE)) {
-        return Long.parseLong(id.get(VALUE).asText());
       }
     }
     return null;
