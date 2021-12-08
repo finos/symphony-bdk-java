@@ -108,22 +108,4 @@ public final class MessageParser {
     return type.getValue().equals(node.get("type").asText());
   }
 
-  @API(status = API.Status.INTERNAL)
-  private enum EntityTypeEnum {
-    HASHTAG("org.symphonyoss.taxonomy"),
-    CASHTAG("org.symphonyoss.fin.security"),
-    MENTION("com.symphony.user.mention"),
-    EMOJI("com.symphony.emoji");
-
-    private final String value;
-
-    EntityTypeEnum(String value) {
-      this.value = value;
-    }
-
-    public String getValue() {
-      return value;
-    }
-
-  }
 }

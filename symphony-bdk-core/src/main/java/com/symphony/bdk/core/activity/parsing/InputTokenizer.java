@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity.parsing;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.symphony.bdk.core.service.message.util.EntityTypeEnum;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -28,6 +29,17 @@ public class InputTokenizer {
 
   private static final DocumentBuilder DOCUMENT_BUILDER = initBuilder();
   private static final ObjectMapper MAPPER = new ObjectMapper();
+
+  private static final String DATA_ENTITY_ID = "data-entity-id";
+  private static final String TYPE = "type";
+  private static final String SPAN = "span";
+  private static final String CLASS = "class";
+  private static final String ENTITY = "entity";
+  private static final String ID = "id";
+  private static final String VALUE = "value";
+
+  private static final String SYMPHONY_USER_ID_TYPE = "com.symphony.user.userId";
+  private static final String CASHTAG_VALUE_TYPE = "org.symphonyoss.fin.security.id.ticker";
 
   @SneakyThrows
   private static DocumentBuilder initBuilder() {
@@ -62,32 +74,34 @@ public class InputTokenizer {
   }
 
   private void tokenize(Node node) {
-    if (isMentionNode(node)) {
+    if (isEntityNode(node, EntityTypeEnum.MENTION)) {
       tokenizeMentionNode(node);
+    } else if (isEntityNode(node, EntityTypeEnum.CASHTAG)) {
+      tokenizeCashtagNode(node);
     } else {
       tokenizeRegularNode(node);
     }
   }
 
-  private boolean isMentionNode(Node node) {
+  private boolean isEntityNode(Node node, EntityTypeEnum type) {
     if (!isEntityNode(node)) {
       return false;
     }
-    String entityId = node.getAttributes().getNamedItem("data-entity-id").getNodeValue();
-    return dataNode.get(entityId).get("type").asText().equals("com.symphony.user.mention");
+    String entityId = node.getAttributes().getNamedItem(DATA_ENTITY_ID).getNodeValue();
+    return dataNode.get(entityId).get(TYPE).asText().equals(type.getValue());
   }
 
   private boolean isEntityNode(Node node) {
-    if (!StringUtils.equals(node.getNodeName(), "span")) {
+    if (!StringUtils.equals(node.getNodeName(), SPAN)) {
       return false;
     }
 
-    final Node classAttribute = node.getAttributes().getNamedItem("class");
-    if (classAttribute == null || !StringUtils.equals(classAttribute.getNodeValue(), "entity")) {
+    final Node classAttribute = node.getAttributes().getNamedItem(CLASS);
+    if (classAttribute == null || !StringUtils.equals(classAttribute.getNodeValue(), ENTITY)) {
       return false;
     }
 
-    final Node entityIdAttribute = node.getAttributes().getNamedItem("data-entity-id");
+    final Node entityIdAttribute = node.getAttributes().getNamedItem(DATA_ENTITY_ID);
     if (entityIdAttribute == null) {
       return false;
     }
@@ -107,11 +121,28 @@ public class InputTokenizer {
     tokens.add(new MentionInputToken(node.getTextContent(), getUserIdInMention(node)));
   }
 
+  private void tokenizeCashtagNode(Node node) {
+    tokenizeRegularContent(); // tokenize buffer as usual
+    buffer.delete(0, buffer.length()); // clear the buffer
+
+    tokens.add(new CashtagInputToken(node.getTextContent(), getCashtagValue(node)));
+  }
+
+  private String getCashtagValue(Node node) {
+    String entityId = node.getAttributes().getNamedItem(DATA_ENTITY_ID).getNodeValue();
+    for (JsonNode id : dataNode.get(entityId).get(ID)) {
+      if (id.get(TYPE).asText().equals(CASHTAG_VALUE_TYPE)) {
+        return id.get(VALUE).asText();
+      }
+    }
+    return null;
+  }
+
   private Long getUserIdInMention(Node node) {
-    String entityId = node.getAttributes().getNamedItem("data-entity-id").getNodeValue();
-    for (JsonNode id : dataNode.get(entityId).get("id")) {
-      if (id.get("type").asText().equals("com.symphony.user.userId")) {
-        return Long.parseLong(id.get("value").asText());
+    String entityId = node.getAttributes().getNamedItem(DATA_ENTITY_ID).getNodeValue();
+    for (JsonNode id : dataNode.get(entityId).get(ID)) {
+      if (id.get(TYPE).asText().equals(SYMPHONY_USER_ID_TYPE)) {
+        return Long.parseLong(id.get(VALUE).asText());
       }
     }
     return null;
