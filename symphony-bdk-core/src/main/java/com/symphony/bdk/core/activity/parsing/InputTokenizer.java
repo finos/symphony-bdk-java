@@ -1,7 +1,11 @@
 package com.symphony.bdk.core.activity.parsing;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 import com.symphony.bdk.gen.api.model.V4Message;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +26,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 @Slf4j
 public class InputTokenizer {
 
-  private static DocumentBuilder DOCUMENT_BUILDER = initBuilder();
+  private static final DocumentBuilder DOCUMENT_BUILDER = initBuilder();
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @SneakyThrows
   private static DocumentBuilder initBuilder() {
@@ -30,33 +35,49 @@ public class InputTokenizer {
     return factory.newDocumentBuilder();
   }
 
-  @SneakyThrows
-  public static List<InputToken> getTokens(V4Message message) {
-    final Document doc = DOCUMENT_BUILDER.parse(
-        new ByteArrayInputStream(message.getMessage().getBytes(StandardCharsets.UTF_8)));
+  private Document document;
+  private JsonNode dataNode;
+  private List<InputToken<?>> tokens;
+  private StringBuffer buffer;
 
-    return getTokens(doc);
+  @SneakyThrows
+  public InputTokenizer(V4Message message) {
+    this.document = DOCUMENT_BUILDER.parse(
+        new ByteArrayInputStream(message.getMessage().getBytes(StandardCharsets.UTF_8)));
+    String jsonData = isBlank(message.getData()) ? "{}" : message.getData();
+    this.dataNode = MAPPER.readTree(jsonData);
+    this.tokens = new ArrayList<>();
+    this.buffer = new StringBuffer();
+
+    tokenize();
   }
 
-  private static List<InputToken> getTokens(Document doc) {
-    List<InputToken> tokens = new ArrayList<>();
-    final StringBuffer buf = new StringBuffer();
-
-    tokenize(doc, tokens, buf);
-    tokenizeRegularContent(tokens, buf); // tokenize what is left in the buffer
-
+  public List<InputToken<?>> getTokens() {
     return tokens;
   }
 
-  private static void tokenize(Node node, List<InputToken> tokens, StringBuffer buf) {
-    if (isEntityNode(node)) {
-      tokenizeEntityNode(node, tokens, buf);
+  private void tokenize() {
+    tokenize(document); // begin from the root node
+    tokenizeRegularContent(); // tokenize what is left in the buffer
+  }
+
+  private void tokenize(Node node) {
+    if (isMentionNode(node)) {
+      tokenizeMentionNode(node);
     } else {
-      tokenizeRegularNode(node, tokens, buf);
+      tokenizeRegularNode(node);
     }
   }
 
-  private static boolean isEntityNode(Node node) {
+  private boolean isMentionNode(Node node) {
+    if (!isEntityNode(node)) {
+      return false;
+    }
+    String entityId = node.getAttributes().getNamedItem("data-entity-id").getNodeValue();
+    return dataNode.get(entityId).get("type").asText().equals("com.symphony.user.mention");
+  }
+
+  private boolean isEntityNode(Node node) {
     if (!StringUtils.equals(node.getNodeName(), "span")) {
       return false;
     }
@@ -70,30 +91,47 @@ public class InputTokenizer {
     if (entityIdAttribute == null) {
       return false;
     }
+
+    String entityId = entityIdAttribute.getNodeValue();
+    if (!dataNode.has(entityId)) {
+      return false;
+    }
+
     return true;
   }
 
-  private static void tokenizeEntityNode(Node node, List<InputToken> tokens, StringBuffer buf) {
-    tokenizeRegularContent(tokens, buf); // tokenize buffer as usual
-    buf.delete(0, buf.length()); // clear the buffer
-    tokens.add(new InputToken(node.getTextContent(), true)); // we assume a span node has only text inside
+  private void tokenizeMentionNode(Node node) {
+    tokenizeRegularContent(); // tokenize buffer as usual
+    buffer.delete(0, buffer.length()); // clear the buffer
+
+    tokens.add(new MentionInputToken(node.getTextContent(), getUserIdInMention(node)));
   }
 
-  private static void tokenizeRegularContent(List<InputToken> tokens, StringBuffer buf) {
-    Arrays.stream(buf.toString().trim().split("\\s+"))
+  private Long getUserIdInMention(Node node) {
+    String entityId = node.getAttributes().getNamedItem("data-entity-id").getNodeValue();
+    for (JsonNode id : dataNode.get(entityId).get("id")) {
+      if (id.get("type").asText().equals("com.symphony.user.userId")) {
+        return Long.parseLong(id.get("value").asText());
+      }
+    }
+    return null;
+  }
+
+  private void tokenizeRegularContent() {
+    Arrays.stream(buffer.toString().trim().split("\\s+"))
         .filter(StringUtils::isNotBlank)
-        .map(InputToken::new)
+        .map(StringInputToken::new)
         .forEachOrdered(t -> tokens.add(t));
   }
 
-  private static void tokenizeRegularNode(Node node, List<InputToken> tokens, StringBuffer buf) {
+  private void tokenizeRegularNode(Node node) {
     final String nodeValue = node.getNodeValue();
     if (nodeValue != null) {
-      buf.append(nodeValue);
+      buffer.append(nodeValue);
     }
 
     for (int i = 0; i < node.getChildNodes().getLength(); i++) {
-      tokenize(node.getChildNodes().item(i), tokens, buf);
+      tokenize(node.getChildNodes().item(i));
     }
   }
 }

@@ -38,7 +38,7 @@ public class SlashCommandPattern {
   }
 
   public MatchResult getMatchResult(V4Message message) {
-    final List<InputToken> inputTokens = InputTokenizer.getTokens(message);
+    final List<InputToken<?>> inputTokens = new InputTokenizer(message).getTokens();
 
     if (!matches(inputTokens)) {
       return new MatchResult(false);
@@ -46,7 +46,7 @@ public class SlashCommandPattern {
     return new MatchResult(true, getArguments(inputTokens));
   }
 
-  private boolean matches(List<InputToken> inputTokens) {
+  private boolean matches(List<InputToken<?>> inputTokens) {
     if (tokens.isEmpty()) {
       return inputTokens.isEmpty();
     }
@@ -58,9 +58,9 @@ public class SlashCommandPattern {
     return matchesEveryToken(inputTokens);
   }
 
-  private boolean matchesEveryToken(List<InputToken> inputTokens) {
+  private boolean matchesEveryToken(List<InputToken<?>> inputTokens) {
     for (int i = 0; i < tokens.size(); i++) {
-      if (!tokens.get(i).matches(inputTokens.get(i).getContent())) {
+      if (!tokens.get(i).matches(inputTokens.get(i).getContentAsString())) {
         return false;
       }
     }
@@ -83,13 +83,13 @@ public class SlashCommandPattern {
     return new StaticCommandToken(t);
   }
 
-  private Map<String, String> getArguments(List<InputToken> inputTokens) {
+  private Map<String, String> getArguments(List<InputToken<?>> inputTokens) {
     // we assume inputTokens are matching
     Map<String, String> arguments = new HashMap<>();
 
     for (int i = 0; i < tokens.size(); i++) {
       if (tokens.get(i) instanceof ArgumentCommandToken) {
-        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i).getContent());
+        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i).getContentAsString());
       }
     }
     return arguments;
