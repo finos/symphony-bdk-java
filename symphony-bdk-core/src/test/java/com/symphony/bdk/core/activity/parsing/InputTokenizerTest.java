@@ -86,12 +86,63 @@ class InputTokenizerTest {
   @SneakyThrows
   @Test
   void oneMention() {
-    String presentationML = buildMessageContent("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>");
+    final List<InputToken> tokenize = getTokens("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>");
 
-    final List<InputToken> tokenize = InputTokenizer.getTokens(new V4Message().message(presentationML));
     assertEquals(1, tokenize.size());
     assertEquals("@jane-doe", tokenize.get(0).getContent());
     assertTrue(tokenize.get(0).isMention());
+  }
+
+  @SneakyThrows
+  @Test
+  void textAndOneMention() {
+    final List<InputToken> tokenize = getTokens("lorem<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>");
+
+    assertEquals(2, tokenize.size());
+    assertEquals("lorem", tokenize.get(0).getContent());
+    assertFalse(tokenize.get(0).isMention());
+    assertEquals("@jane-doe", tokenize.get(1).getContent());
+    assertTrue(tokenize.get(1).isMention());
+  }
+
+  @SneakyThrows
+  @Test
+  void twoMentionsWithSpace() {
+    final List<InputToken> tokenize = getTokens("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span> <span class=\"entity\" data-entity-id=\"0\">@John Doe</span>");
+
+    assertEquals(2, tokenize.size());
+    assertEquals("@jane-doe", tokenize.get(0).getContent());
+    assertTrue(tokenize.get(0).isMention());
+    assertEquals("@John Doe", tokenize.get(1).getContent());
+    assertTrue(tokenize.get(1).isMention());
+  }
+
+  @SneakyThrows
+  @Test
+  void twoMentionsWithoutSpace() {
+    final List<InputToken> tokenize = getTokens("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span><span class=\"entity\" data-entity-id=\"0\">@John Doe</span>");
+
+    assertEquals(2, tokenize.size());
+    assertEquals("@jane-doe", tokenize.get(0).getContent());
+    assertTrue(tokenize.get(0).isMention());
+    assertEquals("@John Doe", tokenize.get(1).getContent());
+    assertTrue(tokenize.get(1).isMention());
+  }
+
+  @SneakyThrows
+  @Test
+  void twoMentionsAndText() {
+    final List<InputToken> tokenize = getTokens("Hello <span class=\"entity\" data-entity-id=\"0\">@jane-doe</span> and <span class=\"entity\" data-entity-id=\"0\">@John Doe</span>");
+
+    assertEquals(4, tokenize.size());
+    assertEquals("Hello", tokenize.get(0).getContent());
+    assertFalse(tokenize.get(0).isMention());
+    assertEquals("@jane-doe", tokenize.get(1).getContent());
+    assertTrue(tokenize.get(1).isMention());
+    assertEquals("and", tokenize.get(2).getContent());
+    assertFalse(tokenize.get(2).isMention());
+    assertEquals("@John Doe", tokenize.get(3).getContent());
+    assertTrue(tokenize.get(3).isMention());
   }
 
   private List<InputToken> getTokens(String textContent) {
