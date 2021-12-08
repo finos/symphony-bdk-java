@@ -1,12 +1,9 @@
 package com.symphony.bdk.core.activity.parsing;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.symphony.bdk.core.service.message.util.PresentationMLParser;
 import com.symphony.bdk.gen.api.model.V4Message;
 
-import lombok.SneakyThrows;
 import org.apiguardian.api.API;
 
 import java.util.Arrays;
@@ -41,7 +38,7 @@ public class SlashCommandPattern {
   }
 
   public MatchResult getMatchResult(V4Message message) {
-    final List<String> inputTokens = getInputTokens(message);
+    final List<InputToken> inputTokens = InputTokenizer.getTokens(message);
 
     if (!matches(inputTokens)) {
       return new MatchResult(false);
@@ -49,7 +46,7 @@ public class SlashCommandPattern {
     return new MatchResult(true, getArguments(inputTokens));
   }
 
-  private boolean matches(List<String> inputTokens) {
+  private boolean matches(List<InputToken> inputTokens) {
     if (tokens.isEmpty()) {
       return inputTokens.isEmpty();
     }
@@ -61,16 +58,9 @@ public class SlashCommandPattern {
     return matchesEveryToken(inputTokens);
   }
 
-  @SneakyThrows
-  private List<String> getInputTokens(V4Message message) {
-    return Arrays.stream(PresentationMLParser.getTextContent(message.getMessage()).trim().split("\\s+"))
-        .filter(s -> isNotBlank(s))
-        .collect(Collectors.toList());
-  }
-
-  private boolean matchesEveryToken(List<String> inputTokens) {
+  private boolean matchesEveryToken(List<InputToken> inputTokens) {
     for (int i = 0; i < tokens.size(); i++) {
-      if (!tokens.get(i).matches(inputTokens.get(i))) {
+      if (!tokens.get(i).matches(inputTokens.get(i).getContent())) {
         return false;
       }
     }
@@ -93,13 +83,13 @@ public class SlashCommandPattern {
     return new StaticCommandToken(t);
   }
 
-  private Map<String,String> getArguments(List<String> inputTokens) {
+  private Map<String, String> getArguments(List<InputToken> inputTokens) {
     // we assume inputTokens are matching
     Map<String, String> arguments = new HashMap<>();
 
     for (int i = 0; i < tokens.size(); i++) {
       if (tokens.get(i) instanceof ArgumentCommandToken) {
-        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i));
+        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i).getContent());
       }
     }
     return arguments;
