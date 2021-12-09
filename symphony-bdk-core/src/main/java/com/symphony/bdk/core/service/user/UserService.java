@@ -30,6 +30,7 @@ import com.symphony.bdk.gen.api.model.UserFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
+import com.symphony.bdk.gen.api.model.UserSuspension;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorList;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
@@ -726,6 +727,19 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     return executeAndRetry("listAuditTrail",
         () -> auditTrailApi.v1AudittrailPrivilegeduserGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
             startTimestamp, endTimestamp, before, after, limit, initiatorId, role));
+  }
+
+  /**
+   * Suspends or re-activates a user account.
+   *
+   * @param userId  user id
+   * @param userSuspension action to perform on the user
+   * @see <a href="https://developers.symphony.com/restapi/reference#suspend-user-v1">Suspend User Account v1</a>
+   */
+  @API(status = API.Status.STABLE)
+  public void suspendUser(@Nonnull Long userId, @Nonnull UserSuspension userSuspension) {
+    executeAndRetry("suspendUser",
+        () -> userApi.v1AdminUserUserIdSuspensionUpdatePut(authSession.getSessionToken(), userId, userSuspension));
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
