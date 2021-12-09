@@ -37,6 +37,7 @@ import com.symphony.bdk.gen.api.model.UserFilter;
 import com.symphony.bdk.gen.api.model.UserSearchFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserStatus;
+import com.symphony.bdk.gen.api.model.UserSuspension;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorList;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
@@ -85,6 +86,7 @@ class UserServiceTest {
   private static final String V1_LIST_FOLLOWERS = "/pod/v1/user/{uid}/followers";
   private static final String V1_LIST_FOLLOWING = "/pod/v1/user/{uid}/following";
   private static final String V1_AUDIT_TRAIL_PRIVILEGED_USER = "/agent/v1/audittrail/privilegeduser";
+  private static final String SUSPEND_USER = "/pod/v1/admin/user/{uid}/suspension/update";
   private static final String MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE = "Missing the required parameter '%s' when calling %s";
 
   private UserService service;
@@ -1034,5 +1036,29 @@ class UserServiceTest {
 
     assertTrue(exception.getMessage().contains(
         String.format(MISSING_REQUIRED_PARAMETER_EXCEPTION_MESSAGE, "startTimestamp", "v1AudittrailPrivilegeduserGet")));
+  }
+
+  @Test
+  void suspendUserTest() throws ApiException {
+    this.mockApiClient.onPut(SUSPEND_USER.replace("{uid}", "1234"), "{}");
+
+    UserSuspension userSuspension = new UserSuspension();
+    userSuspension.setSuspended(true);
+    userSuspension.setSuspensionReason("reason why");
+
+    this.service.suspendUser(1234L, userSuspension);
+
+    verify(spiedUserApi).v1AdminUserUserIdSuspensionUpdatePut(
+        eq("1234"),
+        eq(1234L),
+        eq(userSuspension));
+  }
+
+  @Test
+  void suspendUserTestFailed() {
+    this.mockApiClient.onPut(400, SUSPEND_USER.replace("{uid}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.suspendUser(1234L, new UserSuspension()));
   }
 }
