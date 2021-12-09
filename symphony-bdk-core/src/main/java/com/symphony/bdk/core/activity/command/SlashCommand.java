@@ -14,7 +14,6 @@ import org.apiguardian.api.API;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
@@ -22,7 +21,7 @@ import javax.annotation.Nonnull;
  * A "slash" command if the most basic action that can be performed by an end-user through the chat.
  */
 @API(status = API.Status.EXPERIMENTAL)
-public class SlashCommand extends PatternCommandActivity<CommandContext> {
+public class SlashCommand extends CommandActivity<CommandContext> {
 
   private final String slashCommandName;
   private final SlashCommandPattern commandPattern;
@@ -81,9 +80,9 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
   }
 
   /**
-   * Default private constructor, new instances from static methods only.
+   * Default protected constructor, new instances from static methods only.
    */
-  private SlashCommand(@Nonnull String slashCommandName, boolean requiresBotMention,
+  protected SlashCommand(@Nonnull String slashCommandName, boolean requiresBotMention,
       @Nonnull Consumer<CommandContext> callback, String description) {
 
     if (StringUtils.isEmpty(slashCommandName)) {
@@ -99,14 +98,6 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
 
     this.callback = callback;
     this.description = description;
-  }
-
-  @Override
-  public Pattern pattern() {
-    // FIXME useless
-//    final String botMention = this.requiresBotMention ? "@" + this.getBotDisplayName() + " " : "";
-//    return Pattern.compile("^" + botMention + this.slashCommandName + "$");
-    return null;
   }
 
   @Override
