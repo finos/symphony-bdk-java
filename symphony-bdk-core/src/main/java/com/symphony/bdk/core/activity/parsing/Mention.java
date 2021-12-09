@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.activity.parsing.input;
+package com.symphony.bdk.core.activity.parsing;
 
 import lombok.Getter;
 import org.apiguardian.api.API;

@@ -5,9 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.symphony.bdk.core.activity.parsing.input.Cashtag;
-import com.symphony.bdk.core.activity.parsing.input.Hashtag;
-import com.symphony.bdk.core.activity.parsing.input.Mention;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.junit.jupiter.api.Test;

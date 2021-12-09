@@ -1,7 +1,5 @@
 package com.symphony.bdk.core.activity.parsing;
 
-import com.symphony.bdk.core.activity.parsing.input.Mention;
-
 import org.apiguardian.api.API;
 
 import java.util.function.Supplier;

@@ -2,11 +2,6 @@ package com.symphony.bdk.core.activity.parsing;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import com.symphony.bdk.core.activity.parsing.input.Cashtag;
-import com.symphony.bdk.core.activity.parsing.input.Hashtag;
-import com.symphony.bdk.core.activity.parsing.input.InputToken;
-import com.symphony.bdk.core.activity.parsing.input.InputTokenizer;
-import com.symphony.bdk.core.activity.parsing.input.Mention;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.apiguardian.api.API;
@@ -48,7 +43,7 @@ public class SlashCommandPattern {
   }
 
   public MatchResult getMatchResult(V4Message message) {
-    final List<InputToken<?>> inputTokens = new InputTokenizer(message).getTokens();
+    final List<Object> inputTokens = new InputTokenizer(message).getTokens();
 
     if (!matches(inputTokens)) {
       return new MatchResult(false);
@@ -56,7 +51,7 @@ public class SlashCommandPattern {
     return new MatchResult(true, getArguments(inputTokens));
   }
 
-  private boolean matches(List<InputToken<?>> inputTokens) {
+  private boolean matches(List<Object> inputTokens) {
     if (tokens.isEmpty()) {
       return inputTokens.isEmpty();
     }
@@ -68,9 +63,9 @@ public class SlashCommandPattern {
     return matchesEveryToken(inputTokens);
   }
 
-  private boolean matchesEveryToken(List<InputToken<?>> inputTokens) {
+  private boolean matchesEveryToken(List<Object> inputTokens) {
     for (int i = 0; i < tokens.size(); i++) {
-      if (!tokens.get(i).matches(inputTokens.get(i).getContent())) {
+      if (!tokens.get(i).matches(inputTokens.get(i))) {
         return false;
       }
     }
@@ -102,13 +97,13 @@ public class SlashCommandPattern {
     return new StaticCommandToken(token);
   }
 
-  private Map<String, Object> getArguments(List<InputToken<?>> inputTokens) {
+  private Map<String, Object> getArguments(List<Object> inputTokens) {
     // we assume inputTokens are matching
     Map<String, Object> arguments = new HashMap<>();
 
     for (int i = 0; i < tokens.size(); i++) {
       if (tokens.get(i) instanceof ArgumentCommandToken) {
-        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i).getContent());
+        arguments.put(((ArgumentCommandToken) tokens.get(i)).getArgumentName(), inputTokens.get(i));
       }
     }
     return arguments;

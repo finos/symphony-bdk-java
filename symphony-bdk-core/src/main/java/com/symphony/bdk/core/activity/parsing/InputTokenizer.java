@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.activity.parsing.input;
+package com.symphony.bdk.core.activity.parsing;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -51,7 +51,7 @@ public class InputTokenizer {
 
   private Document document;
   private JsonNode dataNode;
-  private List<InputToken<?>> tokens;
+  private List<Object> tokens;
   private StringBuffer buffer;
 
   @SneakyThrows
@@ -66,7 +66,7 @@ public class InputTokenizer {
     tokenize();
   }
 
-  public List<InputToken<?>> getTokens() {
+  public List<Object> getTokens() {
     return tokens;
   }
 
@@ -96,11 +96,11 @@ public class InputTokenizer {
     if (entityType.equals(EntityTypeEnum.MENTION.getValue())) {
       final String userIdAsString = extractEntityValue(node, SYMPHONY_USER_ID_TYPE);
       final Long userId = userIdAsString == null ? null : Long.parseLong(userIdAsString);
-      tokens.add(new MentionInputToken(node.getTextContent(), userId));
+      tokens.add(new Mention(node.getTextContent(), userId));
     } else if (entityType.equals(EntityTypeEnum.CASHTAG.getValue())) {
-      tokens.add(new CashtagInputToken(node.getTextContent(), extractEntityValue(node, CASHTAG_VALUE_TYPE)));
+      tokens.add(new Cashtag(node.getTextContent(), extractEntityValue(node, CASHTAG_VALUE_TYPE)));
     } else if (entityType.equals(EntityTypeEnum.HASHTAG.getValue())) {
-      tokens.add(new HashtagInputToken(node.getTextContent(), extractEntityValue(node, HASHTAG_VALUE_TYPE)));
+      tokens.add(new Hashtag(node.getTextContent(), extractEntityValue(node, HASHTAG_VALUE_TYPE)));
     }
   }
 
@@ -151,7 +151,6 @@ public class InputTokenizer {
   private void tokenizeRegularContent() {
     Arrays.stream(buffer.toString().trim().split("\\s+"))
         .filter(StringUtils::isNotBlank)
-        .map(StringInputToken::new)
         .forEachOrdered(t -> tokens.add(t));
   }
 

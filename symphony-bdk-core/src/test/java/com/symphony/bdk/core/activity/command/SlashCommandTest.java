@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
-import com.symphony.bdk.core.activity.parsing.input.Cashtag;
-import com.symphony.bdk.core.activity.parsing.input.Hashtag;
-import com.symphony.bdk.core.activity.parsing.input.Mention;
+import com.symphony.bdk.core.activity.parsing.Cashtag;
+import com.symphony.bdk.core.activity.parsing.Hashtag;
+import com.symphony.bdk.core.activity.parsing.Mention;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;

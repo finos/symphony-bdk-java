@@ -1,6 +1,9 @@
 package com.symphony.bdk.core.activity.command;
 
 import com.symphony.bdk.core.activity.ActivityContext;
+import com.symphony.bdk.core.activity.parsing.Cashtag;
+import com.symphony.bdk.core.activity.parsing.Hashtag;
+import com.symphony.bdk.core.activity.parsing.Mention;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
@@ -33,9 +36,9 @@ public class CommandContext extends ActivityContext<V4MessageSent> {
    * Actual type of value can be:
    * <ul>
    *   <li>{@link String}</li>
-   *   <li>{@link com.symphony.bdk.core.activity.parsing.input.Mention}</li>
-   *   <li>{@link com.symphony.bdk.core.activity.parsing.input.Cashtag}</li>
-   *   <li>{@link com.symphony.bdk.core.activity.parsing.input.Hashtag}</li>
+   *   <li>{@link Mention}</li>
+   *   <li>{@link Cashtag}</li>
+   *   <li>{@link Hashtag}</li>
    * </ul>
    * depending on the command definition.
    */

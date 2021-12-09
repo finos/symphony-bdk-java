@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.activity.parsing.input;
+package com.symphony.bdk.core.activity.parsing;
 
 import lombok.Getter;
 import org.apiguardian.api.API;
@@ -7,12 +7,12 @@ import java.util.Objects;
 
 @API(status = API.Status.INTERNAL)
 @Getter
-public class Cashtag {
+public class Hashtag {
 
   private String text;
   private String value;
 
-  public Cashtag(String text, String value) {
+  public Hashtag(String text, String value) {
     this.text = text;
     this.value = value;
   }
@@ -21,8 +21,8 @@ public class Cashtag {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    Cashtag cashtag = (Cashtag) o;
-    return Objects.equals(text, cashtag.text) && Objects.equals(value, cashtag.value);
+    Hashtag hashtag = (Hashtag) o;
+    return Objects.equals(text, hashtag.text) && Objects.equals(value, hashtag.value);
   }
 
   @Override
