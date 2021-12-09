@@ -5,6 +5,9 @@ import org.apiguardian.api.API;
 
 import java.util.Objects;
 
+/**
+ * Class representing a cashtag in a V4Message
+ */
 @API(status = API.Status.INTERNAL)
 @Getter
 public class Cashtag {
@@ -12,6 +15,11 @@ public class Cashtag {
   private String text;
   private String value;
 
+  /**
+   *
+   * @param text text of the cashtag, e.g. "$tag"
+   * @param value value of the cashtag, e.g. "tag"
+   */
   public Cashtag(String text, String value) {
     this.text = text;
     this.value = value;

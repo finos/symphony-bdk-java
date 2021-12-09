@@ -5,6 +5,9 @@ import org.apiguardian.api.API;
 
 import java.util.Objects;
 
+/**
+ * Class representing a hashtag in a V4Message
+ */
 @API(status = API.Status.INTERNAL)
 @Getter
 public class Hashtag {
@@ -12,6 +15,11 @@ public class Hashtag {
   private String text;
   private String value;
 
+  /**
+   *
+   * @param text the text of the hashtag, e.g. "#tag"
+   * @param value the value of the hashtag, e.g. "tag"
+   */
   public Hashtag(String text, String value) {
     this.text = text;
     this.value = value;

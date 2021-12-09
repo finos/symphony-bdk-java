@@ -29,6 +29,9 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
    */
   @Getter @Setter private String botDisplayName;
 
+  /**
+   * The bot user ID
+   */
   @Getter @Setter private Long botUserId;
 
   /**

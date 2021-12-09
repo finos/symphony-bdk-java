@@ -4,6 +4,9 @@ import org.apiguardian.api.API;
 
 import java.util.regex.Pattern;
 
+/**
+ * A command token matching a single word and put in a given argument.
+ */
 @API(status = API.Status.INTERNAL)
 public class StringArgumentCommandToken implements RegexCommandToken, ArgumentCommandToken {
 

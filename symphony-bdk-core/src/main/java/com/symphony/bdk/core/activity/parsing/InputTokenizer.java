@@ -24,6 +24,10 @@ import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+/**
+ * Class responsible for parsing a {@link V4Message} into a list of tokens separated by at least one whitespace character.
+ * Tokens can be of type {@link String}, {@link Mention}, {@link Cashtag} or {@link Hashtag} depending on the message content.
+ */
 @API(status = API.Status.INTERNAL)
 @Slf4j
 public class InputTokenizer {
@@ -54,6 +58,10 @@ public class InputTokenizer {
   private List<Object> tokens;
   private StringBuffer buffer;
 
+  /**
+   *
+   * @param message the message to be parsed
+   */
   @SneakyThrows
   public InputTokenizer(V4Message message) {
     this.document = DOCUMENT_BUILDER.parse(
@@ -66,6 +74,10 @@ public class InputTokenizer {
     tokenize();
   }
 
+  /**
+   *
+   * @return the list of tokens in the message
+   */
   public List<Object> getTokens() {
     return tokens;
   }

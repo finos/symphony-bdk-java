@@ -1,7 +1,12 @@
 package com.symphony.bdk.core.service.message.util;
 
+import com.symphony.bdk.gen.api.model.V4Message;
+
 import org.apiguardian.api.API;
 
+/**
+ * Enum representing the different entity types in the {@link V4Message#getData()}.
+ */
 @API(status = API.Status.INTERNAL)
 public enum EntityTypeEnum {
   HASHTAG("org.symphonyoss.taxonomy"),
@@ -15,6 +20,10 @@ public enum EntityTypeEnum {
     this.value = value;
   }
 
+  /**
+   *
+   * @return the entity value
+   */
   public String getValue() {
     return value;
   }

@@ -4,6 +4,9 @@ import org.apiguardian.api.API;
 
 import java.util.function.Supplier;
 
+/**
+ * CommandToken which matches message token if it is a mention with a given user ID.
+ */
 @API(status = API.Status.INTERNAL)
 public class MatchingUserIdMentionToken implements CommandToken {
 

@@ -4,6 +4,9 @@ import org.apiguardian.api.API;
 
 import java.util.regex.Pattern;
 
+/**
+ * Command token only matching a given fixed word.
+ */
 @API(status = API.Status.INTERNAL)
 public class StaticCommandToken implements RegexCommandToken {
   private Pattern pattern;

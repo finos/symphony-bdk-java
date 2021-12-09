@@ -47,6 +47,7 @@ class ActivityRegistryTest {
   @BeforeEach
   void setUp() {
     when(botSession.getDisplayName()).thenReturn(UUID.randomUUID().toString());
+    when(botSession.getId()).thenReturn(12345L);
     this.registry = new ActivityRegistry(this.botSession, this.datafeedService);
   }
 
@@ -59,6 +60,7 @@ class ActivityRegistryTest {
     assertEquals(1, this.registry.getActivityList().size(), "Registry must contain only 1 activity");
     verify(this.datafeedService, times(1)).subscribe(any(RealTimeEventListener.class));
     assertEquals(this.botSession.getDisplayName(), act.getBotDisplayName());
+    assertEquals(this.botSession.getId(), act.getBotUserId());
 
     this.registry.register(new TestCommandActivity("test"));
     assertEquals(1, this.registry.getActivityList().size(), "Registry should still contain only 1 activity");

@@ -5,14 +5,31 @@ import org.apiguardian.api.API;
 
 import java.util.Objects;
 
+/**
+ * Class representing a mention in a {@link com.symphony.bdk.gen.api.model.V4Message}.
+ */
 @API(status = API.Status.INTERNAL)
 @Getter
 public class Mention {
 
+  /**
+   * the text of a mention, e.g. "@John Doe"
+   */
   private String text;
+  /**
+   * the display name of the mentioned user, e.g. "John Doe"
+   */
   private String userDisplayName;
+  /**
+   * the user ID of the mentioned user
+   */
   private Long userId;
 
+  /**
+   *
+   * @param text the text of a mention, e.g. "@John Doe"
+   * @param userId the user ID of the mentioned user
+   */
   public Mention(String text, Long userId) {
     this.text = text;
     this.userDisplayName = text.substring(1);

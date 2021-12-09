@@ -16,6 +16,17 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
+/**
+ * Class representing the pattern of a {@link com.symphony.bdk.core.activity.command.SlashCommand}.
+ * The string should be a list of tokens separated by whitespaces. Each token can be:
+ * <ul>
+ *   <li>a regular static word like "/command". This will only match the same string</li>
+ *   <li>a string argument like "{argument}". This will match a single word (with no whitespaces)</li>
+ *   <li>a mention argument like "{{@literal @}mention}. This will match a mention</li>
+ *   <li>a cashtag argument like "{$cashtag}" which will match a cashtag</li>
+ *   <li>a hashtag argument like "{#cashtag}" which will match a hashtag</li>
+ * </ul>
+ */
 @API(status = API.Status.INTERNAL)
 public class SlashCommandPattern {
 
@@ -25,6 +36,11 @@ public class SlashCommandPattern {
 
   private final List<CommandToken> tokens;
 
+  /**
+   *
+   * @param pattern the slash command pattern
+   * @throws {@link SlashCommandSyntaxException} if the pattern is not well formatted
+   */
   public SlashCommandPattern(String pattern) {
     try {
       this.tokens = buildTokens(pattern);
@@ -35,14 +51,26 @@ public class SlashCommandPattern {
     }
   }
 
+  /**
+   *
+   * @return the list of command tokens
+   */
   public List<CommandToken> getTokens() {
     return tokens;
   }
 
+  /**
+   * Adds a specific token at the beginning of the slash command pattern
+   * @param token the command token to add
+   */
   public void prependToken(CommandToken token) {
     tokens.add(0, token);
   }
 
+  /**
+   *
+   * @return the list of all argument names
+   */
   public List<String> getArgumentNames() {
     return tokens.stream()
         .filter(t -> t instanceof StringArgumentCommandToken)
@@ -50,6 +78,11 @@ public class SlashCommandPattern {
         .collect(Collectors.toList());
   }
 
+  /**
+   *
+   * @param message the input message to be matched against the {@link SlashCommandPattern}
+   * @return the {@link MatchResult} object containing the status (matches or not) and the potential arguments.
+   */
   public MatchResult getMatchResult(V4Message message) {
     final List<Object> inputTokens = new InputTokenizer(message).getTokens();
 

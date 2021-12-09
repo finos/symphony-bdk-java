@@ -72,7 +72,7 @@ public class ActivityRegistry {
           abstractActivity.getInfo().name());
     });
 
-    // a command activity (potentially) needs the bot display name in order to parse the message text content
+    // a command activity (potentially) needs the bot display name and user ID in order to parse the message text content
     // this way of passing this information is not very clean though, we should find something
     if (activity instanceof CommandActivity) {
       ((CommandActivity<?>) activity).setBotDisplayName(this.botSession.getDisplayName());
