@@ -45,8 +45,8 @@ public class SlashCommandPattern {
 
   public List<String> getArgumentNames() {
     return tokens.stream()
-        .filter(t -> t instanceof ArgumentCommandToken)
-        .map(t -> ((ArgumentCommandToken) t).getArgumentName())
+        .filter(t -> t instanceof StringArgumentCommandToken)
+        .map(t -> ((StringArgumentCommandToken) t).getArgumentName())
         .collect(Collectors.toList());
   }
 
@@ -100,7 +100,7 @@ public class SlashCommandPattern {
       }
     }
     if (STRING_ARGUMENT_PATTERN.matcher(token).matches()) {
-      return ArgumentCommandToken.newInstance(token);
+      return StringArgumentCommandToken.newInstance(token);
     }
     return new StaticCommandToken(token);
   }

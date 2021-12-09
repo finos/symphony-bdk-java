@@ -5,7 +5,7 @@ import org.apiguardian.api.API;
 import java.util.regex.Pattern;
 
 @API(status = API.Status.INTERNAL)
-public class StaticCommandToken implements CommandToken {
+public class StaticCommandToken implements RegexCommandToken {
   private Pattern pattern;
 
   /**

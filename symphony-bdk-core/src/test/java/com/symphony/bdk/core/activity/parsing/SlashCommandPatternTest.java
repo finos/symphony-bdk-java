@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.activity.parsing;
 
-import static com.symphony.bdk.core.activity.parsing.ArgumentCommandToken.ARGUMENT_VALUE_REGEX;
+import static com.symphony.bdk.core.activity.parsing.StringArgumentCommandToken.ARGUMENT_VALUE_REGEX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,7 +33,7 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(1, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
 
     assertFalse(getMatchResult(pattern,"").isMatching());
     assertFalse(getMatchResult(pattern,"a").isMatching());
@@ -48,7 +48,7 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(1, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
   }
 
   @Test
@@ -57,8 +57,8 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(2, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
-    assertEquals("^ab$", tokens.get(1).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
+    assertIsRegexToken("^ab$", tokens.get(1));
 
     assertFalse(getMatchResult(pattern,"").isMatching());
     assertFalse(getMatchResult(pattern,"a").isMatching());
@@ -75,8 +75,8 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(2, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
-    assertEquals("^ab$", tokens.get(1).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
+    assertIsRegexToken("^ab$", tokens.get(1));
   }
 
   @Test
@@ -86,7 +86,7 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(1, tokens.size());
-    assertEquals(ARGUMENT_VALUE_REGEX, tokens.get(0).getRegexPattern().pattern());
+    assertIsStringArgumentToken(tokens.get(0));
 
     assertEquals(Collections.singletonList(argumentName), pattern.getArgumentNames());
 
@@ -109,8 +109,8 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(2, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
-    assertEquals(ARGUMENT_VALUE_REGEX, tokens.get(1).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
+    assertIsStringArgumentToken(tokens.get(1));
 
     assertEquals(Collections.singletonList(argumentName), pattern.getArgumentNames());
 
@@ -132,9 +132,9 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(3, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
-    assertEquals(ARGUMENT_VALUE_REGEX, tokens.get(1).getRegexPattern().pattern());
-    assertEquals(ARGUMENT_VALUE_REGEX, tokens.get(2).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
+    assertIsStringArgumentToken(tokens.get(1));
+    assertIsStringArgumentToken(tokens.get(2));
 
     assertEquals(Arrays.asList(firstArgName, secondArgName), pattern.getArgumentNames());
 
@@ -209,9 +209,9 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(3, tokens.size());
-    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
+    assertIsRegexToken("^/command$", tokens.get(0));
     assertTrue(tokens.get(1) instanceof TypedArgumentToken<?>);
-    assertEquals(ARGUMENT_VALUE_REGEX, tokens.get(2).getRegexPattern().pattern());
+    assertIsRegexToken(ARGUMENT_VALUE_REGEX, tokens.get(2));
 
     V4Message message = buildMessage("/command <span class=\"entity\" data-entity-id=\"0\">@John Doe</span> argValue",
         "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
@@ -299,5 +299,16 @@ class SlashCommandPatternTest {
 
   private V4Message buildMessage(String textContent, String data) {
     return buildMessage(textContent).data(data);
+  }
+
+  private void assertIsRegexToken(String expectedRegex, CommandToken actualToken) {
+    assertTrue(actualToken instanceof RegexCommandToken);
+    assertEquals(expectedRegex, ((RegexCommandToken) actualToken).getRegexPattern().pattern());
+  }
+
+  private void assertIsStringArgumentToken(CommandToken actualToken) {
+    assertTrue(actualToken instanceof StringArgumentCommandToken);
+    final StringArgumentCommandToken argumentToken = (StringArgumentCommandToken) actualToken;
+    assertEquals(ARGUMENT_VALUE_REGEX, argumentToken.getRegexPattern().pattern());
   }
 }

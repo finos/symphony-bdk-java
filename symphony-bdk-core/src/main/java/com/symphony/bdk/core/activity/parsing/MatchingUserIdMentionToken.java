@@ -3,7 +3,6 @@ package com.symphony.bdk.core.activity.parsing;
 import org.apiguardian.api.API;
 
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 @API(status = API.Status.INTERNAL)
 public class MatchingUserIdMentionToken implements CommandToken {
@@ -12,11 +11,6 @@ public class MatchingUserIdMentionToken implements CommandToken {
 
   public MatchingUserIdMentionToken(Supplier<Long> matchingUserId) {
     this.matchingUserId = matchingUserId;
-  }
-
-  @Override
-  public Pattern getRegexPattern() {
-    return null;
   }
 
   @Override
