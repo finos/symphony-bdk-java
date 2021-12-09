@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity.parsing;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.symphony.bdk.core.activity.exception.SlashCommandSyntaxException;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.apiguardian.api.API;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 @API(status = API.Status.INTERNAL)
@@ -24,7 +26,13 @@ public class SlashCommandPattern {
   private final List<CommandToken> tokens;
 
   public SlashCommandPattern(String pattern) {
-    this.tokens = buildTokens(pattern);
+    try {
+      this.tokens = buildTokens(pattern);
+    } catch(PatternSyntaxException e) {
+      throw new SlashCommandSyntaxException("Bad slash command pattern."
+          + "Slash command pattern must be either words separated by spaces "
+          + "or aguments in the format {argumentName}, {@mentionArg}, {#hashtagArg}, {$cashtagArg} separated by spaces", e);
+    }
   }
 
   public List<CommandToken> getTokens() {

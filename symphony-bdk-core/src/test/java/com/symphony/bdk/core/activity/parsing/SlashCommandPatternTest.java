@@ -3,8 +3,10 @@ package com.symphony.bdk.core.activity.parsing;
 import static com.symphony.bdk.core.activity.parsing.ArgumentCommandToken.ARGUMENT_VALUE_REGEX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.symphony.bdk.core.activity.exception.SlashCommandSyntaxException;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.junit.jupiter.api.Test;
@@ -275,6 +277,16 @@ class SlashCommandPatternTest {
     final Hashtag cashtag = (Hashtag) resultArg;
     assertEquals("#myhashtag", cashtag.getText());
     assertEquals("myhashtag", cashtag.getValue());
+  }
+
+  @Test
+  void oneStaticAndOneArgumentGluedShouldBeInvalid() {
+    assertThrows(SlashCommandSyntaxException.class, () -> new SlashCommandPattern("/command{arg}"));
+  }
+
+  @Test
+  void twoGluedArgumentsShouldBeInvalid() {
+    assertThrows(SlashCommandSyntaxException.class, () -> new SlashCommandPattern("{arg1}{arg2}"));
   }
 
   private MatchResult getMatchResult(SlashCommandPattern pattern, String textContent) {
