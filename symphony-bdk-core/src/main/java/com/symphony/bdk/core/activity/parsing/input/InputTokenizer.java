@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.activity.parsing;
+package com.symphony.bdk.core.activity.parsing.input;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 

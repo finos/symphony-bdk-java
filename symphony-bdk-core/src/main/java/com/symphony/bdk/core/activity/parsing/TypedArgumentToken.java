@@ -5,7 +5,7 @@ import org.apiguardian.api.API;
 @API(status = API.Status.INTERNAL)
 public class TypedArgumentToken<T> extends ArgumentCommandToken {
 
-  private Class<T> type;
+  private final Class<T> type;
 
   public static <T> TypedArgumentToken<T> newInstance(Class<T> type, String pattern) {
     return new TypedArgumentToken<>(type, pattern.substring(2, pattern.length() - 1));

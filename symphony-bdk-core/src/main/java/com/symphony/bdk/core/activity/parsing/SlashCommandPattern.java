@@ -2,6 +2,11 @@ package com.symphony.bdk.core.activity.parsing;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.symphony.bdk.core.activity.parsing.input.Cashtag;
+import com.symphony.bdk.core.activity.parsing.input.Hashtag;
+import com.symphony.bdk.core.activity.parsing.input.InputToken;
+import com.symphony.bdk.core.activity.parsing.input.InputTokenizer;
+import com.symphony.bdk.core.activity.parsing.input.Mention;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.apiguardian.api.API;
