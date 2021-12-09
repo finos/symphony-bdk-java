@@ -1,7 +1,10 @@
 package com.symphony.bdk.core.activity.command;
 
+import com.symphony.bdk.core.activity.ActivityMatcher;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
+import com.symphony.bdk.core.activity.parsing.MatchingUserIdMentionToken;
+import com.symphony.bdk.core.activity.parsing.SlashCommandPattern;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
@@ -21,6 +24,7 @@ import javax.annotation.Nonnull;
 public class SlashCommand extends PatternCommandActivity<CommandContext> {
 
   private final String slashCommandName;
+  private final SlashCommandPattern commandPattern;
   private final boolean requiresBotMention;
   private final Consumer<CommandContext> callback;
   private final String description;
@@ -86,15 +90,26 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
     }
 
     this.slashCommandName = slashCommandName;
+    this.commandPattern = new SlashCommandPattern(this.slashCommandName);
     this.requiresBotMention = requiresBotMention;
+    if (this.requiresBotMention) {
+      this.commandPattern.prependToken(new MatchingUserIdMentionToken(() -> getBotUserId())); // specific token with no argument name that matches user ID
+    }
+
     this.callback = callback;
     this.description = description;
   }
 
   @Override
   public Pattern pattern() {
+    // FIXME useless
     final String botMention = this.requiresBotMention ? "@" + this.getBotDisplayName() + " " : "";
     return Pattern.compile("^" + botMention + this.slashCommandName + "$");
+  }
+
+  @Override
+  public ActivityMatcher<CommandContext> matcher() {
+    return context -> this.commandPattern.getMatchResult(context.getSourceEvent().getMessage()).isMatching();
   }
 
   @Override

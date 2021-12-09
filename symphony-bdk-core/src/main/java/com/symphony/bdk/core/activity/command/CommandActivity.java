@@ -29,6 +29,8 @@ public abstract class CommandActivity<C extends CommandContext> extends Abstract
    */
   @Getter @Setter private String botDisplayName;
 
+  @Getter @Setter private Long botUserId;
+
   /**
    * The dedicated {@link RealTimeEventListener} for the activity
    */

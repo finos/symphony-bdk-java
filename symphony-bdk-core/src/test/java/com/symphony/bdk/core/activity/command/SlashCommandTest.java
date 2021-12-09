@@ -24,6 +24,9 @@ import java.util.function.Consumer;
  */
 class SlashCommandTest {
 
+  private static final long BOT_USER_ID = 12345678L;
+  private static final String BOT_DISPLAY_NAME = "BotMention";
+
   @Test
   void testIllegalSlashCommandCreation() {
     assertThrows(IllegalArgumentException.class, () -> SlashCommand.slash("", c -> {}));
@@ -37,7 +40,8 @@ class SlashCommandTest {
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
     final SlashCommand cmd = SlashCommand.slash("/test", handler);
-    cmd.setBotDisplayName("BotMention");
+    cmd.setBotDisplayName(BOT_DISPLAY_NAME);
+    cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, "/test")));
@@ -52,7 +56,8 @@ class SlashCommandTest {
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
     final SlashCommand cmd = SlashCommand.slash("/test", false, handler);
-    cmd.setBotDisplayName("BotMention");
+    cmd.setBotDisplayName(BOT_DISPLAY_NAME);
+    cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(false, "/test")));
@@ -67,7 +72,8 @@ class SlashCommandTest {
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
     final SlashCommand cmd = SlashCommand.slash("/test", handler);
-    cmd.setBotDisplayName("BotMention");
+    cmd.setBotDisplayName(BOT_DISPLAY_NAME);
+    cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
     provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, "/foo")));
@@ -99,8 +105,13 @@ class SlashCommandTest {
     final V4MessageSent event = new V4MessageSent().message(new V4Message().stream(new V4Stream()));
     event.getMessage().getStream().setStreamId(UUID.randomUUID().toString());
     event.getMessage().setMessageId(UUID.randomUUID().toString());
-    String botMentionString = botMention ? "<span>@BotMention</span> " : "";
+
+    String botMentionString = botMention ? "<span class=\"entity\" data-entity-id=\"0\">@" + BOT_DISPLAY_NAME + "</span> " : "";
     event.getMessage().setMessage("<div><p>" + botMentionString + slashCommand + "</p></div>");
+
+    String data = botMention ? "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"" + BOT_USER_ID
+        + "\"}],\"type\":\"com.symphony.user.mention\"}}" : "{}";
+    event.getMessage().setData(data);
     return event;
   }
 }

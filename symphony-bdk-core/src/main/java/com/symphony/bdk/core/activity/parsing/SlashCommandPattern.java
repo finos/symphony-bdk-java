@@ -36,6 +36,10 @@ public class SlashCommandPattern {
     return tokens;
   }
 
+  public void prependToken(CommandToken token) {
+    tokens.add(0, token);
+  }
+
   public List<String> getArgumentNames() {
     return tokens.stream()
         .filter(t -> t instanceof ArgumentCommandToken)

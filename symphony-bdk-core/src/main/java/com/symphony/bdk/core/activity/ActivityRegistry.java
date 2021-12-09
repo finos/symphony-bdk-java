@@ -76,6 +76,7 @@ public class ActivityRegistry {
     // this way of passing this information is not very clean though, we should find something
     if (activity instanceof CommandActivity) {
       ((CommandActivity<?>) activity).setBotDisplayName(this.botSession.getDisplayName());
+      ((CommandActivity<?>) activity).setBotUserId(this.botSession.getId());
     }
 
     // make the activity to subscribe to its expected real-time event
