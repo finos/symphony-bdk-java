@@ -736,7 +736,6 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param userSuspension action to perform on the user
    * @see <a href="https://developers.symphony.com/restapi/reference#suspend-user-v1">Suspend User Account v1</a>
    */
-  @API(status = API.Status.STABLE)
   public void suspendUser(@Nonnull Long userId, @Nonnull UserSuspension userSuspension) {
     executeAndRetry("suspendUser",
         () -> userApi.v1AdminUserUserIdSuspensionUpdatePut(authSession.getSessionToken(), userId, userSuspension));
