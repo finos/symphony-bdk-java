@@ -64,6 +64,14 @@ public class MockApiClient {
     this.onRequestWithResponseCode("POST", statusCode, path, null, resContent);
   }
 
+  public void onPut(String path, String resContent) {
+    this.onRequestWithResponseCode("PUT", 200, path, null, resContent);
+  }
+
+  public void onPut(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("PUT", statusCode, path, null, resContent);
+  }
+
   public void onDelete(String path, String resContent) {
     this.onRequestWithResponseCode("DELETE", 200, path, null, resContent);
   }
@@ -110,6 +118,8 @@ public class MockApiClient {
       doReturn(response).when(invocationBuilder).get();
     } else if ("POST".equals(method)) {
       doReturn(response).when(invocationBuilder).post(any(Entity.class));
+    } else if ("PUT".equals(method)) {
+      doReturn(response).when(invocationBuilder).put(any(Entity.class));
     } else if ("DELETE".equals(method)) {
       doReturn(response).when(invocationBuilder).method(eq("DELETE"), any(Entity.class));
     }
