@@ -12,8 +12,17 @@ public class ArgumentCommandToken implements CommandToken {
 
   protected String argumentName;
 
-  public ArgumentCommandToken(String pattern) {
-    this.argumentName = pattern.substring(1, pattern.length() - 1);
+  /**
+   * Creates new instance of ArgumentCommandToken with pattern in the format: "{argName}"
+   * @param pattern the pattern in the format: "{argName}"
+   * @return a new instance of an ArgumentCommandToken
+   */
+  public static ArgumentCommandToken newInstance(String pattern) {
+    return new ArgumentCommandToken(pattern.substring(1, pattern.length() - 1));
+  }
+
+  protected ArgumentCommandToken(String argumentName) {
+    this.argumentName = argumentName;
   }
 
   @Override

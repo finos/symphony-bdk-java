@@ -156,10 +156,10 @@ class SlashCommandPatternTest {
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(1, tokens.size());
-    assertTrue(tokens.get(0) instanceof MentionArgumentToken);
+    assertTrue(tokens.get(0) instanceof TypedArgumentToken<?>);
 
-    V4Message message = new V4Message().message("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>")
-        .data("{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>",
+        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
@@ -174,11 +174,118 @@ class SlashCommandPatternTest {
     assertEquals("@jane-doe", mention.getText());
   }
 
+  @Test
+  void oneMentionWithSpace() {
+    String argName = "myarg";
+    SlashCommandPattern pattern = new SlashCommandPattern("{@" + argName + "}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof TypedArgumentToken<?>);
+
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">@John Doe</span>",
+        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertTrue(matchResult.isMatching());
+    assertEquals(1, matchResult.getArguments().size());
+
+    final Object resultArg = matchResult.getArguments().get(argName);
+    assertTrue(resultArg instanceof Mention);
+
+    final Mention mention = (Mention) resultArg;
+    assertEquals(12345678L, mention.getUserId());
+    assertEquals("John Doe", mention.getUserDisplayName());
+    assertEquals("@John Doe", mention.getText());
+  }
+
+  @Test
+  void oneStaticTokenOneMentionOneArg() {
+    String mentionArgName = "arg1";
+    String stringArgName = "arg2";
+    SlashCommandPattern pattern = new SlashCommandPattern("/command {@" + mentionArgName + "} {" + stringArgName + "}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(3, tokens.size());
+    assertEquals("^/command$", tokens.get(0).getRegexPattern().pattern());
+    assertTrue(tokens.get(1) instanceof TypedArgumentToken<?>);
+    assertEquals(ARGUMENT_VALUE_REGEX, tokens.get(2).getRegexPattern().pattern());
+
+    V4Message message = buildMessage("/command <span class=\"entity\" data-entity-id=\"0\">@John Doe</span> argValue",
+        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertTrue(matchResult.isMatching());
+    assertEquals(2, matchResult.getArguments().size());
+
+    final Object resultArg = matchResult.getArguments().get(mentionArgName);
+    assertTrue(resultArg instanceof Mention);
+
+    final Mention mention = (Mention) resultArg;
+    assertEquals(12345678L, mention.getUserId());
+    assertEquals("John Doe", mention.getUserDisplayName());
+    assertEquals("@John Doe", mention.getText());
+
+    assertEquals("argValue", matchResult.getArguments().get(stringArgName));
+  }
+
+  @Test
+  void oneCashtag() {
+    String argName = "myarg";
+    SlashCommandPattern pattern = new SlashCommandPattern("{$" + argName + "}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof TypedArgumentToken<?>);
+
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">$mycashtag</span>",
+        "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.ticker\",\"value\":\"mycashtag\"}],\"type\":\"org.symphonyoss.fin.security\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertTrue(matchResult.isMatching());
+    assertEquals(1, matchResult.getArguments().size());
+
+    final Object resultArg = matchResult.getArguments().get(argName);
+    assertTrue(resultArg instanceof Cashtag);
+
+    final Cashtag cashtag = (Cashtag) resultArg;
+    assertEquals("$mycashtag", cashtag.getText());
+    assertEquals("mycashtag", cashtag.getValue());
+  }
+
+  @Test
+  void oneHashtag() {
+    String argName = "myarg";
+    SlashCommandPattern pattern = new SlashCommandPattern("{#" + argName + "}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof TypedArgumentToken<?>);
+
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">#myhashtag</span>",
+        "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.taxonomy.hashtag\",\"value\":\"myhashtag\"}],\"type\":\"org.symphonyoss.taxonomy\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertTrue(matchResult.isMatching());
+    assertEquals(1, matchResult.getArguments().size());
+
+    final Object resultArg = matchResult.getArguments().get(argName);
+    assertTrue(resultArg instanceof Hashtag);
+
+    final Hashtag cashtag = (Hashtag) resultArg;
+    assertEquals("#myhashtag", cashtag.getText());
+    assertEquals("myhashtag", cashtag.getValue());
+  }
+
   private MatchResult getMatchResult(SlashCommandPattern pattern, String textContent) {
     return pattern.getMatchResult(buildMessage(textContent));
   }
 
   private V4Message buildMessage(String textContent) {
     return new V4Message().message("<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\"><p>" + textContent + "</p></div>");
+  }
+
+  private V4Message buildMessage(String textContent, String data) {
+    return buildMessage(textContent).data(data);
   }
 }

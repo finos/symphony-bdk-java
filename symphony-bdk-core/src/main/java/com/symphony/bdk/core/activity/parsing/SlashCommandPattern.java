@@ -18,7 +18,8 @@ import java.util.stream.Collectors;
 public class SlashCommandPattern {
 
   // Checking for valid java variable names enclosed by braces, see https://stackoverflow.com/a/17564142
-  private static final Pattern ARGUMENT_PATTERN = Pattern.compile("^\\{@?[a-zA-Z_$][a-zA-Z_$0-9]*\\}$");
+  private static final Pattern TYPED_ARGUMENT_PATTERN = Pattern.compile("^\\{[@$#][a-zA-Z_$][a-zA-Z_$0-9]*\\}$");
+  private static final Pattern STRING_ARGUMENT_PATTERN = Pattern.compile("^\\{[a-zA-Z_$][a-zA-Z_$0-9]*\\}$");
 
   private final List<CommandToken> tokens;
 
@@ -77,11 +78,17 @@ public class SlashCommandPattern {
   }
 
   private static CommandToken buildCommandToken(String token) {
-    if (ARGUMENT_PATTERN.matcher(token).matches()) {
+    if (TYPED_ARGUMENT_PATTERN.matcher(token).matches()) {
       if (token.startsWith("{@")) {
-        return new MentionArgumentToken(token);
+        return TypedArgumentToken.newInstance(Mention.class, token);
+      } else if (token.startsWith("{$")) {
+        return TypedArgumentToken.newInstance(Cashtag.class, token);
+      } else if (token.startsWith("{#")) {
+        return TypedArgumentToken.newInstance(Hashtag.class, token);
       }
-      return new ArgumentCommandToken(token);
+    }
+    if (STRING_ARGUMENT_PATTERN.matcher(token).matches()) {
+      return ArgumentCommandToken.newInstance(token);
     }
     return new StaticCommandToken(token);
   }
