@@ -15,9 +15,4 @@ public class HashtagInputToken implements InputToken<Hashtag> {
   public Hashtag getContent() {
     return hashtag;
   }
-
-  @Override
-  public String getContentAsString() {
-    return hashtag.getText();
-  }
 }

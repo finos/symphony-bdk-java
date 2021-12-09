@@ -6,6 +6,4 @@ import org.apiguardian.api.API;
 public interface InputToken<T> {
 
   T getContent();
-
-  String getContentAsString();
 }

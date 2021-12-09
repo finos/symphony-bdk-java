@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 @API(status = API.Status.EXPERIMENTAL)
 public abstract class PatternCommandActivity<C extends CommandContext> extends CommandActivity<C> {
 
-  protected abstract Pattern pattern();
+  protected abstract Pattern pattern(); // To be checked. Should we remove it ??
 
   protected void prepareContext(C context, Matcher matcher) {
     // to be implemented
@@ -22,6 +22,9 @@ public abstract class PatternCommandActivity<C extends CommandContext> extends C
   @Override
   protected void beforeMatcher(C context) {
     super.beforeMatcher(context);
+    if (this.pattern() == null) {
+      return;
+    }
     final Matcher matcher = this.pattern().matcher(context.getTextContent());
     if (matcher.matches()) {
       this.prepareContext(context, matcher);

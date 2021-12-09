@@ -170,7 +170,7 @@ class InputTokenizerTest {
   }
 
   private void assertIsStringToken(String expectedText, InputToken<?> actualInputToken) {
-    assertEquals(expectedText, actualInputToken.getContentAsString());
+    assertEquals(expectedText, actualInputToken.getContent());
     assertTrue(actualInputToken.getContent() instanceof String);
   }
 

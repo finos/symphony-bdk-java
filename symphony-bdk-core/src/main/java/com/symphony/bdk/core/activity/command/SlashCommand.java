@@ -3,6 +3,7 @@ package com.symphony.bdk.core.activity.command;
 import com.symphony.bdk.core.activity.ActivityMatcher;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
+import com.symphony.bdk.core.activity.parsing.MatchResult;
 import com.symphony.bdk.core.activity.parsing.MatchingUserIdMentionToken;
 import com.symphony.bdk.core.activity.parsing.SlashCommandPattern;
 import com.symphony.bdk.gen.api.model.V4Initiator;
@@ -103,13 +104,21 @@ public class SlashCommand extends PatternCommandActivity<CommandContext> {
   @Override
   public Pattern pattern() {
     // FIXME useless
-    final String botMention = this.requiresBotMention ? "@" + this.getBotDisplayName() + " " : "";
-    return Pattern.compile("^" + botMention + this.slashCommandName + "$");
+//    final String botMention = this.requiresBotMention ? "@" + this.getBotDisplayName() + " " : "";
+//    return Pattern.compile("^" + botMention + this.slashCommandName + "$");
+    return null;
   }
 
   @Override
   public ActivityMatcher<CommandContext> matcher() {
-    return context -> this.commandPattern.getMatchResult(context.getSourceEvent().getMessage()).isMatching();
+    return context -> {
+      final MatchResult matchResult = this.commandPattern.getMatchResult(context.getSourceEvent().getMessage());
+      if (matchResult.isMatching()) {
+        context.getArguments().putAll(matchResult.getArguments());
+      }
+
+      return matchResult.isMatching();
+    };
   }
 
   @Override

@@ -15,9 +15,4 @@ public class MentionInputToken implements InputToken<Mention> {
   public Mention getContent() {
     return mention;
   }
-
-  @Override
-  public String getContentAsString() {
-    return mention.getText();
-  }
 }

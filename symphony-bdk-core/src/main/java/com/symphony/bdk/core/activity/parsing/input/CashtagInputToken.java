@@ -15,9 +15,4 @@ public class CashtagInputToken implements InputToken<Cashtag> {
   public Cashtag getContent() {
     return cashtag;
   }
-
-  @Override
-  public String getContentAsString() {
-    return cashtag.getText();
-  }
 }
