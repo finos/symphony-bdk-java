@@ -177,6 +177,21 @@ class SlashCommandPatternTest {
   }
 
   @Test
+  void oneMentionIsNotMatchingStringPattern() {
+    SlashCommandPattern pattern = new SlashCommandPattern("{myarg}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof StringArgumentCommandToken);
+
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">@jane-doe</span>",
+        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertFalse(matchResult.isMatching());
+  }
+
+  @Test
   void oneMentionWithSpace() {
     String argName = "myarg";
     SlashCommandPattern pattern = new SlashCommandPattern("{@" + argName + "}");
@@ -256,6 +271,21 @@ class SlashCommandPatternTest {
   }
 
   @Test
+  void oneCashtagIsNotMatchingStringPattern() {
+    SlashCommandPattern pattern = new SlashCommandPattern("{myarg}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof StringArgumentCommandToken);
+
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">$mycashtag</span>",
+        "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.ticker\",\"value\":\"mycashtag\"}],\"type\":\"org.symphonyoss.fin.security\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertFalse(matchResult.isMatching());
+  }
+
+  @Test
   void oneHashtag() {
     String argName = "myarg";
     SlashCommandPattern pattern = new SlashCommandPattern("{#" + argName + "}");
@@ -277,6 +307,21 @@ class SlashCommandPatternTest {
     final Hashtag cashtag = (Hashtag) resultArg;
     assertEquals("#myhashtag", cashtag.getText());
     assertEquals("myhashtag", cashtag.getValue());
+  }
+
+  @Test
+  void oneHashtagIsNotMatchingStringPattern() {
+    SlashCommandPattern pattern = new SlashCommandPattern("{myarg}");
+
+    final List<CommandToken> tokens = pattern.getTokens();
+    assertEquals(1, tokens.size());
+    assertTrue(tokens.get(0) instanceof StringArgumentCommandToken);
+
+    V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">#myhashtag</span>",
+        "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.taxonomy.hashtag\",\"value\":\"myhashtag\"}],\"type\":\"org.symphonyoss.taxonomy\"}}");
+
+    final MatchResult matchResult = pattern.getMatchResult(message);
+    assertFalse(matchResult.isMatching());
   }
 
   @Test
