@@ -1039,14 +1039,15 @@ class UserServiceTest {
   }
 
   @Test
-  void suspendUserTest() throws ApiException {
+  void suspendUserTestSuccess() throws ApiException {
     this.mockApiClient.onPut(SUSPEND_USER.replace("{uid}", "1234"), "{}");
 
     UserSuspension userSuspension = new UserSuspension();
     userSuspension.setSuspended(true);
     userSuspension.setSuspensionReason("reason why");
+    userSuspension.setSuspendedUntil(67890L);
 
-    this.service.suspendUser(1234L, userSuspension);
+    this.service.suspendUser(1234L, "reason why", 67890L);
 
     verify(spiedUserApi).v1AdminUserUserIdSuspensionUpdatePut(
         eq("1234"),
@@ -1059,6 +1060,29 @@ class UserServiceTest {
     this.mockApiClient.onPut(400, SUSPEND_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.suspendUser(1234L, new UserSuspension()));
+        () -> this.service.suspendUser(1234L, "reason", 6789L));
+  }
+
+  @Test
+  void unsuspendUserTestSuccess() throws ApiException {
+    this.mockApiClient.onPut(SUSPEND_USER.replace("{uid}", "1234"), "{}");
+
+    UserSuspension userSuspension = new UserSuspension();
+    userSuspension.setSuspended(false);
+
+    this.service.unsuspendUser(1234L);
+
+    verify(spiedUserApi).v1AdminUserUserIdSuspensionUpdatePut(
+        eq("1234"),
+        eq(1234L),
+        eq(userSuspension));
+  }
+
+  @Test
+  void unsuspendUserTestFailed() {
+    this.mockApiClient.onPut(400, SUSPEND_USER.replace("{uid}", "1234"), "{}");
+
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.unsuspendUser(1234L));
   }
 }
