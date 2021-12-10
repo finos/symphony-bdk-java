@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
 public @interface Slash {
 
   /**
-   * Name or identifier of the {@link com.symphony.bdk.core.activity.command.SlashCommand}.
+   * Pattern of the {@link com.symphony.bdk.core.activity.command.SlashCommand}.
    */
   String value();
 

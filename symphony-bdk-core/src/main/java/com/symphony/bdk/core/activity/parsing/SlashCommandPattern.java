@@ -39,23 +39,21 @@ public class SlashCommandPattern {
   private final List<CommandToken> tokens;
 
   /**
-   *
    * @param pattern the slash command pattern
    * @throws {@link SlashCommandSyntaxException} if the pattern is not well formatted
    */
   public SlashCommandPattern(String pattern) {
     try {
       this.tokens = buildTokens(pattern);
-      checkArgumentNamesUnicity();
-    } catch(PatternSyntaxException e) {
+    } catch (PatternSyntaxException e) {
       throw new SlashCommandSyntaxException("Bad slash command pattern."
           + "Slash command pattern must be either words separated by spaces "
-          + "or aguments in the format {argumentName}, {@mentionArg}, {#hashtagArg}, {$cashtagArg} separated by spaces", e);
+          + "or aguments in the format {argumentName}, {@mentionArg}, {#hashtagArg}, {$cashtagArg} separated by spaces",
+          e);
     }
   }
 
   /**
-   *
    * @return the list of command tokens
    */
   public List<CommandToken> getTokens() {
@@ -64,6 +62,7 @@ public class SlashCommandPattern {
 
   /**
    * Adds a specific token at the beginning of the slash command pattern
+   *
    * @param token the command token to add
    */
   public void prependToken(CommandToken token) {
@@ -71,18 +70,15 @@ public class SlashCommandPattern {
   }
 
   /**
-   *
-   * @return the list of all argument names
+   * @return the map of key-value pairs (argument name, argument type)
    */
-  public List<String> getArgumentNames() {
+  public Map<String, ? extends Class<?>> getArgumentDefinitions() {
     return tokens.stream()
         .filter(t -> t instanceof ArgumentCommandToken)
-        .map(t -> ((ArgumentCommandToken) t).getArgumentName())
-        .collect(Collectors.toList());
+        .collect(Collectors.toMap(t -> ((ArgumentCommandToken) t).getArgumentName(), t -> t.getTokenType()));
   }
 
   /**
-   *
    * @param message the input message to be matched against the {@link SlashCommandPattern}
    * @return the {@link MatchResult} object containing the status (matches or not) and the potential arguments.
    */
@@ -122,7 +118,11 @@ public class SlashCommandPattern {
     }
 
     final String[] tokens = pattern.trim().split("\\s+");
-    return Arrays.stream(tokens).map(SlashCommandPattern::buildCommandToken).collect(Collectors.toList());
+    final List<CommandToken> commandTokens = Arrays.stream(tokens).map(SlashCommandPattern::buildCommandToken).collect(Collectors.toList());
+
+    checkArgumentNamesUniqueness(commandTokens);
+
+    return commandTokens;
   }
 
   private static CommandToken buildCommandToken(String token) {
@@ -153,9 +153,13 @@ public class SlashCommandPattern {
     return arguments;
   }
 
-  private void checkArgumentNamesUnicity() {
-    List<String> argumentNames = getArgumentNames();
-    Set<String> uniqueArgumentNames = new HashSet<>(argumentNames);
+  private void checkArgumentNamesUniqueness(List<CommandToken> tokens) {
+    final List<String> argumentNames = tokens.stream()
+        .filter(t -> t instanceof ArgumentCommandToken)
+        .map(t -> ((ArgumentCommandToken) t).getArgumentName())
+        .collect(Collectors.toList());
+
+    final Set<String> uniqueArgumentNames = new HashSet<>(argumentNames);
 
     if (argumentNames.size() != uniqueArgumentNames.size()) {
       throw new SlashCommandSyntaxException("Argument names must be unique");

@@ -6,6 +6,8 @@ import static org.springframework.core.annotation.AnnotationUtils.isCandidateCla
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.core.activity.exception.SlashCommandSyntaxException;
+import com.symphony.bdk.core.activity.parsing.SlashCommandPattern;
 
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +18,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodIntrospector;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -42,6 +47,13 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
       "com.symphony.bdk.gen.",
       "com.symphony.bdk.core."
   };
+
+  private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
+
+  /**
+   * Key is the annotated slash method, value is the map of (parameter name, index)
+   */
+  private static final Map<Method, Map<String, Integer>> METHOD_TO_ARGUMENT_INDEXES = new HashMap<>();
 
   /**
    * The {@link ActivityRegistry} is used here to register the slash activities.
@@ -114,7 +126,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
 
       final Slash annotation = annotatedMethods.get(m);
 
-      if (isMethodPrototypeValid(m)) {
+      if (isMethodPrototypeValid(m, annotation.value())) {
         this.registerSlashMethod(beanName, m, annotation);
       } else {
         log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
@@ -142,10 +154,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   private void registerSlashMethod(String beanName, Method method, Slash annotation) {
     final Object bean = this.beanFactory.getBean(beanName);
 
-    if (this.activityRegistry == null) {
-      this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
-    }
-    this.activityRegistry.register(
+    getActivityRegistry().register(
         SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method),
             annotation.description())
     );
@@ -155,18 +164,79 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   protected static Consumer<CommandContext> createSlashCommandCallback(Object bean, Method method) {
     return c -> {
       try {
-        method.invoke(bean, c);
+        final Map<String, Integer> methodParameterIndexes = METHOD_TO_ARGUMENT_INDEXES.get(method);
+        final Object[] slashMethodParameters = buildSlashMethodParameters(methodParameterIndexes, c);
+
+        method.invoke(bean, slashMethodParameters);
       } catch (Throwable e) {
         log.error("Unable to invoke @Slash method {} from bean {}", method.getName(), bean.getClass(), e);
       }
     };
   }
 
-  private static boolean isMethodPrototypeValid(Method m) {
-    return m.getParameterCount() == 1 && m.getParameters()[0].getType().equals(CommandContext.class);
+  private static Object[] buildSlashMethodParameters(Map<String, Integer> methodParameterIndexes, CommandContext c) {
+    Object[] methodArguments = new Object[methodParameterIndexes.size() + 1];
+    methodArguments[0] = c; // first method argument is always the CommandContext
+    methodParameterIndexes.forEach((k, v) -> methodArguments[v] = c.getArguments().get(k));
+    return methodArguments;
+  }
+
+  private static boolean isMethodPrototypeValid(Method m, String slashCommandDefinition) {
+    try {
+      final Map<String, ? extends Class<?>> slashArgumentDefinitions =
+          new SlashCommandPattern(slashCommandDefinition).getArgumentDefinitions();
+
+      return hasCorrectNumberOfParameters(m, slashArgumentDefinitions) && hasFirstParameterOfTypeCommandContext(m)
+          && hasMatchingParameterNamesAndTypes(m, slashArgumentDefinitions);
+    } catch (SlashCommandSyntaxException e) {
+      log.warn("Unable to invoke @Slash method {} from bean {} due to invalid slash command value: {}", m.getName(),
+          m.getDeclaringClass(), slashCommandDefinition, e);
+      return false;
+    }
+  }
+
+  private static boolean hasMatchingParameterNamesAndTypes(Method m, Map<String, ? extends Class<?>> slashArgumentDefinitions) {
+    final String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(m);
+    if (parameterNames == null) {
+      log.warn("Unable to retrieve method parameter names, cannot register slash method");
+      return false;
+    }
+
+    final HashMap<String, Integer> argumentIndexes = new HashMap<>(); // to be potentially cached for later
+    for (int i = 1; i < m.getParameters().length; i++) { // we skip first parameter as it should be of CommandContext type (checked before)
+      if (!areNameAndTypeInSlashArguments(parameterNames[i], m.getParameters()[i].getType(), slashArgumentDefinitions)) {
+        return false;
+      }
+      argumentIndexes.put(parameterNames[i], i);
+    }
+
+    // Signature is correct: cache results
+    METHOD_TO_ARGUMENT_INDEXES.put(m, argumentIndexes);
+
+    return true;
+  }
+
+  private static boolean hasFirstParameterOfTypeCommandContext(Method m) {
+    return m.getParameters()[0].getType().equals(CommandContext.class);
+  }
+
+  private static boolean hasCorrectNumberOfParameters(Method m, Map<String, ? extends Class<?>> slashArgumentDefinitions) {
+    return m.getParameterCount() == 1 + slashArgumentDefinitions.size();
+  }
+
+  private static boolean areNameAndTypeInSlashArguments(String parameterName, Class<?> parameterType, Map<String, ? extends Class<?>> slashArgumentDefinitions) {
+    final Class<?> slashArgumentType = slashArgumentDefinitions.get(parameterName);
+    return slashArgumentType != null && slashArgumentType.equals(parameterType);
   }
 
   private static boolean isClassLocatedInPackages(Class<?> clazz, String... packagePrefixes) {
     return Stream.of(packagePrefixes).anyMatch(clazz.getName()::startsWith);
+  }
+
+  private ActivityRegistry getActivityRegistry() {
+    if (this.activityRegistry == null) {
+      this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
+    }
+    return this.activityRegistry;
   }
 }

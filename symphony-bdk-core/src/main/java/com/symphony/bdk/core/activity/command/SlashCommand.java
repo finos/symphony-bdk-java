@@ -9,6 +9,7 @@ import com.symphony.bdk.core.activity.parsing.SlashCommandPattern;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
@@ -23,6 +24,7 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.EXPERIMENTAL)
 public class SlashCommand extends CommandActivity<CommandContext> {
 
+  @Getter
   private final String slashCommandName;
   private final SlashCommandPattern commandPattern;
   private final boolean requiresBotMention;

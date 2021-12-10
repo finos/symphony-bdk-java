@@ -1,6 +1,7 @@
 package com.symphony.bdk.spring.annotation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -21,7 +22,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * This test class ensures that methods annotated by {@link com.symphony.bdk.spring.annotation.Slash} annotation are
@@ -44,20 +50,22 @@ public class SlashAnnotationProcessorTest {
    */
   @Test
   void slashMethodShouldBeRegistered() {
-
-    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(5);
-
-    assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(SlashCommand.class)));
+    assertThat(this.activityRegistry.getActivityList().size()).isEqualTo(8);
     assertTrue(this.activityRegistry.getActivityList().stream().anyMatch(a -> a.getClass().equals(TestFormReplyActivity.class)));
-  }
 
-  @Test
-  void testCreateSlashCommandCallback() throws Exception {
-    final TestSlashCommand bean = spy(new TestSlashCommand());
-    final Method publicMethod = bean.getClass().getDeclaredMethod("onTest", CommandContext.class);
-    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod);
-    callback.accept(mock(CommandContext.class));
-    verify(bean).onTest(any(CommandContext.class));
+    final List<SlashCommand> slashCommands = this.activityRegistry.getActivityList()
+        .stream()
+        .filter(a -> a.getClass().equals(SlashCommand.class))
+        .map(a -> (SlashCommand) a)
+        .collect(Collectors.toList());
+    assertEquals(7, slashCommands.size());
+
+    final List<String> expectedSlashCommandPatterns =
+        Arrays.asList("/test", "/error-test", "/lazy-foo-bar", "/foo-bar", "/hello {arg}", "/hello {arg}",
+            "/hello1 {arg} {@mention} {#hashtag} {$cashtag}", "/hello2 {arg} {@mention} {#hashtag} {$cashtag}");
+    final Set<String> actualSlashCommandPatterns =
+        slashCommands.stream().map(SlashCommand::getSlashCommandName).collect(Collectors.toSet());
+    assertEquals(new HashSet<>(expectedSlashCommandPatterns), actualSlashCommandPatterns);
   }
 
   @Test

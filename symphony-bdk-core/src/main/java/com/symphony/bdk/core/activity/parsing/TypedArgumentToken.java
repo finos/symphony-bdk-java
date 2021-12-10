@@ -37,4 +37,9 @@ public class TypedArgumentToken<T> implements ArgumentCommandToken {
   public boolean matches(Object inputToken) {
     return type.isAssignableFrom(inputToken.getClass());
   }
+
+  @Override
+  public Class<?> getTokenType() {
+    return type;
+  }
 }

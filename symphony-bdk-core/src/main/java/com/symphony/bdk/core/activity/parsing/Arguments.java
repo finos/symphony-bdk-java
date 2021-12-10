@@ -2,6 +2,7 @@ package com.symphony.bdk.core.activity.parsing;
 
 import org.apiguardian.api.API;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,6 +13,10 @@ import java.util.Set;
 public class Arguments {
 
   private Map<String, Object> arguments;
+
+  public Arguments() {
+    this.arguments = Collections.emptyMap();
+  }
 
   public Arguments(Map<String, Object> arguments) {
     this.arguments = arguments;
@@ -24,6 +29,7 @@ public class Arguments {
   public Set<String> getArgumentNames() {
     return arguments.keySet();
   }
+
   /**
    *
    * @param argumentName the name of the argument to be retrieved
