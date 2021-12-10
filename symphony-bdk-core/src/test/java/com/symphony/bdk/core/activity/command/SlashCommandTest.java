@@ -135,7 +135,7 @@ class SlashCommandTest {
 
     final Consumer<CommandContext> handler = c -> {
       handlerCalled.set(true);
-      arguments.putAll(c.getArguments());
+      copyArguments(c, arguments);
     };
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
@@ -162,7 +162,7 @@ class SlashCommandTest {
 
     final Consumer<CommandContext> handler = c -> {
       handlerCalled.set(true);
-      arguments.putAll(c.getArguments());
+      copyArguments(c, arguments);
     };
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
@@ -244,5 +244,11 @@ class SlashCommandTest {
     event.getMessage().setMessage(message);
     event.getMessage().setData(data);
     return event;
+  }
+
+  private static void copyArguments(CommandContext c, Map<String, Object> arguments) {
+    for (String arg : c.getArguments().getArgumentNames()) {
+      arguments.put(arg, c.getArguments().get(arg));
+    }
   }
 }

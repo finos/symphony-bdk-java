@@ -106,7 +106,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
     return context -> {
       final MatchResult matchResult = this.commandPattern.getMatchResult(context.getSourceEvent().getMessage());
       if (matchResult.isMatching()) {
-        context.getArguments().putAll(matchResult.getArguments());
+        context.setArguments(matchResult.getArguments());
       }
 
       return matchResult.isMatching();

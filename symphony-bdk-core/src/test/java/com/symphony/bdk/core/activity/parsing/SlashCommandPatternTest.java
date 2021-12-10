@@ -92,14 +92,17 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResultEmptyInput = getMatchResult(pattern,"");
     assertFalse(matchResultEmptyInput.isMatching());
-    assertTrue(matchResultEmptyInput.getArguments().isEmpty());
+    assertTrue(matchResultEmptyInput.getArguments().getArgumentNames().isEmpty());
 
     assertFalse(getMatchResult(pattern,"ab cd").isMatching());
 
     final String input = "a1454#";
     final MatchResult matchResult = getMatchResult(pattern,input);
     assertTrue(matchResult.isMatching());
-    assertEquals(Collections.singletonMap(argumentName, input), matchResult.getArguments());
+
+    final Arguments arguments = matchResult.getArguments();
+    assertEquals(Collections.singleton(argumentName), arguments.getArgumentNames());
+    assertEquals(input, arguments.get(argumentName));
   }
 
   @Test
@@ -116,12 +119,15 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResultEmptyInput = getMatchResult(pattern,"/command");
     assertFalse(matchResultEmptyInput.isMatching());
-    assertTrue(matchResultEmptyInput.getArguments().isEmpty());
+    assertTrue(matchResultEmptyInput.getArguments().getArgumentNames().isEmpty());
 
     final String input = "a1454#";
     final MatchResult matchResult = getMatchResult(pattern,"/command " + input);
     assertTrue(matchResult.isMatching());
-    assertEquals(Collections.singletonMap(argumentName, input), matchResult.getArguments());
+
+    final Arguments arguments = matchResult.getArguments();
+    assertEquals(Collections.singleton(argumentName), arguments.getArgumentNames());
+    assertEquals(input, arguments.get(argumentName));
   }
 
   @Test
@@ -140,13 +146,13 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResultEmptyInput = getMatchResult(pattern,"/command");
     assertFalse(matchResultEmptyInput.isMatching());
-    assertTrue(matchResultEmptyInput.getArguments().isEmpty());
+    assertTrue(matchResultEmptyInput.getArguments().getArgumentNames().isEmpty());
 
     final String firstArgValue = "ab";
     final String secondArgValue = "def";
     final MatchResult matchResult = getMatchResult(pattern,"/command " + firstArgValue + " " + secondArgValue);
     assertTrue(matchResult.isMatching());
-    assertEquals(2, matchResult.getArguments().size());
+    assertEquals(2, matchResult.getArguments().getArgumentNames().size());
     assertEquals(firstArgValue, matchResult.getArguments().get(firstArgName));
     assertEquals(secondArgValue, matchResult.getArguments().get(secondArgName));
   }
@@ -165,12 +171,9 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
-    assertEquals(1, matchResult.getArguments().size());
+    assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Object actual = matchResult.getArguments().get(argName);
-    assertTrue(actual instanceof Mention);
-
-    final Mention mention = (Mention) actual;
+    final Mention mention = matchResult.getArguments().getAsMention(argName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("jane-doe", mention.getUserDisplayName());
     assertEquals("@jane-doe", mention.getText());
@@ -205,12 +208,9 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
-    assertEquals(1, matchResult.getArguments().size());
+    assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Object resultArg = matchResult.getArguments().get(argName);
-    assertTrue(resultArg instanceof Mention);
-
-    final Mention mention = (Mention) resultArg;
+    final Mention mention = matchResult.getArguments().getAsMention(argName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("John Doe", mention.getUserDisplayName());
     assertEquals("@John Doe", mention.getText());
@@ -233,12 +233,9 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
-    assertEquals(2, matchResult.getArguments().size());
+    assertEquals(2, matchResult.getArguments().getArgumentNames().size());
 
-    final Object resultArg = matchResult.getArguments().get(mentionArgName);
-    assertTrue(resultArg instanceof Mention);
-
-    final Mention mention = (Mention) resultArg;
+    final Mention mention = matchResult.getArguments().getAsMention(mentionArgName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("John Doe", mention.getUserDisplayName());
     assertEquals("@John Doe", mention.getText());
@@ -260,12 +257,9 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
-    assertEquals(1, matchResult.getArguments().size());
+    assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Object resultArg = matchResult.getArguments().get(argName);
-    assertTrue(resultArg instanceof Cashtag);
-
-    final Cashtag cashtag = (Cashtag) resultArg;
+    final Cashtag cashtag = matchResult.getArguments().getAsCashtag(argName);
     assertEquals("$mycashtag", cashtag.getText());
     assertEquals("mycashtag", cashtag.getValue());
   }
@@ -299,12 +293,9 @@ class SlashCommandPatternTest {
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
-    assertEquals(1, matchResult.getArguments().size());
+    assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Object resultArg = matchResult.getArguments().get(argName);
-    assertTrue(resultArg instanceof Hashtag);
-
-    final Hashtag cashtag = (Hashtag) resultArg;
+    final Hashtag cashtag = matchResult.getArguments().getAsHashtag(argName);
     assertEquals("#myhashtag", cashtag.getText());
     assertEquals("myhashtag", cashtag.getValue());
   }

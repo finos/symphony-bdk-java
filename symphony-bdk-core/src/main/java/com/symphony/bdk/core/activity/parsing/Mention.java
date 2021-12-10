@@ -33,4 +33,9 @@ public class Mention {
     this.userDisplayName = text.substring(1);
     this.userId = userId;
   }
+
+  @Override
+  public String toString() {
+    return text;
+  }
 }

@@ -16,7 +16,7 @@ import java.util.Map;
 public class MatchResult {
 
   private boolean isMatching;
-  private Map<String, Object> arguments;
+  private Arguments arguments;
 
   /**
    *
@@ -33,6 +33,6 @@ public class MatchResult {
    */
   public MatchResult(boolean isMatching, Map<String, Object> arguments) {
     this.isMatching = isMatching;
-    this.arguments = arguments;
+    this.arguments = new Arguments(arguments);
   }
 }

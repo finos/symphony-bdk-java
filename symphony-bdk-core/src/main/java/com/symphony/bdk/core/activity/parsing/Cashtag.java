@@ -18,4 +18,9 @@ public class Cashtag {
    * value of the cashtag, e.g. "tag"
    */
   String value;
+
+  @Override
+  public String toString() {
+    return text;
+  }
 }

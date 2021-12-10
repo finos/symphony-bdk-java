@@ -18,4 +18,9 @@ public class Hashtag {
    * the value of the hashtag, e.g. "tag"
    */
   String value;
+
+  @Override
+  public String toString() {
+    return text;
+  }
 }

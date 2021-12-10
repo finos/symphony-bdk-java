@@ -1,9 +1,7 @@
 package com.symphony.bdk.core.activity.command;
 
 import com.symphony.bdk.core.activity.ActivityContext;
-import com.symphony.bdk.core.activity.parsing.Cashtag;
-import com.symphony.bdk.core.activity.parsing.Hashtag;
-import com.symphony.bdk.core.activity.parsing.Mention;
+import com.symphony.bdk.core.activity.parsing.Arguments;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
@@ -11,8 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
 
 /**
  * Default implementation of the {@link ActivityContext} handled by the {@link CommandActivity}.
@@ -32,22 +29,14 @@ public class CommandContext extends ActivityContext<V4MessageSent> {
   private final String messageId;
 
   /**
-   * Potential arguments if command is matching. Key is argument name, value is actual argument value.
-   * Actual type of value can be:
-   * <ul>
-   *   <li>{@link String}</li>
-   *   <li>{@link Mention}</li>
-   *   <li>{@link Cashtag}</li>
-   *   <li>{@link Hashtag}</li>
-   * </ul>
-   * depending on the command definition.
+   * Potential arguments if command is matching.
    */
-  private final Map<String, Object> arguments;
+  private Arguments arguments;
 
   public CommandContext(V4Initiator initiator, V4MessageSent eventSource) {
     super(initiator, eventSource);
     this.streamId = eventSource.getMessage().getStream().getStreamId();
     this.messageId = eventSource.getMessage().getMessageId();
-    this.arguments = new HashMap<>();
+    this.arguments = new Arguments(Collections.emptyMap());
   }
 }
