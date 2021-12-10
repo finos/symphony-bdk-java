@@ -53,6 +53,8 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
@@ -1047,7 +1049,7 @@ class UserServiceTest {
     userSuspension.setSuspensionReason("reason why");
     userSuspension.setSuspendedUntil(67890L);
 
-    this.service.suspendUser(1234L, "reason why", 67890L);
+    this.service.suspendUser(1234L, "reason why", Instant.now());
 
     verify(spiedUserApi).v1AdminUserUserIdSuspensionUpdatePut(
         eq("1234"),
@@ -1060,7 +1062,7 @@ class UserServiceTest {
     this.mockApiClient.onPut(400, SUSPEND_USER.replace("{uid}", "1234"), "{}");
 
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.suspendUser(1234L, "reason", 6789L));
+        () -> this.service.suspendUser(1234L, "reason", Instant.now().plus(Duration.ofDays(1))));
   }
 
   @Test
