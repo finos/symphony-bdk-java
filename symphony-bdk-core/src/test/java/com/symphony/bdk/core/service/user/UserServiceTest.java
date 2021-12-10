@@ -1047,7 +1047,7 @@ class UserServiceTest {
     UserSuspension userSuspension = new UserSuspension();
     userSuspension.setSuspended(true);
     userSuspension.setSuspensionReason("reason why");
-    userSuspension.setSuspendedUntil(67890L);
+    userSuspension.setSuspendedUntil(Instant.now().toEpochMilli());
 
     this.service.suspendUser(1234L, "reason why", Instant.now());
 
