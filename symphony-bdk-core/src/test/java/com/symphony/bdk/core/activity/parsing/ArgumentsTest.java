@@ -18,9 +18,10 @@ class ArgumentsTest {
 
     assertNull(arguments.get(""));
     assertNull(arguments.getAsString(""));
-    assertNull(arguments.getAsCashtag(""));
-    assertNull(arguments.getAsHashtag(""));
-    assertNull(arguments.getAsMention(""));
+    assertNull(arguments.getString(""));
+    assertNull(arguments.getCashtag(""));
+    assertNull(arguments.getHashtag(""));
+    assertNull(arguments.getMention(""));
   }
 
   @Test
@@ -34,9 +35,10 @@ class ArgumentsTest {
     assertTrue(arguments.get(argName) instanceof String);
     assertEquals(argValue, arguments.get(argName));
     assertEquals(argValue, arguments.getAsString(argName));
-    assertNull(arguments.getAsCashtag(argName));
-    assertNull(arguments.getAsHashtag(argName));
-    assertNull(arguments.getAsMention(argName));
+    assertEquals(argValue, arguments.getString(argName));
+    assertNull(arguments.getCashtag(argName));
+    assertNull(arguments.getHashtag(argName));
+    assertNull(arguments.getMention(argName));
   }
 
   @Test
@@ -52,9 +54,10 @@ class ArgumentsTest {
     assertTrue(arguments.get(argName) instanceof Mention);
     assertEquals(argValue, arguments.get(argName));
     assertEquals(mentionText, arguments.getAsString(argName));
-    assertNull(arguments.getAsCashtag(argName));
-    assertNull(arguments.getAsHashtag(argName));
-    assertEquals(argValue, arguments.getAsMention(argName));
+    assertNull(arguments.getString(argName));
+    assertNull(arguments.getCashtag(argName));
+    assertNull(arguments.getHashtag(argName));
+    assertEquals(argValue, arguments.getMention(argName));
   }
 
   @Test
@@ -70,9 +73,10 @@ class ArgumentsTest {
     assertTrue(arguments.get(argName) instanceof Cashtag);
     assertEquals(argValue, arguments.get(argName));
     assertEquals(cashtagText, arguments.getAsString(argName));
-    assertEquals(argValue, arguments.getAsCashtag(argName));
-    assertNull(arguments.getAsHashtag(argName));
-    assertNull(arguments.getAsMention(argName));
+    assertNull(arguments.getString(argName));
+    assertEquals(argValue, arguments.getCashtag(argName));
+    assertNull(arguments.getHashtag(argName));
+    assertNull(arguments.getMention(argName));
   }
 
   @Test
@@ -88,9 +92,10 @@ class ArgumentsTest {
     assertTrue(arguments.get(argName) instanceof Hashtag);
     assertEquals(argValue, arguments.get(argName));
     assertEquals(hashtagText, arguments.getAsString(argName));
-    assertNull(arguments.getAsCashtag(argName));
-    assertEquals(argValue, arguments.getAsHashtag(argName));
-    assertNull(arguments.getAsMention(argName));
+    assertNull(arguments.getString(argName));
+    assertNull(arguments.getCashtag(argName));
+    assertEquals(argValue, arguments.getHashtag(argName));
+    assertNull(arguments.getMention(argName));
   }
 
 }

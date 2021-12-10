@@ -17,7 +17,7 @@ public class SlashCommandArgsMain {
     // Replies with the information of a mention
     bdk.activities().register(slash("/echo {@mention}", true, context ->
         {
-          final Mention mention = context.getArguments().getAsMention("mention");
+          final Mention mention = context.getArguments().getMention("mention");
           bdk.messages().send(context.getStreamId(), "Mentioned user: " + mention.getUserDisplayName() + "" + ", id: " + mention.getUserId());
         }
     ));
@@ -25,7 +25,7 @@ public class SlashCommandArgsMain {
     // Replies with the information of a hashtag
     bdk.activities().register(slash("/echo {#hashtag}", true, context ->
         {
-          final Hashtag hashtag = context.getArguments().getAsHashtag("hashtag");
+          final Hashtag hashtag = context.getArguments().getHashtag("hashtag");
           bdk.messages().send(context.getStreamId(), "Hashtag value: " + hashtag.getValue());
         }
     ));
@@ -33,14 +33,14 @@ public class SlashCommandArgsMain {
     // Replies with the information of a cashtag
     bdk.activities().register(slash("/echo {$cashtag}", true, context ->
         {
-          final Cashtag cashtag = context.getArguments().getAsCashtag("cashtag");
+          final Cashtag cashtag = context.getArguments().getCashtag("cashtag");
           bdk.messages().send(context.getStreamId(), "Cashtag value: " + cashtag.getValue());
         }
     ));
 
     // Echoes a string
     bdk.activities().register(slash("/echo {argument}", true, context ->
-        bdk.messages().send(context.getStreamId(), "Received argument: " + context.getArguments().getAsString("argument"))
+        bdk.messages().send(context.getStreamId(), "Received argument: " + context.getArguments().getString("argument"))
     ));
 
     bdk.datafeed().start();

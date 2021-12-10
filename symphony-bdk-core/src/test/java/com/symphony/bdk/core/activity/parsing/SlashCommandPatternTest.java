@@ -173,7 +173,7 @@ class SlashCommandPatternTest {
     assertTrue(matchResult.isMatching());
     assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Mention mention = matchResult.getArguments().getAsMention(argName);
+    final Mention mention = matchResult.getArguments().getMention(argName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("jane-doe", mention.getUserDisplayName());
     assertEquals("@jane-doe", mention.getText());
@@ -210,7 +210,7 @@ class SlashCommandPatternTest {
     assertTrue(matchResult.isMatching());
     assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Mention mention = matchResult.getArguments().getAsMention(argName);
+    final Mention mention = matchResult.getArguments().getMention(argName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("John Doe", mention.getUserDisplayName());
     assertEquals("@John Doe", mention.getText());
@@ -235,7 +235,7 @@ class SlashCommandPatternTest {
     assertTrue(matchResult.isMatching());
     assertEquals(2, matchResult.getArguments().getArgumentNames().size());
 
-    final Mention mention = matchResult.getArguments().getAsMention(mentionArgName);
+    final Mention mention = matchResult.getArguments().getMention(mentionArgName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("John Doe", mention.getUserDisplayName());
     assertEquals("@John Doe", mention.getText());
@@ -259,7 +259,7 @@ class SlashCommandPatternTest {
     assertTrue(matchResult.isMatching());
     assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Cashtag cashtag = matchResult.getArguments().getAsCashtag(argName);
+    final Cashtag cashtag = matchResult.getArguments().getCashtag(argName);
     assertEquals("$mycashtag", cashtag.getText());
     assertEquals("mycashtag", cashtag.getValue());
   }
@@ -295,7 +295,7 @@ class SlashCommandPatternTest {
     assertTrue(matchResult.isMatching());
     assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
-    final Hashtag cashtag = matchResult.getArguments().getAsHashtag(argName);
+    final Hashtag cashtag = matchResult.getArguments().getHashtag(argName);
     assertEquals("#myhashtag", cashtag.getText());
     assertEquals("myhashtag", cashtag.getValue());
   }

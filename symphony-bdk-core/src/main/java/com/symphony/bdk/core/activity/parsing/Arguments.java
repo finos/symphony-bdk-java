@@ -47,9 +47,19 @@ public class Arguments {
   /**
    *
    * @param argumentName the name of the argument to be retrieved
+   * @return the argument value if present and if is of type {@link String}, null otherwise
+   */
+  public String getString(String argumentName) {
+    return get(String.class, argumentName);
+  }
+
+
+  /**
+   *
+   * @param argumentName the name of the argument to be retrieved
    * @return the argument value if present and if is of type {@link Hashtag}, null otherwise
    */
-  public Hashtag getAsHashtag(String argumentName) {
+  public Hashtag getHashtag(String argumentName) {
     return get(Hashtag.class, argumentName);
   }
 
@@ -58,7 +68,7 @@ public class Arguments {
    * @param argumentName the name of the argument to be retrieved
    * @return the argument value if present and if is of type {@link Cashtag}, null otherwise
    */
-  public Cashtag getAsCashtag(String argumentName) {
+  public Cashtag getCashtag(String argumentName) {
     return get(Cashtag.class, argumentName);
   }
 
@@ -67,7 +77,7 @@ public class Arguments {
    * @param argumentName the name of the argument to be retrieved
    * @return the argument value if present and if is of type {@link Mention}, null otherwise
    */
-  public Mention getAsMention(String argumentName) {
+  public Mention getMention(String argumentName) {
     return get(Mention.class, argumentName);
   }
 
