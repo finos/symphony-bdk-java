@@ -50,13 +50,15 @@ public class InputTokenizer {
   @SneakyThrows
   private static DocumentBuilder initBuilder() {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    // to fix XXE vulnerability
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     return factory.newDocumentBuilder();
   }
 
   private Document document;
   private JsonNode dataNode;
   private List<Object> tokens;
-  private StringBuffer buffer;
+  private StringBuilder buffer;
 
   /**
    *
@@ -69,7 +71,7 @@ public class InputTokenizer {
     String jsonData = isBlank(message.getData()) ? "{}" : message.getData();
     this.dataNode = MAPPER.readTree(jsonData);
     this.tokens = new ArrayList<>();
-    this.buffer = new StringBuffer();
+    this.buffer = new StringBuilder();
 
     tokenize();
   }
@@ -143,11 +145,7 @@ public class InputTokenizer {
     }
 
     String entityId = entityIdAttribute.getNodeValue();
-    if (!dataNode.has(entityId)) {
-      return false;
-    }
-
-    return true;
+    return dataNode.has(entityId);
   }
 
   private String extractEntityValue(Node node, String type) {

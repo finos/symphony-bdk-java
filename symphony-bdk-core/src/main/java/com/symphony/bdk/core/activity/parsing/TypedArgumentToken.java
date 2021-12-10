@@ -17,7 +17,7 @@ public class TypedArgumentToken<T> implements ArgumentCommandToken {
    * @param type the type to be checked for matching
    * @param pattern the pattern in format "{{@literal @}argName}", "{$argName}" or "{#argName}"
    * @param <T> the type to be checked for matching
-   * @return
+   * @return a new instance
    */
   public static <T> TypedArgumentToken<T> newInstance(Class<T> type, String pattern) {
     return new TypedArgumentToken<>(type, pattern.substring(2, pattern.length() - 1));
