@@ -46,6 +46,7 @@ import org.apiguardian.api.API;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -730,13 +731,33 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   /**
-   * Suspends or re-activates a user account.
+   * Suspends a user account.
+   * Calling this endpoint requires a service account with the User Provisioning role.
    *
-   * @param userId  user id
-   * @param userSuspension action to perform on the user
+   * @param userId  user id to suspend
+   * @param reason  reason why the user has to be suspended
+   * @param until   instant till when the user should be suspended
    * @see <a href="https://developers.symphony.com/restapi/reference#suspend-user-v1">Suspend User Account v1</a>
    */
-  public void suspendUser(@Nonnull Long userId, @Nonnull UserSuspension userSuspension) {
+  public void suspendUser(@Nonnull Long userId, @Nonnull String reason, @Nonnull Instant until) {
+    UserSuspension userSuspension = new UserSuspension();
+    userSuspension.setSuspended(true);
+    userSuspension.setSuspensionReason(reason);
+    userSuspension.setSuspendedUntil(until.toEpochMilli());
+    executeAndRetry("suspendUser",
+        () -> userApi.v1AdminUserUserIdSuspensionUpdatePut(authSession.getSessionToken(), userId, userSuspension));
+  }
+
+  /**
+   * Re-activates a user account.
+   * Calling this endpoint requires a service account with the User Provisioning role.
+   *
+   * @param userId  user id to reactivate
+   * @see <a href="https://developers.symphony.com/restapi/reference#suspend-user-v1">Suspend User Account v1</a>
+   */
+  public void unsuspendUser(@Nonnull Long userId) {
+    UserSuspension userSuspension = new UserSuspension();
+    userSuspension.setSuspended(false);
     executeAndRetry("suspendUser",
         () -> userApi.v1AdminUserUserIdSuspensionUpdatePut(authSession.getSessionToken(), userId, userSuspension));
   }
