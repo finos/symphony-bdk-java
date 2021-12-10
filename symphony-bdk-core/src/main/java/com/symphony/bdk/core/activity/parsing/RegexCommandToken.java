@@ -17,6 +17,6 @@ public interface RegexCommandToken extends CommandToken {
   Pattern getRegexPattern();
 
   default boolean matches(Object inputToken) {
-    return getRegexPattern().matcher(inputToken.toString()).matches();
+    return inputToken instanceof String && getRegexPattern().matcher(inputToken.toString()).matches();
   }
 }

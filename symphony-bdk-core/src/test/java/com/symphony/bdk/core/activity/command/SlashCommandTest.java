@@ -174,7 +174,7 @@ class SlashCommandTest {
     String cashtagArgName = "cashtagArg";
 
     final SlashCommand cmd = SlashCommand.slash(
-        slashCommandName + " {" + stringArgName + "} {" + mentionArgName + "} {" + hashtagArgName + "} {" + cashtagArgName + "}",
+        slashCommandName + " {" + stringArgName + "} {@" + mentionArgName + "} {#" + hashtagArgName + "} {$" + cashtagArgName + "}",
         handler);
     cmd.setBotDisplayName(BOT_DISPLAY_NAME);
     cmd.setBotUserId(BOT_USER_ID);
