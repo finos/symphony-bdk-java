@@ -6,7 +6,7 @@ import org.apiguardian.api.API;
 /**
  * Class representing a mention in a {@link com.symphony.bdk.gen.api.model.V4Message}.
  */
-@API(status = API.Status.INTERNAL)
+@API(status = API.Status.STABLE)
 @Value
 public class Mention {
 

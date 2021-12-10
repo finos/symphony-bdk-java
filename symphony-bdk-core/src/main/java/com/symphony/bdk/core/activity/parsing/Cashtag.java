@@ -6,7 +6,7 @@ import org.apiguardian.api.API;
 /**
  * Class representing a cashtag in a V4Message
  */
-@API(status = API.Status.INTERNAL)
+@API(status = API.Status.STABLE)
 @Value
 public class Cashtag {
 
