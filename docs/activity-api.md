@@ -100,7 +100,7 @@ Arguments can be of several types:
 * `{wordArgument}` will match a regular word only (won't match a mention, a cashtag or a hashtag)
 * `{@mentionArgument}` will match a mention only
 * `{#hastagArgument}` will match a hashtag only
-* `{$cashtaArgument}` will match a cashtag only
+* `{$cashtagArgument}` will match a cashtag only
 
 In the slash command definition, each argument must be separated by a whitespace to be valid. For instance:
 * `{arg1} {@arg2}` is valid
