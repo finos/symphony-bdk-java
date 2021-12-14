@@ -34,6 +34,9 @@ import java.util.function.Consumer;
 @ExtendWith(MockitoExtension.class)
 public class HelpCommandTest {
 
+  private static final String BOT_DISPLAY_NAME = "BotMention";
+  private static final long BOT_USER_ID = 12345L;
+
   @Mock
   private MessageService messageService;
 
@@ -49,7 +52,7 @@ public class HelpCommandTest {
 
     final HelpCommand helpCommand = new HelpCommand(this.activityRegistry, this.messageService);
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    helpCommand.setBotDisplayName("BotMention");
+    helpCommand.setBotUserId(BOT_USER_ID);
     helpCommand.bindToRealTimeEventsSource(provider::setListener);
 
     V4MessageSent event = createMessageSentEvent();
@@ -65,7 +68,7 @@ public class HelpCommandTest {
     when(this.activityRegistry.getActivityList()).thenReturn(Collections.singletonList(helpCommand));
 
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    helpCommand.setBotDisplayName("BotMention");
+    helpCommand.setBotUserId(BOT_USER_ID);
     helpCommand.bindToRealTimeEventsSource(provider::setListener);
 
     V4MessageSent event = createMessageSentEvent();
@@ -108,8 +111,13 @@ public class HelpCommandTest {
     final V4MessageSent event = new V4MessageSent().message(new V4Message().stream(new V4Stream()));
     event.getMessage().getStream().setStreamId(UUID.randomUUID().toString());
     event.getMessage().setMessageId(UUID.randomUUID().toString());
-    String botMentionString = "<span>@BotMention</span> ";
+
+    String botMentionString = "<span class=\"entity\" data-entity-id=\"0\">@" + BOT_DISPLAY_NAME + "</span> ";
     event.getMessage().setMessage("<div><p>" + botMentionString + "/help" + "</p></div>");
+
+    event.getMessage().setData("{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"" + BOT_USER_ID
+        + "\"}],\"type\":\"com.symphony.user.mention\"}}");
+
     return event;
   }
 }

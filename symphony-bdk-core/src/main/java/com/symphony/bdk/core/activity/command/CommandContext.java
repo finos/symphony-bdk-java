@@ -1,12 +1,15 @@
 package com.symphony.bdk.core.activity.command;
 
 import com.symphony.bdk.core.activity.ActivityContext;
+import com.symphony.bdk.core.activity.parsing.Arguments;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
+
+import java.util.Collections;
 
 /**
  * Default implementation of the {@link ActivityContext} handled by the {@link CommandActivity}.
@@ -25,9 +28,15 @@ public class CommandContext extends ActivityContext<V4MessageSent> {
   /** Shortcut to the command messageId value issued form the {@link V4MessageSent} event source */
   private final String messageId;
 
+  /**
+   * Potential arguments if command is matching.
+   */
+  private Arguments arguments;
+
   public CommandContext(V4Initiator initiator, V4MessageSent eventSource) {
     super(initiator, eventSource);
     this.streamId = eventSource.getMessage().getStream().getStreamId();
     this.messageId = eventSource.getMessage().getMessageId();
+    this.arguments = new Arguments(Collections.emptyMap());
   }
 }

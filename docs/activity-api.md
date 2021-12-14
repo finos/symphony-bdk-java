@@ -82,9 +82,31 @@ A _Slash_ command can be used to directly define a very simple bot command such 
 ```
 $ @BotMention /command
 $ /command
+$ /command argument
+$ /command @mentionArgument
 ```
 
-> :information_source: a Slash cannot have parameters
+#### Slash command pattern format
+The slash command can be a simple static pattern without arguments, like `/command` or `/command help`.
+You may specify one or more arguments by enclosing them with braces like `{myArgument}`.
+The string inside the braces must have at least one character and must not have whitespaces.
+If there are some arguments, each argument is mandatory in order for the slash command to be triggered. For instance:
+* for command pattern `/command {arg}`:
+  * `/command` won't match
+  * `command help` will match
+  * `command help me` won't match
+
+Arguments can be of several types:
+* `{wordArgument}` will match a regular word only (won't match a mention, a cashtag or a hashtag)
+* `{@mentionArgument}` will match a mention only
+* `{#hastagArgument}` will match a hashtag only
+* `{$cashtagArgument}` will match a cashtag only
+
+In the slash command definition, each argument must be separated by a whitespace to be valid. For instance:
+* `{arg1} {@arg2}` is valid
+* `{arg1}{arg2}` is invalid
+
+When a slash command matches, arguments can be retrieved thanks to the `getArguments()` method in the `CommandContext` class.
 
 ```java
 public class Example {
@@ -101,12 +123,18 @@ public class Example {
       log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));
 
+    bdk.activities().register(SlashCommand.slash("/hello {@mention}", true, context -> {
+      Mention mention = context.getArguments().getAsMention("mention"); // must be the same name as put in the slash command pattern
+      log.info("Hello slash command triggered by user {} and mentioning {}", context.getInitiator().getUser().getDisplayName(),
+              mention.getUserDisplayName());
+    }));
+
     // finally, start the datafeed loop
     bdk.datafeed().start();
   }
 }
 ```
-1. `/hello` is the command name 
+1. `/hello` is the command pattern
 2. `true` means that the bot has to be mentioned
 3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the 
 event, or the event initiator (i.e. user that triggered the command)

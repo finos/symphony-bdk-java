@@ -11,7 +11,6 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -20,7 +19,7 @@ import javax.annotation.Nonnull;
  * A help command listing all the commands that can be performed by an end-user through the chat.
  */
 @API(status = API.Status.STABLE)
-public class HelpCommand extends PatternCommandActivity<CommandContext> {
+public class HelpCommand extends SlashCommand {
 
   private static final String HELP_COMMAND = "/help";
   private static final String DEFAULT_DESCRIPTION = "List available commands (mention required)";
@@ -28,6 +27,7 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
   private final MessageService messageService;
 
   public HelpCommand(@Nonnull ActivityRegistry activityRegistry, @Nonnull MessageService messageService) {
+    super(HELP_COMMAND, true, c -> {}, DEFAULT_DESCRIPTION);
     this.activityRegistry = activityRegistry;
     this.messageService = messageService;
   }
@@ -36,16 +36,7 @@ public class HelpCommand extends PatternCommandActivity<CommandContext> {
    * {@inheritDoc}
    */
   @Override
-  protected Pattern pattern() {
-    final String botMention = "@" + this.getBotDisplayName() + " ";
-    return Pattern.compile("^" + botMention + HELP_COMMAND + "$");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void onActivity(CommandContext context) {
+  public void onActivity(CommandContext context) {
     List<String> infos = this.activityRegistry.getActivityList()
         .stream()
         .map(AbstractActivity::getInfo)
