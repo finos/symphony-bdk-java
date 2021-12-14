@@ -10,8 +10,10 @@ import org.apiguardian.api.API;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -44,6 +46,7 @@ public class SlashCommandPattern {
   public SlashCommandPattern(String pattern) {
     try {
       this.tokens = buildTokens(pattern);
+      checkArgumentNamesUnicity();
     } catch(PatternSyntaxException e) {
       throw new SlashCommandSyntaxException("Bad slash command pattern."
           + "Slash command pattern must be either words separated by spaces "
@@ -148,5 +151,14 @@ public class SlashCommandPattern {
       }
     }
     return arguments;
+  }
+
+  private void checkArgumentNamesUnicity() {
+    List<String> argumentNames = getArgumentNames();
+    Set<String> uniqueArgumentNames = new HashSet<>(argumentNames);
+
+    if (argumentNames.size() != uniqueArgumentNames.size()) {
+      throw new SlashCommandSyntaxException("Argument names must be unique");
+    }
   }
 }
