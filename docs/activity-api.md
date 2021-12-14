@@ -106,6 +106,8 @@ In the slash command definition, each argument must be separated by a whitespace
 * `{arg1} {@arg2}` is valid
 * `{arg1}{arg2}` is invalid
 
+Argument names must be unique inside a given pattern.
+
 When a slash command matches, arguments can be retrieved thanks to the `getArguments()` method in the `CommandContext` class.
 
 ```java

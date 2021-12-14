@@ -11,4 +11,8 @@ public class SlashCommandSyntaxException extends RuntimeException {
   public SlashCommandSyntaxException(String message, Throwable cause) {
     super(message, cause);
   }
+
+  public SlashCommandSyntaxException(String message) {
+    super(message);
+  }
 }

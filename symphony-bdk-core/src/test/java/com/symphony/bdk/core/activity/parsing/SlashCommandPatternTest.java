@@ -106,6 +106,11 @@ class SlashCommandPatternTest {
   }
 
   @Test
+  void twiceTheSameArgumentShouldThrowException() {
+    assertThrows(SlashCommandSyntaxException.class, () -> new SlashCommandPattern("{arg} {arg}"));
+  }
+
+  @Test
   void oneStaticTokenAndOneArgument() {
     final String argumentName = "arg";
     SlashCommandPattern pattern = new SlashCommandPattern("/command {" + argumentName + "}");
@@ -177,6 +182,11 @@ class SlashCommandPatternTest {
     assertEquals(12345678L, mention.getUserId());
     assertEquals("jane-doe", mention.getUserDisplayName());
     assertEquals("@jane-doe", mention.getText());
+  }
+
+  @Test
+  void twiceTheSameArgumentWithDifferentTypesShouldThrowException() {
+    assertThrows(SlashCommandSyntaxException.class, () -> new SlashCommandPattern("{arg} {@arg}"));
   }
 
   @Test
