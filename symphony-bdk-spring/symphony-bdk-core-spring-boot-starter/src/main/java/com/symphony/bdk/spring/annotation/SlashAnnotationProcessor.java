@@ -37,8 +37,6 @@ import java.util.stream.Stream;
  * @see <a href="https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/context/event/EventListenerMethodProcessor.java">EventListenerMethodProcessor.java</a>
  */
 @Slf4j
-@Generated // means excluded from test coverage: error cases hard to test,
-// createSlashCommandCallback not testable with arguments because DefaultParameterNameDiscoverer not working with Mockito mocks/spies
 public class SlashAnnotationProcessor implements SmartInitializingSingleton, BeanFactoryPostProcessor {
 
   /**
@@ -70,6 +68,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   }
 
   @Override
+  @Generated // means excluded from test coverage: error cases hard to test
   public void afterSingletonsInstantiated() {
     Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
 
@@ -92,6 +91,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     }
   }
 
+  @Generated // means excluded from test coverage: error cases hard to test
   private Class<?> determineTargetClass(String beanName) {
     Class<?> type = null;
     try {
@@ -137,6 +137,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     }
   }
 
+  @Generated // means excluded from test coverage: error cases hard to test
   private Map<Method, Slash> getSlashAnnotatedMethods(String beanName, Class<?> targetType) {
     Map<Method, Slash> annotatedMethods = null;
 
@@ -155,17 +156,16 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   private void registerSlashMethod(String beanName, Method method, Slash annotation) {
     final Object bean = this.beanFactory.getBean(beanName);
 
-    getActivityRegistry().register(
-        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method),
-            annotation.description())
-    );
+    final SlashCommand slashCommand = SlashCommand.slash(annotation.value(), annotation.mentionBot(),
+        createSlashCommandCallback(bean, method, METHOD_TO_ARGUMENT_INDEXES.get(method)), annotation.description());
+
+    getActivityRegistry().register(slashCommand);
   }
 
   // visible for testing
-  protected static Consumer<CommandContext> createSlashCommandCallback(Object bean, Method method) {
+  protected static Consumer<CommandContext> createSlashCommandCallback(Object bean, Method method, Map<String, Integer> methodParameterIndexes) {
     return c -> {
       try {
-        final Map<String, Integer> methodParameterIndexes = METHOD_TO_ARGUMENT_INDEXES.get(method);
         final Object[] slashMethodParameters = buildSlashMethodParameters(methodParameterIndexes, c);
 
         method.invoke(bean, slashMethodParameters);
