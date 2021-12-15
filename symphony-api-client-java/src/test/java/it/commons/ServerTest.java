@@ -10,6 +10,7 @@ public class ServerTest extends BaseTest {
   public WireMockRule wireMockRule = new WireMockRule(wireMockConfig()
       .httpsPort(config.getPodPort())
       .keystorePath(config.getTruststorePath())
+      .keyManagerPassword(config.getTruststorePassword())
       .keystorePassword(config.getTruststorePassword()));
 
   @After
