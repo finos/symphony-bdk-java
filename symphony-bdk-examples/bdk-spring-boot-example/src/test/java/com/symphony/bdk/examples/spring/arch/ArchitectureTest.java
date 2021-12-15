@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
 public class ArchitectureTest {
 
   @ArchTest
-  void all_slash_methods_must_have_at_least_onw_command_context_parameter(JavaClasses classes) {
+  void all_slash_methods_must_have_at_least_one_command_context_parameter(JavaClasses classes) {
     methods()
         .that()
           .areAnnotatedWith(Slash.class)
