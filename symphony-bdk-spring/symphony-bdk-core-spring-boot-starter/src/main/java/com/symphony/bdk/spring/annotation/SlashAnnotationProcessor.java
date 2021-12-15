@@ -37,6 +37,7 @@ import java.util.stream.Stream;
  * @see <a href="https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/context/event/EventListenerMethodProcessor.java">EventListenerMethodProcessor.java</a>
  */
 @Slf4j
+@Generated // means excluded from test coverage: error cases hard to test, createSlashCommandCallback not testable with arguments because of Mockito mocks/spies
 public class SlashAnnotationProcessor implements SmartInitializingSingleton, BeanFactoryPostProcessor {
 
   /**
@@ -90,7 +91,6 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     }
   }
 
-  @Generated // means excluded from test coverage (hard to test error cases)
   private Class<?> determineTargetClass(String beanName) {
     Class<?> type = null;
     try {
@@ -135,7 +135,6 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     }
   }
 
-  @Generated // means excluded from test coverage (hard to test error cases)
   private Map<Method, Slash> getSlashAnnotatedMethods(String beanName, Class<?> targetType) {
     Map<Method, Slash> annotatedMethods = null;
 
