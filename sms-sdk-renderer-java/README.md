@@ -8,12 +8,6 @@ Java SDK renders symphony messages using precompiled Handlebars templates.
     <groupId>com.symphony.platformsolutions</groupId>
     <artifactId>sms-sdk-renderer-java</artifactId>
     <version>1.0.0</version>
-    <exclusions>
-        <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-    </exclusions>
 </dependency>
 ```
 

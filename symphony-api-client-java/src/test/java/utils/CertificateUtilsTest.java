@@ -8,15 +8,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
 import java.security.cert.X509Certificate;
 
 import static org.junit.Assert.*;
 
 public class CertificateUtilsTest {
 
-  private static final Logger logger = LoggerFactory.getLogger(CertificateUtils.class);
-
-  @Test
+  @Test(expected = CertificateExpiredException.class)
   public void testParseX509Certificate() throws IOException, CertificateException {
     final String currentPath = System.getProperty("user.dir");
     final String megabotPath = currentPath + "/src/test/resources/megabot-ca.crt";
@@ -25,8 +24,6 @@ public class CertificateUtilsTest {
 
     final X509Certificate x509Certificate = CertificateUtils.parseX509Certificate(textCertificate);
     x509Certificate.checkValidity();
-
-    assertTrue(true);
   }
 
   @Test
