@@ -3,15 +3,18 @@ package com.symphony.bdk.spring.annotation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.core.activity.parsing.Arguments;
 import com.symphony.bdk.spring.slash.TestFormReplyActivity;
 import com.symphony.bdk.spring.slash.TestSlashCommand;
 
@@ -23,6 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -69,10 +73,38 @@ public class SlashAnnotationProcessorTest {
   }
 
   @Test
+  void testCreateSlashCommandCallback() throws Exception {
+    final TestSlashCommand bean = spy(new TestSlashCommand());
+    final Method publicMethod = bean.getClass().getDeclaredMethod("onTest", CommandContext.class);
+    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod, Collections.emptyMap());
+    callback.accept(mock(CommandContext.class));
+    verify(bean).onTest(any(CommandContext.class));
+  }
+
+  @Test
+  void testCreateSlashCommandCallbackWithParams() throws Exception {
+    final TestSlashCommand bean = spy(new TestSlashCommand());
+    final Method publicMethod = bean.getClass().getDeclaredMethod("withStringArgument", CommandContext.class, String.class);
+
+    final String argumentName = "arg";
+    final String argumentValue = "value";
+    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod,
+        Collections.singletonMap(argumentName, 1));
+
+    final CommandContext mock = mock(CommandContext.class);
+    when(mock.getArguments()).thenReturn(new Arguments(Collections.singletonMap(argumentName, argumentValue)));
+
+    callback.accept(mock);
+
+    verify(bean).withStringArgument(any(CommandContext.class), eq(argumentValue));
+  }
+
+  @Test
   void testExecuteCallbackWithError() throws Exception {
     final TestSlashCommand bean = spy(new TestSlashCommand());
     final Method publicMethod = bean.getClass().getDeclaredMethod("onErrorTest", CommandContext.class);
-    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod);
+    final Consumer<CommandContext> callback = SlashAnnotationProcessor.createSlashCommandCallback(bean, publicMethod,
+        Collections.emptyMap());
     callback.accept(mock(CommandContext.class));
     verify(bean, never()).onTest(any(CommandContext.class));
   }
