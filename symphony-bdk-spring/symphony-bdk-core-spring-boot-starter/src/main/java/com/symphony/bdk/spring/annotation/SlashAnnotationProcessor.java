@@ -51,11 +51,6 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
   private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
 
   /**
-   * Key is the annotated slash method, value is the map of (parameter name, index)
-   */
-  private static final Map<Method, Map<String, Integer>> METHOD_TO_ARGUMENT_INDEXES = new HashMap<>();
-
-  /**
    * The {@link ActivityRegistry} is used here to register the slash activities.
    * Lazy-loaded from application context to make sure the processor is registered first before starting to create beans.
    */
@@ -157,7 +152,7 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
     final Object bean = this.beanFactory.getBean(beanName);
 
     final SlashCommand slashCommand = SlashCommand.slash(annotation.value(), annotation.mentionBot(),
-        createSlashCommandCallback(bean, method, METHOD_TO_ARGUMENT_INDEXES.get(method)), annotation.description());
+        createSlashCommandCallback(bean, method, buildParameterIndexes(method)), annotation.description());
 
     getActivityRegistry().register(slashCommand);
   }
@@ -203,17 +198,11 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
       return false;
     }
 
-    final HashMap<String, Integer> argumentIndexes = new HashMap<>(); // to be potentially cached for later
     for (int i = 1; i < m.getParameters().length; i++) { // we skip first parameter as it should be of CommandContext type (checked before)
       if (!areNameAndTypeInSlashArguments(parameterNames[i], m.getParameters()[i].getType(), slashArgumentDefinitions)) {
         return false;
       }
-      argumentIndexes.put(parameterNames[i], i);
     }
-
-    // Signature is correct: cache results
-    METHOD_TO_ARGUMENT_INDEXES.put(m, argumentIndexes);
-
     return true;
   }
 
@@ -239,5 +228,21 @@ public class SlashAnnotationProcessor implements SmartInitializingSingleton, Bea
       this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
     }
     return this.activityRegistry;
+  }
+
+  private static Map<String, Integer> buildParameterIndexes(Method method) {
+    final String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+    if (parameterNames == null) {
+      log.warn("Unable to retrieve method parameter names");
+      return null;
+    }
+
+    final HashMap<String, Integer> argumentIndexes = new HashMap<>();
+    // we skip first parameter as it should be of CommandContext type (checked separately)
+    for (int i = 1; i < method.getParameters().length; i++) {
+      argumentIndexes.put(parameterNames[i], i);
+    }
+
+    return argumentIndexes;
   }
 }
