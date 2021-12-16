@@ -44,13 +44,30 @@ class SlashCommandTest {
 
     final AtomicBoolean handlerCalled = new AtomicBoolean(false);
     final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
-
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    final SlashCommand cmd = SlashCommand.slash("/test", handler);
+
+    final String commandPattern = "/test";
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, handler);
     cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
-    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, "/test")));
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, commandPattern)));
+    assertTrue(handlerCalled.get());
+  }
+
+  @Test
+  void testSlashCommandWithTwoWordsAndBotMentionSuccess() {
+
+    final AtomicBoolean handlerCalled = new AtomicBoolean(false);
+    final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
+    final RealTimeEventsProvider provider = new RealTimeEventsProvider();
+
+    final String commandPattern = "/test blah";
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, handler);
+    cmd.setBotUserId(BOT_USER_ID);
+    cmd.bindToRealTimeEventsSource(provider::setListener);
+
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, commandPattern)));
     assertTrue(handlerCalled.get());
   }
 
@@ -59,13 +76,30 @@ class SlashCommandTest {
 
     final AtomicBoolean handlerCalled = new AtomicBoolean(false);
     final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
-
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
-    final SlashCommand cmd = SlashCommand.slash("/test", false, handler);
+
+    final String commandPattern = "/test";
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, false, handler);
     cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
-    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(false, "/test")));
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(false, commandPattern)));
+    assertTrue(handlerCalled.get());
+  }
+
+  @Test
+  void testSlashCommandWithTwoWordsWithoutBotMentionSuccess() {
+
+    final AtomicBoolean handlerCalled = new AtomicBoolean(false);
+    final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
+    final RealTimeEventsProvider provider = new RealTimeEventsProvider();
+
+    final String commandPattern = "/test blah";
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, false, handler);
+    cmd.setBotUserId(BOT_USER_ID);
+    cmd.bindToRealTimeEventsSource(provider::setListener);
+
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(false, commandPattern)));
     assertTrue(handlerCalled.get());
   }
 
