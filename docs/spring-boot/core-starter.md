@@ -291,6 +291,49 @@ public class SlashHello {
 By default, the `@Slash` annotation is configured to require bot mention in order to trigger the command. You can override
 this value using `@Slash#mentionBot` annotation parameter. 
 
+You can also use slash commands with arguments. To do so, the field `value` of the `@Slash` annotation must have a valid
+format as explained in the [Activity API section](../activity-api.md#Slash-command-pattern-format). 
+If the slash command pattern is valid, you will have to specify all slash arguments as method parameter with the same name and type.
+If slash command pattern or method signature is incorrect, a `warn` message will appear in your application log and
+the slash command will not be registered.
+
+For instance:
+```java
+@Component
+public class SlashHello {
+
+  @Slash("/hello {arg") // will not be registered: invalid pattern
+  public void onHelloInvalidPattern(CommandContext commandContext, String arg) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1}{arg2}") // will not be registered: invalid pattern
+  public void onHelloInvalidPatternTwoArgs(CommandContext commandContext, String arg1, String arg2) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {arg2}") // will be registered: valid pattern and valid signature
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1, String arg2) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {arg2}") // will not be registered: valid pattern but missing argument
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {@arg2}") // will not be registered: valid pattern but mismatching type for arg2
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1, String arg2) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {@arg2} {#arg3} {$arg4}") // will be registered: valid pattern and correct signature
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1, Mention arg2, Hashtag arg3, Cashtag arg4) {
+    log.info("On /hello command");
+  }
+}
+```
+
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
 

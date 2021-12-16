@@ -11,9 +11,10 @@ import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class SlashCommandPatternTest {
 
@@ -31,6 +32,8 @@ class SlashCommandPatternTest {
   void oneStaticToken() {
     SlashCommandPattern pattern = new SlashCommandPattern("/command");
 
+    assertTrue(pattern.getArgumentDefinitions().isEmpty());
+
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(1, tokens.size());
     assertIsRegexToken("^/command$", tokens.get(0));
@@ -46,6 +49,8 @@ class SlashCommandPatternTest {
   void oneStaticTokenWithSpaces() {
     SlashCommandPattern pattern = new SlashCommandPattern(" /command  ");
 
+    assertTrue(pattern.getArgumentDefinitions().isEmpty());
+
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(1, tokens.size());
     assertIsRegexToken("^/command$", tokens.get(0));
@@ -54,6 +59,8 @@ class SlashCommandPatternTest {
   @Test
   void twoStaticTokens() {
     SlashCommandPattern pattern = new SlashCommandPattern("/command ab");
+
+    assertTrue(pattern.getArgumentDefinitions().isEmpty());
 
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(2, tokens.size());
@@ -73,6 +80,8 @@ class SlashCommandPatternTest {
   void twoStaticTokensWithSpaces() {
     SlashCommandPattern pattern = new SlashCommandPattern("  /command  ab  ");
 
+    assertTrue(pattern.getArgumentDefinitions().isEmpty());
+
     final List<CommandToken> tokens = pattern.getTokens();
     assertEquals(2, tokens.size());
     assertIsRegexToken("^/command$", tokens.get(0));
@@ -88,7 +97,7 @@ class SlashCommandPatternTest {
     assertEquals(1, tokens.size());
     assertIsStringArgumentToken(tokens.get(0));
 
-    assertEquals(Collections.singletonList(argumentName), pattern.getArgumentNames());
+    assertEquals(Collections.singletonMap(argumentName, String.class), pattern.getArgumentDefinitions());
 
     final MatchResult matchResultEmptyInput = getMatchResult(pattern,"");
     assertFalse(matchResultEmptyInput.isMatching());
@@ -120,7 +129,7 @@ class SlashCommandPatternTest {
     assertIsRegexToken("^/command$", tokens.get(0));
     assertIsStringArgumentToken(tokens.get(1));
 
-    assertEquals(Collections.singletonList(argumentName), pattern.getArgumentNames());
+    assertEquals(Collections.singletonMap(argumentName, String.class), pattern.getArgumentDefinitions());
 
     final MatchResult matchResultEmptyInput = getMatchResult(pattern,"/command");
     assertFalse(matchResultEmptyInput.isMatching());
@@ -147,7 +156,11 @@ class SlashCommandPatternTest {
     assertIsStringArgumentToken(tokens.get(1));
     assertIsStringArgumentToken(tokens.get(2));
 
-    assertEquals(Arrays.asList(firstArgName, secondArgName), pattern.getArgumentNames());
+    Map<String, Class<?>> expectedArgumentDefs = new HashMap<String, Class<?>>() {{
+      put(firstArgName, String.class);
+      put(secondArgName, String.class);
+    }};
+    assertEquals(expectedArgumentDefs, pattern.getArgumentDefinitions());
 
     final MatchResult matchResultEmptyInput = getMatchResult(pattern,"/command");
     assertFalse(matchResultEmptyInput.isMatching());
@@ -177,6 +190,8 @@ class SlashCommandPatternTest {
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
     assertEquals(1, matchResult.getArguments().getArgumentNames().size());
+
+    assertEquals(Collections.singletonMap(argName, Mention.class), pattern.getArgumentDefinitions());
 
     final Mention mention = matchResult.getArguments().getMention(argName);
     assertEquals(12345678L, mention.getUserId());
@@ -220,6 +235,8 @@ class SlashCommandPatternTest {
     assertTrue(matchResult.isMatching());
     assertEquals(1, matchResult.getArguments().getArgumentNames().size());
 
+    assertEquals(Collections.singletonMap(argName, Mention.class), pattern.getArgumentDefinitions());
+
     final Mention mention = matchResult.getArguments().getMention(argName);
     assertEquals(12345678L, mention.getUserId());
     assertEquals("John Doe", mention.getUserDisplayName());
@@ -240,6 +257,12 @@ class SlashCommandPatternTest {
 
     V4Message message = buildMessage("/command <span class=\"entity\" data-entity-id=\"0\">@John Doe</span> argValue",
         "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345678\"}],\"type\":\"com.symphony.user.mention\"}}");
+
+    Map<String, Class<?>> expectedArgumentDefs = new HashMap<String, Class<?>>() {{
+      put(mentionArgName, Mention.class);
+      put(stringArgName, String.class);
+    }};
+    assertEquals(expectedArgumentDefs, pattern.getArgumentDefinitions());
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
@@ -264,6 +287,8 @@ class SlashCommandPatternTest {
 
     V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">$mycashtag</span>",
         "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.ticker\",\"value\":\"mycashtag\"}],\"type\":\"org.symphonyoss.fin.security\"}}");
+
+    assertEquals(Collections.singletonMap(argName, Cashtag.class), pattern.getArgumentDefinitions());
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());
@@ -300,6 +325,8 @@ class SlashCommandPatternTest {
 
     V4Message message = buildMessage("<span class=\"entity\" data-entity-id=\"0\">#myhashtag</span>",
         "{\"0\":{\"id\":[{\"type\":\"org.symphonyoss.taxonomy.hashtag\",\"value\":\"myhashtag\"}],\"type\":\"org.symphonyoss.taxonomy\"}}");
+
+    assertEquals(Collections.singletonMap(argName, Hashtag.class), pattern.getArgumentDefinitions());
 
     final MatchResult matchResult = pattern.getMatchResult(message);
     assertTrue(matchResult.isMatching());

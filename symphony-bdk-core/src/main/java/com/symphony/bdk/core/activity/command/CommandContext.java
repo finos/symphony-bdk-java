@@ -9,8 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
-import java.util.Collections;
-
 /**
  * Default implementation of the {@link ActivityContext} handled by the {@link CommandActivity}.
  */
@@ -37,6 +35,6 @@ public class CommandContext extends ActivityContext<V4MessageSent> {
     super(initiator, eventSource);
     this.streamId = eventSource.getMessage().getStream().getStreamId();
     this.messageId = eventSource.getMessage().getMessageId();
-    this.arguments = new Arguments(Collections.emptyMap());
+    this.arguments = new Arguments();
   }
 }

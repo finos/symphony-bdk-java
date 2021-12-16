@@ -14,4 +14,10 @@ public interface CommandToken {
    * @return true if input matches the token
    */
   boolean matches(Object inputToken);
+
+  /**
+   *
+   * @return the actual type accepted by this token: {@link String}, {@link Mention}, {@link Cashtag} or {@link Hashtag}
+   */
+  Class<?> getTokenType();
 }
