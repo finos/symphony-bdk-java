@@ -18,7 +18,7 @@ dependencies {
     // import Spring Boot's BOM
     api platform('org.springframework.boot:spring-boot-dependencies:2.6.1')
     // import Jackson's BOM
-    api platform('com.fasterxml.jackson:jackson-bom:2.12.5')
+    api platform('com.fasterxml.jackson:jackson-bom:2.13.0')
     // define all our dependencies versions
     constraints {
         // Internal modules dependencies (Keep them first)
@@ -33,12 +33,22 @@ dependencies {
         api "org.finos.symphony.bdk:symphony-bdk-template-handlebars:$project.version"
 
         // External dependencies
-        api 'org.projectlombok:lombok:1.18.20'
+        api 'org.projectlombok:lombok:1.18.22'
 
         api 'org.apiguardian:apiguardian-api:1.1.0'
 
         api 'org.slf4j:slf4j-api:1.7.32'
         api 'org.slf4j:slf4j-log4j12:1.7.32'
+
+        // Logback is used by default for Spring based projects, force the version for LOGBACK-1591
+        api 'ch.qos.logback:logback-classic:1.2.8'
+        api 'ch.qos.logback:logback-core:1.2.8'
+
+        // Just in case users are using log4j instead of logback (default), for CVE-2021-44228
+        api 'org.apache.logging.log4j:log4j-api:2.16.0'
+        api 'org.apache.logging.log4j:log4j-core:2.16.0'
+        api 'org.apache.logging.log4j:log4j-slf4j-impl:2.16.0'
+        api 'org.apache.logging.log4j:log4j-jul:2.16.0'
 
         api 'commons-io:commons-io:2.11.0'
         api 'commons-codec:commons-codec:1.15'
@@ -48,7 +58,7 @@ dependencies {
         api 'commons-logging:commons-logging:1.2'
         api 'com.brsanthu:migbase64:2.2'
         api 'io.jsonwebtoken:jjwt:0.9.1'
-        api 'org.bouncycastle:bcpkix-jdk15on:1.69'
+        api 'org.bouncycastle:bcpkix-jdk15on:1.70'
         api 'com.google.code.findbugs:jsr305:3.0.2'
 
         api 'io.github.resilience4j:resilience4j-retry:1.7.1'
@@ -67,17 +77,16 @@ dependencies {
         api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
         api 'org.freemarker:freemarker:2.3.31'
-        api 'com.github.jknack:handlebars:4.2.0'
+        api 'com.github.jknack:handlebars:4.3.0'
         api 'org.reflections:reflections:0.9.12'
 
-        api 'org.junit.jupiter:junit-jupiter:5.8.0'
-        api 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
-        api 'ch.qos.logback:logback-classic:1.2.3'
+        api 'org.junit.jupiter:junit-jupiter:5.8.2'
+        api 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
         api 'com.tngtech.archunit:archunit-junit5:0.21.0'
         api 'org.mock-server:mockserver-netty:5.11.2'
         api 'org.mockito:mockito-core:3.12.4'
         api 'org.mockito:mockito-junit-jupiter:3.12.4'
-        api 'org.assertj:assertj-core:3.20.2'
+        api 'org.assertj:assertj-core:3.21.0'
     }
 }
 
