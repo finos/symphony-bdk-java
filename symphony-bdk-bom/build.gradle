@@ -45,10 +45,10 @@ dependencies {
         api 'ch.qos.logback:logback-core:1.2.8'
 
         // Just in case users are using log4j instead of logback (default), for CVE-2021-44228
-        api 'org.apache.logging.log4j:log4j-api:2.16.0'
-        api 'org.apache.logging.log4j:log4j-core:2.16.0'
-        api 'org.apache.logging.log4j:log4j-slf4j-impl:2.16.0'
-        api 'org.apache.logging.log4j:log4j-jul:2.16.0'
+        api 'org.apache.logging.log4j:log4j-api:2.17.0'
+        api 'org.apache.logging.log4j:log4j-core:2.17.0'
+        api 'org.apache.logging.log4j:log4j-slf4j-impl:2.17.0'
+        api 'org.apache.logging.log4j:log4j-jul:2.17.0'
 
         api 'commons-io:commons-io:2.11.0'
         api 'commons-codec:commons-codec:1.15'
