@@ -10,6 +10,10 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.AuthSessionAware;
+import com.symphony.bdk.core.extension.BdkConfigAware;
+import com.symphony.bdk.core.extension.Extension;
+import com.symphony.bdk.core.extension.HttpClientAware;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -29,6 +33,8 @@ import com.symphony.bdk.http.api.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -42,6 +48,7 @@ import javax.annotation.Nullable;
 public class SymphonyBdk {
 
   private final BdkConfig config;
+  private final List<Extension> extensions;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
@@ -82,13 +89,14 @@ public class SymphonyBdk {
    * @throws AuthUnauthorizedException authentication issue (e.g. 401)
    */
   public SymphonyBdk(@Nonnull BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
-    this(config, null, null);
+    this(config, null, null, Collections.emptyList());
   }
 
   protected SymphonyBdk(
       @Nonnull BdkConfig config,
       @Nullable ApiClientFactory apiClientFactory,
-      @Nullable AuthenticatorFactory authenticatorFactory
+      @Nullable AuthenticatorFactory authenticatorFactory,
+      List<Extension> extensions
   ) throws AuthInitializationException, AuthUnauthorizedException {
 
     this.config = config;
@@ -133,6 +141,23 @@ public class SymphonyBdk {
 
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
+
+    this.extensions = extensions;
+    processExtensions();
+  }
+
+  private void processExtensions() {
+    this.extensions.forEach(e -> {
+      if (e instanceof AuthSessionAware) {
+        ((AuthSessionAware) e).setAuthSession(this.botSession);
+      }
+      if (e instanceof BdkConfigAware) {
+        ((BdkConfigAware) e).setBdkConfig(this.config);
+      }
+      if (e instanceof HttpClientAware) {
+        ((HttpClientAware) e).setHttpClientBuilder(http());
+      }
+    });
   }
 
   /**
@@ -321,6 +346,10 @@ public class SymphonyBdk {
    */
   public BdkConfig config() {
     return this.config;
+  }
+
+  public <T extends Extension> T getExtension(Class<T> clazz) {
+    return extensions.stream().filter(e -> e.getClass().equals(clazz)).map(clazz::cast).findAny().orElse(null);
   }
 
   private <T> T getOrThrowNoBotConfig(T field) {
