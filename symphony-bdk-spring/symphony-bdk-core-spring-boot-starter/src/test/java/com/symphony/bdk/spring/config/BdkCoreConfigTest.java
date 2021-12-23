@@ -13,6 +13,7 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class BdkCoreConfigTest {
   void shouldCreateApiClientFactory() {
     final BdkCoreConfig config = new BdkCoreConfig();
     final SymphonyBdkCoreProperties props = new SymphonyBdkCoreProperties();
-    assertNotNull(config.apiClientFactory(props));
+    assertNotNull(config.apiClientFactory(props, new ApiClientBuilderProviderJersey2()));
   }
 
   @Test

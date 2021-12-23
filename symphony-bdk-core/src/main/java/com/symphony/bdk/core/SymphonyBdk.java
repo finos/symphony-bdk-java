@@ -33,6 +33,7 @@ import com.symphony.bdk.http.api.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -142,22 +143,21 @@ public class SymphonyBdk {
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
 
-    this.extensions = extensions;
-    processExtensions();
+    this.extensions = new ArrayList<>();
+    extensions.forEach(this::registerExtension);
   }
 
-  private void processExtensions() {
-    this.extensions.forEach(e -> {
-      if (e instanceof AuthSessionAware) {
-        ((AuthSessionAware) e).setAuthSession(this.botSession);
-      }
-      if (e instanceof BdkConfigAware) {
-        ((BdkConfigAware) e).setBdkConfig(this.config);
-      }
-      if (e instanceof HttpClientAware) {
-        ((HttpClientAware) e).setHttpClientBuilder(http());
-      }
-    });
+  private void registerExtension(Extension e) {
+    if (e instanceof AuthSessionAware) {
+      ((AuthSessionAware) e).setAuthSession(this.botSession);
+    }
+    if (e instanceof BdkConfigAware) {
+      ((BdkConfigAware) e).setBdkConfig(this.config);
+    }
+    if (e instanceof HttpClientAware) {
+      ((HttpClientAware) e).setHttpClientBuilder(http());
+    }
+    this.extensions.add(e);
   }
 
   /**

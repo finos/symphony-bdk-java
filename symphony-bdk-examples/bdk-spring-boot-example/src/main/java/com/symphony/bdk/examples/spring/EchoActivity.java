@@ -7,6 +7,7 @@ import com.symphony.bdk.core.activity.parsing.Mention;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.spring.annotation.Slash;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ public class EchoActivity {
 
   @Autowired
   private MessageService messageService;
+
+  @Autowired
+  private MyExtension extension;
 
   @Slash("/echo {argument}")
   public void echo(CommandContext context, String argument) {
@@ -44,6 +48,14 @@ public class EchoActivity {
   @Slash("/echo {argument} {$cashtag}")
   public void echo(CommandContext context, String argument, Cashtag cashtag) {
     this.messageService.send(context.getStreamId(), "Received argument: " + argument + " and cashtag: " + cashtag.getValue());
+  }
+
+  @SneakyThrows
+  @Slash("/test")
+  public void test(CommandContext context) {
+    this.extension.testClient();
+    this.extension.testConfig();
+    this.extension.testAuthSession();
   }
 
 }

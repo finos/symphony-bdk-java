@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class SymphonyBdkTest {
 
@@ -209,7 +210,7 @@ public class SymphonyBdkTest {
   void noBotConfigTest() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/no_bot_config.yaml");
     config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
-    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory, null);
+    this.symphonyBdk = new SymphonyBdk(config, apiClientFactory, null, Collections.emptyList());
 
     assertThrows(BotNotConfiguredException.class, symphonyBdk::applications);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::messages);

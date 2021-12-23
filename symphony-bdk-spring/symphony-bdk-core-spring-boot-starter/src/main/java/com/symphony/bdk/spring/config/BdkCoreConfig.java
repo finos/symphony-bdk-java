@@ -7,11 +7,11 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
-
+import com.symphony.bdk.spring.annotation.ExtensionProcessor;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 
@@ -28,9 +28,14 @@ import org.springframework.context.annotation.Bean;
 public class BdkCoreConfig {
 
   @Bean
+  public ApiClientBuilderProvider apiClientBuilderProvider() {
+    return new ApiClientBuilderProviderJersey2();
+  }
+
+  @Bean
   @ConditionalOnMissingBean
-  public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties) {
-    return new ApiClientFactory(properties, new ApiClientBuilderProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
+  public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties, ApiClientBuilderProvider apiClientBuilderProvider) {
+    return new ApiClientFactory(properties, apiClientBuilderProvider);
   }
 
   @Bean(name = "agentApiClient")
@@ -97,5 +102,10 @@ public class BdkCoreConfig {
     } catch (AuthUnauthorizedException | AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate bot", e);
     }
+  }
+
+  @Bean
+  public static ExtensionProcessor extensionProcessor() {
+    return new ExtensionProcessor();
   }
 }
