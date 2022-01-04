@@ -42,8 +42,8 @@ public class BearerEnabledApiClient implements ApiClient {
       Map<String, String> headerParams, Map<String, String> cookieParams, Map<String, Object> formParams, String accept,
       String contentType, String[] authNames, TypeReference<T> returnType) throws ApiException {
     String authorizationToken = authSession.getAuthorizationToken();
+    refreshTokenIfNeeded(authorizationToken);
     if (authorizationToken != null) {
-      refreshTokenIfNeeded(authorizationToken);
       headerParams.remove("sessionToken");
       headerParams.put("Authorization", authSession.getAuthorizationToken());
     }
@@ -85,6 +85,9 @@ public class BearerEnabledApiClient implements ApiClient {
    * Trigger jwt refresh if expired
    */
   private void refreshTokenIfNeeded(String authorizationToken) {
+    if(authorizationToken == null) {
+      return;
+    }
     try {
       Long expirationTime = JwtHelper.extractExpirationDate(authorizationToken);
       if (Instant.now().getEpochSecond() >= expirationTime) {
