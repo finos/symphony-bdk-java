@@ -1,6 +1,7 @@
 package com.symphony.bdk.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
@@ -103,6 +104,33 @@ class SymphonyBdkAutoConfigurationTest {
       assertThat(context).doesNotHaveBean("oboConnectionService");
       assertThat(context).doesNotHaveBean("oboSignalService");
       assertThat(context).doesNotHaveBean("oboMessageService");
+    });
+  }
+
+  @Test
+  void shouldInitializeCustomAuthenticatorsIfTheyExist() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.scheme=http",
+            "bdk.host=localhost",
+            "bdk.context=context",
+
+            "bdk.bot.username=testbot",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
+
+            "bdk.app.appId=testapp",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem"
+        )
+        .withBean("existingMockedOboAuthenticator", OboAuthenticator.class, ()-> mock(OboAuthenticator.class))
+        .withBean("existingMockedExtensionAppAuthenticator", ExtensionAppAuthenticator.class, ()-> mock(ExtensionAppAuthenticator.class))
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+      assertThat(context).hasBean("existingMockedOboAuthenticator");
+      assertThat(context).hasBean("existingMockedExtensionAppAuthenticator");
+      assertThat(context).hasSingleBean(OboAuthenticator.class);
+      assertThat(context).hasSingleBean(ExtensionAppAuthenticator.class);
     });
   }
 
