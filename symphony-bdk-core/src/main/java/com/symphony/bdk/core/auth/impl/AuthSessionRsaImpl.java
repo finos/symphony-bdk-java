@@ -2,6 +2,7 @@ package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.gen.api.model.Token;
 
 import org.apiguardian.api.API;
 
@@ -18,6 +19,7 @@ public class AuthSessionRsaImpl implements AuthSession {
 
   private String sessionToken;
   private String keyManagerToken;
+  private String authorizationToken;
 
   public AuthSessionRsaImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
     this.authenticator = authenticator;
@@ -35,6 +37,14 @@ public class AuthSessionRsaImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
+  public @Nullable String getAuthorizationToken() {
+    return this.authorizationToken;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public @Nullable String getKeyManagerToken() {
     return this.keyManagerToken;
   }
@@ -44,8 +54,19 @@ public class AuthSessionRsaImpl implements AuthSession {
    */
   @Override
   public void refresh() throws AuthUnauthorizedException {
-    this.sessionToken = this.authenticator.retrieveSessionToken();
+    Token authToken = authenticator.retrieveAuthToken();
+    this.authorizationToken = authToken.getAuthorizationToken();
+    this.sessionToken = authToken.getToken();
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void refreshAuthToken() throws AuthUnauthorizedException {
+    Token authToken = authenticator.retrieveAuthToken();
+    this.authorizationToken = authToken.getAuthorizationToken();
   }
 
   /**

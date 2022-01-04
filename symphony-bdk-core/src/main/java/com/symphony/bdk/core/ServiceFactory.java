@@ -68,7 +68,7 @@ class ServiceFactory {
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
-    this.podClient = apiClientFactory.getPodClient();
+    this.podClient = apiClientFactory.getPodClient(authSession);
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.authSession = authSession;

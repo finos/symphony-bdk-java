@@ -163,7 +163,7 @@ public class AuthenticatorFactory {
           this.config.getApp().getAppId(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
           this.apiClientFactory.getLoginClient(),
-          this.apiClientFactory.getPodClient(),
+          this.apiClientFactory.getPodClient(null),
           extensionAppTokensRepository
       );
     }

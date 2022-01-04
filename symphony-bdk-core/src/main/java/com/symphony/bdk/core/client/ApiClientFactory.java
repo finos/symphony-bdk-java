@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.client;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
@@ -67,6 +68,21 @@ public class ApiClientFactory {
    */
   public ApiClient getPodClient() {
     return buildClient(POD_CONTEXT_PATH, this.config.getPod());
+  }
+
+
+  /**
+   * Returns a fully initialized {@link ApiClient} for Pod API.
+   * If common jwt is enabled, the client is going to set the Authorization header, removing the sessionToken.
+   *
+   * @return a new {@link ApiClient} instance.
+   */
+  public ApiClient getPodClient(AuthSession authSession) {
+    if (config.getCommonJwt().getEnabled() && authSession != null) {
+      return new BearerEnabledApiClient(buildClient(POD_CONTEXT_PATH, this.config.getPod()), authSession);
+    } else {
+      return buildClient(POD_CONTEXT_PATH, this.config.getPod());
+    }
   }
 
   /**

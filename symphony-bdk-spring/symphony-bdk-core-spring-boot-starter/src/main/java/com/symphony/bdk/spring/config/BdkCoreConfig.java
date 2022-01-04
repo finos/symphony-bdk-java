@@ -7,7 +7,6 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
@@ -20,6 +19,8 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+
+import javax.annotation.Nullable;
 
 /**
  * Configuration and injection of the main BDK/Core classes as beans within the Spring application context.
@@ -44,8 +45,8 @@ public class BdkCoreConfig {
   }
 
   @Bean(name = "podApiClient")
-  public ApiClient podApiClient(ApiClientFactory apiClientFactory) {
-    return apiClientFactory.getPodClient();
+  public ApiClient podApiClient(ApiClientFactory apiClientFactory, @Nullable AuthSession botSession) {
+    return apiClientFactory.getPodClient(botSession);
   }
 
   @Bean(name = "relayApiClient")

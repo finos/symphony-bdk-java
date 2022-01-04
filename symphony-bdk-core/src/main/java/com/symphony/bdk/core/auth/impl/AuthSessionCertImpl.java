@@ -3,7 +3,11 @@ package com.symphony.bdk.core.auth.impl;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
+import com.symphony.bdk.gen.api.model.Token;
+
 import org.apiguardian.api.API;
+
+import javax.annotation.Nullable;
 
 /**
  * {@link AuthSession} impl for certificate authentication mode.
@@ -15,6 +19,7 @@ public class AuthSessionCertImpl implements AuthSession {
 
   private String sessionToken;
   private String keyManagerToken;
+  private String authorizationToken;
 
   public AuthSessionCertImpl(BotAuthenticatorCertImpl authenticator) {
     this.authenticator = authenticator;
@@ -26,6 +31,12 @@ public class AuthSessionCertImpl implements AuthSession {
   @Override
   public String getSessionToken() {
     return this.sessionToken;
+  }
+
+  @Override
+  public @Nullable
+  String getAuthorizationToken() {
+    return this.authorizationToken;
   }
 
   /**
@@ -41,8 +52,19 @@ public class AuthSessionCertImpl implements AuthSession {
    */
   @Override
   public void refresh() throws AuthUnauthorizedException {
-    this.sessionToken = authenticator.retrieveSessionToken();
+    Token authToken = authenticator.retrieveAuthToken();
+    this.sessionToken = authToken.getToken();
+    this.authorizationToken = authToken.getAuthorizationToken();
     this.keyManagerToken = authenticator.retrieveKeyManagerToken();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void refreshAuthToken() throws AuthUnauthorizedException {
+    Token authToken = authenticator.retrieveAuthToken();
+    this.authorizationToken = authToken.getAuthorizationToken();
   }
 
   /**

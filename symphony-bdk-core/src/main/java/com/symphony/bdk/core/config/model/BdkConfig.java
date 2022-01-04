@@ -25,6 +25,7 @@ public class BdkConfig extends BdkServerConfig {
 
   private BdkRetryConfig retry = new BdkRetryConfig();
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
+  private BdkCommonJwtConfig commonJwt = new BdkCommonJwtConfig();
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.

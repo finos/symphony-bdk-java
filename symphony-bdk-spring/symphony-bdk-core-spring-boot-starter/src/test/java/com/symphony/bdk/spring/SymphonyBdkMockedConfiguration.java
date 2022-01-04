@@ -1,5 +1,6 @@
 package com.symphony.bdk.spring;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -74,7 +75,7 @@ public class SymphonyBdkMockedConfiguration {
     }
 
     @Override
-    public ApiClient getPodClient() {
+    public ApiClient getPodClient(AuthSession authSession) {
 
       this.podApiClient.onGet("/pod/v2/sessioninfo", toString(new UserV2().displayName("BotMention")));
 

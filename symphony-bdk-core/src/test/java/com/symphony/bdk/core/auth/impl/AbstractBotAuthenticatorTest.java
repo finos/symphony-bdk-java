@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -38,6 +39,11 @@ class AbstractBotAuthenticatorTest {
 
     @Override
     protected String authenticateAndGetToken(ApiClient client) throws ApiException {
+      return null;
+    }
+
+    @Override
+    protected Token authenticateAndGetAuthToken(ApiClient client) throws ApiException {
       return null;
     }
 

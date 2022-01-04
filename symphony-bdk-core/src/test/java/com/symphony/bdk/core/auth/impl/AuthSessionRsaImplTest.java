@@ -1,6 +1,8 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.gen.api.model.Token;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -17,10 +19,12 @@ class AuthSessionRsaImplTest {
   void testRefresh() throws AuthUnauthorizedException {
 
     final String sessionToken = UUID.randomUUID().toString();
+    Token authToken = new Token();
+    authToken.setToken(sessionToken);
     final String kmToken = UUID.randomUUID().toString();
 
     final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
-    when(auth.retrieveSessionToken()).thenReturn(sessionToken);
+    when(auth.retrieveAuthToken()).thenReturn(authToken);
     when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
 
     final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
@@ -29,7 +33,7 @@ class AuthSessionRsaImplTest {
     assertEquals(sessionToken, session.getSessionToken());
     assertEquals(kmToken, session.getKeyManagerToken());
 
-    verify(auth, times(1)).retrieveSessionToken();
+    verify(auth, times(1)).retrieveAuthToken();
     verify(auth, times(1)).retrieveKeyManagerToken();
   }
 }

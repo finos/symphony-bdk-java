@@ -56,9 +56,9 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
     return authSession;
   }
 
-  protected String retrieveSessionToken() throws AuthUnauthorizedException {
-    log.debug("Start retrieving sessionToken using RSA authentication...");
-    return this.retrieveToken(this.loginApiClient);
+  protected Token retrieveAuthToken() throws AuthUnauthorizedException {
+    log.debug("Start retrieving Authorization tokens using RSA authentication...");
+    return this.retrieveAuthToken(this.loginApiClient);
   }
 
   protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
@@ -75,6 +75,17 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
     final Token token = new AuthenticationApi(client).pubkeyAuthenticatePost(req);
     log.debug("{} successfully retrieved.", token.getName());
     return token.getToken();
+  }
+
+  @Override
+  protected Token authenticateAndGetAuthToken(ApiClient client) throws ApiException {
+    final String jwt = JwtHelper.createSignedJwt(this.username, JwtHelper.JWT_EXPIRATION_MILLIS, this.privateKey);
+    final AuthenticateRequest req = new AuthenticateRequest();
+    req.setToken(jwt);
+
+    final Token token = new AuthenticationApi(client).pubkeyAuthenticatePost(req);
+    log.debug("Authentication tokens successfully retrieved.");
+    return token;
   }
 
   @Override
