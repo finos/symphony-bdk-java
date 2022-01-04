@@ -6,9 +6,11 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
@@ -20,6 +22,8 @@ import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
+
+import javax.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +83,51 @@ class ApiClientFactoryTest {
   @Test
   void testGetPodClient() {
     final ApiClient podClient = this.factory.getPodClient();
+    assertEquals(ApiClientJersey2.class, podClient.getClass());
+    assertEquals("https://pod-host:443/pod", podClient.getBasePath());
+  }
+
+  @Test
+  void testGetPodClientWithCommonJwtEnabled() {
+    BdkCommonJwtConfig commonJwtConfig = new BdkCommonJwtConfig();
+    commonJwtConfig.setEnabled(true);
+
+    final BdkConfig config = new BdkConfig();
+    config.setHost("pod-host");
+    config.setCommonJwt(commonJwtConfig);
+
+    ApiClientFactory factory = new ApiClientFactory(config);
+    final ApiClient podClient = factory.getPodClient(getAuthSessionWithCommonJwt());
+    assertEquals(BearerEnabledApiClient.class, podClient.getClass());
+    assertEquals("https://pod-host:443/pod", podClient.getBasePath());
+  }
+
+  @Test
+  void testGetPodClientWithCommonJwtDisabled() {
+    BdkCommonJwtConfig commonJwtConfig = new BdkCommonJwtConfig();
+    commonJwtConfig.setEnabled(false);
+
+    final BdkConfig config = new BdkConfig();
+    config.setHost("pod-host");
+    config.setCommonJwt(commonJwtConfig);
+
+    ApiClientFactory factory = new ApiClientFactory(config);
+    final ApiClient podClient = factory.getPodClient(getAuthSessionWithCommonJwt());
+    assertEquals(ApiClientJersey2.class, podClient.getClass());
+    assertEquals("https://pod-host:443/pod", podClient.getBasePath());
+  }
+
+  @Test
+  void testGetPodClientWithCommonJwtAndNullSession() {
+    BdkCommonJwtConfig commonJwtConfig = new BdkCommonJwtConfig();
+    commonJwtConfig.setEnabled(true);
+
+    final BdkConfig config = new BdkConfig();
+    config.setHost("pod-host");
+    config.setCommonJwt(commonJwtConfig);
+
+    ApiClientFactory factory = new ApiClientFactory(config);
+    final ApiClient podClient = factory.getPodClient(null);
     assertEquals(ApiClientJersey2.class, podClient.getClass());
     assertEquals("https://pod-host:443/pod", podClient.getBasePath());
   }
@@ -326,4 +375,30 @@ class ApiClientFactoryTest {
 
     return config;
   }
+
+  private AuthSession getAuthSessionWithCommonJwt() {
+    return new AuthSession() {
+      @Nullable
+      @Override
+      public String getSessionToken() {
+        return null;
+      }
+
+      @Nullable
+      @Override
+      public String getKeyManagerToken() {
+        return null;
+      }
+
+      @Override
+      public void refresh() {
+      }
+
+      @Override
+      public String getAuthorizationToken() {
+        return "Bearer qwert";
+      }
+    };
+  }
+
 }

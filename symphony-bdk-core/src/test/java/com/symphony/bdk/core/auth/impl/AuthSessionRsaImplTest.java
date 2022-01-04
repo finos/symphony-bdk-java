@@ -36,4 +36,22 @@ class AuthSessionRsaImplTest {
     verify(auth, times(1)).retrieveAuthToken();
     verify(auth, times(1)).retrieveKeyManagerToken();
   }
+
+  @Test
+  void testRefreshAuthToken() throws AuthUnauthorizedException {
+
+    String authToken = "Bearer qwerty";
+    Token token = new Token();
+    token.setAuthorizationToken(authToken);
+
+    final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
+    when(auth.retrieveAuthToken()).thenReturn(token);
+
+    final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
+    session.refreshAuthToken();
+
+    assertEquals(authToken, session.getAuthorizationToken());
+
+    verify(auth, times(1)).retrieveAuthToken();
+  }
 }

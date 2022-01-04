@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.client;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.http.api.ApiClient;
@@ -89,7 +90,7 @@ public class BearerEnabledApiClient implements ApiClient {
       if (Instant.now().getEpochSecond() >= expirationTime) {
         authSession.refreshAuthToken();
       }
-    } catch (AuthUnauthorizedException | JsonProcessingException e) {
+    } catch (AuthUnauthorizedException | JsonProcessingException | AuthInitializationException e) {
       log.info("Unable to authenticate the bot.");
     }
   }

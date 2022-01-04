@@ -132,15 +132,18 @@ public class JwtHelper {
    * @return expiration date in seconds
    * @throws JsonProcessingException if parsing fails
    */
-  public static Long extractExpirationDate(String jwt) throws JsonProcessingException {
+  public static Long extractExpirationDate(String jwt) throws JsonProcessingException, AuthInitializationException {
     String claimsObj = extractDecodedClaims(dropBearer(jwt));
     ObjectNode claims = mapper.readValue(claimsObj, ObjectNode.class);
     return claims.get("exp").asLong();
 
   }
 
-  private static String extractDecodedClaims(String jwt) {
+  private static String extractDecodedClaims(String jwt) throws AuthInitializationException {
     String[] jwtSplit = jwt.split("\\.");
+    if(jwtSplit.length < 3) {
+      throw new AuthInitializationException("Unable to parse jwt");
+    }
     return new String(Base64.getDecoder().decode(jwtSplit[1]));
   }
 

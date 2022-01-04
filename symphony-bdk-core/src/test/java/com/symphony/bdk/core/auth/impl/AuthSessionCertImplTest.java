@@ -40,4 +40,22 @@ public class AuthSessionCertImplTest {
     verify(auth, times(1)).retrieveAuthToken();
     verify(auth, times(1)).retrieveKeyManagerToken();
   }
+
+  @Test
+  void testRefreshAuthToken() throws AuthUnauthorizedException {
+
+    String authToken = "Bearer qwerty";
+    Token token = new Token();
+    token.setAuthorizationToken(authToken);
+
+    final BotAuthenticatorCertImpl auth = mock(BotAuthenticatorCertImpl.class);
+    when(auth.retrieveAuthToken()).thenReturn(token);
+
+    final AuthSessionCertImpl session = new AuthSessionCertImpl(auth);
+    session.refreshAuthToken();
+
+    assertEquals(authToken, session.getAuthorizationToken());
+
+    verify(auth, times(1)).retrieveAuthToken();
+  }
 }
