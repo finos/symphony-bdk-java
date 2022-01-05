@@ -2,7 +2,6 @@ package com.symphony.bdk.core.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.Pair;
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -89,13 +90,16 @@ class BearerEnabledApiClientTest {
   }
 
   @Test
-  public void testInvokeApiWithInvalidJwt() {
-    when(authSession.getAuthorizationToken()).thenReturn("invalid jwt");
+  public void testInvokeApiWithExpiredJwt() throws AuthUnauthorizedException, ApiException {
+    when(authSession.getAuthorizationToken()).thenReturn(JWT);
+    when(authSession.getAuthTokenExpirationDate()).thenReturn(Instant.now().getEpochSecond());
     BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
 
-    assertThrows(ApiException.class, () -> bearerEnabledApiClient.invokeAPI("path", "POST", new ArrayList<>(), "body",
+     bearerEnabledApiClient.invokeAPI("path", "POST", new ArrayList<>(), "body",
         new HashMap<>(), null, null, "application/json" ,
-        "content type", null, new TypeReference<String>() {}));
+        "content type", null, new TypeReference<String>() {});
+
+    verify(authSession).refreshAuthToken();
   }
 
   @Test

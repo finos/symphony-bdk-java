@@ -50,7 +50,7 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
 
   @Nonnull
   protected Token retrieveAuthToken() throws AuthUnauthorizedException {
-    log.debug("Start retrieving sessionToken using certificate authentication...");
+    log.debug("Start retrieving authentication tokens using certificate authentication...");
     return retrieveAuthToken(this.sessionAuthClient);
   }
 

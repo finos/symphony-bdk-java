@@ -3,14 +3,12 @@ package com.symphony.bdk.core.client;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.util.TypeReference;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -43,13 +41,13 @@ public class BearerEnabledApiClient implements ApiClient {
       String contentType, String[] authNames, TypeReference<T> returnType) throws ApiException {
     String authorizationToken = authSession.getAuthorizationToken();
     try {
-      refreshTokenIfNeeded(authorizationToken);
+      refreshTokenIfNeeded();
     } catch (AuthInitializationException e) {
       throw new ApiException(e.getMessage(), e);
     }
     if (authorizationToken != null) {
       headerParams.remove("sessionToken");
-      headerParams.put("Authorization", authSession.getAuthorizationToken());
+      headerParams.put("Authorization", authorizationToken);
     }
     return apiClient.invokeAPI(path, method, queryParams, body, headerParams, cookieParams, formParams, accept,
         contentType, authNames, returnType);
@@ -88,16 +86,16 @@ public class BearerEnabledApiClient implements ApiClient {
   /**
    * Trigger jwt refresh if expired
    */
-  private void refreshTokenIfNeeded(String authorizationToken) throws AuthInitializationException {
-    if(authorizationToken == null) {
+  private void refreshTokenIfNeeded() throws AuthInitializationException {
+    int interval = 5;
+    if(authSession.getAuthorizationToken() == null || authSession.getAuthTokenExpirationDate() == null) {
       return;
     }
     try {
-      Long expirationTime = JwtHelper.extractExpirationDate(authorizationToken);
-      if (Instant.now().getEpochSecond() >= expirationTime) {
+      if (Instant.now().getEpochSecond() + interval >= authSession.getAuthTokenExpirationDate()) {
         authSession.refreshAuthToken();
       }
-    } catch (AuthUnauthorizedException | JsonProcessingException | AuthInitializationException e) {
+    } catch (AuthUnauthorizedException e) {
       throw new AuthInitializationException("Unable to authenticate the bot.", e);
     }
   }

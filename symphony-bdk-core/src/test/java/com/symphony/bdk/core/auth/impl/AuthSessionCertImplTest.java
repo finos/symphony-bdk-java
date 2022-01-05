@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
+import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -44,9 +45,8 @@ public class AuthSessionCertImplTest {
   @Test
   void testRefreshAuthToken() throws AuthUnauthorizedException {
 
-    String authToken = "Bearer qwerty";
     Token token = new Token();
-    token.setAuthorizationToken(authToken);
+    token.setAuthorizationToken(JWT);
 
     final BotAuthenticatorCertImpl auth = mock(BotAuthenticatorCertImpl.class);
     when(auth.retrieveAuthToken()).thenReturn(token);
@@ -54,7 +54,7 @@ public class AuthSessionCertImplTest {
     final AuthSessionCertImpl session = new AuthSessionCertImpl(auth);
     session.refreshAuthToken();
 
-    assertEquals(authToken, session.getAuthorizationToken());
+    assertEquals(JWT, session.getAuthorizationToken());
 
     verify(auth, times(1)).retrieveAuthToken();
   }

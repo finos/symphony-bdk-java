@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
+import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -40,9 +41,8 @@ class AuthSessionRsaImplTest {
   @Test
   void testRefreshAuthToken() throws AuthUnauthorizedException {
 
-    String authToken = "Bearer qwerty";
     Token token = new Token();
-    token.setAuthorizationToken(authToken);
+    token.setAuthorizationToken(JWT);
 
     final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
     when(auth.retrieveAuthToken()).thenReturn(token);
@@ -50,7 +50,7 @@ class AuthSessionRsaImplTest {
     final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
     session.refreshAuthToken();
 
-    assertEquals(authToken, session.getAuthorizationToken());
+    assertEquals(JWT, session.getAuthorizationToken());
 
     verify(auth, times(1)).retrieveAuthToken();
   }

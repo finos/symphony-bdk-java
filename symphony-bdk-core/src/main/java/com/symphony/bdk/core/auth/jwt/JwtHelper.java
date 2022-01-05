@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.auth.jwt;
 
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -132,17 +133,17 @@ public class JwtHelper {
    * @return expiration date in seconds
    * @throws JsonProcessingException if parsing fails
    */
-  public static Long extractExpirationDate(String jwt) throws JsonProcessingException, AuthInitializationException {
+  public static Long extractExpirationDate(String jwt) throws JsonProcessingException, AuthUnauthorizedException {
     String claimsObj = extractDecodedClaims(dropBearer(jwt));
     ObjectNode claims = mapper.readValue(claimsObj, ObjectNode.class);
     return claims.get("exp").asLong();
 
   }
 
-  private static String extractDecodedClaims(String jwt) throws AuthInitializationException {
+  private static String extractDecodedClaims(String jwt) throws AuthUnauthorizedException {
     String[] jwtSplit = jwt.split("\\.");
     if(jwtSplit.length < 3) {
-      throw new AuthInitializationException("Unable to parse jwt");
+      throw new AuthUnauthorizedException("Unable to parse jwt");
     }
     return new String(Base64.getDecoder().decode(jwtSplit[1]));
   }

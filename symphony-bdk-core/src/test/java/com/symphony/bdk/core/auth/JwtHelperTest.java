@@ -4,16 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.migcomponents.migbase64.Base64;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.swagger.util.Json;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -38,7 +37,7 @@ import java.util.Date;
  * Test class for the {@link JwtHelper}.
  */
 @Slf4j
-class JwtHelperTest {
+public class JwtHelperTest {
 
   public static final String CERT_PASSWORD = "changeit";
   public static final String CERT_ALIAS = "1";
@@ -119,7 +118,7 @@ class JwtHelperTest {
 
   @Test
   public void testExtractExpirationDateInvalidJwt() {
-    assertThrows(AuthInitializationException.class, () -> JwtHelper.extractExpirationDate("invalid jwt"));
+    assertThrows(AuthUnauthorizedException.class, () -> JwtHelper.extractExpirationDate("invalid jwt"));
   }
 
   @Test

@@ -57,7 +57,7 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
   }
 
   protected Token retrieveAuthToken() throws AuthUnauthorizedException {
-    log.debug("Start retrieving Authorization tokens using RSA authentication...");
+    log.debug("Start retrieving authentication tokens using RSA authentication...");
     return this.retrieveAuthToken(this.loginApiClient);
   }
 

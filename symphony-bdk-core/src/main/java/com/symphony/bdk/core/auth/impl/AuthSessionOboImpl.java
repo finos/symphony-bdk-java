@@ -51,12 +51,6 @@ public class AuthSessionOboImpl implements AuthSession {
     return this.sessionToken;
   }
 
-  @Nullable
-  @Override
-  public String getAuthorizationToken() {
-    return null;
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -77,11 +71,6 @@ public class AuthSessionOboImpl implements AuthSession {
     } else {
       throw new IllegalStateException("Both userId and username are null. One of them is mandatory to perform OBO authentication refresh.");
     }
-  }
-
-  @Override
-  public void refreshAuthToken() {
-
   }
 
   /**
