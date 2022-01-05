@@ -24,7 +24,7 @@ public interface AuthSession {
   @Nullable String getSessionToken();
 
   /**
-   * Pod's common jwt authentication token.
+   * Pod's Common JWT authentication token.
    *
    * @return the Pod Authorization token
    */
