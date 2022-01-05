@@ -100,17 +100,9 @@ public interface ApiClient {
 
   /**
    * Get authentications (key: authentication name, value: authentication).
-   * @return Map of authentication object
+   * @return Map of {@link Authentication} object
    */
   Map<String, Authentication> getAuthentications();
-
-  /**
-   * Get authentication for the given name.
-   *
-   * @param authName The authentication name
-   * @return The authentication, null if not found
-   */
-  Authentication getAuthentication(String authName);
 
   /**
    * Change target server according to the load balancing configuration, applies only for calls to the agent.

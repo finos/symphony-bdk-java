@@ -219,10 +219,12 @@ public class ApiClientJersey2 implements ApiClient {
     } catch (ProcessingException e) {
       if (e.getCause() instanceof ConnectTimeoutException) {
         throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
-      } else if (e.getCause() instanceof NoHttpResponseException) {
+      }
+      else if (e.getCause() instanceof NoHttpResponseException) {
         // ensures that it will be caught later in the retry strategy
         throw new ProcessingException(new SocketException(e.getCause().getMessage()));
-      } else {
+      }
+      else {
         throw e;
       }
     }
@@ -360,14 +362,6 @@ public class ApiClientJersey2 implements ApiClient {
     } catch (UnsupportedEncodingException e) {
       return str;
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Authentication getAuthentication(String authName) {
-    return this.authentications.get(authName);
   }
 
   /**

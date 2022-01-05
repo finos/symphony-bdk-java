@@ -415,14 +415,6 @@ public class ApiClientWebClient implements ApiClient {
    * {@inheritDoc}
    */
   @Override
-  public Authentication getAuthentication(String authName) {
-    return this.authentications.get(authName);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public Map<String, Authentication> getAuthentications() {
     return this.authentications;
   }

@@ -2,6 +2,7 @@ package com.symphony.bdk.http.webclient;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
 import io.netty.channel.ChannelOption;
@@ -51,6 +52,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   protected int proxyPort;
   protected String proxyUser;
   protected String proxyPassword;
+  protected Map<String, Authentication> authentications;
 
   public ApiClientBuilderWebClient() {
     this.basePath = "";
@@ -61,6 +63,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     this.proxyPort = -1;
     this.proxyUser = null;
     this.proxyPassword = null;
+    this.authentications = new HashMap<>();
     this.withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -74,7 +77,9 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         .baseUrl(this.basePath)
         .build();
 
-    return new ApiClientWebClient(webClient, this.basePath, this.defaultHeaders);
+    final ApiClient apiClient = new ApiClientWebClient(webClient, this.basePath, this.defaultHeaders);
+    this.authentications.forEach(apiClient.getAuthentications()::put);
+    return apiClient;
   }
 
   /**
@@ -168,6 +173,15 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   public ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword) {
     this.proxyUser = proxyUser;
     this.proxyPassword = proxyPassword;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withAuthentication(String name, Authentication authentication) {
+    this.authentications.put(name, authentication);
     return this;
   }
 

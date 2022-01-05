@@ -1,5 +1,7 @@
 package com.symphony.bdk.http.api;
 
+import com.symphony.bdk.http.api.auth.Authentication;
+
 import org.apiguardian.api.API;
 
 /**
@@ -119,4 +121,13 @@ public interface ApiClientBuilder {
    * @return the updated instance of {@link ApiClientBuilder}
    */
   ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword);
+
+  /**
+   * Puts an authentication scheme.
+   *
+   * @param name Authentication scheme name.
+   * @param authentication Authentication scheme implementation.
+   * @return the updated instance of {@link ApiClientBuilder}
+   */
+  ApiClientBuilder withAuthentication(String name, Authentication authentication);
 }

@@ -110,6 +110,14 @@ public abstract class LoadBalancedApiClient implements ApiClient {
     return apiClient.escapeString(str);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.apiClient.getAuthentications();
+  }
+
   private void validateLoadBalancingConfiguration(BdkConfig config) {
     final BdkLoadBalancingConfig agentLoadBalancing = config.getAgent().getLoadBalancing();
     if (agentLoadBalancing == null) {
