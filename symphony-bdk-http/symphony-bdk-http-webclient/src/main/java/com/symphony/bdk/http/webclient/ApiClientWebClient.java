@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
@@ -44,11 +45,13 @@ public class ApiClientWebClient implements ApiClient {
   protected final WebClient webClient;
   protected final String basePath;
   protected final Map<String, String> defaultHeaderMap;
+  protected Map<String, Authentication> authentications;
 
   public ApiClientWebClient(final WebClient webClient, String basePath, Map<String, String> defaultHeaders) {
     this.webClient = webClient;
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
+    this.authentications = new HashMap<>();
   }
 
   /**
@@ -68,10 +71,13 @@ public class ApiClientWebClient implements ApiClient {
       final String[] authNames,
       final TypeReference<T> returnType
   ) throws ApiException {
+
     HttpMethod httpMethod = HttpMethod.resolve(method);
     if (httpMethod == null) {
       throw new ApiException(500, "unknown method type " + method);
     }
+
+    this.updateParamsForAuth(authNames, queryParams, headerParams);
 
     WebClient.RequestBodySpec requestBodySpec =
         this.webClient.method(httpMethod).uri(uriBuilder -> {
@@ -191,7 +197,7 @@ public class ApiClientWebClient implements ApiClient {
         } else {
           ParameterizedTypeReference<T> reference = ParameterizedTypeReference.forType(returnType.getType());
           Mono<T> entity = response.bodyToMono(reference);
-          return entity.map( e -> new ApiResponse<>(response.statusCode().value(), headers, e));
+          return entity.map(e -> new ApiResponse<>(response.statusCode().value(), headers, e));
         }
       }
     } else {
@@ -202,7 +208,7 @@ public class ApiClientWebClient implements ApiClient {
         if (s != null) {
           message = s;
         }
-       throw Exceptions.propagate(new ApiException(
+        throw Exceptions.propagate(new ApiException(
             response.rawStatusCode(),
             message,
             headers,
@@ -245,6 +251,26 @@ public class ApiClientWebClient implements ApiClient {
         .filename(bodyPart.getFilename());
 
     multipartBodyBuilder.build().forEach(formValueMap::addAll);
+  }
+
+  /**
+   * Update query and header parameters based on authentication settings.
+   *
+   * @param authNames The authentications to apply
+   */
+  private void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+
+    if (authNames == null) {
+      return;
+    }
+
+    for (String authName : authNames) {
+      Authentication auth = this.authentications.get(authName);
+      if (auth == null) {
+        throw new RuntimeException("Authentication undefined: " + authName);
+      }
+      auth.applyToParams(queryParams, headerParams);
+    }
   }
 
   /**
@@ -383,5 +409,13 @@ public class ApiClientWebClient implements ApiClient {
   @Override
   public String escapeString(String str) {
     return str; // handled by Spring WebClient
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.authentications;
   }
 }
