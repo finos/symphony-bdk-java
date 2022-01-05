@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Bean;
 public class BdkOboServiceConfig {
 
   @Bean
+  @ConditionalOnMissingBean
   public ExtensionAppAuthenticator extensionAppAuthenticator(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getExtensionAppAuthenticator();
@@ -54,6 +55,7 @@ public class BdkOboServiceConfig {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public OboAuthenticator oboAuthenticator(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getOboAuthenticator();

@@ -1,14 +1,12 @@
 package com.symphony.bdk.http.jersey2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
-
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.UUID;
 
 import javax.ws.rs.HttpMethod;
@@ -51,6 +50,9 @@ class ApiClientJersey2Test {
     when(statusInfo.getFamily()).thenReturn(Response.Status.Family.SUCCESSFUL);
     when(response.getHeaders()).thenReturn(new MultivaluedHashMap<>());
     this.apiClient = new ApiClientJersey2(client, "", Collections.emptyMap(), "");
+    this.apiClient.getAuthentications().put("testAuth", (queryParams, headerParams) -> {
+      headerParams.put("Authorization", "test");
+    });
   }
 
   @Test
@@ -74,12 +76,12 @@ class ApiClientJersey2Test {
         HttpMethod.POST,
         Collections.emptyList(),
         null,
-        Collections.emptyMap(),
-        Collections.emptyMap(),
-        Collections.emptyMap(),
+        new HashMap<>(),
+        new HashMap<>(),
+        new HashMap<>(),
         "application/json",
         "application/json",
-        new String[0],
+        new String[] { "testAuth" },
         new TypeReference<String>() {}
     );
   }

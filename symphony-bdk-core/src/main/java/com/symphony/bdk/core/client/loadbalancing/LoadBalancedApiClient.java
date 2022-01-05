@@ -7,10 +7,13 @@ import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
 
+import com.symphony.bdk.http.api.auth.Authentication;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link ApiClient} implementation which load balances calls across several base URLs.
@@ -105,6 +108,14 @@ public abstract class LoadBalancedApiClient implements ApiClient {
   @Override
   public String escapeString(String str) {
     return apiClient.escapeString(str);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.apiClient.getAuthentications();
   }
 
   private void validateLoadBalancingConfiguration(BdkConfig config) {
