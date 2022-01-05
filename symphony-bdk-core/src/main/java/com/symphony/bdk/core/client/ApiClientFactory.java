@@ -81,7 +81,7 @@ public class ApiClientFactory {
     if (config.getCommonJwt().getEnabled() && authSession != null) {
       return new BearerEnabledApiClient(buildClient(POD_CONTEXT_PATH, this.config.getPod()), authSession);
     } else {
-      return buildClient(POD_CONTEXT_PATH, this.config.getPod());
+      return this.getPodClient();
     }
   }
 

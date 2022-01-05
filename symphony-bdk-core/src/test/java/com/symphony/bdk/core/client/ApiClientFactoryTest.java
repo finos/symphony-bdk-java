@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
@@ -392,6 +393,11 @@ class ApiClientFactoryTest {
 
       @Override
       public void refresh() {
+      }
+
+      @Override
+      public void refreshAuthToken() {
+
       }
 
       @Override

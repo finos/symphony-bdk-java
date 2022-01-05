@@ -42,7 +42,11 @@ public class BearerEnabledApiClient implements ApiClient {
       Map<String, String> headerParams, Map<String, String> cookieParams, Map<String, Object> formParams, String accept,
       String contentType, String[] authNames, TypeReference<T> returnType) throws ApiException {
     String authorizationToken = authSession.getAuthorizationToken();
-    refreshTokenIfNeeded(authorizationToken);
+    try {
+      refreshTokenIfNeeded(authorizationToken);
+    } catch (AuthInitializationException e) {
+      throw new ApiException(e.getMessage(), e);
+    }
     if (authorizationToken != null) {
       headerParams.remove("sessionToken");
       headerParams.put("Authorization", authSession.getAuthorizationToken());
@@ -84,7 +88,7 @@ public class BearerEnabledApiClient implements ApiClient {
   /**
    * Trigger jwt refresh if expired
    */
-  private void refreshTokenIfNeeded(String authorizationToken) {
+  private void refreshTokenIfNeeded(String authorizationToken) throws AuthInitializationException {
     if(authorizationToken == null) {
       return;
     }
@@ -94,7 +98,7 @@ public class BearerEnabledApiClient implements ApiClient {
         authSession.refreshAuthToken();
       }
     } catch (AuthUnauthorizedException | JsonProcessingException | AuthInitializationException e) {
-      log.info("Unable to authenticate the bot.");
+      throw new AuthInitializationException("Unable to authenticate the bot.", e);
     }
   }
 }

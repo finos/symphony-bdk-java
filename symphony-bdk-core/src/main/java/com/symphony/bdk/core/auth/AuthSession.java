@@ -28,10 +28,7 @@ public interface AuthSession {
    *
    * @return the Pod Authorization token
    */
-  @Nullable
-  default String getAuthorizationToken() {
-    return null;
-  }
+  @Nullable String getAuthorizationToken();
 
   /**
    * KeyManager's authentication token.
@@ -48,7 +45,5 @@ public interface AuthSession {
   /**
    * Trigger re-authentication to refresh the Authorization token. Used when common jwt is enabled.
    */
-  default void refreshAuthToken() throws AuthUnauthorizedException {
-
-  };
+  void refreshAuthToken() throws AuthUnauthorizedException;
 }
