@@ -10,6 +10,10 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.BdkApiClientFactoryAware;
+import com.symphony.bdk.core.extension.BdkAuthenticationAware;
+import com.symphony.bdk.core.extension.BdkExtension;
+import com.symphony.bdk.core.extension.exception.ExtensionInitializationException;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -29,6 +33,7 @@ import com.symphony.bdk.http.api.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -42,6 +47,8 @@ import javax.annotation.Nullable;
 public class SymphonyBdk {
 
   private final BdkConfig config;
+
+  private final ApiClientFactory apiClientFactory;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
@@ -94,11 +101,13 @@ public class SymphonyBdk {
     this.config = config;
 
     if (apiClientFactory == null) {
-      apiClientFactory = new ApiClientFactory(this.config);
+      this.apiClientFactory = new ApiClientFactory(this.config);
+    } else {
+      this.apiClientFactory = apiClientFactory;
     }
 
     if (authenticatorFactory == null) {
-      authenticatorFactory = new AuthenticatorFactory(this.config, apiClientFactory);
+      authenticatorFactory = new AuthenticatorFactory(this.config, this.apiClientFactory);
     }
 
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
@@ -109,7 +118,7 @@ public class SymphonyBdk {
     if (config.isBotConfigured()) {
       this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
       // service init
-      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
+      serviceFactory = new ServiceFactory(this.apiClientFactory, this.botSession, config);
     } else {
       log.info(
           "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
@@ -337,4 +346,24 @@ public class SymphonyBdk {
         .orElseThrow(() -> new IllegalStateException("OBO is not configured."));
   }
 
+  public <T extends BdkExtension> T getExtension(Class<T> clz) {
+
+    T extension;
+
+    try {
+      extension = clz.getConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new ExtensionInitializationException("Extension " + clz + " must have a default constructor", e);
+    }
+
+    if (extension instanceof BdkAuthenticationAware) {
+      ((BdkAuthenticationAware) extension).setAuthSession(this.botSession);
+    }
+
+    if (extension instanceof BdkApiClientFactoryAware) {
+      ((BdkApiClientFactoryAware) extension).setApiClientFactory(this.apiClientFactory);
+    }
+
+    return extension;
+  }
 }

@@ -69,6 +69,12 @@ public class ApiClientFactory {
     return buildClient(POD_CONTEXT_PATH, this.config.getPod());
   }
 
+  // FIXME c pas bo
+  @Deprecated
+  public ApiClient getBaseClient(String contextPath) {
+    return buildClient(contextPath, this.config.getPod());
+  }
+
   /**
    * Returns a fully initialized {@link ApiClient} for KeyManager API.
    *

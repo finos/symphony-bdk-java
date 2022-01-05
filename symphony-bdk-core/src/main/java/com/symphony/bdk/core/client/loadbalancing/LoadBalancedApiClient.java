@@ -7,10 +7,13 @@ import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
 
+import com.symphony.bdk.http.api.auth.Authentication;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * An {@link ApiClient} implementation which load balances calls across several base URLs.
@@ -122,5 +125,15 @@ public abstract class LoadBalancedApiClient implements ApiClient {
     if (agentLoadBalancing.getNodes() == null || agentLoadBalancing.getNodes().isEmpty()) {
       throw new ApiClientInitializationException("Field \"nodes\" in loadBalancing is mandatory and must contain at least one element");
     }
+  }
+
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    throw new UnsupportedOperationException("ApiClient authentication is not supported here.");
+  }
+
+  @Override
+  public Authentication getAuthentication(String authName) {
+    throw new UnsupportedOperationException("ApiClient authentication is not supported here.");
   }
 }

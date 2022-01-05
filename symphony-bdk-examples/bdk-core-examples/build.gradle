@@ -16,6 +16,9 @@ dependencies {
     implementation 'org.glassfish.jersey.media:jersey-media-json-jackson'
     implementation 'org.glassfish.jersey.media:jersey-media-multipart'
 
+    // let's try an extension
+    implementation project(':symphony-bdk-extensions:symphony-groups-bdk-extension')
+
     runtimeOnly 'ch.qos.logback:logback-classic'
 
     implementation 'org.slf4j:slf4j-api'

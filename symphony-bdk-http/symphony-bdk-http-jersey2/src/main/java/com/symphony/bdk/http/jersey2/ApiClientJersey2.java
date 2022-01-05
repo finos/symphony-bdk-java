@@ -5,6 +5,7 @@ import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
@@ -57,6 +58,7 @@ public class ApiClientJersey2 implements ApiClient {
   protected String basePath;
   protected Map<String, String> defaultHeaderMap;
   protected String tempFolderPath;
+  protected Map<String, Authentication> authentications;
 
   public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders,
       String temporaryFolderPath) {
@@ -64,6 +66,7 @@ public class ApiClientJersey2 implements ApiClient {
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
     this.tempFolderPath = temporaryFolderPath;
+    this.authentications = new HashMap<>();
   }
 
   /**
@@ -87,6 +90,8 @@ public class ApiClientJersey2 implements ApiClient {
     // Not using `.target(this.basePath).path(path)` below,
     // to support (constant) query string in `path`, e.g. "/posts?draft=1"
     WebTarget target = httpClient.target(this.basePath + path);
+
+    this.updateParamsForAuth(authNames, queryParams, headerParams);
 
     if (queryParams != null) {
       for (Pair queryParam : queryParams) {
@@ -214,12 +219,10 @@ public class ApiClientJersey2 implements ApiClient {
     } catch (ProcessingException e) {
       if (e.getCause() instanceof ConnectTimeoutException) {
         throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
-      }
-      else if (e.getCause() instanceof NoHttpResponseException) {
+      } else if (e.getCause() instanceof NoHttpResponseException) {
         // ensures that it will be caught later in the retry strategy
         throw new ProcessingException(new SocketException(e.getCause().getMessage()));
-      }
-      else {
+      } else {
         throw e;
       }
     }
@@ -357,6 +360,22 @@ public class ApiClientJersey2 implements ApiClient {
     } catch (UnsupportedEncodingException e) {
       return str;
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Authentication getAuthentication(String authName) {
+    return this.authentications.get(authName);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.authentications;
   }
 
   /**
@@ -532,5 +551,25 @@ public class ApiClientJersey2 implements ApiClient {
       responseHeaders.put(entry.getKey(), headers);
     }
     return responseHeaders;
+  }
+
+  /**
+   * Update query and header parameters based on authentication settings.
+   *
+   * @param authNames The authentications to apply
+   */
+  protected void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+
+    if (authNames == null) {
+      return;
+    }
+
+    for (String authName : authNames) {
+      Authentication auth = this.authentications.get(authName);
+      if (auth == null) {
+        throw new RuntimeException("Authentication undefined: " + authName);
+      }
+      auth.applyToParams(queryParams, headerParams);
+    }
   }
 }

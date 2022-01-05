@@ -1,5 +1,6 @@
 package com.symphony.bdk.http.api;
 
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import org.apiguardian.api.API;
@@ -96,6 +97,20 @@ public interface ApiClient {
    * @return Escaped string
    */
   String escapeString(String str);
+
+  /**
+   * Get authentications (key: authentication name, value: authentication).
+   * @return Map of authentication object
+   */
+  Map<String, Authentication> getAuthentications();
+
+  /**
+   * Get authentication for the given name.
+   *
+   * @param authName The authentication name
+   * @return The authentication, null if not found
+   */
+  Authentication getAuthentication(String authName);
 
   /**
    * Change target server according to the load balancing configuration, applies only for calls to the agent.
