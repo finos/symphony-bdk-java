@@ -5,6 +5,7 @@ import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
 import org.apache.http.config.Registry;
@@ -60,6 +61,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   protected String proxyUrl;
   protected String proxyUser;
   protected String proxyPassword;
+  protected Map<String, Authentication> authentications;
 
   public ApiClientBuilderJersey2() {
     this.basePath = "https://acme.symphony.com";
@@ -76,6 +78,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     this.proxyUrl = null;
     this.proxyUser = null;
     this.proxyPassword = null;
+    this.authentications = new HashMap<>();
     this.withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -95,7 +98,9 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     httpClient.property(ClientProperties.CONNECT_TIMEOUT, this.connectionTimeout);
     httpClient.property(ClientProperties.READ_TIMEOUT, this.readTimeout);
 
-    return new ApiClientJersey2(httpClient, this.basePath, this.defaultHeaders, this.temporaryFolderPath);
+    final ApiClient apiClient = new ApiClientJersey2(httpClient, this.basePath, this.defaultHeaders, this.temporaryFolderPath);
+    this.authentications.forEach(apiClient.getAuthentications()::put);
+    return apiClient;
   }
 
   /**
@@ -206,6 +211,15 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClientBuilder withProxyCredentials(String proxyUser, String proxyPassword) {
     this.proxyUser = proxyUser;
     this.proxyPassword = proxyPassword;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withAuthentication(String name, Authentication authentication) {
+    this.authentications.put(name, authentication);
     return this;
   }
 
