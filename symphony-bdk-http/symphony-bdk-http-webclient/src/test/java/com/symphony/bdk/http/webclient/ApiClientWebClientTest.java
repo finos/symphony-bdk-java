@@ -1,9 +1,6 @@
 package com.symphony.bdk.http.webclient;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.symphony.bdk.http.api.ApiClient;
@@ -48,6 +45,9 @@ class ApiClientWebClientTest {
   void setUp(final BdkMockServer mockServer) {
 
     this.apiClient = mockServer.newApiClient("");
+    this.apiClient.getAuthentications().put("testAuth", (queryParams, headerParams) -> {
+      headerParams.put("Authorization", "test");
+    });
   }
 
   @Test
@@ -63,12 +63,16 @@ class ApiClientWebClientTest {
         httpRequest -> httpRequest
             .withMethod("GET")
             .withPath("/test-api")
-            .withHeader("sessionToken", "test-token"),
+            .withHeader("sessionToken", "test-token")
+            .withHeader("Authorization", "test"),
         httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
 
+    final Map<String, String> headers = new HashMap<>();
+    headers.put("sessionToken", "test-token");
+
     ApiResponse<Response> response =
-        this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
-            null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+        this.apiClient.invokeAPI("/test-api", "GET", null, null, headers,
+            null, null, null, "application/json", new String[] { "testAuth" }, new TypeReference<Response>() {});
 
     assertTrue(this.apiClient.getBasePath().startsWith("http://localhost:"));
     assertEquals(200, response.getData().getCode());
