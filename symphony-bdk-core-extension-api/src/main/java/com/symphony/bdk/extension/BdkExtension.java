@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.extension;
+package com.symphony.bdk.extension;
 
 import org.apiguardian.api.API;
 

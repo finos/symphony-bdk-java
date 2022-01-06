@@ -5,8 +5,8 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.extension.BdkExtension;
 import com.symphony.bdk.core.util.ServiceLookup;
+import com.symphony.bdk.extension.BdkExtension;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.Generated;

@@ -4,11 +4,11 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.extension.BdkApiClientFactoryAware;
 import com.symphony.bdk.core.extension.BdkAuthenticationAware;
-import com.symphony.bdk.core.extension.BdkExtension;
-import com.symphony.bdk.core.extension.BdkExtensionLifecycleAware;
-import com.symphony.bdk.core.extension.BdkExtensionServiceProvider;
 import com.symphony.bdk.core.extension.BdkRetryBuilderAware;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.extension.BdkExtension;
+import com.symphony.bdk.extension.BdkExtensionLifecycleAware;
+import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;

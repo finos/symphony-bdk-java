@@ -3,21 +3,28 @@ rootProject.name = 'symphony-bdk-java'
 include(':symphony-bdk-bom')
 
 include(':symphony-bdk-core')
+include(':symphony-bdk-core-extension-api')
+
+// http client
 include(':symphony-bdk-http:symphony-bdk-http-api')
 include(':symphony-bdk-http:symphony-bdk-http-jersey2')
 include(':symphony-bdk-http:symphony-bdk-http-webclient')
 
+// template API
 include(':symphony-bdk-template:symphony-bdk-template-api')
 include(':symphony-bdk-template:symphony-bdk-template-freemarker')
 include(':symphony-bdk-template:symphony-bdk-template-handlebars')
 
+// spring wrappers
 include(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 include(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
 
+// examples
 include(':symphony-bdk-examples:bdk-core-examples')
 include(':symphony-bdk-examples:bdk-spring-boot-example')
 include(':symphony-bdk-examples:bdk-template-examples')
 include(':symphony-bdk-examples:bdk-app-spring-boot-example')
 include(':symphony-bdk-examples:bdk-multi-instances-example')
 
-include(':symphony-bdk-extensions:symphony-groups-bdk-extension')
+// built-in extensions
+include(':symphony-bdk-ext:symphony-groups-ext')

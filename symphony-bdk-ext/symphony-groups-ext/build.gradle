@@ -8,6 +8,7 @@ description = 'Symphony Java BDK - Groups Extension'
 
 dependencies {
     implementation project(':symphony-bdk-core')
+    implementation project(':symphony-bdk-core-extension-api')
     implementation project(':symphony-bdk-http:symphony-bdk-http-api')
 
     compileOnly 'org.projectlombok:lombok'
@@ -20,11 +21,6 @@ dependencies {
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
 
-//    implementation 'org.apiguardian:apiguardian-api'
-
-//    testImplementation 'org.junit.jupiter:junit-jupiter'
-//    testImplementation 'ch.qos.logback:logback-classic'
-//    testImplementation 'org.mockito:mockito-core'
 }
 
 def generatedFolder = "$buildDir/generated/openapi"

@@ -5,6 +5,10 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.exception.BdkExtensionException;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.extension.BdkExtension;
+import com.symphony.bdk.extension.BdkExtensionLifecycleAware;
+
+import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
