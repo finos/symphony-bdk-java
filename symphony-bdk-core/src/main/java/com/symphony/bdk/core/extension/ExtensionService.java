@@ -2,6 +2,7 @@ package com.symphony.bdk.core.extension;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.extension.BdkConfigAware;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.exception.BdkExtensionException;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
