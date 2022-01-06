@@ -1,5 +1,4 @@
-package com.symphony.bdk.core.util.function;
-
+package com.symphony.bdk.core.retry.function;
 
 import org.apiguardian.api.API;
 
@@ -10,5 +9,6 @@ import org.apiguardian.api.API;
 @FunctionalInterface
 @API(status = API.Status.INTERNAL)
 public interface ConsumerWithThrowable {
+
   void consume() throws Throwable;
 }

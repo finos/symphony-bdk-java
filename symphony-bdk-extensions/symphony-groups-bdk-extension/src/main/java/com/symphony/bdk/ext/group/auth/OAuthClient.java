@@ -1,4 +1,4 @@
-package com.symphony.bdk.groups;
+package com.symphony.bdk.ext.group.auth;
 
 import static com.symphony.bdk.http.api.Pair.pair;
 import static java.util.Collections.singletonList;
@@ -12,16 +12,21 @@ import com.symphony.bdk.http.api.util.TypeReference;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
-// FIXME to be removed once https://perzoinc.atlassian.net/browse/PLAT-11564 done
-@API(status = API.Status.DEPRECATED)
-public class OAuthHelper {
+import javax.annotation.Nonnull;
 
-  public static String retrieveBearerToken(ApiClient loginClient, AuthSession session) throws ApiException {
+@RequiredArgsConstructor
+@API(status = API.Status.INTERNAL)
+public class OAuthClient {
 
-    final ApiResponse<TokenResponse> response = loginClient.invokeAPI(
+  private final ApiClient loginClient;
+
+  public String retrieveBearerToken(@Nonnull final AuthSession session) throws ApiException {
+
+    final ApiResponse<TokenResponse> response = this.loginClient.invokeAPI(
         "/idm/tokens",
         "POST",
         singletonList(pair("scope", "profile-manager")),
@@ -40,6 +45,7 @@ public class OAuthHelper {
 
   @Getter @Setter
   private static class TokenResponse {
+
     @JsonProperty("access_token")
     private String token;
   }

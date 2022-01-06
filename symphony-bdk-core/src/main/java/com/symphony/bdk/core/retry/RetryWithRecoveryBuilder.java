@@ -2,8 +2,8 @@ package com.symphony.bdk.core.retry;
 
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.resilience4j.Resilience4jRetryWithRecovery;
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;

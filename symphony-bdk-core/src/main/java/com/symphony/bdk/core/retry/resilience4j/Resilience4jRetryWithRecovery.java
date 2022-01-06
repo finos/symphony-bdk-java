@@ -3,8 +3,8 @@ package com.symphony.bdk.core.retry.resilience4j;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RecoveryStrategy;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
-import com.symphony.bdk.core.util.BdkExponentialFunction;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.util.BdkExponentialFunction;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 
 import io.github.resilience4j.retry.Retry;

@@ -5,7 +5,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.gen.api.model.UserConnectionRequest;

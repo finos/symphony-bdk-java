@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.util;
+package com.symphony.bdk.core.retry.util;
 
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import io.github.resilience4j.core.IntervalFunction;

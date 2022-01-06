@@ -31,7 +31,8 @@ dependencies {
         api "org.finos.symphony.bdk:symphony-bdk-template-api:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-template-freemarker:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-template-handlebars:$project.version"
-        api "org.finos.symphony.bdk:symphony-groups-bdk-extension:$project.version"
+        // extensions
+        api "org.finos.symphony.bdk.ext:symphony-groups-bdk-extension:$project.version"
 
         // External dependencies
         api 'org.projectlombok:lombok:1.18.22'

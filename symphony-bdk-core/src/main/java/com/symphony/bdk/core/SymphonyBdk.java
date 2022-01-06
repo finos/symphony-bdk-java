@@ -10,10 +10,8 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.extension.BdkApiClientFactoryAware;
-import com.symphony.bdk.core.extension.BdkAuthenticationAware;
-import com.symphony.bdk.core.extension.BdkExtension;
-import com.symphony.bdk.core.extension.exception.ExtensionInitializationException;
+import com.symphony.bdk.core.extension.ExtensionService;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -33,7 +31,6 @@ import com.symphony.bdk.http.api.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -47,8 +44,6 @@ import javax.annotation.Nullable;
 public class SymphonyBdk {
 
   private final BdkConfig config;
-
-  private final ApiClientFactory apiClientFactory;
 
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
@@ -67,6 +62,7 @@ public class SymphonyBdk {
   private final DisclaimerService disclaimerService;
   private final SessionService sessionService;
   private final HealthService healthService;
+  private final ExtensionService extensionService;
 
   /**
    * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
@@ -101,13 +97,11 @@ public class SymphonyBdk {
     this.config = config;
 
     if (apiClientFactory == null) {
-      this.apiClientFactory = new ApiClientFactory(this.config);
-    } else {
-      this.apiClientFactory = apiClientFactory;
+      apiClientFactory = new ApiClientFactory(this.config);
     }
 
     if (authenticatorFactory == null) {
-      authenticatorFactory = new AuthenticatorFactory(this.config, this.apiClientFactory);
+      authenticatorFactory = new AuthenticatorFactory(this.config, apiClientFactory);
     }
 
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
@@ -118,7 +112,7 @@ public class SymphonyBdk {
     if (config.isBotConfigured()) {
       this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
       // service init
-      serviceFactory = new ServiceFactory(this.apiClientFactory, this.botSession, config);
+      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
     } else {
       log.info(
           "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
@@ -142,6 +136,14 @@ public class SymphonyBdk {
 
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
+
+    // setup extension service
+    this.extensionService = new ExtensionService(
+        apiClientFactory,
+        this.botSession,
+        new RetryWithRecoveryBuilder<>().retryConfig(this.config.getRetry()),
+        this.config
+    );
   }
 
   /**
@@ -332,6 +334,11 @@ public class SymphonyBdk {
     return this.config;
   }
 
+  @API(status = API.Status.EXPERIMENTAL)
+  public ExtensionService extensions() {
+    return this.extensionService;
+  }
+
   private <T> T getOrThrowNoBotConfig(T field) {
     return Optional.ofNullable(field).orElseThrow(BotNotConfiguredException::new);
   }
@@ -344,26 +351,5 @@ public class SymphonyBdk {
   protected OboAuthenticator getOboAuthenticator() {
     return Optional.ofNullable(this.oboAuthenticator)
         .orElseThrow(() -> new IllegalStateException("OBO is not configured."));
-  }
-
-  public <T extends BdkExtension> T getExtension(Class<T> clz) {
-
-    T extension;
-
-    try {
-      extension = clz.getConstructor().newInstance();
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ExtensionInitializationException("Extension " + clz + " must have a default constructor", e);
-    }
-
-    if (extension instanceof BdkAuthenticationAware) {
-      ((BdkAuthenticationAware) extension).setAuthSession(this.botSession);
-    }
-
-    if (extension instanceof BdkApiClientFactoryAware) {
-      ((BdkApiClientFactoryAware) extension).setApiClientFactory(this.apiClientFactory);
-    }
-
-    return extension;
   }
 }

@@ -1,0 +1,3 @@
+subprojects {
+    group = 'org.finos.symphony.bdk.ext'
+}

@@ -1,7 +1,7 @@
 package com.symphony.bdk.core.service.health;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;

@@ -5,11 +5,15 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.BdkExtension;
 import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 
 import lombok.Generated;
 import org.apiguardian.api.API;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -28,6 +32,7 @@ public class SymphonyBdkBuilder {
   private ApiClientBuilderProvider apiClientBuilderProvider;
   private AuthenticatorFactory authenticatorFactory;
   private ApiClientFactory apiClientFactory;
+  private final List<Class<? extends BdkExtension>> extensions = new ArrayList<>();
 
   /**
    * With {@link BdkConfig}.
@@ -78,6 +83,17 @@ public class SymphonyBdkBuilder {
   }
 
   /**
+   * Registers a {@link BdkExtension}.
+   *
+   * @param extension {@link BdkExtension} class to be registered.
+   * @return updated builder.
+   */
+  public SymphonyBdkBuilder extension(@Nonnull Class<? extends BdkExtension> extension) {
+    this.extensions.add(extension);
+    return this;
+  }
+
+  /**
    * Build new {@link SymphonyBdk}.
    *
    * @return a new {@link SymphonyBdk} instance.
@@ -102,6 +118,8 @@ public class SymphonyBdkBuilder {
       this.authenticatorFactory = new AuthenticatorFactory(this.config, this.apiClientFactory);
     }
 
-    return new SymphonyBdk(this.config, this.apiClientFactory, this.authenticatorFactory);
+    final SymphonyBdk bdk = new SymphonyBdk(this.config, this.apiClientFactory, this.authenticatorFactory);
+    this.extensions.forEach(bdk.extensions()::register);
+    return bdk;
   }
 }

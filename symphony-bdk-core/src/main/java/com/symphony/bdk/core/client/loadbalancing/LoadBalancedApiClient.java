@@ -134,14 +134,4 @@ public abstract class LoadBalancedApiClient implements ApiClient {
       throw new ApiClientInitializationException("Field \"nodes\" in loadBalancing is mandatory and must contain at least one element");
     }
   }
-
-  @Override
-  public Map<String, Authentication> getAuthentications() {
-    throw new UnsupportedOperationException("ApiClient authentication is not supported here.");
-  }
-
-  @Override
-  public Authentication getAuthentication(String authName) {
-    throw new UnsupportedOperationException("ApiClient authentication is not supported here.");
-  }
 }

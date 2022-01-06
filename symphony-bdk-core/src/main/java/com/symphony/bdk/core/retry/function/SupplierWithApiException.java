@@ -1,5 +1,4 @@
-package com.symphony.bdk.core.util.function;
-
+package com.symphony.bdk.core.retry.function;
 
 import com.symphony.bdk.http.api.ApiException;
 
@@ -13,5 +12,6 @@ import org.apiguardian.api.API;
 @FunctionalInterface
 @API(status = API.Status.INTERNAL)
 public interface SupplierWithApiException<T> {
+
   T get() throws ApiException;
 }
