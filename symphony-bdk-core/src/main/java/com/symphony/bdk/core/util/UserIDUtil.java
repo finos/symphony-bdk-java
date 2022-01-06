@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.util;
 
+import org.apiguardian.api.API;
+
 /**
  * Used to extract the tenant ID from a user ID.
  * <p>
@@ -8,6 +10,7 @@ package com.symphony.bdk.core.util;
  * which allows for 134 million pods.
  * This leaves 36 lowest bits for the user ID, which allows 68.7 billion users per tenant.
  */
+@API(status = API.Status.STABLE)
 public class UserIDUtil {
 
   private static final int TENANT_ID_BIT_LENGTH = 27;
@@ -21,6 +24,7 @@ public class UserIDUtil {
     return (int) USERID_UTIL.extract(userId, TENANT_ID_INDEX);
   }
 
+  @API(status = API.Status.INTERNAL)
   static class LongUtil {
 
     private final Segment[] segments;
@@ -48,6 +52,7 @@ public class UserIDUtil {
       return value >> s.shift & s.mask;
     }
 
+    @API(status = API.Status.INTERNAL)
     static class Segment {
 
       private final long mask;

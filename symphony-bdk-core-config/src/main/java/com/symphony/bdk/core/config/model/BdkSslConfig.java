@@ -1,9 +1,9 @@
 package com.symphony.bdk.core.config.model;
 
-import static com.symphony.bdk.core.util.DeprecationLogger.logDeprecation;
+import static com.symphony.bdk.core.config.util.DeprecationLogger.logDeprecation;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
+import com.symphony.bdk.core.config.exception.BdkConfigFormatException;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -44,7 +44,7 @@ public class BdkSslConfig {
    */
   public BdkCertificateConfig getCertificateConfig() {
     if (!isValid()) {
-      throw new ApiClientInitializationException(
+      throw new BdkConfigFormatException(
           "Truststore configuration is not valid. This configuration should only be configured under \"trustStore\" field");
     }
 

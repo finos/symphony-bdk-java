@@ -3,14 +3,13 @@ package com.symphony.bdk.core.config.model;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
-import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -90,11 +89,11 @@ public class BdkCertificateConfig {
         if (resource != null) {
           return Files.readAllBytes(Paths.get(resource.toURI()));
         }
-        throw new ApiClientInitializationException("File not found in classpath: " + filePath);
+        throw new FileNotFoundException("File not found in classpath: " + filePath);
       }
       return Files.readAllBytes(new File(filePath).toPath());
     } catch (IOException | URISyntaxException e) {
-      throw new ApiClientInitializationException("Could not read file " + filePath, e);
+      throw new IllegalArgumentException("Could not read file " + filePath, e);
     }
   }
 }

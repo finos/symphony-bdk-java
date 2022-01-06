@@ -1,16 +1,12 @@
 package com.symphony.bdk.core.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkBotConfig;
 import com.symphony.bdk.core.config.model.BdkCertificateConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkExtAppConfig;
-
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 
 import org.junit.jupiter.api.Test;
@@ -55,7 +51,7 @@ public class BdkConfigTest {
   void testBdkCertificateConfigNotFoundInClasspath() {
     BdkCertificateConfig certificateConfig = new BdkCertificateConfig("classpath:/certs/notfound", "password");
 
-    assertThrows(ApiClientInitializationException.class, certificateConfig::getCertificateBytes);
+    assertThrows(IllegalArgumentException.class, certificateConfig::getCertificateBytes);
   }
 
   private void assertIsCertificateAuthenticationConfigured(String certificatePath, String certificatePassword,

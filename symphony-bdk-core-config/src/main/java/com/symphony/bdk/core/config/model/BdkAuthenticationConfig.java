@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.config.model;
 
-import static com.symphony.bdk.core.util.DeprecationLogger.logDeprecation;
+import static com.symphony.bdk.core.config.util.DeprecationLogger.logDeprecation;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import lombok.Getter;

@@ -29,6 +29,7 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
+    api project(':symphony-bdk-core-config')
     api project(':symphony-bdk-core-extension-api')
     api project(':symphony-bdk-http:symphony-bdk-http-api')
     api project(':symphony-bdk-template:symphony-bdk-template-api')
@@ -48,8 +49,6 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt'
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     api 'com.fasterxml.jackson.core:jackson-databind'
-    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties'
     implementation 'io.github.resilience4j:resilience4j-retry'
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
