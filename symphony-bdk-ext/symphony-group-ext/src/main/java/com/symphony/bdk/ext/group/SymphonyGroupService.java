@@ -19,12 +19,13 @@ import com.symphony.bdk.ext.group.gen.api.model.Type;
 import com.symphony.bdk.ext.group.gen.api.model.TypeList;
 import com.symphony.bdk.ext.group.gen.api.model.UpdateGroup;
 import com.symphony.bdk.ext.group.gen.api.model.UploadAvatar;
+import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.http.api.ApiClient;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class SymphonyGroupService {
+public class SymphonyGroupService implements BdkExtensionService {
 
   private final RetryWithRecoveryBuilder<?> retryBuilder;
   private final TypeApi typeApi;

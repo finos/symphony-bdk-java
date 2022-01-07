@@ -47,7 +47,6 @@ public class SymphonyGroupBdkExtension implements
   public SymphonyGroupService getService() {
 
     if (this.groupService == null) {
-      log.debug("Creating service instance");
       this.groupService = new SymphonyGroupService(this.retryBuilder, this.apiClientFactory, this.session);
     }
 

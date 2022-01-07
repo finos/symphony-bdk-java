@@ -12,7 +12,7 @@ import org.apiguardian.api.API;
  * @see BdkExtension
  */
 @API(status = API.Status.EXPERIMENTAL)
-public interface BdkExtensionServiceProvider<S> {
+public interface BdkExtensionServiceProvider<S extends BdkExtensionService> {
 
   /**
    * Returns the extension service instance.

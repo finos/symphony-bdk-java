@@ -4,6 +4,7 @@ import com.symphony.bdk.core.config.extension.BdkConfigAware;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.extension.BdkExtension;
 
+import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.Getter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 public class TestExtensionConfigAware implements BdkExtension, BdkConfigAware, BdkExtensionServiceProvider<TestExtensionConfigAware.ConfigService> {
 
   @Getter @Setter
-  public static class ConfigService {
+  public static class ConfigService implements BdkExtensionService {
     BdkConfig config;
   }
 

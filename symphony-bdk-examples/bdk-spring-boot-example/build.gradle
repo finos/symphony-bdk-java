@@ -9,8 +9,12 @@ dependencies {
 
     implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 
+    // import the extension
+    implementation project(':symphony-bdk-ext:symphony-group-ext')
+
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

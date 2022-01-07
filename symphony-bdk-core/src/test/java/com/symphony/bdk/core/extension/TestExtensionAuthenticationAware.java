@@ -2,6 +2,7 @@ package com.symphony.bdk.core.extension;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.extension.BdkExtension;
+import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.Getter;
@@ -12,7 +13,7 @@ public class TestExtensionAuthenticationAware implements BdkExtension, BdkAuthen
 
   @Getter
   @Setter
-  public static class TestService {
+  public static class TestService implements BdkExtensionService {
     AuthSession authSession;
   }
 

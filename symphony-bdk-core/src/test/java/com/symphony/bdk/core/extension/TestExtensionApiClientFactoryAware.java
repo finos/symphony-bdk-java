@@ -2,6 +2,7 @@ package com.symphony.bdk.core.extension;
 
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.extension.BdkExtension;
+import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.Getter;
@@ -12,7 +13,7 @@ public class TestExtensionApiClientFactoryAware implements BdkExtension, BdkApiC
 
   @Getter
   @Setter
-  public static class TestService {
+  public static class TestService implements BdkExtensionService {
     ApiClientFactory apiClientFactory;
   }
 

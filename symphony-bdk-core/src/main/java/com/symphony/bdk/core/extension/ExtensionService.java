@@ -7,6 +7,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.exception.BdkExtensionException;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.extension.BdkExtension;
+import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Service class for managing extensions
- * .
+ * Service class for managing extensions.
+ *
  * @see BdkExtension
  */
 @Slf4j
@@ -49,29 +50,9 @@ public class ExtensionService {
     this.extensions = Collections.synchronizedMap(new HashMap<>());
   }
 
-  /**
-   * Registers and instantiates an extension.
-   *
-   * @param extClz Type of the extension.
-   * @throws IllegalStateException if the extension has already been registered
-   * @throws BdkExtensionException if the extension cannot be instantiated
-   * @see BdkExtension
-   */
-  public void register(Class<? extends BdkExtension> extClz) {
-    log.debug("Registering extension <{}>", extClz);
+  public void register(BdkExtension extension) {
 
-    if (this.extensions.get(extClz) != null) {
-      throw new IllegalStateException("Extension <" + extClz + "> has already been registered");
-    }
-
-    BdkExtension extension;
-
-    try {
-      extension = extClz.getConstructor().newInstance();
-      log.debug("Extension {} successfully instantiated", extClz);
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new BdkExtensionException("Extension <" + extClz + "> must have a default constructor", e);
-    }
+    final Class<? extends BdkExtension> extClz = extension.getClass();
 
     if (extension instanceof BdkAuthenticationAware) {
       if (this.botSession == null) {
@@ -101,6 +82,33 @@ public class ExtensionService {
   }
 
   /**
+   * Registers and instantiates an extension.
+   *
+   * @param extClz Type of the extension.
+   * @throws IllegalStateException if the extension has already been registered
+   * @throws BdkExtensionException if the extension cannot be instantiated
+   * @see BdkExtension
+   */
+  public void register(Class<? extends BdkExtension> extClz) {
+    log.debug("Registering extension <{}>", extClz);
+
+    if (this.extensions.get(extClz) != null) {
+      throw new IllegalStateException("Extension <" + extClz + "> has already been registered");
+    }
+
+    BdkExtension extension;
+
+    try {
+      extension = extClz.getConstructor().newInstance();
+      log.debug("Extension {} successfully instantiated", extClz);
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new BdkExtensionException("Extension <" + extClz + "> must have a default constructor", e);
+    }
+
+    this.register(extension);
+  }
+
+  /**
    * Retrieves an extension service instance.
    *
    * @param extClz The extension class.
@@ -114,7 +122,7 @@ public class ExtensionService {
    * @see ExtensionService#register(Class)
    */
   @SuppressWarnings("unchecked")
-  public <S, E extends BdkExtensionServiceProvider<S>> S service(Class<E> extClz) {
+  public <S extends BdkExtensionService, E extends BdkExtensionServiceProvider<S>> S service(Class<E> extClz) {
 
     final BdkExtension extension = this.extensions.get(extClz);
 
