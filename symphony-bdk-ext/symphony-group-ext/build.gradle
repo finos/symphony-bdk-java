@@ -8,7 +8,7 @@ description = 'Symphony Java BDK - Groups Extension'
 
 dependencies {
     implementation project(':symphony-bdk-core')
-    implementation project(':symphony-bdk-core-extension-api')
+    implementation project(':symphony-bdk-extension-api')
     implementation project(':symphony-bdk-http:symphony-bdk-http-api')
 
     compileOnly 'org.projectlombok:lombok'
