@@ -7,18 +7,18 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.ext.group.auth.OAuth;
 import com.symphony.bdk.ext.group.auth.OAuthClient;
-import com.symphony.bdk.gen.api.GroupApi;
-import com.symphony.bdk.gen.api.TypeApi;
-import com.symphony.bdk.gen.api.model.AddMember;
-import com.symphony.bdk.gen.api.model.CreateGroup;
-import com.symphony.bdk.gen.api.model.GroupList;
-import com.symphony.bdk.gen.api.model.ReadGroup;
-import com.symphony.bdk.gen.api.model.SortOrder;
-import com.symphony.bdk.gen.api.model.Status;
-import com.symphony.bdk.gen.api.model.Type;
-import com.symphony.bdk.gen.api.model.TypeList;
-import com.symphony.bdk.gen.api.model.UpdateGroup;
-import com.symphony.bdk.gen.api.model.UploadAvatar;
+import com.symphony.bdk.ext.group.gen.api.GroupApi;
+import com.symphony.bdk.ext.group.gen.api.TypeApi;
+import com.symphony.bdk.ext.group.gen.api.model.AddMember;
+import com.symphony.bdk.ext.group.gen.api.model.CreateGroup;
+import com.symphony.bdk.ext.group.gen.api.model.GroupList;
+import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
+import com.symphony.bdk.ext.group.gen.api.model.SortOrder;
+import com.symphony.bdk.ext.group.gen.api.model.Status;
+import com.symphony.bdk.ext.group.gen.api.model.Type;
+import com.symphony.bdk.ext.group.gen.api.model.TypeList;
+import com.symphony.bdk.ext.group.gen.api.model.UpdateGroup;
+import com.symphony.bdk.ext.group.gen.api.model.UploadAvatar;
 import com.symphony.bdk.http.api.ApiClient;
 
 import javax.annotation.Nonnull;
@@ -84,12 +84,6 @@ public class SymphonyGroupService {
   public ReadGroup addMemberToGroup(@Nonnull String groupId, @Nonnull AddMember addMember) {
     return this.executeAndRetry("groupExt.addMemberToGroup", this.getAddress(),
         () -> this.groupApi.addMemberToGroup("", groupId, addMember)
-    );
-  }
-
-  public GroupList deleteAllGroups() {
-    return this.executeAndRetry("groupExt.deleteAllGroups", this.getAddress(),
-        () -> this.groupApi.deleteAllGroups("")
     );
   }
 

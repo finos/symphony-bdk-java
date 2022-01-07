@@ -11,16 +11,25 @@ import org.apiguardian.api.API;
  * This leaves 36 lowest bits for the user ID, which allows 68.7 billion users per tenant.
  */
 @API(status = API.Status.STABLE)
-public class UserIDUtil {
+public class UserIdUtil {
 
   private static final int TENANT_ID_BIT_LENGTH = 27;
   private static final int SUBTENANT_ID_BIT_LENGTH = 36;
   private static final int TENANT_ID_INDEX = 1;
-  private static final int SUBTENANT_ID_INDEX = 0;
 
   private static final LongUtil USERID_UTIL = new LongUtil(SUBTENANT_ID_BIT_LENGTH, TENANT_ID_BIT_LENGTH);
 
-  public static int extractTenantId(Long userId) {
+  private UserIdUtil() {
+    // nothing to be done here
+  }
+
+  /**
+   * Extracts the tenant ID from a user ID.
+   *
+   * @param userId the user ID.
+   * @return the tenant ID.
+   */
+  public static int extractTenantId(long userId) {
     return (int) USERID_UTIL.extract(userId, TENANT_ID_INDEX);
   }
 

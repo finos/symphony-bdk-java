@@ -1,0 +1,4 @@
+plugins {
+    id 'org.openapi.generator'
+    id 'de.undercouch.download'
+}

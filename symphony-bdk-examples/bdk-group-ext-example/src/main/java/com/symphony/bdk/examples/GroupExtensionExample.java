@@ -3,26 +3,28 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.util.UserIDUtil;
+import com.symphony.bdk.core.util.UserIdUtil;
 import com.symphony.bdk.ext.group.SymphonyGroupBdkExtension;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
-import com.symphony.bdk.gen.api.model.BaseProfile;
-import com.symphony.bdk.gen.api.model.BaseType;
-import com.symphony.bdk.gen.api.model.CreateGroup;
-import com.symphony.bdk.gen.api.model.GroupList;
-import com.symphony.bdk.gen.api.model.Member;
-import com.symphony.bdk.gen.api.model.Owner;
-import com.symphony.bdk.gen.api.model.ReadGroup;
-import com.symphony.bdk.gen.api.model.Status;
-import com.symphony.bdk.gen.api.model.TypeList;
+import com.symphony.bdk.ext.group.gen.api.model.BaseProfile;
+import com.symphony.bdk.ext.group.gen.api.model.BaseType;
+import com.symphony.bdk.ext.group.gen.api.model.CreateGroup;
+import com.symphony.bdk.ext.group.gen.api.model.GroupList;
+import com.symphony.bdk.ext.group.gen.api.model.Member;
+import com.symphony.bdk.ext.group.gen.api.model.Owner;
+import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
+import com.symphony.bdk.ext.group.gen.api.model.Status;
+import com.symphony.bdk.ext.group.gen.api.model.TypeList;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
-@Slf4j
 @SuppressWarnings("all")
 public class GroupExtensionExample {
+
+  private static final Logger log = LoggerFactory.getLogger(GroupExtensionExample.class);
 
   public static void main(String[] args) throws Exception {
 
@@ -57,7 +59,7 @@ public class GroupExtensionExample {
 
     final String name = "Group - Tibot";
     final long userId = bdk.botInfo().getId();
-    final int tenantId = UserIDUtil.extractTenantId(userId);
+    final int tenantId = UserIdUtil.extractTenantId(userId);
 
     final CreateGroup group = new CreateGroup();
     group.setType("SDL");

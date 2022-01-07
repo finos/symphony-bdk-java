@@ -5,15 +5,16 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import org.apiguardian.api.API;
 
 /**
- * This is interface can be implemented if your extension needs to use the {@link BdkConfig}.
+ * Interface to be implemented by any {@code com.symphony.bdk.extension.BdkExtension} that wishes to access and read
+ * the BDK configuration.
  */
 @API(status = API.Status.EXPERIMENTAL)
 public interface BdkConfigAware {
 
   /**
-   * Injects the {@link BdkConfig} object.
+   * Set the {@link BdkConfig} object.
    *
-   * @param config The BDK configuration.
+   * @param config the {@code BdkConfig} instance to be used by this object
    */
   void setConfiguration(BdkConfig config);
 }

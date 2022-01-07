@@ -26,7 +26,8 @@ include(':symphony-bdk-examples:bdk-spring-boot-example')
 include(':symphony-bdk-examples:bdk-template-examples')
 include(':symphony-bdk-examples:bdk-app-spring-boot-example')
 include(':symphony-bdk-examples:bdk-multi-instances-example')
+include(':symphony-bdk-examples:bdk-group-ext-example')
 
 // built-in extensions
-include(':symphony-bdk-ext:symphony-groups-ext')
+include(':symphony-bdk-ext:symphony-group-ext')
 

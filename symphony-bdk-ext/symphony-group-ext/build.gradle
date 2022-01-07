@@ -1,7 +1,7 @@
 plugins {
     id 'bdk.java-common-conventions'
     id 'bdk.java-publish-conventions'
-    id 'org.openapi.generator' version '5.2.1'
+    id 'bdk.java-codegen-conventions'
 }
 
 description = 'Symphony Java BDK - Groups Extension'
@@ -36,8 +36,8 @@ openApiGenerate {
     generateModelTests = false
     generateModelDocumentation = false
     generateApiDocumentation = false
-    apiPackage = 'com.symphony.bdk.gen.api'
-    modelPackage = 'com.symphony.bdk.gen.api.model'
+    apiPackage = 'com.symphony.bdk.ext.group.gen.api'
+    modelPackage = 'com.symphony.bdk.ext.group.gen.api.model'
     invokerPackage = 'com.symphony.bdk.http.api'
     templateDir = "${rootDir}/templates"
     globalProperties = [
