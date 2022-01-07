@@ -12,7 +12,7 @@ dependencies {
     runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey2')
 
     // import the extension
-    implementation project(':symphony-bdk-ext:symphony-group-ext')
+    implementation project(':symphony-bdk-extensions:symphony-group-extension')
 
     // logging
     implementation 'org.slf4j:slf4j-api'

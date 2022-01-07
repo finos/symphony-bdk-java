@@ -10,7 +10,7 @@ dependencies {
     implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 
     // import the extension
-    implementation project(':symphony-bdk-ext:symphony-group-ext')
+    implementation project(':symphony-bdk-extensions:symphony-group-extension')
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.springframework.boot:spring-boot-starter'
