@@ -28,7 +28,7 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
-    api project(':symphony-bdk-core-config')
+    api project(':symphony-bdk-config')
     api project(':symphony-bdk-core-extension-api')
     api project(':symphony-bdk-http:symphony-bdk-http-api')
     api project(':symphony-bdk-template:symphony-bdk-template-api')

@@ -3,7 +3,7 @@ rootProject.name = 'symphony-bdk-java'
 include(':symphony-bdk-bom')
 
 include(':symphony-bdk-core')
-include(':symphony-bdk-core-config')
+include(':symphony-bdk-config')
 include(':symphony-bdk-core-extension-api')
 
 // http client
