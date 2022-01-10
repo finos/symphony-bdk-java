@@ -45,9 +45,7 @@ class ApiClientWebClientTest {
   void setUp(final BdkMockServer mockServer) {
 
     this.apiClient = mockServer.newApiClient("");
-    this.apiClient.getAuthentications().put("testAuth", (queryParams, headerParams) -> {
-      headerParams.put("Authorization", "test");
-    });
+    this.apiClient.getAuthentications().put("testAuth", headerParams -> headerParams.put("Authorization", "test"));
   }
 
   @Test

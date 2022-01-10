@@ -1,6 +1,6 @@
 package com.symphony.bdk.examples.spring.group;
 
-import com.symphony.bdk.ext.group.SymphonyGroupBdkExtension;
+import com.symphony.bdk.ext.group.SymphonyGroupService;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
 import com.symphony.bdk.ext.group.gen.api.model.TypeList;
 
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GroupApi {
 
-  private final SymphonyGroupBdkExtension extension;
+  private final SymphonyGroupService groupService;
 
   @GetMapping("/types")
   public TypeList getTypes() {
-    return this.extension.getService().listTypes(Status.ACTIVE, null, null, null, null);
+    return this.groupService.listTypes(Status.ACTIVE, null, null, null, null);
   }
 }

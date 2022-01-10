@@ -91,7 +91,7 @@ public class ApiClientJersey2 implements ApiClient {
     // to support (constant) query string in `path`, e.g. "/posts?draft=1"
     WebTarget target = httpClient.target(this.basePath + path);
 
-    this.updateParamsForAuth(authNames, queryParams, headerParams);
+    this.updateParamsForAuth(authNames, headerParams);
 
     if (queryParams != null) {
       for (Pair queryParam : queryParams) {
@@ -552,7 +552,7 @@ public class ApiClientJersey2 implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  protected void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
 
     if (authNames == null) {
       return;
@@ -563,7 +563,7 @@ public class ApiClientJersey2 implements ApiClient {
       if (auth == null) {
         throw new RuntimeException("Authentication undefined: " + authName);
       }
-      auth.applyToParams(queryParams, headerParams);
+      auth.apply(headerParams);
     }
   }
 }

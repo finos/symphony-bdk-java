@@ -77,7 +77,7 @@ public class ApiClientWebClient implements ApiClient {
       throw new ApiException(500, "unknown method type " + method);
     }
 
-    this.updateParamsForAuth(authNames, queryParams, headerParams);
+    this.updateParamsForAuth(authNames, headerParams);
 
     WebClient.RequestBodySpec requestBodySpec =
         this.webClient.method(httpMethod).uri(uriBuilder -> {
@@ -258,7 +258,7 @@ public class ApiClientWebClient implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  private void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
 
     if (authNames == null) {
       return;
@@ -269,7 +269,7 @@ public class ApiClientWebClient implements ApiClient {
       if (auth == null) {
         throw new RuntimeException("Authentication undefined: " + authName);
       }
-      auth.applyToParams(queryParams, headerParams);
+      auth.apply(headerParams);
     }
   }
 

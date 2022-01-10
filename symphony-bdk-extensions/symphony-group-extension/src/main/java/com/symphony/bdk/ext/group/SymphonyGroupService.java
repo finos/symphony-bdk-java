@@ -6,7 +6,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.ext.group.auth.OAuth;
-import com.symphony.bdk.ext.group.auth.OAuthClient;
+import com.symphony.bdk.ext.group.auth.OAuthSession;
 import com.symphony.bdk.ext.group.gen.api.GroupApi;
 import com.symphony.bdk.ext.group.gen.api.TypeApi;
 import com.symphony.bdk.ext.group.gen.api.model.AddMember;
@@ -21,6 +21,7 @@ import com.symphony.bdk.ext.group.gen.api.model.UpdateGroup;
 import com.symphony.bdk.ext.group.gen.api.model.UploadAvatar;
 import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,84 +32,80 @@ public class SymphonyGroupService implements BdkExtensionService {
   private final TypeApi typeApi;
   private final GroupApi groupApi;
 
-  SymphonyGroupService(RetryWithRecoveryBuilder<?> retryBuilder, ApiClientFactory apiClientFactory, AuthSession session) {
-    this.retryBuilder = retryBuilder;
-    final OAuthClient oAuthClient = new OAuthClient(apiClientFactory.getLoginClient());
-    this.groupApi = this.buildGroupApi(apiClientFactory, oAuthClient, session);
-    this.typeApi = this.buildTypeApi(apiClientFactory, oAuthClient, session);
+  public SymphonyGroupService(RetryWithRecoveryBuilder<?> retryBuilder, ApiClientFactory apiClientFactory, AuthSession session) {
+
+    // oAuthSession does not need to be cached, it will be refreshed everytime an API call returns 401
+    final OAuthSession oAuthSession = new OAuthSession(apiClientFactory.getLoginClient(), session, retryBuilder);
+    oAuthSession.refresh();
+
+    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, oAuthSession::refresh);
+
+    final ApiClient client = apiClientFactory.getPodClient("/profile-manager");
+    final OAuth auth = new OAuth();
+    auth.setBearerTokenSupplier(oAuthSession::getBearerToken);
+    client.getAuthentications().put("bearerAuth", auth);
+
+    this.groupApi = new GroupApi(client);
+    this.typeApi = new TypeApi(client);
   }
 
   public Type getType(@Nonnull String typeId) {
-    return this.executeAndRetry("groupExt.listTypes", this.getAddress(),
+    return this.executeAndRetry("groupExt.listTypes",
         () -> this.typeApi.getType("", typeId)
     );
   }
 
   public TypeList listTypes(@Nullable Status status, @Nullable String before, @Nullable String after,
       @Nullable Integer limit, @Nullable SortOrder sortOrder) {
-    return this.executeAndRetry("groupExt.listTypes", this.getAddress(),
+    return this.executeAndRetry("groupExt.listTypes",
         () -> this.typeApi.listTypes("", status, before, after, limit, sortOrder)
     );
   }
 
   public ReadGroup insertGroup(@Nonnull final CreateGroup group) {
-    return this.executeAndRetry("groupExt.insertGroup", this.getAddress(),
+    return this.executeAndRetry("groupExt.insertGroup",
         () -> this.groupApi.insertGroup("", group)
     );
   }
 
   public ReadGroup updateGroup(@Nonnull String ifMatch, @Nonnull String groupId, @Nonnull UpdateGroup updateGroup) {
-    return this.executeAndRetry("groupExt.updateGroup", this.getAddress(),
+    return this.executeAndRetry("groupExt.updateGroup",
         () -> this.groupApi.updateGroup("", ifMatch, groupId, updateGroup)
     );
   }
 
   public ReadGroup updateAvatar(@Nonnull String groupId, @Nonnull UploadAvatar uploadAvatar) {
-    return this.executeAndRetry("groupExt.updateAvatar", this.getAddress(),
+    return this.executeAndRetry("groupExt.updateAvatar",
         () -> this.groupApi.updateAvatar("", groupId, uploadAvatar)
     );
   }
 
   public ReadGroup getGroup(@Nonnull String groupId) {
-    return this.executeAndRetry("groupExt.getGroup", this.getAddress(),
+    return this.executeAndRetry("groupExt.getGroup",
         () -> this.groupApi.getGroup("", groupId)
     );
   }
 
   public GroupList listGroups(@Nonnull String typeId, @Nullable Status status, @Nullable String before,
       @Nullable String after, @Nullable Integer limit, @Nullable SortOrder sortOrder) {
-    return this.executeAndRetry("groupExt.listGroups", this.getAddress(),
+    return this.executeAndRetry("groupExt.listGroups",
         () -> this.groupApi.listGroups("", typeId, status, before, after, limit, sortOrder)
     );
   }
 
   public ReadGroup addMemberToGroup(@Nonnull String groupId, @Nonnull AddMember addMember) {
-    return this.executeAndRetry("groupExt.addMemberToGroup", this.getAddress(),
+    return this.executeAndRetry("groupExt.addMemberToGroup",
         () -> this.groupApi.addMemberToGroup("", groupId, addMember)
     );
   }
 
-  private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
-    return RetryWithRecovery.executeAndRetry(this.retryBuilder, name, address, supplier);
-  }
-
-  private GroupApi buildGroupApi(ApiClientFactory apiClientFactory, OAuthClient oAuthClient, AuthSession session) {
-    final ApiClient client = apiClientFactory.getPodClient("/profile-manager");
-    final OAuth auth = new OAuth();
-    auth.setBearerToken(executeAndRetry("groupExt.auth", "", () -> oAuthClient.retrieveBearerToken(session)));
-    client.getAuthentications().put("bearerAuth", auth);
-    return new GroupApi(client);
-  }
-
-  private TypeApi buildTypeApi(ApiClientFactory apiClientFactory, OAuthClient oAuthClient, AuthSession session) {
-    final ApiClient client = apiClientFactory.getPodClient("/profile-manager");
-    final OAuth auth = new OAuth();
-    auth.setBearerToken(executeAndRetry("groupExt.auth", "", () -> oAuthClient.retrieveBearerToken(session)));
-    client.getAuthentications().put("bearerAuth", auth);
-    return new TypeApi(client);
-  }
-
-  private String getAddress() {
-    return this.groupApi.getApiClient().getBasePath();
+  private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    return RetryWithRecovery.executeAndRetry(
+        this.retryBuilder,
+        name,
+        this.groupApi.getApiClient().getBasePath(),
+        supplier
+    );
   }
 }
