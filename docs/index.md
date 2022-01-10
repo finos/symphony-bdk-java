@@ -18,6 +18,7 @@ The reference documentation consists of the following sections:
 | [Message API](message.md)                 | Sending or searching messages, usage of templates                     |
 | [Datafeed Loop](datafeed.md)              | Receiving real time events                                            |
 | [Activity API](activity-api.md)           | The Activity Registry, creating custom activities                     |
+| [Extending the BDK](extension.md)         | How to use or develop BDK extensions                                  |
 
 ### Spring Boot
 Getting Started guides are also available for Spring Boot:
