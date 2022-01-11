@@ -19,6 +19,12 @@ import javax.annotation.Nullable;
 @API(status = API.Status.STABLE)
 public class FormReplyContext extends ActivityContext<V4SymphonyElementsAction> {
 
+  /** The messageId extracted from event source */
+  private String formMessageId;
+
+  /** The messageId extracted from event source */
+  private String streamId;
+
   /** The formId extracted from event source */
   private String formId;
 
