@@ -2,6 +2,7 @@ package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.client.BearerEnabledApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -68,12 +69,12 @@ class ServiceFactory {
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
-    this.podClient = apiClientFactory.getPodClient(authSession);
+    this.config = config;
+    this.podClient = new BearerEnabledApiClient(apiClientFactory.getPodClient(), authSession, isCommonJwtEnabled());
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
-    this.config = config;
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
   }
 
@@ -186,5 +187,9 @@ class ServiceFactory {
    */
   public HealthService getHealthService() {
     return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession);
+  }
+
+  private boolean isCommonJwtEnabled() {
+    return config.getCommonJwt().getEnabled();
   }
 }

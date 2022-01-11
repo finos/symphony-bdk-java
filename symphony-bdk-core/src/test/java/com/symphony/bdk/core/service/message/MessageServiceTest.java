@@ -84,7 +84,6 @@ class MessageServiceTest {
   private static final String V1_ALLOWED_TYPES = "/pod/v1/files/allowedTypes";
   private static final String V1_STREAM_ATTACHMENTS = "/pod/v1/streams/{sid}/attachments";
   private static final String V1_MESSAGE_GET = "/agent/v1/message/{id}";
-  private static final String V2_MESSAGE_IDS = "/pod/v2/admin/streams/{streamId}/messageIds";
   private static final String V1_MESSAGE_RECEIPTS = "/pod/v1/admin/messages/{messageId}/receipts";
   private static final String V1_MESSAGE_RELATIONSHIPS = "/pod/v1/admin/messages/{messageId}/metadata/relationships";
 

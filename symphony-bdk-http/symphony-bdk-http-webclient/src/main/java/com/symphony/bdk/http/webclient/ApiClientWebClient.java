@@ -30,11 +30,13 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Spring WebClient implementation for the {@link ApiClient} interface called by generated code.
@@ -263,7 +265,7 @@ public class ApiClientWebClient implements ApiClient {
     if (authNames == null) {
       return;
     }
-
+    authNames = enforceSecurityScheme(authNames);
     for (String authName : authNames) {
       Authentication auth = this.authentications.get(authName);
       if (auth == null) {
@@ -271,6 +273,10 @@ public class ApiClientWebClient implements ApiClient {
       }
       auth.applyToParams(queryParams, headerParams);
     }
+  }
+
+  private String[] enforceSecurityScheme(String[] authNames) {
+    return Stream.concat(Stream.of("bearerAuth"), Arrays.stream(authNames)).toArray(String[]::new);
   }
 
   /**

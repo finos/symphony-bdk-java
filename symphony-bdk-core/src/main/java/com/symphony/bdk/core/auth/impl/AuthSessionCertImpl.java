@@ -75,6 +75,7 @@ public class AuthSessionCertImpl implements AuthSession {
   @Override
   public void refreshAuthToken() throws AuthUnauthorizedException {
     Token authToken = authenticator.retrieveAuthToken();
+    this.sessionToken = authToken.getToken();
     this.authorizationToken = authToken.getAuthorizationToken();
     refreshExpirationDate();
   }
@@ -83,7 +84,7 @@ public class AuthSessionCertImpl implements AuthSession {
     if (this.authorizationToken != null) {
       try {
         this.authTokenExpirationDate = JwtHelper.extractExpirationDate(authorizationToken);
-      } catch (JsonProcessingException e) {
+      } catch (JsonProcessingException | AuthUnauthorizedException e) {
         throw new AuthUnauthorizedException("Unable to parse the Authorization token received.");
       }
     }

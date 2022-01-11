@@ -7,6 +7,8 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.auth.Authentication;
+import com.symphony.bdk.http.api.auth.OAuth;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import lombok.extern.slf4j.Slf4j;
@@ -29,28 +31,40 @@ import java.util.Map;
 public class BearerEnabledApiClient implements ApiClient {
   private final ApiClient apiClient;
   private final AuthSession authSession;
+  private final boolean isCommonJwtEnabled;
 
-  public BearerEnabledApiClient(ApiClient apiClient, AuthSession authSession) {
+  public BearerEnabledApiClient(ApiClient apiClient, AuthSession authSession, boolean isCommonJwtEnabled) {
     this.apiClient = apiClient;
     this.authSession = authSession;
+    this.isCommonJwtEnabled = isCommonJwtEnabled;
   }
 
   @Override
   public <T> ApiResponse<T> invokeAPI(String path, String method, List<Pair> queryParams, Object body,
       Map<String, String> headerParams, Map<String, String> cookieParams, Map<String, Object> formParams, String accept,
       String contentType, String[] authNames, TypeReference<T> returnType) throws ApiException {
-    String authorizationToken = authSession.getAuthorizationToken();
-    try {
-      refreshTokenIfNeeded();
-    } catch (AuthInitializationException e) {
-      throw new ApiException(e.getMessage(), e);
-    }
-    if (authorizationToken != null) {
-      headerParams.remove("sessionToken");
-      headerParams.put("Authorization", authorizationToken);
-    }
+
+    final OAuth auth = new OAuth();
+    auth.setCommonJwtEnabled(isCommonJwtEnabled);
+    auth.setBearerToken(retrieveBearerToken());
+    apiClient.getAuthentications().put("bearerAuth", auth);
+
     return apiClient.invokeAPI(path, method, queryParams, body, headerParams, cookieParams, formParams, accept,
         contentType, authNames, returnType);
+  }
+
+  private String retrieveBearerToken() throws ApiException {
+    if (isCommonJwtEnabled) {
+      try {
+        refreshTokenIfNeeded();
+        if (authSession.getAuthorizationToken() != null) {
+          return authSession.getAuthorizationToken();
+        }
+      } catch (AuthInitializationException | AuthUnauthorizedException e) {
+        throw new ApiException(e.getMessage(), e);
+      }
+    }
+    return null;
   }
 
   @Override
@@ -84,19 +98,26 @@ public class BearerEnabledApiClient implements ApiClient {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.apiClient.getAuthentications();
+  }
+
+  /**
    * Trigger jwt refresh if expired
    */
-  private void refreshTokenIfNeeded() throws AuthInitializationException {
+  private void refreshTokenIfNeeded() throws AuthInitializationException, AuthUnauthorizedException {
     int interval = 5;
-    if(authSession.getAuthorizationToken() == null || authSession.getAuthTokenExpirationDate() == null) {
+    if (authSession.getAuthorizationToken() == null || authSession.getAuthTokenExpirationDate() == null) {
+      log.debug("Common jwt feature is not available in your pod, version should be greater than 20.13. "
+          + "Switching back to the session token authentication.");
       return;
     }
-    try {
-      if (Instant.now().getEpochSecond() + interval >= authSession.getAuthTokenExpirationDate()) {
-        authSession.refreshAuthToken();
-      }
-    } catch (AuthUnauthorizedException e) {
-      throw new AuthInitializationException("Unable to authenticate the bot.", e);
+
+    if (Instant.now().getEpochSecond() + interval >= authSession.getAuthTokenExpirationDate()) {
+      authSession.refreshAuthToken();
     }
   }
 }

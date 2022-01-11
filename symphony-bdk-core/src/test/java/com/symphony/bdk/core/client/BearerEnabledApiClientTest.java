@@ -1,11 +1,12 @@
 package com.symphony.bdk.core.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,15 +42,14 @@ class BearerEnabledApiClientTest {
     this.apiClient = mock(ApiClient.class);
     ApiClientFactory apiClientFactory = mock(ApiClientFactory.class);
     this.authSession = mock(AuthSession.class);
-    when(apiClientFactory.getPodClient(any())).thenReturn(this.apiClient);
-
+    when(apiClientFactory.getPodClient()).thenReturn(this.apiClient);
   }
 
   @Test
-  public void testInvokeApi() throws ApiException {
+  public void testInvokeApi() throws ApiException, AuthUnauthorizedException {
     when(authSession.getAuthorizationToken()).thenReturn(JWT);
     BearerEnabledApiClient bearerEnabledApiClient =
-        spy(new BearerEnabledApiClient(apiClient, authSession));
+        spy(new BearerEnabledApiClient(apiClient, authSession, true));
 
     List<Pair> queryParams = Collections.singletonList(new Pair("param", "value"));
     Map<String, String> headers = new HashMap<>();
@@ -60,18 +60,18 @@ class BearerEnabledApiClientTest {
         "content type", null, new TypeReference<String>() {});
 
     ArgumentCaptor<Map<String, String>> argCaptor = ArgumentCaptor.forClass(Map.class);
-
     verify(apiClient).invokeAPI(any(), any(), eq(queryParams), any(), argCaptor.capture(), any(),
         any(), any(), any(), any(), any());
-    assertTrue(argCaptor.getValue().containsKey("Authorization"));
-    assertFalse(argCaptor.getValue().containsKey("sessionToken"));
+    assertTrue(argCaptor.getValue().containsKey("sessionToken"));
+    verify(apiClient).getAuthentications();
+    verify(authSession).refreshAuthToken();
   }
 
   @Test
-  public void testInvokeApiWithNullAuthToken() throws ApiException {
+  public void testInvokeApiWithCommonJwtDisabled() throws ApiException, AuthUnauthorizedException {
     when(authSession.getAuthorizationToken()).thenReturn(null);
     BearerEnabledApiClient bearerEnabledApiClient =
-        spy(new BearerEnabledApiClient(apiClient, authSession));
+        spy(new BearerEnabledApiClient(apiClient, authSession, false));
 
     List<Pair> queryParams = Collections.singletonList(new Pair("param", "value"));
     Map<String, String> headers = new HashMap<>();
@@ -86,14 +86,38 @@ class BearerEnabledApiClientTest {
     verify(apiClient).invokeAPI(any(), any(), eq(queryParams), any(), argCaptor.capture(), any(),
         any(), any(), any(), any(), any());
     assertTrue(argCaptor.getValue().containsKey("sessionToken"));
-    assertFalse(argCaptor.getValue().containsKey("Authorization"));
+    verify(apiClient).getAuthentications();
+    verify(authSession, never()).refreshAuthToken();
+  }
+
+  @Test
+  public void testInvokeApiWithNullAuthToken() throws ApiException, AuthUnauthorizedException {
+    when(authSession.getAuthorizationToken()).thenReturn(null);
+    BearerEnabledApiClient bearerEnabledApiClient =
+        spy(new BearerEnabledApiClient(apiClient, authSession, true));
+
+    List<Pair> queryParams = Collections.singletonList(new Pair("param", "value"));
+    Map<String, String> headers = new HashMap<>();
+    headers.put("sessionToken", "sessionTokenValue");
+
+    bearerEnabledApiClient.invokeAPI("path", "POST", queryParams, "body", headers,
+        null, null, "application/json" ,
+        "content type", null, new TypeReference<String>() {});
+
+    ArgumentCaptor<Map<String, String>> argCaptor = ArgumentCaptor.forClass(Map.class);
+
+    verify(apiClient).invokeAPI(any(), any(), eq(queryParams), any(), argCaptor.capture(), any(),
+        any(), any(), any(), any(), any());
+    assertTrue(argCaptor.getValue().containsKey("sessionToken"));
+    verify(apiClient).getAuthentications();
+    verify(authSession, never()).refreshAuthToken();
   }
 
   @Test
   public void testInvokeApiWithExpiredJwt() throws AuthUnauthorizedException, ApiException {
     when(authSession.getAuthorizationToken()).thenReturn(JWT);
     when(authSession.getAuthTokenExpirationDate()).thenReturn(Instant.now().getEpochSecond());
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
      bearerEnabledApiClient.invokeAPI("path", "POST", new ArrayList<>(), "body",
         new HashMap<>(), null, null, "application/json" ,
@@ -104,7 +128,7 @@ class BearerEnabledApiClientTest {
 
   @Test
   public void testEscapeString() {
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
     final String value = "value";
     bearerEnabledApiClient.escapeString(value);
@@ -114,7 +138,7 @@ class BearerEnabledApiClientTest {
 
   @Test
   public void testSelectHeaderContentType() {
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
     final String value = "value";
     bearerEnabledApiClient.selectHeaderContentType(value);
@@ -124,7 +148,7 @@ class BearerEnabledApiClientTest {
 
   @Test
   public void testParameterToPairs() {
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
     final String format = "format";
     final String name = "name";
@@ -136,7 +160,7 @@ class BearerEnabledApiClientTest {
 
   @Test
   public void testSelectHeaderAccepts() {
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
     final String value = "value";
     bearerEnabledApiClient.selectHeaderAccept(value);
@@ -146,7 +170,7 @@ class BearerEnabledApiClientTest {
 
   @Test
   public void testParameterToString() {
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
     final String param = "param";
     bearerEnabledApiClient.parameterToString(param);
@@ -157,10 +181,18 @@ class BearerEnabledApiClientTest {
   @Test
   public void testGetBasePath(){
     when(apiClient.getBasePath()).thenReturn("/pod");
-    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession);
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
 
     String path = bearerEnabledApiClient.getBasePath();
 
     assertEquals("/pod", path);
+  }
+
+  @Test
+  public void testGetAuthentications(){
+    when(apiClient.getBasePath()).thenReturn("/pod");
+    BearerEnabledApiClient bearerEnabledApiClient = new BearerEnabledApiClient(apiClient, authSession, true);
+
+    assertNotNull(bearerEnabledApiClient.getAuthentications());
   }
 }

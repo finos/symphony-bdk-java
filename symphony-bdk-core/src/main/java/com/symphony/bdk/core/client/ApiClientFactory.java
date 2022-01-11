@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.client;
 
-import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
@@ -14,6 +13,7 @@ import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
+import com.symphony.bdk.http.api.auth.OAuth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -68,21 +68,6 @@ public class ApiClientFactory {
    */
   public ApiClient getPodClient() {
     return buildClient(POD_CONTEXT_PATH, this.config.getPod());
-  }
-
-
-  /**
-   * Returns a fully initialized {@link ApiClient} for Pod API.
-   * If common jwt is enabled, the client is going to set the Authorization header, removing the sessionToken.
-   *
-   * @return a new {@link ApiClient} instance.
-   */
-  public ApiClient getPodClient(AuthSession authSession) {
-    if (config.getCommonJwt().getEnabled() && authSession != null) {
-      return new BearerEnabledApiClient(buildClient(POD_CONTEXT_PATH, this.config.getPod()), authSession);
-    } else {
-      return this.getPodClient();
-    }
   }
 
   /**
@@ -188,6 +173,7 @@ public class ApiClientFactory {
     try {
       apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig)
           .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
+          .withAuthentication("bearerAuth", new OAuth())
           .build();
     }
     catch (IllegalStateException e){
@@ -203,6 +189,7 @@ public class ApiClientFactory {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
         .withBasePath(basePath)
+        .withAuthentication("bearerAuth", new OAuth())
         .withReadTimeout(clientConfig.getReadTimeout())
         .withConnectionTimeout(clientConfig.getConnectionTimeout())
         .withConnectionPoolMax(clientConfig.getConnectionPoolMax())

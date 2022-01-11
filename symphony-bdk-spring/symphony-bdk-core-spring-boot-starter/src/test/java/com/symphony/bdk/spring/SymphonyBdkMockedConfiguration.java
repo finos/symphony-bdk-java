@@ -75,7 +75,7 @@ public class SymphonyBdkMockedConfiguration {
     }
 
     @Override
-    public ApiClient getPodClient(AuthSession authSession) {
+    public ApiClient getPodClient() {
 
       this.podApiClient.onGet("/pod/v2/sessioninfo", toString(new UserV2().displayName("BotMention")));
 

@@ -58,7 +58,7 @@ public class SymphonyBdkTest {
     this.mockApiClient = new MockApiClient();
     this.apiClientFactory = spy(new ApiClientFactory(config));
 
-    doReturn(mockApiClient.getApiClient("/pod")).when(apiClientFactory).getPodClient(any());
+    doReturn(mockApiClient.getApiClient("/pod")).when(apiClientFactory).getPodClient();
     doReturn(mockApiClient.getApiClient("/agent")).when(apiClientFactory).getAgentClient();
     doReturn(mockApiClient.getApiClient("/login")).when(apiClientFactory).getLoginClient();
     doReturn(mockApiClient.getApiClient("/relay")).when(apiClientFactory).getRelayClient();

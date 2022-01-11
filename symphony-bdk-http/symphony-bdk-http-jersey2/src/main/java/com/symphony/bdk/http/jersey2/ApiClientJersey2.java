@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProcessingException;
@@ -557,7 +559,7 @@ public class ApiClientJersey2 implements ApiClient {
     if (authNames == null) {
       return;
     }
-
+    authNames = enforceSecurityScheme(authNames);
     for (String authName : authNames) {
       Authentication auth = this.authentications.get(authName);
       if (auth == null) {
@@ -565,5 +567,9 @@ public class ApiClientJersey2 implements ApiClient {
       }
       auth.applyToParams(queryParams, headerParams);
     }
+  }
+
+  private String[] enforceSecurityScheme(String[] authNames) {
+    return Stream.concat(Stream.of("bearerAuth"), Arrays.stream(authNames)).toArray(String[]::new);
   }
 }
