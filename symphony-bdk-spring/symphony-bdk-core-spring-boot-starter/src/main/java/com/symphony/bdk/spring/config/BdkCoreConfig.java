@@ -12,7 +12,6 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
-
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 
