@@ -8,8 +8,6 @@ import org.apiguardian.api.API;
  * <p>An extension can be manually registered using {@code bdk.extensions().register(Class&gt;? extends BdkExtension&lt;)} method.
  *
  * <p>An extension must have a default constructor in order to be automatically instantiated by the BDK {@code ExtensionService}.
- *
- * <p>Possible extension points are annotated by {@link BdkAware} and can be located in different modules.
  */
 @API(status = API.Status.EXPERIMENTAL)
 public interface BdkExtension {

@@ -23,6 +23,7 @@ public class BdkExtensionConfig {
   @ConditionalOnMissingBean(ExtensionService.class)
   @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
   public ExtensionService extensionService(
+      final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder,
       final ApiClientFactory apiClientFactory,
       final Optional<AuthSession> botSession,
       final BdkConfig config,
@@ -32,7 +33,7 @@ public class BdkExtensionConfig {
     final ExtensionService extensionService = new ExtensionService(
         apiClientFactory,
         botSession.orElse(null),
-        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()),
+        retryWithRecoveryBuilder,
         config
     );
 

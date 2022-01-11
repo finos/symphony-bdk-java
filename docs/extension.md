@@ -32,7 +32,8 @@ class ExtensionExample {
 
 ### Registering Extensions in Spring Boot
 To use your extension in the [BDK Spring Boot Starter](./spring-boot/core-starter.md), you simply need to register your 
-extension as a bean added to the application context:
+extension as a bean added to the application context. Note that your extension class must implement `BdkExtension` in order
+to automatically be registered:
 ```java
 @Configuration
 public class MyBdkExtensionConfig {
@@ -87,5 +88,26 @@ class ExtensionExample {
         final MyBdkExtensionService service = bdk.extensions().service(MyBdkExtension.class);
         service.sayHello("Symphony");
     }
+}
+```
+
+### Registering your Extension's service in Spring Boot
+In Spring Boot, you must also manually register your extension's service a bean. Note that your extension's service has 
+to be retrieved from the `ExtensionService` in order to be fully initialized before injecting it into the Spring application
+context:
+
+```java
+@Configuration
+public class MyBdkExtensionConfig {
+
+  @Bean
+  public MyBdkExtension myBdkExtension() {
+    return new MyBdkExtension();
+  }
+  
+  @Bean
+  public MyBdkExtensionService myBdkExtensionService(ExtensionService extensionService) {
+    return extensionService.service(MyBdkExtension.class);
+  }
 }
 ```
