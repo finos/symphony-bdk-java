@@ -1,5 +1,8 @@
-# BDK Extension Model
+# Extension Model
 > :bulb: since `2.6`
+
+> :warning: The BDK Extension Mechanism is still an experimental feature, contracts are subject to **breaking changes** 
+> in future versions.
 
 ## Overview
 The BDK extension model consists of a single, coherent concept: the `BdkExtension` API. Note, however, that `BdkExtension` 

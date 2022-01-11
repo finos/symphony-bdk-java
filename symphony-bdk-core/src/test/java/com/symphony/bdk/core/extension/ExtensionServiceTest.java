@@ -59,6 +59,14 @@ class ExtensionServiceTest {
   }
 
   @Test
+  void shouldNotRegisterTwiceAnExtensionInstance() {
+    this.extensionService.register(new TestExtensionWithService());
+    IllegalStateException ex = assertThrows(IllegalStateException.class,
+        () -> this.extensionService.register(new TestExtensionWithService()));
+    assertThat(ex).hasMessage("Extension <" + TestExtensionWithService.class + "> has already been registered");
+  }
+
+  @Test
   void shouldRegisterConfigAwareExtension() {
     this.extensionService.register(TestExtensionConfigAware.class);
     assertThat(this.extensionService.service(TestExtensionConfigAware.class).getConfig()).isEqualTo(this.config);

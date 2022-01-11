@@ -54,6 +54,8 @@ public class ExtensionService {
 
     final Class<? extends BdkExtension> extClz = extension.getClass();
 
+    this.checkAlreadyRegistered(extClz);
+
     if (extension instanceof BdkAuthenticationAware) {
       if (this.botSession == null) {
         log.info("Extension <{}> uses authentication, but it has not been configured in BDK config", extClz);
@@ -92,9 +94,7 @@ public class ExtensionService {
   public void register(Class<? extends BdkExtension> extClz) {
     log.debug("Registering extension <{}>", extClz);
 
-    if (this.extensions.get(extClz) != null) {
-      throw new IllegalStateException("Extension <" + extClz + "> has already been registered");
-    }
+    this.checkAlreadyRegistered(extClz);
 
     BdkExtension extension;
 
@@ -131,5 +131,11 @@ public class ExtensionService {
     }
 
     return ((BdkExtensionServiceProvider<S>) extension).getService();
+  }
+
+  private void checkAlreadyRegistered(Class<? extends BdkExtension> extClz) {
+    if (this.extensions.get(extClz) != null) {
+      throw new IllegalStateException("Extension <" + extClz + "> has already been registered");
+    }
   }
 }

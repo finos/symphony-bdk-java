@@ -42,8 +42,7 @@ public class SymphonyGroupService implements BdkExtensionService {
         .recoveryStrategy(ApiException::isUnauthorized, oAuthSession::refresh);
 
     final ApiClient client = apiClientFactory.getPodClient("/profile-manager");
-    final OAuth auth = new OAuth();
-    auth.setBearerTokenSupplier(oAuthSession::getBearerToken);
+    final OAuth auth = new OAuth(oAuthSession::getBearerToken);
     client.getAuthentications().put("bearerAuth", auth);
 
     this.groupApi = new GroupApi(client);
