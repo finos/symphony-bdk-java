@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
@@ -12,6 +13,8 @@ import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
+import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
@@ -41,6 +44,19 @@ class BdkCoreConfigTest {
     final BdkCoreConfig config = new BdkCoreConfig();
     final SymphonyBdkCoreProperties props = new SymphonyBdkCoreProperties();
     assertNotNull(config.apiClientFactory(props));
+  }
+
+  @Test
+  void shouldCreatePodClient() {
+    final BdkCoreConfig config = new BdkCoreConfig();
+    final BdkConfig bdkConfig = new BdkConfig();
+    BdkCommonJwtConfig bdkCommonJwtConfig = new BdkCommonJwtConfig();
+    bdkCommonJwtConfig.setEnabled(true);
+    bdkConfig.setCommonJwt(bdkCommonJwtConfig);
+    final ApiClientFactory factory = mock(ApiClientFactory.class);
+    final AuthSession authSession = mock(AuthSession.class);
+    when(factory.getPodClient()).thenReturn(mock(ApiClient.class));
+   assertNotNull(config.podApiClient(factory, authSession, bdkConfig));
   }
 
   @Test
