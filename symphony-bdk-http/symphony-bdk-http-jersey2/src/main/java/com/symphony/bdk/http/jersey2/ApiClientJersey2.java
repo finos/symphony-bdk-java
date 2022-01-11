@@ -61,6 +61,7 @@ public class ApiClientJersey2 implements ApiClient {
   protected Map<String, String> defaultHeaderMap;
   protected String tempFolderPath;
   protected Map<String, Authentication> authentications;
+  protected List<String> enforcedAuthenticationSchemes;
 
   public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders,
       String temporaryFolderPath) {
@@ -69,6 +70,7 @@ public class ApiClientJersey2 implements ApiClient {
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
     this.tempFolderPath = temporaryFolderPath;
     this.authentications = new HashMap<>();
+    this.enforcedAuthenticationSchemes = new ArrayList<>();
   }
 
   /**
@@ -93,7 +95,7 @@ public class ApiClientJersey2 implements ApiClient {
     // to support (constant) query string in `path`, e.g. "/posts?draft=1"
     WebTarget target = httpClient.target(this.basePath + path);
 
-    this.updateParamsForAuth(authNames, queryParams, headerParams);
+    this.updateParamsForAuth(authNames, headerParams);
 
     if (queryParams != null) {
       for (Pair queryParam : queryParams) {
@@ -374,6 +376,11 @@ public class ApiClientJersey2 implements ApiClient {
     return this.authentications;
   }
 
+  @Override
+  public void addEnforcedAuthenticationScheme(String name) {
+    this.enforcedAuthenticationSchemes.add(name);
+  }
+
   /**
    * Check if the given MIME is a JSON MIME.
    * JSON MIME examples:
@@ -554,22 +561,29 @@ public class ApiClientJersey2 implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  protected void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
 
-    if (authNames == null) {
+    if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
       return;
     }
-    authNames = enforceSecurityScheme(authNames);
+
+    authNames = withEnforcedSecurityScheme(authNames);
+
     for (String authName : authNames) {
       Authentication auth = this.authentications.get(authName);
       if (auth == null) {
         throw new RuntimeException("Authentication undefined: " + authName);
       }
-      auth.applyToParams(queryParams, headerParams);
+      auth.apply(headerParams);
     }
   }
 
-  private String[] enforceSecurityScheme(String[] authNames) {
-    return Stream.concat(Stream.of("bearerAuth"), Arrays.stream(authNames)).toArray(String[]::new);
+  private String[] withEnforcedSecurityScheme(String[] authNames) {
+
+    if (authNames == null) {
+      authNames = new String[0];
+    }
+
+    return Stream.concat(this.enforcedAuthenticationSchemes.stream(), Arrays.stream(authNames)).toArray(String[]::new);
   }
 }

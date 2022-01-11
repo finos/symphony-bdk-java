@@ -7,7 +7,6 @@ import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.http.api.auth.OAuth;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.http.webclient.test.BdkMockServer;
@@ -46,10 +45,7 @@ class ApiClientWebClientTest {
   void setUp(final BdkMockServer mockServer) {
 
     this.apiClient = mockServer.newApiClient("");
-    this.apiClient.getAuthentications().put("bearerAuth", new OAuth());
-    this.apiClient.getAuthentications().put("testAuth", (queryParams, headerParams) -> {
-      headerParams.put("Authorization", "test");
-    });
+    this.apiClient.getAuthentications().put("testAuth", headerParams -> headerParams.put("Authorization", "test"));
   }
 
   @Test

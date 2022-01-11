@@ -12,8 +12,6 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
-import com.symphony.bdk.http.api.auth.OAuth;
-import com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -83,9 +81,7 @@ public class MockApiClient {
   }
 
   public ApiClient getApiClient(String basePath) {
-    ApiClient client = new ApiClientJersey2(this.httpClient, basePath, new HashMap<>(), null);
-    client.getAuthentications().put("bearerAuth", new OAuth());
-    return client;
+    return new ApiClientJersey2(this.httpClient, basePath, new HashMap<>(), null);
   }
 
   private void onRequestWithResponseCode(String method, int statusCode, String path, List<Pair> queryParams,

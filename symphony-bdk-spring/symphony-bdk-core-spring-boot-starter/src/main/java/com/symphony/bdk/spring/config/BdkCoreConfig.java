@@ -3,11 +3,12 @@ package com.symphony.bdk.spring.config;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
+import com.symphony.bdk.core.auth.OAuthSession;
+import com.symphony.bdk.core.auth.OAuthentication;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.client.BearerEnabledApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
@@ -47,7 +48,13 @@ public class BdkCoreConfig {
 
   @Bean(name = "podApiClient")
   public ApiClient podApiClient(ApiClientFactory apiClientFactory, @Nullable AuthSession authSession, BdkConfig config) {
-    return new BearerEnabledApiClient(apiClientFactory.getPodClient(), authSession, config.getCommonJwt().getEnabled());
+    ApiClient client = apiClientFactory.getPodClient();
+    if (config.getCommonJwt().getEnabled()) {
+      final OAuthSession oAuthSession = new OAuthSession(authSession);
+      client.getAuthentications().put("bearerAuth", new OAuthentication(oAuthSession::getBearerToken));
+      client.addEnforcedAuthenticationScheme("bearerAuth");
+    }
+    return client;
   }
 
   @Bean(name = "relayApiClient")

@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.auth.OAuth;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
@@ -51,10 +50,7 @@ class ApiClientJersey2Test {
     when(statusInfo.getFamily()).thenReturn(Response.Status.Family.SUCCESSFUL);
     when(response.getHeaders()).thenReturn(new MultivaluedHashMap<>());
     this.apiClient = new ApiClientJersey2(client, "", Collections.emptyMap(), "");
-    this.apiClient.getAuthentications().put("bearerAuth", new OAuth());
-    this.apiClient.getAuthentications().put("testAuth", (queryParams, headerParams) -> {
-      headerParams.put("Authorization", "test");
-    });
+    this.apiClient.getAuthentications().put("testAuth", headerParams -> headerParams.put("Authorization", "test"));
   }
 
   @Test

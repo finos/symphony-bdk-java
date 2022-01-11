@@ -5,7 +5,6 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.auth.OAuth;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderJersey2;
 
 import org.mockserver.integration.ClientAndServer;
@@ -38,7 +37,6 @@ public class BdkMockServer {
   public ApiClient newApiClient(String contextPath) {
     return new ApiClientBuilderJersey2()
         .withBasePath("http://localhost:" + this.mockServer.getPort() + contextPath)
-        .withAuthentication("bearerAuth", new OAuth())
         .build();
   }
 

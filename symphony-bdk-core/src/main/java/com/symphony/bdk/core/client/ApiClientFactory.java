@@ -13,7 +13,6 @@ import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
-import com.symphony.bdk.http.api.auth.OAuth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -173,7 +172,6 @@ public class ApiClientFactory {
     try {
       apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig)
           .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
-          .withAuthentication("bearerAuth", new OAuth())
           .build();
     }
     catch (IllegalStateException e){
@@ -189,7 +187,6 @@ public class ApiClientFactory {
     ApiClientBuilder apiClientBuilder = this.apiClientBuilderProvider
         .newInstance()
         .withBasePath(basePath)
-        .withAuthentication("bearerAuth", new OAuth())
         .withReadTimeout(clientConfig.getReadTimeout())
         .withConnectionTimeout(clientConfig.getConnectionTimeout())
         .withConnectionPoolMax(clientConfig.getConnectionPoolMax())

@@ -48,12 +48,14 @@ public class ApiClientWebClient implements ApiClient {
   protected final String basePath;
   protected final Map<String, String> defaultHeaderMap;
   protected Map<String, Authentication> authentications;
+  protected List<String> enforcedAuthenticationSchemes;
 
   public ApiClientWebClient(final WebClient webClient, String basePath, Map<String, String> defaultHeaders) {
     this.webClient = webClient;
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
     this.authentications = new HashMap<>();
+    this.enforcedAuthenticationSchemes = new ArrayList<>();
   }
 
   /**
@@ -79,7 +81,7 @@ public class ApiClientWebClient implements ApiClient {
       throw new ApiException(500, "unknown method type " + method);
     }
 
-    this.updateParamsForAuth(authNames, queryParams, headerParams);
+    this.updateParamsForAuth(authNames, headerParams);
 
     WebClient.RequestBodySpec requestBodySpec =
         this.webClient.method(httpMethod).uri(uriBuilder -> {
@@ -260,24 +262,29 @@ public class ApiClientWebClient implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  private void updateParamsForAuth(String[] authNames, List<Pair> queryParams, Map<String, String> headerParams) {
+  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
 
-    if (authNames == null) {
+    if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
       return;
     }
-    authNames = enforceSecurityScheme(authNames);
+    authNames = withEnforcedSecurityScheme(authNames);
     for (String authName : authNames) {
       Authentication auth = this.authentications.get(authName);
       if (auth == null) {
         throw new RuntimeException("Authentication undefined: " + authName);
       }
-      auth.applyToParams(queryParams, headerParams);
+      auth.apply(headerParams);
     }
   }
 
-  private String[] enforceSecurityScheme(String[] authNames) {
-    return Stream.concat(Stream.of("bearerAuth"), Arrays.stream(authNames)).toArray(String[]::new);
+  private String[] withEnforcedSecurityScheme(String[] authNames) {
+    if (authNames == null) {
+      authNames = new String[0];
+    }
+
+    return Stream.concat(this.enforcedAuthenticationSchemes.stream(), Arrays.stream(authNames)).toArray(String[]::new);
   }
+
 
   /**
    * {@inheritDoc}
@@ -423,5 +430,10 @@ public class ApiClientWebClient implements ApiClient {
   @Override
   public Map<String, Authentication> getAuthentications() {
     return this.authentications;
+  }
+
+  @Override
+  public void addEnforcedAuthenticationScheme(String name) {
+
   }
 }

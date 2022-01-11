@@ -1,8 +1,9 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.OAuthSession;
+import com.symphony.bdk.core.auth.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.client.BearerEnabledApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -42,6 +43,7 @@ import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
@@ -70,12 +72,19 @@ class ServiceFactory {
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
     this.config = config;
-    this.podClient = new BearerEnabledApiClient(apiClientFactory.getPodClient(), authSession, isCommonJwtEnabled());
+    this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
+
+    if (this.config.getCommonJwt().getEnabled()) {
+      final OAuthSession oAuthSession = new OAuthSession(authSession);
+      this.retryBuilder.recoveryStrategy(ApiException::isUnauthorized, oAuthSession::refresh);
+      this.podClient.getAuthentications().put("bearerAuth", new OAuthentication(oAuthSession::getBearerToken));
+      this.podClient.addEnforcedAuthenticationScheme("bearerAuth");
+    }
   }
 
   /**
