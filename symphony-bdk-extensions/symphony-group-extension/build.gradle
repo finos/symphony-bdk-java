@@ -2,6 +2,7 @@ plugins {
     id 'bdk.java-common-conventions'
     id 'bdk.java-publish-conventions'
     id 'bdk.java-codegen-conventions'
+    id 'de.undercouch.download'
 }
 
 description = 'Symphony Java BDK - Groups Extension'
@@ -17,8 +18,22 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
 }
 
+def baseSpecsUrl = 'https://raw.githubusercontent.com/finos/symphony-api-spec/master/profile-manager'
+
+task downloadFile(type: Download) {
+    src([
+        "$baseSpecsUrl/profile-manager-api.yaml",
+        "$baseSpecsUrl/symphony-common-definitions.yaml"
+    ])
+    dest buildDir
+    onlyIfModified true
+    useETag true
+}
+
 openApiGenerate {
+    inputSpec = "$buildDir/profile-manager-api.yaml"
     apiPackage = 'com.symphony.bdk.ext.group.gen.api'
     modelPackage = 'com.symphony.bdk.ext.group.gen.api.model'
 }
 
+tasks.openApiGenerate.dependsOn tasks.downloadFile
