@@ -2,13 +2,16 @@ package com.symphony.bdk.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
 import com.symphony.bdk.core.service.health.HealthService;
@@ -34,6 +37,7 @@ public class ServiceFactoryTest {
   private ServiceFactory serviceFactory;
   private ApiClientFactory apiClientFactory;
   private AuthSession mAuthSession;
+  private ApiClient mPodClient;
   private BdkConfig config;
   private UserV2 botInfo;
 
@@ -42,7 +46,7 @@ public class ServiceFactoryTest {
     this.config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     this.botInfo = mock(UserV2.class);
     this.mAuthSession = mock(AuthSession.class);
-    ApiClient mPodClient = mock(ApiClient.class);
+    this.mPodClient = mock(ApiClient.class);
     ApiClient mAgentClient = mock(ApiClient.class);
     this.apiClientFactory = mock(ApiClientFactory.class);
 
@@ -122,5 +126,16 @@ public class ServiceFactoryTest {
     assertNotNull(datafeedServiceV2);
     assertEquals(datafeedServiceV2.getClass(), DatafeedLoopV2.class);
 
+  }
+
+  @Test
+  void testPodApiClientConfigWithCommonJwt() {
+    BdkCommonJwtConfig bdkCommonJwtConfig = this.config.getCommonJwt();
+    bdkCommonJwtConfig.setEnabled(true);
+
+    this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
+
+    verify(mPodClient).getAuthentications();
+    verify(mPodClient).addEnforcedAuthenticationScheme(eq("bearerAuth"));
   }
 }

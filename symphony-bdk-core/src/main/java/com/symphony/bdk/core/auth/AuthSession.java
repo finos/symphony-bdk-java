@@ -56,7 +56,6 @@ public interface AuthSession {
   /**
    * Trigger re-authentication to refresh the Authorization token. Used when common jwt is enabled.
    */
-  @Deprecated // TODO could be removed?
   default void refreshAuthToken() throws AuthUnauthorizedException {
   }
 }
