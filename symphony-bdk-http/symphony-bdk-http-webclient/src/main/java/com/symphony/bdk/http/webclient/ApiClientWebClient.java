@@ -434,6 +434,6 @@ public class ApiClientWebClient implements ApiClient {
 
   @Override
   public void addEnforcedAuthenticationScheme(String name) {
-
+    this.enforcedAuthenticationSchemes.add(name);
   }
 }
