@@ -15,39 +15,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.slf4j:slf4j-api'
-
-    // code generation
-    implementation 'javax.annotation:jsr250-api:1.0'
-    implementation 'io.swagger:swagger-annotations'
-    implementation 'com.google.code.findbugs:jsr305'
-
 }
-
-def generatedFolder = "$buildDir/generated/openapi"
-sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 
 openApiGenerate {
-    generatorName = 'java'
-    library = 'jersey2'
-    outputDir = generatedFolder
-    inputSpec = "$projectDir/src/main/resources/api.yaml"
-    skipOverwrite = true
-    generateApiTests = false
-    generateModelTests = false
-    generateModelDocumentation = false
-    generateApiDocumentation = false
     apiPackage = 'com.symphony.bdk.ext.group.gen.api'
     modelPackage = 'com.symphony.bdk.ext.group.gen.api.model'
-    invokerPackage = 'com.symphony.bdk.http.api'
-    templateDir = "${rootDir}/templates"
-    globalProperties = [
-            models         : "",
-            apis           : "",
-            supportingFiles: "false"
-    ]
-    configOptions = [
-            dateLibrary: "java8"
-    ]
 }
 
-tasks.compileJava.dependsOn tasks.openApiGenerate

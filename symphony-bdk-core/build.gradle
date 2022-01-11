@@ -1,7 +1,8 @@
 plugins {
     id 'bdk.java-library-conventions'
     id 'bdk.java-publish-conventions'
-    id 'bdk.java-codegen-conventions'
+    id 'org.openapi.generator'
+    id 'de.undercouch.download'
 }
 
 description = 'Symphony Java BDK Core'
