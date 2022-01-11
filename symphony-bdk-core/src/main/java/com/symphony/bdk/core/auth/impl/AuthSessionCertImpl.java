@@ -37,15 +37,19 @@ public class AuthSessionCertImpl implements AuthSession {
     return this.sessionToken;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public @Nullable
-  String getAuthorizationToken() {
+  public @Nullable String getAuthorizationToken() {
     return this.authorizationToken;
   }
 
-  @Nullable
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public Long getAuthTokenExpirationDate() {
+  public @Nullable Long getAuthTokenExpirationDate() {
     return this.authTokenExpirationDate;
   }
 

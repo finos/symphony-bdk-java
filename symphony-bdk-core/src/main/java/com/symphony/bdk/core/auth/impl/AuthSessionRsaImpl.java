@@ -45,9 +45,11 @@ public class AuthSessionRsaImpl implements AuthSession {
     return this.authorizationToken;
   }
 
-  @Nullable
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public Long getAuthTokenExpirationDate() {
+  public @Nullable Long getAuthTokenExpirationDate() {
     return this.authTokenExpirationDate;
   }
 

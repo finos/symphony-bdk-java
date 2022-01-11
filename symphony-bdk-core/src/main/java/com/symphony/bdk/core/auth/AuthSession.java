@@ -32,6 +32,11 @@ public interface AuthSession {
     return null;
   }
 
+  /**
+   * Common jwt expiration date in seconds
+   *
+   * @return the expiration date found in the common jwt claims (in seconds)
+   */
   @Nullable default Long getAuthTokenExpirationDate() {
     return null;
   }
