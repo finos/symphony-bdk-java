@@ -561,7 +561,7 @@ public class ApiClientJersey2 implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
+  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) throws ApiException {
 
     if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
       return;

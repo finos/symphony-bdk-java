@@ -1,6 +1,7 @@
 package com.symphony.bdk.http.api.auth;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.Pair;
 
 import org.apiguardian.api.API;
@@ -21,5 +22,5 @@ public interface Authentication {
    *
    * @param headerParams Map of header parameters
    */
-  void apply(Map<String, String> headerParams);
+  void apply(Map<String, String> headerParams) throws ApiException;
 }

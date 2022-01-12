@@ -81,7 +81,6 @@ class ServiceFactory {
 
     if (this.config.getCommonJwt().getEnabled()) {
       final OAuthSession oAuthSession = new OAuthSession(authSession);
-      this.retryBuilder.recoveryStrategy(ApiException::isUnauthorized, oAuthSession::refresh);
       this.podClient.getAuthentications().put("bearerAuth", new OAuthentication(oAuthSession::getBearerToken));
       this.podClient.addEnforcedAuthenticationScheme("bearerAuth");
     }

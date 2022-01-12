@@ -1,14 +1,18 @@
 package com.symphony.bdk.core.auth;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.time.Instant;
 
 class OAuthSessionTest {
   private final AuthSession authSession = mock(AuthSession.class);
@@ -18,30 +22,44 @@ class OAuthSessionTest {
       + "lbWVudHMiOiIifQ.signature";
 
   @Test
-  void testRefresh() throws AuthUnauthorizedException {
+  void testRefreshExpiredToken() throws AuthUnauthorizedException, ApiException {
     when(authSession.getAuthorizationToken()).thenReturn(JWT);
+    when(authSession.getAuthTokenExpirationDate()).thenReturn(Instant.now().getEpochSecond() - 20);
 
     OAuthSession oAuthSession = new OAuthSession(authSession);
-    oAuthSession.refresh();
+    oAuthSession.getBearerToken();
 
     verify(authSession).refreshAuthToken();
   }
 
   @Test
-  void testRefreshWhenNoAuthToken() throws AuthUnauthorizedException {
-    when(authSession.getAuthorizationToken()).thenReturn(null);
+  void testRefreshWhenTokenNotExpired() throws AuthUnauthorizedException, ApiException {
+    when(authSession.getAuthorizationToken()).thenReturn(JWT);
+    when(authSession.getAuthTokenExpirationDate()).thenReturn(Instant.now().getEpochSecond() + 20);
 
     OAuthSession oAuthSession = new OAuthSession(authSession);
-    oAuthSession.refresh();
+    oAuthSession.getBearerToken();
 
-    verify(authSession, times(0)).refreshAuthToken();
+    verify(authSession, never()).refreshAuthToken();
   }
 
   @Test
-  void getBearerToken() {
+  void testRefreshWhenNoAuthToken() throws AuthUnauthorizedException, ApiException {
+    when(authSession.getAuthorizationToken()).thenReturn(null);
+
+    OAuthSession oAuthSession = new OAuthSession(authSession);
+    oAuthSession.getBearerToken();
+
+    verify(authSession, never()).refreshAuthToken();
+  }
+
+  @Test
+  void testRefreshThrowsException() throws AuthUnauthorizedException {
+    doThrow(AuthUnauthorizedException.class).when(authSession).refreshAuthToken();
     when(authSession.getAuthorizationToken()).thenReturn(JWT);
+
     OAuthSession oAuthSession = new OAuthSession(authSession);
 
-    assertEquals(JWT, oAuthSession.getBearerToken());
+    assertThrows(ApiException.class, oAuthSession::getBearerToken);
   }
 }

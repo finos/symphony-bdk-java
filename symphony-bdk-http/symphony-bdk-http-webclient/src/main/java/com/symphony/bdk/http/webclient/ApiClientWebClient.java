@@ -262,7 +262,7 @@ public class ApiClientWebClient implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
+  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) throws ApiException {
 
     if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
       return;

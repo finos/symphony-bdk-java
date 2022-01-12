@@ -1,16 +1,18 @@
 package com.symphony.bdk.core.auth;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import com.symphony.bdk.http.api.ApiException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class OAuthenticationTest {
   private Map<String, String> headerParams;
@@ -26,7 +28,7 @@ class OAuthenticationTest {
   }
 
   @Test
-  void testApplyWhenSessionTokenPresent() {
+  void testApplyWhenSessionTokenPresent() throws ApiException {
     headerParams.put("sessionToken", "sessionValue");
 
     auth.apply(headerParams);
@@ -36,10 +38,19 @@ class OAuthenticationTest {
   }
 
   @Test
-  void testApplyWhenNoSessionToken() {
+  void testApplyWhenNoSessionToken() throws ApiException {
     auth.apply(headerParams);
 
     assertFalse(headerParams.containsKey("sessionToken"));
     assertTrue(headerParams.containsKey("Authorization"));
+  }
+
+  @Test
+  void testApplyWithException() throws ApiException {
+    OAuthSession oAuthSession = mock(OAuthSession.class);
+    when(oAuthSession.getBearerToken()).thenThrow(ApiException.class);
+    this.auth = new OAuthentication(oAuthSession::getBearerToken);
+
+    assertThrows(ApiException.class, ()-> auth.apply(headerParams));
   }
 }
