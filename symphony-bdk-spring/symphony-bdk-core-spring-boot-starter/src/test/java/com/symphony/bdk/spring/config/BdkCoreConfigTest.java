@@ -21,6 +21,8 @@ import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanInitializationException;
 
+import java.util.Optional;
+
 /**
  * Test class for the {@link BdkCoreConfig}. Mainly for coverage...
  */
@@ -56,9 +58,8 @@ class BdkCoreConfigTest {
     final ApiClientFactory factory = mock(ApiClientFactory.class);
     final AuthSession authSession = mock(AuthSession.class);
     when(factory.getPodClient()).thenReturn(mock(ApiClient.class));
-   assertNotNull(config.podApiClient(factory, authSession, bdkConfig));
+   assertNotNull(config.podApiClient(factory, Optional.ofNullable(authSession), bdkConfig));
   }
-
   @Test
   void shouldCreateKeyAuthApiClient() {
     final BdkCoreConfig config = new BdkCoreConfig();

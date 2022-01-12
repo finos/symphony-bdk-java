@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
-import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Configuration and injection of the main BDK/Core classes as beans within the Spring application context.
@@ -48,10 +48,10 @@ public class BdkCoreConfig {
   }
 
   @Bean(name = "podApiClient")
-  public ApiClient podApiClient(ApiClientFactory apiClientFactory, @Nullable AuthSession authSession, BdkConfig config) {
+  public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
     ApiClient client = apiClientFactory.getPodClient();
-    if (config.isCommonJwtEnabled()) {
-      final OAuthSession oAuthSession = new OAuthSession(authSession);
+    if (config.isCommonJwtEnabled() && botSession.isPresent()) {
+      final OAuthSession oAuthSession = new OAuthSession(botSession.get());
       client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
       client.addEnforcedAuthenticationScheme(BEARER_AUTH);
     }
