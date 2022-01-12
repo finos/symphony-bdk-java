@@ -5,6 +5,8 @@ import static com.symphony.bdk.core.auth.OAuthentication.BEARER_AUTH;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.OAuthSession;
 import com.symphony.bdk.core.auth.OAuthentication;
+import com.symphony.bdk.core.auth.impl.AuthSessionOboCertImpl;
+import com.symphony.bdk.core.auth.impl.AuthSessionOboImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -80,7 +82,7 @@ class ServiceFactory {
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
 
-    if (config.isCommonJwtEnabled()) {
+    if (config.isCommonJwtEnabled() && !config.isOboConfigured()) {
       final OAuthSession oAuthSession = new OAuthSession(authSession);
       this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
       this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
