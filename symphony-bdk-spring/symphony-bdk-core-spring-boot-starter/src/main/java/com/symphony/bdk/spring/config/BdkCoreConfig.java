@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
  */
 @Slf4j
 public class BdkCoreConfig {
+  private static final String BEARER_AUTH = "bearerAuth";
 
   @Bean
   @ConditionalOnMissingBean
@@ -49,10 +50,10 @@ public class BdkCoreConfig {
   @Bean(name = "podApiClient")
   public ApiClient podApiClient(ApiClientFactory apiClientFactory, @Nullable AuthSession authSession, BdkConfig config) {
     ApiClient client = apiClientFactory.getPodClient();
-    if (config.getCommonJwt().getEnabled()) {
+    if (config.isCommonJwtEnabled()) {
       final OAuthSession oAuthSession = new OAuthSession(authSession);
-      client.getAuthentications().put("bearerAuth", new OAuthentication(oAuthSession::getBearerToken));
-      client.addEnforcedAuthenticationScheme("bearerAuth");
+      client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+      client.addEnforcedAuthenticationScheme(BEARER_AUTH);
     }
     return client;
   }

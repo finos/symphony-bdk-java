@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.time.Duration;
 import java.time.Instant;
 
 @Slf4j
@@ -15,6 +16,7 @@ import java.time.Instant;
 public
 class OAuthSession {
 
+  public static final Duration LEEWAY = Duration.ofSeconds(5);
   private final AuthSession authSession;
 
   public String getBearerToken() throws ApiException {
@@ -33,14 +35,13 @@ class OAuthSession {
    * @throws AuthUnauthorizedException if the authentication fails
    */
   private void refreshIfNeeded() throws AuthUnauthorizedException {
-    int interval = 5;
     if (this.authSession.getAuthorizationToken() == null || this.authSession.getAuthTokenExpirationDate() == null) {
       String errorMessage = "Common jwt feature is not available in your pod, SBE version should be at least 20.14.";
       log.error(errorMessage);
       throw new UnsupportedOperationException(errorMessage);
     }
 
-    if (Instant.now().getEpochSecond() + interval >= this.authSession.getAuthTokenExpirationDate()) {
+    if (Instant.now().plus(LEEWAY).isAfter(Instant.ofEpochSecond(this.authSession.getAuthTokenExpirationDate()))) {
       this.authSession.refreshAuthToken();
     }
   }

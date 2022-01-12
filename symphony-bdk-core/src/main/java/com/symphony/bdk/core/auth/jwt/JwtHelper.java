@@ -88,8 +88,7 @@ public class JwtHelper {
    * @return a {@link PrivateKey} instance
    * @throws GeneralSecurityException On invalid Private Key
    */
-  public static PrivateKey parseRsaPrivateKey(final String pemPrivateKey)
-      throws GeneralSecurityException {
+  public static PrivateKey parseRsaPrivateKey(final String pemPrivateKey) throws GeneralSecurityException {
 
     // PKCS#8 format
     if (pemPrivateKey.contains(PEM_PRIVATE_START)) {
@@ -129,6 +128,7 @@ public class JwtHelper {
   /**
    * Extract the expiration date (in seconds) from the input jwt. If the jwt uses the Beare prefix, it
    * will be removed before parsing. This function is not validating  the jwt signature.
+   *
    * @param jwt to be parsed
    * @return expiration date in seconds
    * @throws JsonProcessingException if parsing fails
@@ -142,7 +142,7 @@ public class JwtHelper {
 
   private static String extractDecodedClaims(String jwt) throws AuthUnauthorizedException {
     String[] jwtSplit = jwt.split("\\.");
-    if(jwtSplit.length < 3) {
+    if (jwtSplit.length < 3) {
       throw new AuthUnauthorizedException("Unable to parse jwt");
     }
     return new String(Base64.getDecoder().decode(jwtSplit[1]));
@@ -176,8 +176,7 @@ public class JwtHelper {
 
   private static PrivateKey parsePKCS8PrivateKey(String pemPrivateKey) throws GeneralSecurityException {
     try {
-      final String privateKeyString = pemPrivateKey
-          .replace(PEM_PRIVATE_START, "")
+      final String privateKeyString = pemPrivateKey.replace(PEM_PRIVATE_START, "")
           .replace(PEM_PRIVATE_END, "")
           .replace("\\n", "\n")
           .replaceAll("\\s", "");

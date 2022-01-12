@@ -62,6 +62,7 @@ import org.apiguardian.api.API;
 @API(status = API.Status.INTERNAL)
 class ServiceFactory {
 
+  private static final String BEARER_AUTH = "bearerAuth";
   private final ApiClient podClient;
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
@@ -79,10 +80,10 @@ class ServiceFactory {
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
 
-    if (this.config.getCommonJwt().getEnabled()) {
+    if (config.isCommonJwtEnabled()) {
       final OAuthSession oAuthSession = new OAuthSession(authSession);
-      this.podClient.getAuthentications().put("bearerAuth", new OAuthentication(oAuthSession::getBearerToken));
-      this.podClient.addEnforcedAuthenticationScheme("bearerAuth");
+      this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+      this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
     }
   }
 
@@ -92,7 +93,8 @@ class ServiceFactory {
    * @return a new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession, retryBuilder);
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession,
+        retryBuilder);
   }
 
   /**
@@ -197,7 +199,4 @@ class ServiceFactory {
     return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession);
   }
 
-  private boolean isCommonJwtEnabled() {
-    return config.getCommonJwt().getEnabled();
-  }
 }

@@ -40,6 +40,10 @@ public class BdkConfig extends BdkServerConfig {
     return bot != null && isNotEmpty(bot.getUsername());
   }
 
+  public boolean isCommonJwtEnabled() {
+    return this.getCommonJwt().getEnabled();
+  }
+
   /**
    * Returns the retry configuration used for DataFeed services.
    *
