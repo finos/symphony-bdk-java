@@ -1,8 +1,8 @@
 # Extension Model
 > :bulb: since `2.6`
 
-> :warning: The BDK Extension Mechanism is still an experimental feature, contracts are subject to **breaking changes** 
-> in future versions.
+> :warning: The BDK Extension Mechanism is still an experimental feature, contracts might be subject to **breaking changes** 
+> in following versions.
 
 ## Overview
 The BDK extension model consists of a single, coherent concept: the `BdkExtension` API. Note, however, that `BdkExtension` 
@@ -54,7 +54,7 @@ To make your extension _Service Provider_, your extension definition class must 
 interface along with the `BdkExtension` marker interface: 
 ```java
 /**
- * The <i>Service</i> implementation class.
+ * The Service implementation class.
  */
 public class MyBdkExtensionService implements BdkExtensionService {
     
@@ -63,7 +63,7 @@ public class MyBdkExtensionService implements BdkExtensionService {
     }
 }
 /**
- * The <i>Extension</i> definition class.
+ * The Extension definition class.
  */
 public class MyBdkExtension implements BdkExtension, BdkExtensionServiceProvider<MyBdkExtensionService> {
 
@@ -91,11 +91,9 @@ class ExtensionExample {
 }
 ```
 
-### Registering your Extension's service in Spring Boot
-In Spring Boot, you must also manually register your extension's service a bean. Note that your extension's service has 
-to be retrieved from the `ExtensionService` in order to be fully initialized before injecting it into the Spring application
-context:
-
+### Access your Extension's service in Spring Boot
+In Spring Boot, your extension's service is _lazily_ initialized. It means that you must annotate your injected extension's service
+field with the `@Lazy` annotation in addition to the `@Autowired` one:
 ```java
 @Configuration
 public class MyBdkExtensionConfig {
@@ -104,10 +102,80 @@ public class MyBdkExtensionConfig {
   public MyBdkExtension myBdkExtension() {
     return new MyBdkExtension();
   }
-  
-  @Bean
-  public MyBdkExtensionService myBdkExtensionService(ExtensionService extensionService) {
-    return extensionService.service(MyBdkExtension.class);
-  }
+}
+
+@RestController
+@RequestMapping("/api")
+public class ApiController {
+
+    @Lazy // required, otherwise Spring Boot application startup will fail
+    @Autowired
+    private MyBdkExtensionService groupService;
+}
+```
+> :bulb: Note that your IDE might show an error like "_Could not autowire. No beans of 'MyBdkExtensionService' type found_". 
+> To disable this warning you can annotate your class with `@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")`
+
+## BDK Aware Extensions
+The BDK Extension Model allows extensions to access to some core objects such as the configuration or the api clients.
+Developer that wish to use this objects can implement a set of interfaces all suffixed with the `Aware` keyword.
+
+### BdkConfigAware
+The interface `com.symphony.bdk.core.config.extension.BdkConfigAware` allows extensions to read the BDK configuration: 
+```java
+public class MyBdkExtension implements BdkExtension, BdkConfigAware {
+
+    private BdkConfig config;
+    
+    @Override
+    public void setConfiguration(BdkConfig config) {
+        this.config = config;
+    }
+}
+```
+
+### BdkApiClientFactoryAware
+The interface `com.symphony.bdk.core.extension.BdkApiClientFactoryAware` can be used by extensions that need to
+use the `com.symphony.bdk.core.client.ApiClientFactory` class: 
+```java
+public class MyBdkExtension implements BdkExtension, BdkApiClientFactoryAware {
+
+    private ApiClientFactory apiClientFactory;
+    
+    @Override
+    public void setApiClientFactory(ApiClientFactory apiClientFactory) {
+        this.apiClientFactory = apiClientFactory;
+    }
+}
+```
+
+### BdkAuthenticationAware
+The interface `com.symphony.bdk.core.extension.BdkAuthenticationAware` can be used by extensions that need to rely on the 
+service account authentication session (`com.symphony.bdk.core.auth.AuthSession`), which provides the `sessionToken` and 
+`keyManagerToken` that are used to call the Symphony's APIs: 
+```java
+public class MyBdkExtension implements BdkExtension, BdkAuthenticationAware {
+
+    private AuthSession authSession;
+    
+    @Override
+    public void setAuthSession(AuthSession authSession) {
+        this.authSession = authSession;
+    }
+}
+```
+
+### BdkRetryBuilderAware
+The interface `com.symphony.bdk.core.extension.BdkRetryBuilderAware` allows extensions to leverage the internal BDK retry API 
+through the `com.symphony.bdk.core.retry.RetryWithRecoveryBuilder<?>` class: 
+```java
+public class MyBdkExtension implements BdkExtension, BdkRetryBuilderAware {
+
+    private RetryWithRecoveryBuilder<?> retryBuilder;
+
+    @Override
+    public void setRetryBuilder(RetryWithRecoveryBuilder<?> retryBuilder) {
+        this.retryBuilder = retryBuilder;
+    }
 }
 ```
