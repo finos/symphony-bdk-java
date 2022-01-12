@@ -12,6 +12,8 @@ import java.util.Map;
 @API(status = API.Status.INTERNAL)
 public class OAuthentication implements Authentication {
 
+  public static final String BEARER_AUTH = "bearerAuth";
+
   private final SupplierWithApiException<String> bearerAuthSupplier;
 
   @Override

@@ -432,6 +432,9 @@ public class ApiClientWebClient implements ApiClient {
     return this.authentications;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void addEnforcedAuthenticationScheme(String name) {
     this.enforcedAuthenticationSchemes.add(name);

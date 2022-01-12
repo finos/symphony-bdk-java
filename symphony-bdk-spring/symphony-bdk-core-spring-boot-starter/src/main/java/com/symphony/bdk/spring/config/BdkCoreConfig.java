@@ -1,5 +1,7 @@
 package com.symphony.bdk.spring.config;
 
+import static com.symphony.bdk.core.auth.OAuthentication.BEARER_AUTH;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
@@ -29,7 +31,6 @@ import java.util.Optional;
  */
 @Slf4j
 public class BdkCoreConfig {
-  private static final String BEARER_AUTH = "bearerAuth";
 
   @Bean
   @ConditionalOnMissingBean

@@ -104,6 +104,11 @@ public interface ApiClient {
    */
   Map<String, Authentication> getAuthentications();
 
+  /**
+   * Enforce an authentication scheme using the authentication name.
+   *
+   * @param name of the authentication
+   */
   void addEnforcedAuthenticationScheme(String name);
 
   /**

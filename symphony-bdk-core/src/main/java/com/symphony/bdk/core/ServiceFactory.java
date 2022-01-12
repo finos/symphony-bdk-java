@@ -1,5 +1,7 @@
 package com.symphony.bdk.core;
 
+import static com.symphony.bdk.core.auth.OAuthentication.BEARER_AUTH;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.OAuthSession;
 import com.symphony.bdk.core.auth.OAuthentication;
@@ -43,7 +45,6 @@ import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
@@ -62,7 +63,6 @@ import org.apiguardian.api.API;
 @API(status = API.Status.INTERNAL)
 class ServiceFactory {
 
-  private static final String BEARER_AUTH = "bearerAuth";
   private final ApiClient podClient;
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
