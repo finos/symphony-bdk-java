@@ -5,8 +5,9 @@ import com.symphony.bdk.ext.group.gen.api.model.GroupList;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
 import com.symphony.bdk.ext.group.gen.api.model.TypeList;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/groups")
-@RequiredArgsConstructor
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class GroupApi {
 
-  private final SymphonyGroupService groupService;
+  @Lazy
+  @Autowired
+  private SymphonyGroupService groupService;
 
   @GetMapping
   public GroupList getGroups(@RequestParam(defaultValue = "SDL") String type) {
