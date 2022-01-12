@@ -35,9 +35,9 @@ class OAuthSession {
   private void refreshIfNeeded() throws AuthUnauthorizedException {
     int interval = 5;
     if (this.authSession.getAuthorizationToken() == null || this.authSession.getAuthTokenExpirationDate() == null) {
-      log.debug("Common jwt feature is not available in your pod, version should be greater than 20.13. "
-          + "Switching back to the session token authentication.");
-      return;
+      String errorMessage = "Common jwt feature is not available in your pod, SBE version should be at least 20.14.";
+      log.error(errorMessage);
+      throw new UnsupportedOperationException(errorMessage);
     }
 
     if (Instant.now().getEpochSecond() + interval >= this.authSession.getAuthTokenExpirationDate()) {

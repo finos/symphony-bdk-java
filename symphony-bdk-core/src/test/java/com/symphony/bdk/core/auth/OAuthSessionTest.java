@@ -48,9 +48,7 @@ class OAuthSessionTest {
     when(authSession.getAuthorizationToken()).thenReturn(null);
 
     OAuthSession oAuthSession = new OAuthSession(authSession);
-    oAuthSession.getBearerToken();
-
-    verify(authSession, never()).refreshAuthToken();
+    assertThrows(UnsupportedOperationException.class, oAuthSession::getBearerToken);
   }
 
   @Test
