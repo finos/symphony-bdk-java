@@ -35,7 +35,8 @@ public class BdkCoreConfig {
   @Bean
   @ConditionalOnMissingBean
   public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties) {
-    return new ApiClientFactory(properties, new ApiClientBuilderProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
+    return new ApiClientFactory(properties,
+        new ApiClientBuilderProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
   }
 
   @Bean(name = "agentApiClient")
@@ -51,10 +52,15 @@ public class BdkCoreConfig {
   @Bean(name = "podApiClient")
   public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
     ApiClient client = apiClientFactory.getPodClient();
-    if (config.isCommonJwtEnabled() && botSession.isPresent()) {
-      final OAuthSession oAuthSession = new OAuthSession(botSession.get());
-      client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
-      client.addEnforcedAuthenticationScheme(BEARER_AUTH);
+    if (config.isCommonJwtEnabled()) {
+      if (config.isOboConfigured()) {
+        throw new UnsupportedOperationException(
+            "Common jwt feature is not available yet in OBO mode, please use sessionToken instead.");
+      } else if (botSession.isPresent()) {
+        final OAuthSession oAuthSession = new OAuthSession(botSession.get());
+        client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        client.addEnforcedAuthenticationScheme(BEARER_AUTH);
+      }
     }
     return client;
   }
@@ -89,7 +95,8 @@ public class BdkCoreConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties, ApiClientFactory apiClientFactory, ExtensionAppTokensRepository extensionAppTokensRepository) {
+  public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties,
+      ApiClientFactory apiClientFactory, ExtensionAppTokensRepository extensionAppTokensRepository) {
     return new AuthenticatorFactory(properties, apiClientFactory, extensionAppTokensRepository);
   }
 

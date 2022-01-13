@@ -58,7 +58,7 @@ class BdkCoreConfigTest {
     final ApiClientFactory factory = mock(ApiClientFactory.class);
     final AuthSession authSession = mock(AuthSession.class);
     when(factory.getPodClient()).thenReturn(mock(ApiClient.class));
-   assertNotNull(config.podApiClient(factory, Optional.ofNullable(authSession), bdkConfig));
+    assertNotNull(config.podApiClient(factory, Optional.ofNullable(authSession), bdkConfig));
   }
   @Test
   void shouldCreateKeyAuthApiClient() {

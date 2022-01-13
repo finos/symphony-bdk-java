@@ -165,7 +165,31 @@ class SymphonyBdkAutoConfigurationTest {
   }
 
   @Test
-  void shouldNotAddAuthenticationIfCommonJwtEnabledInObo() {
+  void shouldFailOnOboWithCommonJwtEnabled() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.host=localhost",
+
+            "bdk.bot.username=testBot",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
+
+            "bdk.app.appId=my-app",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem",
+
+            "bdk.commonJwt.enabled=true"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+
+    contextRunner.run(context -> {
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasRootCauseInstanceOf(UnsupportedOperationException.class);
+    });
+  }
+
+  @Test
+  void shouldFailOnOboOnlyWithCommonJwtEnabled() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
             "bdk.host=localhost",
@@ -178,14 +202,10 @@ class SymphonyBdkAutoConfigurationTest {
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 
-    contextRunner.run(context -> {
-      assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
-      assertThat(context).hasSingleBean(BdkOboServiceConfig.class);
 
-      assertThat(context).doesNotHaveBean("botSession");
-      assertThat(context).hasBean("podApiClient");
-      ApiClient client = (ApiClient) context.getBean("podApiClient");
-      assertThat(client.getAuthentications()).isEmpty();
+    contextRunner.run(context -> {
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasRootCauseInstanceOf(UnsupportedOperationException.class);
     });
   }
 
