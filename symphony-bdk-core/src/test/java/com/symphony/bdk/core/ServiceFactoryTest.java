@@ -1,9 +1,7 @@
 package com.symphony.bdk.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -11,13 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.impl.AuthSessionOboImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkDatafeedConfig;
-import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -136,11 +134,9 @@ public class ServiceFactoryTest {
   void testPodApiClientConfigWithCommonJwt() {
     BdkCommonJwtConfig bdkCommonJwtConfig = this.config.getCommonJwt();
     bdkCommonJwtConfig.setEnabled(true);
-    config.setApp(new BdkExtAppConfig());
 
     this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
 
-    assertFalse(config.isOboConfigured());
     verify(mPodClient).getAuthentications();
     verify(mPodClient).addEnforcedAuthenticationScheme(eq("bearerAuth"));
   }
@@ -149,10 +145,10 @@ public class ServiceFactoryTest {
   void testPodApiClientConfigWithCommonJwtInOboMode() {
     BdkCommonJwtConfig bdkCommonJwtConfig = this.config.getCommonJwt();
     bdkCommonJwtConfig.setEnabled(true);
+    AuthSessionOboImpl authSessionObo = mock(AuthSessionOboImpl.class);
 
-    this.serviceFactory = new ServiceFactory(this.apiClientFactory, mAuthSession, config);
+    this.serviceFactory = new ServiceFactory(this.apiClientFactory, authSessionObo, config);
 
-    assertTrue(config.isOboConfigured());
     verify(mPodClient, never()).getAuthentications();
     verify(mPodClient, never()).addEnforcedAuthenticationScheme(eq("bearerAuth"));
   }

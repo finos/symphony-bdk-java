@@ -49,6 +49,7 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.template.api.TemplateEngine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 /**
@@ -62,6 +63,7 @@ import org.apiguardian.api.API;
  *   <li>{@link SessionService}</li>
  * </ul>
  */
+@Slf4j
 @API(status = API.Status.INTERNAL)
 class ServiceFactory {
 
@@ -82,11 +84,19 @@ class ServiceFactory {
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
 
-    if (config.isCommonJwtEnabled() && !config.isOboConfigured()) {
-      final OAuthSession oAuthSession = new OAuthSession(authSession);
-      this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
-      this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+    if (config.isCommonJwtEnabled()) {
+      if(isOboSession(authSession)) {
+        log.info("Common jwt feature is not available yet for Obo mode, sessionToken is going to be used instead");
+      } else {
+        final OAuthSession oAuthSession = new OAuthSession(authSession);
+        this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+      }
     }
+  }
+
+  private static boolean isOboSession(AuthSession authSession) {
+    return authSession instanceof AuthSessionOboImpl || authSession instanceof AuthSessionOboCertImpl;
   }
 
   /**
