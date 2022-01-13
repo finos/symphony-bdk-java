@@ -44,6 +44,7 @@ public class JwtHelperTest {
   public static final String JWT = "Bearer eyJraWQiOiJGNG5Xak9WbTRBZU9JYUtEL2JCUWNleXI5MW89IiwiYWxnIjoiUlMyNTYifQ."
       + "eyJleHAiOjE2NDEzMDgyNzgsInN1YiI6IjEzMDU2NzAwNTgwOTE1IiwiZXh0X3BvZF9pZCI6MTkwLCJwb2xpY3lfaWQiOiJhcHAiLCJlbnRpdGx"
       + "lbWVudHMiOiIifQ.signature";
+  private static final String JWT_EXP_INVALID = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.zhWFI4bw81QLE49UnklwMlThgt2ktUOs5M1HKjENgRE.signature";
 
   @Test
   void loadPkcs8PrivateKey() throws GeneralSecurityException {
@@ -124,6 +125,11 @@ public class JwtHelperTest {
   @Test
   public void testExtractExpirationDateInvalidParsing() {
     assertThrows(JsonProcessingException.class, () -> JwtHelper.extractExpirationDate("invalid.common.jwt"));
+  }
+
+  @Test
+  public void testExtractExpirationDateInvalidExpData() {
+    assertThrows(AuthUnauthorizedException.class, () -> JwtHelper.extractExpirationDate(JWT_EXP_INVALID));
   }
 
   @SneakyThrows

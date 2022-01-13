@@ -136,8 +136,10 @@ public class JwtHelper {
   public static Long extractExpirationDate(String jwt) throws JsonProcessingException, AuthUnauthorizedException {
     String claimsObj = extractDecodedClaims(dropBearer(jwt));
     ObjectNode claims = mapper.readValue(claimsObj, ObjectNode.class);
-    return claims.get("exp").asLong();
-
+    if(claims.has("exp") && claims.get("exp").isNumber()) {
+      return claims.get("exp").asLong();
+    }
+    throw new AuthUnauthorizedException("Unable to find expiration date in the common jwt.");
   }
 
   private static String extractDecodedClaims(String jwt) throws AuthUnauthorizedException {
