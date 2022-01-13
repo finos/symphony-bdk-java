@@ -60,22 +60,9 @@ class AuthSessionOboImplTest {
 
     assertEquals(sessionToken, session.getSessionToken());
     assertNull(session.getKeyManagerToken());
+    assertNull(session.getAuthorizationToken());
 
     verify(auth, times(1)).retrieveOboSessionTokenByUserId(eq(1234L));
     verify(auth, times(0)).retrieveOboSessionTokenByUsername(anyString());
-  }
-
-  @Test
-  void testDefaultValuesForCommonJwt() throws AuthUnauthorizedException {
-    final OboAuthenticatorRsaImpl auth = mock(OboAuthenticatorRsaImpl.class);
-    when(auth.retrieveOboSessionTokenByUserId(eq(1234L))).thenReturn("");
-
-    final AuthSessionOboImpl session = new AuthSessionOboImpl(auth, 1234L);
-    session.refreshAuthToken();
-
-    assertNull(session.getSessionToken());
-    assertNull(session.getKeyManagerToken());
-    assertNull(session.getAuthorizationToken());
-    assertNull(session.getAuthTokenExpirationDate());
   }
 }

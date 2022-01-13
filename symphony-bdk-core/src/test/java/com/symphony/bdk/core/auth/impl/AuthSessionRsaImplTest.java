@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.auth.impl;
 
-import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 /**
- * Test class for the {@link AuthSessionRsaImpl}.
+ * Test class for the {@link AuthSessionImpl}.
  */
 class AuthSessionRsaImplTest {
 
@@ -33,7 +32,7 @@ class AuthSessionRsaImplTest {
     when(auth.retrieveAuthToken()).thenReturn(authToken);
     when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
 
-    final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
+    final AuthSessionImpl session = new AuthSessionImpl(auth);
     session.refresh();
 
     assertEquals(sessionToken, session.getSessionToken());
@@ -41,24 +40,6 @@ class AuthSessionRsaImplTest {
 
     verify(auth, times(1)).retrieveAuthToken();
     verify(auth, times(1)).retrieveKeyManagerToken();
-  }
-
-  @Test
-  void testRefreshAuthToken() throws AuthUnauthorizedException {
-
-    Token token = new Token();
-    token.setAuthorizationToken(JWT);
-
-    final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
-    when(auth.retrieveAuthToken()).thenReturn(token);
-
-    final AuthSessionRsaImpl session = new AuthSessionRsaImpl(auth);
-    session.refreshAuthToken();
-
-    assertEquals(JWT, session.getAuthorizationToken());
-    assertNotNull(session.getAuthTokenExpirationDate());
-
-    verify(auth, times(1)).retrieveAuthToken();
   }
 
   @Test
@@ -70,7 +51,7 @@ class AuthSessionRsaImplTest {
     final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
     when(auth.retrieveAuthToken()).thenReturn(token);
 
-    assertThrows(AuthUnauthorizedException.class, new AuthSessionRsaImpl(auth)::refreshAuthToken);
+    assertThrows(AuthUnauthorizedException.class, new AuthSessionImpl(auth)::refresh);
   }
 
 }

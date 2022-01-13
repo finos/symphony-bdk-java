@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.RsaTestHelper;
@@ -34,7 +35,7 @@ class BotAuthenticatorRsaImplTest {
     this.authenticator = new BotAuthenticatorRsaImpl(
         ofMinimalInterval(1),
         "username",
-        PRIVATE_KEY,
+        new BdkCommonJwtConfig(), PRIVATE_KEY,
         mockServer.newApiClient("/login"),
         mockServer.newApiClient("/relay")
     );
@@ -47,8 +48,8 @@ class BotAuthenticatorRsaImplTest {
 
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
-    assertEquals(AuthSessionRsaImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionRsaImpl) session).getAuthenticator());
+    assertEquals(AuthSessionImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionImpl) session).getAuthenticator());
   }
 
   @Test

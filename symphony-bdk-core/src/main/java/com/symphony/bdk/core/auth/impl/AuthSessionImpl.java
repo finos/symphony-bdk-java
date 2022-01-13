@@ -5,27 +5,35 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.gen.api.model.JwtToken;
 import com.symphony.bdk.gen.api.model.Token;
+
 
 import org.apiguardian.api.API;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.time.Duration;
+import java.time.Instant;
+
+
 /**
  * {@link AuthSession} impl for regular authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionRsaImpl implements AuthSession {
+public class AuthSessionImpl implements AuthSession {
 
-  private final BotAuthenticatorRsaImpl authenticator;
+  public static final Duration LEEWAY = Duration.ofSeconds(5);
+  private final AbstractBotAuthenticator authenticator;
 
   private String sessionToken;
   private String keyManagerToken;
   private String authorizationToken;
   private Long authTokenExpirationDate;
 
-  public AuthSessionRsaImpl(@Nonnull BotAuthenticatorRsaImpl authenticator) {
+
+  public AuthSessionImpl(@Nonnull AbstractBotAuthenticator authenticator) {
     this.authenticator = authenticator;
   }
 
@@ -33,7 +41,8 @@ public class AuthSessionRsaImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable String getSessionToken() {
+  public @Nullable
+  String getSessionToken() {
     return this.sessionToken;
   }
 
@@ -41,23 +50,19 @@ public class AuthSessionRsaImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable String getAuthorizationToken() {
+  public @Nullable
+  String getAuthorizationToken() throws AuthUnauthorizedException {
+    if (Instant.now().plus(LEEWAY).isAfter(Instant.ofEpochSecond(authTokenExpirationDate))) {
+      refresh();
+    }
     return this.authorizationToken;
   }
-
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable Long getAuthTokenExpirationDate() {
-    return this.authTokenExpirationDate;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public @Nullable String getKeyManagerToken() {
+  public @Nullable
+  String getKeyManagerToken() {
     return this.keyManagerToken;
   }
 
@@ -66,22 +71,25 @@ public class AuthSessionRsaImpl implements AuthSession {
    */
   @Override
   public void refresh() throws AuthUnauthorizedException {
+    if (this.sessionToken == null || !authenticator.isCommonJwtEnabled()) {
+      refreshAllTokens();
+    } else {
+      try {
+        JwtToken token = authenticator.retrieveBearerToken(sessionToken);
+        this.authorizationToken = token.getAccessToken();
+        refreshExpirationDate();
+      } catch (AuthUnauthorizedException e) {
+        refreshAllTokens();
+      }
+    }
+  }
+
+  private void refreshAllTokens() throws AuthUnauthorizedException {
     Token authToken = authenticator.retrieveAuthToken();
     this.authorizationToken = authToken.getAuthorizationToken();
     this.sessionToken = authToken.getToken();
     refreshExpirationDate();
     this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void refreshAuthToken() throws AuthUnauthorizedException {
-    Token authToken = authenticator.retrieveAuthToken();
-    this.sessionToken = authToken.getToken();
-    this.authorizationToken = authToken.getAuthorizationToken();
-    refreshExpirationDate();
   }
 
   private void refreshExpirationDate() throws AuthUnauthorizedException {
@@ -93,10 +101,11 @@ public class AuthSessionRsaImpl implements AuthSession {
       }
     }
   }
+
   /**
    * This method is only visible for testing.
    */
-  protected BotAuthenticatorRsaImpl getAuthenticator() {
+  protected AbstractBotAuthenticator getAuthenticator() {
     return this.authenticator;
   }
 }

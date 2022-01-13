@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiClient;
@@ -34,7 +35,19 @@ class AbstractBotAuthenticatorTest {
 
   private static class TestBotAuthenticator extends AbstractBotAuthenticator {
     public TestBotAuthenticator(BdkRetryConfig retryConfig) {
-      super(retryConfig);
+      super(retryConfig, new BdkCommonJwtConfig(), null);
+    }
+
+    @Nonnull
+    @Override
+    protected Token retrieveAuthToken() throws AuthUnauthorizedException {
+      return null;
+    }
+
+    @Nonnull
+    @Override
+    protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+      return null;
     }
 
     @Override

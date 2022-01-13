@@ -97,6 +97,8 @@ public class SymphonyBdkMockedConfiguration {
 
       this.loginApiClient.onPost("/login/pubkey/authenticate",
           "{ \"token\":\"123456789\", \"name\":\"sessionToken\", \"authorizationToken\":\"Bearer " + JWT + "\" }");
+      this.loginApiClient.onPost("/login/idm/tokens",
+          "{ \"token_type\": \"Bearer\", \"expires_in\": 300, \"access_token\": \"" +JWT+ "\"}");
 
       return this.loginApiClient.getApiClient("/login");
     }

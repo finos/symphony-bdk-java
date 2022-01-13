@@ -28,16 +28,7 @@ public interface AuthSession {
    *
    * @return the Pod Authorization token
    */
-  @Nullable default String getAuthorizationToken() {
-    return null;
-  }
-
-  /**
-   * Common JWT expiration date in seconds
-   *
-   * @return the expiration date found in the common jwt claims (in seconds)
-   */
-  @Nullable default Long getAuthTokenExpirationDate() {
+  @Nullable default String getAuthorizationToken() throws AuthUnauthorizedException {
     return null;
   }
 
@@ -52,10 +43,4 @@ public interface AuthSession {
    * Trigger re-authentication to refresh tokens.
    */
   void refresh() throws AuthUnauthorizedException;
-
-  /**
-   * Trigger re-authentication to refresh the Authorization token. Used when common jwt is enabled.
-   */
-  default void refreshAuthToken() throws AuthUnauthorizedException {
-  }
 }
