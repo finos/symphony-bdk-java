@@ -19,9 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class GroupApi {
 
+  private final SymphonyGroupService groupService;
+
   @Lazy
   @Autowired
-  private SymphonyGroupService groupService;
+  public GroupApi(SymphonyGroupService groupService) {
+    this.groupService = groupService;
+  }
 
   @GetMapping
   public GroupList getGroups(@RequestParam(defaultValue = "SDL") String type) {

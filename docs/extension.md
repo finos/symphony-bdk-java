@@ -5,7 +5,7 @@
 > in following versions.
 
 ## Overview
-The BDK extension model consists of a single, coherent concept: the `BdkExtension` API. Note, however, that `BdkExtension` 
+The BDK extension model consists of a simple concept: the `BdkExtension` API. Note, however, that `BdkExtension` 
 itself is just a marker interface.
 
 The `BdkExtension` API is available through the module `:symphony-bdk-extension-api` but other modules might be required
@@ -118,9 +118,9 @@ public class ApiController {
 
 ## BDK Aware Extensions
 The BDK Extension Model allows extensions to access to some core objects such as the configuration or the api clients.
-Developer that wish to use this objects can implement a set of interfaces all suffixed with the `Aware` keyword.
+Developers that wish to use these objects a free to implement a set of interfaces all suffixed with the `Aware` keyword.
 
-### BdkConfigAware
+### `BdkConfigAware`
 The interface `com.symphony.bdk.core.config.extension.BdkConfigAware` allows extensions to read the BDK configuration: 
 ```java
 public class MyBdkExtension implements BdkExtension, BdkConfigAware {
@@ -134,7 +134,7 @@ public class MyBdkExtension implements BdkExtension, BdkConfigAware {
 }
 ```
 
-### BdkApiClientFactoryAware
+### `BdkApiClientFactoryAware`
 The interface `com.symphony.bdk.core.extension.BdkApiClientFactoryAware` can be used by extensions that need to
 use the `com.symphony.bdk.core.client.ApiClientFactory` class: 
 ```java
@@ -149,7 +149,7 @@ public class MyBdkExtension implements BdkExtension, BdkApiClientFactoryAware {
 }
 ```
 
-### BdkAuthenticationAware
+### `BdkAuthenticationAware`
 The interface `com.symphony.bdk.core.extension.BdkAuthenticationAware` can be used by extensions that need to rely on the 
 service account authentication session (`com.symphony.bdk.core.auth.AuthSession`), which provides the `sessionToken` and 
 `keyManagerToken` that are used to call the Symphony's APIs: 
@@ -165,7 +165,7 @@ public class MyBdkExtension implements BdkExtension, BdkAuthenticationAware {
 }
 ```
 
-### BdkRetryBuilderAware
+### `BdkRetryBuilderAware`
 The interface `com.symphony.bdk.core.extension.BdkRetryBuilderAware` allows extensions to leverage the internal BDK retry API 
 through the `com.symphony.bdk.core.retry.RetryWithRecoveryBuilder<?>` class: 
 ```java
