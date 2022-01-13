@@ -33,7 +33,7 @@ public interface AuthSession {
   }
 
   /**
-   * Common jwt expiration date in seconds
+   * Common JWT expiration date in seconds
    *
    * @return the expiration date found in the common jwt claims (in seconds)
    */
