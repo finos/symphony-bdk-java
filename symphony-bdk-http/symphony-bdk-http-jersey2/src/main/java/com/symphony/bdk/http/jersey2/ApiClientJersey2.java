@@ -28,6 +28,7 @@ import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProcessingException;
@@ -59,6 +61,7 @@ public class ApiClientJersey2 implements ApiClient {
   protected Map<String, String> defaultHeaderMap;
   protected String tempFolderPath;
   protected Map<String, Authentication> authentications;
+  protected List<String> enforcedAuthenticationSchemes;
 
   public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders,
       String temporaryFolderPath) {
@@ -67,6 +70,7 @@ public class ApiClientJersey2 implements ApiClient {
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
     this.tempFolderPath = temporaryFolderPath;
     this.authentications = new HashMap<>();
+    this.enforcedAuthenticationSchemes = new ArrayList<>();
   }
 
   /**
@@ -373,6 +377,14 @@ public class ApiClientJersey2 implements ApiClient {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addEnforcedAuthenticationScheme(String name) {
+    this.enforcedAuthenticationSchemes.add(name);
+  }
+
+  /**
    * Check if the given MIME is a JSON MIME.
    * JSON MIME examples:
    * application/json
@@ -552,11 +564,13 @@ public class ApiClientJersey2 implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
+  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) throws ApiException {
 
-    if (authNames == null) {
+    if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
       return;
     }
+
+    authNames = withEnforcedSecurityScheme(authNames);
 
     for (String authName : authNames) {
       Authentication auth = this.authentications.get(authName);
@@ -565,5 +579,14 @@ public class ApiClientJersey2 implements ApiClient {
       }
       auth.apply(headerParams);
     }
+  }
+
+  private String[] withEnforcedSecurityScheme(String[] authNames) {
+
+    if (authNames == null) {
+      authNames = new String[0];
+    }
+
+    return Stream.concat(this.enforcedAuthenticationSchemes.stream(), Arrays.stream(authNames)).toArray(String[]::new);
   }
 }

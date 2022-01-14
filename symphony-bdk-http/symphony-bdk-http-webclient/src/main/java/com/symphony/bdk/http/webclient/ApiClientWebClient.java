@@ -30,11 +30,13 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Spring WebClient implementation for the {@link ApiClient} interface called by generated code.
@@ -46,12 +48,14 @@ public class ApiClientWebClient implements ApiClient {
   protected final String basePath;
   protected final Map<String, String> defaultHeaderMap;
   protected Map<String, Authentication> authentications;
+  protected List<String> enforcedAuthenticationSchemes;
 
   public ApiClientWebClient(final WebClient webClient, String basePath, Map<String, String> defaultHeaders) {
     this.webClient = webClient;
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
     this.authentications = new HashMap<>();
+    this.enforcedAuthenticationSchemes = new ArrayList<>();
   }
 
   /**
@@ -258,12 +262,12 @@ public class ApiClientWebClient implements ApiClient {
    *
    * @param authNames The authentications to apply
    */
-  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) {
+  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) throws ApiException {
 
-    if (authNames == null) {
+    if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
       return;
     }
-
+    authNames = withEnforcedSecurityScheme(authNames);
     for (String authName : authNames) {
       Authentication auth = this.authentications.get(authName);
       if (auth == null) {
@@ -272,6 +276,15 @@ public class ApiClientWebClient implements ApiClient {
       auth.apply(headerParams);
     }
   }
+
+  private String[] withEnforcedSecurityScheme(String[] authNames) {
+    if (authNames == null) {
+      authNames = new String[0];
+    }
+
+    return Stream.concat(this.enforcedAuthenticationSchemes.stream(), Arrays.stream(authNames)).toArray(String[]::new);
+  }
+
 
   /**
    * {@inheritDoc}
@@ -417,5 +430,13 @@ public class ApiClientWebClient implements ApiClient {
   @Override
   public Map<String, Authentication> getAuthentications() {
     return this.authentications;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addEnforcedAuthenticationScheme(String name) {
+    this.enforcedAuthenticationSchemes.add(name);
   }
 }

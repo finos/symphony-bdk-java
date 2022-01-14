@@ -24,6 +24,17 @@ public interface AuthSession {
   @Nullable String getSessionToken();
 
   /**
+   * Pod's Common JWT authentication token. When commonJwt.enabled is set to true in the configuration, an OAuth
+   * authentication scheme is used where the session token acts as the refresh token and the authorization token is a
+   * short lived access token.
+   *
+   * @return the Pod Authorization token
+   */
+  @Nullable default String getAuthorizationToken() throws AuthUnauthorizedException {
+    return null;
+  }
+
+  /**
    * KeyManager's authentication token.
    *
    * @return the KeyManager token, null if OBO

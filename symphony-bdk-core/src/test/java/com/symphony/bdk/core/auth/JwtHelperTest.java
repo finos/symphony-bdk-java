@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.migcomponents.migbase64.Base64;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -35,10 +37,14 @@ import java.util.Date;
  * Test class for the {@link JwtHelper}.
  */
 @Slf4j
-class JwtHelperTest {
+public class JwtHelperTest {
 
   public static final String CERT_PASSWORD = "changeit";
   public static final String CERT_ALIAS = "1";
+  public static final String JWT = "Bearer eyJraWQiOiJGNG5Xak9WbTRBZU9JYUtEL2JCUWNleXI5MW89IiwiYWxnIjoiUlMyNTYifQ."
+      + "eyJleHAiOjE2NDEzMDgyNzgsInN1YiI6IjEzMDU2NzAwNTgwOTE1IiwiZXh0X3BvZF9pZCI6MTkwLCJwb2xpY3lfaWQiOiJhcHAiLCJlbnRpdGx"
+      + "lbWVudHMiOiIifQ.signature";
+  private static final String JWT_EXP_INVALID = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.zhWFI4bw81QLE49UnklwMlThgt2ktUOs5M1HKjENgRE.signature";
 
   @Test
   void loadPkcs8PrivateKey() throws GeneralSecurityException {
@@ -102,6 +108,28 @@ class JwtHelperTest {
     final String certificatePem = java.util.Base64.getEncoder().encodeToString(certificate.getEncoded());
 
     assertThrows(AuthInitializationException.class, () -> JwtHelper.validateJwt("invalid jwt", certificatePem));
+  }
+
+  @Test
+  public void testExtractExpirationDate() throws Exception {
+    Long expirationDate = JwtHelper.extractExpirationDate(JWT);
+
+    assertNotNull(expirationDate);
+  }
+
+  @Test
+  public void testExtractExpirationDateInvalidJwt() {
+    assertThrows(AuthUnauthorizedException.class, () -> JwtHelper.extractExpirationDate("invalid jwt"));
+  }
+
+  @Test
+  public void testExtractExpirationDateInvalidParsing() {
+    assertThrows(JsonProcessingException.class, () -> JwtHelper.extractExpirationDate("invalid.common.jwt"));
+  }
+
+  @Test
+  public void testExtractExpirationDateInvalidExpData() {
+    assertThrows(AuthUnauthorizedException.class, () -> JwtHelper.extractExpirationDate(JWT_EXP_INVALID));
   }
 
   @SneakyThrows

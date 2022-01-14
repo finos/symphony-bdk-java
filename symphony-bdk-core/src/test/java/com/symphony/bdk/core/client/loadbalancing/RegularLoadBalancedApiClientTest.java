@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.client.loadbalancing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -137,5 +138,23 @@ class RegularLoadBalancedApiClientTest {
     verify(apiClient).invokeAPI(eq(path), eq(method), eq(queryParams), eq(body), eq(headerParams), eq(cookieParams),
         eq(formParams), eq(accept), eq(contentType), eq(authNames), eq(returnType));
     verify(loadBalancedApiClient, times(1)).rotate();
+  }
+
+  @Test
+  public void testGetBasePath(){
+    when(apiClient.getBasePath()).thenReturn("/pod");
+    RegularLoadBalancedApiClient loadBalancedApiClient = new RegularLoadBalancedApiClient(config, apiClientFactory);
+
+    String path = loadBalancedApiClient.getBasePath();
+
+    assertEquals("/pod", path);
+  }
+
+  @Test
+  public void testGetAuthentications(){
+    when(apiClient.getBasePath()).thenReturn("/pod");
+    RegularLoadBalancedApiClient loadBalancedApiClient = new RegularLoadBalancedApiClient(config, apiClientFactory);
+
+    assertNotNull(loadBalancedApiClient.getAuthentications());
   }
 }

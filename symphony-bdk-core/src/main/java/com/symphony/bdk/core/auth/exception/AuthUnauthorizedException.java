@@ -16,6 +16,10 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.STABLE)
 public class AuthUnauthorizedException extends Exception {
 
+  public AuthUnauthorizedException(@Nonnull String message) {
+    super(message);
+  }
+
   public AuthUnauthorizedException(@Nonnull String message, @Nonnull ApiException source) {
     super(message, source);
   }

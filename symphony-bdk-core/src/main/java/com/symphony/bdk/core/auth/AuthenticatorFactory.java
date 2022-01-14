@@ -74,6 +74,8 @@ public class AuthenticatorFactory {
       return new BotAuthenticatorCertImpl(
           this.config.getRetry(),
           this.config.getBot().getUsername(),
+          this.config.getCommonJwt(),
+          this.apiClientFactory.getLoginClient(),
           this.apiClientFactory.getSessionAuthClient(),
           this.apiClientFactory.getKeyAuthClient()
       );
@@ -86,6 +88,7 @@ public class AuthenticatorFactory {
       return new BotAuthenticatorRsaImpl(
           this.config.getRetry(),
           this.config.getBot().getUsername(),
+          this.config.getCommonJwt(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getBot()),
           this.apiClientFactory.getLoginClient(),
           this.apiClientFactory.getRelayClient()

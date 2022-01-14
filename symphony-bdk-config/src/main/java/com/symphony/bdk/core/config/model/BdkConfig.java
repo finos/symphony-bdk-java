@@ -25,6 +25,7 @@ public class BdkConfig extends BdkServerConfig {
 
   private BdkRetryConfig retry = new BdkRetryConfig();
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
+  private BdkCommonJwtConfig commonJwt = new BdkCommonJwtConfig();
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.
@@ -37,6 +38,15 @@ public class BdkConfig extends BdkServerConfig {
 
   public boolean isBotConfigured() {
     return bot != null && isNotEmpty(bot.getUsername());
+  }
+
+  /**
+   * Check if Common JWT feature is enabled. Checks {@link BdkCommonJwtConfig#getEnabled()} ()} on field {@link #commonJwt}.
+   *
+   * @return true if Common JWT is enabled.
+   */
+  public boolean isCommonJwtEnabled() {
+    return this.getCommonJwt().getEnabled();
   }
 
   /**

@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth.impl;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
@@ -29,20 +30,19 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
   private final String username;
   private final PrivateKey privateKey;
 
-  private final ApiClient loginApiClient;
   private final ApiClient relayApiClient;
 
   public BotAuthenticatorRsaImpl(
       @Nonnull BdkRetryConfig retryConfig,
       @Nonnull String username,
+      @Nonnull BdkCommonJwtConfig commonJwtConfig,
       @Nonnull PrivateKey privateKey,
       @Nonnull ApiClient loginApiClient,
       @Nonnull ApiClient relayApiClient
   ) {
-    super(retryConfig);
+    super(retryConfig, commonJwtConfig, loginApiClient);
     this.username = username;
     this.privateKey = privateKey;
-    this.loginApiClient = loginApiClient;
     this.relayApiClient = relayApiClient;
   }
 
@@ -51,30 +51,30 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
    */
   @Override
   public @Nonnull AuthSession authenticateBot() throws AuthUnauthorizedException {
-    final AuthSessionRsaImpl authSession = new AuthSessionRsaImpl(this);
+    final AuthSessionImpl authSession = new AuthSessionImpl(this);
     authSession.refresh();
     return authSession;
   }
 
-  protected String retrieveSessionToken() throws AuthUnauthorizedException {
-    log.debug("Start retrieving sessionToken using RSA authentication...");
-    return this.retrieveToken(this.loginApiClient);
+  protected Token retrieveSessionToken() throws AuthUnauthorizedException {
+    log.debug("Start retrieving authentication tokens using RSA authentication...");
+    return this.retrieveSessionToken(this.loginApiClient);
   }
 
   protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using RSA authentication...");
-    return this.retrieveToken(this.relayApiClient);
+    return this.retrieveKeyManagerToken(this.relayApiClient);
   }
 
   @Override
-  protected String authenticateAndGetToken(ApiClient client) throws ApiException {
+  protected Token doRetrieveToken(ApiClient client) throws ApiException {
     final String jwt = JwtHelper.createSignedJwt(this.username, JwtHelper.JWT_EXPIRATION_MILLIS, this.privateKey);
     final AuthenticateRequest req = new AuthenticateRequest();
     req.setToken(jwt);
 
     final Token token = new AuthenticationApi(client).pubkeyAuthenticatePost(req);
     log.debug("{} successfully retrieved.", token.getName());
-    return token.getToken();
+    return token;
   }
 
   @Override

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.AuthSessionRsaImpl;
+import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -76,7 +76,7 @@ class DatafeedLoopV2Test {
     bdkConfig.setRetry(ofMinimalInterval(2));
 
     this.botInfo = Mockito.mock(UserV2.class);
-    this.authSession = Mockito.mock(AuthSessionRsaImpl.class);
+    this.authSession = Mockito.mock(AuthSessionImpl.class);
     when(this.authSession.getSessionToken()).thenReturn("1234");
     when(this.authSession.getKeyManagerToken()).thenReturn("1234");
 

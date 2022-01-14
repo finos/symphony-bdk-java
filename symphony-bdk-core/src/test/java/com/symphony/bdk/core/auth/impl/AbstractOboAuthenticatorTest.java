@@ -38,13 +38,12 @@ class AbstractOboAuthenticatorTest {
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(String appSessionToken, Long userId) throws ApiException {
+    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull Long userId) throws ApiException {
       return null;
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(String appSessionToken, String username)
-        throws ApiException {
+    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull String username) throws ApiException {
       return null;
     }
 
@@ -60,18 +59,17 @@ class AbstractOboAuthenticatorTest {
 
     @Nonnull
     @Override
-    public AuthSession authenticateByUsername(String username) {
+    public AuthSession authenticateByUsername(@Nonnull String username) {
       return mock(AuthSession.class);
     }
 
     @Nonnull
     @Override
-    public AuthSession authenticateByUserId(Long userId) {
+    public AuthSession authenticateByUserId(@Nonnull Long userId) {
       return mock(AuthSession.class);
     }
   }
 
-  // test retrieveOboSessionTokenByUserId()
   @Test
   void testRetrieveTokenByUserIdSuccess() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
@@ -132,7 +130,6 @@ class AbstractOboAuthenticatorTest {
     verify(authenticator, times(2)).authenticateAndRetrieveOboSessionToken(anyString(), anyLong());
   }
 
-  // test retrieveOboSessionTokenByUsername()
   @Test
   void testRetrieveTokenByUsernameSuccess() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
@@ -193,7 +190,6 @@ class AbstractOboAuthenticatorTest {
     verify(authenticator, times(2)).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
   }
 
-  // test retrieveAppSessionToken()
   @Test
   void testRetrieveAppSessionTokenSuccess() throws ApiException, AuthUnauthorizedException {
     final String token = "12324";
