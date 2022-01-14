@@ -16,6 +16,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.gen.api.model.JwtToken;
 import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
@@ -35,16 +36,14 @@ class AbstractBotAuthenticatorTest {
 
   private static class TestBotAuthenticator extends AbstractBotAuthenticator {
     public TestBotAuthenticator(BdkRetryConfig retryConfig) {
-      super(retryConfig, new BdkCommonJwtConfig(), null);
+      super(retryConfig, new BdkCommonJwtConfig(), mock(ApiClient.class));
     }
 
-    @Nonnull
     @Override
     protected Token retrieveAuthToken() throws AuthUnauthorizedException {
       return null;
     }
 
-    @Nonnull
     @Override
     protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
       return null;
@@ -100,6 +99,17 @@ class AbstractBotAuthenticatorTest {
 
     assertEquals(token, botAuthenticator.retrieveAuthToken(apiClient));
     verify(botAuthenticator, times(1)).authenticateAndGetAuthToken(any());
+  }
+
+  @Test
+  void testSuccessBearerToken() throws AuthUnauthorizedException, ApiException {
+    JwtToken token = new JwtToken();
+    token.setAccessToken("qwertyui");
+    AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval()));
+    doReturn(token).when(botAuthenticator).getBearerToken(any(), any());
+
+    assertEquals(token, botAuthenticator.retrieveBearerToken("sessionToken"));
+    verify(botAuthenticator, times(1)).retrieveBearerToken(any(), any());
   }
 
   @Test

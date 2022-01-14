@@ -23,18 +23,18 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.INTERNAL)
 public abstract class AbstractBotAuthenticator implements BotAuthenticator {
 
-  private BdkCommonJwtConfig commonJwt;
   protected final ApiClient loginApiClient;
+  private final BdkCommonJwtConfig commonJwtConfig;
   private final AuthenticationRetry<String> kmAuthenticationRetry;
   private final AuthenticationRetry<Token> podAuthenticationRetry;
   private final AuthenticationRetry<JwtToken> bearerAuthenticationRetry;
 
   public AbstractBotAuthenticator(BdkRetryConfig retryConfig,
-      BdkCommonJwtConfig commonJwt, @Nonnull ApiClient loginApiClient) {
+      @Nonnull BdkCommonJwtConfig commonJwtConfig, @Nonnull ApiClient loginApiClient) {
     kmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     podAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     bearerAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
-    this.commonJwt = commonJwt;
+    this.commonJwtConfig = commonJwtConfig;
     this.loginApiClient = loginApiClient;
   }
 
@@ -78,13 +78,13 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
 
   protected abstract Token authenticateAndGetAuthToken(ApiClient client) throws ApiException;
 
-  private JwtToken getBearerToken(ApiClient client, String sessionToken) throws ApiException {
+  protected JwtToken getBearerToken(ApiClient client, String sessionToken) throws ApiException {
     return new AuthenticationApi(client).idmTokensPost(sessionToken, "");
   }
 
   protected abstract String getBotUsername();
 
   public boolean isCommonJwtEnabled() {
-    return commonJwt.getEnabled();
+    return commonJwtConfig.getEnabled();
   }
 }
