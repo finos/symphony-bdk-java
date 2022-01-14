@@ -1,0 +1,27 @@
+plugins {
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
+}
+
+description = 'Symphony Java BDK Core - Configuration'
+
+dependencies {
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    api 'org.apiguardian:apiguardian-api'
+
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'commons-io:commons-io'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-text'
+
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic'
+    testImplementation 'org.assertj:assertj-core'
+}

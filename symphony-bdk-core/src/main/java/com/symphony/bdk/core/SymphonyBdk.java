@@ -10,6 +10,8 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.ExtensionService;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -60,6 +62,7 @@ public class SymphonyBdk {
   private final DisclaimerService disclaimerService;
   private final SessionService sessionService;
   private final HealthService healthService;
+  private final ExtensionService extensionService;
 
   /**
    * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
@@ -133,6 +136,14 @@ public class SymphonyBdk {
 
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
+
+    // setup extension service
+    this.extensionService = new ExtensionService(
+        apiClientFactory,
+        this.botSession,
+        new RetryWithRecoveryBuilder<>().retryConfig(this.config.getRetry()),
+        this.config
+    );
   }
 
   /**
@@ -323,6 +334,11 @@ public class SymphonyBdk {
     return this.config;
   }
 
+  @API(status = API.Status.EXPERIMENTAL)
+  public ExtensionService extensions() {
+    return this.extensionService;
+  }
+
   private <T> T getOrThrowNoBotConfig(T field) {
     return Optional.ofNullable(field).orElseThrow(BotNotConfiguredException::new);
   }
@@ -336,5 +352,4 @@ public class SymphonyBdk {
     return Optional.ofNullable(this.oboAuthenticator)
         .orElseThrow(() -> new IllegalStateException("OBO is not configured."));
   }
-
 }

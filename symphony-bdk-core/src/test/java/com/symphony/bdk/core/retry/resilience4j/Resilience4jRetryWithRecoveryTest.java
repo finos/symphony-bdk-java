@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RecoveryStrategy;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 

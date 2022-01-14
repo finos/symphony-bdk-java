@@ -5,7 +5,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.presence.constant.PresenceStatus;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.model.V2Presence;
 import com.symphony.bdk.gen.api.model.V2PresenceStatus;

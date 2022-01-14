@@ -8,6 +8,7 @@ import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
+import com.symphony.bdk.core.extension.ExtensionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.http.api.ApiClient;
@@ -15,6 +16,8 @@ import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.spring.config.BdkActivityConfig;
 import com.symphony.bdk.spring.config.BdkOboServiceConfig;
 import com.symphony.bdk.spring.config.BdkServiceConfig;
+import com.symphony.bdk.spring.extension.TestExtension;
+import com.symphony.bdk.spring.extension.TestExtensionService;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;
@@ -43,6 +46,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.bot.username=tibot",
             "bdk.bot.privateKey.path=classpath:/privatekey.pem"
         )
+        .withBean(TestExtension.class)
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 
@@ -58,6 +62,12 @@ class SymphonyBdkAutoConfigurationTest {
 
       //verify that bean for OBO authentication has not been injected
       assertThat(context).doesNotHaveBean("oboAuthenticator");
+
+      // verify extension service
+      assertThat(context).hasSingleBean(ExtensionService.class);
+      assertThat(context).hasSingleBean(TestExtension.class);
+      assertThat(context).hasSingleBean(TestExtensionService.class);
+      assertThat(context.getBean(ExtensionService.class).service(TestExtension.class)).isEqualTo(context.getBean(TestExtensionService.class));
     });
   }
 

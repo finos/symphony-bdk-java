@@ -22,7 +22,4 @@ public class ApiClientInitializationException extends RuntimeException {
     super(message);
   }
 
-  public ApiClientInitializationException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }

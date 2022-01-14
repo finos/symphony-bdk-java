@@ -11,7 +11,7 @@ import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;

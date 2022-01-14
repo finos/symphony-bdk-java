@@ -23,6 +23,8 @@ dependencies {
     constraints {
         // Internal modules dependencies (Keep them first)
         api "org.finos.symphony.bdk:symphony-bdk-core:$project.version"
+        api "org.finos.symphony.bdk:symphony-bdk-config:$project.version"
+        api "org.finos.symphony.bdk:symphony-bdk-extension-api:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-http-api:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-http-jersey2:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-http-webclient:$project.version"
@@ -31,6 +33,8 @@ dependencies {
         api "org.finos.symphony.bdk:symphony-bdk-template-api:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-template-freemarker:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-template-handlebars:$project.version"
+        // extensions
+        api "org.finos.symphony.bdk.ext:symphony-group-extension:$project.version"
 
         // External dependencies
         api 'org.projectlombok:lombok:1.18.22'

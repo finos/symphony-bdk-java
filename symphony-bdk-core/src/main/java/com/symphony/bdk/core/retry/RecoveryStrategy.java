@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.retry;
 
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.retry.function.ConsumerWithThrowable;
 
 import org.apiguardian.api.API;
 

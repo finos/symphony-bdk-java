@@ -2,11 +2,9 @@ package com.symphony.bdk.http.api.auth;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.Pair;
 
 import org.apiguardian.api.API;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +16,7 @@ import java.util.Map;
 public interface Authentication {
 
   /**
-   * Apply authentication settings to header and query params.
+   * Apply authentication settings to header params.
    *
    * @param headerParams Map of header parameters
    */

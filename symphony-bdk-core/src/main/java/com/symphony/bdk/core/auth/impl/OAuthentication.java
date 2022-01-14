@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.auth.Authentication;
 

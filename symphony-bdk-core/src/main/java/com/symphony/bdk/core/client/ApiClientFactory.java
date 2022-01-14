@@ -61,12 +61,23 @@ public class ApiClientFactory {
   }
 
   /**
-   * Returns a fully initialized {@link ApiClient} for Pod API.
+   * Returns a new pod {@link ApiClient} with "/pod" as context path.
    *
    * @return a new {@link ApiClient} instance.
    */
   public ApiClient getPodClient() {
-    return buildClient(POD_CONTEXT_PATH, this.config.getPod());
+    return this.getPodClient(POD_CONTEXT_PATH);
+  }
+
+  /**
+   * Returns a new pod {@link ApiClient} for a given context path.
+   *
+   * @param contextPath context path.
+   * @return a new {@link ApiClient} instance.
+   * @see ApiClientFactory#getPodClient()
+   */
+  public ApiClient getPodClient(String contextPath) {
+    return buildClient(contextPath, this.config.getPod());
   }
 
   /**
@@ -161,7 +172,8 @@ public class ApiClientFactory {
     return getApiClientBuilder(basePath, agentConfig).build();
   }
 
-  protected ApiClient buildClientWithCertificate(BdkClientConfig clientConfig, String contextPath, BdkAuthenticationConfig config) {
+  protected ApiClient buildClientWithCertificate(BdkClientConfig clientConfig, String contextPath,
+      BdkAuthenticationConfig config) {
     if (!config.isCertificateAuthenticationConfigured()) {
       throw new ApiClientInitializationException("For certificate authentication, " +
           "certificatePath and certificatePassword must be set");
@@ -173,10 +185,11 @@ public class ApiClientFactory {
       apiClient = getApiClientBuilder(clientConfig.getBasePath() + contextPath, clientConfig)
           .withKeyStore(certificateConfig.getCertificateBytes(), certificateConfig.getPassword())
           .build();
-    }
-    catch (IllegalStateException e){
-      String failedCertificateMessage = String.format("Failed while trying to parse the certificate at following path: %s."
-          + " Check configuration is done properly and that certificate is in the correct format.", certificateConfig.getPath());
+    } catch (IllegalStateException e) {
+      String failedCertificateMessage =
+          String.format("Failed while trying to parse the certificate at following path: %s."
+                  + " Check configuration is done properly and that certificate is in the correct format.",
+              certificateConfig.getPath());
       log.error(failedCertificateMessage);
       throw new IllegalStateException(failedCertificateMessage, e);
     }
@@ -218,7 +231,12 @@ public class ApiClientFactory {
     }
   }
 
-  @API(status = API.Status.INTERNAL)
+
+  /**
+   * @deprecated to be removed if we want to move retry to another module
+   */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public enum ServiceEnum {
     AGENT,
     KEY_MANAGER,
@@ -226,6 +244,10 @@ public class ApiClientFactory {
     SESSION_AUTH
   }
 
+  /**
+   * @deprecated to be removed if we want to move retry to another module
+   */
+  @Deprecated
   public static ServiceEnum getServiceNameFromBasePath(String basePath) {
     if (basePath.contains(KEYMANAGER_CONTEXT_PATH) || basePath.contains(KEYAUTH_CONTEXT_PATH)) {
       return ServiceEnum.KEY_MANAGER;
@@ -235,7 +257,8 @@ public class ApiClientFactory {
     }
     if (basePath.contains(AGENT_CONTEXT_PATH)) {
       return ServiceEnum.AGENT;
-    } else { return ServiceEnum.POD; }
+    } else {
+      return ServiceEnum.POD;
+    }
   }
-
 }
