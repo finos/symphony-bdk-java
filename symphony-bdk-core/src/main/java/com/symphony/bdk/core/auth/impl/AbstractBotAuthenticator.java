@@ -69,7 +69,7 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
     return this.doRetrieveAuthorizationToken(this.loginApiClient, sessionToken).getAccessToken();
   }
 
-  protected JwtToken doRetrieveAuthorizationToken(ApiClient client, String sessionToken)
+  private JwtToken doRetrieveAuthorizationToken(ApiClient client, String sessionToken)
       throws AuthUnauthorizedException {
     final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
         + "Check if credentials are valid.", getBotUsername());
