@@ -2,13 +2,10 @@ package com.symphony.bdk.examples.spring.config;
 
 import com.symphony.bdk.ext.group.SymphonyGroupBdkExtension;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
+//@Configuration
 public class GroupExtensionConfig {
 
-  @Bean
+  //@Bean
   public SymphonyGroupBdkExtension groupExtension() {
     return new SymphonyGroupBdkExtension();
   }

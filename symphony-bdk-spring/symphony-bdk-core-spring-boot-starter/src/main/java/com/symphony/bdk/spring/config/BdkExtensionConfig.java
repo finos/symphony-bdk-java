@@ -14,7 +14,9 @@ import org.apiguardian.api.API;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.FilterType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,10 @@ import java.util.Optional;
 
 @Slf4j
 @API(status = API.Status.EXPERIMENTAL)
+@ComponentScan(
+    basePackages = "com.symphony.bdk",
+    includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = BdkExtensionService.class)
+)
 public class BdkExtensionConfig {
 
   @Bean
