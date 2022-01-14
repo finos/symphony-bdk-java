@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.RsaTestHelper;
+import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +35,7 @@ class BotAuthenticatorRsaImplTest {
     this.authenticator = new BotAuthenticatorRsaImpl(
         ofMinimalInterval(1),
         "username",
-        PRIVATE_KEY,
+        new BdkCommonJwtConfig(), PRIVATE_KEY,
         mockServer.newApiClient("/login"),
         mockServer.newApiClient("/relay")
     );
@@ -46,8 +48,8 @@ class BotAuthenticatorRsaImplTest {
 
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
-    assertEquals(AuthSessionRsaImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionRsaImpl) session).getAuthenticator());
+    assertEquals(AuthSessionImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionImpl) session).getAuthenticator());
   }
 
   @Test
@@ -55,8 +57,8 @@ class BotAuthenticatorRsaImplTest {
 
     mockServer.onPost("/login/pubkey/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
 
-    final String sessionToken = this.authenticator.retrieveSessionToken();
-    assertEquals("1234", sessionToken);
+    final Token authToken = this.authenticator.retrieveSessionToken();
+    assertEquals("1234", authToken.getToken());
   }
 
   @Test

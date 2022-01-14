@@ -60,6 +60,7 @@ class AuthSessionOboImplTest {
 
     assertEquals(sessionToken, session.getSessionToken());
     assertNull(session.getKeyManagerToken());
+    assertNull(session.getAuthorizationToken());
 
     verify(auth, times(1)).retrieveOboSessionTokenByUserId(eq(1234L));
     verify(auth, times(0)).retrieveOboSessionTokenByUsername(anyString());

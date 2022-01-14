@@ -45,9 +45,7 @@ class ApiClientWebClientTest {
   void setUp(final BdkMockServer mockServer) {
 
     this.apiClient = mockServer.newApiClient("");
-    this.apiClient.getAuthentications().put("testAuth", (queryParams, headerParams) -> {
-      headerParams.put("Authorization", "test");
-    });
+    this.apiClient.getAuthentications().put("testAuth", headerParams -> headerParams.put("Authorization", "test"));
   }
 
   @Test
@@ -69,7 +67,7 @@ class ApiClientWebClientTest {
 
     final Map<String, String> headers = new HashMap<>();
     headers.put("sessionToken", "test-token");
-
+    this.apiClient.addEnforcedAuthenticationScheme("testAuth");
     ApiResponse<Response> response =
         this.apiClient.invokeAPI("/test-api", "GET", null, null, headers,
             null, null, null, "application/json", new String[] { "testAuth" }, new TypeReference<Response>() {});
@@ -343,6 +341,7 @@ class ApiClientWebClientTest {
     pairs.addAll(this.apiClient.parameterToPairs("ssv", "ssv", Arrays.asList("test1", "test2")));
     pairs.addAll(this.apiClient.parameterToPairs("tsv", "tsv", Arrays.asList("test1", "test2")));
     pairs.addAll(this.apiClient.parameterToPairs("pipes", "pipes", Arrays.asList("test1", "test2")));
+    pairs.addAll(this.apiClient.parameterToPairs("pipes", "", Arrays.asList("test1", "test2")));
 
     assertEquals(7, pairs.size());
     assertEquals("test-value", pairs.get(0).getValue());

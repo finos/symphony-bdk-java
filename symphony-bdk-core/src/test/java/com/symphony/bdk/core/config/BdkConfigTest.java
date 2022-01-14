@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.config.model.BdkBotConfig;
 import com.symphony.bdk.core.config.model.BdkCertificateConfig;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 
@@ -41,6 +42,16 @@ public class BdkConfigTest {
     assertIsOboConfigured("appId", null, "cert", null, false);
     assertIsOboConfigured("appId", null, "cert", "", true);
     assertIsOboConfigured("appId", null, "cert", "pass", true);
+  }
+
+  @Test
+  void testIsCommonJwtEnabled() {
+    final BdkConfig config = new BdkConfig();
+    BdkCommonJwtConfig bdkCommonJwtConfig = new BdkCommonJwtConfig();
+    bdkCommonJwtConfig.setEnabled(true);
+    config.setCommonJwt(bdkCommonJwtConfig);
+
+    assertTrue(config.isCommonJwtEnabled());
   }
 
   @Test
