@@ -10,7 +10,9 @@ import com.symphony.bdk.extension.BdkExtensionService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import org.springframework.boot.autoconfigure.AutoConfigurationExcludeFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.TypeExcludeFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -22,7 +24,12 @@ import java.util.Optional;
 @API(status = API.Status.EXPERIMENTAL)
 @ComponentScan(
     basePackages = "com.symphony.bdk",
-    includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = BdkExtensionService.class)
+    includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = BdkExtensionService.class),
+    // cf. https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/reference/html/boot-features-testing.html#boot-features-testing-spring-boot-applications-excluding-config
+    excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
+        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class)
+    }
 )
 public class BdkExtensionConfig {
 

@@ -15,7 +15,7 @@ import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.spring.config.BdkActivityConfig;
 import com.symphony.bdk.spring.config.BdkOboServiceConfig;
 import com.symphony.bdk.spring.config.BdkServiceConfig;
-import com.symphony.bdk.spring.extension.TestExtension;
+import com.symphony.bdk.spring.extension.TestExtensionService;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ class SymphonyBdkAutoConfigurationTest {
 
       // verify extension service
       assertThat(context).hasSingleBean(ExtensionService.class);
-      assertThat(context.getBean(ExtensionService.class).service(TestExtension.class)).isNotNull();
+      assertThat(context).hasSingleBean(TestExtensionService.class);
     });
   }
 
