@@ -28,5 +28,36 @@ dependencies {
 }
 ```
 
+### With Spring Boot 
+In Spring Boot, you just need to manually register the `SymphonyGroupService` as a bean: 
+```java
+@Configuration
+public class GroupExtensionConfig {
+
+  @Bean
+  public SymphonyGroupService groupService(
+      final RetryWithRecoveryBuilder<?> retryBuilder,
+      final ApiClientFactory apiClientFactory,
+      final AuthSession session
+  ) {
+    return new SymphonyGroupService(retryBuilder, apiClientFactory, session);
+  }
+}
+```
+And then use it in your application, for example: 
+```java
+@RestController
+public class GroupApi {
+
+  @Autowired
+  private SymphonyGroupService groupService;
+
+  @GetMapping("/api/v1/groups")
+  public GroupList getGroups(@RequestParam(defaultValue = "SDL") String type) {
+    return this.groupService.listGroups(type, Status.ACTIVE, null, null, null, null);
+  }
+}
+```
+
 ----
 :bulb: For more information about BDK extensions, please refer to this [documentation](../../docs/extension.md).

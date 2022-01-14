@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 public class BdkRetryConfig {
 
   @Bean
-  @ConditionalOnMissingBean(RetryWithRecoveryBuilder.class)
+  @ConditionalOnMissingBean
   public RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder(BdkConfig config) {
     return new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
   }

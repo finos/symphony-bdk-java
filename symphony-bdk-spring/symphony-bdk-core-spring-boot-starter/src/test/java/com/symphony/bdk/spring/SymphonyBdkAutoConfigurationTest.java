@@ -15,6 +15,7 @@ import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.spring.config.BdkActivityConfig;
 import com.symphony.bdk.spring.config.BdkOboServiceConfig;
 import com.symphony.bdk.spring.config.BdkServiceConfig;
+import com.symphony.bdk.spring.extension.TestExtension;
 import com.symphony.bdk.spring.extension.TestExtensionService;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
@@ -31,7 +32,6 @@ class SymphonyBdkAutoConfigurationTest {
   void shouldLoadContextWithSuccess() {
 
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.pod.scheme=http",
             "bdk.pod.host=localhost",
@@ -45,6 +45,7 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.bot.username=tibot",
             "bdk.bot.privateKey.path=classpath:/privatekey.pem"
         )
+        .withBean(TestExtension.class)
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 
@@ -63,14 +64,15 @@ class SymphonyBdkAutoConfigurationTest {
 
       // verify extension service
       assertThat(context).hasSingleBean(ExtensionService.class);
+      assertThat(context).hasSingleBean(TestExtension.class);
       assertThat(context).hasSingleBean(TestExtensionService.class);
+      assertThat(context.getBean(ExtensionService.class).service(TestExtension.class)).isEqualTo(context.getBean(TestExtensionService.class));
     });
   }
 
   @Test
   void shouldInitializeOboAuthenticatorIfAppIdSet() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -118,7 +120,6 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldInitializeCustomAuthenticatorsIfTheyExist() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -146,7 +147,6 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldFailOnOboAuthenticatorInitializationIfNotProperlyConfigured() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -170,7 +170,6 @@ class SymphonyBdkAutoConfigurationTest {
   void shouldLoadParentConfigurationIfSet() {
 
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -192,7 +191,6 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldInstantiateLoadBalancedApiClientIfConfigured() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -219,7 +217,6 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldNotInitializeDatafeedIfDisabled() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.host=localhost",
 
@@ -247,7 +244,6 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldNotInitializeBotSessionWhenOboOnly() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.host=localhost",
 
@@ -272,7 +268,6 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void systemApiClientShouldTargetAgentBasePath() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-        .withAllowBeanDefinitionOverriding(true)
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 

@@ -7,30 +7,21 @@ import com.symphony.bdk.core.extension.ExtensionService;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.extension.BdkExtension;
 import com.symphony.bdk.extension.BdkExtensionService;
+import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
-import org.springframework.boot.autoconfigure.AutoConfigurationExcludeFilter;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.TypeExcludeFilter;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.DependsOn;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @API(status = API.Status.EXPERIMENTAL)
-@ComponentScan(
-    basePackages = "com.symphony.bdk",
-    includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = BdkExtensionService.class),
-    // cf. https://docs.spring.io/spring-boot/docs/2.1.8.RELEASE/reference/html/boot-features-testing.html#boot-features-testing-spring-boot-applications-excluding-config
-    excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = TypeExcludeFilter.class),
-        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = AutoConfigurationExcludeFilter.class)
-    }
-)
 public class BdkExtensionConfig {
 
   @Bean
@@ -58,5 +49,22 @@ public class BdkExtensionConfig {
     }
 
     return extensionService;
+  }
+
+  @Bean
+  @DependsOn("extensionService")
+  public List<BdkExtensionService> bdkExtensionServices(final List<BdkExtension> extensions, final ConfigurableListableBeanFactory beanFactory) {
+    final List<BdkExtensionService> services = new ArrayList<>(extensions.size());
+
+    for (BdkExtension extension : extensions) {
+      if (extension instanceof BdkExtensionServiceProvider) {
+        final BdkExtensionService serviceBean = ((BdkExtensionServiceProvider<?>) extension).getService();
+        beanFactory.registerSingleton(serviceBean.getClass().getCanonicalName(), serviceBean);
+        services.add(serviceBean);
+        log.info("Extension service bean <{}> successfully registered in application context", serviceBean.getClass().getCanonicalName());
+      }
+    }
+
+    return services;
   }
 }

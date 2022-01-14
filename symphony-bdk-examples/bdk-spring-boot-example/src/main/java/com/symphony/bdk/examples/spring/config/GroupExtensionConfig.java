@@ -1,6 +1,9 @@
 package com.symphony.bdk.examples.spring.config;
 
-import com.symphony.bdk.ext.group.SymphonyGroupBdkExtension;
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.client.ApiClientFactory;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.ext.group.SymphonyGroupService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +12,11 @@ import org.springframework.context.annotation.Configuration;
 public class GroupExtensionConfig {
 
   @Bean
-  public SymphonyGroupBdkExtension groupExtension() {
-    return new SymphonyGroupBdkExtension();
+  public SymphonyGroupService groupService(
+      final RetryWithRecoveryBuilder<?> retryBuilder,
+      final ApiClientFactory apiClientFactory,
+      final AuthSession session
+  ) {
+    return new SymphonyGroupService(retryBuilder, apiClientFactory, session);
   }
 }
