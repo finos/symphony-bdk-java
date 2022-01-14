@@ -40,6 +40,11 @@ public class BdkConfig extends BdkServerConfig {
     return bot != null && isNotEmpty(bot.getUsername());
   }
 
+  /**
+   * Check if common jwt feature is enabled. Checks {@link BdkCommonJwtConfig#getEnabled()} ()} on field {@link #commonJwt}.
+   *
+   * @return true if OBO is configured.
+   */
   public boolean isCommonJwtEnabled() {
     return this.getCommonJwt().getEnabled();
   }

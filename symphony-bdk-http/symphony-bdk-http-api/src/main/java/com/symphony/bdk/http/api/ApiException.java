@@ -32,6 +32,12 @@ public class ApiException extends Exception {
     super(message, throwable);
   }
 
+  /**
+   * Creates new {@link ApiException} instance.
+   *
+   * @param code      the HTTP response status code.
+   * @param throwable the cause.
+   */
   public ApiException(int code, Throwable throwable) {
     super(throwable);
     this.code = code;
