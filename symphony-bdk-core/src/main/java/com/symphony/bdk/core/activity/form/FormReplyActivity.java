@@ -33,7 +33,11 @@ public abstract class FormReplyActivity<C extends FormReplyContext>
   @Override
   protected void beforeMatcher(C context) {
     super.beforeMatcher(context);
-    // copy formId at context root level
+    // copy streamId to context root level
+    context.setStreamId(context.getSourceEvent().getStream().getStreamId());
+    // copy formMessageId to context root level
+    context.setFormMessageId(context.getSourceEvent().getFormMessageId());
+    // copy formId to context root level
     context.setFormId(context.getSourceEvent().getFormId());
     // setup formValues as a JsonNode
     context.setFormValues(MAPPER.valueToTree(context.getSourceEvent().getFormValues()));

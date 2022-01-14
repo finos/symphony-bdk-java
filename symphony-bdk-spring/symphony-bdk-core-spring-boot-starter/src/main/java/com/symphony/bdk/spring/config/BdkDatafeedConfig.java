@@ -8,6 +8,7 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.http.api.tracing.MDCUtils;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 import com.symphony.bdk.spring.events.RealTimeEvent;
 import com.symphony.bdk.spring.events.RealTimeEventsDispatcher;
@@ -67,13 +68,15 @@ public class BdkDatafeedConfig {
   }
 
   /**
-   * Allows to publish application {@link RealTimeEvent} asynchronously from {@link RealTimeEventsDispatcher}.
+   * Allows publishing application {@link RealTimeEvent} asynchronously from {@link RealTimeEventsDispatcher}.
    */
   @Bean(name = "applicationEventMulticaster")
   @ConditionalOnProperty(value = "bdk.datafeed.event.async", havingValue = "true", matchIfMissing = true)
   public ApplicationEventMulticaster simpleApplicationEventMulticaster() {
     final SimpleApplicationEventMulticaster eventMulticaster = new SimpleApplicationEventMulticaster();
-    eventMulticaster.setTaskExecutor(new SimpleAsyncTaskExecutor());
+    SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
+    simpleAsyncTaskExecutor.setTaskDecorator(MDCUtils::wrap);
+    eventMulticaster.setTaskExecutor(simpleAsyncTaskExecutor);
     return eventMulticaster;
   }
 }
