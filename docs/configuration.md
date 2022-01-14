@@ -127,7 +127,10 @@ datafeed:
     initialIntervalMillis: 2000
     multiplier: 1.5
     maxIntervalMillis: 10000
-
+    
+commonJwt:
+    enabled: false
+    
 retry:
   maxAttempts: 6 # set '-1' for an infinite number of attempts, default value is '10'
   initialIntervalMillis: 2000
@@ -157,6 +160,8 @@ the certificate for authenticating the service account on pod.
 the appId, the private key or the certificate for authenticating the extension app.
 - `ssl` contains trustStore and trustStore password for SSL communication.
 - `datafeed` contains information of the datafeed service to be used by the bot.
+- `commonJwt` feature flag that when enabled will use the `Authorization` header instead of the `sessionToken`
+for any api call. It will be false by default and for now it is only allowed on non obo pod api calls.
 - `retry` contains information for retry mechanism to be used by the bot.
 
 Although not recommended for RSA private keys, you can specify absolute paths to classpath resources for the following fields:
