@@ -1,10 +1,10 @@
 package com.symphony.bdk.core;
 
-import static com.symphony.bdk.core.auth.OAuthentication.BEARER_AUTH;
+import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.OAuthSession;
-import com.symphony.bdk.core.auth.OAuthentication;
+import com.symphony.bdk.core.auth.impl.OAuthSession;
+import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -83,8 +83,9 @@ class ServiceFactory {
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
 
     if (config.isCommonJwtEnabled()) {
-      if(config.isOboConfigured()) {
-        throw new UnsupportedOperationException("Common jwt feature is not available yet in OBO mode.");
+      if (config.isOboConfigured()) {
+        throw new UnsupportedOperationException("Common JWT feature is not available yet in OBO mode,"
+            + " please set commonJwt.enabled to false.");
       } else {
         final OAuthSession oAuthSession = new OAuthSession(authSession);
         this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));

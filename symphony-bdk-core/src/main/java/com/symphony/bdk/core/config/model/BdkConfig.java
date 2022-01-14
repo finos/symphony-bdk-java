@@ -41,9 +41,9 @@ public class BdkConfig extends BdkServerConfig {
   }
 
   /**
-   * Check if common jwt feature is enabled. Checks {@link BdkCommonJwtConfig#getEnabled()} ()} on field {@link #commonJwt}.
+   * Check if Common JWT feature is enabled. Checks {@link BdkCommonJwtConfig#getEnabled()} ()} on field {@link #commonJwt}.
    *
-   * @return true if OBO is configured.
+   * @return true if Common JWT is enabled.
    */
   public boolean isCommonJwtEnabled() {
     return this.getCommonJwt().getEnabled();

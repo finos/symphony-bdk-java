@@ -1,12 +1,12 @@
 package com.symphony.bdk.spring.config;
 
-import static com.symphony.bdk.core.auth.OAuthentication.BEARER_AUTH;
+import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
-import com.symphony.bdk.core.auth.OAuthSession;
-import com.symphony.bdk.core.auth.OAuthentication;
+import com.symphony.bdk.core.auth.impl.OAuthSession;
+import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
@@ -55,7 +55,7 @@ public class BdkCoreConfig {
     if (config.isCommonJwtEnabled()) {
       if (config.isOboConfigured()) {
         throw new UnsupportedOperationException(
-            "Common jwt feature is not available yet in OBO mode, please use sessionToken instead.");
+            "Common JWT feature is not available yet in OBO mode, please set commonJwt.enabled to false.");
       } else if (botSession.isPresent()) {
         final OAuthSession oAuthSession = new OAuthSession(botSession.get());
         client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));

@@ -57,7 +57,7 @@ class BotAuthenticatorRsaImplTest {
 
     mockServer.onPost("/login/pubkey/authenticate", res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
 
-    final Token authToken = this.authenticator.retrieveAuthToken();
+    final Token authToken = this.authenticator.retrieveSessionToken();
     assertEquals("1234", authToken.getToken());
   }
 
@@ -75,7 +75,7 @@ class BotAuthenticatorRsaImplTest {
 
     mockServer.onPost("/login/pubkey/authenticate", res -> res.withStatusCode(401));
 
-    assertThrows(AuthUnauthorizedException.class, () -> this.authenticator.retrieveAuthToken());
+    assertThrows(AuthUnauthorizedException.class, () -> this.authenticator.retrieveSessionToken());
   }
 
   @Test
@@ -83,6 +83,6 @@ class BotAuthenticatorRsaImplTest {
 
     mockServer.onPost("/login/pubkey/authenticate", res -> res.withStatusCode(503));
 
-    assertThrows(ApiRuntimeException.class, () -> this.authenticator.retrieveAuthToken());
+    assertThrows(ApiRuntimeException.class, () -> this.authenticator.retrieveSessionToken());
   }
 }

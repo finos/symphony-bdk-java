@@ -25,61 +25,58 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
 
   protected final ApiClient loginApiClient;
   private final BdkCommonJwtConfig commonJwtConfig;
+
   private final AuthenticationRetry<String> kmAuthenticationRetry;
   private final AuthenticationRetry<Token> podAuthenticationRetry;
-  private final AuthenticationRetry<JwtToken> bearerAuthenticationRetry;
+  private final AuthenticationRetry<JwtToken> idmAuthenticationRetry;
 
-  public AbstractBotAuthenticator(BdkRetryConfig retryConfig,
+  protected AbstractBotAuthenticator(BdkRetryConfig retryConfig,
       @Nonnull BdkCommonJwtConfig commonJwtConfig, @Nonnull ApiClient loginApiClient) {
     kmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     podAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
-    bearerAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
+    idmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     this.commonJwtConfig = commonJwtConfig;
     this.loginApiClient = loginApiClient;
   }
 
-  protected String retrieveToken(ApiClient client) throws AuthUnauthorizedException {
-    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
-        + "Check if credentials are valid.", getBotUsername());
-
-    return kmAuthenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveToken", client.getBasePath(),
-        () -> authenticateAndGetToken(client), unauthorizedMessage);
-  }
-
-  protected JwtToken retrieveBearerToken(String sessionToken) throws AuthUnauthorizedException {
-    log.debug("Start retrieving keyManagerToken using RSA authentication...");
-    return this.retrieveBearerToken(this.loginApiClient, sessionToken);
-  }
-
-
-  protected JwtToken retrieveBearerToken(ApiClient client, String sessionToken) throws AuthUnauthorizedException {
-
-    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
-        + "Check if credentials are valid.", getBotUsername());
-
-    return bearerAuthenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveBearerToken", client.getBasePath(),
-        () -> this.getBearerToken(client, sessionToken), unauthorizedMessage);
-  }
-
-
-  protected Token retrieveAuthToken(ApiClient client) throws AuthUnauthorizedException {
-    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
-        + "Check if credentials are valid.", getBotUsername());
-
-    return podAuthenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveAuthToken", client.getBasePath(),
-        () -> this.authenticateAndGetAuthToken(client), unauthorizedMessage);
-  }
-
-  protected abstract Token retrieveAuthToken() throws AuthUnauthorizedException;
-
   protected abstract String retrieveKeyManagerToken() throws AuthUnauthorizedException;
 
-  protected abstract String authenticateAndGetToken(ApiClient client) throws ApiException;
+  protected String retrieveKeyManagerToken(ApiClient client) throws AuthUnauthorizedException {
+    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
+        + "Check if credentials are valid.", getBotUsername());
 
-  protected abstract Token authenticateAndGetAuthToken(ApiClient client) throws ApiException;
+    return kmAuthenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveKeyManagerToken",
+        client.getBasePath(), () -> doRetrieveToken(client).getToken(), unauthorizedMessage);
+  }
 
-  protected JwtToken getBearerToken(ApiClient client, String sessionToken) throws ApiException {
-    return new AuthenticationApi(client).idmTokensPost(sessionToken, "");
+  protected abstract Token retrieveSessionToken() throws AuthUnauthorizedException;
+
+  protected Token retrieveSessionToken(ApiClient client) throws AuthUnauthorizedException {
+    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
+        + "Check if credentials are valid.", getBotUsername());
+
+    return podAuthenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveSessionToken",
+        client.getBasePath(), () -> this.doRetrieveToken(client), unauthorizedMessage);
+  }
+
+  /**
+   * Login API to retrieve a token is the same for KM and pod.
+   */
+  protected abstract Token doRetrieveToken(ApiClient client) throws ApiException;
+
+  protected String retrieveAuthorizationToken(String sessionToken) throws AuthUnauthorizedException {
+    log.debug("Start retrieving authorizationToken using RSA authentication...");
+    return this.doRetrieveAuthorizationToken(this.loginApiClient, sessionToken).getAccessToken();
+  }
+
+  protected JwtToken doRetrieveAuthorizationToken(ApiClient client, String sessionToken)
+      throws AuthUnauthorizedException {
+    final String unauthorizedMessage = String.format("Service account \"%s\" is not authorized to authenticate. "
+        + "Check if credentials are valid.", getBotUsername());
+
+    // we are not using any scopes for now when calling pod APIs
+    return idmAuthenticationRetry.executeAndRetry("AbstractBotAuthenticator.retrieveAuthorizationToken",
+        client.getBasePath(), () -> new AuthenticationApi(client).idmTokensPost(sessionToken, ""), unauthorizedMessage);
   }
 
   protected abstract String getBotUsername();

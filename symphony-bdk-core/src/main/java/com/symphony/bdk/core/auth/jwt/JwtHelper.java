@@ -121,7 +121,7 @@ public class JwtHelper {
 
       return mapper.convertValue(body.get("user"), UserClaim.class);
     } catch (JwtException e) {
-      throw new AuthInitializationException("Unable to validate jwt", e);
+      throw new AuthInitializationException("Unable to validate JWT", e);
     }
   }
 
@@ -136,16 +136,16 @@ public class JwtHelper {
   public static Long extractExpirationDate(String jwt) throws JsonProcessingException, AuthUnauthorizedException {
     String claimsObj = extractDecodedClaims(dropBearer(jwt));
     ObjectNode claims = mapper.readValue(claimsObj, ObjectNode.class);
-    if(claims.has("exp") && claims.get("exp").isNumber()) {
-      return claims.get("exp").asLong();
+    if(claims.has(Claims.EXPIRATION) && claims.get(Claims.EXPIRATION).isNumber()) {
+      return claims.get(Claims.EXPIRATION).asLong();
     }
-    throw new AuthUnauthorizedException("Unable to find expiration date in the common jwt.");
+    throw new AuthUnauthorizedException("Unable to find expiration date in the Common JWT.");
   }
 
   private static String extractDecodedClaims(String jwt) throws AuthUnauthorizedException {
     String[] jwtSplit = jwt.split("\\.");
     if (jwtSplit.length < 3) {
-      throw new AuthUnauthorizedException("Unable to parse jwt");
+      throw new AuthUnauthorizedException("Unable to parse JWT");
     }
     return new String(Base64.getDecoder().decode(jwtSplit[1]));
   }

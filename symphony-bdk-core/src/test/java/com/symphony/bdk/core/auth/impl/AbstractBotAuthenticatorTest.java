@@ -40,22 +40,17 @@ class AbstractBotAuthenticatorTest {
     }
 
     @Override
-    protected Token retrieveAuthToken() throws AuthUnauthorizedException {
+    protected Token retrieveSessionToken() {
       return null;
     }
 
     @Override
-    protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+    protected String retrieveKeyManagerToken() {
       return null;
     }
 
     @Override
-    protected String authenticateAndGetToken(ApiClient client) throws ApiException {
-      return null;
-    }
-
-    @Override
-    protected Token authenticateAndGetAuthToken(ApiClient client) throws ApiException {
+    protected Token doRetrieveToken(ApiClient client) throws ApiException {
       return null;
     }
 
@@ -78,14 +73,14 @@ class AbstractBotAuthenticatorTest {
   }
 
   @Test
-  void testSuccess() throws ApiException, AuthUnauthorizedException {
+  void testSuccess() throws AuthUnauthorizedException, ApiException {
     final String token = "12324";
 
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval()));
-    doReturn(token).when(botAuthenticator).authenticateAndGetToken(any());
+    doReturn(new Token().token(token)).when(botAuthenticator).doRetrieveToken(any());
 
-    assertEquals(token, botAuthenticator.retrieveToken(apiClient));
-    verify(botAuthenticator, times(1)).authenticateAndGetToken(any());
+    assertEquals(token, botAuthenticator.retrieveKeyManagerToken(apiClient));
+    verify(botAuthenticator, times(1)).doRetrieveToken(any());
   }
 
   @Test
@@ -95,54 +90,54 @@ class AbstractBotAuthenticatorTest {
     token.setAuthorizationToken("Bearer qwerty");
 
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval()));
-    doReturn(token).when(botAuthenticator).authenticateAndGetAuthToken(any());
+    doReturn(token).when(botAuthenticator).doRetrieveToken(any());
 
-    assertEquals(token, botAuthenticator.retrieveAuthToken(apiClient));
-    verify(botAuthenticator, times(1)).authenticateAndGetAuthToken(any());
+    assertEquals(token, botAuthenticator.retrieveSessionToken(apiClient));
+    verify(botAuthenticator, times(1)).doRetrieveToken(any());
   }
 
   @Test
-  void testSuccessBearerToken() throws AuthUnauthorizedException, ApiException {
+  void testSuccessBearerToken() throws AuthUnauthorizedException {
     JwtToken token = new JwtToken();
     token.setAccessToken("qwertyui");
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval()));
-    doReturn(token).when(botAuthenticator).getBearerToken(any(), any());
+    doReturn(token).when(botAuthenticator).doRetrieveAuthorizationToken(any(), any());
 
-    assertEquals(token, botAuthenticator.retrieveBearerToken("sessionToken"));
-    verify(botAuthenticator, times(1)).retrieveBearerToken(any(), any());
+    assertEquals("qwertyui", botAuthenticator.retrieveAuthorizationToken("sessionToken"));
+    verify(botAuthenticator, times(1)).doRetrieveAuthorizationToken(any(), any());
   }
 
   @Test
   void testUnauthorized() throws ApiException {
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval()));
-    doThrow(new ApiException(401, "")).when(botAuthenticator).authenticateAndGetToken(any());
+    doThrow(new ApiException(401, "")).when(botAuthenticator).doRetrieveToken(any());
 
-    assertThrows(AuthUnauthorizedException.class, () -> botAuthenticator.retrieveToken(apiClient));
-    verify(botAuthenticator, times(1)).authenticateAndGetToken(any());
+    assertThrows(AuthUnauthorizedException.class, () -> botAuthenticator.retrieveKeyManagerToken(apiClient));
+    verify(botAuthenticator, times(1)).doRetrieveToken(any());
   }
 
   @Test
   void testUnexpectedApiException() throws ApiException {
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval()));
-    doThrow(new ApiException(404, "")).when(botAuthenticator).authenticateAndGetToken(any());
+    doThrow(new ApiException(404, "")).when(botAuthenticator).doRetrieveToken(any());
 
-    assertThrows(ApiRuntimeException.class, () -> botAuthenticator.retrieveToken(apiClient));
-    verify(botAuthenticator, times(1)).authenticateAndGetToken(any());
+    assertThrows(ApiRuntimeException.class, () -> botAuthenticator.retrieveKeyManagerToken(apiClient));
+    verify(botAuthenticator, times(1)).doRetrieveToken(any());
   }
 
   @Test
-  void testShouldRetry() throws ApiException, AuthUnauthorizedException {
+  void testShouldRetry() throws AuthUnauthorizedException, ApiException {
     final String token = "12324";
 
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval(4)));
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
         .doThrow(new ProcessingException(new SocketTimeoutException()))
-        .doReturn(token)
-        .when(botAuthenticator).authenticateAndGetToken(any());
+        .doReturn(new Token().token(token))
+        .when(botAuthenticator).doRetrieveToken(any());
 
-    assertEquals(token, botAuthenticator.retrieveToken(apiClient));
-    verify(botAuthenticator, times(4)).authenticateAndGetToken(any());
+    assertEquals(token, botAuthenticator.retrieveKeyManagerToken(apiClient));
+    verify(botAuthenticator, times(4)).doRetrieveToken(any());
   }
 
   @Test
@@ -156,19 +151,18 @@ class AbstractBotAuthenticatorTest {
         .doThrow(new ApiException(503, ""))
         .doThrow(new ProcessingException(new SocketTimeoutException()))
         .doReturn(token)
-        .when(botAuthenticator).authenticateAndGetAuthToken(any());
+        .when(botAuthenticator).doRetrieveToken(any());
 
-    assertEquals(token, botAuthenticator.retrieveAuthToken(apiClient));
-    verify(botAuthenticator, times(4)).authenticateAndGetAuthToken(any());
+    assertEquals(token, botAuthenticator.retrieveSessionToken(apiClient));
+    verify(botAuthenticator, times(4)).doRetrieveToken(any());
   }
-
 
   @Test
   void testRetriesExhausted() throws ApiException {
     AbstractBotAuthenticator botAuthenticator = spy(new TestBotAuthenticator(ofMinimalInterval(2)));
-    doThrow(new ApiException(429, "")).when(botAuthenticator).authenticateAndGetToken(any());
+    doThrow(new ApiException(429, "")).when(botAuthenticator).doRetrieveToken(any());
 
-    assertThrows(ApiRuntimeException.class, () -> botAuthenticator.retrieveToken(apiClient));
-    verify(botAuthenticator, times(2)).authenticateAndGetToken(any());
+    assertThrows(ApiRuntimeException.class, () -> botAuthenticator.retrieveKeyManagerToken(apiClient));
+    verify(botAuthenticator, times(2)).doRetrieveToken(any());
   }
 }

@@ -53,29 +53,22 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
 
   @Override
   @Nonnull
-  protected Token retrieveAuthToken() throws AuthUnauthorizedException {
+  protected Token retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving authentication tokens using certificate authentication...");
-    return retrieveAuthToken(this.sessionAuthClient);
+    return retrieveSessionToken(this.sessionAuthClient);
   }
 
   @Override
   @Nonnull
   protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using certificate authentication...");
-    return retrieveToken(this.keyAuthClient);
+    return retrieveKeyManagerToken(this.keyAuthClient);
   }
 
   @Override
-  protected String authenticateAndGetToken(ApiClient client) throws ApiException {
+  protected Token doRetrieveToken(ApiClient client) throws ApiException {
     final Token token = new CertificateAuthenticationApi(client).v1AuthenticatePost();
     log.debug("{} successfully retrieved.", token.getName());
-    return token.getToken();
-  }
-
-  @Override
-  protected Token authenticateAndGetAuthToken(ApiClient client) throws ApiException {
-    final Token token = new CertificateAuthenticationApi(client).v1AuthenticatePost();
-    log.debug("Authentication tokens successfully retrieved.");
     return token;
   }
 

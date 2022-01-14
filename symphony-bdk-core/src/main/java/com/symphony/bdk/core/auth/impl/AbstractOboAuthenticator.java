@@ -21,7 +21,7 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
   protected final String appId;
   private final AuthenticationRetry<String> authenticationRetry;
 
-  public AbstractOboAuthenticator(BdkRetryConfig retryConfig, String appId) {
+  protected AbstractOboAuthenticator(BdkRetryConfig retryConfig, String appId) {
     this.appId = appId;
     this.authenticationRetry = new AuthenticationRetry<>(retryConfig);
   }

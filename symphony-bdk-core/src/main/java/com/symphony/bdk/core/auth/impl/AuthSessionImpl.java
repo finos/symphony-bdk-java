@@ -1,21 +1,18 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
-import com.symphony.bdk.gen.api.model.JwtToken;
 import com.symphony.bdk.gen.api.model.Token;
 
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apiguardian.api.API;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 
 /**
@@ -27,8 +24,19 @@ public class AuthSessionImpl implements AuthSession {
   public static final Duration LEEWAY = Duration.ofSeconds(5);
   private final AbstractBotAuthenticator authenticator;
 
+  /**
+   * Long-lived Session JWT Token (for pod APIs).
+   */
   private String sessionToken;
+
+  /**
+   * Long-lived KM Token (for KM APIs).
+   */
   private String keyManagerToken;
+
+  /**
+   * Short-lived access Token (for pod APIs).
+   */
   private String authorizationToken;
   private Long authTokenExpirationDate;
 
@@ -78,9 +86,10 @@ public class AuthSessionImpl implements AuthSession {
     if (this.sessionToken == null || !authenticator.isCommonJwtEnabled()) {
       refreshAllTokens();
     } else {
+      // as we are using a short-lived token and a refresh token, let's first try to refresh the short lived token
+      // this way we avoid generating extra login events
       try {
-        JwtToken token = authenticator.retrieveBearerToken(sessionToken);
-        this.authorizationToken = token.getAccessToken();
+        this.authorizationToken = authenticator.retrieveAuthorizationToken(sessionToken);
         refreshExpirationDate();
       } catch (AuthUnauthorizedException e) {
         refreshAllTokens();
@@ -89,7 +98,7 @@ public class AuthSessionImpl implements AuthSession {
   }
 
   private void refreshAllTokens() throws AuthUnauthorizedException {
-    Token authToken = authenticator.retrieveAuthToken();
+    Token authToken = authenticator.retrieveSessionToken();
     this.authorizationToken = authToken.getAuthorizationToken();
     this.sessionToken = authToken.getToken();
     refreshExpirationDate();

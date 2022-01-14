@@ -52,7 +52,7 @@ public class BotAuthenticatorCertImplTest {
   void testRetrieveAuthToken(final BdkMockServer mockServer) throws AuthUnauthorizedException {
     mockServer.onPost(SESSIONAUTH_AUTHENTICATE_URL, res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
 
-    final Token authToken = this.authenticator.retrieveAuthToken();
+    final Token authToken = this.authenticator.retrieveSessionToken();
     assertEquals("1234", authToken.getToken());
   }
 
