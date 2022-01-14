@@ -30,4 +30,12 @@ class OAuthSessionTest {
     assertThrows(ApiException.class, session::getBearerToken);
   }
 
+  @Test
+  void testGetBearerTokenNotSupported() throws AuthUnauthorizedException {
+    when(authSession.getAuthorizationToken()).thenThrow(UnsupportedOperationException.class);
+
+    OAuthSession session = new OAuthSession(authSession);
+    assertThrows(UnsupportedOperationException.class, session::getBearerToken);
+  }
+
 }

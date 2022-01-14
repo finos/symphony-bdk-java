@@ -52,6 +52,10 @@ public class AuthSessionImpl implements AuthSession {
   @Override
   public @Nullable
   String getAuthorizationToken() throws AuthUnauthorizedException {
+    if(this.authorizationToken == null || this.authTokenExpirationDate == null) {
+      throw new UnsupportedOperationException("Common JWT feature is not available in your pod, "
+          + "SBE version should be at least 20.14.");
+    }
     if (Instant.now().plus(LEEWAY).isAfter(Instant.ofEpochSecond(authTokenExpirationDate))) {
       refresh();
     }

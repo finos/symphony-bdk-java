@@ -111,6 +111,23 @@ class AuthSessionImplTest {
   }
 
   @Test
+  void testGetAuthorizationTokenWhenNotSupported() throws AuthUnauthorizedException {
+
+    final String sessionToken = UUID.randomUUID().toString();
+    final String kmToken = UUID.randomUUID().toString();
+    Token authToken = new Token();
+    authToken.setToken(sessionToken);
+    final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
+    when(auth.retrieveAuthToken()).thenReturn(authToken);
+    when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
+    when(auth.isCommonJwtEnabled()).thenReturn(true);
+
+    final AuthSessionImpl session = new AuthSessionImpl(auth);
+
+    assertThrows(UnsupportedOperationException.class, session::getAuthorizationToken);
+  }
+
+  @Test
   void testGetAuthorizationTokenWhenRefreshBearerFails() throws AuthUnauthorizedException {
 
     final String sessionToken = UUID.randomUUID().toString();
