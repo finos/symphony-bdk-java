@@ -7,18 +7,14 @@ import com.symphony.bdk.core.extension.ExtensionService;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.extension.BdkExtension;
 import com.symphony.bdk.extension.BdkExtensionService;
-import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.FilterType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,22 +51,5 @@ public class BdkExtensionConfig {
     }
 
     return extensionService;
-  }
-
-  @Bean
-  @DependsOn("extensionService")
-  public List<BdkExtensionService> bdkExtensionServices(final List<BdkExtension> extensions, final ConfigurableListableBeanFactory beanFactory) {
-    final List<BdkExtensionService> services = new ArrayList<>(extensions.size());
-
-    for (BdkExtension extension : extensions) {
-     if (extension instanceof BdkExtensionServiceProvider) {
-       final BdkExtensionService serviceBean = ((BdkExtensionServiceProvider<?>) extension).getService();
-       beanFactory.registerSingleton(serviceBean.getClass().getCanonicalName(), serviceBean);
-       services.add(serviceBean);
-       log.info("Extension service bean <{}> successfully registered in application context", serviceBean.getClass().getCanonicalName());
-     }
-    }
-
-    return services;
   }
 }

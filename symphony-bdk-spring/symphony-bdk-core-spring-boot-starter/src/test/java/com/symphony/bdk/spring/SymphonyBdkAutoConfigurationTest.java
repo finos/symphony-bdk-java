@@ -31,6 +31,7 @@ class SymphonyBdkAutoConfigurationTest {
   void shouldLoadContextWithSuccess() {
 
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.pod.scheme=http",
             "bdk.pod.host=localhost",
@@ -45,7 +46,6 @@ class SymphonyBdkAutoConfigurationTest {
             "bdk.bot.privateKey.path=classpath:/privatekey.pem"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
-        .withBean(TestExtension.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 
     contextRunner.run(context -> {
@@ -70,6 +70,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldInitializeOboAuthenticatorIfAppIdSet() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -117,6 +118,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldInitializeCustomAuthenticatorsIfTheyExist() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -144,6 +146,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldFailOnOboAuthenticatorInitializationIfNotProperlyConfigured() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -167,6 +170,7 @@ class SymphonyBdkAutoConfigurationTest {
   void shouldLoadParentConfigurationIfSet() {
 
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -188,6 +192,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldInstantiateLoadBalancedApiClientIfConfigured() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.scheme=http",
             "bdk.host=localhost",
@@ -214,6 +219,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldNotInitializeDatafeedIfDisabled() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.host=localhost",
 
@@ -241,6 +247,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void shouldNotInitializeBotSessionWhenOboOnly() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withPropertyValues(
             "bdk.host=localhost",
 
@@ -265,6 +272,7 @@ class SymphonyBdkAutoConfigurationTest {
   @Test
   void systemApiClientShouldTargetAgentBasePath() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withAllowBeanDefinitionOverriding(true)
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 

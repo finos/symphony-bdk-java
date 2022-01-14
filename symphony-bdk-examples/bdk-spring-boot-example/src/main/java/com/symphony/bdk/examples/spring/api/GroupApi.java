@@ -15,12 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/groups")
-//@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class GroupApi {
 
   private final SymphonyGroupService groupService;
 
-  //@Lazy
   @Autowired
   public GroupApi(SymphonyGroupService groupService) {
     this.groupService = groupService;
