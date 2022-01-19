@@ -5,6 +5,7 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
+import com.symphony.bdk.core.util.UserIdUtil;
 import com.symphony.bdk.ext.group.auth.OAuth;
 import com.symphony.bdk.ext.group.auth.OAuthSession;
 import com.symphony.bdk.ext.group.gen.api.GroupApi;
@@ -12,6 +13,7 @@ import com.symphony.bdk.ext.group.gen.api.TypeApi;
 import com.symphony.bdk.ext.group.gen.api.model.AddMember;
 import com.symphony.bdk.ext.group.gen.api.model.CreateGroup;
 import com.symphony.bdk.ext.group.gen.api.model.GroupList;
+import com.symphony.bdk.ext.group.gen.api.model.Member;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.ext.group.gen.api.model.SortOrder;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
@@ -74,9 +76,9 @@ public class SymphonyGroupService implements BdkExtensionService {
     );
   }
 
-  public ReadGroup updateAvatar(@Nonnull String groupId, @Nonnull UploadAvatar uploadAvatar) {
+  public ReadGroup updateAvatar(@Nonnull String groupId, @Nonnull byte[] image) {
     return this.executeAndRetry("groupExt.updateAvatar",
-        () -> this.groupApi.updateAvatar("", groupId, uploadAvatar)
+        () -> this.groupApi.updateAvatar("", groupId, new UploadAvatar().image(image))
     );
   }
 
@@ -93,9 +95,10 @@ public class SymphonyGroupService implements BdkExtensionService {
     );
   }
 
-  public ReadGroup addMemberToGroup(@Nonnull String groupId, @Nonnull AddMember addMember) {
+  public ReadGroup addMemberToGroup(@Nonnull String groupId, @Nonnull Long userId) {
     return this.executeAndRetry("groupExt.addMemberToGroup",
-        () -> this.groupApi.addMemberToGroup("", groupId, addMember)
+        () -> this.groupApi.addMemberToGroup("", groupId,
+            new AddMember().member(new Member().memberId(userId).memberTenant(UserIdUtil.extractTenantId(userId))))
     );
   }
 
