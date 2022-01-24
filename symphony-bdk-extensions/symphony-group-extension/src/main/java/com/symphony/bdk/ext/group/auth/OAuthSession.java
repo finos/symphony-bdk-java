@@ -13,7 +13,9 @@ import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.util.TypeReference;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
@@ -74,7 +76,9 @@ public class OAuthSession {
   }
 
   @Getter @Setter
-  private static class TokenResponse {
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public static class TokenResponse {
 
     @JsonProperty("access_token")
     private String token;
