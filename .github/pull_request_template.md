@@ -1,6 +1,3 @@
-### Ticket
-[Ticket number](link to ticket)
-
 ### Description
 Please put here the intent of your pull request.
 
