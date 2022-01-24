@@ -40,3 +40,17 @@ openApiGenerate {
 }
 
 tasks.openApiGenerate.dependsOn tasks.downloadFile
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+            excludes = ['com.symphony.bdk.ext.group.gen.api.*']
+        }
+    }
+}
