@@ -100,7 +100,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * Update an existing group
-   * @see <a href="https://developers.symphony.com/restapi/reference#updateavatar">Update a group</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference#updategroup">Update a group</a>
    *
    * @param ifMatch eTag of the group to be updated
    * @param groupId the ID of the group
