@@ -188,7 +188,10 @@ public class SymphonyGroupService implements BdkExtensionService {
 
     @Override
     public String getNext() {
-      return payload.getPagination().getNext();
+      if (payload.getPagination() != null && payload.getPagination().getCursors() != null) {
+        return payload.getPagination().getCursors().getAfter();
+      }
+      return null;
     }
 
     @Override

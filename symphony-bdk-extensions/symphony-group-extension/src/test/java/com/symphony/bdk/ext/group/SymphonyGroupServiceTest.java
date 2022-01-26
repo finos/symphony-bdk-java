@@ -22,6 +22,7 @@ import com.symphony.bdk.ext.group.gen.api.model.CreateGroup;
 import com.symphony.bdk.ext.group.gen.api.model.GroupList;
 import com.symphony.bdk.ext.group.gen.api.model.Member;
 import com.symphony.bdk.ext.group.gen.api.model.Pagination;
+import com.symphony.bdk.ext.group.gen.api.model.PaginationCursors;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.ext.group.gen.api.model.SortOrder;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
@@ -179,7 +180,7 @@ class SymphonyGroupServiceTest {
     when(profileManagerClient.invokeAPI(startsWith("/v1/groups/type/"), eq("GET"), any(), any(), any(), any(), any(), any(),
         any(), any(), any()))
         .thenReturn(new ApiResponse<>(200, Collections.emptyMap(),
-            new GroupList().addDataItem(firstReadGroup).pagination(new Pagination().next(nextPage))))
+            new GroupList().addDataItem(firstReadGroup).pagination(new Pagination().cursors(new PaginationCursors().after(nextPage)))))
         .thenReturn(new ApiResponse<>(200, Collections.emptyMap(),
             new GroupList().addDataItem(secondReadGroup).pagination(new Pagination())));
 
