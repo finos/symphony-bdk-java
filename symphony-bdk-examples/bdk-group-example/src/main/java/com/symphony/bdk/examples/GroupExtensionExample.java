@@ -30,8 +30,6 @@ public class GroupExtensionExample {
 
   private static final Logger log = LoggerFactory.getLogger(GroupExtensionExample.class);
 
-  private static final String TYPE_SDL = "SDL";
-
   public static void main(String[] args) throws Exception {
 
     final SymphonyBdk bdk = SymphonyBdk.builder()
@@ -44,7 +42,7 @@ public class GroupExtensionExample {
 
     // list groups
     bdk.activities().register(slash("/groups", false, c -> {
-      final GroupList groups = groupService.listGroups(TYPE_SDL, Status.ACTIVE, null, null, null, null);
+      final GroupList groups = groupService.listGroups(Status.ACTIVE, null, null, null, null);
       bdk.messages().send(c.getStreamId(), Message.builder()
           .template(bdk.messages().templates().newTemplateFromClasspath("/groups.ftl"), groups)
           .build());

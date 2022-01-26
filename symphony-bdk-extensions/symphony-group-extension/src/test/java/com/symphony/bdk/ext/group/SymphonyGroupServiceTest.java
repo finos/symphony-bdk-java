@@ -21,11 +21,10 @@ import com.symphony.bdk.ext.group.gen.api.model.AddMember;
 import com.symphony.bdk.ext.group.gen.api.model.CreateGroup;
 import com.symphony.bdk.ext.group.gen.api.model.GroupList;
 import com.symphony.bdk.ext.group.gen.api.model.Member;
+import com.symphony.bdk.ext.group.gen.api.model.Pagination;
 import com.symphony.bdk.ext.group.gen.api.model.ReadGroup;
 import com.symphony.bdk.ext.group.gen.api.model.SortOrder;
 import com.symphony.bdk.ext.group.gen.api.model.Status;
-import com.symphony.bdk.ext.group.gen.api.model.Type;
-import com.symphony.bdk.ext.group.gen.api.model.TypeList;
 import com.symphony.bdk.ext.group.gen.api.model.UpdateGroup;
 import com.symphony.bdk.ext.group.gen.api.model.UploadAvatar;
 import com.symphony.bdk.http.api.ApiClient;
@@ -44,6 +43,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 class SymphonyGroupServiceTest {
 
@@ -91,39 +91,6 @@ class SymphonyGroupServiceTest {
   }
 
   @Test
-  void testGetType() throws ApiException {
-    final Type typeToReturn = new Type();
-    when(profileManagerClient.invokeAPI(startsWith("/v1/types/"), eq("GET"), any(), any(), any(), any(), any(), any(),
-        any(), any(), any()))
-        .thenReturn(new ApiResponse<>(200, Collections.emptyMap(), typeToReturn));
-
-    final String typeId = "typeId";
-    assertEquals(typeToReturn, groupService.getType(typeId));
-    verifyClientCalled(profileManagerClient, "GET", "/v1/types/" + typeId);
-  }
-
-  @Test
-  void testListTypes() throws ApiException {
-    final TypeList typesToReturn = new TypeList();
-    when(profileManagerClient.invokeAPI(eq("/v1/types"), eq("GET"), any(), any(), any(), any(), any(), any(),
-        any(), any(), any())).thenReturn(new ApiResponse<>(200, Collections.emptyMap(), typesToReturn));
-
-
-    final Status status = Status.ACTIVE;
-    final String before = "bef";
-    final String after = "aft";
-    final int limit = 1234;
-    final SortOrder sortOrder = SortOrder.DESC;
-
-    final TypeList types = groupService.listTypes(status, before, after, limit, sortOrder);
-
-    assertEquals(typesToReturn, types);
-
-    List<Pair> expectedQueryParams = Arrays.asList(new Pair("status", status.getValue()), new Pair("before", before), new Pair("after", after), new Pair("limit", Integer.toString(limit)), new Pair("sortOrder", sortOrder.getValue()));
-    verifyClientCalled(profileManagerClient, "GET", "/v1/types", expectedQueryParams);
-  }
-
-  @Test
   void testInsertGroup() throws ApiException {
     final ReadGroup groupToReturn = new ReadGroup();
     when(profileManagerClient.invokeAPI(eq("/v1/groups"), eq("POST"), any(), any(), any(), any(), any(), any(),
@@ -147,7 +114,11 @@ class SymphonyGroupServiceTest {
     final ReadGroup readGroup = groupService.updateGroup(ifMatch, groupId, new UpdateGroup());
 
     assertEquals(groupToReturn, readGroup);
-    verifyClientCalled(profileManagerClient, "PUT", "/v1/groups/" + groupId); // TODO check header If-Match
+    final Map<String, String> expectedHeaders = new HashMap<String, String>() {{
+      put("If-Match", ifMatch);
+      put("X-Symphony-Host", "");
+    }};
+    verifyClientCalledWithHeaders(profileManagerClient, "PUT", "/v1/groups/" + groupId, expectedHeaders);
   }
 
   @Test
@@ -186,18 +157,43 @@ class SymphonyGroupServiceTest {
         any(), any(), any()))
         .thenReturn(new ApiResponse<>(200, Collections.emptyMap(), groupsToReturn));
 
-    final String typeId = "typeId";
     final Status status = Status.ACTIVE;
     final String before = "bef";
     final String after = "aft";
     final int limit = 1234;
     final SortOrder sortOrder = SortOrder.ASC;
-    final GroupList groups = groupService.listGroups(typeId, status, before, after, limit, sortOrder);
+    final GroupList groups = groupService.listGroups(status, before, after, limit, sortOrder);
 
     assertEquals(groupsToReturn, groups);
 
     List<Pair> expectedQueryParams = Arrays.asList(new Pair("status", status.getValue()), new Pair("before", before), new Pair("after", after), new Pair("limit", Integer.toString(limit)), new Pair("sortOrder", sortOrder.getValue()));
-    verifyClientCalled(profileManagerClient, "GET", "/v1/groups/type/" + typeId, expectedQueryParams);
+    verifyClientCalled(profileManagerClient, "GET", "/v1/groups/type/SDL", expectedQueryParams);
+  }
+
+  @Test
+  void testListAllGroups() throws ApiException {
+    final ReadGroup firstReadGroup = new ReadGroup().id("firstGroup");
+    final ReadGroup secondReadGroup = new ReadGroup().id("secondGroup");
+    final String nextPage = "nextPage";
+
+    when(profileManagerClient.invokeAPI(startsWith("/v1/groups/type/"), eq("GET"), any(), any(), any(), any(), any(), any(),
+        any(), any(), any()))
+        .thenReturn(new ApiResponse<>(200, Collections.emptyMap(),
+            new GroupList().addDataItem(firstReadGroup).pagination(new Pagination().next(nextPage))))
+        .thenReturn(new ApiResponse<>(200, Collections.emptyMap(),
+            new GroupList().addDataItem(secondReadGroup).pagination(new Pagination())));
+
+    final Status status = Status.ACTIVE;
+    final SortOrder sortOrder = SortOrder.ASC;
+    final int chunkSize = 1;
+    final List<ReadGroup> groups = groupService.listAllGroups(status, sortOrder, chunkSize, 10).collect(Collectors.toList());
+
+    assertEquals(Arrays.asList(firstReadGroup, secondReadGroup), groups);
+
+    verifyClientCalled(profileManagerClient, "GET", "/v1/groups/type/SDL",
+        Arrays.asList(new Pair("status", status.getValue()), new Pair("limit", Integer.toString(chunkSize)), new Pair("sortOrder", sortOrder.getValue())));
+    verifyClientCalled(profileManagerClient, "GET", "/v1/groups/type/SDL",
+        Arrays.asList(new Pair("status", status.getValue()), new Pair("after", nextPage), new Pair("limit", Integer.toString(chunkSize)), new Pair("sortOrder", sortOrder.getValue())));
   }
 
   @Test
@@ -270,6 +266,11 @@ class SymphonyGroupServiceTest {
 
   private void verifyClientCalledWithBody(ApiClient client, String method, String path, Object body) throws ApiException {
     verify(client, times(1)).invokeAPI(eq(path), eq(method), any(), eq(body), any(), any(), any(), any(), any(), any(),
+        any());
+  }
+
+  private void verifyClientCalledWithHeaders(ApiClient client, String method, String path, Map<String, String> headerParams) throws ApiException {
+    verify(client, times(1)).invokeAPI(eq(path), eq(method), any(), any(), eq(headerParams), any(), any(), any(), any(), any(),
         any());
   }
 }

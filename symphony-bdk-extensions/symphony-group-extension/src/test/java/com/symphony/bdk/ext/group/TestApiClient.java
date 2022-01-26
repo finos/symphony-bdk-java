@@ -15,6 +15,9 @@ public abstract class TestApiClient implements ApiClient {
 
   @Override
   public List<Pair> parameterToPairs(String collectionFormat, String name, Object value) {
+    if (value == null) {
+      return Collections.emptyList();
+    }
     return Collections.singletonList(new Pair(name, value.toString()));
   }
 
@@ -31,5 +34,10 @@ public abstract class TestApiClient implements ApiClient {
   @Override
   public String getBasePath() {
     return "";
+  }
+
+  @Override
+  public String parameterToString(Object param) {
+    return param.toString();
   }
 }

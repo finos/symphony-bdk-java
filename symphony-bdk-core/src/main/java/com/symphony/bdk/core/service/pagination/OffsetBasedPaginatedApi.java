@@ -12,7 +12,7 @@ import java.util.List;
  */
 @FunctionalInterface
 @API(status = API.Status.INTERNAL)
-public interface PaginatedApi<T> {
+public interface OffsetBasedPaginatedApi<T> {
   /**
    * This makes a call with the provided offset and limit parameters.
    * @param offset the number of elements to skip.

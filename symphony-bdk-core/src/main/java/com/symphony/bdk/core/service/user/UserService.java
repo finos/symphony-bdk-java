@@ -4,8 +4,8 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
-import com.symphony.bdk.core.service.pagination.PaginatedApi;
-import com.symphony.bdk.core.service.pagination.PaginatedService;
+import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedApi;
+import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
@@ -207,10 +207,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @Override
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
-    PaginatedApi<UserV2> api =
+    OffsetBasedPaginatedApi<UserV2> api =
         (offset, limit) -> searchUsers(query, local, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -220,9 +220,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<UserV2> api =
+    OffsetBasedPaginatedApi<UserV2> api =
         (offset, limit) -> searchUsers(query, local, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -289,9 +289,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail() {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -303,8 +303,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -351,9 +351,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter) {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -368,8 +368,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter,
       @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -605,10 +605,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowers(@Nonnull Long userId) {
-    PaginatedApi<Long> api =
+    OffsetBasedPaginatedApi<Long> api =
         (offset, limit) -> listUserFollowers(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowers();
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -621,9 +621,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowers(@Nonnull Long userId, @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<Long> api =
+    OffsetBasedPaginatedApi<Long> api =
         (offset, limit) -> listUserFollowers(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowers();
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -661,10 +661,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.STABLE)
   public Stream<Long> listAllUserFollowing(@Nonnull Long userId) {
-    PaginatedApi<Long> api =
+    OffsetBasedPaginatedApi<Long> api =
         (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -677,9 +677,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.STABLE)
   public Stream<Long> listAllUserFollowing(@Nonnull Long userId, @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<Long> api =
+    OffsetBasedPaginatedApi<Long> api =
         (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**

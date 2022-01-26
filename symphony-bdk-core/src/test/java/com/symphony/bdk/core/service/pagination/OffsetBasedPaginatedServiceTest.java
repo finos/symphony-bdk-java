@@ -24,15 +24,15 @@ import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-class PaginatedServiceTest {
+class OffsetBasedPaginatedServiceTest {
 
   @Mock
-  private PaginatedApi<String> paginatedApi;
+  private OffsetBasedPaginatedApi<String> paginatedApi;
 
   @Test
   void testNegativeSizes() {
-    assertThrows(IllegalArgumentException.class, () -> new PaginatedService<>(paginatedApi, 1, -1));
-    assertThrows(IllegalArgumentException.class, () -> new PaginatedService<>(paginatedApi, 0, 0));
+    assertThrows(IllegalArgumentException.class, () -> new OffsetBasedPaginatedService<>(paginatedApi, 1, -1));
+    assertThrows(IllegalArgumentException.class, () -> new OffsetBasedPaginatedService<>(paginatedApi, 0, 0));
   }
 
   @Test
@@ -42,7 +42,7 @@ class PaginatedServiceTest {
   }
 
   @Test
-  void testAPiReturnsEmpty() throws ApiException {
+  void testApiReturnsEmpty() throws ApiException {
     when(paginatedApi.get(anyInt(), anyInt())).thenReturn(Collections.emptyList());
 
     assertServiceProducesList(1, 1, Collections.emptyList());
@@ -56,7 +56,7 @@ class PaginatedServiceTest {
         .thenReturn(Collections.singletonList("a"))
         .thenReturn(Collections.emptyList());
 
-    final List<String> list = getList(new PaginatedService<>(paginatedApi, 1, 1));
+    final List<String> list = getList(new OffsetBasedPaginatedService<>(paginatedApi, 1, 1));
 
     assertEquals(Arrays.asList("a"), list);
     verify(paginatedApi).get(0, 1);
@@ -157,7 +157,7 @@ class PaginatedServiceTest {
         .thenReturn(Arrays.asList("a"))
         .thenReturn(Arrays.asList("b"));
 
-    final Stream<String> stream = new PaginatedService<>(paginatedApi, 1, 2).stream();
+    final Stream<String> stream = new OffsetBasedPaginatedService<>(paginatedApi, 1, 2).stream();
     verifyNoMoreInteractions(paginatedApi);
   }
 
@@ -167,7 +167,7 @@ class PaginatedServiceTest {
         .thenReturn(Arrays.asList("a"))
         .thenReturn(Arrays.asList("b"));
 
-    final Stream<String> stream = new PaginatedService<>(paginatedApi, 1, 2).stream();
+    final Stream<String> stream = new OffsetBasedPaginatedService<>(paginatedApi, 1, 2).stream();
     stream.findFirst();
 
     verify(paginatedApi).get(0, 1);
@@ -175,12 +175,12 @@ class PaginatedServiceTest {
   }
 
   private void assertServiceProducesList(int chunkSize, int maxSize, List<String> expected) {
-    final List<String> list = getList(new PaginatedService<>(paginatedApi, chunkSize, maxSize));
+    final List<String> list = getList(new OffsetBasedPaginatedService<>(paginatedApi, chunkSize, maxSize));
 
     assertEquals(expected, list);
   }
 
-  private List<String> getList(PaginatedService<String> paginatedService) {
+  private List<String> getList(OffsetBasedPaginatedService<String> paginatedService) {
     return paginatedService.stream().collect(Collectors.toList());
   }
 }

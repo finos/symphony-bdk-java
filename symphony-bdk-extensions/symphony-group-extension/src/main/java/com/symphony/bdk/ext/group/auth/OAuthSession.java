@@ -74,6 +74,7 @@ public class OAuthSession {
   }
 
   @Getter @Setter
+  @API(status = API.Status.INTERNAL)
   public static class TokenResponse {
 
     @JsonProperty("access_token")
