@@ -30,7 +30,7 @@ public class OffsetBasedPaginatedService<T> extends PaginatedService {
    * @param chunkSize the maximum number to retrieve in one call of {@link OffsetBasedPaginatedApi#get(int, int)}
    * @param maxSize the maximum number to retrieve in total
    */
-  public OffsetBasedPaginatedService(OffsetBasedPaginatedApi<T> paginatedApi, int chunkSize, int maxSize) {
+  public OffsetBasedPaginatedService(OffsetBasedPaginatedApi<T> paginatedApi, Integer chunkSize, Integer maxSize) {
     super(chunkSize, maxSize);
     this.paginatedApi = paginatedApi;
   }

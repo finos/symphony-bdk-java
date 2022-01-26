@@ -40,6 +40,7 @@ import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserSuspension;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorList;
+import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorResponse;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
 import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
@@ -814,8 +815,7 @@ class UserServiceTest {
         + "    ],\n"
         + "    \"pagination\": {\n"
         + "        \"cursors\": {\n"
-        + "            \"before\": \"1\",\n"
-        + "            \"after\": \"4\"\n"
+        + "            \"before\": \"1\"\n"
         + "        }\n"
         + "    }\n"
         + "}");
@@ -839,8 +839,7 @@ class UserServiceTest {
         + "    ],\n"
         + "    \"pagination\": {\n"
         + "        \"cursors\": {\n"
-        + "            \"before\": \"1\",\n"
-        + "            \"after\": \"4\"\n"
+        + "            \"before\": \"1\"\n"
         + "        }\n"
         + "    }\n"
         + "}");
@@ -1016,6 +1015,18 @@ class UserServiceTest {
 
     assertEquals(v1AuditTrailInitiatorList.getItems().size(), 2);
     assertEquals(v1AuditTrailInitiatorList.getPagination(), null);
+  }
+
+  @Test
+  void listAllAuditTrail() throws IOException {
+    String response = JsonHelper.readFromClasspath("/audit_trail/audit_trail_initiator_list_v1.json");
+    this.mockApiClient.onGet(V1_AUDIT_TRAIL_PRIVILEGED_USER, response);
+
+    final List<V1AuditTrailInitiatorResponse> auditTrails =
+        this.service.listAllAuditTrail(1551888601279L, 1551888601279L, 1353716993L, "SUPER_ADMINISTRATOR", 2, 2)
+            .collect(Collectors.toList());
+
+    assertEquals(auditTrails.size(), 2);
   }
 
   @Test

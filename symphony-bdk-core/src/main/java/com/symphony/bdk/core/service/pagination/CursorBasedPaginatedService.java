@@ -23,7 +23,7 @@ public class CursorBasedPaginatedService<T> extends PaginatedService {
    * @param chunkSize    the max number of items to be retrieved in one call
    * @param maxSize      the total max number of items to be retrieved
    */
-  public CursorBasedPaginatedService(CursorBasedPaginatedApi<T> paginatedApi, int chunkSize, int maxSize) {
+  public CursorBasedPaginatedService(CursorBasedPaginatedApi<T> paginatedApi, Integer chunkSize, Integer maxSize) {
     super(chunkSize, maxSize);
     this.paginatedApi = paginatedApi;
   }

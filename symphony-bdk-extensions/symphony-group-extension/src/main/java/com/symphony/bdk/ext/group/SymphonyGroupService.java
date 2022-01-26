@@ -7,7 +7,6 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.pagination.CursorBasedPaginatedApi;
 import com.symphony.bdk.core.service.pagination.CursorBasedPaginatedService;
-import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginatedPayload;
 import com.symphony.bdk.core.util.UserIdUtil;
 import com.symphony.bdk.ext.group.auth.OAuth;
@@ -149,10 +148,8 @@ public class SymphonyGroupService implements BdkExtensionService {
   public Stream<ReadGroup> listAllGroups(@Nullable Status status, @Nullable SortOrder sortOrder,
       @Nullable Integer chunkSize, @Nullable Integer maxItems) {
     final CursorBasedPaginatedApi<ReadGroup> paginatedApi = (after, limit) -> new PayloadAdapter(listGroups(status, null, after, limit, sortOrder));
-    final int actualChunkSize = chunkSize == null ? PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE : chunkSize;
-    final int actualMaxItems = maxItems == null ? PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE : maxItems;
 
-    return new CursorBasedPaginatedService<>(paginatedApi, actualChunkSize, actualMaxItems).stream();
+    return new CursorBasedPaginatedService<>(paginatedApi, chunkSize, maxItems).stream();
   }
 
   /**

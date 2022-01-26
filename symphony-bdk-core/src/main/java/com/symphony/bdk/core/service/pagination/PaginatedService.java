@@ -11,13 +11,14 @@ public abstract class PaginatedService {
   protected final int chunkSize;
   protected final int maxSize;
 
-  protected PaginatedService(int chunkSize, int maxSize) {
-    checkSizes(chunkSize, maxSize);
-    this.chunkSize = chunkSize;
-    this.maxSize = maxSize;
+  protected PaginatedService(Integer chunkSize, Integer maxSize) {
+    this.chunkSize = chunkSize == null ? PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE : chunkSize;
+    this.maxSize = maxSize == null ? PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE : maxSize;
+
+    checkSizes();
   }
 
-  private static void checkSizes(int chunkSize, int maxSize) {
+  private void checkSizes() {
     if (chunkSize <= 0) {
       throw new IllegalArgumentException("chunkSize must be a strict positive integer");
     }

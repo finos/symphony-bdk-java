@@ -40,6 +40,34 @@ class CursorBasedPaginatedServiceTest {
   }
 
   @Test
+  void testNullChunkSize() {
+    final int maxSize = 10;
+    final CursorBasedPaginatedService<String> paginatedService =
+        new CursorBasedPaginatedService<>(paginatedApi, null, maxSize);
+    assertEquals(PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE, paginatedService.chunkSize);
+    assertEquals(maxSize, paginatedService.maxSize);
+  }
+
+  @Test
+  void testNullMaxSize() {
+    final int chunkSize = 10;
+    final CursorBasedPaginatedService<String> paginatedService =
+        new CursorBasedPaginatedService<>(paginatedApi, chunkSize, null);
+    assertEquals(chunkSize, paginatedService.chunkSize);
+    assertEquals(PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE, paginatedService.maxSize);
+  }
+
+  @Test
+  void testNonNullChunkSizeAndMaxSize() {
+    final int chunkSize = 10;
+    final int maxSize = 125;
+    final CursorBasedPaginatedService<String> paginatedService =
+        new CursorBasedPaginatedService<>(paginatedApi, chunkSize, maxSize);
+    assertEquals(chunkSize, paginatedService.chunkSize);
+    assertEquals(maxSize, paginatedService.maxSize);
+  }
+
+  @Test
   void testZeroMaxSize() {
     assertEquals(0, getAllItems(1, 0).size());
   }
