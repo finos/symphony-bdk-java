@@ -38,7 +38,7 @@ public class OffsetBasedPaginatedService<T> extends PaginatedService {
   /**
    * Returns an stream of elements with lazy fetching.
    *
-   * @return a {@link Stream} which lazily makes calls to the {@link OffsetBasedPaginatedApi}.
+   * @return a {@link Stream} which lazily makes calls to the {@link #paginatedApi}.
    */
   public Stream<T> stream() {
     return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new PaginatedIterator(), Spliterator.ORDERED), false);
