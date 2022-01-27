@@ -1,5 +1,6 @@
 package com.symphony.bdk.http.api;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
@@ -7,6 +8,7 @@ import org.apiguardian.api.API;
  * Pair of string values. Used by generated code only.
  */
 @Getter
+@EqualsAndHashCode
 @API(status = API.Status.INTERNAL)
 public class Pair {
 

@@ -3,15 +3,19 @@ package com.symphony.bdk.core.service.user;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.OboService;
-import com.symphony.bdk.core.service.pagination.PaginatedApi;
+import com.symphony.bdk.core.service.pagination.CursorBasedPaginatedApi;
+import com.symphony.bdk.core.service.pagination.CursorBasedPaginatedService;
+import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedApi;
+import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedService;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
-import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.CursorPaginatedPayload;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
-import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
@@ -33,12 +37,12 @@ import com.symphony.bdk.gen.api.model.UserStatus;
 import com.symphony.bdk.gen.api.model.UserSuspension;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorList;
+import com.symphony.bdk.gen.api.model.V1AuditTrailInitiatorResponse;
 import com.symphony.bdk.gen.api.model.V2UserAttributes;
 import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserList;
 import com.symphony.bdk.http.api.ApiException;
-
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -207,9 +211,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @Override
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local) {
-    PaginatedApi<UserV2> api =
+    OffsetBasedPaginatedApi<UserV2> api =
         (offset, limit) -> searchUsers(query, local, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
@@ -220,9 +224,9 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
       @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<UserV2> api =
+    OffsetBasedPaginatedApi<UserV2> api =
         (offset, limit) -> searchUsers(query, local, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -289,8 +293,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail() {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
@@ -303,8 +307,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -351,8 +355,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter) {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
@@ -368,8 +372,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull UserFilter filter,
       @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -591,9 +595,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
   public FollowersListResponse listUserFollowers(@Nonnull Long userId, @Nonnull CursorPaginationAttribute pagination) {
-    return executeAndRetry("listUserFollowers",
-        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), userId, pagination.getLimit(),
-            pagination.getBefore().toString(), pagination.getAfter().toString()));
+    return listUserFollowers(userId, pagination.getLimit(), pagination.getBefore().toString(), pagination.getAfter().toString());
   }
 
   /**
@@ -605,10 +607,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowers(@Nonnull Long userId) {
-    PaginatedApi<Long> api =
-        (offset, limit) -> listUserFollowers(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowers();
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return listAllUserFollowers(userId, new StreamPaginationAttribute(PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE));
   }
 
   /**
@@ -621,9 +620,14 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowers(@Nonnull Long userId, @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<Long> api =
-        (offset, limit) -> listUserFollowers(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowers();
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    CursorBasedPaginatedApi<Long> api =
+        (after, limit) -> new FollowerListResponseAdapter(listUserFollowers(userId, limit, null, after));
+    return new CursorBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  private FollowersListResponse listUserFollowers(@Nonnull Long userId, Integer limit, String before, String after) {
+    return executeAndRetry("listUserFollowers",
+        () -> userApi.v1UserUidFollowersGet(authSession.getSessionToken(), userId, limit, before, after));
   }
 
   /**
@@ -647,9 +651,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-users-followed">List Users Followed</a>
    */
   public FollowingListResponse listUsersFollowing(@Nonnull Long userId, @Nonnull CursorPaginationAttribute pagination) {
-    return executeAndRetry("listUsersFollowing",
-        () -> userApi.v1UserUidFollowingGet(authSession.getSessionToken(), userId, pagination.getLimit(),
-            pagination.getBefore().toString(), pagination.getAfter().toString()));
+    return listUsersFollowing(userId, pagination.getLimit(), pagination.getBefore().toString(),
+        pagination.getAfter().toString());
   }
 
   /**
@@ -659,12 +662,10 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
-  @API(status = API.Status.STABLE)
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowing(@Nonnull Long userId) {
-    PaginatedApi<Long> api =
-        (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return listAllUserFollowing(userId, new StreamPaginationAttribute(PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE));
   }
 
   /**
@@ -675,11 +676,16 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link Stream} of users followed by a specific user with the pagination information.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#list-user-followers">List User Followers</a>
    */
-  @API(status = API.Status.STABLE)
+  @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowing(@Nonnull Long userId, @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<Long> api =
-        (offset, limit) -> listUsersFollowing(userId, new CursorPaginationAttribute(0, offset, limit)).getFollowing();
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    CursorBasedPaginatedApi<Long> api =
+        (after, limit) -> new FollowingListResponseAdapter(listUsersFollowing(userId, limit, null, after));
+    return new CursorBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  private FollowingListResponse listUsersFollowing(@Nonnull Long userId, Integer limit, String before, String after) {
+    return executeAndRetry("listUsersFollowing",
+        () -> userApi.v1UserUidFollowingGet(authSession.getSessionToken(), userId, limit, before, after));
   }
 
   /**
@@ -710,24 +716,48 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   /**
    * Returns audit trail of actions performed by a privileged user in a given period of time.
    *
-   * @param startTimestamp  The start time of the period to retrieve the data.
-   * @param endTimestamp    The end time of the period to retrieve the data.
-   * @param pagination      The range and limit for pagination of data.
-   * @param initiatorId     Privileged user id to list audit trail for.
-   * @param role            Role to list audit trail for.
-   * @return  {@link V1AuditTrailInitiatorList} with items and pagination.
+   * @param startTimestamp The start time of the period to retrieve the data.
+   * @param endTimestamp   The end time of the period to retrieve the data.
+   * @param pagination     The range and limit for pagination of data.
+   * @param initiatorId    Privileged user id to list audit trail for.
+   * @param role           Role to list audit trail for.
+   * @return {@link V1AuditTrailInitiatorList} with items and pagination.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-audit-trail-v1">List Audit Trail v1</a>
    */
   public V1AuditTrailInitiatorList listAuditTrail(@Nonnull Long startTimestamp, Long endTimestamp,
       CursorPaginationAttribute pagination, Long initiatorId, String role) {
-
-    String before = pagination != null ? pagination.getBefore().toString() : null;
-    String after = pagination != null ? pagination.getAfter().toString() : null;
+    String before = pagination != null && pagination.getBefore() != null ? pagination.getBefore().toString() : null;
+    String after = pagination != null && pagination.getAfter() != null ? pagination.getAfter().toString() : null;
     Integer limit = pagination != null ? pagination.getLimit() : null;
 
+    return listAuditTrail(startTimestamp, endTimestamp, before, after, limit, initiatorId, role);
+  }
+
+  /**
+   * Returns all audit trail of actions performed by a privileged user in a given period of time.
+   *
+   * @param startTimestamp The start time of the period to retrieve the data.
+   * @param endTimestamp   The end time of the period to retrieve the data.
+   * @param initiatorId    Privileged user id to list audit trail for.
+   * @param role           Role to list audit trail for.
+   * @param chunkSize      The max number of items to retrieve in a given endpoint call
+   * @param maxItems       The max number of items to retrieve in total
+   * @return a lazy stream of audit trail actions
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<V1AuditTrailInitiatorResponse> listAllAuditTrail(@Nonnull Long startTimestamp, Long endTimestamp,
+      Long initiatorId, String role, Integer chunkSize, Integer maxItems) {
+    final CursorBasedPaginatedApi<V1AuditTrailInitiatorResponse> paginatedApi =
+        (after, limit) -> new AuditTrailInitiatorListAdapter(listAuditTrail(startTimestamp, endTimestamp, null, after, limit, initiatorId, role));
+
+    return new CursorBasedPaginatedService<>(paginatedApi, chunkSize, maxItems).stream();
+  }
+
+  private V1AuditTrailInitiatorList listAuditTrail(@Nonnull Long startTimestamp, Long endTimestamp,
+      String before, String after, Integer limit, Long initiatorId, String role) {
     return executeAndRetry("listAuditTrail",
-        () -> auditTrailApi.v1AudittrailPrivilegeduserGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
-            startTimestamp, endTimestamp, before, after, limit, initiatorId, role));
+        () -> auditTrailApi.v1AudittrailPrivilegeduserGet(authSession.getSessionToken(),
+            authSession.getKeyManagerToken(), startTimestamp, endTimestamp, before, after, limit, initiatorId, role));
   }
 
   /**
@@ -765,5 +795,72 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
     return RetryWithRecovery.executeAndRetry(retryBuilder, name, userApi.getApiClient().getBasePath(), supplier);
+  }
+
+
+  private static class AuditTrailInitiatorListAdapter implements CursorPaginatedPayload<V1AuditTrailInitiatorResponse> {
+
+    private V1AuditTrailInitiatorList payload;
+
+    public AuditTrailInitiatorListAdapter(V1AuditTrailInitiatorList payload) {
+      this.payload = payload;
+    }
+
+    @Override
+    public String getNext() {
+      if (payload.getPagination() != null && payload.getPagination().getCursors() != null) {
+        return payload.getPagination().getCursors().getAfter();
+      }
+      return null;
+    }
+
+    @Override
+    public List<V1AuditTrailInitiatorResponse> getData() {
+      return payload.getItems();
+    }
+  }
+
+  private static class FollowerListResponseAdapter implements CursorPaginatedPayload<Long> {
+
+    private FollowersListResponse payload;
+
+    public FollowerListResponseAdapter(FollowersListResponse payload) {
+      this.payload = payload;
+    }
+
+    @Override
+    public String getNext() {
+      if (payload.getPagination() != null && payload.getPagination().getCursors() != null) {
+        return payload.getPagination().getCursors().getAfter();
+      }
+      return null;
+    }
+
+    @Override
+    public List<Long> getData() {
+      return payload.getFollowers();
+    }
+  }
+
+  private static class FollowingListResponseAdapter implements CursorPaginatedPayload<Long> {
+
+    private FollowingListResponse payload;
+
+    public FollowingListResponseAdapter(FollowingListResponse payload) {
+      this.payload = payload;
+    }
+
+    @Override
+    public String getNext() {
+      if (payload.getPagination() != null && payload.getPagination().getCursors() != null) {
+        return payload.getPagination().getCursors().getAfter();
+      }
+      return null;
+    }
+
+    @Override
+    public List<Long> getData() {
+      return payload.getFollowing();
+    }
   }
 }

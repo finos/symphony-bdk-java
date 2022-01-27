@@ -16,6 +16,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'com.tngtech.archunit:archunit-junit5'
 }
 
 def baseSpecsUrl = 'https://raw.githubusercontent.com/finos/symphony-api-spec/master/profile-manager'
@@ -37,3 +41,17 @@ openApiGenerate {
 }
 
 tasks.openApiGenerate.dependsOn tasks.downloadFile
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+            excludes = ['com.symphony.bdk.ext.group.gen.api.*']
+        }
+    }
+}
