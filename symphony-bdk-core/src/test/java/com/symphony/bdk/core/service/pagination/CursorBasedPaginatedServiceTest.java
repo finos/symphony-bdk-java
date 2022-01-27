@@ -85,6 +85,18 @@ class CursorBasedPaginatedServiceTest {
   }
 
   @Test
+  void testApiReturnsNullData() throws ApiException {
+    when(paginatedApi.get(any(), anyInt())).thenReturn(new TestCursorPaginatedPayload(null, null));
+
+    final int chunkSize = 2;
+    final List<String> items = getAllItems(chunkSize, 10);
+
+    assertEquals(0, items.size());
+    verify(paginatedApi, times(1)).get(null, chunkSize);
+    verifyNoMoreInteractions(paginatedApi);
+  }
+
+  @Test
   void testApiReturnsOneItem() throws ApiException {
     final List<String> data = Collections.singletonList("a");
     when(paginatedApi.get(any(), anyInt())).thenReturn(new TestCursorPaginatedPayload(null, data));

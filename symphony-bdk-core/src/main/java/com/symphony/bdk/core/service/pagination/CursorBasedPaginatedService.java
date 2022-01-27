@@ -7,6 +7,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import org.apiguardian.api.API;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -61,7 +62,9 @@ public class CursorBasedPaginatedService<T> extends PaginatedService {
     private void fetchOneChunk(String after) {
       try {
         currentPayload = paginatedApi.get(after, chunkSize);
-        currentChunk = new ArrayList<>(currentPayload.getData());
+
+        final List<T> data = currentPayload.getData();
+        currentChunk = data == null ? Collections.emptyList() : new ArrayList<>(data);
       } catch (ApiException e) {
         throw new ApiRuntimeException(e);
       }
