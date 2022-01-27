@@ -5,12 +5,13 @@ import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedApi;
 import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedService;
+import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
-import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.StreamsApi;
@@ -130,8 +131,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter) {
     OffsetBasedPaginatedApi<StreamAttributes> api = (offset, limit) -> listStreams(filter, new PaginationAttribute(offset, limit));
-    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -281,8 +282,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query) {
     OffsetBasedPaginatedApi<V3RoomDetail> api =
         (offset, limit) -> searchRooms(query, new PaginationAttribute(offset, limit)).getRooms();
-    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -443,8 +444,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public java.util.stream.Stream<V2AdminStreamInfo> listAllStreamsAdmin(@Nullable V2AdminStreamFilter filter) {
     OffsetBasedPaginatedApi<V2AdminStreamInfo> api =
         (offset, limit) -> listStreamsAdmin(filter, new PaginationAttribute(offset, limit)).getStreams();
-    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**
@@ -505,8 +506,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
     OffsetBasedPaginatedApi<V2MemberInfo> api =
         (offset, limit) -> listStreamMembers(toUrlSafeIdIfNeeded(streamId),
             new PaginationAttribute(offset, limit)).getMembers();
-    return new OffsetBasedPaginatedService<>(api, OffsetBasedPaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
-        OffsetBasedPaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
   /**

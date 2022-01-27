@@ -664,7 +664,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Long> listAllUserFollowing(@Nonnull Long userId) {
-    return listAllUserFollowing(userId, new StreamPaginationAttribute(PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE, PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE));
+    return listAllUserFollowing(userId, new StreamPaginationAttribute(PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE));
   }
 
   /**
