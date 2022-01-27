@@ -756,8 +756,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
       String before, String after, Integer limit, Long initiatorId, String role) {
     return executeAndRetry("listAuditTrail",
         () -> auditTrailApi.v1AudittrailPrivilegeduserGet(authSession.getSessionToken(),
-            authSession.getKeyManagerToken(),
-            startTimestamp, endTimestamp, before, after, limit, initiatorId, role));
+            authSession.getKeyManagerToken(), startTimestamp, endTimestamp, before, after, limit, initiatorId, role));
   }
 
   /**
