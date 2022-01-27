@@ -221,6 +221,27 @@ Fields inside `proxy` are:
 * `port`: mandatory, port of the proxy, must be a strictly positive integer.
 * `username` and `password`: optional, basic authentication credentials for the proxy.
 
+For instance, if you want a proxy for the agent only:
+```yaml
+host: acme.symphony.com
+
+agent:
+  host: agent.symphony.com
+  proxy:
+    host: proxy.symphony.com
+    port: 1234
+    username: proxyuser
+    password: proxypassword
+
+bot:
+  username: bot-name
+  privateKey:
+    path: /path/to/bot/rsa-private-key.pem
+
+datafeed:
+  version: v2
+```
+
 ## Configuration format
 Both of `JSON` and `YAML` formats are supported by BDK configuration. Using `JSON`, a minimal configuration file would 
 look like: 
