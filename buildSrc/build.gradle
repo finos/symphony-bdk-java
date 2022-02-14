@@ -9,4 +9,5 @@ repositories {
 dependencies {
     implementation 'org.openapitools:openapi-generator-gradle-plugin:5.3.1'
     implementation 'de.undercouch:gradle-download-task:4.1.2'
+    implementation 'com.github.ben-manes:gradle-versions-plugin:0.42.0'
 }
