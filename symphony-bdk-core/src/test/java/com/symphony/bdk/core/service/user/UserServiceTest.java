@@ -1107,9 +1107,10 @@ class UserServiceTest {
     UserSuspension userSuspension = new UserSuspension();
     userSuspension.setSuspended(true);
     userSuspension.setSuspensionReason("reason why");
-    userSuspension.setSuspendedUntil(Instant.now().toEpochMilli());
+    Instant now = Instant.now();
+    userSuspension.setSuspendedUntil(now.toEpochMilli());
 
-    this.service.suspendUser(1234L, "reason why", Instant.now());
+    this.service.suspendUser(1234L, "reason why", now);
 
     verify(spiedUserApi).v1AdminUserUserIdSuspensionUpdatePut(
         eq("1234"),
