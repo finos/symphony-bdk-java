@@ -16,9 +16,9 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:2.6.1')
+    api platform('org.springframework.boot:spring-boot-dependencies:2.6.3')
     // import Jackson's BOM
-    api platform('com.fasterxml.jackson:jackson-bom:2.13.0')
+    api platform('com.fasterxml.jackson:jackson-bom:2.13.1')
     // define all our dependencies versions
     constraints {
         // Internal modules dependencies (Keep them first)
@@ -39,10 +39,10 @@ dependencies {
         // External dependencies
         api 'org.projectlombok:lombok:1.18.22'
 
-        api 'org.apiguardian:apiguardian-api:1.1.0'
+        api 'org.apiguardian:apiguardian-api:1.1.2'
 
-        api 'org.slf4j:slf4j-api:1.7.32'
-        api 'org.slf4j:slf4j-log4j12:1.7.32'
+        api 'org.slf4j:slf4j-api:1.7.36'
+        api 'org.slf4j:slf4j-log4j12:1.7.36'
 
         // Logback is used by default for Spring based projects, force the version for LOGBACK-1591
         api 'ch.qos.logback:logback-classic:1.2.8'
@@ -68,7 +68,7 @@ dependencies {
         api 'io.github.resilience4j:resilience4j-retry:1.7.1'
 
         api 'io.swagger:swagger-annotations:1.6.0'
-        api 'org.openapitools:jackson-databind-nullable:0.2.1'
+        api 'org.openapitools:jackson-databind-nullable:0.2.2'
 
         api 'org.glassfish.jersey.core:jersey-client:2.35'
         api 'org.glassfish.jersey.core:jersey-common:2.35'
@@ -86,11 +86,11 @@ dependencies {
 
         api 'org.junit.jupiter:junit-jupiter:5.8.2'
         api 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-        api 'com.tngtech.archunit:archunit-junit5:0.21.0'
-        api 'org.mock-server:mockserver-netty:5.11.2'
-        api 'org.mockito:mockito-core:3.12.4'
-        api 'org.mockito:mockito-junit-jupiter:3.12.4'
-        api 'org.assertj:assertj-core:3.21.0'
+        api 'com.tngtech.archunit:archunit-junit5:0.22.0'
+        api 'org.mock-server:mockserver-netty:5.12.0'
+        api 'org.mockito:mockito-core:4.3.1'
+        api 'org.mockito:mockito-junit-jupiter:4.3.1'
+        api 'org.assertj:assertj-core:3.22.0'
     }
 }
 
