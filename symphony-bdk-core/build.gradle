@@ -72,12 +72,12 @@ dependencies {
 }
 
 // OpenAPI code generation
-def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/master"
+def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/b50c9a7a5d5e64b957dae3c9c7a801749971dcd4"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public.yaml',
         Pod  : 'pod/pod-api-public-deprecated.yaml',
-        Auth : 'authenticator/authenticator-api-public.yaml',
+        Auth : 'authenticator/authenticator-api-public-deprecated.yaml',
         Login: 'login/login-api-public.yaml',
 ]
 
