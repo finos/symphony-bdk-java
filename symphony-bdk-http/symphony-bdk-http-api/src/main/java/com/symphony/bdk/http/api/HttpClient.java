@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.With;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -375,13 +376,17 @@ public class HttpClient {
 
     private Map<String, String> headers;
     private Map<String, String> cookies;
-    private Map<String, Object> formParams;
+    private Map<String, List<Object>> formParams;
     private List<Pair> queryParams;
 
     private String path;
     private Object body;
     private String accept;
     private String contentType;
+
+    public Map<String, Object> getFormParams() {
+      return formParams == null ? Collections.emptyMap() : new HashMap<>(formParams);
+    }
 
     public Map<String, String> appendHeader(String key, String value) {
 
@@ -413,13 +418,16 @@ public class HttpClient {
       return this.queryParams;
     }
 
-    public Map<String, Object> appendFormParam(String key, Object value) {
+    public Map<String, List<Object>> appendFormParam(String key, Object value) {
 
       if (this.formParams == null) {
         this.formParams = new HashMap<>();
       }
+      if (!this.formParams.containsKey(key)) {
+        this.formParams.put(key, new ArrayList<>());
+      }
 
-      this.formParams.put(key, value);
+      this.formParams.get(key).add(value);
       return this.formParams;
     }
   }
