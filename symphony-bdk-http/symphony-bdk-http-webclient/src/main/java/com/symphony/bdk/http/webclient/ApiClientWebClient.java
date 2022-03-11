@@ -1,5 +1,7 @@
 package com.symphony.bdk.http.webclient;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
+
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
@@ -233,8 +235,9 @@ public class ApiClientWebClient implements ApiClient {
   private void serializeMultiPartDataEntry(String paramKey, Object paramValue,
       MultiValueMap<String, Object> formValueMap) {
     if (paramValue instanceof File) {
-      File file = (File) paramValue;
-      formValueMap.add(paramKey, new FileSystemResource(file));
+      addFileToFormParam(paramKey, (File) paramValue, formValueMap);
+    } else if (isCollectionOfFiles(paramValue)) {
+      ((Collection<?>) paramValue).forEach(f -> addFileToFormParam(paramKey, (File) f, formValueMap));
     } else if (paramValue instanceof ApiClientBodyPart[]) {
       for (ApiClientBodyPart bodyPart : (ApiClientBodyPart[]) paramValue) {
         serializeApiClientBodyPart(paramKey, bodyPart, formValueMap);
@@ -244,6 +247,11 @@ public class ApiClientWebClient implements ApiClient {
     } else {
       formValueMap.add(paramKey, parameterToString(paramValue));
     }
+  }
+
+  private void addFileToFormParam(String paramKey, File paramValue, MultiValueMap<String, Object> formValueMap) {
+    File file = paramValue;
+    formValueMap.add(paramKey, new FileSystemResource(file));
   }
 
   private void serializeApiClientBodyPart(String paramKey, ApiClientBodyPart bodyPart,

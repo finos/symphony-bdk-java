@@ -1,5 +1,7 @@
 package com.symphony.bdk.http.jersey2;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
+
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
@@ -430,18 +432,12 @@ public class ApiClientJersey2 implements ApiClient {
     for (final Entry<String, Object> param : formParams.entrySet()) {
       // if part is a File
       if (param.getValue() instanceof File) {
-        final File file = (File) param.getValue();
-        final FormDataContentDisposition contentDisposition = FormDataContentDisposition
-            .name(param.getKey())
-            .fileName(file.getName())
-            .size(file.length())
-            .build();
-        final FormDataBodyPart streamPart = new FormDataBodyPart(
-            contentDisposition,
-            file,
-            MediaType.APPLICATION_OCTET_STREAM_TYPE
-        );
-        multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
+        multiPart = buildFileBodyPart(multiPart, param.getKey(), (File) param.getValue());
+      } else if (isCollectionOfFiles(param.getValue())) {
+        Collection<?> paramValues = (Collection<?>) param.getValue();
+        for (Object paramValue : paramValues) {
+          multiPart = buildFileBodyPart(multiPart, param.getKey(), (File) paramValue);
+        }
       }
       // if part is a ApiClientBodyPart[]
       else if (param.getValue() instanceof ApiClientBodyPart[]) {
@@ -463,6 +459,20 @@ public class ApiClientJersey2 implements ApiClient {
     }
 
     return Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
+  }
+
+  private FormDataMultiPart buildFileBodyPart(FormDataMultiPart multiPart, String paramKey, File paramValue) {
+    final FormDataContentDisposition contentDisposition = FormDataContentDisposition
+        .name(paramKey)
+        .fileName(paramValue.getName())
+        .size(paramValue.length())
+        .build();
+    final FormDataBodyPart streamPart = new FormDataBodyPart(
+        contentDisposition,
+        paramValue,
+        MediaType.APPLICATION_OCTET_STREAM_TYPE
+    );
+    return (FormDataMultiPart) multiPart.bodyPart(streamPart);
   }
 
   /**
