@@ -15,6 +15,7 @@ import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.model.ApplicationDetail;
 import com.symphony.bdk.gen.api.model.PodAppEntitlement;
 import com.symphony.bdk.gen.api.model.UserAppEntitlement;
+import com.symphony.bdk.gen.api.model.UserAppEntitlementPatch;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -36,6 +37,7 @@ public class ApplicationManagementServiceTest {
   private static final String V1_UPDATE_APP_ENTITLEMENTS = "/pod/v1/admin/app/entitlement/list";
   private static final String V1_USER_APPS = "/pod/v1/admin/user/{uid}/app/entitlement/list";
   private static final String V1_UPDATE_USER_APPS = "/pod/v1/admin/user/{uid}/app/entitlement/list";
+  private static final String V1_PATCH_USER_APPS = "/pod/v1/admin/user/{uid}/app/entitlement/list";
 
   private ApplicationService service;
   private ApplicationApi applicationApi;
@@ -62,15 +64,16 @@ public class ApplicationManagementServiceTest {
 
     ApplicationDetail appDetail = this.service.createApplication(new ApplicationDetail());
 
-    assertEquals(appDetail.getApplicationInfo().getAppId(), "my-test-app");
-    assertEquals(appDetail.getDescription(), "a test app");
+    assertEquals("my-test-app", appDetail.getApplicationInfo().getAppId());
+    assertEquals("a test app", appDetail.getDescription());
   }
 
   @Test
   void createApplicationTestFailed() {
     mockApiClient.onPost(400, V1_APP_CREATE, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.createApplication(new ApplicationDetail()));
+    ApplicationDetail applicationDetail = new ApplicationDetail();
+    assertThrows(ApiRuntimeException.class, () -> this.service.createApplication(applicationDetail));
   }
 
   @Test
@@ -80,16 +83,17 @@ public class ApplicationManagementServiceTest {
 
     ApplicationDetail appDetail = this.service.updateApplication("my-test-app", new ApplicationDetail());
 
-    assertEquals(appDetail.getApplicationInfo().getAppId(), "my-test-app");
-    assertEquals(appDetail.getDescription(), "updating an app");
+    assertEquals("my-test-app", appDetail.getApplicationInfo().getAppId());
+    assertEquals("updating an app", appDetail.getDescription());
   }
 
   @Test
   void updateApplicationTestFailed() {
     mockApiClient.onPost(400, V1_APP_UPDATE.replace("{appId}", "my-test-app"), "{}");
 
+    ApplicationDetail applicationDetail = new ApplicationDetail();
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.updateApplication("my-test-app", new ApplicationDetail()));
+        () -> this.service.updateApplication("my-test-app", applicationDetail));
   }
 
   @Test
@@ -116,8 +120,8 @@ public class ApplicationManagementServiceTest {
 
     ApplicationDetail appDetail = this.service.getApplication("my-test-app");
 
-    assertEquals(appDetail.getApplicationInfo().getAppId(), "my-test-app");
-    assertEquals(appDetail.getDescription(), "getting an app");
+    assertEquals("my-test-app", appDetail.getApplicationInfo().getAppId());
+    assertEquals("getting an app", appDetail.getDescription());
   }
 
   @Test
@@ -166,7 +170,8 @@ public class ApplicationManagementServiceTest {
         .listed(true)
         .install(false);
 
-    List<PodAppEntitlement> entitlements = this.service.updateApplicationEntitlements(Collections.singletonList(entitlement));
+    List<PodAppEntitlement> entitlements =
+        this.service.updateApplicationEntitlements(Collections.singletonList(entitlement));
 
     assertEquals(entitlements.size(), 1);
     assertEquals(entitlements.get(0), entitlement);
@@ -176,8 +181,9 @@ public class ApplicationManagementServiceTest {
   void updateAppEntitlementsTestFailed() {
     this.mockApiClient.onPost(400, V1_UPDATE_APP_ENTITLEMENTS, "{}");
 
+    List<PodAppEntitlement> podAppEntitlements = Collections.singletonList(new PodAppEntitlement());
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.updateApplicationEntitlements(Collections.singletonList(new PodAppEntitlement())));
+        () -> this.service.updateApplicationEntitlements(podAppEntitlements));
   }
 
   @Test
@@ -188,9 +194,9 @@ public class ApplicationManagementServiceTest {
     List<UserAppEntitlement> entitlements = this.service.listUserApplications(1234L);
 
     assertEquals(entitlements.size(), 3);
-    assertEquals(entitlements.get(0).getAppId(), "djApp");
-    assertEquals(entitlements.get(1).getAppId(), "spcapiq");
-    assertEquals(entitlements.get(2).getProducts().size(), 2);
+    assertEquals("djApp", entitlements.get(0).getAppId());
+    assertEquals("spcapiq", entitlements.get(1).getAppId());
+    assertEquals(2, entitlements.get(2).getProducts().size());
   }
 
   @Test
@@ -208,17 +214,41 @@ public class ApplicationManagementServiceTest {
     List<UserAppEntitlement> entitlements =
         this.service.updateUserApplications(1234L, Collections.singletonList(new UserAppEntitlement()));
 
-    assertEquals(entitlements.size(), 3);
-    assertEquals(entitlements.get(0).getAppId(), "djApp");
-    assertEquals(entitlements.get(1).getAppId(), "spcapiq");
-    assertEquals(entitlements.get(2).getProducts().size(), 2);
+    assertEquals(3, entitlements.size());
+    assertEquals("djApp", entitlements.get(0).getAppId());
+    assertEquals("spcapiq", entitlements.get(1).getAppId());
+    assertEquals(2, entitlements.get(2).getProducts().size());
   }
 
   @Test
   void updateUserApplicationsTestFailed() {
     this.mockApiClient.onPost(400, V1_UPDATE_USER_APPS.replace("{uid}", "1234"), "{}");
 
+    List<UserAppEntitlement> entitlements = Collections.singletonList(new UserAppEntitlement());
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.updateUserApplications(1234L, Collections.singletonList(new UserAppEntitlement())));
+        () -> this.service.updateUserApplications(1234L, entitlements));
+  }
+
+  @Test
+  void patchUserApplicationsTest() throws IOException {
+    this.mockApiClient.onPatch(V1_PATCH_USER_APPS.replace("{uid}", "1234"),
+        JsonHelper.readFromClasspath("/application/user_apps.json"));
+
+    List<UserAppEntitlement> entitlements =
+        this.service.patchUserApplications(1234L, Collections.singletonList(new UserAppEntitlementPatch()));
+
+    assertEquals(3, entitlements.size());
+    assertEquals("djApp", entitlements.get(0).getAppId());
+    assertEquals("spcapiq", entitlements.get(1).getAppId());
+    assertEquals(2, entitlements.get(2).getProducts().size());
+  }
+
+  @Test
+  void patchUserApplicationsTestFailed() {
+    this.mockApiClient.onPatch(400, V1_PATCH_USER_APPS.replace("{uid}", "1234"), "{}");
+
+    List<UserAppEntitlementPatch> entitlements = Collections.singletonList(new UserAppEntitlementPatch());
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.patchUserApplications(1234L, entitlements));
   }
 }

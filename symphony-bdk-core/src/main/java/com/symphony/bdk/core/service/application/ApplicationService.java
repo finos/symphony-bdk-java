@@ -9,6 +9,7 @@ import com.symphony.bdk.gen.api.ApplicationApi;
 import com.symphony.bdk.gen.api.model.ApplicationDetail;
 import com.symphony.bdk.gen.api.model.PodAppEntitlement;
 import com.symphony.bdk.gen.api.model.UserAppEntitlement;
+import com.symphony.bdk.gen.api.model.UserAppEntitlementPatch;
 import com.symphony.bdk.http.api.ApiException;
 
 import org.apiguardian.api.API;
@@ -136,18 +137,33 @@ public class ApplicationService {
   }
 
   /**
-   * Update the application entitlements for a particular user.
+   * Updates all application entitlements for a particular user.
    *
    * @param userId                 User Id.
    * @param userAppEntitlementList The list of App Entitlements needs to be updated.
    * @return The updated list of Symphony application entitlements for this user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-apps">Update User Apps</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-apps">Update All User Apps</a>
    */
   public List<UserAppEntitlement> updateUserApplications(@Nonnull Long userId,
       @Nonnull List<UserAppEntitlement> userAppEntitlementList) {
     return executeAndRetry("updateUserApplications", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminUserUidAppEntitlementListPost(authSession.getSessionToken(), userId,
             userAppEntitlementList));
+  }
+
+  /**
+   * Updates particular app entitlements for a particular user. Supports partial update.
+   *
+   * @param userId                 User Id.
+   * @param userAppEntitlementPatchList The list of App Entitlements needs to be updated.
+   * @return The updated list of Symphony application entitlements for this user.
+   * @see <a href="https://developers.symphony.com/restapi/reference/partial-update-user-apps">Update User Apps</a>
+   */
+  public List<UserAppEntitlement> patchUserApplications(@Nonnull Long userId,
+      @Nonnull List<UserAppEntitlementPatch> userAppEntitlementPatchList) {
+    return executeAndRetry("patchUserApplications", appEntitlementApi.getApiClient().getBasePath(),
+        () -> appEntitlementApi.v1AdminUserUidAppEntitlementListPatch(authSession.getSessionToken(), userId,
+            userAppEntitlementPatchList));
   }
 
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
