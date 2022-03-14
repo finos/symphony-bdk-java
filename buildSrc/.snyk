@@ -1,0 +1,50 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.22.2
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-2421244:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:09:06.201Z
+        created: 2022-03-14T08:09:06.204Z
+  SNYK-JAVA-ORGMOZILLA-1314295:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:07:52.572Z
+        created: 2022-03-14T08:07:52.575Z
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-1048302:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:09:43.852Z
+        created: 2022-03-14T08:09:43.856Z
+  SNYK-JAVA-ORGYAML-537645:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:10:10.697Z
+        created: 2022-03-14T08:10:10.700Z
+  SNYK-JAVA-COMFASTERXMLJACKSONCORE-2326698:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:10:27.568Z
+        created: 2022-03-14T08:10:27.572Z
+  SNYK-JAVA-ORGJETBRAINSKOTLIN-2393744:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:10:39.390Z
+        created: 2022-03-14T08:10:39.394Z
+  SNYK-JAVA-ORGAPACHEHTTPCOMPONENTS-31517:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:10:54.212Z
+        created: 2022-03-14T08:10:54.216Z
+  SNYK-JAVA-ORGAPACHEHTTPCOMPONENTS-1048058:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:11:07.031Z
+        created: 2022-03-14T08:11:07.035Z
+  SNYK-JAVA-COMMONSCODEC-561518:
+    - '*':
+        reason: Used by build only
+        expires: 2032-04-13T08:11:16.964Z
+        created: 2022-03-14T08:11:16.968Z
+patch: {}
