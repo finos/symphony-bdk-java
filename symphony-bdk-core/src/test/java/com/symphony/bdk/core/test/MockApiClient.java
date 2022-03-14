@@ -64,6 +64,14 @@ public class MockApiClient {
     this.onRequestWithResponseCode("POST", statusCode, path, null, resContent);
   }
 
+  public void onPatch(String path, String resContent) {
+    this.onRequestWithResponseCode("PATCH", 200, path, null, resContent);
+  }
+
+  public void onPatch(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("PATCH", statusCode, path, null, resContent);
+  }
+
   public void onPut(String path, String resContent) {
     this.onRequestWithResponseCode("PUT", 200, path, null, resContent);
   }
@@ -88,7 +96,7 @@ public class MockApiClient {
       String resContent)  {
     WebTarget webTarget = null;
     try {
-       webTarget = this.httpClient.target(path);
+      webTarget = this.httpClient.target(path);
     } catch (RuntimeException ignored) {
       // ignored
     }
@@ -122,6 +130,8 @@ public class MockApiClient {
       doReturn(response).when(invocationBuilder).put(any(Entity.class));
     } else if ("DELETE".equals(method)) {
       doReturn(response).when(invocationBuilder).method(eq("DELETE"), any(Entity.class));
+    } else if ("PATCH".equals(method)) {
+      doReturn(response).when(invocationBuilder).method(eq("PATCH"), any(Entity.class));
     }
   }
 
