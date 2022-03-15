@@ -18,6 +18,7 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -76,7 +77,8 @@ public class MessageExampleMain {
     V4ImportedMessageAttachment attachmentToImport = new V4ImportedMessageAttachment();
     attachmentToImport.setFilename("text.txt");
     //content is in base64 format
-    attachmentToImport.setContent("U3ltcGhvbnk=");
+    String encodedContent = Base64.getEncoder().encodeToString("Symphony".getBytes());
+    attachmentToImport.setContent(encodedContent);
     attachments.add(attachmentToImport);
     return attachments;
   }
