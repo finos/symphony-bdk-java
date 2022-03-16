@@ -7,6 +7,10 @@ plugins {
 
 description = 'Symphony Java BDK - Groups Extension'
 
+javadoc {
+    options.group 'Extension - Group', 'com.symphony.bdk.ext*'
+}
+
 dependencies {
     implementation project(':symphony-bdk-core')
     implementation project(':symphony-bdk-extension-api')
@@ -22,7 +26,7 @@ dependencies {
     testImplementation 'com.tngtech.archunit:archunit-junit5'
 }
 
-def baseSpecsUrl = 'https://raw.githubusercontent.com/finos/symphony-api-spec/master/profile-manager'
+def baseSpecsUrl = 'https://raw.githubusercontent.com/finos/symphony-api-spec/af73762a33357436edacca0b198cc18192e96606/profile-manager'
 
 task downloadFile(type: Download) {
     src([
@@ -31,7 +35,7 @@ task downloadFile(type: Download) {
     ])
     dest buildDir
     onlyIfModified true
-    useETag true
+    useETag "all"
 }
 
 openApiGenerate {
@@ -41,6 +45,8 @@ openApiGenerate {
 }
 
 tasks.openApiGenerate.dependsOn tasks.downloadFile
+tasks.sourcesJar.dependsOn tasks.downloadFile
+tasks.sourcesJar.dependsOn tasks.openApiGenerate
 
 jacocoTestCoverageVerification {
     violationRules {
