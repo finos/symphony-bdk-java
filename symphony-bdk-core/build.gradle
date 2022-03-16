@@ -72,7 +72,7 @@ dependencies {
 }
 
 // OpenAPI code generation
-def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/1217b03323c9fb13ea1c72ba89c99f7540b9b5fc"
+def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/1217b03323c9fb13ea1c72ba89c99f7540b9b5fc"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public.yaml',
@@ -88,6 +88,7 @@ apisToGenerate.each { api, path ->
         src "$apiBaseUrl/$path"
         dest "$buildDir/openapi/$api/${path.split("/")[1]}"
         overwrite false
+        useETag  "all"
     }
 
     def generateTask = tasks.create(name: "generate$api",
