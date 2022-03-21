@@ -121,7 +121,7 @@ app:
     path: path/to/private-key.pem
 
 datafeed:
-  version: v1
+  version: v2
   retry:
     maxAttempts: 6
     initialIntervalMillis: 2000
