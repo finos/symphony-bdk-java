@@ -188,7 +188,7 @@ configuration inside service configuration to override the global one.
 
 #### DatafeedConfiguration
 The datafeed configuration will contain information about the datafeed service to be used by the bot:
-- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v1
+- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v2
 service. 
 - `idFilePath`: the path to the file which will be used to persist a created datafeed id in case the 
 datafeed service v1 is used.
