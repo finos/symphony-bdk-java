@@ -1,12 +1,15 @@
 package com.symphony.bdk.core;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AppAuthSession;
+import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -16,10 +19,10 @@ import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
-import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
-import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
@@ -27,7 +30,6 @@ import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
-
 import com.symphony.bdk.http.api.HttpClient;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +81,7 @@ public class SymphonyBdkTest {
     DatafeedLoop datafeedService = this.symphonyBdk.datafeed();
 
     assertNotNull(datafeedService);
-    assertEquals(datafeedService.getClass(), DatafeedLoopV1.class);
+    assertEquals(datafeedService.getClass(), DatafeedLoopV2.class);
   }
 
   @Test
