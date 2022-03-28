@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * Extension app authenticator RSA implementation.
  *
- * @see <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">Application Authentication</a>
+ * @see <a href="https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication">Application Authentication</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)

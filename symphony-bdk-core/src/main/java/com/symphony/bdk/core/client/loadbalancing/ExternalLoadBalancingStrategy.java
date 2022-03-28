@@ -26,7 +26,7 @@ public class ExternalLoadBalancingStrategy implements LoadBalancingStrategy {
   }
 
   /**
-   * Gets a new base path by calling <a href="https://developers.symphony.com/restapi/reference#agent-info-v1">GET agent/v1/info</a>
+   * Gets a new base path by calling <a href="https://developers.symphony.com/restapi/reference/agent-info-v1">GET agent/v1/info</a>
    * and fetching serverFqdn field.
    *
    * @return the newly retrieved base path.

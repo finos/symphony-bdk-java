@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  * Bot authenticator RSA implementation.
  *
- * @see <a href="https://developers.symphony.com/symphony-developer/docs/rsa-bot-authentication-workflow">RSA Bot Authentication Workflow</a>
+ * @see <a href="https://docs.developers.symphony.com/building-bots-on-symphony/authentication/rsa-authentication">RSA Bot Authentication Workflow</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)

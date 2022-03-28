@@ -1,7 +1,7 @@
 # Symphony BDK Reference Documentation 
 
 This reference guide provides detailed information about the Symphony BDK. It provides a comprehensive documentation 
-for all features and abstractions made on top of the [Symphony REST API](https://developers.symphony.com/restapi/reference).
+for all features and abstractions made on top of the [Symphony REST API](https://developers.symphony.com/restapi/reference/introduction).
 
 If you are just getting started with Symphony Bot developments, you may want to begin reading the 
 [Getting Started](./getting-started.md) guide. 

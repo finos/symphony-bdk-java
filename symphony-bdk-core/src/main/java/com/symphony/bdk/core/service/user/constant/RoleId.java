@@ -4,7 +4,7 @@ import org.apiguardian.api.API;
 
 /**
  * Static roles that have special logic attached to them.
- * @see <a href="https://developers.symphony.com/restapi/docs/permissions">Symphony Roles</a>
+ * @see <a href="https://developers.symphony.com/restapi/reference/roles-object">Symphony Roles</a>
  */
 @API(status = API.Status.STABLE)
 public enum RoleId {

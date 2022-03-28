@@ -7,7 +7,7 @@ import org.apiguardian.api.API;
 /**
  * Interface definition for a callback to be invoked when a real-time event is received from the datafeed.
  *
- * @see <a href="https://developers.symphony.com/restapi/docs/real-time-events">real-time-events</a>
+ * @see <a href="https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events">Real-Time Events</a>
  */
 @API(status = API.Status.STABLE)
 public interface RealTimeEventListener {
