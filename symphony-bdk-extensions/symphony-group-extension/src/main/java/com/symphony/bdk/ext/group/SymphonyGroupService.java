@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
 /**
  * Service class for managing groups.
  *
- * @see <a href="https://developers.symphony.com/restapi/reference#groups-distribution-lists">Groups - Distribution Lists</a>
+ * @see <a href="https://developers.symphony.com/restapi/reference/groups-distribution-lists">Groups - Distribution Lists</a>
  */
 @API(status = API.Status.EXPERIMENTAL, since = "20.13")
 public class SymphonyGroupService implements BdkExtensionService {
@@ -62,7 +62,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * Create a new group
-   * @see <a href="https://developers.symphony.com/restapi/reference#insertgroup">Insert a new group</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/insertgroup">Insert a new group</a>
    *
    * @param group the details of the group to be created
    * @return the created group
@@ -75,7 +75,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * Update an existing group
-   * @see <a href="https://developers.symphony.com/restapi/reference#updategroup">Update a group</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/updategroup">Update a group</a>
    *
    * @param ifMatch eTag of the group to be updated
    * @param groupId the ID of the group
@@ -90,7 +90,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * Update the group avatar
-   * @see <a href="https://developers.symphony.com/restapi/reference#updateavatar">Update the group avatar</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/updateavatar">Update the group avatar</a>
    *
    * @param groupId the ID of the group
    * @param image the byte array of the avatar image for the user profile picture.
@@ -105,7 +105,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * Retrieve a specific group
-   * @see <a href="https://developers.symphony.com/restapi/reference#getgroup">Retrieve a group</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/getgroup">Retrieve a group</a>
    *
    * @param groupId the ID of the group to retrive
    * @return the group details
@@ -118,7 +118,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * List the groups of type "SDL"
-   * @see <a href="https://developers.symphony.com/restapi/reference#listgroups">List all groups of specified type</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/listgroups">List all groups of specified type</a>
    *
    * @param status filter by status, active or deleted. If not specified, both are returned
    * @param before NOT SUPPORTED YET, currently ignored.
@@ -136,7 +136,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * List all the groups of type "SDL" with automatic pagination
-   * @see <a href="https://developers.symphony.com/restapi/reference#listgroups">List all groups of specified type</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/listgroups">List all groups of specified type</a>
    *
    * @param status filter by status, active or deleted. If not specified, both are returned
    * @param sortOrder sorting direction of items (ordered by creation date)
@@ -154,7 +154,7 @@ public class SymphonyGroupService implements BdkExtensionService {
 
   /**
    * Add a new user to an existing group.
-   * @see <a href="https://developers.symphony.com/restapi/reference#addmembertogroup">Add a new user to a an existing group</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/addmembertogroup">Add a new user to a an existing group</a>
    *
    * @param groupId the ID of the group in which to add the user
    * @param userId The ID of the user to be added into the group

@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 /**
  * Bot authenticator certificate implementation.
  *
- * @see <a href="https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1">BotAuthentication Workflow</a>
+ * @see <a href="https://docs.developers.symphony.com/building-bots-on-symphony/authentication/certificate-authentication">Certificate Bot Authentication Workflow</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)

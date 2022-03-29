@@ -6,7 +6,7 @@
 > Account Manager or to our [developer documentation](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed).
 
 The datafeed loop is a service used for handling the [_Real Time
-Events_](https://developers.symphony.com/restapi/docs/real-time-events). When a user makes an interaction within the IM,
+Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events). When a user makes an interaction within the IM,
 MIM or Room chat like sending a message, joining or leaving a room chat..., when a connection request is sent, when a
 wall post is published or when a user replies an Symphony element, an event will be sent to the datafeed. The bot can
 create a datafeed, list all created datafeeds or retrieve all the Real Time Events within a datafeed through datafeed

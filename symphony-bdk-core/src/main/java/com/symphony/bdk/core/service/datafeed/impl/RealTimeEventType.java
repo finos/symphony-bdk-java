@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 
 /**
  * Enumeration of possible types of Real Time Events that can be retrieved from the DataFeed.
- * More information : https://rest-api.symphony.com/reference#real-time-events-v4
+ * More information : https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events
  */
 @API(status = API.Status.INTERNAL)
 enum RealTimeEventType {

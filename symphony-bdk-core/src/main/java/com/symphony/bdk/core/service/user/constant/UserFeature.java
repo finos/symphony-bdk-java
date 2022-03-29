@@ -5,7 +5,7 @@ import org.apiguardian.api.API;
 /**
  * The list of available user features.
  *
- * @see <a href="https://developers.symphony.com/restapi/reference#list-features">List Features</a>
+ * @see <a href="https://developers.symphony.com/restapi/reference/list-features">List Features</a>
  */
 @API(status = API.Status.STABLE)
 public enum UserFeature {

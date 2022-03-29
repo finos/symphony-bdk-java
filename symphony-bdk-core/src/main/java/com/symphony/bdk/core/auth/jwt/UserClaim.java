@@ -6,7 +6,7 @@ import org.apiguardian.api.API;
 
 /**
  * Class to represent the claim "user" in the
- * <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">jwt</a>
+ * <a href="https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication#verifying-decoding-and-using-the-jwt">jwt</a>
  * used in extension app authentication.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

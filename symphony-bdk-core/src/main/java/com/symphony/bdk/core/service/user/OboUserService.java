@@ -30,7 +30,7 @@ public interface OboUserService {
    *                if true all active users will be returned,
    *                if false all inactive users will be returned
    * @return Users found by user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
   List<UserV2> listUsersByIds(@Nonnull List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active);
 
@@ -39,7 +39,7 @@ public interface OboUserService {
    *
    * @param uidList List of user ids
    * @return Users found by user ids
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
   List<UserV2> listUsersByIds(@Nonnull List<Long> uidList);
 
@@ -54,7 +54,7 @@ public interface OboUserService {
    *                  if true all active users will be returned,
    *                  if false all inactive users will be returned
    * @return Users found by emails.
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
   List<UserV2> listUsersByEmails(@Nonnull List<String> emailList, @Nullable Boolean local, @Nullable Boolean active);
 
@@ -63,7 +63,7 @@ public interface OboUserService {
    *
    * @param emailList List of emails
    * @return Users found by emails
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
   List<UserV2> listUsersByEmails(@Nonnull List<String> emailList);
 
@@ -75,7 +75,7 @@ public interface OboUserService {
    *                     if true all active users will be returned,
    *                     if false all inactive users will be returned
    * @return Users found by usernames
-   * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
   List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active);
 

@@ -27,7 +27,7 @@ public interface OboStreamService {
    *
    * @param streamId    The stream id.
    * @return The information about the stream with the given id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#stream-info-v2">Stream Info V2</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/stream-info-v2">Stream Info V2</a>
    */
   V2StreamAttributes getStream(@Nonnull String streamId);
 
@@ -36,7 +36,7 @@ public interface OboStreamService {
    *
    * @param filter      The stream searching criteria.
    * @return The list of streams retrieved according to the searching criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
   List<StreamAttributes> listStreams(@Nullable StreamFilter filter);
 
@@ -46,7 +46,7 @@ public interface OboStreamService {
    * @param filter      The stream searching criteria.
    * @param pagination  The skip and limit for pagination.
    * @return The list of streams retrieved according to the searching criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
   List<StreamAttributes> listStreams(@Nullable StreamFilter filter, @Nonnull PaginationAttribute pagination);
 
@@ -55,7 +55,7 @@ public interface OboStreamService {
    *
    * @param filter The stream searching criteria.
    * @return a {@link Stream} of matching streams according to the searching criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter);
@@ -66,7 +66,7 @@ public interface OboStreamService {
    * @param filter      The stream searching criteria.
    * @param pagination  The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of matching streams according to the searching criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-user-streams">List Streams</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter, @Nonnull StreamPaginationAttribute pagination);
@@ -76,7 +76,7 @@ public interface OboStreamService {
    *
    * @param userId      The id of the user to be added to the given room
    * @param roomId      The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#add-member">Add Member</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/add-member">Add Member</a>
    */
   void addMemberToRoom(@Nonnull Long userId, @Nonnull String roomId);
 
@@ -85,7 +85,7 @@ public interface OboStreamService {
    *
    * @param userId      The id of the user to be removed from the given room
    * @param roomId      The room id
-   * @see <a href="https://developers.symphony.com/restapi/reference#remove-member">Remove Member</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/remove-member">Remove Member</a>
    */
   void removeMemberFromRoom(@Nonnull Long userId, @Nonnull String roomId);
 
@@ -95,7 +95,7 @@ public interface OboStreamService {
    * @param streamId    The stream id.
    * @param content     The third-party {@link ShareContent} to be shared.
    * @return Message contains share content
-   * @see <a href="https://developers.symphony.com/restapi/reference#share-v3">Share</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/share-v3">Share</a>
    */
   V2Message share(@Nonnull String streamId, @Nonnull ShareContent content);
 
@@ -104,7 +104,7 @@ public interface OboStreamService {
    *
    * @param userId      The id of the user to be promoted to room owner.
    * @param roomId      The room id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#promote-owner">Promote Owner</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/promote-owner">Promote Owner</a>
    */
   void promoteUserToRoomOwner(@Nonnull Long userId, @Nonnull String roomId);
 
@@ -113,7 +113,7 @@ public interface OboStreamService {
    *
    * @param userId      The id of the user to be demoted to room participant.
    * @param roomId      The room id.
-   * @see <a href="https://developers.symphony.com/restapi/reference#demote-owner">Demote Owner</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/demote-owner">Demote Owner</a>
    */
   void demoteUserToRoomParticipant(@Nonnull Long userId, @Nonnull String roomId);
 }

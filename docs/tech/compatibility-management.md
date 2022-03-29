@@ -1,6 +1,6 @@
 # BDK compatibility management
 
-You can check our existing change management policy for our HTTP API [here](https://developers.symphony.com/restapi/docs/api-change-management).
+You can check our existing change management policy for our HTTP API [here](https://docs.developers.symphony.com/admin-guide/api-change-management).
 
 ## API change management
 
@@ -11,7 +11,7 @@ Using features supported by new APIs will require using recent versions of the B
 | 20.9 and before    | 2.0.0            |
 
 The supported version of SBE and Agent corresponding to the product version of APIs can be found in 
-[Agent compatibilities](https://developers.symphony.com/restapi/docs/agent-compatibilities).
+[Agent compatibilities](https://docs.developers.symphony.com/admin-guide/agent-guide/sbe-x-agent-compatibility-matrix).
 
 Rationale of our change management policy is to be backward compatible on existing features
 (classes, methods or [configuration](../configuration.md) fields) whenever possible.
@@ -36,7 +36,7 @@ class or method as deprecated in a given `x.y.z` version.
 documented and is available.
 
 Deprecations and subsequent class, method or field removal will all be documented in
-[release notes](https://github.com/SymphonyPlatformSolutions/symphony-api-client-java/releases).
+[release notes](https://github.com/finos/symphony-bdk-java/releases).
 
 ## BDK services
 
@@ -47,7 +47,7 @@ mission of the BDK services layer.
 
 The BDK services relies on the many APIs classes which are generated automatically by Swagger 
 OpenAPI from several swagger specs files describing all the endpoints provided by SBE/Agent. 
-[Symphony-api-spec](https://github.com/symphonyoss/symphony-api-spec)
+[Symphony-api-spec](https://github.com/finos/symphony-api-spec)
 
 ## Symphony-api-spec
 

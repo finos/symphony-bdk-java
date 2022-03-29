@@ -37,7 +37,7 @@ public class Message {
   private final String content;
   /**
    * JSON data representing the objects contained in the message.
-   * @see <a href="https://developers.symphony.com/symphony-developer/docs/objects">Structured Objects</a> for a description of the format.
+   * @see <a href="https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/entities/structured-objects">Structured Objects</a> for a description of the format.
    */
   private final String data;
   /**
