@@ -1,9 +1,9 @@
 # Activity API
 
-The Activity API is an abstraction built on top of the Datafeed's [_Real Time Events_](https://developers.symphony.com/restapi/docs/real-time-events). An Activity is basically a user interaction triggered from the chat.
+The Activity API is an abstraction built on top of the Datafeed's [_Real Time Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events). An Activity is basically a user interaction triggered from the chat.
 Two different kinds of activities are supported by the BDK:
 - **Command Activity**: triggered when a message is sent in an `IM`, `MIM` or `Chatroom`
-- **Form Activity**: triggered when a user replies to an [_Elements_](https://developers.symphony.com/symphony-developer/docs/overview-of-symphony-elements) form message
+- **Form Activity**: triggered when a user replies to an [_Elements_](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/symphony-elements-1) form message
 
 ## Activity Registry
 The central component for activities is the [`ActivityRegistry`](../symphony-bdk-core/src/main/java/com/symphony/bdk/core/activity/ActivityRegistry.java).

@@ -213,7 +213,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    *
    * @param uids List of user ids of the participants.
    * @return The created IM or MIM
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-im-or-mim">Create IM or MIM</a>
    */
 
   public Stream create(@Nonnull List<Long> uids) {
@@ -226,7 +226,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    *
    * @param uids User ids of the participant
    * @return The created IM
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-im-or-mim">Create IM or MIM</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-im-or-mim">Create IM or MIM</a>
    */
   public Stream create(@Nonnull Long... uids) {
     return this.create(Arrays.asList(uids));
@@ -238,7 +238,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    *
    * @param roomAttributes Attributes of the created room
    * @return The created chatroom
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-room-v3">Create Room V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-room-v3">Create Room V3</a>
    */
   public V3RoomDetail create(@Nonnull V3RoomAttributes roomAttributes) {
     return executeAndRetry("createStream", streamsApi.getApiClient().getBasePath(),
@@ -250,7 +250,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    *
    * @param query The room searching criteria
    * @return The rooms returned according to the given criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query) {
     return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
@@ -263,7 +263,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @param query      The room searching criteria.
    * @param pagination The skip and limit for pagination.
    * @return The rooms returned according to the given criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
@@ -276,7 +276,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    *
    * @param query The room searching criteria.
    * @return A {@link java.util.stream.Stream} of rooms returned according to the given criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query) {
@@ -292,7 +292,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @param query      The room searching criteria.
    * @param pagination The chunkSize and totalSize for stream pagination.
    * @return A {@link java.util.stream.Stream} of rooms returned according to the given criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference#search-rooms-v3">Search Rooms V3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query,

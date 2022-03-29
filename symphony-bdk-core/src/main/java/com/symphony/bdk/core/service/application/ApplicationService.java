@@ -55,8 +55,8 @@ public class ApplicationService {
    * @param applicationDetail Contains the following fields for creating an application: appId, name, appUrl, domain, and publisher.
    *                          Note that appUrl is not required.
    * @return The created application.
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-app">Create Application</a>
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-application-with-an-rsa-public-key">Create Application with an RSA Public Key</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-app">Create Application</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-application-with-an-rsa-public-key">Create Application with an RSA Public Key</a>
    */
   public ApplicationDetail createApplication(@Nonnull ApplicationDetail applicationDetail) {
     return executeAndRetry("createApplication", applicationApi.getApiClient().getBasePath(),
@@ -70,8 +70,8 @@ public class ApplicationService {
    * @param applicationDetail Contains the following fields for creating an application: appId, name, appUrl, domain, and publisher.
    *                          Note that appUrl is not required.
    * @return The updated application.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-application">Update Application</a>
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-application-with-an-rsa-public-key">Update Application with an RSA Public Key</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/update-application">Update Application</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/update-application-with-an-rsa-public-key">Update Application with an RSA Public Key</a>
    */
   public ApplicationDetail updateApplication(@Nonnull String appId, @Nonnull ApplicationDetail applicationDetail) {
     return executeAndRetry("updateApplication",  applicationApi.getApiClient().getBasePath(),
@@ -82,7 +82,7 @@ public class ApplicationService {
    * Delete an existing application.
    *
    * @param appId Id of the application needs to be deleted.
-   * @see <a href="https://developers.symphony.com/restapi/reference#delete-application">Delete Application</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/delete-application">Delete Application</a>
    */
   public void deleteApplication(@Nonnull String appId) {
     executeAndRetry("deleteApplication",  applicationApi.getApiClient().getBasePath(),
@@ -94,7 +94,7 @@ public class ApplicationService {
    *
    * @param appId Id of the application.
    * @return The detail of the lookup application.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-application">Get Application</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/get-application">Get Application</a>
    */
   public ApplicationDetail getApplication(@Nonnull String appId) {
     return executeAndRetry("getApplication",  applicationApi.getApiClient().getBasePath(),
@@ -105,7 +105,7 @@ public class ApplicationService {
    * Get the list of application entitlements for the company.
    *
    * @return The list of application entitlements.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-app-entitlements">List App Entitlements</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-app-entitlements">List App Entitlements</a>
    */
   public List<PodAppEntitlement> listApplicationEntitlements() {
     return executeAndRetry("listApplicationEntitlements", applicationApi.getApiClient().getBasePath(),
@@ -117,7 +117,7 @@ public class ApplicationService {
    *
    * @param entitlementList The list of entitlements to be updated by.
    * @return The updated list of entitlements.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-application-entitlements">Update App Entitlements</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/update-application-entitlements">Update App Entitlements</a>
    */
   public List<PodAppEntitlement> updateApplicationEntitlements(@Nonnull List<PodAppEntitlement> entitlementList) {
     return executeAndRetry("updateApplicationEntitlements", appEntitlementApi.getApiClient().getBasePath(),
@@ -129,7 +129,7 @@ public class ApplicationService {
    *
    * @param userId User id.
    * @return The list of Symphony application entitlements for this user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#user-apps">User Apps</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/user-apps">User Apps</a>
    */
   public List<UserAppEntitlement> listUserApplications(@Nonnull Long userId) {
     return executeAndRetry("listUserApplications", appEntitlementApi.getApiClient().getBasePath(),
@@ -142,7 +142,7 @@ public class ApplicationService {
    * @param userId                 User Id.
    * @param userAppEntitlementList The list of App Entitlements needs to be updated.
    * @return The updated list of Symphony application entitlements for this user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#update-user-apps">Update All User Apps</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/update-user-apps">Update All User Apps</a>
    */
   public List<UserAppEntitlement> updateUserApplications(@Nonnull Long userId,
       @Nonnull List<UserAppEntitlement> userAppEntitlementList) {

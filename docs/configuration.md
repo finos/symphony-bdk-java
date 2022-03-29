@@ -205,7 +205,7 @@ Fields inside `loadBalancing` are:
 
 `roundRobin` and `random` modes mean calls to the agent are load balanced across all `nodes`, respectively in a round robin and random fashion.
 `external` mode means each time we want to pick a new agent host, we make a call to the endpoint
-[/v1/info](https://developers.symphony.com/restapi/reference#agent-info-v1) on the first node provided in `nodes`.
+[/v1/info](https://developers.symphony.com/restapi/reference/agent-info-v1) on the first node provided in `nodes`.
 The actual agent URL is taken from the field `serverFqdn` in the response body.
 
 When `stickiness` is set to true, it means one picks a given agent and makes all calls to the same agent node.

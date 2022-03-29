@@ -15,7 +15,7 @@ Only one of certificate or RSA authentication should be configured in one BDK `c
 provided, an `AuthInitializationException` will be thrown when you try to authenticate to the bot service account.
 
 ### Bot authentication using RSA
-> Read more about RSA authentication [here](https://developers.symphony.com/symphony-developer/docs/rsa-bot-authentication-workflow)
+> Read more about RSA authentication [here](https://docs.developers.symphony.com/building-bots-on-symphony/authentication/rsa-authentication)
 
 Required `config.yaml` setup: 
 ```yaml
@@ -27,7 +27,7 @@ bot:
 ```
 
 ### Bot authentication using Client Certificate
-> Read more about Client Certificate authentication [here](https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1)
+> Read more about Client Certificate authentication [here](https://docs.developers.symphony.com/building-bots-on-symphony/authentication/certificate-authentication)
 
 Required `config.yaml` setup: 
 ```yaml
@@ -137,7 +137,7 @@ app:
 ```
 
 ### Circle Of Trust
-> Read more about Circle Of Trust [here](https://developers.symphony.com/extension/docs/application-authentication#section-application-authentication-sequence)
+> Read more about Circle Of Trust [here](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication)
 
 ```java
 public class Example {
@@ -158,7 +158,7 @@ public class Example {
 ```
 
 ### OBO (On Behalf Of) authentication
-> Read more about OBO authentication [here](https://developers.symphony.com/symphony-developer/docs/obo-overview)
+> Read more about OBO authentication [here](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/obo-authentication)
 
 The following example shows how to retrieve OBO sessions using `username` (type `String`) or `userId` (type `Long`)
 and to call services which have OBO endpoints (users, streams and messages so far):

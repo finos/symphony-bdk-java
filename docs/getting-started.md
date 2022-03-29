@@ -8,11 +8,11 @@ in Java. Two different approaches will be detailed here:
 ## Starting with Symphony Generator
 > This section requires `npm` ([Node Package Manager](https://www.npmjs.com/)) to be installed on your local machine as a prerequisite
 
-For all Symphony BDK applications, you should start with the [Symphony Generator](https://github.com/SymphonyPlatformSolutions/generator-symphony).
+For all Symphony BDK applications, you should start with the [Symphony Generator](https://github.com/finos/generator-symphony).
 The Symphony Generator offers a fast way to bootstrap your Symphony BDK project in several languages, including Java:
 ```
-npm i -g generator-symphony
-yo symphony 2.0
+npm i -g @finos/generator-symphony
+yo @finos/symphony
 ```
 
 ## Creating your project _from scratch_
@@ -108,10 +108,10 @@ dependencies {
 Before implementing any code, you need to create your `src/main/resources/config.yaml` configuration file according 
 to your Symphony environment:
 ```yaml
-host: acme.symphony.com                                     # your own pod host name
+host: acme.symphony.com                             # your own pod host name
 
 bot: 
-    username: bot-username                                  # your bot (or service account) username
+    username: bot-username                          # your bot (or service account) username
     privateKey:
       path: /path/to/bot/rsa-private-key.pem        # your bot RSA private key
 ```
@@ -141,8 +141,8 @@ public class BotApplication {
 ```
 1. The `SymphonyBdk` class acts as an entry point into the library and provides a [fluent API](./fluent-api.md) to access
 to the main BDK features such as [Datafeed](./datafeed.md), services or [Activities](./activity-api.md)
-2. Subscribe to the [`onMessageSent`](https://developers.symphony.com/restapi/docs/real-time-events#section-message-sent) 
-[Real Time Event](https://developers.symphony.com/restapi/docs/real-time-events)
+2. Subscribe to the [`onMessageSent`](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent) 
+[Real Time Event](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
 3. When any message is sent into a stream where your bot is a member, it will reply by message `Hello, World`! 
 4. Start the Datafeed read loop
 

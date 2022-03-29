@@ -27,7 +27,7 @@ public interface OboSignalService {
    *
    * @param pagination  The skip and limit for pagination.
    * @return List of signals that the user has created and public signals to which they have subscribed.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-signals">List Signals</a>
    */
   List<Signal> listSignals(@Nonnull PaginationAttribute pagination);
 
@@ -36,7 +36,7 @@ public interface OboSignalService {
    * {@link SignalService#listSignals()}
    *
    * @return List of signals that the user has created and public signals to which they have subscribed.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-signals">List Signals</a>
    */
   List<Signal> listSignals();
 
@@ -46,7 +46,7 @@ public interface OboSignalService {
    *
    * @param pagination  The chunkSize and totalSize for pagination.
    * @return a {@link Stream} containing the signals.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-signals">List Signals</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   Stream<Signal> listAllSignals(@Nonnull StreamPaginationAttribute pagination);
@@ -56,7 +56,7 @@ public interface OboSignalService {
    * {@link SignalService#listAllSignals()}
    *
    * @return a {@link Stream} containing the signals.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-signals">List Signals</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-signals">List Signals</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   Stream<Signal> listAllSignals();
@@ -67,7 +67,7 @@ public interface OboSignalService {
    *
    * @param id The id of the signal.
    * @return Details of the specified signal.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-signal">Get Signal</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/get-signal">Get Signal</a>
    */
   Signal getSignal(@Nonnull String id);
 

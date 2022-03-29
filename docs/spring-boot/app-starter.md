@@ -4,7 +4,7 @@ The Symphony BDK for Java provides a _Starter_ module that aims to ease extensio
  
 ## Features
 - Configure extension app through `application.yaml`
-- Expose a REST API to perform [Circle of Trust authentication](https://developers.symphony.com/extension/docs/application-authentication).
+- Expose a REST API to perform [Circle of Trust authentication](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication).
 
 ## Installation
 
@@ -108,7 +108,7 @@ logging:
     level:
         com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
-> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
+> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-config/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/ExtAppSpringApplication.java` class:
 ```java
@@ -124,5 +124,5 @@ public class ExtAppSpringApplication {
 ## Circle of Trust
 
 By configuring the property `bdk-app.auth.enabled=true`, the Application backend will provide Apis for performing
-the [Circle of Trust](https://developers.symphony.com/extension/docs/application-authentication) of Symphony:
+the [Circle of Trust](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication) of Symphony:
 [Circle of Trust API](https://editor.swagger.io/?url=https://raw.githubusercontent.com/SymphonyPlatformSolutions/symphony-api-client-java/master/docs/spring-boot/circle-of-trust.yaml)

@@ -52,7 +52,7 @@ import org.springframework.context.annotation.Bean;
  *   to do it by themselves.
  * </p>
  *
- * @see <a href="https://github.com/symphonyoss/symphony-api-spec">symphonyoss/symphony-api-spec</a>
+ * @see <a href="https://github.com/finos/symphony-api-spec">symphonyoss/symphony-api-spec</a>
  */
 public class BdkApiClientsConfig {
 

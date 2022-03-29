@@ -93,7 +93,7 @@ logging:
   level:
     com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
-> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
+> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-config/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/BotApplication.java` class:
 ```java

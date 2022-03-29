@@ -33,7 +33,7 @@ public class HealthService {
    * Available on Agent 2.57.0 and above.
    *
    * @return {@link V3Health} the connectivity status of your Agent server.
-   * @see <a href="https://developers.symphony.com/restapi/reference#health-check-v3">Health Check v3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/health-check-v3">Health Check v3</a>
    */
   public V3Health healthCheck() {
     return execute(systemApi::v3Health);
@@ -44,7 +44,7 @@ public class HealthService {
    * Available on Agent 2.57.0 and above.
    *
    * @return {@link V3Health} the connectivity status of the Agent services as well as users connectivity.
-   * @see <a href="https://developers.symphony.com/restapi/reference#health-check-extended-v3">Healt Check Extended v3</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/health-check-extended-v3">Healt Check Extended v3</a>
    */
   public V3Health healthCheckExtended() {
     return execute(systemApi::v3ExtendedHealth);
@@ -55,7 +55,7 @@ public class HealthService {
    * Available on Agent 2.53.0 and above.
    *
    * @return {@link AgentInfo} information of  the agent server.
-   * @see <a href="https://developers.symphony.com/restapi/reference#agent-info-v1">Agent Info v1</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/agent-info-v1">Agent Info v1</a>
    */
   public AgentInfo getAgentInfo() {
     return execute(signalsApi::v1InfoGet);

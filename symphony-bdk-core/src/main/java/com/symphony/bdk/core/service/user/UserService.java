@@ -254,7 +254,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @param userId User Id
    * @return Details of the user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-user-v2">Get User v2</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/get-user-v2">Get User v2</a>
    */
   public V2UserDetail getUserDetail(@Nonnull Long userId) {
     return executeAndRetry("getUserDetail",
@@ -265,7 +265,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * Retrieve all users in the company (pod).
    *
    * @return List of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
    */
   public List<V2UserDetail> listUsersDetail() {
     return executeAndRetry("listUsersDetail",
@@ -277,7 +277,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @param pagination The skip and limit for pagination.
    * @return List of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
    */
   public List<V2UserDetail> listUsersDetail(@Nonnull PaginationAttribute pagination) {
     return executeAndRetry("listUsersDetail",
@@ -289,7 +289,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * Retrieve all users in the company (pod) and return in a {@link Stream} with default chunk size and total size equals 100.
    *
    * @return a {@link Stream} of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail() {
@@ -303,7 +303,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-users-v2">List Users V2</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<V2UserDetail> listAllUsersDetail(@Nonnull StreamPaginationAttribute pagination) {
@@ -316,7 +316,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @param filter using to filter users by
    * @return List of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
    */
   public List<V2UserDetail> listUsersDetail(@Nonnull UserFilter filter) {
@@ -333,7 +333,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param filter     using to filter users by.
    * @param pagination The skip and limit for pagination.
    * @return List of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
    */
   public List<V2UserDetail> listUsersDetail(@Nonnull UserFilter filter, @Nonnull PaginationAttribute pagination) {
@@ -350,7 +350,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @param filter using to filter users by
    * @return a {@link Stream} of retrieved users
-   * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
    */
   @API(status = API.Status.EXPERIMENTAL)

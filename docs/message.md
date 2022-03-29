@@ -1,21 +1,21 @@
 # Message API
 
-The Message API aims to cover the Messages part of the [REST API documentation](https://developers.symphony.com/restapi/reference#messages-v4).
+The Message API aims to cover the Messages part of the [REST API documentation](https://developers.symphony.com/restapi/reference/messages-v4).
 More precisely:
-* [Get a message](https://developers.symphony.com/restapi/reference#get-message-v1)
-* [Get messages](https://developers.symphony.com/restapi/reference#messages-v4)
-* [Search messages](https://developers.symphony.com/restapi/reference#message-search-post)
-* [Get message IDs by timestamp](https://developers.symphony.com/restapi/reference#get-message-ids-by-timestamp)
-* [Send message](https://developers.symphony.com/restapi/reference#create-message-v4)
-* [Update message](https://developers.symphony.com/restapi/reference#update-message-v4)
-* [Import messages](https://developers.symphony.com/restapi/reference#import-message-v4)
-* [Get attachment](https://developers.symphony.com/restapi/reference#attachment)
-* [List attachments](https://developers.symphony.com/restapi/reference#list-attachments)
-* [Get allowed attachment types](https://developers.symphony.com/restapi/reference#attachment-types)
-* [Suppress message](https://developers.symphony.com/restapi/reference#suppress-message)
-* [Get message status](https://developers.symphony.com/restapi/reference#message-status)
-* [Get message receipts](https://developers.symphony.com/restapi/reference#list-message-receipts)
-* [Get message relationships](https://developers.symphony.com/restapi/reference#message-metadata-relationship)
+* [Get a message](https://developers.symphony.com/restapi/reference/get-message-v1)
+* [Get messages](https://developers.symphony.com/restapi/reference/messages-v4)
+* [Search messages](https://developers.symphony.com/restapi/reference/message-search-post)
+* [Get message IDs by timestamp](https://developers.symphony.com/restapi/reference/get-message-ids-by-timestamp)
+* [Send message](https://developers.symphony.com/restapi/reference/create-message-v4)
+* [Update message](https://developers.symphony.com/restapi/reference/update-message-v4)
+* [Import messages](https://developers.symphony.com/restapi/reference/import-message-v4)
+* [Get attachment](https://developers.symphony.com/restapi/reference/attachment)
+* [List attachments](https://developers.symphony.com/restapi/reference/list-attachments)
+* [Get allowed attachment types](https://developers.symphony.com/restapi/reference/attachment-types)
+* [Suppress message](https://developers.symphony.com/restapi/reference/suppress-message)
+* [Get message status](https://developers.symphony.com/restapi/reference/message-status)
+* [Get message receipts](https://developers.symphony.com/restapi/reference/list-message-receipts)
+* [Get message relationships](https://developers.symphony.com/restapi/reference/message-metadata-relationship)
 
 ## How to use
 The central component for the Message API is the `MessageService`.

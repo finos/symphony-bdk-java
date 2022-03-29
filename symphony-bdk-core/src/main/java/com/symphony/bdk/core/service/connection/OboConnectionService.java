@@ -22,7 +22,7 @@ public interface OboConnectionService {
    *
    * @param userId The id of the user with whom the caller want to check.
    * @return Connection status with the specified user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-connection">Get Connection</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/get-connection">Get Connection</a>
    */
   UserConnection getConnection(@Nonnull Long userId);
 
@@ -37,7 +37,7 @@ public interface OboConnectionService {
    *                This can be used to return connections with internal users;
    *                although, by default, this endpoint does not list implicit connections with internal users.
    * @return List of connection statuses with the specified users and status.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-connections">List Connections</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-connections">List Connections</a>
    */
   List<UserConnection> listConnections(@Nullable ConnectionStatus status, @Nullable List<Long> userIds);
 

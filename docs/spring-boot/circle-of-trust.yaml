@@ -6,7 +6,7 @@ servers:
   - url: https://acme.symphony.com
 tags:
   - name: Circle Of Trust
-    description: For extension app authentication. See [Circle of Trust](https://developers.symphony.com/extension/docs/application-authentication) documentation.
+    description: For extension app authentication. See [Circle of Trust](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication) documentation.
 paths:
   '/bdk/v1/app/auth':
     post:

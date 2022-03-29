@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
 /**
  * OBO Certificate authenticator implementation
  *
- * @see <a href="https://developers.symphony.com/restapi/docs/get-started-with-obo">Get Started with OBO</a>
+ * @see <a href="https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/obo-authentication">Get Started with OBO</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
