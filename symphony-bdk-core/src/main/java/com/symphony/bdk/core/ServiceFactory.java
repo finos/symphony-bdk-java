@@ -12,8 +12,10 @@ import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
+import com.symphony.bdk.core.service.datafeed.DatahoseLoop;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
+import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
 import com.symphony.bdk.core.service.disclaimer.DisclaimerService;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
@@ -68,6 +70,7 @@ class ServiceFactory {
   private final ApiClient podClient;
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
+  private final ApiClient datahoseAgentClient;
   private final AuthSession authSession;
   private final TemplateEngine templateEngine;
   private final BdkConfig config;
@@ -78,6 +81,7 @@ class ServiceFactory {
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
+    this.datahoseAgentClient = apiClientFactory.getDatahoseAgentClient();
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
@@ -138,6 +142,10 @@ class ServiceFactory {
       return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
     }
     return new DatafeedLoopV1(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
+  }
+
+  public DatahoseLoop getDatahoseLoop(UserV2 botInfo) {
+    return new DatahoseLoopImpl(new DatafeedApi(datahoseAgentClient), authSession, config, botInfo);
   }
 
   /**

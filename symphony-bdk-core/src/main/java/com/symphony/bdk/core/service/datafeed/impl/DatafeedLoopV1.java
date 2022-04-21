@@ -1,11 +1,9 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
-
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedIdRepository;
@@ -13,8 +11,8 @@ import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -46,6 +44,8 @@ import java.util.Optional;
 @API(status = API.Status.INTERNAL)
 public class DatafeedLoopV1 extends AbstractDatafeedLoop {
 
+  private final ApiClient apiClient;
+  private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final DatafeedIdRepository datafeedRepository;
   private final RetryWithRecovery<Void> readDatafeed;
   private final RetryWithRecovery<String> createDatafeed;
@@ -59,7 +59,18 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
       DatafeedIdRepository repository) {
     super(datafeedApi, authSession, config, botInfo);
 
-    this.started.set(false);
+    this.apiClient = datafeedApi.getApiClient();
+    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+        .basePath(this.apiClient.getBasePath())
+        .retryConfig(config.getDatafeedRetryConfig())
+        .recoveryStrategy(Exception.class, this.apiClient::rotate)  // always rotate in case of any error
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
+
+    final BdkLoadBalancingConfig loadBalancing = config.getAgent().getLoadBalancing();
+    if (loadBalancing != null && !loadBalancing.isStickiness()) {
+      log.warn("DF used with agent load balancing configured with stickiness false. DF calls will still be sticky.");
+    }
+
     this.datafeedRepository = repository;
 
     this.datafeedId = this.retrieveDatafeed().orElse(null);
@@ -81,36 +92,17 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
         .build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void start() throws AuthUnauthorizedException, ApiException {
-    if (this.started.get()) {
-      throw new IllegalStateException("The datafeed service is already started");
-    }
+  protected void runLoop() throws Throwable {
+    this.datafeedId = this.datafeedId == null ? this.createDatafeed.execute() : this.datafeedId;
+    log.info("Start reading events from datafeed {}", datafeedId);
 
-    if (!DistributedTracingContext.hasTraceId()) {
-      DistributedTracingContext.setTraceId();
-    }
+    this.started.set(true);
+    do {
+      this.readDatafeed.execute();
+    } while (this.started.get());
 
-    try {
-      this.datafeedId = this.datafeedId == null ? this.createDatafeed.execute() : this.datafeedId;
-      log.info("Start reading events from datafeed {}", datafeedId);
-      this.started.set(true);
-      do {
-
-        this.readDatafeed.execute();
-
-      } while (this.started.get());
-      log.info("Datafeed loop successfully stopped.");
-    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
-      throw exception;
-    } catch (Throwable throwable) {
-      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
-    } finally {
-      DistributedTracingContext.clear();
-    }
+    log.info("Datafeed loop successfully stopped.");
   }
 
   private Void readAndHandleEvents() throws ApiException {

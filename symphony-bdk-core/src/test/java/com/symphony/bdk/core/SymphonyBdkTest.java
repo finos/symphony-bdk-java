@@ -85,6 +85,11 @@ public class SymphonyBdkTest {
   }
 
   @Test
+  void getDatahoseServiceTest() {
+    assertNotNull(this.symphonyBdk.datahose());
+  }
+
+  @Test
   void getStreamServiceTest() {
     StreamService streamService = this.symphonyBdk.streams();
     assertNotNull(streamService);
@@ -216,6 +221,7 @@ public class SymphonyBdkTest {
     assertThrows(BotNotConfiguredException.class, symphonyBdk::applications);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::messages);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::datafeed);
+    assertThrows(BotNotConfiguredException.class, symphonyBdk::datahose);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::users);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::streams);
     assertThrows(BotNotConfiguredException.class, symphonyBdk::presences);

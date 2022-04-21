@@ -25,6 +25,7 @@ public class BdkConfig extends BdkServerConfig {
 
   private BdkRetryConfig retry = new BdkRetryConfig();
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
+  private BdkDatahoseConfig datahose = new BdkDatahoseConfig();
   private BdkCommonJwtConfig commonJwt = new BdkCommonJwtConfig();
 
   /**

@@ -1,21 +1,20 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
-import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -37,11 +36,8 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   protected final AuthSession authSession;
   protected final BdkConfig bdkConfig;
   protected final UserV2 botInfo;
-  protected final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   protected final AtomicBoolean started = new AtomicBoolean();
-  @Setter
   protected DatafeedApi datafeedApi;
-  protected ApiClient apiClient;
 
   // access needs to be thread safe (DF loop is usually running on its own thread)
   private final List<RealTimeEventListener> listeners;
@@ -52,16 +48,6 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
     this.authSession = authSession;
     this.bdkConfig = config;
     this.botInfo = botInfo;
-    this.apiClient = datafeedApi.getApiClient();
-    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
-        .retryConfig(config.getDatafeedRetryConfig())
-        .recoveryStrategy(Exception.class, () -> this.apiClient.rotate())  // always rotate in case of any error
-        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
-
-    final BdkLoadBalancingConfig loadBalancing = config.getAgent().getLoadBalancing();
-    if (loadBalancing != null && !loadBalancing.isStickiness()) {
-      log.warn("DF used with agent load balancing configured with stickiness false. DF calls will still be sticky.");
-    }
   }
 
   /**
@@ -88,6 +74,32 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    * {@inheritDoc}
    */
   @Override
+  public void start() throws AuthUnauthorizedException, ApiException {
+    if (this.started.get()) {
+      throw new IllegalStateException("The datafeed service is already started");
+    }
+
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+    }
+
+    try {
+      runLoop();
+    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
+      throw exception;
+    } catch (Throwable throwable) {
+      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
+    } finally {
+      DistributedTracingContext.clear();
+    }
+  }
+
+  protected abstract void runLoop() throws Throwable;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void stop() {
     log.info("Stopping the datafeed loop (will happen once the current read is finished)...");
     this.started.set(false);
@@ -100,7 +112,6 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    * @throws RequeueEventException Raised if a listener fails and the developer wants to explicitly not update the ack id.
    */
   protected void handleV4EventList(@Nullable List<V4Event> events) throws RequeueEventException {
-
     if (events == null || events.isEmpty()) {
       return;
     }
@@ -132,6 +143,8 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
                 log.debug("An uncaught exception has occurred while dispatching event {} to listener {}",
                     event.getType(), listener, t);
               }
+            } else {
+              log.debug("Is not accepting event '{}' with listener {}", event.getType(), listener);
             }
           }
         }

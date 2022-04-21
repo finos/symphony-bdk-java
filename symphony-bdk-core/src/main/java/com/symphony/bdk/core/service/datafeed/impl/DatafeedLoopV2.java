@@ -1,9 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
-
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -15,17 +12,12 @@ import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.apiguardian.api.API;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A class for implementing the datafeed v2 loop service.
@@ -47,33 +39,30 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class DatafeedLoopV2 extends AbstractDatafeedLoop {
+public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
 
   /**
    * DFv2 API authorizes a maximum length for the tag parameter.
    */
   private static final int DATAFEED_TAG_MAX_LENGTH = 100;
 
-  /**
-   * Based on the DFv2 default visibility timeout, after which an event is re-queued.
-   */
-  private static final int EVENT_PROCESSING_MAX_DURATION_SECONDS = 30;
-
+  private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final RetryWithRecovery<Void> readDatafeed;
   private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
   private final String tag;
 
-  @Getter(AccessLevel.PROTECTED)
-  private AckId ackId;
-
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);
-    this.ackId = new AckId().ackId("");
-    this.tag = StringUtils.truncate(bdkConfig.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
+    this.tag = StringUtils.truncate(config.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
+
+    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+        .basePath(datafeedApi.getApiClient().getBasePath())
+        .retryConfig(config.getDatafeedRetryConfig())
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
     this.readDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
         .name("Read Datafeed V2")
@@ -99,42 +88,25 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
         .build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void start() throws ApiException, AuthUnauthorizedException {
-    if (this.started.get()) {
-      throw new IllegalStateException("The datafeed service is already started");
+  protected void runLoop() throws Throwable {
+    this.datafeed = this.retrieveDatafeed.execute();
+    if (this.datafeed == null) {
+      this.datafeed = this.createDatafeed.execute();
     }
 
-    if (!DistributedTracingContext.hasTraceId()) {
-      DistributedTracingContext.setTraceId();
-    }
+    log.info("Start reading events from datafeed {}", this.datafeed.getId());
+    this.started.set(true);
+    do {
 
-    try {
-      this.datafeed = this.retrieveDatafeed.execute();
-      if (this.datafeed == null) {
-        this.datafeed = this.createDatafeed.execute();
-      }
-      log.info("Start reading events from datafeed {}", this.datafeed.getId());
-      this.started.set(true);
-      do {
+      this.readDatafeed.execute();
 
-        this.readDatafeed.execute();
-
-      } while (this.started.get());
-      log.info("Datafeed loop successfully stopped.");
-    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
-      throw exception;
-    } catch (Throwable throwable) {
-      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
-    } finally {
-      DistributedTracingContext.clear();
-    }
+    } while (this.started.get());
+    log.info("Datafeed loop successfully stopped.");
   }
 
   private V5Datafeed doCreateDatafeed() throws ApiException {
+    this.ackId = INITIAL_ACK_ID;
     return this.datafeedApi.createDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
@@ -152,36 +124,14 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
     return feeds.stream().findFirst().orElse(null);
   }
 
-  private Void readAndHandleEvents() throws ApiException {
-    final V5EventList v5EventList = this.datafeedApi.readDatafeed(
-        datafeed.getId(),
-        authSession.getSessionToken(),
-        authSession.getKeyManagerToken(),
-        ackId
+  @Override
+  protected V5EventList readEvents() throws ApiException {
+    return this.datafeedApi.readDatafeed(
+        this.datafeed.getId(),
+        this.authSession.getSessionToken(),
+        this.authSession.getKeyManagerToken(),
+        new AckId().ackId(this.ackId)
     );
-    try {
-
-      final StopWatch stopWatch = StopWatch.createStarted();
-      this.handleV4EventList(v5EventList.getEvents());
-      stopWatch.stop();
-
-      if (stopWatch.getTime(TimeUnit.SECONDS) > EVENT_PROCESSING_MAX_DURATION_SECONDS) {
-        log.warn("Events processing took longer than {} seconds, "
-                + "this might lead to events being re-queued in datafeed and re-dispatched."
-                + " You might want to consider processing the event in a separated thread if needed.",
-            EVENT_PROCESSING_MAX_DURATION_SECONDS);
-      }
-
-      // updates ack id so that on next call DFv2 knows that events have been processed
-      this.ackId = new AckId();
-      this.ackId.setAckId(v5EventList.getAckId());
-
-    } catch (Exception e) {
-      // can happen if developer explicitly raised a NoAckIdUpdateException in handleV4EventList
-      // we also catch all exceptions just to be extra careful and never break the DF loop
-      log.warn("Failed to process events, will not update ack id, events will be re-queued", e);
-    }
-    return null;
   }
 
   private void recreateDatafeed() {

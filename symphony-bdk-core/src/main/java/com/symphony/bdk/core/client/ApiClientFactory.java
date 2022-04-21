@@ -116,6 +116,15 @@ public class ApiClientFactory {
   }
 
   /**
+   * Returns a fully initialized {@link ApiClient} for Agent API to be used by the datahose services.
+   *
+   * @return a new {@link ApiClient} instance.
+   */
+  public ApiClient getDatahoseAgentClient() {
+    return getRegularAgentClient();
+  }
+
+  /**
    * Returns a fully initialized non-load-balanced {@link ApiClient} for Agent API.
    *
    * @return a new {@link ApiClient} instance.

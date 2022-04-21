@@ -3,10 +3,10 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -81,7 +81,7 @@ class DatafeedLoopV2Test {
     when(this.authSession.getKeyManagerToken()).thenReturn("1234");
 
     this.datafeedApiClient = mock(ApiClient.class);
-    doNothing().when(this.datafeedApiClient).rotate();
+    when(this.datafeedApiClient.getBasePath()).thenReturn("/agent/");
 
     this.datafeedApi = mock(DatafeedApi.class);
     when(this.datafeedApi.getApiClient()).thenReturn(this.datafeedApiClient);
@@ -111,7 +111,7 @@ class DatafeedLoopV2Test {
     List<V5Datafeed> datafeeds = new ArrayList<>();
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
@@ -120,7 +120,6 @@ class DatafeedLoopV2Test {
 
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(0)).rotate();
   }
 
   @Test
@@ -173,7 +172,7 @@ class DatafeedLoopV2Test {
         @Override
         public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
           // once the listener is added it will stop the DF loop
-          if (datafeedService.getAckId().getAckId().equals("ack-id2")) {
+          if (datafeedService.getAckId().equals("ack-id2")) {
             datafeedService.stop();
           }
           return false;
@@ -191,7 +190,7 @@ class DatafeedLoopV2Test {
     addANewListener.get();
 
     // make sure we finish with the proper ack id
-    assertEquals("ack-id2", datafeedService.getAckId().getAckId());
+    assertEquals("ack-id2", datafeedService.getAckId());
 
     executorService.shutdown();
   }
@@ -237,8 +236,7 @@ class DatafeedLoopV2Test {
         argThat(eqAckId("")));
     verify(datafeedApi, times(1)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"),
         argThat(eqAckId("ack-id")));
-    verify(datafeedApiClient, times(0)).rotate();
-    assertEquals("ack-id2", datafeedService.getAckId().getAckId());
+    assertEquals("ack-id2", datafeedService.getAckId());
   }
 
   @Test
@@ -278,8 +276,7 @@ class DatafeedLoopV2Test {
     // the ack id should stay the same since we did not process the first event
     verify(datafeedApi, times(2)).readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("")));
     verify(datafeedApi, never()).readDatafeed(eq("test-id"), eq("1234"), eq("1234"), argThat(eqAckId("ack-id2")));
-    verify(datafeedApiClient, times(0)).rotate();
-    assertEquals("ack-id", datafeedService.getAckId().getAckId());
+    assertEquals("ack-id", datafeedService.getAckId());
   }
 
   private ArgumentMatcher<AckId> eqAckId(String ackId) {
@@ -317,7 +314,7 @@ class DatafeedLoopV2Test {
     List<V5Datafeed> datafeeds = new ArrayList<>();
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed(anyString(), anyString(), anyString())).thenReturn(datafeeds);
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
@@ -332,17 +329,49 @@ class DatafeedLoopV2Test {
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(Collections.emptyList());
     when(datafeedApi.createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"))).thenReturn(
         new V5Datafeed().id("test-id"));
-    AckId ackId = datafeedService.getAckId();
-    when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
+    AckId initialAckId = new AckId().ackId("");
+    final String secondAckId = "ack-id";
+    when(datafeedApi.readDatafeed("test-id", "1234", "1234", initialAckId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId(secondAckId));
 
     this.datafeedService.start();
 
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"));
-    verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(0)).rotate();
+    verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", initialAckId);
+    assertEquals(secondAckId, datafeedService.getAckId());
+  }
+
+  @Test
+  void testClientErrorTriggersDatafeedRecreation() throws ApiException, AuthUnauthorizedException {
+    final String firstDatafeedId = "test-id";
+    when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
+        Collections.singletonList(new V5Datafeed().id(firstDatafeedId)));
+
+    AckId initialAckId = new AckId().ackId("");
+    String secondDatafeedId = "test-id-2";
+    String secondAckId = "ack-id";
+
+    when(datafeedApi.readDatafeed(firstDatafeedId, "1234", "1234", initialAckId))
+        .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.ROOMCREATED.name())
+            .payload(new V4Payload())).ackId(secondAckId));
+    when(datafeedApi.readDatafeed(firstDatafeedId, "1234", "1234", new AckId().ackId(secondAckId)))
+        .thenThrow(new ApiException(400, ""));
+    when(datafeedApi.deleteDatafeed(firstDatafeedId, "1234", "1234")).thenReturn(null);
+
+    when(datafeedApi.createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"))).thenReturn(
+        new V5Datafeed().id(secondDatafeedId));
+    when(datafeedApi.readDatafeed(secondDatafeedId, "1234", "1234", initialAckId))
+        .thenReturn(new V5EventList().addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id-2"));
+
+    this.datafeedService.start();
+
+    verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
+    verify(datafeedApi, times(1)).readDatafeed(firstDatafeedId, "1234", "1234", initialAckId);
+    verify(datafeedApi, times(1)).deleteDatafeed(firstDatafeedId, "1234", "1234");
+    verify(datafeedApi, times(1)).createDatafeed(eq("1234"), eq("1234"), any());
+    verify(datafeedApi, times(1)).readDatafeed(secondDatafeedId, "1234", "1234", initialAckId);
   }
 
   @Test
@@ -351,7 +380,7 @@ class DatafeedLoopV2Test {
     List<V5Datafeed> datafeeds = new ArrayList<>();
     datafeeds.add(new V5Datafeed().id("test-id"));
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(datafeeds);
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
         .thenReturn(new V5EventList()
             .addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload()))
@@ -387,7 +416,6 @@ class DatafeedLoopV2Test {
 
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
@@ -398,7 +426,6 @@ class DatafeedLoopV2Test {
     assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(authSession, times(1)).refresh();
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
@@ -407,7 +434,6 @@ class DatafeedLoopV2Test {
 
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(2)).listDatafeed("1234", "1234", "tibot");
-    verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
@@ -416,7 +442,7 @@ class DatafeedLoopV2Test {
         .thenThrow(new ApiException(502, "server-error"))
         .thenReturn(Collections.singletonList(new V5Datafeed().id("test-id")));
 
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId))
         .thenReturn(new V5EventList().addEventsItem(
             new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
@@ -425,7 +451,6 @@ class DatafeedLoopV2Test {
 
     verify(datafeedApi, times(2)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
@@ -438,7 +463,6 @@ class DatafeedLoopV2Test {
     assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"));
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
@@ -450,7 +474,6 @@ class DatafeedLoopV2Test {
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"));
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
@@ -462,12 +485,11 @@ class DatafeedLoopV2Test {
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(2)).createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"));
-    verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
   void testStartClientErrorReadDatafeed() throws ApiException, AuthUnauthorizedException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"))).thenReturn(
@@ -483,12 +505,11 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).readDatafeed("recreate-df-id", "1234", "1234", ackId);
     verify(datafeedApi, times(1)).createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"));
     verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
   void testStartSocketTimeoutReadDatafeed() throws ApiException, AuthUnauthorizedException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(
@@ -501,12 +522,11 @@ class DatafeedLoopV2Test {
     this.datafeedService.start();
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
   void testStartUnknownHostReadDatafeed() throws ApiException, AuthUnauthorizedException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(
@@ -519,12 +539,11 @@ class DatafeedLoopV2Test {
     this.datafeedService.start();
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
   void testStartAuthErrorReadDatafeed() throws ApiException, AuthUnauthorizedException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(401, "client-error"));
@@ -534,12 +553,11 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
     verify(authSession, times(1)).refresh();
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
   void testStartServerErrorReadDatafeed() throws ApiException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(502, "client-error"));
@@ -547,12 +565,11 @@ class DatafeedLoopV2Test {
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
-  void testStartInternalServerErrorReadDatafeedShouldNotBeRetried() throws ApiException {
-    AckId ackId = datafeedService.getAckId();
+  void testStart404ErrorReadDatafeedShouldNotBeRetried() throws ApiException {
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(new ApiException(404, "client-error"));
@@ -560,12 +577,11 @@ class DatafeedLoopV2Test {
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
   void testStartTooManyRequestsReadDatafeedShouldBeRetried() throws ApiException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.readDatafeed("test-id", "1234", "1234", ackId)).thenThrow(
@@ -574,12 +590,11 @@ class DatafeedLoopV2Test {
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(2)).readDatafeed("test-id", "1234", "1234", ackId);
-    verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
   void testStartClientErrorDeleteDatafeed() throws ApiException, AuthUnauthorizedException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"))).thenReturn(
@@ -596,12 +611,11 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).readDatafeed("recreate-df-id", "1234", "1234", ackId);
     verify(datafeedApi, times(1)).createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"));
     verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
-    verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
   void testStartServerErrorDeleteDatafeed() throws ApiException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"))).thenReturn(
@@ -613,12 +627,11 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
     verify(datafeedApi, times(2)).deleteDatafeed("test-id", "1234", "1234");
-    verify(datafeedApiClient, times(3)).rotate();
   }
 
   @Test
   void testStartAuthErrorDeleteDatafeed() throws ApiException, AuthUnauthorizedException {
-    AckId ackId = datafeedService.getAckId();
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed("1234", "1234", "tibot")).thenReturn(
         Collections.singletonList(new V5Datafeed().id("test-id")));
     when(datafeedApi.createDatafeed("1234", "1234", new V5DatafeedCreateBody().tag("tibot"))).thenReturn(
@@ -631,6 +644,5 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed("1234", "1234", "tibot");
     verify(datafeedApi, times(1)).readDatafeed("test-id", "1234", "1234", ackId);
     verify(datafeedApi, times(1)).deleteDatafeed("test-id", "1234", "1234");
-    verify(datafeedApiClient, times(2)).rotate();
   }
 }

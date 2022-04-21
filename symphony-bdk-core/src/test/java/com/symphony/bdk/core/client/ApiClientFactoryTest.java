@@ -69,6 +69,13 @@ class ApiClientFactoryTest {
   }
 
   @Test
+  void testGetDatahoseAgentClient() {
+    final ApiClient agentClient = this.factory.getDatahoseAgentClient();
+    assertEquals(ApiClientJersey2.class, agentClient.getClass());
+    assertEquals("https://agent-host:443/agent", agentClient.getBasePath());
+  }
+
+  @Test
   void testGetLoadBalancedDatafeedAgentClient() {
     ApiClientFactory factory = new ApiClientFactory(this.createLoadBalancedConfig());
     final ApiClient agentClient = factory.getDatafeedAgentClient();
