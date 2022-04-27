@@ -143,8 +143,6 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
                 log.debug("An uncaught exception has occurred while dispatching event {} to listener {}",
                     event.getType(), listener, t);
               }
-            } else {
-              log.debug("Is not accepting event '{}' with listener {}", event.getType(), listener);
             }
           }
         }
