@@ -177,8 +177,8 @@ bdk:
     datahose:
         enabled: true # optional, defaults to false
 ```
-If both datafeed and datahose are enabled (set up not recommended), the listener methods may be called by events coming
-from datafeed and datahose.
+If both datafeed and datahose are enabled, application will fail at startup. So please make sure datafeed is disabled
+when using datahose.
 
 Here's the list of Real Time Events you can subscribe:
 ```java

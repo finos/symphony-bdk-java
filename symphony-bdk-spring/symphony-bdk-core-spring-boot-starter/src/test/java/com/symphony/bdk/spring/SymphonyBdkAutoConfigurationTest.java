@@ -25,6 +25,7 @@ import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 import com.symphony.bdk.spring.service.DatahoseAsyncLauncherService;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
@@ -414,7 +415,7 @@ class SymphonyBdkAutoConfigurationTest {
   }
 
   @Test
-  void shouldInitializeDatahoseAndDatafeedIfEnabled() {
+  void shouldFailWhenDatahoseAndDatafeedAreBothEnabled() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
             "bdk.host=localhost",
@@ -427,20 +428,8 @@ class SymphonyBdkAutoConfigurationTest {
         .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
 
     contextRunner.run(context -> {
-      assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
-
-      final SymphonyBdkCoreProperties config = context.getBean(SymphonyBdkCoreProperties.class);
-      assertThat(config.getAgent().getBasePath()).isEqualTo("https://localhost:443");
-
-      assertThat(context).doesNotHaveBean(DatafeedLoopV1.class);
-      assertThat(context).hasSingleBean(DatafeedLoopV2.class);
-      assertThat(context).hasSingleBean(DatafeedAsyncLauncherService.class);
-      assertThat(context).hasSingleBean(ActivityRegistry.class);
-      assertThat(context).hasSingleBean(SlashAnnotationProcessor.class);
-
-      assertThat(context).hasSingleBean(DatahoseLoopImpl.class);
-      assertThat(context).hasSingleBean(DatahoseAsyncLauncherService.class);
-      assertThat(context).hasSingleBean(RealTimeEventsDispatcher.class);
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasCauseInstanceOf(BeanCreationException.class);
     });
   }
 
