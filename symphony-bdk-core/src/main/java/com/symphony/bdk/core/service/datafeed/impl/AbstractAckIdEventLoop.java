@@ -8,6 +8,7 @@ import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
 
 import lombok.AccessLevel;
+import lombok.Generated;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
@@ -45,12 +46,7 @@ public abstract class AbstractAckIdEventLoop extends AbstractDatafeedLoop {
       this.handleV4EventList(v5EventList.getEvents());
       stopWatch.stop();
 
-      if (stopWatch.getTime(TimeUnit.SECONDS) > EVENT_PROCESSING_MAX_DURATION_SECONDS) {
-        log.warn("Events processing took longer than {} seconds, "
-                + "this might lead to events being re-queued in datafeed and re-dispatched."
-                + " You might want to consider processing the event in a separated thread if needed.",
-            EVENT_PROCESSING_MAX_DURATION_SECONDS);
-      }
+      checkProcessingTime(stopWatch);
 
       // updates ack id so that on next call DFv2 knows that events have been processed
       this.ackId = v5EventList.getAckId();
@@ -60,6 +56,16 @@ public abstract class AbstractAckIdEventLoop extends AbstractDatafeedLoop {
       log.warn("Failed to process events, will not update ack id, events will be re-queued", e);
     }
     return null;
+  }
+
+  @Generated // cannot be easily unit tested
+  private void checkProcessingTime(StopWatch stopWatch) {
+    if (stopWatch.getTime(TimeUnit.SECONDS) > EVENT_PROCESSING_MAX_DURATION_SECONDS) {
+      log.warn("Events processing took longer than {} seconds, "
+              + "this might lead to events being re-queued in datafeed and re-dispatched."
+              + " You might want to consider processing the event in a separated thread if needed.",
+          EVENT_PROCESSING_MAX_DURATION_SECONDS);
+    }
   }
 
   protected abstract V5EventList readEvents() throws ApiException;

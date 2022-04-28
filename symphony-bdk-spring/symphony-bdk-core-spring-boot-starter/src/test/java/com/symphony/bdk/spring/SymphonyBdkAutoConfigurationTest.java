@@ -58,6 +58,56 @@ class SymphonyBdkAutoConfigurationTest {
 
       // verify that main beans have been injected
       assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
+      assertThat(context).hasSingleBean(DatafeedLoopV2.class);
+      assertThat(context).hasSingleBean(DatafeedAsyncLauncherService.class);
+      assertThat(context).hasSingleBean(RealTimeEventsDispatcher.class);
+
+      // verify datahose not enabled by default
+      assertThat(context).doesNotHaveBean(DatahoseLoopImpl.class);
+      assertThat(context).doesNotHaveBean(DatahoseAsyncLauncherService.class);
+
+      // verify that beans for cert auth have not been injected
+      assertThat(context).doesNotHaveBean("keyAuthApiClient");
+      assertThat(context).doesNotHaveBean("sessionAuthApiClient");
+
+      //verify that bean for OBO authentication has not been injected
+      assertThat(context).doesNotHaveBean("oboAuthenticator");
+
+      // verify extension service
+      assertThat(context).hasSingleBean(ExtensionService.class);
+      assertThat(context).hasSingleBean(TestExtension.class);
+      assertThat(context).hasSingleBean(TestExtensionService.class);
+      assertThat(context.getBean(ExtensionService.class).service(TestExtension.class)).isEqualTo(context.getBean(TestExtensionService.class));
+    });
+  }
+
+  @Test
+  void shouldLoadDFv1Context() {
+
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.pod.scheme=http",
+            "bdk.pod.host=localhost",
+
+            "bdk.agent.scheme=http",
+            "bdk.agent.host=localhost",
+
+            "bdk.keyManager.scheme=http",
+            "bdk.keyManager.host=localhost",
+
+            "bdk.bot.username=tibot",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
+            "bdk.datafeed.version=v1"
+        )
+        .withBean(TestExtension.class)
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+    contextRunner.run(context -> {
+
+      // verify that main beans have been injected
+      assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
+      assertThat(context).hasSingleBean(DatafeedLoopV1.class);
       assertThat(context).hasSingleBean(DatafeedAsyncLauncherService.class);
       assertThat(context).hasSingleBean(RealTimeEventsDispatcher.class);
 

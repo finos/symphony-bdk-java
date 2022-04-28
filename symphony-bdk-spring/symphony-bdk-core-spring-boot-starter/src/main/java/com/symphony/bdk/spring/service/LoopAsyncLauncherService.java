@@ -61,8 +61,9 @@ public abstract class LoopAsyncLauncherService implements Thread.UncaughtExcepti
     } else if (cause.getClass().equals(ApiException.class)) {
       log.error("An API error has been received while starting the {} loop in a separate thread, "
           + "please check error below:", getLoopType(), cause);
-    } else if (cause.getCause().getClass().equals(ConnectException.class) ||
-        cause.getCause().getClass().equals(SocketTimeoutException.class)) {
+    } else if (cause.getCause() != null
+        && (cause.getCause().getClass().equals(ConnectException.class) ||
+        cause.getCause().getClass().equals(SocketTimeoutException.class))) {
       log.error("A Network error has occurred while starting the {} loop, "
           + "please check error below:", getLoopType(), source);
     } else {
