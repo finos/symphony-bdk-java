@@ -112,8 +112,7 @@ class DatafeedLoopV1Test {
   private void initializeBdkConfig() throws BdkConfigException {
     this.bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
 
-    BdkDatafeedConfig datafeedConfig = this.bdkConfig.getDatafeed();
-    this.bdkConfig.setDatafeed(datafeedConfig);
+    this.bdkConfig.getDatafeed().setRetry(ofMinimalInterval(2));
     this.bdkConfig.setRetry(ofMinimalInterval(2));
   }
 

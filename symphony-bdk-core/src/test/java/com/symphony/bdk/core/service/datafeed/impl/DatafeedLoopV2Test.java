@@ -72,6 +72,7 @@ class DatafeedLoopV2Test {
     BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
     datafeedConfig.setVersion("v2");
+    datafeedConfig.setRetry(ofMinimalInterval(2));
     bdkConfig.setDatafeed(datafeedConfig);
     bdkConfig.setRetry(ofMinimalInterval(2));
 
