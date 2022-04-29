@@ -32,6 +32,7 @@ import com.symphony.bdk.gen.api.ViolationsApi;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 
 /**
  * Injection of all available raw-APIs generated from the official Symphony Swagger specifications.
@@ -92,10 +93,16 @@ public class BdkApiClientsConfig {
     return new ConnectionApi(podApiClient);
   }
 
-  @Bean
+  @Bean(name = "datafeedApi")
+  @Primary
   @ConditionalOnMissingBean
   public DatafeedApi datafeedApi(@Qualifier("datafeedAgentApiClient") ApiClient agentApiClient) {
     return new DatafeedApi(agentApiClient);
+  }
+
+  @Bean(name = "datahoseApi")
+  public DatafeedApi datahoseApi(@Qualifier("datahoseAgentApiClient") ApiClient datahoseAgentApiClient) {
+    return new DatafeedApi(datahoseAgentApiClient);
   }
 
   @Bean

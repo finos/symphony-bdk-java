@@ -161,12 +161,24 @@ Any attempt to use a non-OBO service endpoint will fail with an IllegalStateExce
 
 ## Subscribe to Real Time Events
 The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html) 
-to deliver Real Time Events. 
+to deliver Real Time Events.
 
 You can subscribe to any Real Time Event from anywhere in your application by creating a handler method that has to 
 respect two conditions: 
 - be annotated with [@EventListener](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/event/EventListener.html) 
 - have `com.symphony.bdk.spring.events.RealTimeEvent<T>` parameter
+
+The listener methods will be called with events from the [datafeed loop](../datafeed.md#datafeed) or the
+[datahose loop](../datafeed.md#datahose) (or both) depending on your configuration:
+```yaml
+bdk:
+    datafeed:
+        enabled: true # optional, defaults to true
+    datahose:
+        enabled: true # optional, defaults to false
+```
+If both datafeed and datahose are enabled, application will fail at startup. So please make sure datafeed is disabled
+when using datahose.
 
 Here's the list of Real Time Events you can subscribe:
 ```java
@@ -229,8 +241,9 @@ can deactivate it by updating the application.yaml file as
 bdk:
     datafeed:
         event:
-            async: false
+            async: false # optional, defaults to true
 ```
+The same applies for `bdk.datahose` configuration.
 
 ## Inject Services
 The Core Starter injects services within the Spring application context:
@@ -334,12 +347,16 @@ public class SlashHello {
 }
 ```
 
+:information_source: Slash commands are not registered to the datahose loop even when enabled.
+
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
 
 Any service or component class that extends [`FormReplyActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/form/FormReplyActivity.html) 
 or [`CommandActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html) 
 will be automatically registered within the [ActivityRegistry](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/ActivityRegistry.html).
+
+:information_source: Activities are not registered to the datahose loop even when enabled.
 
 ### Example of a `CommandActivity` in Spring Boot
 The following example has been described in section [Activity API documentation](../activity-api.md#how-to-create-a-command-activity).

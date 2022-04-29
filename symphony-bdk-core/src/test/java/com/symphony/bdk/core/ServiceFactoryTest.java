@@ -52,11 +52,15 @@ public class ServiceFactoryTest {
     this.botInfo = mock(UserV2.class);
     this.mAuthSession = mock(AuthSession.class);
     this.mPodClient = mock(ApiClient.class);
-    ApiClient mAgentClient = mock(ApiClient.class);
     this.apiClientFactory = mock(ApiClientFactory.class);
 
     when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);
-    when(this.apiClientFactory.getAgentClient()).thenReturn(mAgentClient);
+    when(this.apiClientFactory.getAgentClient()).thenReturn(mock(ApiClient.class));
+
+    ApiClient datafeedAgentClient = mock(ApiClient.class);
+    when(datafeedAgentClient.getBasePath()).thenReturn("/agent");
+    when(this.apiClientFactory.getDatafeedAgentClient()).thenReturn(datafeedAgentClient);
+    when(this.apiClientFactory.getDatahoseAgentClient()).thenReturn(datafeedAgentClient);
 
     this.serviceFactory = new ServiceFactory(this.apiClientFactory, this.mAuthSession, this.config);
   }
@@ -130,7 +134,11 @@ public class ServiceFactoryTest {
     DatafeedLoop datafeedServiceV2 = this.serviceFactory.getDatafeedLoop(botInfo);
     assertNotNull(datafeedServiceV2);
     assertEquals(datafeedServiceV2.getClass(), DatafeedLoopV2.class);
+  }
 
+  @Test
+  void getDatahoseServiceTest() {
+    assertNotNull(this.serviceFactory.getDatahoseLoop(this.botInfo));
   }
 
   @Test

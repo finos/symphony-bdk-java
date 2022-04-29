@@ -8,20 +8,14 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.DatafeedApi;
-import com.symphony.bdk.http.api.tracing.MDCUtils;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
-import com.symphony.bdk.spring.events.RealTimeEvent;
-import com.symphony.bdk.spring.events.RealTimeEventsDispatcher;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.context.event.SimpleApplicationEventMulticaster;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 import java.util.List;
 
@@ -38,11 +32,11 @@ public class BdkDatafeedConfig {
     return DatafeedVersion.of(properties.getDatafeed().getVersion());
   }
 
-  @Bean
+  @Bean("datafeedLoop")
   @ConditionalOnMissingBean
   public DatafeedLoop datafeedLoop(
       SymphonyBdkCoreProperties properties,
-      DatafeedApi datafeedApi,
+      @Qualifier("datafeedApi") DatafeedApi datafeedApi,
       AuthSession botSession,
       DatafeedVersion datafeedVersion,
       SessionService sessionService
@@ -55,28 +49,9 @@ public class BdkDatafeedConfig {
     return new DatafeedLoopV1(datafeedApi, botSession, properties, sessionService.getSession());
   }
 
-  @Bean
-  @ConditionalOnMissingBean
-  public RealTimeEventsDispatcher realTimeEventsDispatcher(ApplicationEventPublisher publisher) {
-    return new RealTimeEventsDispatcher(publisher);
-  }
-
   @Bean(initMethod = "start", destroyMethod = "stop")
   @ConditionalOnMissingBean
-  public DatafeedAsyncLauncherService datafeedAsyncLauncherService(final DatafeedLoop datafeedService, List<RealTimeEventListener> realTimeEventListeners) {
-    return new DatafeedAsyncLauncherService(datafeedService, realTimeEventListeners);
-  }
-
-  /**
-   * Allows publishing application {@link RealTimeEvent} asynchronously from {@link RealTimeEventsDispatcher}.
-   */
-  @Bean(name = "applicationEventMulticaster")
-  @ConditionalOnProperty(value = "bdk.datafeed.event.async", havingValue = "true", matchIfMissing = true)
-  public ApplicationEventMulticaster simpleApplicationEventMulticaster() {
-    final SimpleApplicationEventMulticaster eventMulticaster = new SimpleApplicationEventMulticaster();
-    SimpleAsyncTaskExecutor simpleAsyncTaskExecutor = new SimpleAsyncTaskExecutor();
-    simpleAsyncTaskExecutor.setTaskDecorator(MDCUtils::wrap);
-    eventMulticaster.setTaskExecutor(simpleAsyncTaskExecutor);
-    return eventMulticaster;
+  public DatafeedAsyncLauncherService datafeedAsyncLauncherService(@Qualifier("datafeedLoop") DatafeedLoop datafeedLoop, List<RealTimeEventListener> realTimeEventListeners) {
+    return new DatafeedAsyncLauncherService(datafeedLoop, realTimeEventListeners);
   }
 }

@@ -49,6 +49,11 @@ public class BdkCoreConfig {
     return apiClientFactory.getDatafeedAgentClient();
   }
 
+  @Bean(name = "datahoseAgentApiClient")
+  public ApiClient datahoseAgentApiClient(ApiClientFactory apiClientFactory) {
+    return apiClientFactory.getDatahoseAgentClient();
+  }
+
   @Bean(name = "podApiClient")
   public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
     ApiClient client = apiClientFactory.getPodClient();
