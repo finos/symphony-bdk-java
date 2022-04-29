@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * A class for implementing the datafeed v2 loop service.
@@ -45,6 +46,13 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
    * DFv2 API authorizes a maximum length for the tag parameter.
    */
   private static final int DATAFEED_TAG_MAX_LENGTH = 100;
+
+  /**
+   * Regex pattern of fanout feeds, e.g. "e766c498eece0d113f035270ad6c3c63_f_f8001".
+   * We must exclude potential datahose feeds when we are reusing a datafeed.
+   * Datahose feeds are in the format *_p_*, e.g. "d25098517ec62f1fc65cd111667a8386_p_be940".
+   */
+  private static final Pattern FANOUT_FEED_PATTERN = Pattern.compile("^[^\\s_]+_f_[^\\s_]+$");
 
   private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final RetryWithRecovery<Void> readDatafeed;
@@ -120,8 +128,12 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         this.authSession.getKeyManagerToken(),
         this.tag
     );
+    return feeds.stream().filter(this::isFanoutFeed).findFirst().orElse(null);
+  }
 
-    return feeds.stream().findFirst().orElse(null);
+  private boolean isFanoutFeed(V5Datafeed d) {
+    final String datafeedId = d.getId();
+    return datafeedId != null && FANOUT_FEED_PATTERN.matcher(datafeedId).matches();
   }
 
   @Override
