@@ -13,7 +13,7 @@ create a datafeed, list all created datafeeds or retrieve all the Real Time Even
 API. The datafeed loop is a core service built on top of the Datafeed API and provide a dedicated contract to bot
 developers to work with datafeed.
 
-For more advanced interactions between users and bots, you can also read [Activity API](../docs/activity-api.md).
+For more advanced interactions between users and bots, you can also read [Activity API](./activity-api.md).
 
 ## How to use
 
@@ -145,7 +145,7 @@ Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed
 difference that *all* events of the pod are received. The datahose loop is a core service built on top of the events API
 and provide a dedicated contract to bot developers to work with datahose. This is compatible with agent version 20.15 onwards.
 
-The [Activity API](../docs/activity-api.md) is not meant to be used with datahose.
+The [Activity API](./activity-api.md) is not meant to be used with datahose.
 
 ## How to use
 The central component for the contract between bot developers and the Datafeed API is the `DatahoseLoop`. This service
