@@ -462,7 +462,7 @@ public class RealTimeEventComponent {
 Models names have been changed in Java BDK 2.0. They actually follow the models in Swagger specification of Symphony's public API. Field names in Java classes correspond to the field names in API's JSON payloads.
 This requires to change some variables names in your legacy bots.
 
-Example of types to change : *(non exhaustive list, please refer to our [public API specs](//https://github.com/finos/symphony-api-spec))*
+Example of types to change : *(non exhaustive list, please refer to our [public API specs](//github.com/finos/symphony-api-spec))*
 - `SymphonyElementsAction` → `V4SymphonyElementsAction`
 - `User` → `V4User`
 - `InboundMessage` → `V4Message`
