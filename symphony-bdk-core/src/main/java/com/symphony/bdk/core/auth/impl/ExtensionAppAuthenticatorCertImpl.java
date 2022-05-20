@@ -74,7 +74,12 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   }
 
   @Override
-  protected String getBasePath(){
+  protected String getPodCertificateBasePath() {
     return certificatePodApi.getApiClient().getBasePath();
+  }
+
+  @Override
+  protected String getAuthenticationBasePath() {
+    return certificateAuthenticationApi.getApiClient().getBasePath();
   }
 }
