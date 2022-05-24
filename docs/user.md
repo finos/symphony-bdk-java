@@ -38,6 +38,7 @@ The central component for the User Service is the `UserService` class, it expose
 The service is accessible from the`SymphonyBdk` object by calling the `users()` method:
 
 ```java
+@Slf4j
 public class Example {
   public static final Long USER_ID = 123456789L;
 

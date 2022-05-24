@@ -1,8 +1,8 @@
 # Datafeed
-> :warning: The datafeed 1 service will be fully replaced by the datafeed 2 service in the future. 
-> Please consider using datafeed 2.  
-> 
-> For more information on the timeline as well as on the benefits of datafeed 2, please reach out to your Technical 
+> :warning: The datafeed 1 service will be fully replaced by the datafeed 2 service in the future.
+> Please consider using datafeed 2.
+>
+> For more information on the timeline as well as on the benefits of datafeed 2, please reach out to your Technical
 > Account Manager or to our [developer documentation](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed).
 
 The datafeed loop is a service used for handling the [_Real Time
@@ -21,6 +21,7 @@ The central component for the contract between bot developers and the Datafeed A
 is accessible from the `SymphonyBdk` object by calling the `datafeed()` method. For instance:
 
 ```java
+@Slf4j
 public class Example {
 
     public static void main(String[] args) {
@@ -152,6 +153,7 @@ The central component for the contract between bot developers and the Datafeed A
 is accessible from the `SymphonyBdk` object by calling the `datahose()` method. For instance:
 
 ```java
+@Slf4j
 public class Example {
 
     public static void main(String[] args) {

@@ -26,6 +26,7 @@ The central component for the Message Service is the `StreamService` class.
 This class exposes the user-friendly service APIs which serve all the services mentioned above
 and is accessible from the `SymphonyBdk` object by calling the `streams()` method:
 ```java
+@Slf4j
 public class Example {
   public static final String STREAM_ID = "MY_STRING_UD";
 

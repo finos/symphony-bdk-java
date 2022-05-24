@@ -22,8 +22,8 @@ public class Example {
 ```
 
 ## Command Activity
-A command activity is triggered when a message is sent in an `IM`, `MIM` or `Chatroom`. This is the most basic interaction 
-between an end-user and the bot. Here are some command activity examples: 
+A command activity is triggered when a message is sent in an `IM`, `MIM` or `Chatroom`. This is the most basic interaction
+between an end-user and the bot. Here are some command activity examples:
 
 - the bot is mentioned followed by a [_slash_](#slash-command) command:
 ```
@@ -53,6 +53,7 @@ public class Example {
   }
 }
 
+@Slf4j
 class HelloCommandActivity extends CommandActivity<CommandContext> {
 
   @Override
@@ -78,7 +79,7 @@ each time a message that contains "hello" is sent in a stream where the bot is a
 3. define activity information
 
 ### Slash Command
-A _Slash_ command can be used to directly define a very simple bot command such as: 
+A _Slash_ command can be used to directly define a very simple bot command such as:
 ```
 $ @BotMention /command
 $ /command
@@ -111,6 +112,7 @@ Argument names must be unique inside a given pattern.
 When a slash command matches, arguments can be retrieved thanks to the `getArguments()` method in the `CommandContext` class.
 
 ```java
+@Slf4j
 public class Example {
 
   public static void main(String[] args) throws Exception {
@@ -138,7 +140,7 @@ public class Example {
 ```
 1. `/hello` is the command pattern
 2. `true` means that the bot has to be mentioned
-3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the 
+3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the
 event, or the event initiator (i.e. user that triggered the command)
 
 ### Help Command
@@ -146,10 +148,11 @@ event, or the event initiator (i.e. user that triggered the command)
 _Help_ command is a BDK built-in command which will list out all the commands registered in the `ActivityRegistry` of the BDK by:
 ```
 $ @BotMention /help
-``` 
+```
 The help command can be instantiated by passing an `ActivityRegistry` and `MessageService` instances to the constructor,
  then added manually to the BDK activity registry:
 ```java
+@Slf4j
 public class Example {
 
   public static void main(String[] args) throws Exception {
@@ -157,13 +160,13 @@ public class Example {
     // setup SymphonyBdk facade object
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 
-    bdk.activities().register(SlashCommand.slash("/hello",    
-                                                 true,        
-                                                 context -> { 
+    bdk.activities().register(SlashCommand.slash("/hello",
+                                                 true,
+                                                 context -> {
 
       log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));
-    
+
     bdk.activities().register(new HelpCommand(bdk.activities(), bdk.messages()));
 
     // finally, start the datafeed loop
@@ -173,10 +176,10 @@ public class Example {
 ```
 
 ## Form Activity
-A form activity is triggered when an end-user reply or submit to an _Elements_ form. 
+A form activity is triggered when an end-user reply or submit to an _Elements_ form.
 
 ### How to create a Form Activity
-For this example, we will assume that the following Elements form has been posted into a room: 
+For this example, we will assume that the following Elements form has been posted into a room:
 ```xml
 <messageML>
     <h2>Hello Form</h2>
@@ -232,7 +235,7 @@ class HelloFormReplyActivity extends FormReplyActivity<FormReplyContext> {
   }
 }
 ```
-1. The `ActivityMatcher` ensures that activity logic is triggered only when the form with `id` "**hello-form**" has been 
+1. The `ActivityMatcher` ensures that activity logic is triggered only when the form with `id` "**hello-form**" has been
 submitted from the action button "**submit**"
 2. The activity context allows to directly retrieve form values. Here the "**name**" `<text-field>` value
 

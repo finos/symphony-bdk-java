@@ -14,6 +14,7 @@ and is accessible from the `SymphonyBdk` object by calling the `disclaimers()` m
 
 
 ```java
+@Slf4j
 public class Example {
   public static final Long DISCLAIMER_ID = "MY_DISCLAIMER_ID";
 

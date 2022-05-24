@@ -21,6 +21,7 @@ The central component for the Connection Service is the `ConnectionService` clas
 This class exposes the user-friendly service APIs which serve all the services mentioned above
 and is accessible from the `SymphonyBdk` object by calling the `connections()` method:
 ```java
+@Slf4j
 public class Example {
   public static final Long USER_ID = 123456789L;
 

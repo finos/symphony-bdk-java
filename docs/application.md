@@ -20,6 +20,7 @@ The central component for the Application Service is the `ApplicationService` cl
 This class exposes the user-friendly service APIs which serve all the services mentioned above
 and is accessible from the `SymphonyBdk` object by calling the `applications()` method:
 ```java
+@Slf4j
 public class Example {
   public static final String APP_ID = "MY_APP_ID";
 

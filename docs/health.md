@@ -11,6 +11,7 @@ The central component for the Health Service is the `UserService` class, it expo
 The service is accessible from the`SymphonyBdk` object by calling the `users()` method:
 
 ```java
+@Slf4j
 public class Example {
   public static void main(String[] args) throws Exception {
     // Create BDK entry point

@@ -18,6 +18,7 @@ This class exposes the user-friendly service APIs which serve all the services m
 and is accessible from the `SymphonyBdk` object by calling the `signals()` method:
 
 ```java
+@Slf4j
 public class Example {
   public static final String SIGNAL_ID = "MY_SIGNAL_ID";
 

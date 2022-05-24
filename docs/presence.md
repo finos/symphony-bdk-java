@@ -18,6 +18,7 @@ The central component for the Presence Service is the `PresenceService` class, i
 The service is accessible from the`SymphonyBdk` object by calling the `presences()` method:
 
 ```java
+@Slf4j
 public class Example {
   public static final Long USER_ID = 123456789L;
 
