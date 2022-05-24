@@ -43,7 +43,7 @@ public class MessageUpdateExampleMain {
     for (int i = 0; i < 10; i++) {
       Thread.sleep((long) (Math.random() * (5000L - 500L)));
       String mml = "<emoji shortcode=\"" + pickEmoji.apply(i) + "\" /><br/><br/>Update <b>#" + (i + 1) + "</b>";
-      previousMessage = bdk.messages().update(previousMessage, Message.builder().content(mml).build());
+      previousMessage = bdk.messages().update(previousMessage, Message.builder().content(mml).silent(false).build());
     }
   }
 

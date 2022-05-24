@@ -364,6 +364,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     form.put("message", message.getContent());
     form.put("data", message.getData());
     form.put("version", message.getVersion());
+    form.put("silent", message.getSilent());
     form.put("attachment", toApiClientBodyParts(message.getAttachments()));
     form.put("preview", toApiClientBodyParts(message.getPreviews()));
     return form;

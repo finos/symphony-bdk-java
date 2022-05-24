@@ -345,6 +345,19 @@ class MessageServiceTest {
   }
 
   @Test
+  void testMessageSilentUpdate() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_UPDATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/update_message.json"));
+
+    final V4Message messageToUpdate = new V4Message().stream(new V4Stream().streamId(STREAM_ID)).messageId(MESSAGE_ID);
+    final Message content = Message.builder().content("This is a message update with silent flag as false").silent(false).build();
+    final V4Message updateMessage = this.messageService.update(messageToUpdate, content);
+
+    assertEquals(MESSAGE_ID, updateMessage.getMessageId());
+    assertEquals(false, updateMessage.getSilent());
+  }
+
+  @Test
   void testGetAttachment() throws ApiException {
     final String attachmentId = "attachmentId";
 
