@@ -28,4 +28,14 @@ class MessageTest {
   void checkMessageMLNotAppendedToContentIfSet() {
     assertEquals("<messageML>hello</messageML>", Message.builder().content("<messageML>hello</messageML>").build().getContent());
   }
+
+  @Test
+  void checkMessageSilentValueIfSet() {
+    assertEquals(Boolean.FALSE, Message.builder().content("<messageML>hello</messageML>").silent(Boolean.FALSE).build().getSilent());
+  }
+
+  @Test
+  void checkMessageSilentDefaultValue() {
+    assertEquals(Boolean.TRUE, Message.builder().content("<messageML>hello</messageML>").build().getSilent());
+  }
 }
