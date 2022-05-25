@@ -21,6 +21,7 @@ More precisely:
 The central component for the Message API is the `MessageService`.
 It exposes all the services mentioned above and is accessible from the `SymphonyBdk` object by calling the `messages()` method:
 ```java
+@Slf4j
 public class Example {
   public static final String STREAM_ID = "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA";
 
@@ -36,11 +37,11 @@ public class Example {
 > `Message.builder().content("Hello, World!").build()` will automatically prefix and suffix content with `"<messageML>"` and `"</messageML>"`.
 > Therefore, the actual `Message.getContent()` result will be `"<messageML>Hello, World!</messageML>"`
 
-> `PresentationMLParser.getTextContent(message.getMessage())` can be used on incoming messages to extract the message content 
+> `PresentationMLParser.getTextContent(message.getMessage())` can be used on incoming messages to extract the message content
 > stripped of all tags.
 ## Using templates
 The `Message.Builder` also allows you to build a message from a template. So far, the BDK supports two different template
-engine implementations: 
+engine implementations:
 - [FreeMarker](https://freemarker.apache.org/) (through dependency `org.finos.symphony.bdk:symphony-bdk-template-freemarker`)
 - [Handlebars](https://github.com/jknack/handlebars.java) (through dependency `org.finos.symphony.bdk:symphony-bdk-template-handlebars`)
 
@@ -72,8 +73,9 @@ The above will send the message `<messageML>Hello, User!</messageML>` as expecte
 > 1. classpath
 > 2. file system
 
-It is also possible to get direct access to the `TemplateEngine` through the `MessageService`: 
+It is also possible to get direct access to the `TemplateEngine` through the `MessageService`:
 ```java
+@Slf4j
 public class Example {
 
   public static void main(String[] args) {
@@ -93,10 +95,10 @@ public class Example {
 ```
 
 #### Select your template engine implementation
-Developers are free to select the underlying template engine implementation. This can be done importing the right 
-dependency in your classpath. 
+Developers are free to select the underlying template engine implementation. This can be done importing the right
+dependency in your classpath.
 
-With [Maven](./getting-started.md#maven-based-project): 
+With [Maven](./getting-started.md#maven-based-project):
 ```xml
 <dependencies>
         <dependency>
@@ -112,7 +114,7 @@ With [Maven](./getting-started.md#maven-based-project):
         </dependency>
 </dependencies>
 ```
-With [Gradle](./getting-started.md#gradle-based-project): 
+With [Gradle](./getting-started.md#gradle-based-project):
 ```groovy
 dependencies {
     runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'
