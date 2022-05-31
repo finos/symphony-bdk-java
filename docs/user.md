@@ -1,4 +1,4 @@
-# User service
+# User API
 The User Service is a component at the service layer of the BDK which covers the User part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:
 * [Create user](https://developers.symphony.com/restapi/reference/create-user-v2)
@@ -52,3 +52,4 @@ public class Example {
     log.info("User details: " + userDetail);
   }
 }
+```

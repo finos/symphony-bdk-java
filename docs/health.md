@@ -1,4 +1,4 @@
-# Health service
+# Health API
 The Health Service is a component at the service layer of the BDK which covers the Health Service part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:
 * [Health check](https://developers.symphony.com/restapi/reference/health-check-v3)
@@ -23,3 +23,4 @@ public class Example {
     log.info("Health status: " + v3Health.getStatus());
   }
 }
+```

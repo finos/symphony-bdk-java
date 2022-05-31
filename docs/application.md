@@ -1,4 +1,4 @@
-# Application Service
+# Application API
 
 The Application Service is a component at the service layer of the BDK which aims to cover the Applications part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:
@@ -34,3 +34,4 @@ public class Example {
     log.info("Application details: " + applicationDetails);
   }
 }
+```
