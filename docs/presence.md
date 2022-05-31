@@ -1,4 +1,4 @@
-# Presence Service
+# Presence API
 
 The Presence Service is a component at the service layer of the BDK which covers the Presence part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:
@@ -32,3 +32,4 @@ public class Example {
     log.info("User presence: " + userPresence);
   }
 }
+```

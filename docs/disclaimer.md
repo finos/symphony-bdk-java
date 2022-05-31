@@ -1,4 +1,4 @@
-# Disclaimer Service
+# Disclaimer API
 
 The Disclaimer Service is a component at the service layer of the BDK which aims to cover the Disclaimers part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:
@@ -28,3 +28,4 @@ public class Example {
     log.info("Disclaimer details: " + disclaimer);
   }
 }
+```

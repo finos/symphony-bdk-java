@@ -1,4 +1,4 @@
-# Stream Service
+# Stream API
 
 The Stream Service is a component at the service layer of the BDK which aims to cover the Streams part of the [REST API documentation](https://developers.symphony.com/restapi/reference#messages-v4).
 More precisely:
@@ -22,7 +22,7 @@ More precisely:
 
 
 ## How to use
-The central component for the Message Service is the `StreamService` class.
+The central component for the Message API is the `StreamService` class.
 This class exposes the user-friendly service APIs which serve all the services mentioned above
 and is accessible from the `SymphonyBdk` object by calling the `streams()` method:
 ```java
@@ -40,3 +40,4 @@ public class Example {
     log.info("Stream details: " + stream);
   }
 }
+```
