@@ -9,6 +9,8 @@ import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -74,4 +76,12 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference/suppress-message">Suppress Message</a>
    */
   MessageSuppressionResponse suppressMessage(@Nonnull String messageId);
+
+  /**
+   * Retrieves a list of supported file extensions for attachments.
+   *
+   * @return a list of String containing all allowed file extensions for attachments
+   * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
+   */
+  List<String> getAttachmentTypes();
 }

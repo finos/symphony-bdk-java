@@ -290,6 +290,14 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public List<String> getAttachmentTypes() {
+    return executeAndRetry("getAttachmentTypes", podApi.getApiClient().getBasePath(),
+        () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
+  }
+
+  /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
    *
    * @param messageToUpdate the message to be updated
@@ -447,17 +455,6 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public MessageStatus getMessageStatus(@Nonnull String messageId) {
     return executeAndRetry("getMessageStatus", messageApi.getApiClient().getBasePath(),
         () -> messageApi.v1MessageMidStatusGet(toUrlSafeIdIfNeeded(messageId), authSession.getSessionToken()));
-  }
-
-  /**
-   * Retrieves a list of supported file extensions for attachments.
-   *
-   * @return a list of String containing all allowed file extensions for attachments
-   * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
-   */
-  public List<String> getAttachmentTypes() {
-    return executeAndRetry("getAttachmentTypes", podApi.getApiClient().getBasePath(),
-        () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
   }
 
   /**
