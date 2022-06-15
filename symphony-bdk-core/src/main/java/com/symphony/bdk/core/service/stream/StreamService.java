@@ -201,6 +201,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public Stream create(@Nonnull Long... uids) {
     return this.create(Arrays.asList(uids));
   }
@@ -208,6 +209,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public Stream create(@Nonnull List<Long> uids) {
     return executeAndRetry("createStreamByUserIds", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v1ImCreatePost(authSession.getSessionToken(), uids));
@@ -216,6 +218,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public V3RoomDetail create(@Nonnull V3RoomAttributes roomAttributes) {
     return executeAndRetry("createStream", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomCreatePost(authSession.getSessionToken(), roomAttributes));
@@ -224,6 +227,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public V3RoomDetail updateRoom(@Nonnull String roomId, @Nonnull V3RoomAttributes roomAttributes) {
     if(roomAttributes.getPinnedMessageId() != null) {
       String pinnedMessageId = toUrlSafeIdIfNeeded(roomAttributes.getPinnedMessageId());
@@ -236,6 +240,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public V3RoomDetail getRoomInfo(@Nonnull String roomId) {
     return executeAndRetry("getRoomInfo", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomIdInfoGet(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken()));
@@ -244,6 +249,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query) {
     return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, null, null));
@@ -252,6 +258,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
         () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
@@ -261,6 +268,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query) {
     OffsetBasedPaginatedApi<V3RoomDetail> api =
@@ -272,6 +280,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   /**
    * {@inheritDoc}
    */
+  @Override
   @API(status = API.Status.EXPERIMENTAL)
   public java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query,
       @Nonnull StreamPaginationAttribute pagination) {

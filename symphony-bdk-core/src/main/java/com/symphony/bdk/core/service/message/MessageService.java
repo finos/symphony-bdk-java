@@ -292,6 +292,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   /**
    * {@inheritDoc}
    */
+  @Override
   public List<String> getAttachmentTypes() {
     return executeAndRetry("getAttachmentTypes", podApi.getApiClient().getBasePath(),
         () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
