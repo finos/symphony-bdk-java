@@ -155,7 +155,7 @@ class MessageServiceTest {
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
     Instant now = Instant.now();
     assertNotNull(service.listMessages(v4Stream, now));
-    verify(service).listMessages(eq(STREAM_ID), eq(now));
+    verify(service).listMessages(STREAM_ID, now);
   }
 
   @Test
@@ -167,7 +167,7 @@ class MessageServiceTest {
     Instant now = Instant.now();
     PaginationAttribute pagination = new PaginationAttribute(2, 2);
     assertNotNull(service.listMessages(v4Stream, now, pagination));
-    verify(service).listMessages(eq(STREAM_ID), eq(now), eq(pagination));
+    verify(service).listMessages(STREAM_ID, now, pagination);
   }
 
   @Test
@@ -198,15 +198,17 @@ class MessageServiceTest {
 
   @Test
   void testSearchMessagesQueryValidation() {
+    final MessageSearchQuery query = new MessageSearchQuery().streamType("FOO");
     assertThrows(
         IllegalArgumentException.class,
-        () -> messageService.searchMessages(new MessageSearchQuery().streamType("FOO")),
+        () -> messageService.searchMessages(query),
         "checks if streamType value is a valid one"
     );
 
+    final MessageSearchQuery query2 = new MessageSearchQuery().text("foo");
     assertThrows(
         IllegalArgumentException.class,
-        () -> messageService.searchMessages(new MessageSearchQuery().text("foo")),
+        () -> messageService.searchMessages(query2),
         "text require streamId arg to be provided"
     );
   }
@@ -230,7 +232,7 @@ class MessageServiceTest {
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
 
     assertNotNull(service.send(v4Stream, MESSAGE));
-    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
+    verify(service).send(STREAM_ID, MESSAGE);
   }
 
   @Test
@@ -416,6 +418,14 @@ class MessageServiceTest {
         JsonHelper.readFromClasspath("/message/get_attachment_types.json"));
 
     assertEquals(Arrays.asList(".csv", ".gif"), messageService.getAttachmentTypes());
+  }
+
+  @Test
+  void testGetAttachmentTypesInOboMode() throws IOException {
+    mockApiClient.onGet(V1_ALLOWED_TYPES,
+        JsonHelper.readFromClasspath("/message/get_attachment_types.json"));
+
+    assertEquals(Arrays.asList(".csv", ".gif"), messageService.obo(this.authSession).getAttachmentTypes());
   }
 
   @Test
