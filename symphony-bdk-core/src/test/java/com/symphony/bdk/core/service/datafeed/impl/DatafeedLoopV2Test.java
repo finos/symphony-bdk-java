@@ -129,7 +129,7 @@ class DatafeedLoopV2Test {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"abc", "abc_def", "abc_p_def", "abc_f", "abc_f_"})
+  @ValueSource(strings = {"abc", "abc_def", "abc_p_def", "abc_f_"})
   void testStartInvalidExistingFeeds(String invalidExistingFeedId) throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, USERNAME))
         .thenReturn(Collections.singletonList(new V5Datafeed().id(invalidExistingFeedId)));
@@ -146,6 +146,26 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, USERNAME);
     verify(datafeedApi, times(1)).createDatafeed(eq(TOKEN), eq(TOKEN), any());
     verify(datafeedApi, times(1)).readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"abc_f","abc_f_def"})
+  void testStartValidExistingFeeds(String validExistingFeedId) throws ApiException, AuthUnauthorizedException {
+    when(datafeedApi.listDatafeed(TOKEN, TOKEN, USERNAME))
+        .thenReturn(Collections.singletonList(new V5Datafeed().id(validExistingFeedId)));
+    when(datafeedApi.createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody().tag(USERNAME))).thenReturn(
+        new V5Datafeed().id(validExistingFeedId));
+
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
+    when(datafeedApi.readDatafeed(validExistingFeedId, TOKEN, TOKEN, ackId))
+        .thenReturn(new V5EventList().addEventsItem(
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+
+    this.datafeedService.start();
+
+    verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, USERNAME);
+    verify(datafeedApi, times(0)).createDatafeed(eq(TOKEN), eq(TOKEN), any());
+    verify(datafeedApi, times(1)).readDatafeed(validExistingFeedId, TOKEN, TOKEN, ackId);
   }
 
   @Test
