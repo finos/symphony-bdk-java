@@ -21,7 +21,7 @@ import org.apiguardian.api.API;
 import javax.annotation.Nonnull;
 
 /**
- * Extension app authenticator RSA implementation.
+ * Extension app authenticator Cert implementation.
  *
  * @see <a href="https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication">Application Authentication</a>
  */
@@ -74,7 +74,12 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   }
 
   @Override
-  protected String getBasePath(){
+  protected String getPodCertificateBasePath() {
     return certificatePodApi.getApiClient().getBasePath();
+  }
+
+  @Override
+  protected String getAuthenticationBasePath() {
+    return certificateAuthenticationApi.getApiClient().getBasePath();
   }
 }
