@@ -426,6 +426,7 @@ In Java SDK 1.0, the bot had to implement 3 listeners classes:
 - one for IM (1 to 1 conversation)
 - one for MIM (room)
 - one for Symphony elements
+
 ```java
 @Slf4j
 @Service
