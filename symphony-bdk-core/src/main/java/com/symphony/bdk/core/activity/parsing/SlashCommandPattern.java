@@ -7,8 +7,8 @@ import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.apiguardian.api.API;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -114,7 +114,7 @@ public class SlashCommandPattern {
 
   private List<CommandToken> buildTokens(String pattern) {
     if (isBlank(pattern)) {
-      return Collections.emptyList();
+      return new ArrayList<>();
     }
 
     final String[] tokens = pattern.trim().split("\\s+");
