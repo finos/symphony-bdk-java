@@ -86,11 +86,6 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    */
   protected SlashCommand(@Nonnull String slashCommandPattern, boolean requiresBotMention,
       @Nonnull Consumer<CommandContext> callback, String description) {
-
-    if (StringUtils.isEmpty(slashCommandPattern)) {
-      throw new IllegalArgumentException("The slash command name cannot be empty.");
-    }
-
     this.slashCommandName = slashCommandPattern;
     this.commandPattern = new SlashCommandPattern(this.slashCommandName);
     this.requiresBotMention = requiresBotMention;

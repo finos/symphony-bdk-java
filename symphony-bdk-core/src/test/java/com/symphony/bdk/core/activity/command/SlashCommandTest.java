@@ -2,7 +2,6 @@ package com.symphony.bdk.core.activity.command;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.activity.model.ActivityInfo;
@@ -34,9 +33,19 @@ class SlashCommandTest {
   private static final String BOT_DISPLAY_NAME = "BotMention";
 
   @Test
-  void testIllegalSlashCommandCreation() {
-    assertThrows(IllegalArgumentException.class, () -> SlashCommand.slash("", c -> {
-    }));
+  void testSlashCommandWithEmptyPatternAndBotMentionSuccess() {
+
+    final AtomicBoolean handlerCalled = new AtomicBoolean(false);
+    final Consumer<CommandContext> handler = c -> handlerCalled.set(true);
+    final RealTimeEventsProvider provider = new RealTimeEventsProvider();
+
+    final String commandPattern = "";
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, handler);
+    cmd.setBotUserId(BOT_USER_ID);
+    cmd.bindToRealTimeEventsSource(provider::setListener);
+
+    provider.trigger(l -> l.onMessageSent(new V4Initiator(), createMessageSentEvent(true, commandPattern)));
+    assertTrue(handlerCalled.get());
   }
 
   @Test
