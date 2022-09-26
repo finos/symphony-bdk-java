@@ -360,7 +360,7 @@ class DatahoseLoopTest {
   }
 
   private void assertEventsReadBody(V5EventsReadBody actualBody, String expectedTag, String expectedAckId) {
-    assertEquals(filters, actualBody.getFilters());
+    assertEquals(filters, actualBody.getEventTypes());
     assertEquals(expectedTag, actualBody.getTag());
     assertEquals(expectedAckId, actualBody.getAckId());
   }

@@ -66,6 +66,6 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
   @Override
   protected V5EventList readEvents() throws ApiException {
     return this.datafeedApi.readEvents(this.authSession.getSessionToken(), this.authSession.getKeyManagerToken(),
-        new V5EventsReadBody().ackId(this.ackId).filters(this.filters).tag(this.tag).type(DATAHOSE));
+        new V5EventsReadBody().ackId(this.ackId).eventTypes(this.filters).tag(this.tag).type(DATAHOSE));
   }
 }
