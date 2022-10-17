@@ -37,7 +37,7 @@ public class Message {
   private final String content;
   /**
    * JSON data representing the objects contained in the message.
-   * @see <a href="https://developers.symphony.com/symphony-developer/docs/objects">Structured Objects</a> for a description of the format.
+   * @see <a href="https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/entities/structured-objects">Structured Objects</a> for a description of the format.
    */
   private final String data;
   /**
@@ -52,6 +52,12 @@ public class Message {
    * Optional message version in the format "major.minor". If empty, defaults to the latest supported version.
    */
   private final String version;
+  /**
+   * Optional boolean flag. Used in message update api only.
+   * If true, the message is updated as read already, otherwise it is unread. The default value is true.
+   * @since Agent 20.14
+   */
+  private final Boolean silent;
 
   Message(final MessageBuilder builder) {
     this.content = builder.content();
@@ -59,6 +65,7 @@ public class Message {
     this.data = builder.data();
     this.attachments = builder.attachments();
     this.previews = builder.previews();
+    this.silent = builder.silent();
   }
 
   /**
@@ -86,6 +93,7 @@ public class Message {
     private String version = "2.0";
     private String content;
     private String data;
+    private Boolean silent = Boolean.TRUE;
     private List<Attachment> attachments = new ArrayList<>();
     @Setter(value = AccessLevel.PRIVATE) private List<Attachment> previews = new ArrayList<>();
 
@@ -134,6 +142,11 @@ public class Message {
       } catch (JsonProcessingException e) {
         throw new MessageCreationException("Failed to serialize data (" + data.getClass() + ") to Json string", e);
       }
+    }
+
+    public MessageBuilder silent(@Nonnull Boolean silent) {
+      this.silent = silent;
+      return this;
     }
 
     /**

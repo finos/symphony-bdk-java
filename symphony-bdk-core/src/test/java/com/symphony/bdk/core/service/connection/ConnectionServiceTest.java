@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.connection;
 
+import static com.symphony.bdk.http.api.Pair.pair;
+import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -19,7 +21,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class ConnectionServiceTest {
@@ -94,8 +96,12 @@ public class ConnectionServiceTest {
   }
 
   @Test
-  void listConnectionTest() {
+  void listConnectionsTest() {
     this.mockApiClient.onGet(V1_LIST_CONNECTION,
+          asList(
+              pair("status", "ALL"),
+              pair("userIds", "7078106126503,7078106103809")
+          ),
         "[\n"
             + "  {\n"
             + "    \"userId\": 7078106126503,\n"
@@ -109,7 +115,7 @@ public class ConnectionServiceTest {
             + "  }\n"
             + "]");
 
-    List<UserConnection> connections = this.service.listConnections(ConnectionStatus.ALL, Arrays.asList(7078106126503L, 7078106103809L));
+    List<UserConnection> connections = this.service.listConnections(ConnectionStatus.ALL, asList(7078106126503L, 7078106103809L));
 
     assertEquals(connections.size(), 2);
     assertEquals(connections.get(0).getStatus(), UserConnection.StatusEnum.PENDING_OUTGOING);
@@ -119,10 +125,62 @@ public class ConnectionServiceTest {
   }
 
   @Test
-  void listConnectionFailed() {
+  void listConnectionsWithNullStatusTest() {
+    this.mockApiClient.onGet(V1_LIST_CONNECTION,
+        Collections.singletonList(pair("userIds", "7078106126503,7078106103809")),
+        "[\n"
+            + "  {\n"
+            + "    \"userId\": 7078106126503,\n"
+            + "    \"status\": \"PENDING_OUTGOING\",\n"
+            + "    \"updatedAt\": 1471018076255\n"
+            + "  },\n"
+            + "  {\n"
+            + "    \"userId\": 7078106103809,\n"
+            + "    \"status\": \"PENDING_INCOMING\",\n"
+            + "    \"updatedAt\": 1467562406219\n"
+            + "  }\n"
+            + "]");
+
+    List<UserConnection> connections = this.service.listConnections(null, asList(7078106126503L, 7078106103809L));
+
+    assertEquals(connections.size(), 2);
+    assertEquals(connections.get(0).getStatus(), UserConnection.StatusEnum.PENDING_OUTGOING);
+    assertEquals(connections.get(0).getUserId(), 7078106126503L);
+    assertEquals(connections.get(1).getStatus(), UserConnection.StatusEnum.PENDING_INCOMING);
+    assertEquals(connections.get(1).getUserId(), 7078106103809L);
+  }
+
+  @Test
+  void listConnectionsWithNullListOfUsersTest() {
+    this.mockApiClient.onGet(V1_LIST_CONNECTION,
+        Collections.singletonList(pair("status", "PENDING_OUTGOING")),
+        "[\n"
+            + "  {\n"
+            + "    \"userId\": 7078106126503,\n"
+            + "    \"status\": \"PENDING_OUTGOING\",\n"
+            + "    \"updatedAt\": 1471018076255\n"
+            + "  },\n"
+            + "  {\n"
+            + "    \"userId\": 7078106103809,\n"
+            + "    \"status\": \"PENDING_INCOMING\",\n"
+            + "    \"updatedAt\": 1467562406219\n"
+            + "  }\n"
+            + "]");
+
+    List<UserConnection> connections = this.service.listConnections(ConnectionStatus.PENDING_OUTGOING, null);
+
+    assertEquals(connections.size(), 2);
+    assertEquals(connections.get(0).getStatus(), UserConnection.StatusEnum.PENDING_OUTGOING);
+    assertEquals(connections.get(0).getUserId(), 7078106126503L);
+    assertEquals(connections.get(1).getStatus(), UserConnection.StatusEnum.PENDING_INCOMING);
+    assertEquals(connections.get(1).getUserId(), 7078106103809L);
+  }
+
+  @Test
+  void listConnectionsFailed() {
     this.mockApiClient.onGet(400, V1_LIST_CONNECTION, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.listConnections(ConnectionStatus.ALL, Arrays.asList(7078106126503L, 7078106103809L)));
+    assertThrows(ApiRuntimeException.class, () -> this.service.listConnections(ConnectionStatus.ALL, asList(7078106126503L, 7078106103809L)));
   }
 
   @Test

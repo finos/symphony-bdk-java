@@ -1,12 +1,15 @@
 package com.symphony.bdk.core.service.stream;
 
+import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +30,8 @@ import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.StreamType;
 import com.symphony.bdk.gen.api.model.UserId;
+import com.symphony.bdk.gen.api.model.V1IMAttributes;
+import com.symphony.bdk.gen.api.model.V1IMDetail;
 import com.symphony.bdk.gen.api.model.V2AdminStreamFilter;
 import com.symphony.bdk.gen.api.model.V2AdminStreamInfo;
 import com.symphony.bdk.gen.api.model.V2AdminStreamList;
@@ -44,6 +49,7 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,6 +60,8 @@ public class StreamServiceTest {
 
   private static final String V1_IM_CREATE = "/pod/v1/im/create";
   private static final String V1_IM_CREATE_ADMIN = "/pod/v1/admin/im/create";
+  private static final String V1_IM_UPDATE = "/pod/v1/im/{id}/update";
+  private static final String V1_IM_INFO = "/pod/v1/im/{id}/info";
   private static final String V1_ROOM_SET_ACTIVE = "/pod/v1/room/{id}/setActive";
   private static final String V1_ROOM_SET_ACTIVE_ADMIN = "/pod/v1/admin/room/{id}/setActive";
   private static final String V1_STREAM_LIST = "/pod/v1/streams/list";
@@ -86,7 +94,7 @@ public class StreamServiceTest {
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
 
     this.spyRoomMembershipApi = spy(new RoomMembershipApi(podClient));
-    this.streamsApi = new StreamsApi(podClient);
+    this.streamsApi = spy(new StreamsApi(podClient));
     this.shareApi = new ShareApi(agentClient);
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
         this.authSession, new RetryWithRecoveryBuilder<>());
@@ -112,8 +120,8 @@ public class StreamServiceTest {
         new RetryWithRecoveryBuilder<>());
     V2StreamAttributes stream = this.service.obo(this.authSession).getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
-    assertEquals(stream.getId(), "p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
-    assertEquals(stream.getOrigin(), "INTERNAL");
+    assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", stream.getId());
+    assertEquals("INTERNAL", stream.getOrigin());
   }
 
   @Test
@@ -122,14 +130,24 @@ public class StreamServiceTest {
 
     Stream stream = this.service.create(Arrays.asList(7215545078541L, 7215512356741L));
 
-    assertEquals(stream.getId(), "xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA");
+    assertEquals("xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA", stream.getId());
   }
 
   @Test
   void createIMorMIMTestFailed() {
     this.mockApiClient.onPost(400, V1_IM_CREATE, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.create(Arrays.asList(7215545078541L, 7215512356741L)));
+    List<Long> userIds = Arrays.asList(7215545078541L, 7215512356741L);
+    assertThrows(ApiRuntimeException.class, () -> this.service.create(userIds));
+  }
+
+  @Test
+  void createIMorMIMInOboModeTest() {
+    this.mockApiClient.onPost(V1_IM_CREATE, "{\"id\": \"xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA\"}");
+
+    Stream stream = this.service.obo(this.authSession).create(Arrays.asList(7215545078541L, 7215512356741L));
+
+    assertEquals("xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA", stream.getId());
   }
 
   @Test
@@ -138,7 +156,7 @@ public class StreamServiceTest {
 
     Stream stream = this.service.create(7215545078541L);
 
-    assertEquals(stream.getId(), "xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA");
+    assertEquals("xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA", stream.getId());
   }
 
   @Test
@@ -149,22 +167,44 @@ public class StreamServiceTest {
   }
 
   @Test
+  void createIMInOboModeTest() {
+    this.mockApiClient.onPost(V1_IM_CREATE, "{\"id\": \"xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA\"}");
+
+    Stream stream = this.service.obo(this.authSession).create(7215545078541L);
+
+    assertEquals("xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA", stream.getId());
+  }
+
+  @Test
   void createRoomChatTest() throws IOException {
     this.mockApiClient.onPost(V3_ROOM_CREATE, JsonHelper.readFromClasspath(
         "/stream/v3_room_detail.json"));
 
     V3RoomDetail roomDetail = this.service.create(new V3RoomAttributes());
 
-    assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
-    assertEquals(roomDetail.getRoomAttributes().getDescription(), "Created via the API");
-    assertEquals(roomDetail.getRoomSystemInfo().getId(), "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
+    assertEquals("API room", roomDetail.getRoomAttributes().getName() );
+    assertEquals("Created via the API", roomDetail.getRoomAttributes().getDescription());
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", roomDetail.getRoomSystemInfo().getId());
   }
 
   @Test
   void createRoomChatTestFailed() {
     this.mockApiClient.onPost(400, V3_ROOM_CREATE, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.create(new V3RoomAttributes()));
+    V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
+    assertThrows(ApiRuntimeException.class, () -> this.service.create(v3RoomAttributes));
+  }
+
+  @Test
+  void createRoomChatInOboModeTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_CREATE, JsonHelper.readFromClasspath(
+        "/stream/v3_room_detail.json"));
+
+    V3RoomDetail roomDetail = this.service.obo(this.authSession).create(new V3RoomAttributes());
+
+    assertEquals("API room", roomDetail.getRoomAttributes().getName());
+    assertEquals("Created via the API", roomDetail.getRoomAttributes().getDescription());
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", roomDetail.getRoomSystemInfo().getId());
   }
 
   @Test
@@ -174,14 +214,15 @@ public class StreamServiceTest {
     V3RoomSearchResults searchResults = this.service.searchRooms(new V2RoomSearchCriteria());
 
     assertEquals(searchResults.getCount(), 2);
-    assertEquals(searchResults.getRooms().get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+    assertEquals("Automobile Industry Room", searchResults.getRooms().get(0).getRoomAttributes().getName());
   }
 
   @Test
   void searchRoomsTestFailed() {
     this.mockApiClient.onPost(400, V3_ROOM_SEARCH, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchRooms(new V2RoomSearchCriteria()));
+    V2RoomSearchCriteria v2RoomSearchCriteria = new V2RoomSearchCriteria();
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchRooms(v2RoomSearchCriteria));
   }
 
   @Test
@@ -191,8 +232,29 @@ public class StreamServiceTest {
     V3RoomSearchResults searchResults =
         this.service.searchRooms(new V2RoomSearchCriteria(), new PaginationAttribute(0, 100));
 
-    assertEquals(searchResults.getCount(), 2);
-    assertEquals(searchResults.getRooms().get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+    assertEquals(2, searchResults.getCount());
+    assertEquals("Automobile Industry Room", searchResults.getRooms().get(0).getRoomAttributes().getName());
+  }
+
+  @Test
+  void searchRoomsInOboModeTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    V3RoomSearchResults searchResults = this.service.obo(this.authSession).searchRooms(new V2RoomSearchCriteria());
+
+    assertEquals(2, searchResults.getCount());
+    assertEquals("Automobile Industry Room", searchResults.getRooms().get(0).getRoomAttributes().getName());
+  }
+
+  @Test
+  void searchRoomsSkipLimitInOboModeTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    V3RoomSearchResults searchResults =
+        this.service.obo(this.authSession).searchRooms(new V2RoomSearchCriteria(), new PaginationAttribute(0, 100));
+
+    assertEquals(2, searchResults.getCount());
+    assertEquals("Automobile Industry Room", searchResults.getRooms().get(0).getRoomAttributes().getName());
   }
 
   @Test
@@ -202,8 +264,8 @@ public class StreamServiceTest {
     List<V3RoomDetail> searchResults =
         this.service.searchAllRooms(new V2RoomSearchCriteria()).collect(Collectors.toList());
 
-    assertEquals(searchResults.size(), 2);
-    assertEquals(searchResults.get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+    assertEquals(2, searchResults.size());
+    assertEquals("Automobile Industry Room", searchResults.get(0).getRoomAttributes().getName());
   }
 
   @Test
@@ -214,8 +276,32 @@ public class StreamServiceTest {
         this.service.searchAllRooms(new V2RoomSearchCriteria(), new StreamPaginationAttribute(100, 100))
             .collect(Collectors.toList());
 
-    assertEquals(searchResults.size(), 2);
-    assertEquals(searchResults.get(0).getRoomAttributes().getName(), "Automobile Industry Room");
+    assertEquals(2, searchResults.size());
+    assertEquals("Automobile Industry Room", searchResults.get(0).getRoomAttributes().getName());
+  }
+
+  @Test
+  void searchAllRoomsInOboModeTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    List<V3RoomDetail> searchResults =
+        this.service.obo(this.authSession).searchAllRooms(new V2RoomSearchCriteria()).collect(Collectors.toList());
+
+    assertEquals(2, searchResults.size());
+    assertEquals("Automobile Industry Room", searchResults.get(0).getRoomAttributes().getName());
+  }
+
+  @Test
+  void searchAllRoomsStreamPaginationInOboModeTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_SEARCH, JsonHelper.readFromClasspath("/stream/room_search.json"));
+
+    List<V3RoomDetail> searchResults =
+        this.service.obo(this.authSession)
+            .searchAllRooms(new V2RoomSearchCriteria(), new StreamPaginationAttribute(100, 100))
+            .collect(Collectors.toList());
+
+    assertEquals(2, searchResults.size());
+    assertEquals("Automobile Industry Room", searchResults.get(0).getRoomAttributes().getName());
   }
 
   @Test
@@ -225,9 +311,19 @@ public class StreamServiceTest {
 
     V3RoomDetail roomDetail = this.service.getRoomInfo("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
 
-    assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
-    assertEquals(roomDetail.getRoomAttributes().getDescription(), "Created via the API");
-    assertEquals(roomDetail.getRoomSystemInfo().getId(), "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
+    assertEquals("API room", roomDetail.getRoomAttributes().getName());
+    assertEquals("Created via the API", roomDetail.getRoomAttributes().getDescription());
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", roomDetail.getRoomSystemInfo().getId());
+  }
+
+  @Test
+  void getRoomInfoTest_base64() throws IOException {
+    this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomDetail roomDetail = this.service.getRoomInfo(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"));
+
+    assertEquals("API room", roomDetail.getRoomAttributes().getName());
   }
 
   @Test
@@ -238,13 +334,25 @@ public class StreamServiceTest {
   }
 
   @Test
+  void getRoomInfoInOboModeTest() throws IOException {
+    this.mockApiClient.onGet(V3_ROOM_INFO.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomDetail roomDetail = this.service.obo(this.authSession).getRoomInfo("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
+
+    assertEquals("API room", roomDetail.getRoomAttributes().getName());
+    assertEquals("Created via the API", roomDetail.getRoomAttributes().getDescription());
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", roomDetail.getRoomSystemInfo().getId());
+  }
+
+  @Test
   void setRoomActiveTest() throws IOException {
     this.mockApiClient.onPost(V1_ROOM_SET_ACTIVE.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"),
         JsonHelper.readFromClasspath("/stream/room_detail.json"));
 
     RoomDetail roomDetail = this.service.setRoomActive("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true);
 
-    assertEquals(roomDetail.getRoomSystemInfo().getActive(), true);
+    assertTrue(roomDetail.getRoomSystemInfo().getActive());
   }
 
   @Test
@@ -262,17 +370,69 @@ public class StreamServiceTest {
 
     V3RoomDetail roomDetail = this.service.updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", new V3RoomAttributes());
 
-    assertEquals(roomDetail.getRoomAttributes().getName(), "API room");
-    assertEquals(roomDetail.getRoomAttributes().getDescription(), "Created via the API");
-    assertEquals(roomDetail.getRoomSystemInfo().getId(), "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA");
+    assertEquals("API room", roomDetail.getRoomAttributes().getName());
+    assertEquals("Created via the API", roomDetail.getRoomAttributes().getDescription());
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", roomDetail.getRoomSystemInfo().getId());
+  }
+
+  @Test
+  void updateRoomTest_base64() throws IOException, ApiException {
+    this.mockApiClient.onPost(V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomAttributes attributes = new V3RoomAttributes();
+    attributes.setPinnedMessageId(fromUrlSafeId("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ"));
+    this.service.updateRoom(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), attributes);
+
+    final ArgumentCaptor<V3RoomAttributes> attributesArgumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
+    final ArgumentCaptor<String> idArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(streamsApi).v3RoomIdUpdatePost(idArgumentCaptor.capture(), any(String.class),
+        attributesArgumentCaptor.capture());
+
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", idArgumentCaptor.getValue());
+    assertEquals("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ", attributesArgumentCaptor.getValue().getPinnedMessageId());
   }
 
   @Test
   void updateRoomTestFailed() {
     this.mockApiClient.onPost(400, V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), "{}");
 
+    V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
     assertThrows(ApiRuntimeException.class,
-        () -> this.service.updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", new V3RoomAttributes()));
+        () -> this.service.updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", v3RoomAttributes));
+  }
+
+  @Test
+  void updateRoomInOboModeTest() throws IOException {
+    this.mockApiClient.onPost(V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomDetail roomDetail =
+        this.service.obo(this.authSession).updateRoom("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", new V3RoomAttributes());
+
+    assertEquals("API room", roomDetail.getRoomAttributes().getName());
+    assertEquals("Created via the API", roomDetail.getRoomAttributes().getDescription());
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", roomDetail.getRoomSystemInfo().getId());
+  }
+
+  @Test
+  void updateRoomInOboModeTest_base64() throws IOException, ApiException {
+    this.mockApiClient.onPost(V3_ROOM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/v3_room_detail.json"));
+
+    V3RoomAttributes attributes = new V3RoomAttributes();
+    attributes.setPinnedMessageId(fromUrlSafeId("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ"));
+    this.service.obo(this.authSession).updateRoom(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), attributes);
+
+    final ArgumentCaptor<V3RoomAttributes> attributesArgumentCaptor = ArgumentCaptor.forClass(V3RoomAttributes.class);
+    final ArgumentCaptor<String> idArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(streamsApi).v3RoomIdUpdatePost(idArgumentCaptor.capture(), any(String.class),
+        attributesArgumentCaptor.capture());
+
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", idArgumentCaptor.getValue());
+    assertEquals("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ", attributesArgumentCaptor.getValue().getPinnedMessageId());
   }
 
   @Test
@@ -283,15 +443,16 @@ public class StreamServiceTest {
         this.service.listStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
             StreamType.TypeEnum.IM)));
 
-    assertEquals(streams.size(), 1);
-    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+    assertEquals(1, streams.size());
+    assertEquals("iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA", streams.get(0).getId());
   }
 
   @Test
   void listStreamsTestFailed() {
     this.mockApiClient.onPost(400, V1_STREAM_LIST, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.listStreams(new StreamFilter()));
+    StreamFilter streamFilter = new StreamFilter();
+    assertThrows(ApiRuntimeException.class, () -> this.service.listStreams(streamFilter));
   }
 
   @Test
@@ -301,8 +462,8 @@ public class StreamServiceTest {
     List<StreamAttributes> streams =
         this.service.listStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
             StreamType.TypeEnum.IM)), new PaginationAttribute(0, 100));
-    assertEquals(streams.size(), 1);
-    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+    assertEquals(1, streams.size());
+    assertEquals("iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA", streams.get(0).getId());
   }
 
   @Test
@@ -312,8 +473,8 @@ public class StreamServiceTest {
     List<StreamAttributes> streams =
         this.service.listAllStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
             StreamType.TypeEnum.IM))).collect(Collectors.toList());
-    assertEquals(streams.size(), 1);
-    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+    assertEquals(1, streams.size());
+    assertEquals("iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA", streams.get(0).getId());
   }
 
   @Test
@@ -323,8 +484,8 @@ public class StreamServiceTest {
     List<StreamAttributes> streams =
         this.service.listAllStreams(new StreamFilter().addStreamTypesItem(new StreamType().type(
             StreamType.TypeEnum.IM)), new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
-    assertEquals(streams.size(), 1);
-    assertEquals(streams.get(0).getId(), "iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA");
+    assertEquals(1, streams.size());
+    assertEquals("iWyZBIOdQQzQj0tKOLRivX___qu6YeyZdA", streams.get(0).getId());
   }
 
   @Test
@@ -334,8 +495,8 @@ public class StreamServiceTest {
 
     V2StreamAttributes stream = this.service.getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
-    assertEquals(stream.getId(), "p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
-    assertEquals(stream.getOrigin(), "INTERNAL");
+    assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", stream.getId());
+    assertEquals("INTERNAL", stream.getOrigin());
   }
 
   @Test
@@ -351,7 +512,7 @@ public class StreamServiceTest {
 
     Stream stream = this.service.createInstantMessageAdmin(Arrays.asList(7215545078541L, 7215545078461L));
 
-    assertEquals(stream.getId(), "xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA");
+    assertEquals("xhGxbTcvTDK6EIMMrwdOrX___quztr2HdA", stream.getId());
   }
 
   @Test
@@ -363,13 +524,72 @@ public class StreamServiceTest {
   }
 
   @Test
+  void updateIMTest() throws IOException {
+    this.mockApiClient.onPost(V1_IM_UPDATE.replace("{id}", "usnBKBkH_BVrGOiVpaupEH___okFfE7QdA"),
+        JsonHelper.readFromClasspath("/stream/im_info.json"));
+
+    V1IMAttributes attributes = new V1IMAttributes();
+    attributes.setPinnedMessageId("vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ");
+    V1IMDetail imDetail = this.service.updateInstantMessage("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA", attributes);
+
+    assertEquals("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA", imDetail.getImSystemInfo().getId());
+    assertEquals("vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ", imDetail.getV1IMAttributes().getPinnedMessageId());
+  }
+
+  @Test
+  void updateIMTest_base64() throws IOException, ApiException {
+    this.mockApiClient.onPost(V1_IM_UPDATE.replace("{id}", "bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"),
+        JsonHelper.readFromClasspath("/stream/im_info.json"));
+
+    V1IMAttributes attributes = new V1IMAttributes();
+    attributes.setPinnedMessageId(fromUrlSafeId("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ"));
+    this.service.updateInstantMessage(fromUrlSafeId("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA"), attributes);
+
+    final ArgumentCaptor<V1IMAttributes> attributesArgumentCaptor = ArgumentCaptor.forClass(V1IMAttributes.class);
+    final ArgumentCaptor<String> idArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(streamsApi).v1ImIdUpdatePost(idArgumentCaptor.capture(), any(String.class),
+        attributesArgumentCaptor.capture());
+
+    assertEquals("bjHSiY4iz3ar4iIh6-VzCX___peoM7cPdA", idArgumentCaptor.getValue());
+    assertEquals("wxv6PbPtTSvnjOwVLCss93___oMVTf_AbQ", attributesArgumentCaptor.getValue().getPinnedMessageId());
+  }
+
+  @Test
+  void updateIMTestFail() {
+    this.mockApiClient.onPost(400, V1_IM_UPDATE.replace("{id}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
+
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.updateInstantMessage("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", new V1IMAttributes()));
+  }
+
+  @Test
+  void getIMInfoTest() throws IOException {
+    this.mockApiClient.onGet(V1_IM_INFO.replace("{id}", "usnBKBkH_BVrGOiVpaupEH___okFfE7QdA"),
+        JsonHelper.readFromClasspath("/stream/im_info.json"));
+
+    V1IMDetail imDetail = this.service.getInstantMessageInfo("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA");
+
+    assertEquals("usnBKBkH_BVrGOiVpaupEH___okFfE7QdA", imDetail.getImSystemInfo().getId());
+    assertEquals("vd7qwNb6hLoUV0BfXXPC43___oPIvkwJbQ", imDetail.getV1IMAttributes().getPinnedMessageId());
+  }
+
+  @Test
+  void getIMInfoTestFail() {
+    this.mockApiClient.onGet(400, V1_IM_INFO.replace("{id}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
+
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.getInstantMessageInfo("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
+  }
+
+  @Test
   void setRoomActiveAdminTest() throws IOException {
     this.mockApiClient.onPost(V1_ROOM_SET_ACTIVE_ADMIN.replace("{id}", "HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA"), JsonHelper
         .readFromClasspath("/stream/room_detail.json"));
 
     RoomDetail roomDetail = this.service.setRoomActiveAdmin("HNmksPVAR6-f14WqKXmqHX___qu8LMLgdA", true);
 
-    assertEquals(roomDetail.getRoomSystemInfo().getActive(), true);
+    assertTrue(roomDetail.getRoomSystemInfo().getActive());
   }
 
   @Test
@@ -387,10 +607,10 @@ public class StreamServiceTest {
 
     V2AdminStreamList streamList = this.service.listStreamsAdmin(new V2AdminStreamFilter());
 
-    assertEquals(streamList.getCount(), 4);
-    assertEquals(streamList.getStreams().get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
-    assertEquals(streamList.getStreams().get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
-    assertEquals(streamList.getStreams().get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+    assertEquals(4, streamList.getCount());
+    assertEquals("Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA", streamList.getStreams().get(0).getId());
+    assertEquals("_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA", streamList.getStreams().get(1).getId());
+    assertEquals("fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA", streamList.getStreams().get(2).getId());
   }
 
   @Test
@@ -407,10 +627,10 @@ public class StreamServiceTest {
     V2AdminStreamList streamList =
         this.service.listStreamsAdmin(new V2AdminStreamFilter(), new PaginationAttribute(0, 100));
 
-    assertEquals(streamList.getCount(), 4);
-    assertEquals(streamList.getStreams().get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
-    assertEquals(streamList.getStreams().get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
-    assertEquals(streamList.getStreams().get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+    assertEquals(4, streamList.getCount());
+    assertEquals("Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA", streamList.getStreams().get(0).getId());
+    assertEquals("_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA", streamList.getStreams().get(1).getId());
+    assertEquals("fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA", streamList.getStreams().get(2).getId());
   }
 
   @Test
@@ -420,10 +640,10 @@ public class StreamServiceTest {
     List<V2AdminStreamInfo> streamList =
         this.service.listAllStreamsAdmin(new V2AdminStreamFilter()).collect(Collectors.toList());
 
-    assertEquals(streamList.size(), 4);
-    assertEquals(streamList.get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
-    assertEquals(streamList.get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
-    assertEquals(streamList.get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+    assertEquals(4, streamList.size());
+    assertEquals("Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA", streamList.get(0).getId());
+    assertEquals("_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA", streamList.get(1).getId());
+    assertEquals("fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA", streamList.get(2).getId());
   }
 
   @Test
@@ -434,10 +654,10 @@ public class StreamServiceTest {
         this.service.listAllStreamsAdmin(new V2AdminStreamFilter(), new StreamPaginationAttribute(100, 100))
             .collect(Collectors.toList());
 
-    assertEquals(streamList.size(), 4);
-    assertEquals(streamList.get(0).getId(), "Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA");
-    assertEquals(streamList.get(1).getId(), "_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA");
-    assertEquals(streamList.get(2).getId(), "fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA");
+    assertEquals(4, streamList.size());
+    assertEquals("Q2KYGm7JkljrgymMajYTJ3___qcLPr1UdA", streamList.get(0).getId());
+    assertEquals("_KnoYrMkhEn3H2_8vE0kl3___qb5SANQdA", streamList.get(1).getId());
+    assertEquals("fBoaBSRUyb5Rq3YgeSqZvX___qbf5IAhdA", streamList.get(2).getId());
   }
 
   @Test
@@ -447,9 +667,9 @@ public class StreamServiceTest {
 
     V2MembershipList membersList = this.service.listStreamMembers("1234");
 
-    assertEquals(membersList.getCount(), 2);
-    assertEquals(membersList.getMembers().get(0).getJoinDate(), 1485366753320L);
-    assertEquals(membersList.getMembers().get(1).getJoinDate(), 1485366753279L);
+    assertEquals(2, membersList.getCount());
+    assertEquals(1485366753320L, membersList.getMembers().get(0).getJoinDate());
+    assertEquals(1485366753279L, membersList.getMembers().get(1).getJoinDate());
   }
 
   @Test
@@ -466,9 +686,9 @@ public class StreamServiceTest {
 
     V2MembershipList membersList = this.service.listStreamMembers("1234", new PaginationAttribute(0, 100));
 
-    assertEquals(membersList.getCount(), 2);
-    assertEquals(membersList.getMembers().get(0).getJoinDate(), 1485366753320L);
-    assertEquals(membersList.getMembers().get(1).getJoinDate(), 1485366753279L);
+    assertEquals(2, membersList.getCount());
+    assertEquals(1485366753320L, membersList.getMembers().get(0).getJoinDate());
+    assertEquals(1485366753279L, membersList.getMembers().get(1).getJoinDate());
   }
 
   @Test
@@ -478,9 +698,9 @@ public class StreamServiceTest {
 
     List<V2MemberInfo> membersList = this.service.listAllStreamMembers("1234").collect(Collectors.toList());
 
-    assertEquals(membersList.size(), 2);
-    assertEquals(membersList.get(0).getJoinDate(), 1485366753320L);
-    assertEquals(membersList.get(1).getJoinDate(), 1485366753279L);
+    assertEquals(2, membersList.size());
+    assertEquals(1485366753320L, membersList.get(0).getJoinDate());
+    assertEquals(1485366753279L, membersList.get(1).getJoinDate());
   }
 
   @Test
@@ -491,9 +711,9 @@ public class StreamServiceTest {
     List<V2MemberInfo> membersList =
         this.service.listAllStreamMembers("1234", new StreamPaginationAttribute(100, 100)).collect(Collectors.toList());
 
-    assertEquals(membersList.size(), 2);
-    assertEquals(membersList.get(0).getJoinDate(), 1485366753320L);
-    assertEquals(membersList.get(1).getJoinDate(), 1485366753279L);
+    assertEquals(2, membersList.size());
+    assertEquals(1485366753320L, membersList.get(0).getJoinDate());
+    assertEquals(1485366753279L, membersList.get(1).getJoinDate());
   }
 
   @Test
@@ -513,10 +733,10 @@ public class StreamServiceTest {
 
     List<MemberInfo> memberInfos = this.service.listRoomMembers("1234");
 
-    assertEquals(memberInfos.size(), 2);
-    assertEquals(memberInfos.get(0).getId(), 7078106103900L);
+    assertEquals(2, memberInfos.size());
+    assertEquals(7078106103900L, memberInfos.get(0).getId());
     assertFalse(memberInfos.get(0).getOwner());
-    assertEquals(memberInfos.get(1).getId(), 7078106103809L);
+    assertEquals(7078106103809L, memberInfos.get(1).getId());
     assertTrue(memberInfos.get(1).getOwner());
   }
 

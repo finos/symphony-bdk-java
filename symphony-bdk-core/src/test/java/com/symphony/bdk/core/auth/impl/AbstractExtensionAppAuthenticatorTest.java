@@ -46,7 +46,12 @@ class AbstractExtensionAppAuthenticatorTest {
     }
 
     @Override
-    protected String getBasePath() {
+    protected String getPodCertificateBasePath() {
+      return "localhost.symphony.com";
+    }
+
+    @Override
+    protected String getAuthenticationBasePath() {
       return "localhost.symphony.com";
     }
 

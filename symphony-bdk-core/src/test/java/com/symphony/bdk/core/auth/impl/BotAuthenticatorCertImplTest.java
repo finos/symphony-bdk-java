@@ -7,8 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
+import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ public class BotAuthenticatorCertImplTest {
   void init(final BdkMockServer mockServer) {
     this.authenticator = new BotAuthenticatorCertImpl(
         ofMinimalInterval(1), "botUsername",
+        new BdkCommonJwtConfig(), mockServer.newApiClient("/login"),
         mockServer.newApiClient("/sessionauth"),
         mockServer.newApiClient("/keyauth"));
 
@@ -41,16 +44,16 @@ public class BotAuthenticatorCertImplTest {
 
     final AuthSession session = this.authenticator.authenticateBot();
     assertNotNull(session);
-    assertEquals(AuthSessionCertImpl.class, session.getClass());
-    assertEquals(this.authenticator, ((AuthSessionCertImpl) session).getAuthenticator());
+    assertEquals(AuthSessionImpl.class, session.getClass());
+    assertEquals(this.authenticator, ((AuthSessionImpl) session).getAuthenticator());
   }
 
   @Test
-  void testRetrieveSessionToken(final BdkMockServer mockServer) throws AuthUnauthorizedException {
+  void testRetrieveAuthToken(final BdkMockServer mockServer) throws AuthUnauthorizedException {
     mockServer.onPost(SESSIONAUTH_AUTHENTICATE_URL, res -> res.withBody("{ \"token\": \"1234\", \"name\": \"sessionToken\" }"));
 
-    final String sessionToken = this.authenticator.retrieveSessionToken();
-    assertEquals("1234", sessionToken);
+    final Token authToken = this.authenticator.retrieveSessionToken();
+    assertEquals("1234", authToken.getToken());
   }
 
   @Test

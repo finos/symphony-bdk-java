@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.client;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.symphony.bdk.core.client.exception.ApiClientInitializationException;
 import com.symphony.bdk.core.client.loadbalancing.DatafeedLoadBalancedApiClient;
 import com.symphony.bdk.core.client.loadbalancing.RegularLoadBalancedApiClient;
+import com.symphony.bdk.core.config.exception.BdkConfigFormatException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingMode;
@@ -69,6 +69,13 @@ class ApiClientFactoryTest {
   }
 
   @Test
+  void testGetDatahoseAgentClient() {
+    final ApiClient agentClient = this.factory.getDatahoseAgentClient();
+    assertEquals(ApiClientJersey2.class, agentClient.getClass());
+    assertEquals("https://agent-host:443/agent", agentClient.getBasePath());
+  }
+
+  @Test
   void testGetLoadBalancedDatafeedAgentClient() {
     ApiClientFactory factory = new ApiClientFactory(this.createLoadBalancedConfig());
     final ApiClient agentClient = factory.getDatafeedAgentClient();
@@ -105,8 +112,8 @@ class ApiClientFactoryTest {
   void testAuthClientWithWrongCertPathShouldFail() {
     BdkConfig bdkConfig = this.createConfigWithCertificate("./non/existent/file.p12", "password");
 
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getSessionAuthClient());
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(bdkConfig).getKeyAuthClient());
+    assertThrows(IllegalArgumentException.class, () -> new ApiClientFactory(bdkConfig).getSessionAuthClient());
+    assertThrows(IllegalArgumentException.class, () -> new ApiClientFactory(bdkConfig).getKeyAuthClient());
   }
 
   @Test
@@ -155,7 +162,7 @@ class ApiClientFactoryTest {
     BdkConfig bdkConfig = this.createConfig();
     this.addExtAppCertificateToConfig(bdkConfig, "./non/existent/file.p12", "password");
 
-    assertThrows(ApiClientInitializationException.class,
+    assertThrows(IllegalArgumentException.class,
         () -> new ApiClientFactory(bdkConfig).getExtAppSessionAuthClient());
   }
 
@@ -191,9 +198,9 @@ class ApiClientFactoryTest {
     BdkConfig configWithTrustStore =
         this.createConfigWithCertificateAndTrustStore("./src/test/resources/certs/non_existing_truststore", "changeit");
 
-    assertThrows(ApiClientInitializationException.class,
+    assertThrows(IllegalArgumentException.class,
         () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
-    assertThrows(ApiClientInitializationException.class,
+    assertThrows(IllegalArgumentException.class,
         () -> new ApiClientFactory(configWithTrustStore).getKeyAuthClient());
   }
 
@@ -215,7 +222,7 @@ class ApiClientFactoryTest {
 
     configWithTrustStore.getSsl().getTrustStore().setContent("content".getBytes());
 
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
+    assertThrows(BdkConfigFormatException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
   }
 
   @Test
@@ -227,7 +234,7 @@ class ApiClientFactoryTest {
     configWithTrustStore.getSsl().setTrustStorePath("./src/test/resources/certs/all_symphony_certs_truststore");
     configWithTrustStore.getSsl().setTrustStorePassword("changeit");
 
-    assertThrows(ApiClientInitializationException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
+    assertThrows(BdkConfigFormatException.class, () -> new ApiClientFactory(configWithTrustStore).getSessionAuthClient());
   }
 
   @Test

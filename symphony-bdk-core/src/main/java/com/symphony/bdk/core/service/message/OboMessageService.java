@@ -9,12 +9,14 @@ import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
 
+import java.util.List;
+
 import javax.annotation.Nonnull;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage messages.
  *
- * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Message API</a>
+ * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Message API</a>
  */
 @API(status = API.Status.STABLE)
 public interface OboMessageService {
@@ -32,7 +34,7 @@ public interface OboMessageService {
    * @param stream  the stream to send the message to
    * @param message the MessageML content. Note: <code>&lt;messageML&gt;&lt;/messageML&gt;</code> is automatically appended if not set.
    * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull V4Stream stream, @Nonnull String message);
 
@@ -42,7 +44,7 @@ public interface OboMessageService {
    * @param streamId the ID of the stream to send the message to
    * @param message the MessageML content. Note: <code>&lt;messageML&gt;&lt;/messageML&gt;</code> is automatically appended if not set.
    * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull String streamId, @Nonnull String message);
 
@@ -52,7 +54,7 @@ public interface OboMessageService {
    * @param stream    the stream to send the message to
    * @param message   the message to send to the stream
    * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull V4Stream stream, @Nonnull Message message);
 
@@ -62,7 +64,7 @@ public interface OboMessageService {
    * @param streamId    the ID of the stream to send the message to
    * @param message     the message to send to the stream
    * @return a {@link V4Message} object containing the details of the sent message
-   * @see <a href="https://developers.symphony.com/restapi/reference#create-message-v4">Create Message v4</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull String streamId, @Nonnull Message message);
 
@@ -71,7 +73,15 @@ public interface OboMessageService {
    *
    * @param messageId   the ID of the message to suppress
    * @return a {@link MessageSuppressionResponse} object containing the details of the suppressed message
-   * @see <a href="https://developers.symphony.com/restapi/reference#suppress-message">Suppress Message</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/suppress-message">Suppress Message</a>
    */
   MessageSuppressionResponse suppressMessage(@Nonnull String messageId);
+
+  /**
+   * Retrieves a list of supported file extensions for attachments.
+   *
+   * @return a list of String containing all allowed file extensions for attachments
+   * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
+   */
+  List<String> getAttachmentTypes();
 }

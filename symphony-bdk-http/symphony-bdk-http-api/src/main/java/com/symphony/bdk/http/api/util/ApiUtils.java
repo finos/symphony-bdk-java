@@ -4,9 +4,17 @@ import org.apiguardian.api.API;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.Collections;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 @API(status = API.Status.INTERNAL)
 public final class ApiUtils {
@@ -28,6 +36,31 @@ public final class ApiUtils {
         log.debug("Loading {} from truststore", alias);
       }
     }
+  }
+
+  /**
+   * Used to load the system truststore to be used in the ssl context
+   */
+  public static void addDefaultRootCaCertificates(KeyStore trustStore) throws GeneralSecurityException {
+    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    // Loads default Root CA certificates (generally, from JAVA_HOME/lib/cacerts)
+    trustManagerFactory.init((KeyStore)null);
+    for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+      if (trustManager instanceof X509TrustManager) {
+        for (X509Certificate acceptedIssuer : ((X509TrustManager) trustManager).getAcceptedIssuers()) {
+          trustStore.setCertificateEntry(acceptedIssuer.getSubjectDN().getName(), acceptedIssuer);
+        }
+      }
+    }
+  }
+
+  public static boolean isCollectionOfFiles(Object paramValue) {
+    if (!(paramValue instanceof Collection<?>)) {
+      return false;
+    }
+
+    final Collection<?> collection = (Collection<?>) paramValue;
+    return !collection.isEmpty() && collection.stream().allMatch(p -> p instanceof File);
   }
 
   private static String getBdkVersion() {

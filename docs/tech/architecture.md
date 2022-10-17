@@ -18,7 +18,7 @@ all necessary BDK features such as:
 
 #### Code Generation
 The `symphony-bdk-core` module relies on the [openapi-generator-maven-plugin](https://github.com/OpenAPITools/openapi-generator/blob/master/modules/openapi-generator-maven-plugin/README.md)
-to generate API clients and models from official Symphony's [Swagger specifications](https://github.com/symphonyoss/symphony-api-spec).
+to generate API clients and models from official Symphony's [Swagger specifications](https://github.com/finos/symphony-api-spec).
 API's clients are located under package `com.symphony.bdk.gen.api` and models under `com.symphony.bdk.gen.api.model`.
 
 ### symphony-bdk-http
@@ -42,5 +42,5 @@ At the moment, two different module implementations have been created:
 ### symphony-bdk-spring
 The Symphony BDK comes also with two _starter_ modules to ease integration with the Spring Boot framework: 
 - `symphony-bdk-core-spring-boot-starter` that is basically a wrapper around the [symphony-bdk-core](#symphony-bdk-core) module
-- `symphony-bdk-app-spring-boot-starter` that is a foundation for [Extension Applications](https://developers.symphony.com/symphony-developer/docs/overview-of-extension-applications) 
+- `symphony-bdk-app-spring-boot-starter` that is a foundation for [Extension Applications](https://docs.developers.symphony.com/building-extension-applications-on-symphony/building-extension-applications-on-symphony) 
 backend development

@@ -1,12 +1,10 @@
 package com.symphony.bdk.core.activity.form;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
-import java.util.UUID;
 
 /**
  * Test class for the {@link FormReplyActivity}.
@@ -52,15 +49,17 @@ class FormReplyActivityTest {
   @Test
   void testBeforeMatcher() {
 
-    final String formId = UUID.randomUUID().toString();
-
     final FormReplyContext context = createContext();
-    context.getSourceEvent().setFormId(formId);
+    context.getSourceEvent().setFormId("formId");
     context.getSourceEvent().setFormValues(Collections.singletonMap("foo", "bar"));
+    context.getSourceEvent().setStream(new V4Stream().streamId("streamId"));
+    context.getSourceEvent().setFormMessageId("formMessageId");
 
     act.beforeMatcher(context);
 
-    assertEquals(context.getFormId(), formId);
+    assertEquals("formId", context.getFormId());
+    assertEquals("formMessageId", context.getFormMessageId());
+    assertEquals("streamId", context.getStreamId());
     assertEquals("bar", context.getFormValue("foo"));
     assertNull(context.getFormValue("not-existing"));
   }

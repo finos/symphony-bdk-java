@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Nonnull;
 
+import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
+
 /**
  *
  */
@@ -84,7 +86,8 @@ public class SymphonyBdkMockedConfiguration {
     @Override
     public ApiClient getRelayClient() {
 
-      this.relayApiClient.onPost("/relay/pubkey/authenticate", "{ \"token\":\"123456789\", \"name\":\"keyManagerToken\" }");
+      this.relayApiClient.onPost("/relay/pubkey/authenticate",
+          "{ \"token\":\"123456789\", \"name\":\"keyManagerToken\", \"authorizationToken\":\"Bearer " + JWT + "\" }");
 
       return this.relayApiClient.getApiClient("/relay");
     }
@@ -92,7 +95,10 @@ public class SymphonyBdkMockedConfiguration {
     @Override
     public ApiClient getLoginClient() {
 
-      this.loginApiClient.onPost("/login/pubkey/authenticate", "{ \"token\":\"123456789\", \"name\":\"sessionToken\" }");
+      this.loginApiClient.onPost("/login/pubkey/authenticate",
+          "{ \"token\":\"123456789\", \"name\":\"sessionToken\", \"authorizationToken\":\"Bearer " + JWT + "\" }");
+      this.loginApiClient.onPost("/login/idm/tokens",
+          "{ \"token_type\": \"Bearer\", \"expires_in\": 300, \"access_token\": \"" +JWT+ "\"}");
 
       return this.loginApiClient.getApiClient("/login");
     }

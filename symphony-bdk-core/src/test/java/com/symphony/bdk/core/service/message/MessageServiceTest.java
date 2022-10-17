@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.message;
 
+import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +35,7 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponseParent;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
+import com.symphony.bdk.gen.api.model.MessageSearchQuery;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
@@ -72,7 +74,9 @@ import java.util.stream.Stream;
 class MessageServiceTest {
 
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
+  private static final String V4_SEARCH_MESSAGES = "/agent/v1/message/search";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
+  private static final String V4_STREAM_MESSAGE_UPDATE = "/agent/v4/stream/{sid}/message/{mid}/update";
   private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
   private static final String V4_BLAST_MESSAGE = "/agent/v4/message/blast";
   private static final String V1_MESSAGE_SUPPRESSION = "/pod/v1/admin/messagesuppression/{id}/suppress";
@@ -80,7 +84,6 @@ class MessageServiceTest {
   private static final String V1_ALLOWED_TYPES = "/pod/v1/files/allowedTypes";
   private static final String V1_STREAM_ATTACHMENTS = "/pod/v1/streams/{sid}/attachments";
   private static final String V1_MESSAGE_GET = "/agent/v1/message/{id}";
-  private static final String V2_MESSAGE_IDS = "/pod/v2/admin/streams/{streamId}/messageIds";
   private static final String V1_MESSAGE_RECEIPTS = "/pod/v1/admin/messages/{messageId}/receipts";
   private static final String V1_MESSAGE_RELATIONSHIPS = "/pod/v1/admin/messages/{messageId}/metadata/relationships";
 
@@ -152,7 +155,7 @@ class MessageServiceTest {
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
     Instant now = Instant.now();
     assertNotNull(service.listMessages(v4Stream, now));
-    verify(service).listMessages(eq(STREAM_ID), eq(now));
+    verify(service).listMessages(STREAM_ID, now);
   }
 
   @Test
@@ -164,7 +167,7 @@ class MessageServiceTest {
     Instant now = Instant.now();
     PaginationAttribute pagination = new PaginationAttribute(2, 2);
     assertNotNull(service.listMessages(v4Stream, now, pagination));
-    verify(service).listMessages(eq(STREAM_ID), eq(now), eq(pagination));
+    verify(service).listMessages(STREAM_ID, now, pagination);
   }
 
   @Test
@@ -178,6 +181,36 @@ class MessageServiceTest {
     assertEquals(2, messages.size());
     assertEquals(Arrays.asList("messageId1", "messageId2"),
         messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+
+  @Test
+  void testSearchMessages() throws IOException {
+    mockApiClient.onPost(V4_SEARCH_MESSAGES,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final List<V4Message> messages = messageService.searchMessages(new MessageSearchQuery());
+
+    assertEquals(2, messages.size());
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testSearchMessagesQueryValidation() {
+    final MessageSearchQuery query = new MessageSearchQuery().streamType("FOO");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> messageService.searchMessages(query),
+        "checks if streamType value is a valid one"
+    );
+
+    final MessageSearchQuery query2 = new MessageSearchQuery().text("foo");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> messageService.searchMessages(query2),
+        "text require streamId arg to be provided"
+    );
   }
 
   @Test
@@ -199,7 +232,7 @@ class MessageServiceTest {
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
 
     assertNotNull(service.send(v4Stream, MESSAGE));
-    verify(service).send(eq(STREAM_ID), eq(MESSAGE));
+    verify(service).send(STREAM_ID, MESSAGE);
   }
 
   @Test
@@ -298,6 +331,35 @@ class MessageServiceTest {
   }
 
   @Test
+  void testMessageUpdate() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_UPDATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/update_message.json"));
+
+    final V4Message messageToUpdate = new V4Message().stream(new V4Stream().streamId(STREAM_ID)).messageId(MESSAGE_ID);
+    final Message content = Message.builder().content("This is a message update").build();
+    final V4Message updateMessage = this.messageService.update(messageToUpdate, content);
+
+    assertEquals(MESSAGE_ID, updateMessage.getMessageId());
+    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", updateMessage.getStream().getStreamId());
+    assertEquals("vanscOQk6IJXm-6XAN3B33___oiRvNNKdA", updateMessage.getInitialMessageId());
+    assertEquals("j7-VAoCY_1pGAYSye_MtI3___oPXo8VHbQ", updateMessage.getReplacing());
+    assertEquals(1599659432867L, updateMessage.getInitialTimestamp());
+  }
+
+  @Test
+  void testMessageSilentUpdate() throws IOException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_UPDATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/update_message.json"));
+
+    final V4Message messageToUpdate = new V4Message().stream(new V4Stream().streamId(STREAM_ID)).messageId(MESSAGE_ID);
+    final Message content = Message.builder().content("This is a message update with silent flag as false").silent(false).build();
+    final V4Message updateMessage = this.messageService.update(messageToUpdate, content);
+
+    assertEquals(MESSAGE_ID, updateMessage.getMessageId());
+    assertEquals(false, updateMessage.getSilent());
+  }
+
+  @Test
   void testGetAttachment() throws ApiException {
     final String attachmentId = "attachmentId";
 
@@ -359,6 +421,14 @@ class MessageServiceTest {
   }
 
   @Test
+  void testGetAttachmentTypesInOboMode() throws IOException {
+    mockApiClient.onGet(V1_ALLOWED_TYPES,
+        JsonHelper.readFromClasspath("/message/get_attachment_types.json"));
+
+    assertEquals(Arrays.asList(".csv", ".gif"), messageService.obo(this.authSession).getAttachmentTypes());
+  }
+
+  @Test
   void testGetMessage() throws IOException {
     mockApiClient.onGet(V1_MESSAGE_GET.replace("{id}", MESSAGE_ID),
         JsonHelper.readFromClasspath("/message/get_message.json"));
@@ -366,6 +436,16 @@ class MessageServiceTest {
     final V4Message message = messageService.getMessage(MESSAGE_ID);
     assertEquals("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ", message.getMessageId());
     assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", message.getStream().getStreamId());
+  }
+
+  @Test
+  void testGetMessage_base64() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_GET.replace("{id}", "E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ"),
+        JsonHelper.readFromClasspath("/message/get_message.json"));
+
+    final V4Message message = messageService.getMessage(fromUrlSafeId("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ"));
+
+    assertEquals("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ", message.getMessageId());
   }
 
   @Test

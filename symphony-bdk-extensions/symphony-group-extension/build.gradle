@@ -1,0 +1,63 @@
+plugins {
+    id 'bdk.java-common-conventions'
+    id 'bdk.java-publish-conventions'
+    id 'bdk.java-codegen-conventions'
+    id 'de.undercouch.download'
+}
+
+description = 'Symphony Java BDK - Groups Extension'
+
+javadoc {
+    options.group 'Extension - Group', 'com.symphony.bdk.ext*'
+}
+
+dependencies {
+    implementation project(':symphony-bdk-core')
+    implementation project(':symphony-bdk-extension-api')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-api')
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'com.tngtech.archunit:archunit-junit5'
+}
+
+def baseSpecsUrl = 'https://raw.githubusercontent.com/finos/symphony-api-spec/af73762a33357436edacca0b198cc18192e96606/profile-manager'
+
+task downloadFile(type: Download) {
+    src([
+        "$baseSpecsUrl/profile-manager-api.yaml",
+        "$baseSpecsUrl/symphony-common-definitions.yaml"
+    ])
+    dest buildDir
+    onlyIfModified true
+    useETag "all"
+}
+
+openApiGenerate {
+    inputSpec = "$buildDir/profile-manager-api.yaml"
+    apiPackage = 'com.symphony.bdk.ext.group.gen.api'
+    modelPackage = 'com.symphony.bdk.ext.group.gen.api.model'
+}
+
+tasks.openApiGenerate.dependsOn tasks.downloadFile
+tasks.sourcesJar.dependsOn tasks.downloadFile
+tasks.sourcesJar.dependsOn tasks.openApiGenerate
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+            excludes = ['com.symphony.bdk.ext.group.gen.api.*']
+        }
+    }
+}

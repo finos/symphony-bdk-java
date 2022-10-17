@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.util;
 
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.util.BdkExponentialFunction;
 import io.github.resilience4j.core.IntervalFunction;
 import org.junit.jupiter.api.Test;
 

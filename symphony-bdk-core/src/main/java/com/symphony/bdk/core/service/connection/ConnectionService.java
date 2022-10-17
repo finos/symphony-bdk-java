@@ -5,7 +5,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.model.UserConnection;
 import com.symphony.bdk.gen.api.model.UserConnectionRequest;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Service class for managing connection status.
@@ -72,10 +73,16 @@ public class ConnectionService implements OboConnectionService, OboService<OboCo
    * {@inheritDoc}
    */
   @Override
-  public List<UserConnection> listConnections(@Nonnull ConnectionStatus status, @Nonnull List<Long> userIdList) {
-    String userIds = userIdList.stream().map(String::valueOf).collect(Collectors.joining(","));
+  public List<UserConnection> listConnections(@Nullable ConnectionStatus status, @Nullable List<Long> userIdList) {
+    final String userIds = userIdList != null ?
+        userIdList.stream().map(String::valueOf).collect(Collectors.joining(","))
+        : null;
     return executeAndRetry("listConnection",
-        () -> connectionApi.v1ConnectionListGet(authSession.getSessionToken(), status.name(), userIds));
+        () -> connectionApi.v1ConnectionListGet(authSession.getSessionToken(),
+            status != null ? status.name() : null,
+            userIds
+        )
+    );
   }
 
   /**

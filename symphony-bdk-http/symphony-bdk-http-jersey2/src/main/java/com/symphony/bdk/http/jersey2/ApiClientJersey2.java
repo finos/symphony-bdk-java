@@ -1,13 +1,17 @@
 package com.symphony.bdk.http.jersey2;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
+
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -20,11 +24,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +38,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.ProcessingException;
@@ -55,12 +62,17 @@ public class ApiClientJersey2 implements ApiClient {
   protected String basePath;
   protected Map<String, String> defaultHeaderMap;
   protected String tempFolderPath;
+  protected Map<String, Authentication> authentications;
+  protected List<String> enforcedAuthenticationSchemes;
 
-  public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders, String temporaryFolderPath) {
+  public ApiClientJersey2(final Client httpClient, String basePath, Map<String, String> defaultHeaders,
+      String temporaryFolderPath) {
     this.httpClient = httpClient;
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
     this.tempFolderPath = temporaryFolderPath;
+    this.authentications = new HashMap<>();
+    this.enforcedAuthenticationSchemes = new ArrayList<>();
   }
 
   /**
@@ -85,6 +97,8 @@ public class ApiClientJersey2 implements ApiClient {
     // to support (constant) query string in `path`, e.g. "/posts?draft=1"
     WebTarget target = httpClient.target(this.basePath + path);
 
+    this.updateParamsForAuth(authNames, headerParams);
+
     if (queryParams != null) {
       for (Pair queryParam : queryParams) {
         if (queryParam.getValue() != null) {
@@ -94,11 +108,15 @@ public class ApiClientJersey2 implements ApiClient {
     }
 
     Invocation.Builder invocationBuilder = target.request().accept(accept);
+    boolean clearTraceId = false;
 
-    if (DistributedTracingContext.hasTraceId()) {
-      invocationBuilder =
-          invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
+    if (!DistributedTracingContext.hasTraceId()) {
+      DistributedTracingContext.setTraceId();
+      clearTraceId = true;
     }
+
+    invocationBuilder =
+        invocationBuilder.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
     if (headerParams != null) {
       for (Entry<String, String> entry : headerParams.entrySet()) {
@@ -129,10 +147,17 @@ public class ApiClientJersey2 implements ApiClient {
       }
     }
 
+    // https://eclipse-ee4j.github.io/jersey.github.io/documentation/latest/client.html#connectors.warning
+    // by setting this header now instead of org.glassfish.jersey.media.multipart.internal.MultiPartWriter
+    // we avoid the warning
+    if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
+      invocationBuilder.header("MIME-Version", "1.0");
+    }
+
     Entity<?> entity =
         (body == null && formParams == null) ? Entity.json("") : this.serialize(body, formParams, contentType);
 
-    try(Response response = getResponse(invocationBuilder, method, entity)){
+    try (Response response = getResponse(invocationBuilder, method, entity)) {
 
       int statusCode = response.getStatusInfo().getStatusCode();
       Map<String, List<String>> responseHeaders = buildResponseHeaders(response);
@@ -158,7 +183,7 @@ public class ApiClientJersey2 implements ApiClient {
             respBody = String.valueOf(response.readEntity(String.class));
             message = respBody;
           } catch (RuntimeException e) {
-            // e.printStackTrace();
+            // ignored if we cannot read the response body
           }
         }
         throw new ApiException(
@@ -167,12 +192,17 @@ public class ApiClientJersey2 implements ApiClient {
             buildResponseHeaders(response),
             respBody);
       }
+    } finally {
+      if (clearTraceId) {
+        DistributedTracingContext.clear();
+      }
     }
   }
 
-  private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity) throws ApiException {
+  private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity)
+      throws ApiException {
     try {
-      switch(method) {
+      switch (method) {
         case HttpMethod.GET:
           return invocationBuilder.get();
         case HttpMethod.POST:
@@ -194,8 +224,13 @@ public class ApiClientJersey2 implements ApiClient {
       }
     } catch (ProcessingException e) {
       if (e.getCause() instanceof ConnectTimeoutException) {
-          throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
-      } else {
+        throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
+      }
+      else if (e.getCause() instanceof NoHttpResponseException) {
+        // ensures that it will be caught later in the retry strategy
+        throw new ProcessingException(new SocketException(e.getCause().getMessage()));
+      }
+      else {
         throw e;
       }
     }
@@ -232,7 +267,7 @@ public class ApiClientJersey2 implements ApiClient {
    */
   @Override
   public List<Pair> parameterToPairs(String collectionFormat, String name, Object value) {
-    List<Pair> params = new ArrayList<Pair>();
+    List<Pair> params = new ArrayList<>();
 
     // preconditions
     if (name == null || name.isEmpty() || value == null) {
@@ -336,6 +371,22 @@ public class ApiClientJersey2 implements ApiClient {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.authentications;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addEnforcedAuthenticationScheme(String name) {
+    this.enforcedAuthenticationSchemes.add(name);
+  }
+
+  /**
    * Check if the given MIME is a JSON MIME.
    * JSON MIME examples:
    * application/json
@@ -356,21 +407,19 @@ public class ApiClientJersey2 implements ApiClient {
    * Serialize the given Java object into string entity according the given
    * Content-Type (only JSON is supported for now).
    *
-   * @param obj Object
-   * @param formParams Form parameters
+   * @param obj         Object
+   * @param formParams  Form parameters
    * @param contentType Context type
    * @return Entity
    */
   protected Entity<?> serialize(Object obj, Map<String, Object> formParams, String contentType) {
     if (contentType.startsWith(MediaType.MULTIPART_FORM_DATA)) {
       return this.serializeMultiPartFormDataEntity(formParams);
-    }
-    else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED)) {
+    } else if (contentType.startsWith(MediaType.APPLICATION_FORM_URLENCODED)) {
       final Form form = new Form();
       formParams.forEach((key, value) -> form.param(key, parameterToString(value)));
       return Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED_TYPE);
-    }
-    else {
+    } else {
       // We let jersey handle the serialization
       return Entity.entity(obj, contentType);
     }
@@ -383,33 +432,28 @@ public class ApiClientJersey2 implements ApiClient {
     for (final Entry<String, Object> param : formParams.entrySet()) {
       // if part is a File
       if (param.getValue() instanceof File) {
-        final File file = (File) param.getValue();
-        final FormDataContentDisposition contentDisposition = FormDataContentDisposition
-            .name(param.getKey())
-            .fileName(file.getName())
-            .size(file.length())
-            .build();
-        final FormDataBodyPart streamPart = new FormDataBodyPart(
-            contentDisposition,
-            file,
-            MediaType.APPLICATION_OCTET_STREAM_TYPE
-        );
-        multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
+        multiPart = buildFileBodyPart(multiPart, param.getKey(), (File) param.getValue());
+      } else if (isCollectionOfFiles(param.getValue())) {
+        Collection<?> paramValues = (Collection<?>) param.getValue();
+        for (Object paramValue : paramValues) {
+          multiPart = buildFileBodyPart(multiPart, param.getKey(), (File) paramValue);
+        }
       }
       // if part is a ApiClientBodyPart[]
       else if (param.getValue() instanceof ApiClientBodyPart[]) {
         for (ApiClientBodyPart attachment : (ApiClientBodyPart[]) param.getValue()) {
-          final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
+          final StreamDataBodyPart streamPart =
+              new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
           multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
         }
       }
       // if part is a single ApiClientBodyPart
       else if (param.getValue() instanceof ApiClientBodyPart) {
         final ApiClientBodyPart part = (ApiClientBodyPart) param.getValue();
-        final StreamDataBodyPart streamPart = new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename());
+        final StreamDataBodyPart streamPart =
+            new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename());
         multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
-      }
-      else {
+      } else {
         multiPart = multiPart.field(param.getKey(), this.parameterToString(param.getValue()));
       }
     }
@@ -417,11 +461,25 @@ public class ApiClientJersey2 implements ApiClient {
     return Entity.entity(multiPart, MultiPartMediaTypes.createFormData());
   }
 
+  private FormDataMultiPart buildFileBodyPart(FormDataMultiPart multiPart, String paramKey, File paramValue) {
+    final FormDataContentDisposition contentDisposition = FormDataContentDisposition
+        .name(paramKey)
+        .fileName(paramValue.getName())
+        .size(paramValue.length())
+        .build();
+    final FormDataBodyPart streamPart = new FormDataBodyPart(
+        contentDisposition,
+        paramValue,
+        MediaType.APPLICATION_OCTET_STREAM_TYPE
+    );
+    return (FormDataMultiPart) multiPart.bodyPart(streamPart);
+  }
+
   /**
    * Deserialize response body to Java object according to the Content-Type.
    *
-   * @param <T> Type
-   * @param response Response
+   * @param <T>        Type
+   * @param response   Response
    * @param returnType Return type
    * @return Deserialize object
    * @throws ApiException API exception
@@ -509,5 +567,36 @@ public class ApiClientJersey2 implements ApiClient {
       responseHeaders.put(entry.getKey(), headers);
     }
     return responseHeaders;
+  }
+
+  /**
+   * Update query and header parameters based on authentication settings.
+   *
+   * @param authNames The authentications to apply
+   */
+  protected void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) throws ApiException {
+
+    if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
+      return;
+    }
+
+    authNames = withEnforcedSecurityScheme(authNames);
+
+    for (String authName : authNames) {
+      Authentication auth = this.authentications.get(authName);
+      if (auth == null) {
+        throw new RuntimeException("Authentication undefined: " + authName);
+      }
+      auth.apply(headerParams);
+    }
+  }
+
+  private String[] withEnforcedSecurityScheme(String[] authNames) {
+
+    if (authNames == null) {
+      authNames = new String[0];
+    }
+
+    return Stream.concat(this.enforcedAuthenticationSchemes.stream(), Arrays.stream(authNames)).toArray(String[]::new);
   }
 }

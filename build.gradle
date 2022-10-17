@@ -2,7 +2,7 @@ plugins {
     id "io.codearte.nexus-staging" version "0.22.0"
 }
 
-ext.projectVersion = '2.2.0-SNAPSHOT'
+ext.projectVersion = '2.10.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'

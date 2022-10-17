@@ -16,8 +16,8 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RecoveryStrategy;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.util.function.ConsumerWithThrowable;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
@@ -253,7 +254,8 @@ class Resilience4jRetryWithRecoveryTest {
     when(supplier.get()).thenThrow(new RuntimeException(new UnknownHostException("Unknown host")));
 
     try {
-      Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test",
+      Resilience4jRetryWithRecovery.executeAndRetry(
+          new RetryWithRecoveryBuilder<String>().retryConfig(ofMinimalInterval(3)), "test",
           "localhost.symphony.com", supplier);
     } catch (RuntimeException e){
       assertEquals("Network error occurred while trying to connect to the \"POD\" at the following address: "
@@ -269,12 +271,27 @@ class Resilience4jRetryWithRecoveryTest {
 
     try {
       Resilience4jRetryWithRecovery.executeAndRetry(
-          new RetryWithRecoveryBuilder<String>().retryConfig(ofMinimalInterval(3)), "test", "localhost.symphony.com",
-          supplier);
+          new RetryWithRecoveryBuilder<String>().retryConfig(ofMinimalInterval(3)), "test",
+          "localhost.symphony.com", supplier);
     } catch (RuntimeException e){
       assertEquals("Timeout occurred while trying to connect to the \"POD\" at the following address: "
           + "localhost.symphony.com. Please check that the address is correct. Also consider checking your "
           + "proxy/firewall connections.", e.getMessage());
+    }
+  }
+
+  @Test
+  void testExecuteAndRetryShouldThrowRuntimeExceptionWhenSocketException() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new ProcessingException(new SocketException("Socket exception")));
+
+    try {
+      Resilience4jRetryWithRecovery.executeAndRetry(
+          new RetryWithRecoveryBuilder<String>().retryConfig(ofMinimalInterval(3)), "test",
+          "localhost.symphony.com", supplier);
+    } catch (RuntimeException e){
+      assertEquals("An unknown error occurred while trying to connect to localhost.symphony.com. "
+          + "Please check below for more information: ", e.getMessage());
     }
   }
 

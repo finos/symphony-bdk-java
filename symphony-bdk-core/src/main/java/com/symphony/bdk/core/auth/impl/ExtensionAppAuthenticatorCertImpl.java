@@ -21,9 +21,9 @@ import org.apiguardian.api.API;
 import javax.annotation.Nonnull;
 
 /**
- * Extension app authenticator RSA implementation.
+ * Extension app authenticator Cert implementation.
  *
- * @see <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">Application Authentication</a>
+ * @see <a href="https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication">Application Authentication</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
@@ -33,9 +33,7 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   private final CertificatePodApi certificatePodApi;
 
   public ExtensionAppAuthenticatorCertImpl(BdkRetryConfig retryConfig, String appId, ApiClient sessionAuthClient) {
-    super(retryConfig, appId);
-    this.certificateAuthenticationApi = new CertificateAuthenticationApi(sessionAuthClient);
-    this.certificatePodApi = new CertificatePodApi(sessionAuthClient);
+    this(retryConfig, appId, sessionAuthClient, new InMemoryTokensRepository());
   }
 
   public ExtensionAppAuthenticatorCertImpl(BdkRetryConfig retryConfig, String appId, ApiClient sessionAuthClient,
@@ -76,7 +74,12 @@ public class ExtensionAppAuthenticatorCertImpl extends AbstractExtensionAppAuthe
   }
 
   @Override
-  protected String getBasePath(){
+  protected String getPodCertificateBasePath() {
     return certificatePodApi.getApiClient().getBasePath();
+  }
+
+  @Override
+  protected String getAuthenticationBasePath() {
+    return certificateAuthenticationApi.getApiClient().getBasePath();
   }
 }

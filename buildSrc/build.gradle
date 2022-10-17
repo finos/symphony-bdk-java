@@ -5,3 +5,9 @@ plugins {
 repositories {
     gradlePluginPortal()
 }
+
+dependencies {
+    implementation 'org.openapitools:openapi-generator-gradle-plugin:5.4.0'
+    implementation 'de.undercouch:gradle-download-task:5.0.2'
+    implementation 'com.github.ben-manes:gradle-versions-plugin:0.42.0'
+}

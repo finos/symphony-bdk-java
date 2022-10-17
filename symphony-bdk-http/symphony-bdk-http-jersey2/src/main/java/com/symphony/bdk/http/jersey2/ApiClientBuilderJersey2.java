@@ -1,11 +1,18 @@
 package com.symphony.bdk.http.jersey2;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.addDefaultRootCaCertificates;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
@@ -19,10 +26,8 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +61,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   protected String proxyUrl;
   protected String proxyUser;
   protected String proxyPassword;
+  protected Map<String, Authentication> authentications;
 
   public ApiClientBuilderJersey2() {
     this.basePath = "https://acme.symphony.com";
@@ -72,6 +78,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     this.proxyUrl = null;
     this.proxyUser = null;
     this.proxyPassword = null;
+    this.authentications = new HashMap<>();
     this.withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -82,15 +89,18 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   public ApiClient build() {
     java.util.logging.Logger.getLogger("org.glassfish.jersey.client").setLevel(java.util.logging.Level.SEVERE);
 
+    SSLContext sslContext = this.createSSLContext();
     final Client httpClient = ClientBuilder.newBuilder()
-        .sslContext(this.createSSLContext())
-        .withConfig(this.createClientConfig())
+        .sslContext(sslContext)
+        .withConfig(this.createClientConfig(sslContext))
         .build();
 
     httpClient.property(ClientProperties.CONNECT_TIMEOUT, this.connectionTimeout);
     httpClient.property(ClientProperties.READ_TIMEOUT, this.readTimeout);
 
-    return new ApiClientJersey2(httpClient, this.basePath, this.defaultHeaders, this.temporaryFolderPath);
+    final ApiClient apiClient = new ApiClientJersey2(httpClient, this.basePath, this.defaultHeaders, this.temporaryFolderPath);
+    this.authentications.forEach(apiClient.getAuthentications()::put);
+    return apiClient;
   }
 
   /**
@@ -204,8 +214,17 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withAuthentication(String name, Authentication authentication) {
+    this.authentications.put(name, authentication);
+    return this;
+  }
+
   @API(status = API.Status.EXPERIMENTAL)
-  protected ClientConfig createClientConfig() {
+  protected ClientConfig createClientConfig(SSLContext sslContext) {
     final ClientConfig clientConfig = new ClientConfig();
     this.configureJackson(clientConfig);
     if (this.proxyUrl != null) {
@@ -217,12 +236,20 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     clientConfig.property(HttpUrlConnectorProvider.SET_METHOD_WORKAROUND, true);
     // turn off compliance validation to be able to send payloads with DELETE calls
     clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
+
+    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext);
+    Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+        .register("https", sslConnectionSocketFactory)
+        .register("http", new PlainConnectionSocketFactory())
+        .build();
+
     // By default PoolingHttpClientConnectionManager, if not configured, has 20 connection in the
     // pool BUT only 2 max connection per route.
-    final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
     connectionManager.setMaxTotal(this.connectionPoolMax);
     connectionManager.setDefaultMaxPerRoute(this.connectionPoolPerRoute);
     clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
+    clientConfig.connectorProvider(new ApacheConnectorProvider());
     return clientConfig;
   }
 
@@ -234,7 +261,6 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   @API(status = API.Status.EXPERIMENTAL)
   protected void configureProxy(ClientConfig clientConfig) {
-    clientConfig.connectorProvider(new ApacheConnectorProvider());
     clientConfig.property(ClientProperties.PROXY_URI, proxyUrl);
     clientConfig.property(ClientProperties.PROXY_USERNAME, proxyUser);
     clientConfig.property(ClientProperties.PROXY_PASSWORD, proxyPassword);
@@ -242,32 +268,23 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   @API(status = API.Status.EXPERIMENTAL)
   protected SSLContext createSSLContext() {
-    final SslConfigurator sslConfig = SslConfigurator.newInstance();
-
-    if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
-      sslConfig
-          .trustStoreBytes(trustStoreBytes)
-          .trustStorePassword(trustStorePassword);
-    }
-
-    if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
-      sslConfig
-          .keyStoreBytes(keyStoreBytes)
-          .keyStorePassword(keyStorePassword);
-    }
     try {
-      SSLContext sslContext = sslConfig.createSSLContext();
-
+      final SslConfigurator sslConfig = SslConfigurator.newInstance();
       if (isNotEmpty(trustStoreBytes) && isNotEmpty(trustStorePassword)) {
         final KeyStore truststore = KeyStore.getInstance(TRUSTSTORE_FORMAT);
         truststore.load(new ByteArrayInputStream(trustStoreBytes), trustStorePassword.toCharArray());
+        addDefaultRootCaCertificates(truststore);
+        sslConfig.trustStore(truststore);
         ApiUtils.logTrustStore(truststore);
       }
-
-      return sslContext;
-    } catch (IllegalStateException | KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+      if (isNotEmpty(keyStoreBytes) && isNotEmpty(keyStorePassword)) {
+        sslConfig
+            .keyStoreBytes(keyStoreBytes)
+            .keyStorePassword(keyStorePassword);
+      }
+      return sslConfig.createSSLContext();
+    } catch (IOException | GeneralSecurityException e) {
       throw new IllegalStateException(e.getCause().getMessage(), e);
     }
   }
-
 }

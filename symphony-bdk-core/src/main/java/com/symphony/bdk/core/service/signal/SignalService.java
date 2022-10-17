@@ -3,12 +3,13 @@ package com.symphony.bdk.core.service.signal;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.OboService;
-import com.symphony.bdk.core.service.pagination.PaginatedApi;
+import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedApi;
+import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedService;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.BaseSignal;
 import com.symphony.bdk.gen.api.model.ChannelSubscriber;
@@ -89,8 +90,8 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Signal> listAllSignals(@Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    OffsetBasedPaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -99,8 +100,8 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<Signal> listAllSignals() {
-    PaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+    OffsetBasedPaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 
@@ -189,9 +190,9 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id,
       @Nonnull StreamPaginationAttribute pagination) {
-    PaginatedApi<ChannelSubscriber> api =
+    OffsetBasedPaginatedApi<ChannelSubscriber> api =
         (((offset, limit) -> listSubscribers(id, new PaginationAttribute(offset, limit))));
-    return new PaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+    return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -200,9 +201,9 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   @API(status = API.Status.EXPERIMENTAL)
   public Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id) {
-    PaginatedApi<ChannelSubscriber> api =
+    OffsetBasedPaginatedApi<ChannelSubscriber> api =
         (((offset, limit) -> listSubscribers(id, new PaginationAttribute(offset, limit))));
-    return new PaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+    return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
         PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE).stream();
   }
 

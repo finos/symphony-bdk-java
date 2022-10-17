@@ -32,8 +32,16 @@ public class Example {
       final BdkConfig config03 = BdkConfigLoader.loadFromInputStream(configInputStream);                    // (3)
 
       final BdkConfig config04 = BdkConfigLoader.loadFromSymphonyDir("config.yaml");                        // (4)
-  
-      final BdkConfig config05 = new BdkConfig();                                                           // (5)
+
+      final Map<String, String> propertyMap = new HashMap<>();
+      propertyMap.put("bot.username","bot-username");
+      final BdkConfig config05 = BdkConfigLoader.loadFromPropertyMap(propertyMap);                          // (5)
+
+      final Properties properties = new Properties();
+      properties.put("bot.username","bot-username");
+      final BdkConfig config06 = BdkConfigLoader.loadFromProperties(properties);                            // (6)
+
+      final BdkConfig config07 = new BdkConfig();                                                           // (7)
       config05.setHost("acme.symphony.com");
       config05.getBot().setUsername("bot-username");
       config05.getBot().getPrivateKey().setPath("/path/to/bot/rsa-private-key.pem");
@@ -45,7 +53,9 @@ public class Example {
 3. Load configuration from an [`InputStream`](https://docs.oracle.com/javase/8/docs/api/java/io/InputStream.html)
 4. Load configuration from the Symphony directory. The Symphony directory is located under your `${user.home}/.symphony` 
     folder. It can be useful when you don't want to share your own Symphony credentials within your project codebase
-5. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object) 
+5. Load configuration from [`Map`](https://docs.oracle.com/javase/8/docs/api/java/util/Map.html) of properties
+6. Load configuration from [`Properties`](https://docs.oracle.com/javase/8/docs/api/java/util/Properties.html)
+7. Last but not least, you can obviously define your configuration object as a [POJO](https://en.wikipedia.org/wiki/Plain_old_Java_object)
     and load it from any external system
 
 ## Full configuration example
@@ -111,13 +121,13 @@ app:
     path: path/to/private-key.pem
 
 datafeed:
-  version: v1
+  version: v2
   retry:
     maxAttempts: 6
     initialIntervalMillis: 2000
     multiplier: 1.5
     maxIntervalMillis: 10000
-
+      
 retry:
   maxAttempts: 6 # set '-1' for an infinite number of attempts, default value is '10'
   initialIntervalMillis: 2000
@@ -178,7 +188,7 @@ configuration inside service configuration to override the global one.
 
 #### DatafeedConfiguration
 The datafeed configuration will contain information about the datafeed service to be used by the bot:
-- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v1
+- `version`: the version of datafeed service to be used. By default, the bot will use the datafeed v2
 service. 
 - `idFilePath`: the path to the file which will be used to persist a created datafeed id in case the 
 datafeed service v1 is used.
@@ -195,7 +205,7 @@ Fields inside `loadBalancing` are:
 
 `roundRobin` and `random` modes mean calls to the agent are load balanced across all `nodes`, respectively in a round robin and random fashion.
 `external` mode means each time we want to pick a new agent host, we make a call to the endpoint
-[/v1/info](https://developers.symphony.com/restapi/reference#agent-info-v1) on the first node provided in `nodes`.
+[/v1/info](https://developers.symphony.com/restapi/reference/agent-info-v1) on the first node provided in `nodes`.
 The actual agent URL is taken from the field `serverFqdn` in the response body.
 
 When `stickiness` is set to true, it means one picks a given agent and makes all calls to the same agent node.
@@ -210,6 +220,27 @@ Fields inside `proxy` are:
 * `host`: mandatory, host of the proxy, can be a dns name or an IP address, e.g. "proxy.symphony.com" or "10.12.34.45".
 * `port`: mandatory, port of the proxy, must be a strictly positive integer.
 * `username` and `password`: optional, basic authentication credentials for the proxy.
+
+For instance, if you want a proxy for the agent only:
+```yaml
+host: acme.symphony.com
+
+agent:
+  host: agent.symphony.com
+  proxy:
+    host: proxy.symphony.com
+    port: 1234
+    username: proxyuser
+    password: proxypassword
+
+bot:
+  username: bot-name
+  privateKey:
+    path: /path/to/bot/rsa-private-key.pem
+
+datafeed:
+  version: v2
+```
 
 ## Configuration format
 Both of `JSON` and `YAML` formats are supported by BDK configuration. Using `JSON`, a minimal configuration file would 

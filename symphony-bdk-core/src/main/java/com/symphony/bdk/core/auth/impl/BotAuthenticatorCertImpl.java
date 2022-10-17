@@ -2,6 +2,7 @@ package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.model.Token;
@@ -16,7 +17,7 @@ import javax.annotation.Nonnull;
 /**
  * Bot authenticator certificate implementation.
  *
- * @see <a href="https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1">BotAuthentication Workflow</a>
+ * @see <a href="https://docs.developers.symphony.com/building-bots-on-symphony/authentication/certificate-authentication">Certificate Bot Authentication Workflow</a>
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
@@ -29,9 +30,11 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
   public BotAuthenticatorCertImpl(
       @Nonnull BdkRetryConfig retryConfig,
       @Nonnull String username,
+      @Nonnull BdkCommonJwtConfig commonJwtConfig,
+      @Nonnull ApiClient loginClient,
       @Nonnull ApiClient sessionAuthClient,
       @Nonnull ApiClient keyAuthClient) {
-    super(retryConfig);
+    super(retryConfig, commonJwtConfig, loginClient);
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
     this.username = username;
@@ -43,28 +46,30 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
   @Override
   @Nonnull
   public AuthSession authenticateBot() throws AuthUnauthorizedException {
-    AuthSessionCertImpl authSession = new AuthSessionCertImpl(this);
+    AuthSessionImpl authSession = new AuthSessionImpl(this);
     authSession.refresh();
     return authSession;
   }
 
+  @Override
   @Nonnull
-  protected String retrieveSessionToken() throws AuthUnauthorizedException {
-    log.debug("Start retrieving sessionToken using certificate authentication...");
-    return retrieveToken(this.sessionAuthClient);
-  }
-
-  @Nonnull
-  protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
-    log.debug("Start retrieving keyManagerToken using certificate authentication...");
-    return retrieveToken(this.keyAuthClient);
+  protected Token retrieveSessionToken() throws AuthUnauthorizedException {
+    log.debug("Start retrieving authentication tokens using certificate authentication...");
+    return retrieveSessionToken(this.sessionAuthClient);
   }
 
   @Override
-  protected String authenticateAndGetToken(ApiClient client) throws ApiException {
+  @Nonnull
+  protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
+    log.debug("Start retrieving keyManagerToken using certificate authentication...");
+    return retrieveKeyManagerToken(this.keyAuthClient);
+  }
+
+  @Override
+  protected Token doRetrieveToken(ApiClient client) throws ApiException {
     final Token token = new CertificateAuthenticationApi(client).v1AuthenticatePost();
     log.debug("{} successfully retrieved.", token.getName());
-    return token.getToken();
+    return token;
   }
 
   @Override

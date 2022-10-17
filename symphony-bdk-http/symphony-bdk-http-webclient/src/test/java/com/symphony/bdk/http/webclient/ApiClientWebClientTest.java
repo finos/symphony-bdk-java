@@ -1,15 +1,13 @@
 package com.symphony.bdk.http.webclient;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.http.webclient.test.BdkMockServer;
 import com.symphony.bdk.http.webclient.test.BdkMockServerExtension;
@@ -36,6 +34,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @ExtendWith(BdkMockServerExtension.class)
 class ApiClientWebClientTest {
@@ -46,6 +45,7 @@ class ApiClientWebClientTest {
   void setUp(final BdkMockServer mockServer) {
 
     this.apiClient = mockServer.newApiClient("");
+    this.apiClient.getAuthentications().put("testAuth", headerParams -> headerParams.put("Authorization", "test"));
   }
 
   @Test
@@ -61,12 +61,16 @@ class ApiClientWebClientTest {
         httpRequest -> httpRequest
             .withMethod("GET")
             .withPath("/test-api")
-            .withHeader("sessionToken", "test-token"),
+            .withHeader("sessionToken", "test-token")
+            .withHeader("Authorization", "test"),
         httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
 
+    final Map<String, String> headers = new HashMap<>();
+    headers.put("sessionToken", "test-token");
+    this.apiClient.addEnforcedAuthenticationScheme("testAuth");
     ApiResponse<Response> response =
-        this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
-            null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+        this.apiClient.invokeAPI("/test-api", "GET", null, null, headers,
+            null, null, null, "application/json", new String[] { "testAuth" }, new TypeReference<Response>() {});
 
     assertTrue(this.apiClient.getBasePath().startsWith("http://localhost:"));
     assertEquals(200, response.getData().getCode());
@@ -283,6 +287,41 @@ class ApiClientWebClientTest {
   }
 
   @Test
+  void shouldClearTraceIdIfNotSet(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(200,
+        httpRequest -> httpRequest
+            .withMethod("GET")
+            .withPath("/test-api")
+            .withHeader("sessionToken", "test-token"),
+        httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
+
+    DistributedTracingContext.clear();
+
+    this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
+            null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+
+    assertTrue(DistributedTracingContext.getTraceId().isEmpty());
+  }
+
+  @Test
+  void shouldPreserveExistingTraceId(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(200,
+        httpRequest -> httpRequest
+            .withMethod("GET")
+            .withPath("/test-api")
+            .withHeader("sessionToken", "test-token"),
+        httpResponse -> httpResponse.withBody("{\"code\": 200, \"message\": \"success\"}"));
+
+    String traceId = UUID.randomUUID().toString();
+    DistributedTracingContext.setTraceId(traceId);
+
+    this.apiClient.invokeAPI("/test-api", "GET", null, null, Collections.singletonMap("sessionToken", "test-token"),
+        null, null, null, "application/json", new String[] {}, new TypeReference<Response>() {});
+
+    assertEquals(traceId, DistributedTracingContext.getTraceId());
+  }
+
+  @Test
   void testParameterToString() {
     RequestBody body = new RequestBody("test-id", "content");
 
@@ -302,6 +341,7 @@ class ApiClientWebClientTest {
     pairs.addAll(this.apiClient.parameterToPairs("ssv", "ssv", Arrays.asList("test1", "test2")));
     pairs.addAll(this.apiClient.parameterToPairs("tsv", "tsv", Arrays.asList("test1", "test2")));
     pairs.addAll(this.apiClient.parameterToPairs("pipes", "pipes", Arrays.asList("test1", "test2")));
+    pairs.addAll(this.apiClient.parameterToPairs("pipes", "", Arrays.asList("test1", "test2")));
 
     assertEquals(7, pairs.size());
     assertEquals("test-value", pairs.get(0).getValue());

@@ -12,10 +12,13 @@ import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
+import com.symphony.bdk.gen.api.model.V4ImportedMessageAttachment;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +44,7 @@ public class MessageExampleMain {
 
     //retrieve a list of messages
     final List<V4Message> messages = bdk.messages().listMessages(STREAM_ID, SINCE, new PaginationAttribute(0, 2));
-   
+
     //message status, receipts, relationships
     final MessageStatus messageStatus = bdk.messages().getMessageStatus(message.getMessageId());
     final MessageReceiptDetailResponse messageReceiptDetailResponse =
@@ -59,12 +62,24 @@ public class MessageExampleMain {
     V4ImportedMessage msg = new V4ImportedMessage();
     msg.setIntendedMessageFromUserId(12987981103694L);
     msg.setIntendedMessageTimestamp(1599481528000L);
+    msg.setAttachments(getV4ImportedMessageAttachments());
     msg.setStreamId(STREAM_ID);
     msg.setMessage(MESSAGE);
     msg.setOriginatingSystemId("fooChat");
     final List<V4ImportResponse> v4ImportResponses = bdk.messages().importMessages(Collections.singletonList(msg));
 
-    // suppress message
+    //suppress message
     final MessageSuppressionResponse messageSuppression = bdk.messages().suppressMessage(message.getMessageId());
+  }
+
+  private static List<V4ImportedMessageAttachment> getV4ImportedMessageAttachments() {
+    List<V4ImportedMessageAttachment> attachments = new ArrayList<>();
+    V4ImportedMessageAttachment attachmentToImport = new V4ImportedMessageAttachment();
+    attachmentToImport.setFilename("text.txt");
+    //content is in base64 format
+    String encodedContent = Base64.getEncoder().encodeToString("Symphony".getBytes());
+    attachmentToImport.setContent(encodedContent);
+    attachments.add(attachmentToImport);
+    return attachments;
   }
 }

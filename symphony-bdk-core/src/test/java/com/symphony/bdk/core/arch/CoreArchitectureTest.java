@@ -47,6 +47,8 @@ public class CoreArchitectureTest {
           .doNotImplement(UserDetailMapper.class) // MapStruct generated code cannot be annotated with @API
         .and()
           .areNotAnonymousClasses()
+        .and()
+          .areNotPrivate()
         .should()
           .beAnnotatedWith(API.class)
     .check(classes);

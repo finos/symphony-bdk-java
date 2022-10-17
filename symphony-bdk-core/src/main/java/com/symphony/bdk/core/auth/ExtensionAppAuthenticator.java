@@ -49,7 +49,7 @@ public interface ExtensionAppAuthenticator {
    * @param jwt the JWT to be validated
    * @return the {@link UserClaim} containing all information in JWT claim "user" if JWT successfully validated
    * @throws AuthInitializationException if JWT cannot be validated or if JWT is invalid
-   * @see <a href="https://developers.symphony.com/extension/docs/application-authentication#section-verifying-decoding-and-using-the-jwt">Verifying, Decoding and Using the JWT</a>
+   * @see <a href="https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication#verifying-decoding-and-using-the-jwt">Verifying, Decoding and Using the JWT</a>
    */
   UserClaim validateJwt(String jwt) throws AuthInitializationException;
 }

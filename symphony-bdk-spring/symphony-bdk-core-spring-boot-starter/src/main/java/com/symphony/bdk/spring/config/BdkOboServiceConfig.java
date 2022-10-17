@@ -1,7 +1,7 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Bean;
 public class BdkOboServiceConfig {
 
   @Bean
+  @ConditionalOnMissingBean
   public ExtensionAppAuthenticator extensionAppAuthenticator(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getExtensionAppAuthenticator();
@@ -54,6 +55,7 @@ public class BdkOboServiceConfig {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public OboAuthenticator oboAuthenticator(AuthenticatorFactory authenticatorFactory) {
     try {
       return authenticatorFactory.getOboAuthenticator();

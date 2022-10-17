@@ -2,22 +2,22 @@
 The Symphony BDK authentication API allows developers to authenticate their bots and apps using either RSA or
 certificate authentication modes.
 
-The following sections will explain you: 
+The following sections will explain you:
 - how to authenticate your bot service account
 - how to authentication your extension application
 - how to use OBO (On Behalf Of) authentication
 
 ## Bot authentication
-In this section we will see how to authenticate a bot service account. You will notice that everything has to be done 
+In this section we will see how to authenticate a bot service account. You will notice that everything has to be done
 through your BDK `config.yaml`, making your code completely agnostic to authentication modes (RSA or certificate).
 
-Only one of certificate or RSA authentication should be configured in one BDK `config.yaml`. If both of them are 
+Only one of certificate or RSA authentication should be configured in one BDK `config.yaml`. If both of them are
 provided, an `AuthInitializationException` will be thrown when you try to authenticate to the bot service account.
 
 ### Bot authentication using RSA
-> Read more about RSA authentication [here](https://developers.symphony.com/symphony-developer/docs/rsa-bot-authentication-workflow)
+> Read more about RSA authentication [here](https://docs.developers.symphony.com/building-bots-on-symphony/authentication/rsa-authentication)
 
-Required `config.yaml` setup: 
+Required `config.yaml` setup:
 ```yaml
 host: acme.symphony.com
 bot:
@@ -27,9 +27,9 @@ bot:
 ```
 
 ### Bot authentication using Client Certificate
-> Read more about Client Certificate authentication [here](https://developers.symphony.com/symphony-developer/docs/bot-authentication-workflow-1)
+> Read more about Client Certificate authentication [here](https://docs.developers.symphony.com/building-bots-on-symphony/authentication/certificate-authentication)
 
-Required `config.yaml` setup: 
+Required `config.yaml` setup:
 ```yaml
 host: acme.symphony.com
 bot:
@@ -40,12 +40,13 @@ bot:
 ```
 
 ### Bot authentication deep-dive
-The code snippet below explains how to manually retrieve your bot authentication session. However, note that by default 
+The code snippet below explains how to manually retrieve your bot authentication session. However, note that by default
 those operations are done behind the scene through the `SymphonyBdk` entry point.
 ```java
+@Slf4j
 public class Example {
 
-    public static void main(String[] args) throws Exception { 
+    public static void main(String[] args) throws Exception {
         // create bdk entry point
         final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
         // at this point your bot is already authenticated
@@ -60,14 +61,15 @@ public class Example {
 ```
 
 ### Authentication using private key and certificate content
-Instead of configuring the path of RSA private key or certificate in config file, you can also authenticate the bot and 
-extension app by using directly the private key or certificate content. This feature is useful when either RSA private key 
-or certificate are fetched from an external secrets storage. The code snippet below will give you an example showing 
+Instead of configuring the path of RSA private key or certificate in config file, you can also authenticate the bot and
+extension app by using directly the private key or certificate content. This feature is useful when either RSA private key
+or certificate are fetched from an external secrets storage. The code snippet below will give you an example showing
 how to set directly the private key content to the Bdk configuration for authenticating the bot.
 ```java
+@Slf4j
 public class Example {
 
-    public static void main(String[] args) throws Exception { 
+    public static void main(String[] args) throws Exception {
         // Loading the configuration
         BdkConfig config = loadFromClasspath("/config.yaml");
         byte[] privateKeyContent = FileUtils.readFileToByteArray(new File("path/to/privatekey.pem"));
@@ -88,18 +90,18 @@ public class Example {
 At the same time, only one of path and the content of private key or certificate are allowed to be configured. If both of
 them are configured, an `AuthInitializationException` will be thrown.
 
-### Multiple service accounts 
+### Multiple service accounts
 By design, the `SymphonyBdk` object contains a single bot session. However, you might want to create an application that
-has to handle multiple bot sessions, potentially using different authentication modes. This is possible by creating 
+has to handle multiple bot sessions, potentially using different authentication modes. This is possible by creating
 multiple instances of `SymphonyBdk` using different configurations:
 ```java
 public class Example {
 
-    public static void main(String[] args) throws Exception { 
+    public static void main(String[] args) throws Exception {
 
         final SymphonyBdk bot1 = new SymphonyBdk(loadFromClasspath("/config-bot1.yaml"));
         final SymphonyBdk bot2 = new SymphonyBdk(loadFromClasspath("/config-bot2.yaml"));
-        
+
         // bot2 creates an IM with bot1
         bot2.streams().create(bot1.botInfo().getId());
     }
@@ -107,15 +109,15 @@ public class Example {
 ```
 
 ## App authentication
-Application authentication is completely optional but remains required if you want to implement the Circle Of trust 
+Application authentication is completely optional but remains required if you want to implement the Circle Of trust
 or if you want to use OBO.
 
-Only one of certificate or RSA authentication should be configured in one BDK `config.yaml`. If both of them are 
+Only one of certificate or RSA authentication should be configured in one BDK `config.yaml`. If both of them are
 provided, an `AuthInitializationException` will be thrown when you try to authenticate to the extension application.
 
 ### App authentication using RSA
 
-Required `config.yaml` setup: 
+Required `config.yaml` setup:
 ```yaml
 host: acme.symphony.com
 app:
@@ -126,7 +128,7 @@ app:
 
 ### App Authentication using Client Certificate
 
-Required `config.yaml` setup: 
+Required `config.yaml` setup:
 ```yaml
 host: acme.symphony.com
 app:
@@ -137,7 +139,7 @@ app:
 ```
 
 ### Circle Of Trust
-> Read more about Circle Of Trust [here](https://developers.symphony.com/extension/docs/application-authentication#section-application-authentication-sequence)
+> Read more about Circle Of Trust [here](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication)
 
 ```java
 public class Example {
@@ -158,7 +160,7 @@ public class Example {
 ```
 
 ### OBO (On Behalf Of) authentication
-> Read more about OBO authentication [here](https://developers.symphony.com/symphony-developer/docs/obo-overview)
+> Read more about OBO authentication [here](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/obo-authentication)
 
 The following example shows how to retrieve OBO sessions using `username` (type `String`) or `userId` (type `Long`)
 and to call services which have OBO endpoints (users, streams and messages so far):
@@ -169,10 +171,10 @@ public class Example {
 
     // setup SymphonyBdk facade object
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
-    
+
     final AuthSession oboSessionUsername = bdk.obo("user.name");
     final AuthSession oboSessionUserId = bdk.obo(123456789L);
-    
+
     // list streams OBO user "user.name"
     bdk.obo(oboSessionUsername).streams().listStreams(new StreamFilter());
 
@@ -186,7 +188,7 @@ public class Example {
 ### BDK running without Bot username (service account) configured
 
 When the bot `username` (service account) is not configured in the Bdk configuration, the bot project will be still runnable but only in the
-OBO mode if the app authentication is well-configured. 
+OBO mode if the app authentication is well-configured.
 
 The `config.yaml` requires at least the application configuration:
 
@@ -209,11 +211,11 @@ public class Example {
   public static void main(String[] args) throws BdkConfigException, AuthInitializationException, AuthUnauthorizedException {
 
     // setup SymphonyBdk facade object
-    // a warning will be logged to warn that the bot project will be runnable only in OBO mode 
+    // a warning will be logged to warn that the bot project will be runnable only in OBO mode
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("no_bot_config.yaml"));
-    
+
     final AuthSession oboSessionUsername = bdk.obo("user.name");
-    
+
     // if user call bdk.streams().listStreams(new StreamFilter()), a NoBotConfigException will be thrown
     // list streams OBO user "user.name"
     bdk.obo(oboSessionUsername).streams().listStreams(new StreamFilter());

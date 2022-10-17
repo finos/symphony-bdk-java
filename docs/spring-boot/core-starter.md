@@ -93,7 +93,7 @@ logging:
   level:
     com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
 ``` 
-> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
+> You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-config/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/BotApplication.java` class:
 ```java
@@ -161,12 +161,24 @@ Any attempt to use a non-OBO service endpoint will fail with an IllegalStateExce
 
 ## Subscribe to Real Time Events
 The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html) 
-to deliver Real Time Events. 
+to deliver Real Time Events.
 
 You can subscribe to any Real Time Event from anywhere in your application by creating a handler method that has to 
 respect two conditions: 
 - be annotated with [@EventListener](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/event/EventListener.html) 
 - have `com.symphony.bdk.spring.events.RealTimeEvent<T>` parameter
+
+The listener methods will be called with events from the [datafeed loop](../datafeed.md#datafeed) or the
+[datahose loop](../datafeed.md#datahose) (or both) depending on your configuration:
+```yaml
+bdk:
+    datafeed:
+        enabled: true # optional, defaults to true
+    datahose:
+        enabled: true # optional, defaults to false
+```
+If both datafeed and datahose are enabled, application will fail at startup. So please make sure datafeed is disabled
+when using datahose.
 
 Here's the list of Real Time Events you can subscribe:
 ```java
@@ -222,6 +234,16 @@ public class RealTimeEvents {
   public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {}
 }
 ```
+
+By default, the RealTimeEvents are going to be processed asynchronously in the listeners, in case this is not the preferred behavior, one
+can deactivate it by updating the application.yaml file as
+```yaml
+bdk:
+    datafeed:
+        event:
+            async: false # optional, defaults to true
+```
+The same applies for `bdk.datahose` configuration.
 
 ## Inject Services
 The Core Starter injects services within the Spring application context:
@@ -282,12 +304,59 @@ public class SlashHello {
 By default, the `@Slash` annotation is configured to require bot mention in order to trigger the command. You can override
 this value using `@Slash#mentionBot` annotation parameter. 
 
+You can also use slash commands with arguments. To do so, the field `value` of the `@Slash` annotation must have a valid
+format as explained in the [Activity API section](../activity-api.md#Slash-command-pattern-format). 
+If the slash command pattern is valid, you will have to specify all slash arguments as method parameter with the same name and type.
+If slash command pattern or method signature is incorrect, a `warn` message will appear in your application log and
+the slash command will not be registered.
+
+For instance:
+```java
+@Component
+public class SlashHello {
+
+  @Slash("/hello {arg") // will not be registered: invalid pattern
+  public void onHelloInvalidPattern(CommandContext commandContext, String arg) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1}{arg2}") // will not be registered: invalid pattern
+  public void onHelloInvalidPatternTwoArgs(CommandContext commandContext, String arg1, String arg2) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {arg2}") // will be registered: valid pattern and valid signature
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1, String arg2) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {arg2}") // will not be registered: valid pattern but missing argument
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {@arg2}") // will not be registered: valid pattern but mismatching type for arg2
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1, String arg2) {
+    log.info("On /hello command");
+  }
+
+  @Slash("/hello {arg1} {@arg2} {#arg3} {$arg4}") // will be registered: valid pattern and correct signature
+  public void onHelloValidPatternTwoArgs(CommandContext commandContext, String arg1, Mention arg2, Hashtag arg3, Cashtag arg4) {
+    log.info("On /hello command");
+  }
+}
+```
+
+:information_source: Slash commands are not registered to the datahose loop even when enabled.
+
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
 
 Any service or component class that extends [`FormReplyActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/form/FormReplyActivity.html) 
 or [`CommandActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html) 
 will be automatically registered within the [ActivityRegistry](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/ActivityRegistry.html).
+
+:information_source: Activities are not registered to the datahose loop even when enabled.
 
 ### Example of a `CommandActivity` in Spring Boot
 The following example has been described in section [Activity API documentation](../activity-api.md#how-to-create-a-command-activity).

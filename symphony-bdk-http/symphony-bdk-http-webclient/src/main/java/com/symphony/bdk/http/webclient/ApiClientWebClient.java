@@ -1,10 +1,13 @@
 package com.symphony.bdk.http.webclient;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
+
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 
@@ -29,11 +32,13 @@ import reactor.core.publisher.Mono;
 import java.io.File;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Spring WebClient implementation for the {@link ApiClient} interface called by generated code.
@@ -44,11 +49,15 @@ public class ApiClientWebClient implements ApiClient {
   protected final WebClient webClient;
   protected final String basePath;
   protected final Map<String, String> defaultHeaderMap;
+  protected Map<String, Authentication> authentications;
+  protected List<String> enforcedAuthenticationSchemes;
 
   public ApiClientWebClient(final WebClient webClient, String basePath, Map<String, String> defaultHeaders) {
     this.webClient = webClient;
     this.basePath = basePath;
     this.defaultHeaderMap = new HashMap<>(defaultHeaders);
+    this.authentications = new HashMap<>();
+    this.enforcedAuthenticationSchemes = new ArrayList<>();
   }
 
   /**
@@ -68,10 +77,13 @@ public class ApiClientWebClient implements ApiClient {
       final String[] authNames,
       final TypeReference<T> returnType
   ) throws ApiException {
+
     HttpMethod httpMethod = HttpMethod.resolve(method);
     if (httpMethod == null) {
       throw new ApiException(500, "unknown method type " + method);
     }
+
+    this.updateParamsForAuth(authNames, headerParams);
 
     WebClient.RequestBodySpec requestBodySpec =
         this.webClient.method(httpMethod).uri(uriBuilder -> {
@@ -90,9 +102,13 @@ public class ApiClientWebClient implements ApiClient {
       requestBodySpec.accept(MediaType.valueOf(accept));
     }
 
+    boolean clearTraceId = false;
+
     if (!DistributedTracingContext.hasTraceId()) {
       DistributedTracingContext.setTraceId();
+      clearTraceId = true;
     }
+
     requestBodySpec =
         requestBodySpec.header(DistributedTracingContext.TRACE_ID, DistributedTracingContext.getTraceId());
 
@@ -155,6 +171,10 @@ public class ApiClientWebClient implements ApiClient {
       } else {
         throw e;
       }
+    } finally {
+      if (clearTraceId) {
+        DistributedTracingContext.clear();
+      }
     }
   }
 
@@ -183,7 +203,7 @@ public class ApiClientWebClient implements ApiClient {
         } else {
           ParameterizedTypeReference<T> reference = ParameterizedTypeReference.forType(returnType.getType());
           Mono<T> entity = response.bodyToMono(reference);
-          return entity.map( e -> new ApiResponse<>(response.statusCode().value(), headers, e));
+          return entity.map(e -> new ApiResponse<>(response.statusCode().value(), headers, e));
         }
       }
     } else {
@@ -194,7 +214,7 @@ public class ApiClientWebClient implements ApiClient {
         if (s != null) {
           message = s;
         }
-       throw Exceptions.propagate(new ApiException(
+        throw Exceptions.propagate(new ApiException(
             response.rawStatusCode(),
             message,
             headers,
@@ -215,8 +235,9 @@ public class ApiClientWebClient implements ApiClient {
   private void serializeMultiPartDataEntry(String paramKey, Object paramValue,
       MultiValueMap<String, Object> formValueMap) {
     if (paramValue instanceof File) {
-      File file = (File) paramValue;
-      formValueMap.add(paramKey, new FileSystemResource(file));
+      addFileToFormParam(paramKey, (File) paramValue, formValueMap);
+    } else if (isCollectionOfFiles(paramValue)) {
+      ((Collection<?>) paramValue).forEach(f -> addFileToFormParam(paramKey, (File) f, formValueMap));
     } else if (paramValue instanceof ApiClientBodyPart[]) {
       for (ApiClientBodyPart bodyPart : (ApiClientBodyPart[]) paramValue) {
         serializeApiClientBodyPart(paramKey, bodyPart, formValueMap);
@@ -226,6 +247,11 @@ public class ApiClientWebClient implements ApiClient {
     } else {
       formValueMap.add(paramKey, parameterToString(paramValue));
     }
+  }
+
+  private void addFileToFormParam(String paramKey, File paramValue, MultiValueMap<String, Object> formValueMap) {
+    File file = paramValue;
+    formValueMap.add(paramKey, new FileSystemResource(file));
   }
 
   private void serializeApiClientBodyPart(String paramKey, ApiClientBodyPart bodyPart,
@@ -238,6 +264,35 @@ public class ApiClientWebClient implements ApiClient {
 
     multipartBodyBuilder.build().forEach(formValueMap::addAll);
   }
+
+  /**
+   * Update query and header parameters based on authentication settings.
+   *
+   * @param authNames The authentications to apply
+   */
+  private void updateParamsForAuth(String[] authNames, Map<String, String> headerParams) throws ApiException {
+
+    if (authNames == null && this.enforcedAuthenticationSchemes.isEmpty()) {
+      return;
+    }
+    authNames = withEnforcedSecurityScheme(authNames);
+    for (String authName : authNames) {
+      Authentication auth = this.authentications.get(authName);
+      if (auth == null) {
+        throw new RuntimeException("Authentication undefined: " + authName);
+      }
+      auth.apply(headerParams);
+    }
+  }
+
+  private String[] withEnforcedSecurityScheme(String[] authNames) {
+    if (authNames == null) {
+      authNames = new String[0];
+    }
+
+    return Stream.concat(this.enforcedAuthenticationSchemes.stream(), Arrays.stream(authNames)).toArray(String[]::new);
+  }
+
 
   /**
    * {@inheritDoc}
@@ -375,5 +430,21 @@ public class ApiClientWebClient implements ApiClient {
   @Override
   public String escapeString(String str) {
     return str; // handled by Spring WebClient
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map<String, Authentication> getAuthentications() {
+    return this.authentications;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addEnforcedAuthenticationScheme(String name) {
+    this.enforcedAuthenticationSchemes.add(name);
   }
 }

@@ -21,7 +21,7 @@ public interface OboPresenceService {
    * {@link PresenceService#getPresence()}
    *
    * @return Presence info of the calling user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-presence">Get Presence</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/get-presence">Get Presence</a>
    */
   V2Presence getPresence();
 
@@ -33,7 +33,7 @@ public interface OboPresenceService {
    *                    this parameter.
    * @param limit       Maximum number of records to return. The maximum supported value is 5000.
    * @return List of presence info of all users in a pod.
-   * @see <a href="https://developers.symphony.com/restapi/reference#get-all-presence">Get All Presence</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/get-all-presence">Get All Presence</a>
    */
   List<V2Presence> listPresences(@Nullable Long lastUserId, @Nullable Integer limit);
 
@@ -46,7 +46,7 @@ public interface OboPresenceService {
    *                the calling user’s pod. If false or absent then query the presence of all local and external users
    *                who are connected to the calling user.
    * @return Presence info of the looked up user.
-   * @see <a href="https://developers.symphony.com/restapi/reference#user-presence-v3">Get User Presence</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/user-presence-v3">Get User Presence</a>
    */
   V2Presence getUserPresence(@Nonnull Long userId, @Nullable Boolean local);
 

@@ -1,9 +1,9 @@
 # Activity API
 
-The Activity API is an abstraction built on top of the Datafeed's [_Real Time Events_](https://developers.symphony.com/restapi/docs/real-time-events). An Activity is basically a user interaction triggered from the chat.
+The Activity API is an abstraction built on top of the Datafeed's [_Real Time Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events). An Activity is basically a user interaction triggered from the chat.
 Two different kinds of activities are supported by the BDK:
 - **Command Activity**: triggered when a message is sent in an `IM`, `MIM` or `Chatroom`
-- **Form Activity**: triggered when a user replies to an [_Elements_](https://developers.symphony.com/symphony-developer/docs/overview-of-symphony-elements) form message
+- **Form Activity**: triggered when a user replies to an [_Elements_](https://docs.developers.symphony.com/building-bots-on-symphony/messages/overview-of-messageml/symphony-elements-1) form message
 
 ## Activity Registry
 The central component for activities is the [`ActivityRegistry`](../symphony-bdk-core/src/main/java/com/symphony/bdk/core/activity/ActivityRegistry.java).
@@ -22,8 +22,8 @@ public class Example {
 ```
 
 ## Command Activity
-A command activity is triggered when a message is sent in an `IM`, `MIM` or `Chatroom`. This is the most basic interaction 
-between an end-user and the bot. Here are some command activity examples: 
+A command activity is triggered when a message is sent in an `IM`, `MIM` or `Chatroom`. This is the most basic interaction
+between an end-user and the bot. Here are some command activity examples:
 
 - the bot is mentioned followed by a [_slash_](#slash-command) command:
 ```
@@ -53,6 +53,7 @@ public class Example {
   }
 }
 
+@Slf4j
 class HelloCommandActivity extends CommandActivity<CommandContext> {
 
   @Override
@@ -78,15 +79,40 @@ each time a message that contains "hello" is sent in a stream where the bot is a
 3. define activity information
 
 ### Slash Command
-A _Slash_ command can be used to directly define a very simple bot command such as: 
+A _Slash_ command can be used to directly define a very simple bot command such as:
 ```
 $ @BotMention /command
 $ /command
+$ /command argument
+$ /command @mentionArgument
 ```
 
-> :information_source: a Slash cannot have parameters
+#### Slash command pattern format
+The slash command can be a simple static pattern without arguments, like `/command` or `/command help`.
+You may specify one or more arguments by enclosing them with braces like `{myArgument}`.
+The string inside the braces must have at least one character and must not have whitespaces.
+If there are some arguments, each argument is mandatory in order for the slash command to be triggered. For instance:
+* for command pattern `/command {arg}`:
+  * `/command` won't match
+  * `command help` will match
+  * `command help me` won't match
+
+Arguments can be of several types:
+* `{wordArgument}` will match a regular word only (won't match a mention, a cashtag or a hashtag)
+* `{@mentionArgument}` will match a mention only
+* `{#hastagArgument}` will match a hashtag only
+* `{$cashtagArgument}` will match a cashtag only
+
+In the slash command definition, each argument must be separated by a whitespace to be valid. For instance:
+* `{arg1} {@arg2}` is valid
+* `{arg1}{arg2}` is invalid
+
+Argument names must be unique inside a given pattern.
+
+When a slash command matches, arguments can be retrieved thanks to the `getArguments()` method in the `CommandContext` class.
 
 ```java
+@Slf4j
 public class Example {
 
   public static void main(String[] args) throws Exception {
@@ -101,14 +127,20 @@ public class Example {
       log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));
 
+    bdk.activities().register(SlashCommand.slash("/hello {@mention}", true, context -> {
+      Mention mention = context.getArguments().getAsMention("mention"); // must be the same name as put in the slash command pattern
+      log.info("Hello slash command triggered by user {} and mentioning {}", context.getInitiator().getUser().getDisplayName(),
+              mention.getUserDisplayName());
+    }));
+
     // finally, start the datafeed loop
     bdk.datafeed().start();
   }
 }
 ```
-1. `/hello` is the command name 
+1. `/hello` is the command pattern
 2. `true` means that the bot has to be mentioned
-3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the 
+3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the
 event, or the event initiator (i.e. user that triggered the command)
 
 ### Help Command
@@ -116,10 +148,11 @@ event, or the event initiator (i.e. user that triggered the command)
 _Help_ command is a BDK built-in command which will list out all the commands registered in the `ActivityRegistry` of the BDK by:
 ```
 $ @BotMention /help
-``` 
+```
 The help command can be instantiated by passing an `ActivityRegistry` and `MessageService` instances to the constructor,
  then added manually to the BDK activity registry:
 ```java
+@Slf4j
 public class Example {
 
   public static void main(String[] args) throws Exception {
@@ -127,13 +160,13 @@ public class Example {
     // setup SymphonyBdk facade object
     final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
 
-    bdk.activities().register(SlashCommand.slash("/hello",    
-                                                 true,        
-                                                 context -> { 
+    bdk.activities().register(SlashCommand.slash("/hello",
+                                                 true,
+                                                 context -> {
 
       log.info("Hello slash command triggered by user {}", context.getInitiator().getUser().getDisplayName());
     }));
-    
+
     bdk.activities().register(new HelpCommand(bdk.activities(), bdk.messages()));
 
     // finally, start the datafeed loop
@@ -143,10 +176,10 @@ public class Example {
 ```
 
 ## Form Activity
-A form activity is triggered when an end-user reply or submit to an _Elements_ form. 
+A form activity is triggered when an end-user reply or submit to an _Elements_ form.
 
 ### How to create a Form Activity
-For this example, we will assume that the following Elements form has been posted into a room: 
+For this example, we will assume that the following Elements form has been posted into a room:
 ```xml
 <messageML>
     <h2>Hello Form</h2>
@@ -202,7 +235,7 @@ class HelloFormReplyActivity extends FormReplyActivity<FormReplyContext> {
   }
 }
 ```
-1. The `ActivityMatcher` ensures that activity logic is triggered only when the form with `id` "**hello-form**" has been 
+1. The `ActivityMatcher` ensures that activity logic is triggered only when the form with `id` "**hello-form**" has been
 submitted from the action button "**submit**"
 2. The activity context allows to directly retrieve form values. Here the "**name**" `<text-field>` value
 

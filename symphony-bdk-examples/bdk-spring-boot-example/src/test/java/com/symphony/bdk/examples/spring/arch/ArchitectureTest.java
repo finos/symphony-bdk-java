@@ -5,8 +5,12 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.command.CommandContext;
+import com.symphony.bdk.core.activity.parsing.Cashtag;
+import com.symphony.bdk.core.activity.parsing.Hashtag;
+import com.symphony.bdk.core.activity.parsing.Mention;
 import com.symphony.bdk.spring.annotation.Slash;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -28,12 +32,15 @@ import org.springframework.stereotype.Service;
 public class ArchitectureTest {
 
   @ArchTest
-  void all_slash_methods_must_have_1_command_context_parameter(JavaClasses classes) {
+  void all_slash_methods_must_have_at_least_one_command_context_parameter(JavaClasses classes) {
     methods()
         .that()
           .areAnnotatedWith(Slash.class)
         .should()
-          .haveRawParameterTypes(CommandContext.class)
+          .haveRawParameterTypes(DescribedPredicate.describe("First parameter must be of type CommandContext, others of type String, Mention, Cashtag or Hashtag",
+              l -> l.get(0).isEquivalentTo(CommandContext.class)
+                  && l.subList(1, l.size()).stream().allMatch(t -> t.isEquivalentTo(String.class) || t.isEquivalentTo(
+                  Mention.class) ||t.isEquivalentTo(Cashtag.class) ||t.isEquivalentTo(Hashtag.class))))
     .check(classes);
   }
 

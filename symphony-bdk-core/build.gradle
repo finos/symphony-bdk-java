@@ -1,9 +1,8 @@
 plugins {
     id 'bdk.java-library-conventions'
     id 'bdk.java-publish-conventions'
-    // beta version provides incremental build support
-    id 'org.openapi.generator' version '5.0.0-beta2'
-    id 'de.undercouch.download' version '4.1.1'
+    id 'org.openapi.generator'
+    id 'de.undercouch.download'
 }
 
 description = 'Symphony Java BDK Core'
@@ -30,14 +29,16 @@ jacocoTestCoverageVerification {
 }
 
 dependencies {
+    api project(':symphony-bdk-config')
+    api project(':symphony-bdk-extension-api')
     api project(':symphony-bdk-http:symphony-bdk-http-api')
     api project(':symphony-bdk-template:symphony-bdk-template-api')
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'org.mapstruct:mapstruct:1.4.1.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.1.Final'
+    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 
     api 'org.apiguardian:apiguardian-api'
     implementation 'org.slf4j:slf4j-api'
@@ -48,7 +49,6 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt'
     implementation 'org.bouncycastle:bcpkix-jdk15on'
     api 'com.fasterxml.jackson.core:jackson-databind'
-    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
     implementation 'io.github.resilience4j:resilience4j-retry'
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
@@ -68,16 +68,16 @@ dependencies {
     testImplementation 'org.mock-server:mockserver-netty'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
-    testImplementation 'org.assertj:assertj-core:3.19.0'
+    testImplementation 'org.assertj:assertj-core'
 }
 
 // OpenAPI code generation
-def apiBaseUrl = "https://raw.githubusercontent.com/symphonyoss/symphony-api-spec/master"
+def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/b52eb2a8cb5242bef5f0d24517f364bfcc39328f"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
-        Agent: 'agent/agent-api-public.yaml',
+        Agent: 'agent/agent-api-public-deprecated.yaml',
         Pod  : 'pod/pod-api-public-deprecated.yaml',
-        Auth : 'authenticator/authenticator-api-public.yaml',
+        Auth : 'authenticator/authenticator-api-public-deprecated.yaml',
         Login: 'login/login-api-public.yaml',
 ]
 
@@ -86,8 +86,9 @@ sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 apisToGenerate.each { api, path ->
     def downloadTask = tasks.create(name: "download$api", type: Download) {
         src "$apiBaseUrl/$path"
-        dest "$buildDir"
+        dest "$buildDir/openapi/$api/${path.split("/")[1]}"
         overwrite false
+        useETag  "all"
     }
 
     def generateTask = tasks.create(name: "generate$api",
@@ -96,7 +97,7 @@ apisToGenerate.each { api, path ->
         generatorName = 'java'
         library = 'jersey2'
         outputDir = generatedFolder
-        inputSpec = "$buildDir/${path.split("/")[1]}"
+        inputSpec = "$buildDir/openapi/$api/${path.split("/")[1]}"
         skipOverwrite = true
         generateApiTests = false
         generateModelTests = false
@@ -117,6 +118,8 @@ apisToGenerate.each { api, path ->
     }
 
     compileJava.dependsOn generateTask
+    sourcesJar.dependsOn downloadTask
+    sourcesJar.dependsOn generateTask
 }
 
 // Duplicated AuthRequest class, we need the one from auth API, so task order matters here

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,7 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.mockito.ArgumentMatchers;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,23 +36,72 @@ import javax.ws.rs.core.Response;
 public class MockApiClient {
 
   private static final ObjectMapper MAPPER = new JsonMapper();
-  private final Client httpClient;
-
-  public MockApiClient() {
+  static {
     MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    this.httpClient = mock(Client.class);
+  }
+  private final Client httpClient = mock(Client.class);
+  {
     when(this.httpClient.target(anyString())).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong path"));
   }
 
-  public void onRequestWithResponseCode(String method, int statusCode, String path, String resContent)  {
+  public void onGet(String path, String resContent) {
+    this.onRequestWithResponseCode("GET", 200, path, null, resContent);
+  }
+
+  public void onGet(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("GET", statusCode, path, null, resContent);
+  }
+
+  public void onGet(String path, List<Pair> queryParams, String resContent) {
+    this.onRequestWithResponseCode("GET", 200, path, queryParams, resContent);
+  }
+
+  public void onPost(String path, String resContent) {
+    this.onRequestWithResponseCode("POST", 200, path, null, resContent);
+  }
+
+  public void onPost(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("POST", statusCode, path, null, resContent);
+  }
+
+  public void onPatch(String path, String resContent) {
+    this.onRequestWithResponseCode("PATCH", 200, path, null, resContent);
+  }
+
+  public void onPatch(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("PATCH", statusCode, path, null, resContent);
+  }
+
+  public void onPut(String path, String resContent) {
+    this.onRequestWithResponseCode("PUT", 200, path, null, resContent);
+  }
+
+  public void onPut(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("PUT", statusCode, path, null, resContent);
+  }
+
+  public void onDelete(String path, String resContent) {
+    this.onRequestWithResponseCode("DELETE", 200, path, null, resContent);
+  }
+
+  public void onDelete(int statusCode, String path, String resContent) {
+    this.onRequestWithResponseCode("DELETE", statusCode, path, null, resContent);
+  }
+
+  public ApiClient getApiClient(String basePath) {
+    return new ApiClientJersey2(this.httpClient, basePath, new HashMap<>(), null);
+  }
+
+  private void onRequestWithResponseCode(String method, int statusCode, String path, List<Pair> queryParams,
+      String resContent)  {
     WebTarget webTarget = null;
     try {
-       webTarget = this.httpClient.target(path);
+      webTarget = this.httpClient.target(path);
     } catch (RuntimeException ignored) {
-
+      // ignored
     }
     if (webTarget == null) {
-      webTarget = this.initMockWebTarget();
+      webTarget = this.initMockWebTarget(queryParams);
       doReturn(webTarget).when(this.httpClient).target(path);
     }
     Invocation.Builder invocationBuilder = webTarget.request();
@@ -74,8 +126,12 @@ public class MockApiClient {
       doReturn(response).when(invocationBuilder).get();
     } else if ("POST".equals(method)) {
       doReturn(response).when(invocationBuilder).post(any(Entity.class));
+    } else if ("PUT".equals(method)) {
+      doReturn(response).when(invocationBuilder).put(any(Entity.class));
     } else if ("DELETE".equals(method)) {
       doReturn(response).when(invocationBuilder).method(eq("DELETE"), any(Entity.class));
+    } else if ("PATCH".equals(method)) {
+      doReturn(response).when(invocationBuilder).method(eq("PATCH"), any(Entity.class));
     }
   }
 
@@ -91,35 +147,26 @@ public class MockApiClient {
     return invocationBuilder;
   }
 
-  private WebTarget initMockWebTarget() {
+  private WebTarget initMockWebTarget(List<Pair> queryParams) {
     WebTarget webTarget = mock(WebTarget.class);
-    when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
+
+    if (queryParams != null) {
+      when(webTarget.queryParam(anyString(), any())).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong query params"));
+      for (Pair queryParam : queryParams) {
+        when(webTarget.queryParam(eq(queryParam.getName()), eq(escapeString(queryParam.getValue())))).thenReturn(webTarget);
+      }
+    } else {
+      when(webTarget.queryParam(anyString(), any())).thenReturn(webTarget);
+    }
+
     return webTarget;
   }
 
-  public void onGet(String path, String resContent) {
-    this.onRequestWithResponseCode("GET", 200, path, resContent);
-  }
-
-  public void onPost(String path, String resContent) {
-    this.onRequestWithResponseCode("POST", 200, path, resContent);
-  }
-
-  public void onDelete(String path, String resContent) {this.onRequestWithResponseCode("DELETE", 200, path, resContent);}
-
-  public void onGet(int statusCode, String path, String resContent) {
-    this.onRequestWithResponseCode("GET", statusCode, path, resContent);
-  }
-
-  public void onPost(int statusCode, String path, String resContent) {
-    this.onRequestWithResponseCode("POST", statusCode, path, resContent);
-  }
-
-  public void onDelete(int statusCode, String path, String resContent) {
-    this.onRequestWithResponseCode("DELETE", statusCode, path, resContent);
-  }
-
-  public ApiClient getApiClient(String basePath) {
-    return new ApiClientJersey2(this.httpClient, basePath, new HashMap<>(), null);
+  private static String escapeString(String str) {
+    try {
+      return URLEncoder.encode(str, "utf8").replaceAll("\\+", "%20");
+    } catch (UnsupportedEncodingException e) {
+      return str;
+    }
   }
 }

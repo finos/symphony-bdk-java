@@ -1,7 +1,9 @@
 package com.symphony.bdk.core.service.message;
 
+import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static org.apache.commons.lang3.StringUtils.equalsAny;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
@@ -9,9 +11,10 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.message.model.SortDir;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
-import com.symphony.bdk.core.util.function.SupplierWithApiException;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -21,6 +24,7 @@ import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MessageMetadataResponse;
 import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
+import com.symphony.bdk.gen.api.model.MessageSearchQuery;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
@@ -28,7 +32,6 @@ import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
-import com.symphony.bdk.gen.api.model.V4MessageSuppressed;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
@@ -52,7 +55,7 @@ import javax.annotation.Nullable;
 /**
  * Service class for managing messages.
  *
- * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Message API</a>
+ * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Message API</a>
  */
 @Slf4j
 @API(status = API.Status.STABLE)
@@ -138,7 +141,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @param since      instant of the earliest possible date of the first message returned.
    * @param pagination The skip and limit for pagination.
    * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
   public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
@@ -152,7 +155,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @param stream the stream where to look for messages
    * @param since  instant of the earliest possible date of the first message returned.
    * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
   public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since) {
     return listMessages(stream.getStreamId(), since);
@@ -165,13 +168,14 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @param since      instant of the earliest possible date of the first message returned.
    * @param pagination The skip and limit for pagination.
    * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
-        authSession.getSessionToken(), authSession.getKeyManagerToken(), pagination.getSkip(), pagination.getLimit()));
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
+            authSession.getSessionToken(), authSession.getKeyManagerToken(), pagination.getSkip(),
+            pagination.getLimit()));
   }
 
   /**
@@ -181,12 +185,75 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @param streamId the streamID where to look for messages
    * @param since    instant of the earliest possible date of the first message returned.
    * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#messages-v4">Messages</a>
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(streamId, getEpochMillis(since),
-        authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
+            authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
+  }
+
+  /**
+   * Searches for messages in the context of a specified user, given an argument-based query.
+   *
+   * @param query the search query arguments
+   * @return the list of matching messages
+   * @see <a href="https://developers.symphony.com/restapi/reference#?message-search-post">Message Search (using POST)</a>
+   */
+  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query) {
+    return this.searchMessages(query, null);
+  }
+
+  /**
+   * Searches for messages in the context of a specified user, given an argument-based query.
+   *
+   * @param query      The search query arguments
+   * @param pagination The skip and limit for pagination. The maximum limit value is 1000;
+   * @return the list of matching messages
+   * @see <a href="https://developers.symphony.com/restapi/reference/message-search-post">Message Search (using POST)</a>
+   */
+  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination) {
+    return this.searchMessages(query, pagination, null);
+  }
+
+  /**
+   * Searches for messages in the context of a specified user, given an argument-based query.
+   *
+   * @param query      The search query arguments
+   * @param pagination The skip and limit for pagination. The maximum limit value is 1000.
+   * @param sortDir    Sorting direction for response. Possible values are desc (default) and asc.
+   * @return the list of matching messages
+   * @see <a href="https://developers.symphony.com/restapi/reference/message-search-post">Message Search (using POST)</a>
+   */
+  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination,
+      @Nullable SortDir sortDir) {
+    validateMessageSearchQuery(query);
+    return executeAndRetry("searchMessages", messageApi.getApiClient().getBasePath(),
+        () -> messagesApi.v1MessageSearchPost(authSession.getSessionToken(), authSession.getKeyManagerToken(), query,
+            pagination != null ? pagination.getSkip() : null,
+            pagination != null ? pagination.getLimit() : null,
+            // 'scope' argument is not documented for POST search, but is for GET:
+            // "Specifies against which connector to perform the search, either Symphony content or one connector.".
+            // We will assume (for now) that it as no real usage.
+            null,
+            sortDir != null ? sortDir.name().toLowerCase() : null)
+    );
+  }
+
+  private static void validateMessageSearchQuery(@Nonnull MessageSearchQuery query) {
+
+    // checks streamType value among accepted ones
+    if (query.getStreamType() != null && !equalsAny(query.getStreamType(), "CHAT", "IM", "MIM", "ROOM", "POST")) {
+      String errorMsg = "Wrong stream type '" + query.getStreamType() +
+          "'. Accepted values are: CHAT (1-1 instant messages and multi-party instant messages), "
+          + "IM (1-1 instant message), MIM (multi-party instant message), ROOM or POST (user profile wall posts)";
+      throw new IllegalArgumentException(errorMsg);
+    }
+
+    // text queries require streamId to be provided
+    if (query.getText() != null && query.getStreamId() == null) {
+      throw new IllegalArgumentException("Message text queries require a streamId to be provided.");
+    }
   }
 
   /**
@@ -202,7 +269,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public V4Message send(@Nonnull String streamId, @Nonnull String message) {
-    return this.send(streamId, Message.builder().content(message).build());
+    return this.send(toUrlSafeIdIfNeeded(streamId), Message.builder().content(message).build());
   }
 
   /**
@@ -223,6 +290,49 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<String> getAttachmentTypes() {
+    return executeAndRetry("getAttachmentTypes", podApi.getApiClient().getBasePath(),
+        () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
+  }
+
+  /**
+   * Update an existing message. The existing message must be a valid social message, that has not been deleted.
+   *
+   * @param messageToUpdate the message to be updated
+   * @param content the update content (attachments are not supported yet)
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public V4Message update(@Nonnull V4Message messageToUpdate, @Nonnull Message content) {
+    return this.update(messageToUpdate.getStream().getStreamId(), messageToUpdate.getMessageId(), content);
+  }
+
+  /**
+   * Update an existing message. The existing message must be a valid social message, that has not been deleted.
+   *
+   * @param streamId the ID of the stream where the message to be updated comes from
+   * @param messageId the ID of the message to be updated
+   * @param content the update content (attachments are not supported yet)
+   * @return a {@link V4Message} object containing the details of the sent message
+   * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message content) {
+    return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(), () ->  {
+      final String path = String.format(
+          "/v4/stream/%s/message/%s/update",
+          this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(streamId)),
+          this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(messageId))
+      );
+      return doSendFormData(path, getForm(content), new TypeReference<V4Message>() {});
+    });
+  }
+
+  /**
    * Sends a message to multiple existing streams.
    *
    * @param streamIds the list of stream IDs to send the message to
@@ -240,7 +350,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
    */
   private V4Message doSendMessage(@Nonnull String streamId, @Nonnull Message message) throws ApiException {
-    final String path = "/v4/stream/" + this.messagesApi.getApiClient().escapeString(streamId) + "/message/create";
+    final String path =
+        "/v4/stream/" + this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(streamId)) + "/message/create";
 
     return doSendFormData(path, getForm(message), new TypeReference<V4Message>() {});
   }
@@ -262,6 +373,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     form.put("message", message.getContent());
     form.put("data", message.getData());
     form.put("version", message.getVersion());
+    form.put("silent", message.getSilent());
     form.put("attachment", toApiClientBodyParts(message.getAttachments()));
     form.put("preview", toApiClientBodyParts(message.getPreviews()));
     return form;
@@ -307,7 +419,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
     return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
-        () -> attachmentsApi.v1StreamSidAttachmentGet(streamId, attachmentId, messageId,
+        () -> attachmentsApi.v1StreamSidAttachmentGet(toUrlSafeIdIfNeeded(streamId), attachmentId, messageId,
             authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
@@ -320,7 +432,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public List<V4ImportResponse> importMessages(@Nonnull List<V4ImportedMessage> messages) {
     return executeAndRetry("importMessages", messagesApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4MessageImportPost(authSession.getSessionToken(), authSession.getKeyManagerToken(), messages));
+        () -> messagesApi.v4MessageImportPost(authSession.getSessionToken(), authSession.getKeyManagerToken(),
+            messages));
   }
 
   /**
@@ -342,18 +455,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public MessageStatus getMessageStatus(@Nonnull String messageId) {
     return executeAndRetry("getMessageStatus", messageApi.getApiClient().getBasePath(),
-        () -> messageApi.v1MessageMidStatusGet(messageId, authSession.getSessionToken()));
-  }
-
-  /**
-   * Retrieves a list of supported file extensions for attachments.
-   *
-   * @return a list of String containing all allowed file extensions for attachments
-   * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
-   */
-  public List<String> getAttachmentTypes() {
-    return executeAndRetry("getAttachmentTypes", podApi.getApiClient().getBasePath(),
-        () -> podApi.v1FilesAllowedTypesGet(authSession.getSessionToken()));
+        () -> messageApi.v1MessageMidStatusGet(toUrlSafeIdIfNeeded(messageId), authSession.getSessionToken()));
   }
 
   /**
@@ -365,7 +467,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public V4Message getMessage(@Nonnull String messageId) {
     return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
-        () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(), authSession.getKeyManagerToken(), messageId));
+        () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
+            toUrlSafeIdIfNeeded(messageId)));
   }
 
   /**
@@ -384,8 +487,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
     return executeAndRetry("listAttachments", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1StreamsSidAttachmentsGet(streamId, authSession.getSessionToken(), getEpochMillis(since),
-            getEpochMillis(to), limit, sortDir));
+        () -> streamsApi.v1StreamsSidAttachmentsGet(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(),
+            getEpochMillis(since), getEpochMillis(to), limit, sortDir));
   }
 
   /**
@@ -397,7 +500,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public MessageReceiptDetailResponse listMessageReceipts(@Nonnull String messageId) {
     return executeAndRetry("listMessageReceipts", defaultApi.getApiClient().getBasePath(), () ->
-        defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), messageId, null, null));
+        defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), toUrlSafeIdIfNeeded(messageId), null,
+            null));
   }
 
   /**
@@ -412,7 +516,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public MessageMetadataResponse getMessageRelationships(@Nonnull String messageId) {
     return executeAndRetry("getMessageRelationships", defaultApi.getApiClient().getBasePath(),
         () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
-            authSession.getSessionToken(), ApiUtils.getUserAgent(), messageId));
+            authSession.getSessionToken(), ApiUtils.getUserAgent(), toUrlSafeIdIfNeeded(messageId)));
   }
 
   private static Long getEpochMillis(Instant instant) {

@@ -1,9 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
-
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -11,21 +8,17 @@ import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.UserV2;
-import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.apiguardian.api.API;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 /**
  * A class for implementing the datafeed v2 loop service.
@@ -47,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 @API(status = API.Status.INTERNAL)
-public class DatafeedLoopV2 extends AbstractDatafeedLoop {
+public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
 
   /**
    * DFv2 API authorizes a maximum length for the tag parameter.
@@ -55,174 +48,116 @@ public class DatafeedLoopV2 extends AbstractDatafeedLoop {
   private static final int DATAFEED_TAG_MAX_LENGTH = 100;
 
   /**
-   * Based on the DFv2 default visibility timeout, after which an event is re-queued.
+   * Regex pattern of fanout feeds, e.g. "e766c498eece0d113f035270ad6c3c63_f_f8001".
+   * We must exclude potential datahose feeds when we are reusing a datafeed.
+   * Datahose feeds are in the format *_p_*, e.g. "d25098517ec62f1fc65cd111667a8386_p_be940".
    */
-  private static final int EVENT_PROCESSING_MAX_DURATION_SECONDS = 30;
+  private static final Pattern FANOUT_FEED_PATTERN = Pattern.compile("^[^\\s_]+_f(_[^\\s_]+)?$");
 
-  private final AtomicBoolean started = new AtomicBoolean();
-  private AckId ackId;
+  private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
+  private final RetryWithRecovery<Void> readDatafeed;
+  private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
+  private final RetryWithRecovery<V5Datafeed> createDatafeed;
+  private final RetryWithRecovery<Void> deleteDatafeed;
   private final String tag;
 
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);
-    this.ackId = new AckId().ackId("");
-    this.tag = StringUtils.truncate(bdkConfig.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
-  }
+    this.tag = StringUtils.truncate(config.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void start() throws ApiException, AuthUnauthorizedException {
-    if (this.started.get()) {
-      throw new IllegalStateException("The datafeed service is already started");
-    }
+    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+        .basePath(datafeedApi.getApiClient().getBasePath())
+        .retryConfig(config.getDatafeedRetryConfig())
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
-    if (!DistributedTracingContext.hasTraceId()) {
-      DistributedTracingContext.setTraceId();
-    }
-
-    try {
-      this.datafeed = this.retrieveDatafeed();
-      if (this.datafeed == null) {
-        this.datafeed = this.createDatafeed();
-      }
-      log.debug("Start reading datafeed events");
-      this.started.set(true);
-      do {
-        this.readDatafeed();
-      } while (this.started.get());
-    } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
-      throw exception;
-    } catch (Throwable throwable) {
-      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
-    } finally {
-      DistributedTracingContext.clear();
-    }
-  }
-
-  protected AckId getAckId() {
-    return this.ackId;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-    this.started.set(false);
-  }
-
-  private V5Datafeed createDatafeed() throws Throwable {
-    log.debug("Start creating datafeed from agent");
-
-    final RetryWithRecovery<V5Datafeed> retry = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
-        .name("Create Datafeed V2")
-        .supplier(this::tryCreateDatafeed)
-        .build();
-
-    return retry.execute();
-  }
-
-  private V5Datafeed tryCreateDatafeed() throws ApiException {
-    return this.datafeedApi.createDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken(),
-        new V5DatafeedCreateBody().tag(tag));
-  }
-
-  private V5Datafeed retrieveDatafeed() throws Throwable {
-    log.debug("Start retrieving datafeed from agent");
-
-    final RetryWithRecovery<V5Datafeed> retry = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
-        .name("Retrieve Datafeed V2")
-        .supplier(this::tryRetrieveDatafeed)
-        .build();
-
-    return retry.execute();
-  }
-
-  private V5Datafeed tryRetrieveDatafeed() throws ApiException {
-    final List<V5Datafeed> datafeeds =
-        this.datafeedApi.listDatafeed(authSession.getSessionToken(), authSession.getKeyManagerToken(), tag);
-
-    if (!datafeeds.isEmpty()) {
-      // we expect bots to only use one datafeed
-      return datafeeds.get(0);
-    }
-    return null;
-  }
-
-  private void readDatafeed() throws Throwable {
-    log.debug("Reading datafeed events from datafeed {}", datafeed.getId());
-
-    final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+    this.readDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
         .name("Read Datafeed V2")
         .supplier(this::readAndHandleEvents)
-        .retryOnException(RetryWithRecoveryBuilder::isNetworkOrMinorErrorOrClientError)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorErrorOrClientError)
         .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
         .build();
 
-    retry.execute();
+    this.retrieveDatafeed = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
+        .name("Retrieve Datafeed V2")
+        .supplier(this::doRetrieveDatafeed)
+        .build();
+
+    this.createDatafeed = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
+        .name("Create Datafeed V2")
+        .supplier(this::doCreateDatafeed)
+        .build();
+
+    this.deleteDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Delete Datafeed V2")
+        .supplier(this::doDeleteDatafeed)
+        .ignoreException(ApiException::isClientError)
+        .build();
   }
 
-  private Void readAndHandleEvents() throws ApiException {
-    V5EventList v5EventList = this.datafeedApi.readDatafeed(
-        datafeed.getId(),
-        authSession.getSessionToken(),
-        authSession.getKeyManagerToken(),
-        ackId);
-    try {
-      List<V4Event> events = v5EventList.getEvents();
-      StopWatch stopWatch = StopWatch.createStarted();
-      if (events != null && !events.isEmpty()) {
-        this.handleV4EventList(events);
-      }
-      stopWatch.stop();
-
-      if (stopWatch.getTime(TimeUnit.SECONDS) > EVENT_PROCESSING_MAX_DURATION_SECONDS) {
-        log.warn("Events processing took longer than {} seconds, "
-                + "this might lead to events being re-queued in datafeed and re-dispatched."
-                + " You might want to consider processing the event in a separated thread if needed.",
-            EVENT_PROCESSING_MAX_DURATION_SECONDS);
-      }
-
-      // updates ack id so that on next call DFv2 knows that events have been processed
-      this.ackId = new AckId();
-      this.ackId.setAckId(v5EventList.getAckId());
-
-    } catch (Exception e) {
-      // can happen if developer explicitly raised a NoAckIdUpdateException in handleV4EventList
-      // we also catch all exceptions just to be extra careful and never break the DF loop
-      log.warn("Failed to process events, will not update ack id, events will be re-queued", e);
+  @Override
+  protected void runLoop() throws Throwable {
+    this.datafeed = this.retrieveDatafeed.execute();
+    if (this.datafeed == null) {
+      this.datafeed = this.createDatafeed.execute();
     }
-    return null;
+
+    log.info("Start reading events from datafeed {}", this.datafeed.getId());
+    this.started.set(true);
+    do {
+
+      this.readDatafeed.execute();
+
+    } while (this.started.get());
+    log.info("Datafeed loop successfully stopped.");
+  }
+
+  private V5Datafeed doCreateDatafeed() throws ApiException {
+    this.ackId = INITIAL_ACK_ID;
+    return this.datafeedApi.createDatafeed(
+        this.authSession.getSessionToken(),
+        this.authSession.getKeyManagerToken(),
+        new V5DatafeedCreateBody().tag(this.tag)
+    );
+  }
+
+  private V5Datafeed doRetrieveDatafeed() throws ApiException {
+    final List<V5Datafeed> feeds = this.datafeedApi.listDatafeed(
+        this.authSession.getSessionToken(),
+        this.authSession.getKeyManagerToken(),
+        this.tag
+    );
+    return feeds.stream().filter(this::isFanoutFeed).findFirst().orElse(null);
+  }
+
+  private boolean isFanoutFeed(V5Datafeed d) {
+    final String datafeedId = d.getId();
+    return datafeedId != null && FANOUT_FEED_PATTERN.matcher(datafeedId).matches();
+  }
+
+  @Override
+  protected V5EventList readEvents() throws ApiException {
+    return this.datafeedApi.readDatafeed(
+        this.datafeed.getId(),
+        this.authSession.getSessionToken(),
+        this.authSession.getKeyManagerToken(),
+        new AckId().ackId(this.ackId)
+    );
   }
 
   private void recreateDatafeed() {
     try {
-      log.info("Try to delete the faulty datafeed");
-      this.deleteDatafeed();
+      log.info("Try to delete the stale datafeed");
+      this.deleteDatafeed.execute();
       log.info("Recreate a new datafeed and try again");
-      this.datafeed = this.createDatafeed();
+      this.datafeed = this.createDatafeed.execute();
     } catch (Throwable throwable) {
       throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }
 
-  private void deleteDatafeed() throws Throwable {
-    log.debug("Start deleting a faulty datafeed");
-
-    final RetryWithRecovery<Void> retry = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
-        .name("Delete Datafeed V2")
-        .supplier(this::tryDeleteDatafeed)
-        .ignoreException(ApiException::isClientError)
-        .build();
-
-    retry.execute();
-  }
-
-  private Void tryDeleteDatafeed() throws ApiException {
+  private Void doDeleteDatafeed() throws ApiException {
     this.datafeedApi.deleteDatafeed(datafeed.getId(), authSession.getSessionToken(), authSession.getKeyManagerToken());
     this.datafeed = null;
     return null;

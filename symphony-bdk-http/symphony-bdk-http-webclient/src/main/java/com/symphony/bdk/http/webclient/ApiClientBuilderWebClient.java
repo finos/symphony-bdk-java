@@ -2,6 +2,7 @@ package com.symphony.bdk.http.webclient;
 
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBuilder;
+import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
 import io.netty.channel.ChannelOption;
@@ -18,11 +19,8 @@ import reactor.netty.transport.ProxyProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +52,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   protected int proxyPort;
   protected String proxyUser;
   protected String proxyPassword;
+  protected Map<String, Authentication> authentications;
 
   public ApiClientBuilderWebClient() {
     this.basePath = "";
@@ -64,6 +63,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     this.proxyPort = -1;
     this.proxyUser = null;
     this.proxyPassword = null;
+    this.authentications = new HashMap<>();
     this.withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -77,7 +77,9 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         .baseUrl(this.basePath)
         .build();
 
-    return new ApiClientWebClient(webClient, this.basePath, this.defaultHeaders);
+    final ApiClient apiClient = new ApiClientWebClient(webClient, this.basePath, this.defaultHeaders);
+    this.authentications.forEach(apiClient.getAuthentications()::put);
+    return apiClient;
   }
 
   /**
@@ -174,6 +176,15 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ApiClientBuilder withAuthentication(String name, Authentication authentication) {
+    this.authentications.put(name, authentication);
+    return this;
+  }
+
   @API(status = API.Status.EXPERIMENTAL)
   protected HttpClient createHttpClient() {
     HttpClient httpClient = HttpClient.create()
@@ -198,6 +209,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
         final TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustStore.load(new ByteArrayInputStream(this.trustStoreBytes), this.trustStorePassword.toCharArray());
+        ApiUtils.addDefaultRootCaCertificates(trustStore);
         trustManagerFactory.init(trustStore);
         builder.trustManager(trustManagerFactory);
         ApiUtils.logTrustStore(trustStore);
@@ -211,7 +223,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
         }
       }
       return builder.build();
-    } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException e) {
+    } catch (GeneralSecurityException | IOException e) {
       throw new RuntimeException(e);
     }
   }

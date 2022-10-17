@@ -1,6 +1,10 @@
 package com.symphony.bdk.core;
 
+import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
+
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.impl.OAuthSession;
+import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -8,8 +12,10 @@ import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
+import com.symphony.bdk.core.service.datafeed.DatahoseLoop;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
+import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
 import com.symphony.bdk.core.service.disclaimer.DisclaimerService;
 import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.core.service.message.MessageService;
@@ -43,6 +49,7 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.template.api.TemplateEngine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 /**
@@ -56,25 +63,39 @@ import org.apiguardian.api.API;
  *   <li>{@link SessionService}</li>
  * </ul>
  */
+@Slf4j
 @API(status = API.Status.INTERNAL)
 class ServiceFactory {
 
   private final ApiClient podClient;
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
+  private final ApiClient datahoseAgentClient;
   private final AuthSession authSession;
   private final TemplateEngine templateEngine;
   private final BdkConfig config;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
+    this.config = config;
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
+    this.datahoseAgentClient = apiClientFactory.getDatahoseAgentClient();
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
-    this.config = config;
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
+
+    if (config.isCommonJwtEnabled()) {
+      if (config.isOboConfigured()) {
+        throw new UnsupportedOperationException("Common JWT feature is not available yet in OBO mode,"
+            + " please set commonJwt.enabled to false.");
+      } else {
+        final OAuthSession oAuthSession = new OAuthSession(authSession);
+        this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+      }
+    }
   }
 
   /**
@@ -83,7 +104,8 @@ class ServiceFactory {
    * @return a new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession, retryBuilder);
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession,
+        retryBuilder);
   }
 
   /**
@@ -120,6 +142,10 @@ class ServiceFactory {
       return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
     }
     return new DatafeedLoopV1(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
+  }
+
+  public DatahoseLoop getDatahoseLoop(UserV2 botInfo) {
+    return new DatahoseLoopImpl(new DatafeedApi(datahoseAgentClient), authSession, config, botInfo);
   }
 
   /**
@@ -187,4 +213,5 @@ class ServiceFactory {
   public HealthService getHealthService() {
     return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession);
   }
+
 }

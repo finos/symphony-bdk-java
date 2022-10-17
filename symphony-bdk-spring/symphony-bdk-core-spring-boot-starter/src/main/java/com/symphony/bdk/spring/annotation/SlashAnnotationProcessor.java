@@ -6,22 +6,26 @@ import static org.springframework.core.annotation.AnnotationUtils.isCandidateCla
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.activity.command.CommandContext;
 import com.symphony.bdk.core.activity.command.SlashCommand;
+import com.symphony.bdk.core.activity.exception.SlashCommandSyntaxException;
+import com.symphony.bdk.core.activity.parsing.SlashCommandPattern;
 
 import lombok.Generated;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.autoproxy.AutoProxyUtils;
 import org.springframework.aop.scope.ScopedObject;
 import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodIntrospector;
+import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -30,12 +34,10 @@ import java.util.stream.Stream;
  * Registers {@link Slash} methods as individual {@link com.symphony.bdk.core.activity.command.SlashCommand} instances
  * within the {@link ActivityRegistry}.
  *
- * @see <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-extension-bpp">BeanPostProcessor</a>
  * @see <a href="https://github.com/spring-projects/spring-framework/blob/master/spring-context/src/main/java/org/springframework/context/event/EventListenerMethodProcessor.java">EventListenerMethodProcessor.java</a>
  */
 @Slf4j
-@RequiredArgsConstructor
-public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationContextAware {
+public class SlashAnnotationProcessor implements SmartInitializingSingleton, BeanFactoryPostProcessor {
 
   /**
    * The list of packages to be ignored from application context scanning
@@ -46,44 +48,49 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
       "com.symphony.bdk.core."
   };
 
+  private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER = new DefaultParameterNameDiscoverer();
+
   /**
    * The {@link ActivityRegistry} is used here to register the slash activities.
    * Lazy-loaded from application context to make sure the processor is registered first before starting to create beans.
    */
-  private ActivityRegistry registry;
-
-  private ConfigurableApplicationContext applicationContext;
+  private ActivityRegistry activityRegistry;
+  private ConfigurableListableBeanFactory beanFactory;
 
   @Override
-  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-    this.applicationContext = (ConfigurableApplicationContext) applicationContext;
+  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+    this.beanFactory = beanFactory;
   }
 
   @Override
-  public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+  @Generated // means excluded from test coverage: error cases hard to test
+  public void afterSingletonsInstantiated() {
+    Assert.state(this.beanFactory != null, "No ConfigurableListableBeanFactory set");
 
-    if (!ScopedProxyUtils.isScopedTarget(beanName)) {
+    final String[] beanNames = this.beanFactory.getBeanNamesForType(Object.class);
 
-      final Class<?> type = this.determineTargetClass(beanName);
+    for (String beanName : beanNames) {
+      if (!ScopedProxyUtils.isScopedTarget(beanName)) {
 
-      if (type != null && isCandidateClass(type, Slash.class) && !isClassLocatedInPackages(type, IGNORED_PACKAGES)) {
-        try {
-          this.processBean(bean, beanName, type);
-        } catch (Throwable ex) {
-          // just alert the developer
-          log.warn("Failed to process @Slash annotation on bean with name '{}'", beanName, ex);
+        final Class<?> type = this.determineTargetClass(beanName);
+
+        if (type != null && isCandidateClass(type, Slash.class) && !isClassLocatedInPackages(type, IGNORED_PACKAGES)) {
+          try {
+            this.processBean(beanName, type);
+          } catch (Throwable ex) {
+            // just alert the developer
+            log.warn("Failed to process @Slash annotation on bean with name '{}'", beanName, ex);
+          }
         }
       }
     }
-
-    return bean;
   }
 
-  @Generated // means excluded from test coverage (hard to test error cases)
+  @Generated // means excluded from test coverage: error cases hard to test
   private Class<?> determineTargetClass(String beanName) {
     Class<?> type = null;
     try {
-      type = AutoProxyUtils.determineTargetClass(this.applicationContext.getBeanFactory(), beanName);
+      type = AutoProxyUtils.determineTargetClass(this.beanFactory, beanName);
     } catch (Throwable ex) {
       // An unresolvable bean type, probably from a lazy bean - let's ignore it.
       log.trace("Could not resolve target class for bean with name '{}'", beanName, ex);
@@ -92,7 +99,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     if (type != null && ScopedObject.class.isAssignableFrom(type)) {
       try {
         Class<?> targetClass = AutoProxyUtils.determineTargetClass(
-            this.applicationContext.getBeanFactory(),
+            this.beanFactory,
             ScopedProxyUtils.getTargetBeanName(beanName)
         );
         if (targetClass != null) {
@@ -107,7 +114,7 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return type;
   }
 
-  private void processBean(final Object bean, final String beanName, final Class<?> targetType) {
+  private void processBean(final String beanName, final Class<?> targetType) {
 
     final Map<Method, Slash> annotatedMethods = this.getSlashAnnotatedMethods(beanName, targetType);
 
@@ -115,16 +122,17 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
 
       final Slash annotation = annotatedMethods.get(m);
 
-      if (isMethodPrototypeValid(m)) {
-        this.registerSlashMethod(bean, m, annotation);
+      if (isMethodPrototypeValid(m, annotation.value())) {
+        this.registerSlashMethod(beanName, m, annotation);
       } else {
         log.warn("Method '{}' is annotated by @Slash but does not respect the expected prototype. "
-            + "It must accept a single argument of type '{}'", m, CommandContext.class);
+            + "It must accept a first argument of type '{}' and (potential) other arguments based on the slash command pattern.",
+            m, CommandContext.class);
       }
     }
   }
 
-  @Generated // means excluded from test coverage (hard to test error cases)
+  @Generated // means excluded from test coverage: error cases hard to test
   private Map<Method, Slash> getSlashAnnotatedMethods(String beanName, Class<?> targetType) {
     Map<Method, Slash> annotatedMethods = null;
 
@@ -140,31 +148,101 @@ public class SlashAnnotationProcessor implements BeanPostProcessor, ApplicationC
     return annotatedMethods == null ? Collections.emptyMap() : annotatedMethods;
   }
 
-  private void registerSlashMethod(Object bean, Method method, Slash annotation) {
-    if (this.registry == null) {
-      this.registry = applicationContext.getBeanFactory().getBean(ActivityRegistry.class);
-    }
-    this.registry.register(
-        SlashCommand.slash(annotation.value(), annotation.mentionBot(), createSlashCommandCallback(bean, method), annotation.description())
-    );
+  private void registerSlashMethod(String beanName, Method method, Slash annotation) {
+    final Object bean = this.beanFactory.getBean(beanName);
+
+    final SlashCommand slashCommand = SlashCommand.slash(annotation.value(), annotation.mentionBot(),
+        createSlashCommandCallback(bean, method, buildParameterIndexes(method)), annotation.description());
+
+    getActivityRegistry().register(slashCommand);
   }
 
   // visible for testing
-  protected static Consumer<CommandContext> createSlashCommandCallback(Object bean, Method method) {
+  protected static Consumer<CommandContext> createSlashCommandCallback(Object bean, Method method, Map<String, Integer> methodParameterIndexes) {
     return c -> {
       try {
-        method.invoke(bean, c);
+        final Object[] slashMethodParameters = buildSlashMethodParameters(methodParameterIndexes, c);
+
+        method.invoke(bean, slashMethodParameters);
       } catch (Throwable e) {
         log.error("Unable to invoke @Slash method {} from bean {}", method.getName(), bean.getClass(), e);
       }
     };
   }
 
-  private static boolean isMethodPrototypeValid(Method m) {
-    return m.getParameterCount() == 1 && m.getParameters()[0].getType().equals(CommandContext.class);
+  private static Object[] buildSlashMethodParameters(Map<String, Integer> methodParameterIndexes, CommandContext c) {
+    Object[] methodArguments = new Object[methodParameterIndexes.size() + 1];
+    methodArguments[0] = c; // first method argument is always the CommandContext
+    methodParameterIndexes.forEach((k, v) -> methodArguments[v] = c.getArguments().get(k));
+    return methodArguments;
+  }
+
+  private static boolean isMethodPrototypeValid(Method m, String slashCommandDefinition) {
+    try {
+      final Map<String, ? extends Class<?>> slashArgumentDefinitions =
+          new SlashCommandPattern(slashCommandDefinition).getArgumentDefinitions();
+
+      return hasCorrectNumberOfParameters(m, slashArgumentDefinitions) && hasFirstParameterOfTypeCommandContext(m)
+          && hasMatchingParameterNamesAndTypes(m, slashArgumentDefinitions);
+    } catch (SlashCommandSyntaxException e) {
+      log.warn("Unable to invoke @Slash method {} from bean {} due to invalid slash command value: {}", m.getName(),
+          m.getDeclaringClass(), slashCommandDefinition, e);
+      return false;
+    }
+  }
+
+  private static boolean hasMatchingParameterNamesAndTypes(Method m, Map<String, ? extends Class<?>> slashArgumentDefinitions) {
+    final String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(m);
+    if (parameterNames == null) {
+      log.warn("Unable to retrieve method parameter names, cannot register slash method");
+      return false;
+    }
+
+    for (int i = 1; i < m.getParameters().length; i++) { // we skip first parameter as it should be of CommandContext type (checked before)
+      if (!areNameAndTypeInSlashArguments(parameterNames[i], m.getParameters()[i].getType(), slashArgumentDefinitions)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static boolean hasFirstParameterOfTypeCommandContext(Method m) {
+    return m.getParameters()[0].getType().equals(CommandContext.class);
+  }
+
+  private static boolean hasCorrectNumberOfParameters(Method m, Map<String, ? extends Class<?>> slashArgumentDefinitions) {
+    return m.getParameterCount() == 1 + slashArgumentDefinitions.size();
+  }
+
+  private static boolean areNameAndTypeInSlashArguments(String parameterName, Class<?> parameterType, Map<String, ? extends Class<?>> slashArgumentDefinitions) {
+    final Class<?> slashArgumentType = slashArgumentDefinitions.get(parameterName);
+    return slashArgumentType != null && slashArgumentType.equals(parameterType);
   }
 
   private static boolean isClassLocatedInPackages(Class<?> clazz, String... packagePrefixes) {
     return Stream.of(packagePrefixes).anyMatch(clazz.getName()::startsWith);
+  }
+
+  private ActivityRegistry getActivityRegistry() {
+    if (this.activityRegistry == null) {
+      this.activityRegistry = this.beanFactory.getBean(ActivityRegistry.class);
+    }
+    return this.activityRegistry;
+  }
+
+  private static Map<String, Integer> buildParameterIndexes(Method method) {
+    final String[] parameterNames = PARAMETER_NAME_DISCOVERER.getParameterNames(method);
+    if (parameterNames == null) {
+      log.warn("Unable to retrieve method parameter names");
+      return null;
+    }
+
+    final HashMap<String, Integer> argumentIndexes = new HashMap<>();
+    // we skip first parameter as it should be of CommandContext type (checked separately)
+    for (int i = 1; i < method.getParameters().length; i++) {
+      argumentIndexes.put(parameterNames[i], i);
+    }
+
+    return argumentIndexes;
   }
 }
