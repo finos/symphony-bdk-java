@@ -1,3 +1,5 @@
+# Theme
+theme: jekyll-theme-cayman
 # Site settings
 name: Symphony BDK for Java
 description: Symphony BDK (Bot Developer Kit) for Java developers
