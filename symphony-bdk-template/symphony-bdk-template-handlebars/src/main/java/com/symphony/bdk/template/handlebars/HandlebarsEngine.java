@@ -17,13 +17,15 @@ import java.io.IOException;
  * {@link Handlebars} implementation of the {@link TemplateEngine} interface.
  *
  * <p>
- *   This class is thread-safe.
+ * This class is thread-safe.
  * </p>
  */
 @API(status = API.Status.INTERNAL)
 public class HandlebarsEngine implements TemplateEngine {
 
-  /** Handlebars for classpath loading. Ok for thread-safety. */
+  /**
+   * Handlebars for classpath loading. Ok for thread-safety.
+   */
   private static final Handlebars HANDLEBARS = createHandlebars(new ClassPathTemplateLoader());
 
   /**
@@ -53,6 +55,20 @@ public class HandlebarsEngine implements TemplateEngine {
       throw new TemplateException("Unable to compile Handlebars template from classpath location: " + templatePath, e);
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Template newTemplateFromString(String template) {
+    try {
+      return new HandlebarsTemplate(HANDLEBARS.compileInline(template));
+    } catch (IOException e) {
+      throw new TemplateException("Unable to compile Handlebars template from inline string: " + template, e);
+    }
+  }
+
+
 
   /**
    * Creates a new {@link Handlebars} object with suffix set to "" to make this {@link TemplateEngine} implementation

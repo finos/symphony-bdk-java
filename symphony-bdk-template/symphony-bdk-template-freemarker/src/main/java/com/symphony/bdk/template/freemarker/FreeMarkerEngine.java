@@ -17,7 +17,7 @@ import java.io.IOException;
  * FreeMarker specific implementation of {@link TemplateEngine}. Instantiates {@link FreeMarkerTemplate} objects.
  *
  * <p>
- *   This class is thread-safe.
+ * This class is thread-safe.
  * </p>
  */
 @API(status = API.Status.INTERNAL)
@@ -50,6 +50,19 @@ public class FreeMarkerEngine implements TemplateEngine {
       return new FreeMarkerTemplate(configuration.getTemplate(templatePath));
     } catch (IOException e) {
       throw new TemplateException("Unable to load template from classpath", e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Template newTemplateFromString(String template) {
+    try {
+      final Configuration configuration = createConfiguration();
+      return new FreeMarkerTemplate(new freemarker.template.Template(null, template, configuration));
+    } catch (IOException e) {
+      throw new TemplateException("Unable to load template from string", e);
     }
   }
 

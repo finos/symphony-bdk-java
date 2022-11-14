@@ -50,6 +50,13 @@ class HandlebarsEngineTest {
   }
 
   @Test
+  void should_load_template_from_inline_string() throws Exception {
+    final Template template = this.engine.newTemplateFromString("<messageML>\n{{message}}\n</messageML>\n");
+    final String content = template.process(Collections.singletonMap("message", "hello"));
+    assertEquals(EXPECTED_TEST_HBS, content);
+  }
+
+  @Test
   void should_load_complex_template_from_file(@TempDir Path tempDir) throws Exception {
 
     // copy /base.hbs and /home.hbs from classpath to tempDir

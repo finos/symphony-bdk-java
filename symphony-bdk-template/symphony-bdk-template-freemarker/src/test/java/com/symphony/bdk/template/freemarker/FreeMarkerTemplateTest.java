@@ -91,6 +91,17 @@ public class FreeMarkerTemplateTest {
   }
 
   @Test
+  public void testFromInlineString() {
+    Long userId = 12345678L;
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("userId", userId);
+
+    Template freeMarkerTemplate = new FreeMarkerEngine().newTemplateFromString("<messageML>Hello <mention uid='${userId}'/></messageML>\n");
+    assertTemplateProducesOutput(freeMarkerTemplate, parameters,
+        "<messageML>Hello <mention uid='" + userId + "'/></messageML>\n");
+  }
+
+  @Test
   public void testWithNotFoundResource() {
     assertThrows(TemplateException.class, () -> new FreeMarkerEngine().newTemplateFromClasspath("./not/found.ftl"));
   }

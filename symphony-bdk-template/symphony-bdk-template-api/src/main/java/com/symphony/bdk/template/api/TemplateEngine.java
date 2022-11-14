@@ -31,6 +31,15 @@ public interface TemplateEngine {
    */
   Template newTemplateFromClasspath(String templatePath);
 
+  /**
+   * Create a {@link Template} instance from a string
+   *
+   * @param template inline template string
+   * @return a new {@link Template} instantiated from the provided inline string
+   * @throws TemplateException when template cannot be loaded.
+   */
+  Template newTemplateFromString(String template);
+
   static TemplateEngine getDefaultImplementation() {
     final ServiceLoader<TemplateEngine> engineServiceLoader = ServiceLoader.load(TemplateEngine.class);
 
