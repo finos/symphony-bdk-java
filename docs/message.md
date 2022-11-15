@@ -49,6 +49,8 @@ engine implementations:
 > In the code examples below, we will assume that FreeMarker as been selected as template engine implementation.
 > See [how to select the template engine implementation](#select-your-template-engine-implementation).
 
+#### Template file
+
 First you need to define your message template file. Here `src/main/resources/templates/simple.ftl`:
 ```
 <messageML>Hello, ${name}!</messageML>
@@ -124,6 +126,23 @@ dependencies {
 ```
 > :warning: If multiple implementations found in classpath, an exception is throw in order to help you to define which one
 > your project really needs to use.
+
+
+#### Inline template string
+
+Simple template can be created as an inline template. Take the same example above, simply pass the template string to the function, such like
+
+```java
+public class Example {
+
+  public static void main(String[] args) {
+      final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+      final Template template = bdk.messages().templates().newTemplateFromString("<messageML>Hello, ${name}!</messageML>");
+      final String content = template.process(Collections.singletonMap("name", "Freemarker"));
+      log.info(content);
+  }
+}
+```
 
 ----
 [Home :house:](./index.md)

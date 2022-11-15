@@ -15,10 +15,12 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 import java.net.SocketTimeoutException;
+import java.net.URI;
 
 class AuthenticationRetryTest {
 
@@ -27,7 +29,7 @@ class AuthenticationRetryTest {
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(1));
 
     final String output = "output";
-    assertEquals(output, authenticationRetry.executeAndRetry("test", "addressTest",  () -> output, ""));
+    assertEquals(output, authenticationRetry.executeAndRetry("test", "addressTest", () -> output, ""));
   }
 
   @Test
@@ -38,7 +40,7 @@ class AuthenticationRetryTest {
     when(supplier.get()).thenThrow(new ApiException(502, "")).thenReturn(output);
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
-    assertEquals(output, authenticationRetry.executeAndRetry("test","addressTest", supplier, ""));
+    assertEquals(output, authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
 
     verify(supplier, times(2)).get();
     verifyNoMoreInteractions(supplier);
@@ -64,7 +66,8 @@ class AuthenticationRetryTest {
 
     SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
     when(supplier.get()).thenThrow(
-        new WebClientRequestException(new SocketTimeoutException(), HttpMethod.GET, null, null)).thenReturn(output);
+        new WebClientRequestException(new SocketTimeoutException(), HttpMethod.GET, URI.create("http://localhost"),
+            new HttpHeaders())).thenReturn(output);
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
@@ -80,7 +83,8 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(ApiRuntimeException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+    assertThrows(ApiRuntimeException.class,
+        () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(2)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -92,7 +96,8 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(AuthUnauthorizedException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+    assertThrows(AuthUnauthorizedException.class,
+        () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -104,7 +109,8 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(ApiRuntimeException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+    assertThrows(ApiRuntimeException.class,
+        () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
   }
@@ -116,7 +122,8 @@ class AuthenticationRetryTest {
 
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
 
-    assertThrows(RuntimeException.class, () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+    assertThrows(RuntimeException.class,
+        () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
   }
