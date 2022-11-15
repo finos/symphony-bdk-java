@@ -28,5 +28,16 @@ public class TemplateExampleMain {
 
     // display processed template content
     log.info(content);
+
+    // load inline template
+    final Template inlineTemplate = bdk.messages().templates().newTemplateFromString("<messageML>\n"
+        + "    This is a complex message, that supports ${name} templating\n"
+        + "</messageML>");
+
+    // process template with some vars and retrieve content
+    final String inlineContent = inlineTemplate.process(Collections.singletonMap("name", "Freemarker"));
+
+    // display processed template content
+    log.info(inlineContent);
   }
 }
