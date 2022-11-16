@@ -20,11 +20,13 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import io.netty.channel.ConnectTimeoutException;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 
 import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
@@ -38,12 +40,14 @@ class AbstractOboAuthenticatorTest {
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull Long userId) throws ApiException {
+    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull Long userId)
+        throws ApiException {
       return null;
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull String username) throws ApiException {
+    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull String username)
+        throws ApiException {
       return null;
     }
 
@@ -172,7 +176,9 @@ class AbstractOboAuthenticatorTest {
     doReturn("").when(authenticator).retrieveAppSessionToken();
     doThrow(new ApiException(429, ""))
         .doThrow(new ApiException(503, ""))
-        .doThrow(new WebClientRequestException(new ConnectTimeoutException(), HttpMethod.GET, null, null))
+        .doThrow(
+            new WebClientRequestException(new ConnectTimeoutException(), HttpMethod.GET, URI.create("http://localhost"),
+                new HttpHeaders()))
         .doReturn(token).when(authenticator).authenticateAndRetrieveOboSessionToken(anyString(), anyString());
 
     assertEquals(token, authenticator.retrieveOboSessionTokenByUsername(""));
