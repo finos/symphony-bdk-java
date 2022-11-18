@@ -2,7 +2,6 @@ plugins {
     id 'java-platform'
     id 'maven-publish'
     id 'signing'
-    id 'org.owasp.dependencycheck' version '7.3.2'
 }
 
 description = 'Symphony Java BDK Bom (Bill Of Materials)'
@@ -121,9 +120,4 @@ publishing {
 signing {
     required { rootProject.isReleaseVersion }
     sign publishing.publications.bom
-}
-
-dependencyCheck {
-    failBuildOnCVSS=5
-    suppressionFile="./allow-list.xml"
 }
