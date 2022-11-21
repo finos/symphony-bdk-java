@@ -13,5 +13,5 @@ public class BdkDatahoseConfig {
 
   private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
   private String tag = "";
-  private List<String> filters = null;
+  private List<String> eventTypes = null;
 }

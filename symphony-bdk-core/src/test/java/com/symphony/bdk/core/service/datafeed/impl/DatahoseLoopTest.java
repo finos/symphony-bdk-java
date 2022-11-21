@@ -81,7 +81,7 @@ class DatahoseLoopTest {
     this.bdkConfig.setRetry(ofMinimalInterval(2));
 
     BdkDatahoseConfig datahoseConfig = bdkConfig.getDatahose();
-    datahoseConfig.setFilters(this.filters);
+    datahoseConfig.setEventTypes(this.filters);
     datahoseConfig.setTag(this.tag);
     datahoseConfig.setRetry(ofMinimalInterval(2));
 

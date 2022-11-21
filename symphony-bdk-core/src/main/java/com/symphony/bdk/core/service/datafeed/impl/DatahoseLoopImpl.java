@@ -39,7 +39,7 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
     }
     this.tag = StringUtils.truncate(untruncatedTag, DATAHOSE_TAG_MAX_LENGTH);
 
-    this.filters = config.getDatahose().getFilters();
+    this.filters = config.getDatahose().getEventTypes();
 
     this.readEvents = new RetryWithRecoveryBuilder<>()
         .basePath(datafeedApi.getApiClient().getBasePath())
