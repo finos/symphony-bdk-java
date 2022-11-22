@@ -58,12 +58,12 @@ class DatahoseLoopTest {
   private UserV2 botInfo;
   private RealTimeEventListener listener;
   private String tag;
-  private List<String> filters;
+  private List<String> eventTypes;
 
   @BeforeEach
   void setUp() throws BdkConfigException {
 
-    this.filters = Arrays.asList("TYPE_A", "TYPE_B");
+    this.eventTypes = Arrays.asList("TYPE_A", "TYPE_B");
     this.tag = "mytag";
 
     this.botInfo = Mockito.mock(UserV2.class);
@@ -81,7 +81,7 @@ class DatahoseLoopTest {
     this.bdkConfig.setRetry(ofMinimalInterval(2));
 
     BdkDatahoseConfig datahoseConfig = bdkConfig.getDatahose();
-    datahoseConfig.setFilters(this.filters);
+    datahoseConfig.setEventTypes(this.eventTypes);
     datahoseConfig.setTag(this.tag);
     datahoseConfig.setRetry(ofMinimalInterval(2));
 
@@ -360,7 +360,7 @@ class DatahoseLoopTest {
   }
 
   private void assertEventsReadBody(V5EventsReadBody actualBody, String expectedTag, String expectedAckId) {
-    assertEquals(filters, actualBody.getEventTypes());
+    assertEquals(eventTypes, actualBody.getEventTypes());
     assertEquals(expectedTag, actualBody.getTag());
     assertEquals(expectedAckId, actualBody.getAckId());
   }
