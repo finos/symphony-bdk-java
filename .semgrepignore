@@ -1,0 +1,10 @@
+# Common large paths
+symphony-bdk-example/
+templates/
+
+# Common test paths
+test/
+
+# Semgrep rules folder
+.semgrep
+
