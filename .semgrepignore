@@ -1,5 +1,5 @@
 # Common large paths
-symphony-bdk-example/
+symphony-bdk-examples/
 templates/
 
 # Common test paths
@@ -8,3 +8,22 @@ test/
 # Semgrep rules folder
 .semgrep
 
+
+# generic.secrets.security.detected-aws-session-token.detected-aws-session-token
+#  AWS Session Token detected
+#  Details: https://sg.run/DoRW
+
+#  30┆ final String appSessionToken = ...;
+#  ⋮┆----------------------------------------
+#  40┆ final String appSessionToken = ...;
+symphony-bdk-core/src/main/java/com/symphony/bdk/core/auth/impl/AbstractOboAuthenticator.java
+
+# problem-based-packs.insecure-transport.java-stdlib.disallow-old-tls-versions1.disallow-old-tls-versions1
+#  Detects direct creations of SSLConnectionSocketFactories that don't disallow SSL v2, SSL v3,
+#  and TLS v1. SSLSocketFactory can be used to validate the identity of the HTTPS server
+#  against a list of trusted certificates. These protocols are deprecated due to POODLE, man in
+#  the middle attacks, and other vulnerabilities.
+#  Details: https://sg.run/l25E
+
+#  240┆ SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext);
+symphony-bdk-http/symphony-bdk-http-jersey2/src/main/java/com/symphony/bdk/http/jersey2/ApiClientBuilderJersey2.java
