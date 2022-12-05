@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'jacoco'
     id "com.github.ben-manes.versions"
+    id 'project-report'
 }
 
 repositories {

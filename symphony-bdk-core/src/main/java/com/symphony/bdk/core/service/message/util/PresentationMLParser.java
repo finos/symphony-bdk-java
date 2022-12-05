@@ -59,6 +59,7 @@ public class PresentationMLParser {
   @SneakyThrows
   private static DocumentBuilder initBuilder() {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
     return factory.newDocumentBuilder();
   }
 
