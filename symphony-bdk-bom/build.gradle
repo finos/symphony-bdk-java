@@ -68,7 +68,7 @@ dependencies {
         api 'io.github.resilience4j:resilience4j-retry:1.7.1'
 
         api 'io.swagger:swagger-annotations:1.6.0'
-        api 'org.openapitools:jackson-databind-nullable:0.2.2'
+        api 'org.openapitools:jackson-databind-nullable:0.2.4'
 
         api 'org.glassfish.jersey.core:jersey-client:2.35'
         api 'org.glassfish.jersey.core:jersey-common:2.35'
