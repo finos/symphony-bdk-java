@@ -46,7 +46,7 @@ dependencies {
 
         // Logback is used by default for Spring based projects, force the version for LOGBACK-1591
         api 'ch.qos.logback:logback-classic:1.2.8'
-        api 'ch.qos.logback:logback-core:1.2.8'
+        api 'ch.qos.logback:logback-core:1.4.5'
 
         // Just in case users are using log4j instead of logback (default), for CVE-2021-44228
         api 'org.apache.logging.log4j:log4j-api:2.17.2'
