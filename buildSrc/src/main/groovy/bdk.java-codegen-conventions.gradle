@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation 'javax.annotation:jsr250-api:1.0'
+    implementation 'javax.annotation:jsr250-api:1.0-20050927.133100'
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
 }
