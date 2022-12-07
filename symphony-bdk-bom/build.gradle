@@ -81,7 +81,7 @@ dependencies {
         api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
         api 'org.freemarker:freemarker:2.3.31'
-        api 'com.github.jknack:handlebars:4.3.0'
+        api 'com.github.jknack:handlebars:4.3.1'
         api 'org.reflections:reflections:0.9.12'
 
         api 'org.junit.jupiter:junit-jupiter:5.8.2'
