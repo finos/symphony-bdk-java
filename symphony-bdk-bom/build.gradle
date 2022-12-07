@@ -18,7 +18,7 @@ dependencies {
     // import Spring Boot's BOM
     api platform('org.springframework.boot:spring-boot-dependencies:2.7.6')
     // import Jackson's BOM
-    api platform('com.fasterxml.jackson:jackson-bom:2.13.4.20221013')
+    api platform('com.fasterxml.jackson:jackson-bom:2.14.1')
     // define all our dependencies versions
     constraints {
         // Internal modules dependencies (Keep them first)
