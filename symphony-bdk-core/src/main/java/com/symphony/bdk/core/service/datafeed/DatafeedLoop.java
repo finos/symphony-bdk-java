@@ -37,4 +37,11 @@ public interface DatafeedLoop {
      * @param listener a Datafeed event listener to be unsubscribed
      */
     void unsubscribe(RealTimeEventListener listener);
+
+  /**
+   * The timestamp of the last successful pulling
+   *
+   * @return timestamp value in long
+   */
+  long lastPullTimestamp();
 }

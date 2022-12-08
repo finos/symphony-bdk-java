@@ -1,6 +1,6 @@
 # BDK Core Configuration
 bdk:
-  host: acme.symphony.com
+  host: acm.symphony.com
   bot:
     username: mybot
     privateKey:
@@ -47,3 +47,11 @@ spring:
     user:
       name: admin
       password: password
+
+management:
+  endpoint:
+    web:
+      exposure:
+        include: 'symphonyBdk'
+    health:
+      show-details: "ALWAYS"

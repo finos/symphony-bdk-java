@@ -4,10 +4,12 @@ import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
 import com.symphony.bdk.app.spring.auth.CircleOfTrustController;
 import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 import com.symphony.bdk.app.spring.exception.GlobalControllerExceptionHandler;
+import com.symphony.bdk.app.spring.service.SymphonyBdkHealthIndicator;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-
+import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +20,16 @@ import org.springframework.context.annotation.Bean;
 public class BdkExtAppControllerConfig {
 
   @Bean
+  @ConditionalOnProperty("bdk.bot.username")
   @ConditionalOnMissingBean
-  public CircleOfTrustService circleOfTrustService(ExtensionAppAuthenticator authenticator, SymphonyBdkCoreProperties properties) {
+  public SymphonyBdkHealthIndicator symphonyBdkHealthIndicator(HealthService healthService) {
+    return new SymphonyBdkHealthIndicator(healthService);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public CircleOfTrustService circleOfTrustService(ExtensionAppAuthenticator authenticator,
+      SymphonyBdkCoreProperties properties) {
     return new CircleOfTrustService(authenticator, properties);
   }
 

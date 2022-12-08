@@ -127,7 +127,6 @@ public class SymphonyBdk {
     this.connectionService = serviceFactory != null ? serviceFactory.getConnectionService() : null;
     this.signalService = serviceFactory != null ? serviceFactory.getSignalService() : null;
     this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
-    this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
     this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
     this.disclaimerService = serviceFactory != null ? serviceFactory.getDisclaimerService() : null;
 
@@ -136,6 +135,10 @@ public class SymphonyBdk {
 
     this.datafeedLoop = serviceFactory != null ? serviceFactory.getDatafeedLoop(this.botInfo) : null;
     this.datahoseLoop = serviceFactory != null ? serviceFactory.getDatahoseLoop(this.botInfo) : null;
+    this.healthService = serviceFactory != null ? serviceFactory.getHealthService() : null;
+    if (healthService != null) {
+      this.healthService.setDatafeedLoop(this.datafeedLoop);
+    }
 
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;

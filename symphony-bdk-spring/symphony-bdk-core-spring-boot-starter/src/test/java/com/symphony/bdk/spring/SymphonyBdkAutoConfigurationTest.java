@@ -12,6 +12,7 @@ import com.symphony.bdk.core.extension.ExtensionService;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
+import com.symphony.bdk.core.service.health.HealthService;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
@@ -60,6 +61,7 @@ class SymphonyBdkAutoConfigurationTest {
       // verify that main beans have been injected
       assertThat(context).hasSingleBean(SymphonyBdkAutoConfiguration.class);
       assertThat(context).hasSingleBean(DatafeedLoopV2.class);
+      assertThat(context).hasSingleBean(HealthService.class);
       assertThat(context).hasSingleBean(DatafeedAsyncLauncherService.class);
       assertThat(context).hasSingleBean(RealTimeEventsDispatcher.class);
 
@@ -375,6 +377,7 @@ class SymphonyBdkAutoConfigurationTest {
 
       assertThat(context).doesNotHaveBean(DatafeedLoopV1.class);
       assertThat(context).doesNotHaveBean(DatafeedLoopV2.class);
+      assertThat(context).doesNotHaveBean(HealthService.class);
       assertThat(context).doesNotHaveBean(DatafeedAsyncLauncherService.class);
       assertThat(context).doesNotHaveBean(RealTimeEventsDispatcher.class);
       assertThat(context).doesNotHaveBean(ActivityRegistry.class);

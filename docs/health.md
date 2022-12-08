@@ -24,3 +24,20 @@ public class Example {
   }
 }
 ```
+
+The service also provides the datafeed loop connectivity health status.
+
+```java
+@Slf4j
+public class Example {
+  public static void main(String[] args) throws Exception {
+    // Create BDK entry point
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+
+    // Get health check extended status
+    HealthService health = bdk.health();
+    V3HealthStatus v3HealthStatus = health.datafeedHealthCheck();
+    log.info("Health status: " + v3HealthStatus);
+  }
+}
+```
