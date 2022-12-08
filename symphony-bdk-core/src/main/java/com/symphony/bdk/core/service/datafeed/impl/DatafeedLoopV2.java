@@ -59,13 +59,16 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
-  private final String tag;
+  private String tag = null;
 
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);
-    this.tag = StringUtils.truncate(config.getBot().getUsername(), DATAFEED_TAG_MAX_LENGTH);
+
+    if (StringUtils.isNotBlank(config.getDatafeed().getTag())) {
+      this.tag = StringUtils.truncate(config.getDatafeed().getTag(), DATAFEED_TAG_MAX_LENGTH);
+    }
 
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .basePath(datafeedApi.getApiClient().getBasePath())
@@ -115,10 +118,16 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
 
   private V5Datafeed doCreateDatafeed() throws ApiException {
     this.ackId = INITIAL_ACK_ID;
+
+    V5DatafeedCreateBody datafeedCreateBody = new V5DatafeedCreateBody();
+    if (StringUtils.isNotBlank(this.tag)) {
+      datafeedCreateBody.setTag(this.tag);
+    }
+
     return this.datafeedApi.createDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
-        new V5DatafeedCreateBody().tag(this.tag)
+        datafeedCreateBody
     );
   }
 

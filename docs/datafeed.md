@@ -8,9 +8,9 @@
 The datafeed loop is a service used for handling the [_Real Time
 Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events). When a user makes an interaction within the IM,
 MIM or Room chat like sending a message, joining or leaving a room chat..., when a connection request is sent, when a
-wall post is published or when a user replies an Symphony element, an event will be sent to the datafeed. The bot can
+wall post is published or when a user replies to a Symphony element, an event will be sent to the datafeed. The bot can
 create a datafeed, list all created datafeeds or retrieve all the Real Time Events within a datafeed through datafeed
-API. The datafeed loop is a core service built on top of the Datafeed API and provide a dedicated contract to bot
+API. The datafeed loop is a core service built on top of the Datafeed API and provides a dedicated contract to bot
 developers to work with datafeed.
 
 For more advanced interactions between users and bots, you can also read [Activity API](./activity-api.md).
@@ -62,11 +62,10 @@ datafeed:
         maxIntervalMillis: 10000 # limit of the interval between two attempts
 ```
 
-The minimal configuration for the datafeed service is the version of the datafeed which will be chosen to be use in the
-BDK. For the moment, not all the customers have the datafeed version 2 available on their systems, that's why bot
-developers are able to choose the datafeed version that they wish to use on their bot. If the bot developers want to use
-the datafeed version 2 in their bot, the version configuration have to be specified as `v2`. Otherwise, the datafeed
-version 1 will be used by default.
+The minimal configuration for the datafeed service is the version to be used in the
+BDK. For the moment, not all customers have datafeed 2 available on their systems, that's why bot
+developers are able to choose the version that they wish to use on their bot. If the bot developers want to use
+datafeed 2, the version configuration have to be specified as `v2`. Otherwise, datafeed 1 will be used by default.
 
 Bot developers can also configure a dedicated retry mechanism which will be used only by the datafeed service.
 Basically, the datafeed service retry configuration has the field same as the global retry configuration with the fields
@@ -180,7 +179,7 @@ public class Example {
 ```
 
 An example of the usage of the Datahose service can be
-found [here](../symphony-bdk-examples/bdk-core-examples/src/main/java/com/symphony/bdk/examples/DatahoseExampleMain.java).
+found [here](https://github.com/finos/symphony-bdk-java/blob/main/symphony-bdk-examples/bdk-core-examples/src/main/java/com/symphony/bdk/examples/DatahoseExampleMain.java).
 
 ## Datahose Configuration
 
@@ -298,7 +297,7 @@ event twice. This can be achieved by maintaining a short time lived cache of the
 ## Running multiple instances of a bot (DF v2 and datahose only)
 
 An example using datafeed v2 is provided in
-[bdk-multi-instances-example](../symphony-bdk-examples/bdk-multi-instances-example) module.
+[bdk-multi-instances-example](https://github.com/finos/symphony-bdk-java/blob/main/symphony-bdk-examples/bdk-multi-instances-example/README.md) module.
 
 With datafeed v2, it is possible to run multiple instances of a bot. Each instance will receive events in turn. The
 examples also makes use of Hazelcast to keep a distributed cache of already processed events and avoid replying to a

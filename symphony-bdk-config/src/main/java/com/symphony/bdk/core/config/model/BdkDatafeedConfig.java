@@ -15,6 +15,7 @@ public class BdkDatafeedConfig {
 
   private String version = "v2";
   private String idFilePath;
+  private String tag;
   private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
 
   public void setVersion(String version) {
