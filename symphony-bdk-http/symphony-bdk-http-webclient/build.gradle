@@ -20,7 +20,7 @@ jacocoTestCoverageVerification {
 
 dependencies {
     constraints {
-        implementation('com.google.guava:guava:30.0-jre') {
+        implementation('com.google.guava:guava:31.1-jre') {
             because 'version 28.2-android that is pulled contains security issues'
         }
     }
