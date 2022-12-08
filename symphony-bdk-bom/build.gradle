@@ -84,8 +84,8 @@ dependencies {
         api 'com.github.jknack:handlebars:4.3.0'
         api 'org.reflections:reflections:0.9.12'
 
-        api 'org.junit.jupiter:junit-jupiter:5.8.2'
-        api 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+        api 'org.junit.jupiter:junit-jupiter:5.9.1'
+        api 'org.junit.jupiter:junit-jupiter-engine:5.9.1'
         api 'com.tngtech.archunit:archunit-junit5:0.22.0'
         api 'org.mock-server:mockserver-netty:5.14.0'
         api 'org.mockito:mockito-core:4.5.1'
