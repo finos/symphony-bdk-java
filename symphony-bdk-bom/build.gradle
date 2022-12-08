@@ -90,7 +90,7 @@ dependencies {
         api 'org.mock-server:mockserver-netty:5.14.0'
         api 'org.mockito:mockito-core:4.5.1'
         api 'org.mockito:mockito-junit-jupiter:4.5.1'
-        api 'org.assertj:assertj-core:3.22.0'
+        api 'org.assertj:assertj-core:3.23.1'
     }
 }
 
