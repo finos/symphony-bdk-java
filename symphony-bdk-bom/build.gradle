@@ -82,7 +82,7 @@ dependencies {
 
         api 'org.freemarker:freemarker:2.3.31'
         api 'com.github.jknack:handlebars:4.3.0'
-        api 'org.reflections:reflections:0.9.12'
+        api 'org.reflections:reflections:0.10.2'
 
         api 'org.junit.jupiter:junit-jupiter:5.8.2'
         api 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
