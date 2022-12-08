@@ -64,10 +64,8 @@ class DatafeedLoopV2Test {
 
   private static final String DATAFEED_ID = "abc_f_def";
   private static final String TOKEN = "1234";
-  private static final String USERNAME = "tibot";
 
   private DatafeedLoopV2 datafeedService;
-  private ApiClient datafeedApiClient;
   private DatafeedApi datafeedApi;
   private AuthSession authSession;
   private UserV2 botInfo;
@@ -84,14 +82,14 @@ class DatafeedLoopV2Test {
 
     this.botInfo = Mockito.mock(UserV2.class);
     this.authSession = Mockito.mock(AuthSessionImpl.class);
+    ApiClient datafeedApiClient = mock(ApiClient.class);
+
     when(this.authSession.getSessionToken()).thenReturn(TOKEN);
     when(this.authSession.getKeyManagerToken()).thenReturn(TOKEN);
-
-    this.datafeedApiClient = mock(ApiClient.class);
-    when(this.datafeedApiClient.getBasePath()).thenReturn("/agent/");
+    when(datafeedApiClient.getBasePath()).thenReturn("/agent/");
 
     this.datafeedApi = mock(DatafeedApi.class);
-    when(this.datafeedApi.getApiClient()).thenReturn(this.datafeedApiClient);
+    when(this.datafeedApi.getApiClient()).thenReturn(datafeedApiClient);
 
     this.datafeedService = new DatafeedLoopV2(
         this.datafeedApi,
@@ -371,7 +369,7 @@ class DatafeedLoopV2Test {
   }
 
   private ArgumentMatcher<AckId> eqAckId(String ackId) {
-    return argument -> argument.getAckId().equals(ackId);
+    return argument -> argument.getAckId() != null && argument.getAckId().equals(ackId);
   }
 
   @Test
@@ -381,7 +379,7 @@ class DatafeedLoopV2Test {
     datafeedConfig.setVersion("v2");
     bdkConfig.setDatafeed(datafeedConfig);
     bdkConfig.setRetry(ofMinimalInterval(2));
-    // set a super long bot's username, tag should be shorter
+    // set a super long bot username, tag should be shorter
     bdkConfig.getDatafeed().setTag((StringUtils.repeat('a', 200)));
 
     DatafeedLoopV2 customConfigService = new DatafeedLoopV2(
