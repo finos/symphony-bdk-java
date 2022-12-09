@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.service.health;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,16 +8,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
 import com.symphony.bdk.gen.api.model.V3Health;
+import com.symphony.bdk.gen.api.model.V3HealthStatus;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 public class HealthServiceTest {
 
@@ -130,5 +135,28 @@ public class HealthServiceTest {
     this.mockApiClient.onGet(400, V1_AGENT_INFO, "{}");
 
     assertThrows(ApiRuntimeException.class, this.service::getAgentInfo);
+  }
+
+  @Test
+  void datafeedLoop_notSet_down() {
+    assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.DOWN);
+  }
+
+  @Test
+  void datafeedLoop_timestampNotUpdatedInTime_down() {
+    DatafeedLoop df = mock(DatafeedLoop.class);
+    this.service.setDatafeedLoop(df);
+    when(df.lastPullTimestamp()).thenReturn(Instant.now().minusSeconds(23).toEpochMilli());
+    assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.DOWN);
+  }
+
+  @Test
+  void datafeedLoop_timestampUpdatedInTime_up() {
+    DatafeedLoop df = mock(DatafeedLoop.class);
+    AuthSession authSession = mock(AuthSession.class);
+    ApiClient agentClient = mockApiClient.getApiClient("/agent");
+    this.service = new HealthService(new SystemApi(agentClient), new SignalsApi(agentClient), authSession, df);
+    when(df.lastPullTimestamp()).thenReturn(Instant.now().minusSeconds(10).toEpochMilli());
+    assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.UP);
   }
 }

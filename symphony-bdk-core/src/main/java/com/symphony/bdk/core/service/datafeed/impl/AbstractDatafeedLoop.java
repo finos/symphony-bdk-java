@@ -18,6 +18,7 @@ import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   protected final UserV2 botInfo;
   protected final AtomicBoolean started = new AtomicBoolean();
   protected DatafeedApi datafeedApi;
+  private long lastPullTimestamp;
 
   // access needs to be thread safe (DF loop is usually running on its own thread)
   private final List<RealTimeEventListener> listeners;
@@ -84,6 +86,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
     }
 
     try {
+      updateLastPullTimestamp();
       runLoop();
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       throw exception;
@@ -105,6 +108,10 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
     this.started.set(false);
   }
 
+  private void updateLastPullTimestamp() {
+    this.lastPullTimestamp = Instant.now().toEpochMilli();
+  }
+
   /**
    * Handle a received listener by using the subscribed {@link RealTimeEventListener}.
    *
@@ -112,6 +119,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    * @throws RequeueEventException Raised if a listener fails and the developer wants to explicitly not update the ack id.
    */
   protected void handleV4EventList(@Nullable List<V4Event> events) throws RequeueEventException {
+    updateLastPullTimestamp();
     if (events == null || events.isEmpty()) {
       return;
     }
@@ -153,5 +161,13 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   protected void refresh() throws AuthUnauthorizedException {
     log.info("Re-authenticate and try again");
     this.authSession.refresh();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public long lastPullTimestamp() {
+    return this.lastPullTimestamp;
   }
 }

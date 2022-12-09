@@ -4,6 +4,7 @@ The Symphony BDK for Java provides a _Starter_ module that aims to ease extensio
  
 ## Features
 - Configure extension app through `application.yaml`
+- Application health info through Spring Boot standard actuator endpoint
 - Expose a REST API to perform [Circle of Trust authentication](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication).
 
 ## Installation
@@ -126,3 +127,23 @@ public class ExtAppSpringApplication {
 By configuring the property `bdk-app.auth.enabled=true`, the Application backend will provide Apis for performing
 the [Circle of Trust](https://docs.developers.symphony.com/building-extension-applications-on-symphony/app-authentication/circle-of-trust-authentication) of Symphony:
 [Circle of Trust API](https://editor.swagger.io/?url=https://raw.githubusercontent.com/SymphonyPlatformSolutions/symphony-api-client-java/master/docs/spring-boot/circle-of-trust.yaml)
+
+
+## Application health status
+The starter exposes the core components health status through the actuator endpoint from Spring Boot, for instance,
+http://localhost:8080/${root_path}/actuator/health/, which gives a global application health status, or
+http://localhost:8080/${root_path}/actuator/health/symphonyBdk, which specifically gives the Symphony components
+health status only.
+
+By default, the components health details are not exposed by Spring Boot. In order to see the details, the following
+configuration must set in the `application.xml`
+
+```
+management:
+  endpoint:
+    web:
+      exposure:
+        include: 'symphonyBdk'
+    health:
+      show-details: "ALWAYS"
+```      
