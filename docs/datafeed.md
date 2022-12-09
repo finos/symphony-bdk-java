@@ -54,7 +54,7 @@ Datafeed Service can be configured by the datafeed field in the configuration fi
 
 ```yaml
 datafeed:
-    version: 'v1' # specify datafeed version 'v1' or 'v2'
+    version: 'v2' # specify datafeed version 'v1' or 'v2'
     retry:
         maxAttempts: 6 # maximum number of retry attempts
         initialIntervalMillis: 2000 # initial interval between two attempts
@@ -65,7 +65,7 @@ datafeed:
 The minimal configuration for the datafeed service is the version to be used in the
 BDK. For the moment, not all customers have datafeed 2 available on their systems, that's why bot
 developers are able to choose the version that they wish to use on their bot. If the bot developers want to use
-datafeed 2, the version configuration have to be specified as `v2`. Otherwise, datafeed 1 will be used by default.
+datafeed 1, the version configuration have to be specified as `v1`. Otherwise, datafeed 2 will be used by default.
 
 Bot developers can also configure a dedicated retry mechanism which will be used only by the datafeed service.
 Basically, the datafeed service retry configuration has the field same as the global retry configuration with the fields

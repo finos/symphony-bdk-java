@@ -4,7 +4,6 @@ import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInter
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -37,7 +36,6 @@ import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,7 +66,6 @@ class DatafeedLoopV2Test {
   private DatafeedLoopV2 datafeedService;
   private DatafeedApi datafeedApi;
   private AuthSession authSession;
-  private UserV2 botInfo;
   private RealTimeEventListener listener;
 
   @BeforeEach
@@ -80,7 +77,7 @@ class DatafeedLoopV2Test {
     bdkConfig.setDatafeed(datafeedConfig);
     bdkConfig.setRetry(ofMinimalInterval(2));
 
-    this.botInfo = Mockito.mock(UserV2.class);
+    UserV2 botInfo = Mockito.mock(UserV2.class);
     this.authSession = Mockito.mock(AuthSessionImpl.class);
     ApiClient datafeedApiClient = mock(ApiClient.class);
 
@@ -109,49 +106,6 @@ class DatafeedLoopV2Test {
       }
     };
     this.datafeedService.subscribe(listener);
-  }
-
-  @Test
-  void testCreateDatafeedWithTag() throws ApiException, AuthUnauthorizedException, BdkConfigException {
-    BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
-    BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
-    datafeedConfig.setVersion("v2");
-    bdkConfig.setDatafeed(datafeedConfig);
-    bdkConfig.setRetry(ofMinimalInterval(2));
-    // set a tag
-    bdkConfig.getDatafeed().setTag("tag");
-
-    DatafeedLoopV2 customConfigService = new DatafeedLoopV2(
-        this.datafeedApi,
-        this.authSession,
-        bdkConfig,
-        botInfo
-    );
-    customConfigService.subscribe(new RealTimeEventListener() {
-      @Override
-      public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
-        return true;
-      }
-
-      @Override
-      public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
-        customConfigService.stop();
-      }
-    });
-
-
-    when(datafeedApi.listDatafeed(TOKEN, TOKEN, "tag")).thenReturn(Collections.emptyList());
-    when(datafeedApi.createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody().tag("tag"))).thenReturn(
-        new V5Datafeed().id(DATAFEED_ID));
-    AckId ackId = new AckId().ackId(datafeedService.getAckId());
-    when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId))
-        .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
-
-    customConfigService.start();
-
-    verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, "tag");
-    verify(datafeedApi, times(1)).createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody().tag("tag"));
   }
 
   @Test
@@ -370,47 +324,6 @@ class DatafeedLoopV2Test {
 
   private ArgumentMatcher<AckId> eqAckId(String ackId) {
     return argument -> argument.getAckId() != null && argument.getAckId().equals(ackId);
-  }
-
-  @Test
-  void testStartTagIsTooLong() throws ApiException, AuthUnauthorizedException, BdkConfigException {
-    BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
-    BdkDatafeedConfig datafeedConfig = bdkConfig.getDatafeed();
-    datafeedConfig.setVersion("v2");
-    bdkConfig.setDatafeed(datafeedConfig);
-    bdkConfig.setRetry(ofMinimalInterval(2));
-    // set a super long bot username, tag should be shorter
-    bdkConfig.getDatafeed().setTag((StringUtils.repeat('a', 200)));
-
-    DatafeedLoopV2 customConfigService = new DatafeedLoopV2(
-        this.datafeedApi,
-        this.authSession,
-        bdkConfig,
-        botInfo
-    );
-    customConfigService.subscribe(new RealTimeEventListener() {
-      @Override
-      public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
-        return true;
-      }
-
-      @Override
-      public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
-        customConfigService.stop();
-      }
-    });
-
-    List<V5Datafeed> datafeeds = new ArrayList<>();
-    datafeeds.add(new V5Datafeed().id(DATAFEED_ID));
-    when(datafeedApi.listDatafeed(anyString(), anyString(), anyString())).thenReturn(datafeeds);
-    AckId ackId = new AckId().ackId(datafeedService.getAckId());
-    when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId))
-        .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
-
-    customConfigService.start();
-
-    verify(datafeedApi, times(1)).listDatafeed(anyString(), anyString(), eq(StringUtils.repeat('a', 100)));
   }
 
   @Test

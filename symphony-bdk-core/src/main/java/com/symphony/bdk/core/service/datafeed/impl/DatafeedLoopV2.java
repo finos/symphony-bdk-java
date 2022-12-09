@@ -14,7 +14,6 @@ import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.util.List;
@@ -43,11 +42,6 @@ import java.util.regex.Pattern;
 public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
 
   /**
-   * DFv2 API authorizes a maximum length for the tag parameter.
-   */
-  private static final int DATAFEED_TAG_MAX_LENGTH = 100;
-
-  /**
    * Regex pattern of fanout feeds, e.g. "e766c498eece0d113f035270ad6c3c63_f_f8001".
    * We must exclude potential datahose feeds when we are reusing a datafeed.
    * Datahose feeds are in the format *_p_*, e.g. "d25098517ec62f1fc65cd111667a8386_p_be940".
@@ -59,16 +53,11 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
-  private String tag = null;
 
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);
-
-    if (StringUtils.isNotBlank(config.getDatafeed().getTag())) {
-      this.tag = StringUtils.truncate(config.getDatafeed().getTag(), DATAFEED_TAG_MAX_LENGTH);
-    }
 
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .basePath(datafeedApi.getApiClient().getBasePath())
@@ -118,16 +107,10 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
 
   private V5Datafeed doCreateDatafeed() throws ApiException {
     this.ackId = INITIAL_ACK_ID;
-
-    V5DatafeedCreateBody datafeedCreateBody = new V5DatafeedCreateBody();
-    if (StringUtils.isNotBlank(this.tag)) {
-      datafeedCreateBody.setTag(this.tag);
-    }
-
     return this.datafeedApi.createDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
-        datafeedCreateBody
+        new V5DatafeedCreateBody()
     );
   }
 
@@ -135,7 +118,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
     final List<V5Datafeed> feeds = this.datafeedApi.listDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
-        this.tag
+        null
     );
     return feeds.stream().filter(this::isFanoutFeed).findFirst().orElse(null);
   }
