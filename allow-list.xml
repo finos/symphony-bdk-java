@@ -32,10 +32,17 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+        No fix available
+        ]]></notes>
+        <gav>org.yaml:snakeyaml:1.33</gav>
+        <cve>CVE-2022-1471</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
         Testing false positives by suppressing a CVE
         https://github.com/jeremylong/DependencyCheck/issues/4528 (Do not use deprecated method)
         ]]></notes>
-        <gav>org.springframework.security:spring-security-crypto:5.7.5</gav>
+        <gav>org.springframework.security:spring-security-crypto:5.7.6</gav>
         <cve>CVE-2020-5408</cve>
     </suppress>
     <suppress>
@@ -43,7 +50,7 @@
         Testing false positives by suppressing a CVE
         https://github.com/spring-projects/spring-framework/issues/24434 (Do not expose HttpInvoker)
         ]]></notes>
-        <gav>org.springframework:spring-web:5.3.24</gav>
+        <gav>org.springframework:spring-web:5.3.25</gav>
         <cve>CVE-2016-1000027</cve>
     </suppress>
     <suppress base="true">
