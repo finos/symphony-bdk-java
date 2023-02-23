@@ -55,11 +55,10 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
     V3HealthStatus dfStatus = services.get(DF).getStatus();
     V3HealthStatus kmStatus = services.get(KM).getStatus();
     V3HealthStatus agtStatus = users.get(AGT).getStatus();
-    V3HealthStatus ceStatus = users.get(CE).getStatus();
     V3HealthStatus datafeedLoop = healthService.datafeedHealthCheck();
 
     boolean global = podStatus == V3HealthStatus.UP && dfStatus == V3HealthStatus.UP && kmStatus == V3HealthStatus.UP
-        && agtStatus == V3HealthStatus.UP && ceStatus == V3HealthStatus.UP && datafeedLoop == V3HealthStatus.UP;
+        && agtStatus == V3HealthStatus.UP && datafeedLoop == V3HealthStatus.UP;
 
     builder.status(global ? Status.UP.getCode() : "WARNING")
         .withDetail(POD, services.get(POD))

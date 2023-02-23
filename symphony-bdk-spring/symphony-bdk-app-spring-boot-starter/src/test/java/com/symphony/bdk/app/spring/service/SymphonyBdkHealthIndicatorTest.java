@@ -42,7 +42,7 @@ class SymphonyBdkHealthIndicatorTest {
   }
 
   @Test
-  void doHealthCheck_warning() throws Exception {
+  void doHealthCheck_withCEDown_up() throws Exception {
     V3Health health = new V3Health();
     health.putServicesItem("pod", new V3HealthComponent().status(V3HealthStatus.UP));
     health.putServicesItem("datafeed", new V3HealthComponent().status(V3HealthStatus.UP));
@@ -54,7 +54,7 @@ class SymphonyBdkHealthIndicatorTest {
     Health.Builder builder = new Health.Builder();
     healthIndicator.doHealthCheck(builder);
     Health build = builder.build();
-    assertThat(build.getStatus().getCode()).isEqualTo("WARNING");
+    assertThat(build.getStatus().getCode()).isEqualTo("UP");
   }
 
   @Test
@@ -78,7 +78,7 @@ class SymphonyBdkHealthIndicatorTest {
         + "  },\n"
         + "  \"users\": {\n"
         + "    \"agentservice\": {\n"
-        + "      \"status\": \"UP\"\n"
+        + "      \"status\": \"DOWN\"\n"
         + "    },\n"
         + "    \"ceservice\": {\n"
         + "      \"status\": \"DOWN\",\n"
