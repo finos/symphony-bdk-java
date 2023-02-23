@@ -20,7 +20,7 @@ public class BdkExtAppTracingFilterConfig {
 
     registrationBean.setFilter(new TracingFilter());
     registrationBean.addUrlPatterns(getUrlPatterns(properties));
-    registrationBean.setOrder(Ordered.LOWEST_PRECEDENCE);
+    registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
     return registrationBean;
   }

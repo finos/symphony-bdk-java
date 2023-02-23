@@ -17,6 +17,6 @@ class BdkExtAppTracingFilterConfigTest {
         new BdkExtAppTracingFilterConfig().tracingFilter(new SymphonyBdkAppProperties());
 
     assertEquals("/*", tracingFilterRegistration.getUrlPatterns().stream().findFirst().get());
-    assertEquals(Ordered.LOWEST_PRECEDENCE, tracingFilterRegistration.getOrder());
+    assertEquals(Ordered.HIGHEST_PRECEDENCE, tracingFilterRegistration.getOrder());
   }
 }
