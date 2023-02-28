@@ -79,6 +79,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
     this.createDatafeed = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
         .name("Create Datafeed V2")
         .supplier(this::doCreateDatafeed)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorErrorOrClientError)
         .build();
 
     this.deleteDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)

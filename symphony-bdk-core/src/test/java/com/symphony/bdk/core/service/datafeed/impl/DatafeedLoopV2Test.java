@@ -145,7 +145,7 @@ class DatafeedLoopV2Test {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"abc_f","abc_f_def"})
+  @ValueSource(strings = {"abc_f", "abc_f_def"})
   void testStartValidExistingFeeds(String validExistingFeedId) throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null))
         .thenReturn(Collections.singletonList(new V5Datafeed().id(validExistingFeedId)));
@@ -161,7 +161,7 @@ class DatafeedLoopV2Test {
 
     V5DatafeedCreateBody datafeedCreateBody = new V5DatafeedCreateBody();
     verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, null);
-    verify(datafeedApi, times(0)).createDatafeed(TOKEN ,TOKEN, datafeedCreateBody);
+    verify(datafeedApi, times(0)).createDatafeed(TOKEN, TOKEN, datafeedCreateBody);
     verify(datafeedApi, times(1)).readDatafeed(validExistingFeedId, TOKEN, TOKEN, ackId);
   }
 
@@ -475,7 +475,7 @@ class DatafeedLoopV2Test {
 
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, null);
-    verify(datafeedApi, times(1)).createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody());
+    verify(datafeedApi, times(2)).createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody());
   }
 
   @Test
@@ -490,12 +490,13 @@ class DatafeedLoopV2Test {
   }
 
   @Test
-  void testStartClientErrorReadDatafeed() throws ApiException, AuthUnauthorizedException {
+  void testStartClientErrorReadDatafeedAndClientErrorCreateDatafeed() throws ApiException, AuthUnauthorizedException {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null)).thenReturn(
         Collections.singletonList(new V5Datafeed().id(DATAFEED_ID)));
-    when(datafeedApi.createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody())).thenReturn(
-        new V5Datafeed().id("recreate-df-id"));
+    when(datafeedApi.createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody()))
+        .thenThrow(new ApiException(400, "ALB: No matching rule found"))
+        .thenReturn(new V5Datafeed().id("recreate-df-id"));
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId)).thenThrow(new ApiException(400, "client-error"));
     when(datafeedApi.readDatafeed("recreate-df-id", TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
@@ -505,8 +506,8 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, null);
     verify(datafeedApi, times(1)).readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId);
     verify(datafeedApi, times(1)).readDatafeed("recreate-df-id", TOKEN, TOKEN, ackId);
-    verify(datafeedApi, times(1)).createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody());
     verify(datafeedApi, times(1)).deleteDatafeed(DATAFEED_ID, TOKEN, TOKEN);
+    verify(datafeedApi, times(2)).createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody());
   }
 
   @Test
