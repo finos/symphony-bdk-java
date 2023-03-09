@@ -27,6 +27,7 @@ The reference documentation consists of the following sections:
 | [Health API](health.md)                  | Get health check status                                               |
 | [Activity API](activity-api.md)          | The Activity Registry, creating custom activities                     |
 | [Extending the BDK](extension.md)        | How to use or develop BDK extensions                                  |
+| [Integration Test](test.md)              | How to write the integration tests for Symphony BDK Bot application   |  
 
 ### Spring Boot
 Getting Started guides are also available for Spring Boot:

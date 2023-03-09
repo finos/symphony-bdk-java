@@ -1,0 +1,21 @@
+plugins {
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
+}
+
+description = 'Symphony Java BDK Integration Test Framework for Spring boot'
+
+dependencies {
+    api project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
+    api project(':symphony-bdk-test:symphony-bdk-test-jupiter')
+    implementation 'org.apiguardian:apiguardian-api'
+    implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    api ('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        exclude group: 'junit', module: 'junit'
+    }
+}
