@@ -31,3 +31,7 @@ include(':symphony-bdk-examples:bdk-group-example')
 // built-in extensions
 include(':symphony-bdk-extensions:symphony-group-extension')
 
+// test framework
+include(':symphony-bdk-test:symphony-bdk-test-spring-boot')
+include(':symphony-bdk-test:symphony-bdk-test-jupiter')
+

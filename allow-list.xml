@@ -60,4 +60,11 @@
       <packageUrl regex="true">^(?!pkg:maven/commons-net/commons-net).*$</packageUrl>
       <cpe>cpe:/a:apache:commons_net</cpe>
     </suppress>
+    <suppress>
+      <notes><![CDATA[
+          No fix available
+          ]]></notes>
+      <gav>org.json:json:20220320</gav>
+      <cve>CVE-2022-45688</cve>
+    </suppress>
 </suppressions>

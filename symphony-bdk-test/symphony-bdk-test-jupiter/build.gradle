@@ -1,0 +1,21 @@
+plugins {
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
+}
+
+description = 'Symphony Java BDK Integration Test Framework for Spring boot'
+
+dependencies {
+    api project(':symphony-bdk-core')
+    api project(':symphony-bdk-template:symphony-bdk-template-api')
+
+    implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+    api 'org.junit.jupiter:junit-jupiter'
+    api 'org.mockito:mockito-core'
+    api 'org.mockito:mockito-junit-jupiter'
+    api 'org.assertj:assertj-core'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
