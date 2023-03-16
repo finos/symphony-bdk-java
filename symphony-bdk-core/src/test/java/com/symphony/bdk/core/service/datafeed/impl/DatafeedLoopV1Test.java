@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -51,7 +52,6 @@ import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
 import com.symphony.bdk.gen.api.model.V4UserRequestedToJoinRoom;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 
 import org.apache.commons.io.FileUtils;
@@ -151,7 +151,8 @@ class DatafeedLoopV1Test {
   }
 
   private List<V4Event> getMessageSentEvent() {
-    final V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())
+    final V4Event event = new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+        .payload(new V4Payload().messageSent(new V4MessageSent()))
         .initiator(new V4Initiator().user(new V4User().username("username").userId(123456789L)));
     return Collections.singletonList(event);
   }
@@ -481,8 +482,8 @@ class DatafeedLoopV1Test {
     events.add(new V4Event().type("unknown-type").payload(payload));
     events.add(new V4Event().type(null));
     events.add(new V4Event().type(types[0].name()).initiator(
-        new V4Initiator().user(
-            new V4User().username(this.bdkConfig.getBot().getUsername()).userId(123456789L))
+            new V4Initiator().user(
+                new V4User().username(this.bdkConfig.getBot().getUsername()).userId(123456789L))
         )
     );
 
@@ -501,21 +502,21 @@ class DatafeedLoopV1Test {
     this.datafeedService.subscribe(spiedListener);
     this.datafeedService.handleV4EventList(events);
 
-    verify(spiedListener).onMessageSent(initiator, payload.getMessageSent());
-    verify(spiedListener).onMessageSuppressed(initiator, payload.getMessageSuppressed());
-    verify(spiedListener).onSymphonyElementsAction(initiator, payload.getSymphonyElementsAction());
-    verify(spiedListener).onSharedPost(initiator, payload.getSharedPost());
-    verify(spiedListener).onInstantMessageCreated(initiator, payload.getInstantMessageCreated());
-    verify(spiedListener).onRoomCreated(initiator, payload.getRoomCreated());
-    verify(spiedListener).onRoomUpdated(initiator, payload.getRoomUpdated());
-    verify(spiedListener).onRoomDeactivated(initiator, payload.getRoomDeactivated());
-    verify(spiedListener).onRoomReactivated(initiator, payload.getRoomReactivated());
-    verify(spiedListener).onConnectionRequested(initiator, payload.getConnectionRequested());
-    verify(spiedListener).onConnectionAccepted(initiator, payload.getConnectionAccepted());
-    verify(spiedListener).onRoomMemberDemotedFromOwner(initiator, payload.getRoomMemberDemotedFromOwner());
-    verify(spiedListener).onRoomMemberPromotedToOwner(initiator, payload.getRoomMemberPromotedToOwner());
-    verify(spiedListener).onUserLeftRoom(initiator, payload.getUserLeftRoom());
-    verify(spiedListener).onUserJoinedRoom(initiator, payload.getUserJoinedRoom());
-    verify(spiedListener).onUserRequestedToJoinRoom(initiator, payload.getUserRequestedToJoinRoom());
+    verify(spiedListener).onMessageSent(eq(initiator), any(V4MessageSent.class));
+    verify(spiedListener).onMessageSuppressed(eq(initiator), any(V4MessageSuppressed.class));
+    verify(spiedListener).onSymphonyElementsAction(eq(initiator), any(V4SymphonyElementsAction.class));
+    verify(spiedListener).onSharedPost(eq(initiator), any(V4SharedPost.class));
+    verify(spiedListener).onInstantMessageCreated(eq(initiator), any(V4InstantMessageCreated.class));
+    verify(spiedListener).onRoomCreated(eq(initiator), any(V4RoomCreated.class));
+    verify(spiedListener).onRoomUpdated(eq(initiator), any(V4RoomUpdated.class));
+    verify(spiedListener).onRoomDeactivated(eq(initiator), any(V4RoomDeactivated.class));
+    verify(spiedListener).onRoomReactivated(eq(initiator), any(V4RoomReactivated.class));
+    verify(spiedListener).onConnectionRequested(eq(initiator), any(V4ConnectionRequested.class));
+    verify(spiedListener).onConnectionAccepted(eq(initiator), any(V4ConnectionAccepted.class));
+    verify(spiedListener).onRoomMemberDemotedFromOwner(eq(initiator), any(V4RoomMemberDemotedFromOwner.class));
+    verify(spiedListener).onRoomMemberPromotedToOwner(eq(initiator), any(V4RoomMemberPromotedToOwner.class));
+    verify(spiedListener).onUserLeftRoom(eq(initiator), any(V4UserLeftRoom.class));
+    verify(spiedListener).onUserJoinedRoom(eq(initiator), any(V4UserJoinedRoom.class));
+    verify(spiedListener).onUserRequestedToJoinRoom(eq(initiator), any(V4UserRequestedToJoinRoom.class));
   }
 }

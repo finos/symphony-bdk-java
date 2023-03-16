@@ -37,20 +37,20 @@ module.
 
 @SymphonyBdkSpringBootTest(properties = {"bot.id=1", "bot.username=my-bot", "bot.display-name=my bot"})
 public class SampleSpringAppIntegrationTest {
-  private final V4User initiator = new V4User().displayName("user").userId(2L);
-  private final V4Stream stream = new V4Stream().streamId("my-room");
+    private final V4User initiator = new V4User().displayName("user").userId(2L);
+    private final V4Stream stream = new V4Stream().streamId("my-room");
 
-  @Test
-  void echo_command_replyWithMessage(@Autowired MessageService messageService, @Autowired UserV2 botInfo) {
-    // (1)  given
-    when(messageService.send(anyString(), any(Message.class))).thenReturn(mock(V4Message.class));
+    @Test
+    void echo_command_replyWithMessage(@Autowired MessageService messageService, @Autowired UserV2 botInfo) {
+        // (1)  given
+        when(messageService.send(anyString(), any(Message.class))).thenReturn(mock(V4Message.class));
 
-    // (2)  when
-    pushMessageToDF(initiator, stream, "/echo arg", botInfo);
+        // (2)  when
+        pushMessageToDF(initiator, stream, "/echo arg", botInfo);
 
-    // (3)  then
-    verify(messageService).send(eq("my-room"), eq("Received argument: arg"));
-  }
+        // (3)  then
+        verify(messageService).send(eq("my-room"), eq("Received argument: arg"));
+    }
 }
 ```
 
@@ -63,6 +63,12 @@ message has received.
 
 **Step 3**. at the end we verify that a replied message has been sent back to the room through BDK `messsageService`.
 
+### Inheritance
+
+The `@SymphonyBdkSpringBootTest` annotation is inheritable. Developers may have one parent test class with this
+annotation, so that the child test classes will inherit the annotation and its properties.
+
+### Utils
 The `SymphonyBdkTestUtils.java` is a very handy helper class allowing to inject Symphony events to the DataFeed, so that
 the registered activities and slash commands should react on these received events.
 
@@ -90,10 +96,10 @@ void test(){
     pushEventToDataFeed(new V4Event()
         .initiator(new V4Initiator().user(initiator))
         .payload(new V4Payload().symphonyElementsAction(
-              new V4SymphonyElementsAction().formId("gif-category-form")
-              .formMessageId("form-message-id")
-              .formValues(values)
-              .stream(stream)))
+            new V4SymphonyElementsAction().formId("gif-category-form")
+                .formMessageId("form-message-id")
+                .formValues(values)
+                .stream(stream)))
         .type(V4EventType.SYMPHONYELEMENTSACTION.name()));
 }
 ```

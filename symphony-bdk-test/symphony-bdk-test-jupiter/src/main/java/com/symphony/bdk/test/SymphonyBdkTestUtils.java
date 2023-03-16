@@ -1,5 +1,8 @@
 package com.symphony.bdk.test;
 
+import static net.bytebuddy.matcher.ElementMatchers.isPublic;
+
+import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
@@ -11,6 +14,14 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 import com.symphony.bdk.gen.api.model.V4User;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
+
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.ClassFileVersion;
+import net.bytebuddy.description.modifier.Visibility;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.FieldAccessor;
+import net.bytebuddy.implementation.MethodCall;
+import net.bytebuddy.matcher.ElementMatchers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,14 +58,15 @@ public class SymphonyBdkTestUtils {
         .message(new V4MessageContentBuilder().apply(message, botInfo))
         .messageId("message-id")
         .user(initiator)
-        .data(new V4MessageDataBuilder().apply(botInfo))
-        .timestamp(Instant.now().toEpochMilli()));
+        .data(new V4MessageDataBuilder().apply(botInfo)));
   }
 
   public static void pushMessageToDF(V4User initiator, V4Message message) {
     pushEventToDataFeed(new V4Event().initiator(new V4Initiator().user(initiator))
         .payload(new V4Payload().messageSent(new V4MessageSent().message(message)))
-        .type(V4EventType.MESSAGESENT.name()));
+        .type(V4EventType.MESSAGESENT.name())
+        .id("event-id")
+        .timestamp(Instant.now().toEpochMilli()));
   }
 
   public static void pushElementActionToDF(V4User initiator, V4SymphonyElementsAction elementAction) {
@@ -80,71 +92,115 @@ public class SymphonyBdkTestUtils {
     }
   }
 
+  private static <T> T proxy(T event, V4Event realEvent) {
+    try {
+      T proxyEvent = (T) new ByteBuddy(ClassFileVersion.JAVA_V8)
+          .subclass(event.getClass())
+          .method(ElementMatchers.any().and(isPublic()))
+          .intercept(MethodCall.invokeSelf().on(event).withAllArguments())
+          .defineField("eventId", String.class, Visibility.PRIVATE)
+          .defineField("eventTimestamp", Long.class, Visibility.PRIVATE)
+          .implement(Setter.class).intercept(FieldAccessor.ofBeanProperty())
+          .implement(EventPayload.class).intercept(FieldAccessor.ofBeanProperty())
+          .make()
+          .load(event.getClass().getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
+          .getLoaded().newInstance();
+      ((Setter) proxyEvent).setEventId(realEvent.getId());
+      ((Setter) proxyEvent).setEventTimestamp(realEvent.getTimestamp());
+      return proxyEvent;
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public interface Setter {
+    void setEventId(String eventId);
+
+    void setEventTimestamp(Long eventTimestamp);
+  }
+
+
   public enum V4EventType {
 
     MESSAGESENT((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onMessageSent(event.getInitiator(), event.getPayload().getMessageSent());
+      assert event.getPayload().getMessageSent() != null : "MessageSent event must not null";
+      listener.onMessageSent(event.getInitiator(), proxy(event.getPayload().getMessageSent(), event));
     }),
     MESSAGESUPPRESSED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onMessageSuppressed(event.getInitiator(), event.getPayload().getMessageSuppressed());
+      assert event.getPayload().getMessageSuppressed() != null : "MessageSuppressed event must not null";
+      listener.onMessageSuppressed(event.getInitiator(), proxy(event.getPayload().getMessageSuppressed(), event));
     }),
     SYMPHONYELEMENTSACTION((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onSymphonyElementsAction(event.getInitiator(), event.getPayload().getSymphonyElementsAction());
+      assert event.getPayload().getSymphonyElementsAction() != null : "ElementsAction event must not null";
+      listener.onSymphonyElementsAction(event.getInitiator(), proxy(event.getPayload().getSymphonyElementsAction(), event));
     }),
     SHAREDPOST((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onSharedPost(event.getInitiator(), event.getPayload().getSharedPost());
+      assert event.getPayload().getSharedPost() != null : "SharedPost event must not null";
+      listener.onSharedPost(event.getInitiator(), proxy(event.getPayload().getSharedPost(), event));
     }),
     INSTANTMESSAGECREATED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onInstantMessageCreated(event.getInitiator(), event.getPayload().getInstantMessageCreated());
+      assert event.getPayload().getInstantMessageCreated() != null : "InstantMessageCreated event must not null";
+      listener.onInstantMessageCreated(event.getInitiator(), proxy(event.getPayload().getInstantMessageCreated(), event));
     }),
     ROOMCREATED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onRoomCreated(event.getInitiator(), event.getPayload().getRoomCreated());
+      assert event.getPayload().getRoomCreated() != null : "RoomCreated event must not null";
+      listener.onRoomCreated(event.getInitiator(), proxy(event.getPayload().getRoomCreated(), event));
     }),
     ROOMUPDATED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onRoomUpdated(event.getInitiator(), event.getPayload().getRoomUpdated());
+      assert event.getPayload().getRoomUpdated() != null : "RoomUpdated event must not null";
+      listener.onRoomUpdated(event.getInitiator(), proxy(event.getPayload().getRoomUpdated(), event));
     }),
     ROOMDEACTIVATED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onRoomDeactivated(event.getInitiator(), event.getPayload().getRoomDeactivated());
+      assert event.getPayload().getRoomDeactivated() != null : "RoomDeactivated event must not null";
+      listener.onRoomDeactivated(event.getInitiator(), proxy(event.getPayload().getRoomDeactivated(), event));
     }),
     ROOMREACTIVATED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onRoomReactivated(event.getInitiator(), event.getPayload().getRoomReactivated());
+      assert event.getPayload().getRoomReactivated() != null : "RoomReactivated event must not null";
+      listener.onRoomReactivated(event.getInitiator(), proxy(event.getPayload().getRoomReactivated(), event));
     }),
     USERJOINEDROOM((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onUserJoinedRoom(event.getInitiator(), event.getPayload().getUserJoinedRoom());
+      assert event.getPayload().getUserJoinedRoom() != null : "UserJoinedRoom event must not null";
+      listener.onUserJoinedRoom(event.getInitiator(), proxy(event.getPayload().getUserJoinedRoom(), event));
     }),
     USERLEFTROOM((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onUserLeftRoom(event.getInitiator(), event.getPayload().getUserLeftRoom());
+      assert event.getPayload().getUserLeftRoom() != null : "UserLeftRoom event must not null";
+      listener.onUserLeftRoom(event.getInitiator(), proxy(event.getPayload().getUserLeftRoom(), event));
     }),
     USERREQUESTEDTOJOINROOM((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onUserRequestedToJoinRoom(event.getInitiator(), event.getPayload().getUserRequestedToJoinRoom());
+      assert event.getPayload().getUserRequestedToJoinRoom() != null : "UserRequestedToJoinRoom event must not null";
+      listener.onUserRequestedToJoinRoom(event.getInitiator(), proxy(event.getPayload().getUserRequestedToJoinRoom(), event));
     }),
     ROOMMEMBERPROMOTEDTOOWNER((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onRoomMemberPromotedToOwner(event.getInitiator(), event.getPayload().getRoomMemberPromotedToOwner());
+      assert event.getPayload().getRoomMemberPromotedToOwner() != null : "RoomMemberPromotedToOwner event must not null";
+      listener.onRoomMemberPromotedToOwner(event.getInitiator(), proxy(event.getPayload().getRoomMemberPromotedToOwner(), event));
     }),
     ROOMMEMBERDEMOTEDFROMOWNER((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onRoomMemberDemotedFromOwner(event.getInitiator(), event.getPayload().getRoomMemberDemotedFromOwner());
+      assert event.getPayload().getRoomMemberDemotedFromOwner() != null : "RoomMemberDemotedFromOwner event must not null";
+      listener.onRoomMemberDemotedFromOwner(event.getInitiator(), proxy(event.getPayload().getRoomMemberDemotedFromOwner(), event));
     }),
     CONNECTIONACCEPTED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onConnectionAccepted(event.getInitiator(), event.getPayload().getConnectionAccepted());
+      assert event.getPayload().getConnectionAccepted() != null : "ConnectionAccepted event must not null";
+      listener.onConnectionAccepted(event.getInitiator(), proxy(event.getPayload().getConnectionAccepted(), event));
     }),
     CONNECTIONREQUESTED((listener, event) -> {
       assert event.getPayload() != null;
-      listener.onConnectionRequested(event.getInitiator(), event.getPayload().getConnectionRequested());
+      assert event.getPayload().getConnectionRequested() != null : "ConnectionRequested event must not null";
+      listener.onConnectionRequested(event.getInitiator(), proxy(event.getPayload().getConnectionRequested(), event));
     });
 
     private final BiConsumer<RealTimeEventListener, V4Event> execConsumer;

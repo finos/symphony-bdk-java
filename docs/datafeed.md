@@ -32,7 +32,7 @@ public class Example {
         final RealTimeEventListener listener = new RealTimeEventListener() {
             @Override
             public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
-                log.info("Message sent");
+                log.info("Message sent at {}", ((EventPayload) event).getEventTimestamp());
             }
         };
 

@@ -33,7 +33,7 @@ The following listing shows the `pom.xml` file that has to be created when using
             <dependency>
                 <groupId>org.finos.symphony.bdk</groupId>
                 <artifactId>symphony-bdk-bom</artifactId>
-                <version>1.3.2.BETA</version>
+                <version>2.12.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -48,6 +48,13 @@ The following listing shows the `pom.xml` file that has to be created when using
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        // integration test dependency
+        <dependency>
+            <groupId>org.finos.symphony.bdk</groupId>
+            <artifactId>symphony-bdk-test-spring-boot</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     
@@ -72,10 +79,13 @@ plugins {
 }
 
 dependencies {
-    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.0.0')
+    implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.12.0-SNAPSHOT')
     
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter'
+
+    // integration test dependency
+    testImplementation 'org.finos.symphony.bdk:symphony-bdk-test-spring-boot'
 }
 ```
 
@@ -117,12 +127,15 @@ public class HelloBot {
 
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
+    log.info("event was triggered at {}", ((EventPayload) event.getSource()).getEventTimestamp());
     this.messageService.send(event.getSource().getMessage().getStream(), "<messageML>Hello!</messageML>");
   }
 }
 ``` 
 
-You can finally run your Spring Boot application and verify that your bot always replies with `Hello!`. 
+You can finally run your Spring Boot application and verify that your bot always replies with `Hello!`. It also worth noting
+that the event timestamp is only accessible from `EventPayload` type, you need simply cast the source event to it, and
+call `getEventTimestamp()` method to read the value, as you can see from the example here.
 
 ### OBO (On behalf of) usecases
 It is possible to run an application with no bot service account configured in order to accommodate OBO usecases only.
@@ -292,7 +305,7 @@ public class SlashHello {
 
   @Slash("/hello")
   public void onHello(CommandContext commandContext) {
-    log.info("On /hello command");
+    log.info("On /hello command sent at {}", commandContext.getEventTimestamp());
   }
 
   @Slash(value = "/hello", mentionBot = false)
@@ -308,7 +321,8 @@ You can also use slash commands with arguments. To do so, the field `value` of t
 format as explained in the [Activity API section](../activity-api.md#Slash-command-pattern-format). 
 If the slash command pattern is valid, you will have to specify all slash arguments as method parameter with the same name and type.
 If slash command pattern or method signature is incorrect, a `warn` message will appear in your application log and
-the slash command will not be registered.
+the slash command will not be registered. Note that the event timestamp is accessible from the `commandContext` using
+`getEventTimestamp()` method.
 
 For instance:
 ```java
@@ -433,6 +447,31 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
         .name("Gif Display category form command")
         .description("\"Form handler for the Gif Category form\"");
   }
+}
+```
+
+# Integration Test
+
+You can then create the integration test to guarantee the Bot application is working as design, 
+like you can see in the example below. For more details, please refer to [test module](../test.md).
+
+```java
+@SymphonyBdkSpringBootTest(properties = {"bot.id=1", "bot.username=my-bot", "bot.display-name=my bot"})
+public class SimpleSpringAppIntegrationTest {
+    private final V4User initiator = new V4User().displayName("user").userId(2L);
+    private final V4Stream stream = new V4Stream().streamId("my-room");
+
+    @Test
+    void echo_command_replyWithMessage(@Autowired MessageService messageService, @Autowired UserV2 botInfo) {
+        // (1)  given
+        when(messageService.send(anyString(), any(Message.class))).thenReturn(mock(V4Message.class));
+
+        // (2)  when
+        pushMessageToDF(initiator, stream, "/echo arg", botInfo);
+
+        // (3)  then
+        verify(messageService).send(eq("my-room"), eq("Received argument: arg"));
+    }
 }
 ```
 

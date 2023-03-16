@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.activity;
 
+import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 
 import lombok.Getter;
@@ -29,4 +30,20 @@ public abstract class ActivityContext<E> {
    * </ul>
    */
   private final E sourceEvent;
+
+  /**
+   * The original event triggered timestamp
+   */
+  private final Long eventTimestamp;
+
+  public ActivityContext(V4Initiator initiator, E sourceEvent) {
+    this.initiator = initiator;
+    this.sourceEvent = sourceEvent;
+    if (EventPayload.class.isAssignableFrom(sourceEvent.getClass())) {
+      this.eventTimestamp = ((EventPayload) sourceEvent).getEventTimestamp();
+    } else {
+      this.eventTimestamp = null;
+    }
+  }
+
 }

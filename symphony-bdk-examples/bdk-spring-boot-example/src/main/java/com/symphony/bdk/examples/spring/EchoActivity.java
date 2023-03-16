@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 /**
  * This is to show how to use @Slash annotations with arguments
  */
@@ -23,12 +25,15 @@ public class EchoActivity {
 
   @Slash("/echo {argument}")
   public void echo(CommandContext context, String argument) {
-    this.messageService.send(context.getStreamId(), "Received argument: " + argument);
+    Instant timestamp = Instant.ofEpochMilli(context.getEventTimestamp());
+    log.info("{}", timestamp);
+    this.messageService.send(context.getStreamId(), String.format("Received argument: %s at %s", argument, timestamp));
   }
 
   @Slash("/echo {@mention}")
   public void echo(CommandContext context, Mention mention) {
-    this.messageService.send(context.getStreamId(), "Received mention: " + mention.getUserDisplayName() + " of id: " + mention.getUserId());
+    this.messageService.send(context.getStreamId(),
+        "Received mention: " + mention.getUserDisplayName() + " of id: " + mention.getUserId());
   }
 
   @Slash("/echo {#hashtag}")
@@ -43,7 +48,8 @@ public class EchoActivity {
 
   @Slash("/echo {argument} {$cashtag}")
   public void echo(CommandContext context, String argument, Cashtag cashtag) {
-    this.messageService.send(context.getStreamId(), "Received argument: " + argument + " and cashtag: " + cashtag.getValue());
+    this.messageService.send(context.getStreamId(),
+        "Received argument: " + argument + " and cashtag: " + cashtag.getValue());
   }
 
 }
