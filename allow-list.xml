@@ -67,4 +67,11 @@
       <gav>org.json:json:20220320</gav>
       <cve>CVE-2022-45688</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          No fix available
+          ]]></notes>
+        <gav>net.minidev:json-smart:2.4.8</gav>
+        <cve>CVE-2023-1370</cve>
+    </suppress>
 </suppressions>

@@ -356,7 +356,13 @@ class DatahoseLoopTest {
   }
 
   private V5EventList buildV5Events(RealTimeEventType eventType, String ackId) {
-    return new V5EventList().ackId(ackId).addEventsItem(new V4Event().type(eventType.name()).payload(new V4Payload()));
+    if (RealTimeEventType.MESSAGESENT == eventType) {
+      return new V5EventList().ackId(ackId)
+          .addEventsItem(
+              new V4Event().type(eventType.name()).payload(new V4Payload().messageSent(new V4MessageSent())));
+    }
+    return new V5EventList().ackId(ackId)
+        .addEventsItem(new V4Event().type(eventType.name()).payload(new V4Payload().roomCreated(new V4RoomCreated())));
   }
 
   private void assertEventsReadBody(V5EventsReadBody actualBody, String expectedTag, String expectedAckId) {

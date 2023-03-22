@@ -1,5 +1,6 @@
 package com.symphony.bdk.examples.spring;
 
+import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4UserJoinedRoom;
 import com.symphony.bdk.gen.api.model.V4UserLeftRoom;
@@ -18,7 +19,7 @@ public class RealTimeEventsDemo {
 
   @EventListener
   public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
-    log.info(event.toString());
+    log.info("{} received at {}", event.toString(), ((EventPayload) event.getSource()).getEventTimestamp());
   }
 
   @EventListener

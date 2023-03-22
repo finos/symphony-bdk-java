@@ -3,6 +3,7 @@ package com.symphony.bdk.core.activity;
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.EventException;
+import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 
@@ -123,6 +124,9 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
   @SuppressWarnings("unchecked")
   protected C createContextInstance(V4Initiator initiator, E event) {
     final Class<C> clz = (Class<C>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    if (EventPayload.class.isAssignableFrom(event.getClass())) {
+      return clz.getConstructor(V4Initiator.class, event.getClass().getSuperclass()).newInstance(initiator, event);
+    }
     return clz.getConstructor(V4Initiator.class, event.getClass()).newInstance(initiator, event);
   }
 }

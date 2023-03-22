@@ -38,6 +38,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+    implementation 'net.bytebuddy:byte-buddy:1.12.19'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 
     api 'org.apiguardian:apiguardian-api'

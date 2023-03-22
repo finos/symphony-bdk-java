@@ -3,6 +3,7 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
+import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -20,6 +21,7 @@ public class DatafeedExampleMain {
 
       @Override
       public void onMessageSent(V4Initiator initiator, V4MessageSent event) {
+        log.info("event was triggered at {}", ((EventPayload) event).getEventTimestamp());
         bdk.messages().send(event.getMessage().getStream(), "<messageML>Hello, World!</messageML>");
       }
     });

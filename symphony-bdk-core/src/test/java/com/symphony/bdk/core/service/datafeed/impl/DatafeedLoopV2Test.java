@@ -1,18 +1,5 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
@@ -57,6 +44,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.ws.rs.ProcessingException;
+
+import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class DatafeedLoopV2Test {
 
@@ -115,7 +115,8 @@ class DatafeedLoopV2Test {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
 
     this.datafeedService.start();
 
@@ -134,7 +135,8 @@ class DatafeedLoopV2Test {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
 
     this.datafeedService.start();
 
@@ -155,7 +157,8 @@ class DatafeedLoopV2Test {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed(validExistingFeedId, TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
 
     this.datafeedService.start();
 
@@ -173,14 +176,17 @@ class DatafeedLoopV2Test {
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null)).thenReturn(datafeeds);
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN), argThat(eqAckId(""))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"))
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"))
         .thenReturn(null); // the first df loop run should not fail
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN), argThat(eqAckId("ack-id"))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id2"));
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN), argThat(eqAckId("ack-id2"))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id2"));
 
     // remove default listener that stops the DF loop
     datafeedService.unsubscribe(listener);
@@ -246,11 +252,13 @@ class DatafeedLoopV2Test {
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN),
         argThat(eqAckId(""))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN),
         argThat(eqAckId("ack-id"))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id2"));
 
     this.datafeedService.unsubscribe(listener);
     AtomicBoolean firstCall = new AtomicBoolean(true);
@@ -289,10 +297,12 @@ class DatafeedLoopV2Test {
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null)).thenReturn(datafeeds);
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN), argThat(eqAckId(""))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
     when(datafeedApi.readDatafeed(eq(DATAFEED_ID), eq(TOKEN), eq(TOKEN), argThat(eqAckId("ack-id"))))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id2"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id2"));
 
     this.datafeedService.unsubscribe(listener);
     AtomicBoolean firstCall = new AtomicBoolean(true);
@@ -335,7 +345,8 @@ class DatafeedLoopV2Test {
     final String secondAckId = "ack-id";
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, initialAckId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId(secondAckId));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId(secondAckId));
 
     this.datafeedService.start();
 
@@ -365,7 +376,8 @@ class DatafeedLoopV2Test {
         new V5Datafeed().id(secondDatafeedId));
     when(datafeedApi.readDatafeed(secondDatafeedId, TOKEN, TOKEN, initialAckId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id-2"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id-2"));
 
     this.datafeedService.start();
 
@@ -385,7 +397,8 @@ class DatafeedLoopV2Test {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList()
-            .addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload()))
+            .addEventsItem(new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent())))
             .ackId("ack-id"));
 
     this.datafeedService.unsubscribe(this.listener);
@@ -447,7 +460,8 @@ class DatafeedLoopV2Test {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
 
     this.datafeedService.start();
 
@@ -500,7 +514,8 @@ class DatafeedLoopV2Test {
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId)).thenThrow(new ApiException(400, "client-error"));
     when(datafeedApi.readDatafeed("recreate-df-id", TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
 
     this.datafeedService.start();
     verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, null);
@@ -605,7 +620,8 @@ class DatafeedLoopV2Test {
     when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId)).thenThrow(new ApiException(400, "client-error"));
     when(datafeedApi.readDatafeed("recreate-df-id", TOKEN, TOKEN, ackId))
         .thenReturn(new V5EventList().addEventsItem(
-            new V4Event().type(RealTimeEventType.MESSAGESENT.name()).payload(new V4Payload())).ackId("ack-id"));
+            new V4Event().type(RealTimeEventType.MESSAGESENT.name())
+                .payload(new V4Payload().messageSent(new V4MessageSent()))).ackId("ack-id"));
     when(datafeedApi.deleteDatafeed(DATAFEED_ID, TOKEN, TOKEN)).thenThrow(new ApiException(400, "client-error"));
 
     this.datafeedService.start();

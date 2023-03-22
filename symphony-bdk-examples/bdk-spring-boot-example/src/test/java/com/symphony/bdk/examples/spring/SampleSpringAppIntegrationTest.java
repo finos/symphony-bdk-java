@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class SampleSpringAppIntegrationTest {
     pushMessageToDF(initiator, stream, "/echo arg", botInfo);
 
     // then
-    verify(messageService).send(eq("my-room"), eq("Received argument: arg"));
+    verify(messageService).send(eq("my-room"), contains("Received argument: arg at"));
   }
 
   @Test
@@ -76,7 +77,7 @@ public class SampleSpringAppIntegrationTest {
     Map<String, Object> values = new HashMap<>();
     values.put("action", "submit");
     values.put("category", "bdk");
-    pushEventToDataFeed(new V4Event()
+    pushEventToDataFeed(new V4Event().id("id").timestamp(Instant.now().toEpochMilli())
                      .initiator(new V4Initiator().user(initiator))
                      .payload(new V4Payload().symphonyElementsAction(
                         new V4SymphonyElementsAction().formId("gif-category-form")
