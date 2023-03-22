@@ -11,7 +11,8 @@ dependencies {
 
     implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
-    api 'org.junit.jupiter:junit-jupiter'
+    api 'org.junit.jupiter:junit-jupiter-api'
+    api 'org.junit.jupiter:junit-jupiter-engine'
     api 'org.mockito:mockito-core'
     api 'org.mockito:mockito-junit-jupiter'
     api 'org.assertj:assertj-core'

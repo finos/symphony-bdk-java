@@ -1,6 +1,6 @@
 plugins {
     id 'bdk.java-common-conventions'
-    id 'org.springframework.boot' version "2.7.3"
+    id 'org.springframework.boot' version "2.7.9"
 }
 
 description = 'Symphony Java BDK Examples for the SpringBoot integration'
@@ -20,8 +20,5 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'com.tngtech.archunit:archunit-junit5'
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
-    }
     testImplementation project(':symphony-bdk-test:symphony-bdk-test-spring-boot')
 }

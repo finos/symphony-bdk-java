@@ -42,7 +42,7 @@
         Testing false positives by suppressing a CVE
         https://github.com/jeremylong/DependencyCheck/issues/4528 (Do not use deprecated method)
         ]]></notes>
-        <gav>org.springframework.security:spring-security-crypto:5.7.6</gav>
+        <gav>org.springframework.security:spring-security-crypto:5.7.7</gav>
         <cve>CVE-2020-5408</cve>
     </suppress>
     <suppress>
@@ -73,5 +73,12 @@
           ]]></notes>
         <gav>net.minidev:json-smart:2.4.8</gav>
         <cve>CVE-2023-1370</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          Need to upgrade to spring 3.x.x, which requires java 17
+          ]]></notes>
+        <gav>org.springframework:spring-expression:5.3.25</gav>
+        <cve>CVE-2023-20861</cve>
     </suppress>
 </suppressions>
