@@ -53,6 +53,13 @@
         <gav>org.springframework:spring-web:5.3.25</gav>
         <cve>CVE-2016-1000027</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+        Migrate later with spring 3.0
+        ]]></notes>
+        <gav>org.springframework:spring-webmvc:5.3.25</gav>
+        <cve>CVE-2023-20860</cve>
+    </suppress>
     <suppress base="true">
         <notes><![CDATA[
        FP per issue #5121 - fix for commons
