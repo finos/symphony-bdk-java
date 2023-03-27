@@ -11,6 +11,9 @@ dependencies {
     implementation 'org.apiguardian:apiguardian-api'
     implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.boot:spring-boot-starter-web'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
