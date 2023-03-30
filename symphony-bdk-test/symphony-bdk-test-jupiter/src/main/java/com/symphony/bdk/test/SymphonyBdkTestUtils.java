@@ -238,6 +238,7 @@ public class SymphonyBdkTestUtils {
         messageMl.append(PREFIX_MENTION_TAG);
         messageMl.append(botInfo.getDisplayName());
         messageMl.append(SUFFIX_MENTION_TAG);
+        messageMl.append(" ");
       }
       messageMl.append(message);
       messageMl.append(SUFFIX_MESSAGEML_TAG);

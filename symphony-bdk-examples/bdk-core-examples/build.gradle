@@ -22,6 +22,8 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
 
+    testImplementation project(':symphony-bdk-test:symphony-bdk-test-jupiter')
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 }
