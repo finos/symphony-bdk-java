@@ -1,5 +1,5 @@
 plugins {
-    id "io.codearte.nexus-staging" version "0.22.0"
+    id "io.github.gradle-nexus.publish-plugin" version "1.3.0"
     id "org.owasp.dependencycheck" version "8.2.1"
 }
 
@@ -40,10 +40,15 @@ allprojects {
     defaultTasks 'build'
 }
 
-nexusStaging {
-    username = rootProject.ext.mavenRepoUsername
-    password = rootProject.ext.mavenRepoPassword
+nexusPublishing {
     packageGroup = 'org.finos'
+
+    repositories {
+        sonatype {
+            username = project.ext.mavenRepoUsername
+            password = project.ext.mavenRepoPassword
+        }
+    }
 }
 
 repositories {
