@@ -54,7 +54,7 @@ public class CircleOfTrustService {
    * @param tokenPair the token pair to be validated.
    */
   public void validateTokens(TokenPair tokenPair) {
-    if (!authenticator.validateTokens(tokenPair.getAppToken(), tokenPair.getSymphonyToken())) {
+    if (!authenticator.validateTokens(tokenPair.appToken(), tokenPair.symphonyToken())) {
       throw new BdkAppException(BdkAppErrorCode.INVALID_TOKEN);
     }
   }

@@ -71,7 +71,7 @@ public class CircleOfTrustControllerTest {
     AppToken appToken = objectMapper.readValue(response.getContentAsString(), AppToken.class);
 
     assertEquals(HttpStatus.OK.value(), response.getStatus());
-    assertEquals(appToken.getAppToken(), "test-token");
+    assertEquals(appToken.appToken(), "test-token");
   }
 
   @Test
@@ -143,7 +143,7 @@ public class CircleOfTrustControllerTest {
     UserId id = objectMapper.readValue(response.getContentAsString(), UserId.class);
 
     assertEquals(HttpStatus.OK.value(), response.getStatus());
-    assertEquals(id.getUserId(), 1234L);
+    assertEquals(id.userId(), 1234L);
   }
 
   @Test

@@ -2,10 +2,9 @@ package com.symphony.bdk.spring;
 
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Configuration Properties for the Symphony BDK: simple inheritance of the {@link BdkConfig} class.

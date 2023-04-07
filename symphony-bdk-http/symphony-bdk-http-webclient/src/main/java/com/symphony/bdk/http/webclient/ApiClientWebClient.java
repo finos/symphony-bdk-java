@@ -1,7 +1,5 @@
 package com.symphony.bdk.http.webclient;
 
-import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
-
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
@@ -10,7 +8,6 @@ import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
-
 import io.netty.channel.ConnectTimeoutException;
 import org.apiguardian.api.API;
 import org.springframework.core.ParameterizedTypeReference;
@@ -39,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
 
 /**
  * Spring WebClient implementation for the {@link ApiClient} interface called by generated code.
@@ -78,11 +77,13 @@ public class ApiClientWebClient implements ApiClient {
       final TypeReference<T> returnType
   ) throws ApiException {
 
-    HttpMethod httpMethod = HttpMethod.resolve(method);
-    if (httpMethod == null) {
+    final List<String> allowedMethods =
+            Arrays.asList("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "TRACE");
+    if (method == null || !allowedMethods.contains(method)) {
       throw new ApiException(500, "unknown method type " + method);
     }
 
+    HttpMethod httpMethod = HttpMethod.valueOf(method);
     this.updateParamsForAuth(authNames, headerParams);
 
     WebClient.RequestBodySpec requestBodySpec =
@@ -214,11 +215,7 @@ public class ApiClientWebClient implements ApiClient {
         if (s != null) {
           message = s;
         }
-        throw Exceptions.propagate(new ApiException(
-            response.rawStatusCode(),
-            message,
-            headers,
-            s));
+        throw Exceptions.propagate(new ApiException(response.statusCode().value(), message, headers, s));
       });
     }
   }

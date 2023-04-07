@@ -32,6 +32,7 @@ dependencies {
     implementation 'org.glassfish.jersey.connectors:jersey-apache-connector'
     implementation 'com.google.code.findbugs:jsr305'
     implementation 'com.brsanthu:migbase64'
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
     runtimeOnly 'commons-logging:commons-logging'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'

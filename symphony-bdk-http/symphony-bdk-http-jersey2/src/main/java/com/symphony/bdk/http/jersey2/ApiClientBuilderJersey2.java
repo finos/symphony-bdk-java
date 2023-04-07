@@ -8,6 +8,8 @@ import com.symphony.bdk.http.api.ApiClientBuilder;
 import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.util.ApiUtils;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -32,8 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 
 /**
  * Specific implementation of {@link ApiClientBuilder} which creates a new instance of an {@link ApiClientJersey2}.
