@@ -13,7 +13,7 @@ import java.util.Objects;
 public class RealTimeEventsAsyncTestListener {
 
   @EventListener
-  public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {
+  public void onSymphonyElementsAction(RealTimeEvent<? extends V4SymphonyElementsAction> event) {
     Objects.requireNonNull(event.getInitiator());
     Objects.requireNonNull(event.getSource());
     // Test the MDC values have been copied from the parent thread
