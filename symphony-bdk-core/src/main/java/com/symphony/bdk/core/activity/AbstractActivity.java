@@ -104,7 +104,7 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
     final Optional<Boolean> matcherResult = this.executeMatcher(context);
     if (matcherResult.isPresent() && Boolean.TRUE.equals(matcherResult.get())) {
       if (isAsynchronous()) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
         executorService.submit(() -> executeActivity(context));
         executorService.shutdown();
       } else {

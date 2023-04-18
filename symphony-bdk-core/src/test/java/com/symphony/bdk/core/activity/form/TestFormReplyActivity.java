@@ -38,4 +38,9 @@ public class TestFormReplyActivity extends FormReplyActivity<FormReplyContext> {
   public void onActivity(FormReplyContext context) {
     this.onActivity.accept(context);
   }
+
+  @Override
+  public boolean isAsynchronous() {
+    return false;
+  }
 }

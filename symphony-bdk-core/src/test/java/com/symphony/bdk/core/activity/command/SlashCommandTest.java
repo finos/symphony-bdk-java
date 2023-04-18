@@ -1,9 +1,5 @@
 package com.symphony.bdk.core.activity.command;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.activity.parsing.Cashtag;
@@ -14,7 +10,6 @@ import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Stream;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -23,6 +18,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class from the {@link SlashCommand}.
@@ -72,7 +71,7 @@ class SlashCommandTest {
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
 
     final String commandPattern = "/test blah";
-    final SlashCommand cmd = SlashCommand.slash(commandPattern, handler);
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, true, false, handler, "description");
     cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
@@ -104,7 +103,7 @@ class SlashCommandTest {
     final RealTimeEventsProvider provider = new RealTimeEventsProvider();
 
     final String commandPattern = "/test blah";
-    final SlashCommand cmd = SlashCommand.slash(commandPattern, false, handler);
+    final SlashCommand cmd = SlashCommand.slash(commandPattern, false, handler, "");
     cmd.setBotUserId(BOT_USER_ID);
     cmd.bindToRealTimeEventsSource(provider::setListener);
 
