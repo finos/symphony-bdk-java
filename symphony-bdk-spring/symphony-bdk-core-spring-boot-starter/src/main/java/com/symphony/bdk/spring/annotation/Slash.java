@@ -40,4 +40,6 @@ public @interface Slash {
    * Description of the {@link com.symphony.bdk.core.activity.command.SlashCommand}
    */
   String description() default "";
+
+  boolean asynchronous() default false;
 }
