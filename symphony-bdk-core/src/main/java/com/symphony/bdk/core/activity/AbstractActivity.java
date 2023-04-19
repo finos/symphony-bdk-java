@@ -15,6 +15,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 /**
@@ -25,6 +26,15 @@ import java.util.function.Consumer;
 public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
 
   private ActivityInfo info;
+  private final ExecutorService executorService;
+
+  public AbstractActivity() {
+    ThreadFactory threadFactory = new ThreadFactoryBuilder()
+            .setName("AbstractActivity-Thread")
+            .setPriority(Thread.NORM_PRIORITY)
+            .build();
+    executorService = Executors.newCachedThreadPool(threadFactory);
+  }
 
   /**
    * Any kind of activity must provide an {@link ActivityMatcher} in order to detect if it can be applied to a certain
@@ -104,9 +114,7 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
     final Optional<Boolean> matcherResult = this.executeMatcher(context);
     if (matcherResult.isPresent() && Boolean.TRUE.equals(matcherResult.get())) {
       if (isAsynchronous()) {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
         executorService.submit(() -> executeActivity(context));
-        executorService.shutdown();
       } else {
         executeActivity(context);
       }

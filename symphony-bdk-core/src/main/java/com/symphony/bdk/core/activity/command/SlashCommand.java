@@ -84,6 +84,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    *
    * @param slashCommandPattern Pattern of the command (ex: '/gif' or 'gif {option} {{@literal @}mention}').
    * @param requiresBotMention  Indicates whether the bot has to be mentioned in order to trigger the command.
+   * @param isAsync             Indicated whether the command is asynchronous or not.
    * @param callback            Callback to be processed when command is detected.
    * @param description         The summary of the command.
    * @return a {@link SlashCommand} instance.
@@ -91,14 +92,6 @@ public class SlashCommand extends CommandActivity<CommandContext> {
   public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
                                    @Nonnull Consumer<CommandContext> callback, String description) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, isAsync, callback, description);
-  }
-
-  /**
-   * Default protected constructor, new instances from static methods only.
-   */
-  protected SlashCommand(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-                         @Nonnull Consumer<CommandContext> callback, String description) {
-    this(slashCommandPattern, requiresBotMention, false, callback, description);
   }
 
   /**
