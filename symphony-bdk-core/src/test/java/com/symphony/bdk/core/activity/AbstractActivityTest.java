@@ -30,18 +30,6 @@ class AbstractActivityTest {
     // it should not fail
   }
 
-  //@Test
-  void bla() {
-
-    final TestFormReplyActivity act = new TestFormReplyActivity();
-    act.setBeforeMatcher(c -> {
-      throw new RuntimeException("Error while executing beforeMatcher callback.");
-    });
-
-    act.processEvent(new V4Initiator(), new V4SymphonyElementsAction());
-    // it should not fail
-  }
-
   @Test
   void shouldFailOnBeforeMatcherError() {
 
@@ -51,7 +39,7 @@ class AbstractActivityTest {
     });
 
     assertThrows(EventException.class,
-        () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction().stream(new V4Stream())));
+            () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction().stream(new V4Stream())));
   }
 
   @Test
@@ -75,7 +63,7 @@ class AbstractActivityTest {
     });
 
     assertThrows(EventException.class,
-        () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction()));
+            () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction()));
   }
 
   @Test
@@ -99,7 +87,7 @@ class AbstractActivityTest {
     });
 
     assertThrows(EventException.class,
-        () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsActionEvent(new V4SymphonyElementsAction())));
+            () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsActionEvent(new V4SymphonyElementsAction())));
   }
 
   static class V4SymphonyElementsActionEvent extends V4SymphonyElementsAction implements EventPayload {
