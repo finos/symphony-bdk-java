@@ -126,7 +126,7 @@ public class HelloBot {
   private MessageService messageService;
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
+  public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {
     log.info("event was triggered at {}", ((EventPayload) event.getSource()).getEventTimestamp());
     this.messageService.send(event.getSource().getMessage().getStream(), "<messageML>Hello!</messageML>");
   }
@@ -199,52 +199,52 @@ Here's the list of Real Time Events you can subscribe:
 public class RealTimeEvents {
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {}
+  public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {}
 
   @EventListener
-  public void onSharedPost(RealTimeEvent<V4SharedPost> event) {}
+  public void onSharedPost(RealTimeEvent<? extends V4SharedPost> event) {}
 
   @EventListener
-  public void onInstantMessageCreated(RealTimeEvent<V4InstantMessageCreated> event) {}
+  public void onInstantMessageCreated(RealTimeEvent<? extends V4InstantMessageCreated> event) {}
 
   @EventListener
-  public void onRoomCreated(RealTimeEvent<V4RoomCreated> event) {}
+  public void onRoomCreated(RealTimeEvent<? extends V4RoomCreated> event) {}
 
   @EventListener
-  public void onRoomUpdated(RealTimeEvent<V4RoomUpdated> event) {}
+  public void onRoomUpdated(RealTimeEvent<? extends V4RoomUpdated> event) {}
 
   @EventListener
-  public void onRoomDeactivated(RealTimeEvent<V4RoomDeactivated> event) {}
+  public void onRoomDeactivated(RealTimeEvent<? extends V4RoomDeactivated> event) {}
 
   @EventListener
-  public void onRoomReactivated(RealTimeEvent<V4RoomReactivated> event) {}
+  public void onRoomReactivated(RealTimeEvent<? extends V4RoomReactivated> event) {}
 
   @EventListener
-  public void onUserRequestedToJoinRoom(RealTimeEvent<V4UserRequestedToJoinRoom> event) {}
+  public void onUserRequestedToJoinRoom(RealTimeEvent<? extends V4UserRequestedToJoinRoom> event) {}
 
   @EventListener
-  public void onUserJoinedRoom(RealTimeEvent<V4UserJoinedRoom> event) {}
+  public void onUserJoinedRoom(RealTimeEvent<? extends V4UserJoinedRoom> event) {}
 
   @EventListener
-  public void onUserLeftRoom(RealTimeEvent<V4UserLeftRoom> event) {}
+  public void onUserLeftRoom(RealTimeEvent<? extends V4UserLeftRoom> event) {}
 
   @EventListener
-  public void onRoomMemberPromotedToOwner(RealTimeEvent<V4RoomMemberPromotedToOwner> event) {}
+  public void onRoomMemberPromotedToOwner(RealTimeEvent<? extends V4RoomMemberPromotedToOwner> event) {}
 
   @EventListener
-  public void onRoomMemberDemotedFromOwner(RealTimeEvent<V4RoomMemberDemotedFromOwner> event) {}
+  public void onRoomMemberDemotedFromOwner(RealTimeEvent<? extends V4RoomMemberDemotedFromOwner> event) {}
 
   @EventListener
-  public void onConnectionRequested(RealTimeEvent<V4ConnectionRequested> event) {}
+  public void onConnectionRequested(RealTimeEvent<? extends V4ConnectionRequested> event) {}
 
   @EventListener
-  public void onConnectionAccepted(RealTimeEvent<V4ConnectionAccepted> event) {}
+  public void onConnectionAccepted(RealTimeEvent<? extends V4ConnectionAccepted> event) {}
 
   @EventListener
-  public void onMessageSuppressed(RealTimeEvent<V4MessageSuppressed> event) {}
+  public void onMessageSuppressed(RealTimeEvent<? extends V4MessageSuppressed> event) {}
 
   @EventListener
-  public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {}
+  public void onSymphonyElementsAction(RealTimeEvent<? extends V4SymphonyElementsAction> event) {}
 }
 ```
 
