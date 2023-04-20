@@ -1,5 +1,9 @@
 package com.symphony.bdk.core.activity.command;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.activity.parsing.Cashtag;
@@ -10,6 +14,7 @@ import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Stream;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -18,10 +23,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class from the {@link SlashCommand}.
@@ -216,7 +217,8 @@ class SlashCommandTest {
     String cashtagArgName = "cashtagArg";
 
     final SlashCommand cmd = SlashCommand.slash(
-        slashCommandName + " {" + stringArgName + "} {@" + mentionArgName + "} {#" + hashtagArgName + "} {$" + cashtagArgName + "}",
+        slashCommandName + " {" + stringArgName + "} {@" + mentionArgName + "} {#" + hashtagArgName + "} {$"
+            + cashtagArgName + "}",
         handler);
     cmd.setBotDisplayName(BOT_DISPLAY_NAME);
     cmd.setBotUserId(BOT_USER_ID);
@@ -230,7 +232,8 @@ class SlashCommandTest {
             + "<span class=\"entity\" data-entity-id=\"2\">#myhashtag</span> "
             + "<span class=\"entity\" data-entity-id=\"3\">$mycashtag</span>"
             + "</p></div>",
-        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"" + BOT_USER_ID + "\"}],\"type\":\"com.symphony.user.mention\"},"
+        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"" + BOT_USER_ID
+            + "\"}],\"type\":\"com.symphony.user.mention\"},"
             + "\"1\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"12345679\"}],\"type\":\"com.symphony.user.mention\"},"
             + "\"2\":{\"id\":[{\"type\":\"org.symphonyoss.taxonomy.hashtag\",\"value\":\"myhashtag\"}],\"type\":\"org.symphonyoss.taxonomy\"},"
             + "\"3\":{\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.ticker\",\"value\":\"mycashtag\"}],\"type\":\"org.symphonyoss.fin.security\"}}");

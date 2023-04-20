@@ -15,8 +15,8 @@ public class GifFormReplyActivity extends FormReplyActivity<GifFormReplyContext>
   @Override
   public ActivityMatcher<GifFormReplyContext> matcher() {
     return context -> "gif-category-form".equals(context.getFormId())
-            && "submit".equals(context.getFormValue("action"))
-            && StringUtils.isNotEmpty(context.getFormValue("category"));
+        && "submit".equals(context.getFormValue("action"))
+        && StringUtils.isNotEmpty(context.getFormValue("category"));
   }
 
   @Override
@@ -32,8 +32,8 @@ public class GifFormReplyActivity extends FormReplyActivity<GifFormReplyContext>
   @Override
   protected ActivityInfo info() {
     return new ActivityInfo()
-            .type(ActivityType.FORM)
-            .name("Gif Display category form command")
-            .description("Form handler for the Gif Category form");
+        .type(ActivityType.FORM)
+        .name("Gif Display category form command")
+        .description("Form handler for the Gif Category form");
   }
 }

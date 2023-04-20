@@ -1,10 +1,11 @@
 package com.symphony.bdk.examples.activity;
 
-import com.symphony.bdk.core.SymphonyBdk;
-import lombok.extern.slf4j.Slf4j;
-
 import static com.symphony.bdk.core.activity.command.SlashCommand.slash;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
+
+import com.symphony.bdk.core.SymphonyBdk;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AsyncCommandMain {
@@ -15,8 +16,8 @@ public class AsyncCommandMain {
 
     bdk.activities().register(slash("/async", true, true, context ->
             bdk.messages().send(context.getStreamId(),
-                    "This is an asynchronous command that should not block next commands"),
-            "Asynchronous command example"
+                "This is an asynchronous command that should not block next commands"),
+        "Asynchronous command example"
     ));
 
     // finally, start the datafeed loop

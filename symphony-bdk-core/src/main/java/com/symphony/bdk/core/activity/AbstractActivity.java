@@ -30,9 +30,9 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
 
   public AbstractActivity() {
     ThreadFactory threadFactory = new ThreadFactoryBuilder()
-            .setName("AbstractActivity-Thread")
-            .setPriority(Thread.NORM_PRIORITY)
-            .build();
+        .setName("Activity-Async-Thread")
+        .setPriority(Thread.NORM_PRIORITY)
+        .build();
     executorService = Executors.newCachedThreadPool(threadFactory);
   }
 
