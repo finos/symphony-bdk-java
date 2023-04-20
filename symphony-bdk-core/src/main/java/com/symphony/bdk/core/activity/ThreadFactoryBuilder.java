@@ -1,5 +1,6 @@
 package com.symphony.bdk.core.activity;
 
+import com.symphony.bdk.http.api.tracing.MDCUtils;
 import org.apiguardian.api.API;
 
 import java.util.concurrent.Executors;
@@ -46,7 +47,7 @@ public class ThreadFactoryBuilder {
 
     final AtomicLong count = new AtomicLong(0);
     return runnable -> {
-      Thread thread = factory.newThread(runnable);
+      Thread thread = factory.newThread(MDCUtils.wrap(runnable));
       thread.setPriority(priority);
 
       if (name != null) {
