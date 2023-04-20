@@ -1,18 +1,17 @@
 package com.symphony.bdk.core.activity;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.symphony.bdk.core.activity.form.TestFormReplyActivity;
 import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
-
 import lombok.experimental.Delegate;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test class for the {@link AbstractActivity}.
@@ -40,7 +39,7 @@ class AbstractActivityTest {
     });
 
     assertThrows(EventException.class,
-        () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction().stream(new V4Stream())));
+            () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction().stream(new V4Stream())));
   }
 
   @Test
@@ -64,7 +63,7 @@ class AbstractActivityTest {
     });
 
     assertThrows(EventException.class,
-        () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction()));
+            () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsAction()));
   }
 
   @Test
@@ -88,7 +87,7 @@ class AbstractActivityTest {
     });
 
     assertThrows(EventException.class,
-        () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsActionEvent(new V4SymphonyElementsAction())));
+            () -> act.processEvent(new V4Initiator(), new V4SymphonyElementsActionEvent(new V4SymphonyElementsAction())));
   }
 
   static class V4SymphonyElementsActionEvent extends V4SymphonyElementsAction implements EventPayload {

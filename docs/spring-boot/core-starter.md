@@ -363,6 +363,31 @@ public class SlashHello {
 
 :information_source: Slash commands are not registered to the datahose loop even when enabled.
 
+## Asynchronous slash Command
+By default, `@Slash` annotation is configured to be synchronous. If the process takes time, the next incoming commands
+will be blocked and enqueued till the process is released. If this is a concern, Slash command can be configured to be
+asynchronous by setting the `async` option to the annotation.
+
+```java
+@Slf4j
+@Component
+public class AsyncActivity  {
+
+  @Autowired
+  private MessageService messageService;
+
+  @Slash(value = "/async", asynchronous = true)
+  public void async(CommandContext context) throws InterruptedException {
+    this.messageService.send(context.getStreamId(),
+            "I will simulate a heavy process that takes time but this should not block next commands");
+
+    sleep(30000);
+
+    this.messageService.send(context.getStreamId(), "Heavy async process is done");
+  }
+}
+```
+
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
 

@@ -46,6 +46,11 @@ public class TestCommandActivity extends CommandActivity<CommandContext> {
   }
 
   @Override
+  public boolean isAsynchronous() {
+    return false;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) { return true; }
     if (o == null || getClass() != o.getClass()) { return false; }

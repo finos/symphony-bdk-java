@@ -6,14 +6,12 @@ import com.symphony.bdk.core.activity.model.ActivityInfo;
 import com.symphony.bdk.core.activity.model.ActivityType;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
-
 import org.apiguardian.api.API;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 /**
  * A help command listing all the commands that can be performed by an end-user through the chat.
@@ -27,7 +25,7 @@ public class HelpCommand extends SlashCommand {
   private final MessageService messageService;
 
   public HelpCommand(@Nonnull ActivityRegistry activityRegistry, @Nonnull MessageService messageService) {
-    super(HELP_COMMAND, true, c -> {}, DEFAULT_DESCRIPTION);
+    super(HELP_COMMAND, true, false, c -> {}, DEFAULT_DESCRIPTION);
     this.activityRegistry = activityRegistry;
     this.messageService = messageService;
   }

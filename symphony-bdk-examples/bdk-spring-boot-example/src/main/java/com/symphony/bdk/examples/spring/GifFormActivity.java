@@ -10,7 +10,6 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.spring.annotation.Slash;
 import com.symphony.bdk.template.api.Template;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
   @Autowired
   private MessageService messageService;
 
-  @Slash("/gif")
+  @Slash(value = "/gif")
   public void displayGifForm(CommandContext context) {
     Template template = this.messageService.templates().newTemplateFromClasspath("/templates/gif.ftl");
     Message message = Message.builder().template(template).build();
@@ -40,21 +39,26 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
   @Override
   public ActivityMatcher<FormReplyContext> matcher() {
     return context -> "gif-category-form".equals(context.getFormId())
-        && "submit".equals(context.getFormValue("action"))
-        && StringUtils.isNotEmpty(context.getFormValue("category"));
+            && "submit".equals(context.getFormValue("action"))
+            && StringUtils.isNotEmpty(context.getFormValue("category"));
   }
 
   @Override
   public void onActivity(FormReplyContext context) {
     this.messageService.send(context.getStreamId(),
-        String.format("Gif category is \"%s\"", context.getFormValue("category")));
+            String.format("Gif category is \"%s\"", context.getFormValue("category")));
+  }
+
+  @Override
+  public boolean isAsynchronous() {
+    return true;
   }
 
   @Override
   protected ActivityInfo info() {
     return new ActivityInfo()
-        .type(ActivityType.FORM)
-        .name("Gif Display category form command")
-        .description("\"Form handler for the Gif Category form\"");
+            .type(ActivityType.FORM)
+            .name("Gif Display category form command")
+            .description("\"Form handler for the Gif Category form\"");
   }
 }

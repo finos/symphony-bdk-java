@@ -13,6 +13,9 @@ import org.apiguardian.api.API;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 /**
@@ -23,6 +26,15 @@ import java.util.function.Consumer;
 public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
 
   private ActivityInfo info;
+  private final ExecutorService executorService;
+
+  public AbstractActivity() {
+    ThreadFactory threadFactory = new ThreadFactoryBuilder()
+            .setName("AbstractActivity-Thread")
+            .setPriority(Thread.NORM_PRIORITY)
+            .build();
+    executorService = Executors.newCachedThreadPool(threadFactory);
+  }
 
   /**
    * Any kind of activity must provide an {@link ActivityMatcher} in order to detect if it can be applied to a certain
@@ -70,6 +82,10 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
     return this.info;
   }
 
+  protected boolean isAsynchronous() {
+    return false;
+  }
+
   /**
    * This callback can be used to prepare {@link ActivityContext} before actually processing the
    * {@link com.symphony.bdk.core.activity.ActivityMatcher#matches(ActivityContext)} method.
@@ -97,14 +113,22 @@ public abstract class AbstractActivity<E, C extends ActivityContext<E>> {
     // executes matcher with no failure
     final Optional<Boolean> matcherResult = this.executeMatcher(context);
     if (matcherResult.isPresent() && Boolean.TRUE.equals(matcherResult.get())) {
-      try {
-        log.trace("Before activity execution");
-        this.onActivity(context);
-      } catch (EventException ex) {
-        throw ex; // to allow events to be re-queued in DFv2 loop
-      } catch (Exception ex) {
-        log.warn("Activity execution failed.", ex);
+      if (isAsynchronous()) {
+        executorService.submit(() -> executeActivity(context));
+      } else {
+        executeActivity(context);
       }
+    }
+  }
+
+  private void executeActivity(C context) {
+    try {
+      log.trace("Before activity execution");
+      this.onActivity(context);
+    } catch (EventException ex) {
+      throw ex; // to allow events to be re-queued in DFv2 loop
+    } catch (Exception ex) {
+      log.warn("Activity execution failed.", ex);
     }
   }
 
