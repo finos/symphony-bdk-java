@@ -8,12 +8,14 @@ import com.symphony.bdk.core.activity.parsing.MatchingUserIdMentionToken;
 import com.symphony.bdk.core.activity.parsing.SlashCommandPattern;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
+
 import lombok.Getter;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import javax.annotation.Nonnull;
 
 /**
  * A "slash" command if the most basic action that can be performed by an end-user through the chat.
@@ -48,7 +50,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @throws IllegalArgumentException if command name if empty.
    */
   public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-                                   @Nonnull Consumer<CommandContext> callback) {
+      @Nonnull Consumer<CommandContext> callback) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, false, callback, "");
   }
 
@@ -61,7 +63,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @return a {@link SlashCommand} instance.
    */
   public static SlashCommand slash(@Nonnull String slashCommandPattern, @Nonnull Consumer<CommandContext> callback,
-                                   String description) {
+      String description) {
     return slash(slashCommandPattern, true, false, callback, description);
   }
 
@@ -75,7 +77,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @return a {@link SlashCommand} instance.
    */
   public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-                                   @Nonnull Consumer<CommandContext> callback, String description) {
+      @Nonnull Consumer<CommandContext> callback, String description) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, false, callback, description);
   }
 
@@ -90,7 +92,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @return a {@link SlashCommand} instance.
    */
   public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
-                                   @Nonnull Consumer<CommandContext> callback, String description) {
+      @Nonnull Consumer<CommandContext> callback, String description) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, isAsync, callback, description);
   }
 
@@ -98,14 +100,14 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * Default protected constructor, new instances from static methods only.
    */
   protected SlashCommand(@Nonnull String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
-                         @Nonnull Consumer<CommandContext> callback, String description) {
+      @Nonnull Consumer<CommandContext> callback, String description) {
     this.slashCommandName = slashCommandPattern;
     this.commandPattern = new SlashCommandPattern(this.slashCommandName);
     this.requiresBotMention = requiresBotMention;
     this.isAsync = isAsync;
     if (this.requiresBotMention) {
       this.commandPattern.prependToken(new MatchingUserIdMentionToken(
-              () -> getBotUserId())); // specific token with no argument name that matches user ID
+          () -> getBotUserId())); // specific token with no argument name that matches user ID
     }
 
     this.callback = callback;
@@ -137,9 +139,9 @@ public class SlashCommand extends CommandActivity<CommandContext> {
   @Override
   protected ActivityInfo info() {
     return new ActivityInfo()
-            .type(ActivityType.COMMAND)
-            .name(this.slashCommandName)
-            .description(this.buildCommandDescription());
+        .type(ActivityType.COMMAND)
+        .name(this.slashCommandName)
+        .description(this.buildCommandDescription());
   }
 
   @Override
@@ -149,7 +151,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
 
   private String buildCommandDescription() {
     return this.requiresBotMention ? this.description + " (mention required)"
-            : this.description + " (mention not required)";
+        : this.description + " (mention not required)";
   }
 
   @Override

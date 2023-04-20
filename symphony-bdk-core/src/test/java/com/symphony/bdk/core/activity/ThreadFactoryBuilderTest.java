@@ -1,11 +1,11 @@
 package com.symphony.bdk.core.activity;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadFactory;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ThreadFactoryBuilderTest {
 
@@ -17,15 +17,15 @@ class ThreadFactoryBuilderTest {
   @Test
   void builderPriorityTooBig() {
     assertThatThrownBy(() -> new ThreadFactoryBuilder().setPriority(Thread.MAX_PRIORITY + 1))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage(String.format("Thread priority %s must be <= %s", Thread.MAX_PRIORITY + 1, Thread.MAX_PRIORITY));
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage(String.format("Thread priority %s must be <= %s", Thread.MAX_PRIORITY + 1, Thread.MAX_PRIORITY));
   }
 
   @Test
   void builderPriorityTooSmall() {
     assertThatThrownBy(() -> new ThreadFactoryBuilder().setPriority(Thread.MIN_PRIORITY - 1))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage(String.format("Thread priority %s must be >= %s", Thread.MIN_PRIORITY - 1, Thread.MIN_PRIORITY));
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage(String.format("Thread priority %s must be >= %s", Thread.MIN_PRIORITY - 1, Thread.MIN_PRIORITY));
   }
 
   @Test

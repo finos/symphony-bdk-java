@@ -1,22 +1,21 @@
 package com.symphony.bdk.core.activity;
 
 import com.symphony.bdk.http.api.tracing.MDCUtils;
+
 import org.apiguardian.api.API;
 
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 @API(status = API.Status.INTERNAL)
-public class ThreadFactoryBuilder {
+class ThreadFactoryBuilder {
   private String name = null;
   private int priority = Thread.NORM_PRIORITY;
 
   public ThreadFactoryBuilder setName(String name) {
-    if (name == null) {
-      throw new NullPointerException();
-    }
-
+    Objects.requireNonNull(name);
     this.name = name;
     return this;
   }
@@ -24,12 +23,12 @@ public class ThreadFactoryBuilder {
   public ThreadFactoryBuilder setPriority(int priority) {
     if (priority > Thread.MAX_PRIORITY) {
       throw new IllegalArgumentException(
-              String.format("Thread priority %s must be <= %s", priority, Thread.MAX_PRIORITY));
+          String.format("Thread priority %s must be <= %s", priority, Thread.MAX_PRIORITY));
     }
 
     if (priority < Thread.MIN_PRIORITY) {
       throw new IllegalArgumentException(
-              String.format("Thread priority %s must be >= %s", priority, Thread.MIN_PRIORITY));
+          String.format("Thread priority %s must be >= %s", priority, Thread.MIN_PRIORITY));
     }
 
     this.priority = priority;
