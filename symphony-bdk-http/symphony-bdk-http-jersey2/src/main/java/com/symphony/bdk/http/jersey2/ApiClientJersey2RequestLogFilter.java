@@ -1,15 +1,14 @@
 package com.symphony.bdk.http.jersey2;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
+import jakarta.ws.rs.client.ClientResponseContext;
+import jakarta.ws.rs.client.ClientResponseFilter;
+import jakarta.ws.rs.ext.Provider;
 import org.apiguardian.api.API;
 import org.slf4j.Logger;
 
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
-import javax.ws.rs.client.ClientResponseContext;
-import javax.ws.rs.client.ClientResponseFilter;
-import javax.ws.rs.ext.Provider;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * This custom request/response filter allows to output the total request time under log 'com.symphony.bdk.requests.outgoing'.

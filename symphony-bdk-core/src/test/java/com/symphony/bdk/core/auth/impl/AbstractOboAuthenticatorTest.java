@@ -1,5 +1,22 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
+import io.netty.channel.ConnectTimeoutException;
+import jakarta.ws.rs.ProcessingException;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+
+import javax.annotation.Nonnull;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,25 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
-import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
-
-import io.netty.channel.ConnectTimeoutException;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-
-import javax.annotation.Nonnull;
-import javax.ws.rs.ProcessingException;
 
 class AbstractOboAuthenticatorTest {
 

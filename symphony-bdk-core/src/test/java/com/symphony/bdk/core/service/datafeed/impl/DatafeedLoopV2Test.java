@@ -22,7 +22,7 @@ import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
-
+import jakarta.ws.rs.ProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,8 +42,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.ws.rs.ProcessingException;
 
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;

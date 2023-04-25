@@ -7,6 +7,9 @@ import com.symphony.bdk.app.spring.auth.model.TokenPair;
 import com.symphony.bdk.app.spring.auth.model.UserId;
 import com.symphony.bdk.app.spring.auth.service.CircleOfTrustService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -17,10 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 /**
  * Rest controller defining Apis for Extension App Authentication's Circle Of Trust.
@@ -51,7 +50,7 @@ public class CircleOfTrustController {
   public UserId validateJwt(@Valid @RequestBody JwtInfo jwtInfo, HttpServletRequest request,
       HttpServletResponse response) {
     log.debug("Validate the jwt signed by extension app frontend to get the user id");
-    final String jwt = jwtInfo.getJwt();
+    final String jwt = jwtInfo.jwt();
     final UserId userId = this.circleOfTrustService.validateJwt(jwt);
     if (properties.getAuth().getJwtCookie().getEnabled()) {
       response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie(jwt, request.getContextPath()).toString());

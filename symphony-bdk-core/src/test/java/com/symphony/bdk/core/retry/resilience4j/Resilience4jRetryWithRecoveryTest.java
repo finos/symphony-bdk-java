@@ -1,5 +1,22 @@
 package com.symphony.bdk.core.retry.resilience4j;
 
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.retry.RecoveryStrategy;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.retry.function.ConsumerWithThrowable;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
+import jakarta.ws.rs.ProcessingException;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Collections;
+
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -12,25 +29,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.core.retry.RecoveryStrategy;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
-import com.symphony.bdk.core.retry.function.ConsumerWithThrowable;
-import com.symphony.bdk.core.retry.function.SupplierWithApiException;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
-
-import java.net.ConnectException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Collections;
-
-import javax.ws.rs.ProcessingException;
 
 /**
  * Test class for {@link Resilience4jRetryWithRecovery}

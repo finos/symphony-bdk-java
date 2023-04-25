@@ -6,14 +6,13 @@ import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.tracing.MDCUtils;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 @Slf4j
 @API(status = API.Status.INTERNAL)

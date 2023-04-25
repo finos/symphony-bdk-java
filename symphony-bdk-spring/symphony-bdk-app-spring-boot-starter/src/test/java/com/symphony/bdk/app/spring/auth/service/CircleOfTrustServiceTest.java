@@ -47,7 +47,7 @@ public class CircleOfTrustServiceTest {
 
     AppToken appToken = service.authenticate();
 
-    assertEquals(appToken.getAppToken(), "test-token");
+    assertEquals(appToken.appToken(), "test-token");
   }
 
   @Test
@@ -72,7 +72,7 @@ public class CircleOfTrustServiceTest {
 
     UserId userId = service.validateJwt("test-jwt");
 
-    assertEquals(userId.getUserId(), 1234L);
+    assertEquals(userId.userId(), 1234L);
   }
 
   @Test

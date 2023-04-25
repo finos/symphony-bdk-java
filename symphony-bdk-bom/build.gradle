@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:2.7.12')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.0.5')
     // import Jackson's BOM
     api platform('com.fasterxml.jackson:jackson-bom:2.14.1')
     // define all our dependencies versions
@@ -92,6 +92,9 @@ dependencies {
         api 'org.mockito:mockito-core:4.11.0'
         api 'org.mockito:mockito-junit-jupiter:4.11.0'
         api 'org.assertj:assertj-core:3.24.2'
+
+        api 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
+        api 'jakarta.validation:jakarta.validation-api:3.0.2'
     }
 }
 
