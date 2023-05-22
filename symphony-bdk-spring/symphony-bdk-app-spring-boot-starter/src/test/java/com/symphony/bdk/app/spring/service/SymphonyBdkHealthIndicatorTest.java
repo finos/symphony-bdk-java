@@ -96,4 +96,22 @@ class SymphonyBdkHealthIndicatorTest {
     Health build = builder.build();
     assertThat(build.getStatus().getCode()).isEqualTo("WARNING");
   }
+
+  @Test
+  void doHealthCheck_badGw_exception() throws Exception {
+    final String body = "<html>\n"
+        + "<head><title>502 Bad Gateway</title></head>\n"
+        + "<body>\n"
+        + "<center><h1>502 Bad Gateway</h1></center>\n"
+        + "</body>\n"
+        + "</html>";
+
+
+    doThrow(new ApiRuntimeException(new ApiException(502, "message", Collections.EMPTY_MAP, body))).when(healthService)
+        .healthCheckExtended();
+    Health.Builder builder = new Health.Builder();
+    healthIndicator.doHealthCheck(builder);
+    Health build = builder.build();
+    assertThat(build.getStatus().getCode()).isEqualTo("DOWN");
+  }
 }
