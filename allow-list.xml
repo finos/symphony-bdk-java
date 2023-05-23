@@ -57,7 +57,7 @@
       <notes><![CDATA[
           No fix available
           ]]></notes>
-      <gav>org.json:json:20220320</gav>
+      <gav>org.json:json:20230227</gav>
       <cve>CVE-2022-45688</cve>
     </suppress>
     <suppress>
