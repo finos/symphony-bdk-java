@@ -57,7 +57,7 @@
       <notes><![CDATA[
           No fix available
           ]]></notes>
-      <gav>org.json:json:20220320</gav>
+      <gav>org.json:json:20230227</gav>
       <cve>CVE-2022-45688</cve>
     </suppress>
     <suppress>
@@ -66,12 +66,5 @@
           ]]></notes>
         <gav>net.minidev:json-smart:2.4.8</gav>
         <cve>CVE-2023-1370</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-          No fix available
-          ]]></notes>
-        <gav>com.hazelcast:hazelcast:5.3.0</gav>
-        <cve>CVE-2022-45688</cve>
     </suppress>
 </suppressions>
