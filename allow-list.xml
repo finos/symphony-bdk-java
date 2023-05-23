@@ -67,4 +67,11 @@
         <gav>net.minidev:json-smart:2.4.8</gav>
         <cve>CVE-2023-1370</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          No fix available
+          ]]></notes>
+        <gav>com.hazelcast:hazelcast:5.3.0</gav>
+        <cve>CVE-2022-45688</cve>
+    </suppress>
 </suppressions>
