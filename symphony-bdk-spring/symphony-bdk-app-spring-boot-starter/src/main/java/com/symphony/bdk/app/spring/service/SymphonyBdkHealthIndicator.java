@@ -6,6 +6,7 @@ import com.symphony.bdk.gen.api.model.V3HealthComponent;
 import com.symphony.bdk.gen.api.model.V3HealthStatus;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -26,6 +27,8 @@ import java.util.Map;
 @API(status = API.Status.INTERNAL)
 public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
 
+  public static final String DOWN = "DOWN";
+  public static final String WARNING = "WARNING";
   private final HealthService healthService;
 
   private static final String POD = "pod";
@@ -42,13 +45,23 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
 
   @Override
   protected void doHealthCheck(Health.Builder builder) throws Exception {
-    V3Health health = null;
     try {
-      health = healthService.healthCheckExtended();
+      V3Health health = healthService.healthCheckExtended();
+      buildHealthDetail(builder, health);
     } catch (ApiRuntimeException e) {
-      log.debug("Health check failed.", e);
-      health = MAPPER.readValue(e.getResponseBody(), V3Health.class);
+      log.debug("Health check failed, trying to parse the failure response body.", e);
+      log.trace("Health check failure response body - {}", e.getResponseBody());
+      try {
+        V3Health health = MAPPER.readValue(e.getResponseBody(), V3Health.class);
+        buildHealthDetail(builder, health);
+      } catch (JsonProcessingException exception) {
+        log.debug("Failed to parse the health check failure response body, assume the global health state is down.", e);
+        buildHealthDownDetail(builder);
+      }
     }
+  }
+
+  private void buildHealthDetail(Health.Builder builder, V3Health health) {
     Map<String, V3HealthComponent> services = health.getServices();
     Map<String, V3HealthComponent> users = health.getUsers();
     V3HealthStatus podStatus = services.get(POD).getStatus();
@@ -60,12 +73,22 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
     boolean global = podStatus == V3HealthStatus.UP && dfStatus == V3HealthStatus.UP && kmStatus == V3HealthStatus.UP
         && agtStatus == V3HealthStatus.UP && datafeedLoop == V3HealthStatus.UP;
 
-    builder.status(global ? Status.UP.getCode() : "WARNING")
+    builder.status(global ? Status.UP.getCode() : WARNING)
         .withDetail(POD, services.get(POD))
         .withDetail(DF, services.get(DF))
         .withDetail(KM, services.get(KM))
         .withDetail(AGT, users.get(AGT))
         .withDetail(CE, users.get(CE))
         .withDetail(DFL, datafeedLoop);
+  }
+
+  private void buildHealthDownDetail(Health.Builder builder) {
+    builder.status(DOWN)
+        .withDetail(POD, DOWN)
+        .withDetail(DF, DOWN)
+        .withDetail(KM, DOWN)
+        .withDetail(AGT, DOWN)
+        .withDetail(CE, DOWN)
+        .withDetail(DFL, DOWN);
   }
 }
