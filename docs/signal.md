@@ -1,3 +1,9 @@
+---
+layout: default
+title: Signal API
+nav_order: 13
+---
+
 # Signal API
 
 The Signal Service is a component at the service layer of the BDK which aims to cover the Signal part of the [REST API documentation](https://developers.symphony.com/restapi/reference).

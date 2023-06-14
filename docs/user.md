@@ -1,3 +1,9 @@
+---
+layout: default
+title: User API
+nav_order: 10
+---
+
 # User API
 The User Service is a component at the service layer of the BDK which covers the User part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:

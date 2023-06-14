@@ -1,6 +1,13 @@
+---
+layout: default
+title: Spring Boot Core Starter
+parent: Spring Boot Starters
+nav_order: 1
+---
+
 # BDK Core Spring Boot Starter
-The Symphony BDK for Java provides a _Starter_ module that aims to ease bot developments within a 
-[Spring Boot](https://spring.io/projects/spring-boot) application. 
+The Symphony BDK for Java provides a _Starter_ module that aims to ease bot developments within a
+[Spring Boot](https://spring.io/projects/spring-boot) application.
 
 ## Features
 - Configure bot environment through `application.yaml`
@@ -23,7 +30,7 @@ The following listing shows the `pom.xml` file that has to be created when using
     <artifactId>bdk-core-spring-boot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>bdk-core-spring-boot</name>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -57,7 +64,7 @@ The following listing shows the `pom.xml` file that has to be created when using
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -80,7 +87,7 @@ plugins {
 
 dependencies {
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.12.0-SNAPSHOT')
-    
+
     implementation 'org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter'
 
@@ -90,7 +97,7 @@ dependencies {
 ```
 
 ## Create a Simple Bot Application
-As a first step, you have to initialize your bot environment through the Spring Boot `src/main/resources/application.yaml` file: 
+As a first step, you have to initialize your bot environment through the Spring Boot `src/main/resources/application.yaml` file:
 ```yaml
 bdk:
     host: acme.symphony.com
@@ -98,11 +105,11 @@ bdk:
       username: bot-username
       privateKey:
         path: /path/to/rsa/privatekey.pem
-      
+
 logging:
   level:
     com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
-``` 
+```
 > You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-config/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/BotApplication.java` class:
@@ -116,7 +123,7 @@ public class BotApplication {
 }
 ```
 
-Now you can create a component for a simple bot application, as the following listing (from `src/main/java/com/example/bot/HelloBot.java`) 
+Now you can create a component for a simple bot application, as the following listing (from `src/main/java/com/example/bot/HelloBot.java`)
 shows:
 ```java
 @Component
@@ -126,12 +133,12 @@ public class HelloBot {
   private MessageService messageService;
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
     log.info("event was triggered at {}", ((EventPayload) event.getSource()).getEventTimestamp());
     this.messageService.send(event.getSource().getMessage().getStream(), "<messageML>Hello!</messageML>");
   }
 }
-``` 
+```
 
 You can finally run your Spring Boot application and verify that your bot always replies with `Hello!`. It also worth noting
 that the event timestamp is only accessible from `EventPayload` type, you need simply cast the source event to it, and
@@ -173,16 +180,16 @@ public class OboUsecase {
 Any attempt to use a non-OBO service endpoint will fail with an IllegalStateException.
 
 ## Subscribe to Real Time Events
-The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html) 
+The Core Starter uses [Spring Events](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/ApplicationEventPublisher.html)
 to deliver Real Time Events.
 
-You can subscribe to any Real Time Event from anywhere in your application by creating a handler method that has to 
-respect two conditions: 
-- be annotated with [@EventListener](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/event/EventListener.html) 
+You can subscribe to any Real Time Event from anywhere in your application by creating a handler method that has to
+respect two conditions:
+- be annotated with [@EventListener](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/event/EventListener.html)
 - have `com.symphony.bdk.spring.events.RealTimeEvent<T>` parameter
 
-The listener methods will be called with events from the [datafeed loop](../datafeed.md#datafeed) or the
-[datahose loop](../datafeed.md#datahose) (or both) depending on your configuration:
+The listener methods will be called with events from the [datafeed loop](../datafeed.html#datafeed) or the
+[datahose loop](../datafeed.html#datahose) (or both) depending on your configuration:
 ```yaml
 bdk:
     datafeed:
@@ -199,52 +206,52 @@ Here's the list of Real Time Events you can subscribe:
 public class RealTimeEvents {
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {}
+  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {}
 
   @EventListener
-  public void onSharedPost(RealTimeEvent<? extends V4SharedPost> event) {}
+  public void onSharedPost(RealTimeEvent<V4SharedPost> event) {}
 
   @EventListener
-  public void onInstantMessageCreated(RealTimeEvent<? extends V4InstantMessageCreated> event) {}
+  public void onInstantMessageCreated(RealTimeEvent<V4InstantMessageCreated> event) {}
 
   @EventListener
-  public void onRoomCreated(RealTimeEvent<? extends V4RoomCreated> event) {}
+  public void onRoomCreated(RealTimeEvent<V4RoomCreated> event) {}
 
   @EventListener
-  public void onRoomUpdated(RealTimeEvent<? extends V4RoomUpdated> event) {}
+  public void onRoomUpdated(RealTimeEvent<V4RoomUpdated> event) {}
 
   @EventListener
-  public void onRoomDeactivated(RealTimeEvent<? extends V4RoomDeactivated> event) {}
+  public void onRoomDeactivated(RealTimeEvent<V4RoomDeactivated> event) {}
 
   @EventListener
-  public void onRoomReactivated(RealTimeEvent<? extends V4RoomReactivated> event) {}
+  public void onRoomReactivated(RealTimeEvent<V4RoomReactivated> event) {}
 
   @EventListener
-  public void onUserRequestedToJoinRoom(RealTimeEvent<? extends V4UserRequestedToJoinRoom> event) {}
+  public void onUserRequestedToJoinRoom(RealTimeEvent<V4UserRequestedToJoinRoom> event) {}
 
   @EventListener
-  public void onUserJoinedRoom(RealTimeEvent<? extends V4UserJoinedRoom> event) {}
+  public void onUserJoinedRoom(RealTimeEvent<V4UserJoinedRoom> event) {}
 
   @EventListener
-  public void onUserLeftRoom(RealTimeEvent<? extends V4UserLeftRoom> event) {}
+  public void onUserLeftRoom(RealTimeEvent<V4UserLeftRoom> event) {}
 
   @EventListener
-  public void onRoomMemberPromotedToOwner(RealTimeEvent<? extends V4RoomMemberPromotedToOwner> event) {}
+  public void onRoomMemberPromotedToOwner(RealTimeEvent<V4RoomMemberPromotedToOwner> event) {}
 
   @EventListener
-  public void onRoomMemberDemotedFromOwner(RealTimeEvent<? extends V4RoomMemberDemotedFromOwner> event) {}
+  public void onRoomMemberDemotedFromOwner(RealTimeEvent<V4RoomMemberDemotedFromOwner> event) {}
 
   @EventListener
-  public void onConnectionRequested(RealTimeEvent<? extends V4ConnectionRequested> event) {}
+  public void onConnectionRequested(RealTimeEvent<V4ConnectionRequested> event) {}
 
   @EventListener
-  public void onConnectionAccepted(RealTimeEvent<? extends V4ConnectionAccepted> event) {}
+  public void onConnectionAccepted(RealTimeEvent<V4ConnectionAccepted> event) {}
 
   @EventListener
-  public void onMessageSuppressed(RealTimeEvent<? extends V4MessageSuppressed> event) {}
+  public void onMessageSuppressed(RealTimeEvent<V4MessageSuppressed> event) {}
 
   @EventListener
-  public void onSymphonyElementsAction(RealTimeEvent<? extends V4SymphonyElementsAction> event) {}
+  public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {}
 }
 ```
 
@@ -263,22 +270,22 @@ The Core Starter injects services within the Spring application context:
 ```java
 @Service
 public class CoreServices {
-    
+
     @Autowired
     private MessageService messageService;
-    
+
     @Autowired
     private StreamService streamService;
-    
+
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private DatafeedService datafeedService;
-    
+
     @Autowired
     private SessionService sessionService;
-    
+
     @Autowired
     private ActivityRegistry activityRegistry;
 }
@@ -295,10 +302,10 @@ bdk:
 :warning: Disabling the datafeed loop will prevent the use of real time event listeners, of slash commands and activities.
 
 ## Slash Command
-You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to 
-successfully register your command. If not defined, a `warn` message will appear in your application log. Note also that 
+You can easily register a slash command using the `@Slash` annotation. Note that the `CommandContext` is mandatory to
+successfully register your command. If not defined, a `warn` message will appear in your application log. Note also that
 only beans with scope **singleton** will be scanned.
- 
+
 ```java
 @Component
 public class SlashHello {
@@ -315,10 +322,10 @@ public class SlashHello {
 }
 ```
 By default, the `@Slash` annotation is configured to require bot mention in order to trigger the command. You can override
-this value using `@Slash#mentionBot` annotation parameter. 
+this value using `@Slash#mentionBot` annotation parameter.
 
 You can also use slash commands with arguments. To do so, the field `value` of the `@Slash` annotation must have a valid
-format as explained in the [Activity API section](../activity-api.md#Slash-command-pattern-format). 
+format as explained in the [Activity API section](../activity-api.html#Slash-command-pattern-format).
 If the slash command pattern is valid, you will have to specify all slash arguments as method parameter with the same name and type.
 If slash command pattern or method signature is incorrect, a `warn` message will appear in your application log and
 the slash command will not be registered. Note that the event timestamp is accessible from the `commandContext` using
@@ -363,43 +370,18 @@ public class SlashHello {
 
 :information_source: Slash commands are not registered to the datahose loop even when enabled.
 
-## Asynchronous slash Command
-By default, `@Slash` annotation is configured to be synchronous. If the process takes time, the next incoming commands
-will be blocked and enqueued till the process is released. If this is a concern, Slash command can be configured to be
-asynchronous by setting the `async` option to the annotation.
-
-```java
-@Slf4j
-@Component
-public class AsyncActivity  {
-
-  @Autowired
-  private MessageService messageService;
-
-  @Slash(value = "/async", asynchronous = true)
-  public void async(CommandContext context) throws InterruptedException {
-    this.messageService.send(context.getStreamId(),
-            "I will simulate a heavy process that takes time but this should not block next commands");
-
-    sleep(30000);
-
-    this.messageService.send(context.getStreamId(), "Heavy async process is done");
-  }
-}
-```
-
 ## Activities
-> For more details about activities, please read the [Activity API reference documentation](../activity-api.md)
+> For more details about activities, please read the [Activity API reference documentation](../activity-api.html)
 
-Any service or component class that extends [`FormReplyActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/form/FormReplyActivity.html) 
-or [`CommandActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html) 
+Any service or component class that extends [`FormReplyActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/form/FormReplyActivity.html)
+or [`CommandActivity`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/command/CommandActivity.html)
 will be automatically registered within the [ActivityRegistry](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core/latest/com/symphony/bdk/core/activity/ActivityRegistry.html).
 
 :information_source: Activities are not registered to the datahose loop even when enabled.
 
 ### Example of a `CommandActivity` in Spring Boot
-The following example has been described in section [Activity API documentation](../activity-api.md#how-to-create-a-command-activity).
-Note here that with Spring Boot you simply have to annotate your `CommandActivity` class with `@Component` to make it 
+The following example has been described in section [Activity API documentation](../activity-api.html#how-to-create-a-command-activity).
+Note here that with Spring Boot you simply have to annotate your `CommandActivity` class with `@Component` to make it
 automatically registered in the `ActivityRegistry`,
 ```java
 @Slf4j
@@ -424,7 +406,7 @@ public class HelloCommandActivity extends CommandActivity<CommandContext> {
 ```
 
 ### Example of a `FormReplyActivity` in Spring Boot
-The following example demonstrates how to send an Elements form on `@BotMention /gif` slash command. The Elements form 
+The following example demonstrates how to send an Elements form on `@BotMention /gif` slash command. The Elements form
 located in `src/main/resources/templates/gif.ftl` contains:
 ```xml
 <messageML>
@@ -477,8 +459,8 @@ public class GifFormActivity extends FormReplyActivity<FormReplyContext> {
 
 # Integration Test
 
-You can then create the integration test to guarantee the Bot application is working as design, 
-like you can see in the example below. For more details, please refer to [test module](../test.md).
+You can then create the integration test to guarantee the Bot application is working as design,
+like you can see in the example below. For more details, please refer to [test module](../test.html).
 
 ```java
 @SymphonyBdkSpringBootTest(properties = {"bot.id=1", "bot.username=my-bot", "bot.display-name=my bot"})
@@ -501,4 +483,4 @@ public class SimpleSpringAppIntegrationTest {
 ```
 
 ----
-[Home :house:](../index.md)
+[Home :house:](../index.html)

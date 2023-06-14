@@ -1,3 +1,9 @@
+---
+layout: default
+title: Datafeed
+nav_order: 6
+---
+
 # Datafeed
 > :warning: The datafeed 1 service will be fully replaced by the datafeed 2 service in the future.
 > Please consider using datafeed 2.
@@ -13,7 +19,7 @@ create a datafeed, list all created datafeeds or retrieve all the Real Time Even
 API. The datafeed loop is a core service built on top of the Datafeed API and provides a dedicated contract to bot
 developers to work with datafeed.
 
-For more advanced interactions between users and bots, you can also read [Activity API](./activity-api.md).
+For more advanced interactions between users and bots, you can also read [Activity API](./activity-api.html).
 
 ## How to use
 
@@ -147,7 +153,7 @@ Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed
 difference that *all* events of the pod are received. The datahose loop is a core service built on top of the events API
 and provide a dedicated contract to bot developers to work with datahose. This is compatible with agent version 22.5 onwards.
 
-The [Activity API](./activity-api.md) is not meant to be used with datahose.
+The [Activity API](./activity-api.html) is not meant to be used with datahose.
 
 ## How to use
 The central component for the contract between bot developers and the Datafeed API is the `DatahoseLoop`. This service
@@ -297,7 +303,7 @@ event twice. This can be achieved by maintaining a short time lived cache of the
 ## Running multiple instances of a bot (DF v2 and datahose only)
 
 An example using datafeed v2 is provided in
-[bdk-multi-instances-example](https://github.com/finos/symphony-bdk-java/blob/main/symphony-bdk-examples/bdk-multi-instances-example/README.md) module.
+[bdk-multi-instances-example](https://github.com/finos/symphony-bdk-java/blob/main/symphony-bdk-examples/bdk-multi-instances-example) module.
 
 With datafeed v2, it is possible to run multiple instances of a bot. Each instance will receive events in turn. The
 examples also makes use of Hazelcast to keep a distributed cache of already processed events and avoid replying to a
@@ -310,4 +316,4 @@ The same applies to datahose. To enable this behavior, make sure you have the sa
 (or no `tag` field) in the configuration of all your bot instances.
 
 ----
-[Home :house:](./index.md)
+[Home :house:](./index.html)

@@ -1,3 +1,9 @@
+---
+layout: default
+title: Connection API
+nav_order: 14
+---
+
 # Connection API
 
 The Connection Service is a component at the service layer of the BDK which aims to cover the Connections part of the [REST API documentation](https://developers.symphony.com/restapi/reference).

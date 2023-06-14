@@ -1,3 +1,9 @@
+---
+layout: default
+title: Message API
+nav_order: 8
+---
+
 # Message API
 
 The Message API aims to cover the Messages part of the [REST API documentation](https://developers.symphony.com/restapi/reference/messages-v4).
@@ -100,7 +106,7 @@ public class Example {
 Developers are free to select the underlying template engine implementation. This can be done importing the right
 dependency in your classpath.
 
-With [Maven](./getting-started.md#maven-based-project):
+With [Maven](./getting-started.html#maven-based-project):
 ```xml
 <dependencies>
         <dependency>
@@ -116,7 +122,7 @@ With [Maven](./getting-started.md#maven-based-project):
         </dependency>
 </dependencies>
 ```
-With [Gradle](./getting-started.md#gradle-based-project):
+With [Gradle](./getting-started.html#gradle-based-project):
 ```groovy
 dependencies {
     runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'
@@ -145,4 +151,4 @@ public class Example {
 ```
 
 ----
-[Home :house:](./index.md)
+[Home :house:](./index.html)

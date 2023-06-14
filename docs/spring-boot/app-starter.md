@@ -1,7 +1,14 @@
+---
+layout: default
+title: Spring Boot App Starter
+parent: Spring Boot Starters
+nav_order: 2
+---
+
 # BDK Extension App Spring Boot Starter
 The Symphony BDK for Java provides a _Starter_ module that aims to ease extension app backend developments within a
 [Spring Boot](https://spring.io/projects/spring-boot) application.
- 
+
 ## Features
 - Configure extension app through `application.yaml`
 - Application health info through Spring Boot standard actuator endpoint
@@ -21,7 +28,7 @@ The following listing shows the `pom.xml` file that has to be created when using
     <artifactId>bdk-app-spring-boot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>bdk-app-spring-boot</name>
-    
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -44,7 +51,7 @@ The following listing shows the `pom.xml` file that has to be created when using
             <artifactId>symphony-bdk-app-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
-    
+
     <build>
         <pluginManagement>
             <plugins>
@@ -67,13 +74,13 @@ plugins {
 
 dependencies {
     implementation platform('org.finos.symphony.bdk:symphony-bdk-bom:2.1.0')
-    
+
     implementation 'org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter'
 }
 ```
 
 ## Create a Simple Backend for Extension Application
-As a first step, you have to initialize your environment through the Spring Boot `src/main/resources/application.yaml` file: 
+As a first step, you have to initialize your environment through the Spring Boot `src/main/resources/application.yaml` file:
 ```yaml
 bdk:
     host: acme.symphony.com
@@ -81,7 +88,7 @@ bdk:
       username: bot-username
       privateKey:
         path: /path/to/rsa/privatekey.pem
-      
+
     app:
         appId: app-id
         privateKey:
@@ -93,7 +100,7 @@ bdk-app:
       jwtCookie:
         enabled: true # activate the jwt cookie storage (default is false)
         sameSite: Strict # same site configuration to restrict the jwt cookie from cross-site domain (default is Strict)
-        expireIn: 1d # jwt cookie duration (default value is 1d, see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config-conversion-duration) 
+        expireIn: 1d # jwt cookie duration (default value is 1d, see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config-conversion-duration)
     cors: # enable Cross-Origin Resource Sharing (CORS) communication
       "[/**]": # url mapping
         allowed-origins: "*" # list of allowed origins path pattern that be specific origins,
@@ -108,7 +115,7 @@ bdk-app:
 logging:
     level:
         com.symphony: debug # in development mode, it is strongly recommended to set the BDK logging level at DEBUG
-``` 
+```
 > You can notice here that the `bdk` property inherits from the [`BdkConfig`](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-config/latest/com/symphony/bdk/core/config/model/BdkConfig.html) class.
 
 As required by Spring Boot, you have to create an `src/main/java/com/example/bot/ExtAppSpringApplication.java` class:
@@ -146,4 +153,4 @@ management:
         include: 'symphonyBdk'
     health:
       show-details: "ALWAYS"
-```      
+```
