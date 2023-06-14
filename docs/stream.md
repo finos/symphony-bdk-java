@@ -1,3 +1,9 @@
+---
+layout: default
+title: Stream API
+nav_order: 9
+---
+
 # Stream API
 
 The Stream Service is a component at the service layer of the BDK which aims to cover the Streams part of the [REST API documentation](https://developers.symphony.com/restapi/reference#messages-v4).

@@ -1,6 +1,12 @@
+---
+layout: default
+title: Getting Started
+nav_order: 2
+---
+
 # Getting Started with Symphony BDK for Java
 
-This guide provides detailed information for beginners who want to bootstrap their first Symphony BDK project 
+This guide provides detailed information for beginners who want to bootstrap their first Symphony BDK project
 in Java. Two different approaches will be detailed here:
 - using the Symphony Generator
 - from scratch
@@ -105,28 +111,28 @@ dependencies {
 ```
 
 ### Create configuration file
-Before implementing any code, you need to create your `src/main/resources/config.yaml` configuration file according 
+Before implementing any code, you need to create your `src/main/resources/config.yaml` configuration file according
 to your Symphony environment:
 ```yaml
 host: acme.symphony.com                             # your own pod host name
 
-bot: 
+bot:
     username: bot-username                          # your bot (or service account) username
     privateKey:
       path: /path/to/bot/rsa-private-key.pem        # your bot RSA private key
 ```
-> Click [here](./configuration.md) for more detailed documentation about BDK configuration
+> Click [here](./configuration.html) for more detailed documentation about BDK configuration
 
 ### Create a Simple Bot Application
 Now you can create a Simple Bot Application by creating main class `src/main/java/com/example/symphony/BotApplication.java`:
- 
+
 ```java
 public class BotApplication {
-    
+
     public static void main(String[] args) {
-      
+
         final SymphonyBdk bdk = new SymphonyBdk(BdkConfigLoader.loadFromClasspath("/config.yaml"));        // (1)
-      
+
         bdk.datafeed().subscribe(new RealTimeEventListener() {                                              // (2)
 
             @Override
@@ -134,18 +140,18 @@ public class BotApplication {
               bdk.messages().send(event.getMessage().getStream(), "<messageML>Hello, World!</messageML>");  // (3)
             }
         });
-        
+
         bdk.datafeed().start();                                                                             // (4)
     }
 }
 ```
-1. The `SymphonyBdk` class acts as an entry point into the library and provides a [fluent API](./fluent-api.md) to access
-to the main BDK features such as [Datafeed](./datafeed.md), services or [Activities](./activity-api.md)
-2. Subscribe to the [`onMessageSent`](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent) 
+1. The `SymphonyBdk` class acts as an entry point into the library and provides a [fluent API](./fluent-api.html) to access
+to the main BDK features such as [Datafeed](./datafeed.html), services or [Activities](./activity-api.html)
+2. Subscribe to the [`onMessageSent`](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events#message-sent)
 [Real Time Event](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events)
-3. When any message is sent into a stream where your bot is a member, it will reply by message `Hello, World`! 
+3. When any message is sent into a stream where your bot is a member, it will reply by message `Hello, World`!
 4. Start the Datafeed read loop
 
 ----
-[Home :house:](./index.md)
- 
+[Home :house:](./index.html)
+

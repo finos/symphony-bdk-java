@@ -1,3 +1,10 @@
+---
+layout: default
+title: Compatibility
+parent: Tech Appendix
+nav_order: 3
+---
+
 # BDK compatibility management
 
 You can check our existing change management policy for our HTTP API [here](https://docs.developers.symphony.com/admin-guide/api-change-management).
@@ -10,17 +17,17 @@ Using features supported by new APIs will require using recent versions of the B
 |--------------------|------------------|
 | 20.9 and before    | 2.0.0            |
 
-The supported version of SBE and Agent corresponding to the product version of APIs can be found in 
+The supported version of SBE and Agent corresponding to the product version of APIs can be found in
 [Agent compatibilities](https://docs.developers.symphony.com/admin-guide/agent-guide/sbe-x-agent-compatibility-matrix).
 
 Rationale of our change management policy is to be backward compatible on existing features
-(classes, methods or [configuration](../configuration.md) fields) whenever possible.
+(classes, methods or [configuration](../configuration.html) fields) whenever possible.
 
 ## Deprecations and breaking changes
 
-For keeping the backward compatibility of the BDK, the BDK api classes will be generated from the xx-api-public-deprecated.yaml 
+For keeping the backward compatibility of the BDK, the BDK api classes will be generated from the xx-api-public-deprecated.yaml
 file instead of the normal one. By doing this way, the generated APIs which are deprecated will not be completely removed.
-They are only annotated with `@Deprecated`. 
+They are only annotated with `@Deprecated`.
 
 Then, the BDK services which are using these deprecated APIs will be annotated with `@Deprecated` as well.
 Then the bot developers will be warned that these services are now deprecated and will be removed in the future without having any breaking changes.
@@ -40,34 +47,34 @@ Deprecations and subsequent class, method or field removal will all be documente
 
 ## BDK services
 
-BDK services is a layer in BDK which are the wrappers of all the REST api endpoints provided by SBE and Agent. 
-These services provide bot developers a more friendly way to interact with SBE and Agent. 
-Developers now no more need to precisely create a HTTP call to the endpoint which is now under 
+BDK services is a layer in BDK which are the wrappers of all the REST api endpoints provided by SBE and Agent.
+These services provide bot developers a more friendly way to interact with SBE and Agent.
+Developers now no more need to precisely create a HTTP call to the endpoint which is now under
 mission of the BDK services layer.
 
-The BDK services relies on the many APIs classes which are generated automatically by Swagger 
-OpenAPI from several swagger specs files describing all the endpoints provided by SBE/Agent. 
+The BDK services relies on the many APIs classes which are generated automatically by Swagger
+OpenAPI from several swagger specs files describing all the endpoints provided by SBE/Agent.
 [Symphony-api-spec](https://github.com/finos/symphony-api-spec)
 
 ## Symphony-api-spec
 
-Symphony-api-spec is a project that contains the specifications of all the endpoints exposed 
-by SBE and Agent. 
+Symphony-api-spec is a project that contains the specifications of all the endpoints exposed
+by SBE and Agent.
 These specifications are divided into 4 major parts: agent, pod, authenticator, login.
 
-Each part contains 2 files: 
+Each part contains 2 files:
 
 * xx-api-public.yaml : contains the information of the endpoints which are currently active on SBE/Agent.
 
 * xx-api-public-deprecated.yaml : a superset of the xx-api-public.yaml which contain the information of all the endpoints which are both active and deprecated on SBE/Agent.
 
-The Api classes in BDK will be generated from these specifications and then be used in BDK services and 
+The Api classes in BDK will be generated from these specifications and then be used in BDK services and
 BDK authenticator (a special BDK service).
 
 ## BDK compatibility based on the version of Symphony-api-spec
-Because the BDK used the Symphony-api-spec for generating the Api classes, then the compatibility between 
-BDK and SBE/Agent will depend on the version of Symphony-api-spec that the BDK is using and the compatibility between 
+Because the BDK used the Symphony-api-spec for generating the Api classes, then the compatibility between
+BDK and SBE/Agent will depend on the version of Symphony-api-spec that the BDK is using and the compatibility between
 the specs and the SBE/Agent.
 
-From the official version 2.0.0 of the BDK, we start using the version branch of the Symphony-api-spec 
+From the official version 2.0.0 of the BDK, we start using the version branch of the Symphony-api-spec
 (20.9 for the BDK 2.0.0), it means that the version of the BDK will compatible with the product version 20.9.0.

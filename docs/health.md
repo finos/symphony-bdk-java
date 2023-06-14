@@ -1,3 +1,9 @@
+---
+layout: default
+title: Health API
+nav_order: 16
+---
+
 # Health API
 The Health Service is a component at the service layer of the BDK which covers the Health Service part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
 More precisely:

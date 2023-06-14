@@ -1,3 +1,9 @@
+---
+layout: default
+title: Authentication
+nav_order: 5
+---
+
 # Authentication
 The Symphony BDK authentication API allows developers to authenticate their bots and apps using either RSA or
 certificate authentication modes.
@@ -225,4 +231,4 @@ public class Example {
 ```
 
 ----
-[Home :house:](./index.md)
+[Home :house:](./index.html)
