@@ -17,7 +17,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'io.jsonwebtoken:jjwt'
-    implementation 'org.bouncycastle:bcpkix-jdk15on'
+    implementation 'org.bouncycastle:bcpkix-jdk18on'
     implementation 'commons-io:commons-io'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.swagger:swagger-annotations'

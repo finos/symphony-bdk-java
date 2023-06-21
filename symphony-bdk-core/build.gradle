@@ -48,7 +48,7 @@ dependencies {
     implementation 'org.apache.commons:commons-text'
     implementation 'com.brsanthu:migbase64'
     implementation 'io.jsonwebtoken:jjwt'
-    implementation 'org.bouncycastle:bcpkix-jdk15on'
+    implementation 'org.bouncycastle:bcpkix-jdk18on'
     api 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'io.github.resilience4j:resilience4j-retry'
     implementation 'io.swagger:swagger-annotations'

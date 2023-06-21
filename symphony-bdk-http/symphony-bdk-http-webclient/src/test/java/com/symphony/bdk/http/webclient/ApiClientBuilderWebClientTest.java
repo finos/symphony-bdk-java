@@ -47,6 +47,7 @@ public class ApiClientBuilderWebClientTest {
   @Test
   void buildTest() {
     Logger logger = (Logger) LoggerFactory.getLogger(ApiUtils.class);
+    logger.setLevel(Level.DEBUG);
     ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
     listAppender.start();
     logger.addAppender(listAppender);

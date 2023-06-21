@@ -21,4 +21,5 @@ out/
 .DS_Store
 settings.xml
 datafeed.id
+.java-version
 
