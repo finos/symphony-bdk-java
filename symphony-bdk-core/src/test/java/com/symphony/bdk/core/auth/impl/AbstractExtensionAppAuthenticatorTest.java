@@ -1,5 +1,20 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.auth.AppAuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.jwt.UserClaim;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
+import com.symphony.bdk.gen.api.model.PodCertificate;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
+import jakarta.ws.rs.ProcessingException;
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.Nonnull;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -10,23 +25,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-
-import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.jwt.UserClaim;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
-import com.symphony.bdk.gen.api.model.PodCertificate;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiRuntimeException;
-
-import org.junit.jupiter.api.Test;
-
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-
-import javax.annotation.Nonnull;
-import javax.ws.rs.ProcessingException;
 
 class AbstractExtensionAppAuthenticatorTest {
 

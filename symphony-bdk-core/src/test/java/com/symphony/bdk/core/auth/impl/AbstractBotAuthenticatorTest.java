@@ -1,5 +1,23 @@
 package com.symphony.bdk.core.auth.impl;
 
+import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
+import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.gen.api.model.JwtToken;
+import com.symphony.bdk.gen.api.model.Token;
+import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiResponse;
+import com.symphony.bdk.http.api.ApiRuntimeException;
+import jakarta.ws.rs.ProcessingException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.annotation.Nonnull;
+import java.net.SocketTimeoutException;
+import java.util.Collections;
+
 import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInterval;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,26 +30,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
-import com.symphony.bdk.core.config.model.BdkRetryConfig;
-import com.symphony.bdk.gen.api.model.JwtToken;
-import com.symphony.bdk.gen.api.model.Token;
-import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.api.ApiException;
-import com.symphony.bdk.http.api.ApiResponse;
-import com.symphony.bdk.http.api.ApiRuntimeException;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.net.SocketTimeoutException;
-import java.util.Collections;
-
-import javax.annotation.Nonnull;
-import javax.ws.rs.ProcessingException;
 
 class AbstractBotAuthenticatorTest {
 

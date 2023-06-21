@@ -1,7 +1,5 @@
 package com.symphony.bdk.http.jersey2;
 
-import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
-
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
@@ -10,7 +8,16 @@ import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
-
+import jakarta.ws.rs.HttpMethod;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Form;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apiguardian.api.API;
@@ -40,17 +47,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
+
 
 /**
  * Jersey2 implementation for the {@link ApiClient} interface called by generated code.
@@ -167,9 +165,9 @@ public class ApiClientJersey2 implements ApiClient {
         genericReturnType = new GenericType<>(returnType.getType());
       }
 
-      if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
+      if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode()) {
         return new ApiResponse<>(statusCode, responseHeaders);
-      } else if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+      } else if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
         if (genericReturnType == null) {
           return new ApiResponse<>(statusCode, responseHeaders);
         } else {

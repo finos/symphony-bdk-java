@@ -1,5 +1,5 @@
 plugins {
-    id 'org.openapi.generator'
+    id "org.openapi.generator"
 }
 
 dependencies {
