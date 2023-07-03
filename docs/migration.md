@@ -396,7 +396,7 @@ public class RealTimeEventComponent {
         this.pingPongBotService = pingPongBotService;
     }
     @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
+    public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {
         this.pingPongBotService.handleIncomingMessage(event.getSource().getMessage,
                 StreamType.TypeEnum.formValue(event.getSource().getMessage.getStream.getStreamType()));
     }
@@ -458,10 +458,10 @@ In Java BDK 2.0, only one component `RealTimeEventComponent` has to be implement
 ```java
 public class RealTimeEventComponent {
     @EventListener
-    public void onMessageSent(RealTimeEvent<V4MessageSent> event) {...}
+    public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {...}
 
     @EventListener
-    public onElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {...}
+    public onElementsAction(RealTimeEvent<? extends V4SymphonyElementsAction> event) {...}
 }
 ```
 

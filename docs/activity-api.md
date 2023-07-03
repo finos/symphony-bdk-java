@@ -149,6 +149,41 @@ public class Example {
 3. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the
 event, or the event initiator (i.e. user that triggered the command)
 
+### Async Slash Command
+A slash command is synchronous by default. In case the process takes times, the others incoming commands will be queued
+and get executed when the blocking process is released. If it is a concern, Slash command can be asynchronous by passing
+`asynchronous` parameter to the annotation.
+
+```java
+@Slf4j
+public class AsyncCommandMain {
+  public static void main(String[] args) throws Exception {
+
+    // setup SymphonyBdk facade object
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+
+    // displays the Gif form on /gif command with no params
+    bdk.activities().register(slash("/async",  // (1)
+            false,                              // (2)
+            true,                              // (3)
+            context ->                         // (4)
+                    bdk.messages().send(context.getStreamId(), 
+                            "This is an asynchronous command that should not block next commands"), 
+            "Asynchronous command example"    // (5)
+    ));
+
+    // finally, start the datafeed loop
+    bdk.datafeed().start();
+  }
+}
+```
+1. `/async` is the command pattern
+2. `false` means that the bot should not be mentioned in the command
+3. `true` means that the command will be executed asynchronously
+4. the command callback provides the `CommandContext` that allows to retrieve some information about the source of the
+   event, or the event initiator (i.e. user that triggered the command)
+5. the command description
+
 ### Help Command
 
 _Help_ command is a BDK built-in command which will list out all the commands registered in the `ActivityRegistry` of the BDK by:
