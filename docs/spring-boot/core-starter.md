@@ -133,12 +133,12 @@ public class HelloBot {
   private MessageService messageService;
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {
+  public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {
     log.info("event was triggered at {}", ((EventPayload) event.getSource()).getEventTimestamp());
-    this.messageService.send(event.getSource().getMessage().getStream(), "<messageML>Hello!</messageML>");
+    this.messageService.send(event.getSource().getMessage().getStream(), "Hello!");
   }
 }
-```
+``` 
 
 You can finally run your Spring Boot application and verify that your bot always replies with `Hello!`. It also worth noting
 that the event timestamp is only accessible from `EventPayload` type, you need simply cast the source event to it, and
@@ -186,7 +186,7 @@ to deliver Real Time Events.
 You can subscribe to any Real Time Event from anywhere in your application by creating a handler method that has to
 respect two conditions:
 - be annotated with [@EventListener](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/event/EventListener.html)
-- have `com.symphony.bdk.spring.events.RealTimeEvent<T>` parameter
+- have `com.symphony.bdk.spring.events.RealTimeEvent<? extends T>` parameter
 
 The listener methods will be called with events from the [datafeed loop](../datafeed.html#datafeed) or the
 [datahose loop](../datafeed.html#datahose) (or both) depending on your configuration:
@@ -206,52 +206,52 @@ Here's the list of Real Time Events you can subscribe:
 public class RealTimeEvents {
 
   @EventListener
-  public void onMessageSent(RealTimeEvent<V4MessageSent> event) {}
+  public void onMessageSent(RealTimeEvent<? extends V4MessageSent> event) {}
 
   @EventListener
-  public void onSharedPost(RealTimeEvent<V4SharedPost> event) {}
+  public void onSharedPost(RealTimeEvent<? extends V4SharedPost> event) {}
 
   @EventListener
-  public void onInstantMessageCreated(RealTimeEvent<V4InstantMessageCreated> event) {}
+  public void onInstantMessageCreated(RealTimeEvent<? extends V4InstantMessageCreated> event) {}
 
   @EventListener
-  public void onRoomCreated(RealTimeEvent<V4RoomCreated> event) {}
+  public void onRoomCreated(RealTimeEvent<? extends V4RoomCreated> event) {}
 
   @EventListener
-  public void onRoomUpdated(RealTimeEvent<V4RoomUpdated> event) {}
+  public void onRoomUpdated(RealTimeEvent<? extends V4RoomUpdated> event) {}
 
   @EventListener
-  public void onRoomDeactivated(RealTimeEvent<V4RoomDeactivated> event) {}
+  public void onRoomDeactivated(RealTimeEvent<? extends V4RoomDeactivated> event) {}
 
   @EventListener
-  public void onRoomReactivated(RealTimeEvent<V4RoomReactivated> event) {}
+  public void onRoomReactivated(RealTimeEvent<? extends V4RoomReactivated> event) {}
 
   @EventListener
-  public void onUserRequestedToJoinRoom(RealTimeEvent<V4UserRequestedToJoinRoom> event) {}
+  public void onUserRequestedToJoinRoom(RealTimeEvent<? extends V4UserRequestedToJoinRoom> event) {}
 
   @EventListener
-  public void onUserJoinedRoom(RealTimeEvent<V4UserJoinedRoom> event) {}
+  public void onUserJoinedRoom(RealTimeEvent<? extends V4UserJoinedRoom> event) {}
 
   @EventListener
-  public void onUserLeftRoom(RealTimeEvent<V4UserLeftRoom> event) {}
+  public void onUserLeftRoom(RealTimeEvent<? extends V4UserLeftRoom> event) {}
 
   @EventListener
-  public void onRoomMemberPromotedToOwner(RealTimeEvent<V4RoomMemberPromotedToOwner> event) {}
+  public void onRoomMemberPromotedToOwner(RealTimeEvent<? extends V4RoomMemberPromotedToOwner> event) {}
 
   @EventListener
-  public void onRoomMemberDemotedFromOwner(RealTimeEvent<V4RoomMemberDemotedFromOwner> event) {}
+  public void onRoomMemberDemotedFromOwner(RealTimeEvent<? extends V4RoomMemberDemotedFromOwner> event) {}
 
   @EventListener
-  public void onConnectionRequested(RealTimeEvent<V4ConnectionRequested> event) {}
+  public void onConnectionRequested(RealTimeEvent<? extends V4ConnectionRequested> event) {}
 
   @EventListener
-  public void onConnectionAccepted(RealTimeEvent<V4ConnectionAccepted> event) {}
+  public void onConnectionAccepted(RealTimeEvent<? extends V4ConnectionAccepted> event) {}
 
   @EventListener
-  public void onMessageSuppressed(RealTimeEvent<V4MessageSuppressed> event) {}
+  public void onMessageSuppressed(RealTimeEvent<? extends V4MessageSuppressed> event) {}
 
   @EventListener
-  public void onSymphonyElementsAction(RealTimeEvent<V4SymphonyElementsAction> event) {}
+  public void onSymphonyElementsAction(RealTimeEvent<? extends V4SymphonyElementsAction> event) {}
 }
 ```
 
@@ -270,22 +270,22 @@ The Core Starter injects services within the Spring application context:
 ```java
 @Service
 public class CoreServices {
-
+    
     @Autowired
     private MessageService messageService;
-
+    
     @Autowired
     private StreamService streamService;
-
+    
     @Autowired
     private UserService userService;
-
+    
     @Autowired
     private DatafeedService datafeedService;
-
+    
     @Autowired
     private SessionService sessionService;
-
+    
     @Autowired
     private ActivityRegistry activityRegistry;
 }
@@ -325,7 +325,7 @@ By default, the `@Slash` annotation is configured to require bot mention in orde
 this value using `@Slash#mentionBot` annotation parameter.
 
 You can also use slash commands with arguments. To do so, the field `value` of the `@Slash` annotation must have a valid
-format as explained in the [Activity API section](../activity-api.html#Slash-command-pattern-format).
+format as explained in the [Activity API section](../activity-api.html#slash-command-pattern-format).
 If the slash command pattern is valid, you will have to specify all slash arguments as method parameter with the same name and type.
 If slash command pattern or method signature is incorrect, a `warn` message will appear in your application log and
 the slash command will not be registered. Note that the event timestamp is accessible from the `commandContext` using
@@ -369,6 +369,31 @@ public class SlashHello {
 ```
 
 :information_source: Slash commands are not registered to the datahose loop even when enabled.
+
+## Asynchronous slash Command
+By default, `@Slash` annotation is configured to be synchronous. If the process takes time, the next incoming commands
+will be blocked and enqueued till the process is released. If this is a concern, Slash command can be configured to be
+asynchronous by setting the `async` option to the annotation.
+
+```java
+@Slf4j
+@Component
+public class AsyncActivity  {
+
+  @Autowired
+  private MessageService messageService;
+
+  @Slash(value = "/async", asynchronous = true)
+  public void async(CommandContext context) throws InterruptedException {
+    this.messageService.send(context.getStreamId(),
+            "I will simulate a heavy process that takes time but this should not block next commands");
+
+    sleep(30000);
+
+    this.messageService.send(context.getStreamId(), "Heavy async process is done");
+  }
+}
+```
 
 ## Activities
 > For more details about activities, please read the [Activity API reference documentation](../activity-api.html)
