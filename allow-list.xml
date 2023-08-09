@@ -43,7 +43,7 @@
         Testing false positives by suppressing a CVE
         https://github.com/spring-projects/spring-framework/issues/24434 (Do not expose HttpInvoker)
         ]]></notes>
-        <gav>org.springframework:spring-web:5.3.27</gav>
+        <gav>org.springframework:spring-web:5.3.29</gav>
         <cve>CVE-2016-1000027</cve>
     </suppress>
     <suppress base="true">
