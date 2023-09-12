@@ -1,11 +1,10 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import static net.bytebuddy.matcher.ElementMatchers.isPublic;
-
 import com.symphony.bdk.core.service.datafeed.EventPayload;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4Event;
 
+import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.ClassFileVersion;
 import net.bytebuddy.description.modifier.Visibility;
@@ -15,14 +14,19 @@ import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 import org.apiguardian.api.API;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.function.BiConsumer;
+
+import static net.bytebuddy.matcher.ElementMatchers.isPublic;
 
 /**
  * Enumeration of possible types of Real Time Events that can be retrieved from the DataFeed.
  * More information : https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events
  */
 @API(status = API.Status.INTERNAL)
+@Slf4j
 enum RealTimeEventType {
 
   MESSAGESENT((listener, event) -> {
@@ -113,18 +117,21 @@ enum RealTimeEventType {
    */
   private static <T> T proxy(T event, V4Event realEvent) {
     try {
-      T proxyEvent = (T) new ByteBuddy(ClassFileVersion.JAVA_V8)
+      T proxyEvent = (T) new ByteBuddy(ClassFileVersion.JAVA_V17)
           .subclass(event.getClass())
           .method(ElementMatchers.any().and(isPublic()))
           .intercept(MethodCall.invokeSelf().on(event).withAllArguments())
           .defineField("eventTimestamp", Long.class, Visibility.PRIVATE)
           .implement(EventPayload.class).intercept(FieldAccessor.ofBeanProperty())
           .make()
-          .load(event.getClass().getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
-          .getLoaded().newInstance();
+          .load(event.getClass().getClassLoader(), ClassLoadingStrategy.UsingLookup.of(MethodHandles
+              .privateLookupIn(event.getClass(), MethodHandles.lookup())))
+          .getLoaded().getDeclaredConstructor(new Class[] {}).newInstance();
       ((EventPayload) proxyEvent).setEventTimestamp(realEvent.getTimestamp());
       return proxyEvent;
-    } catch (InstantiationException | IllegalAccessException e) {
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      log.error("Cannot create real time event proxy class - {}", e.getMessage());
+      log.debug("", e);
       throw new RuntimeException(e);
     }
   }
