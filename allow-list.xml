@@ -57,8 +57,9 @@
       <notes><![CDATA[
           No fix available
           ]]></notes>
-      <gav>org.json:json:20230227</gav>
+      <gav>org.json:json:20231013</gav>
       <cve>CVE-2022-45688</cve>
+      <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -66,5 +67,12 @@
           ]]></notes>
         <gav>net.minidev:json-smart:2.4.8</gav>
         <cve>CVE-2023-1370</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          No fix available
+          ]]></notes>
+        <gav>io.netty:netty-bom:4.1.101.Final</gav>
+        <cve>CVE-2023-4586</cve>
     </suppress>
 </suppressions>
