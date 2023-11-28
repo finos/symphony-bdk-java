@@ -4,9 +4,9 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.datafeed.DatahoseLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
-import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
+import com.symphony.bdk.spring.service.BotInfoService;
 import com.symphony.bdk.spring.service.DatahoseAsyncLauncherService;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,8 +26,8 @@ public class BdkDatahoseConfig {
   public DatahoseLoop datahoseLoop(SymphonyBdkCoreProperties properties,
                                        @Qualifier("datahoseApi") DatafeedApi datafeedApi,
                                        AuthSession botSession,
-                                       SessionService sessionService) {
-    return new DatahoseLoopImpl(datafeedApi, botSession, properties, sessionService.getSession());
+                                       BotInfoService botInfoService) {
+    return new DatahoseLoopImpl(datafeedApi, botSession, properties, botInfoService.getBotInfo());
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")

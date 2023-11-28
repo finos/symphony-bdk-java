@@ -34,6 +34,7 @@ import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.spring.service.BotInfoService;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
@@ -126,5 +127,11 @@ public class BdkServiceConfig {
   ) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
         defaultApi, botSession, templateEngine, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public BotInfoService botInfoService(SessionService sessionService) {
+    return new BotInfoService(sessionService);
   }
 }

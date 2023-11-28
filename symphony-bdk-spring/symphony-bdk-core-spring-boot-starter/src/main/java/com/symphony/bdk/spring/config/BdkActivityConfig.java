@@ -7,6 +7,7 @@ import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.spring.annotation.Slash;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
+import com.symphony.bdk.spring.service.BotInfoService;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -28,12 +29,12 @@ public class BdkActivityConfig {
 
   @Bean
   public ActivityRegistry activityRegistry(
-      final SessionService sessionService,
+      final BotInfoService botInfoService,
       final DatafeedLoop datafeedLoop,
       final List<AbstractActivity<?, ?>> activities
   ) {
     log.debug("Retrieving bot session info");
-    final UserV2 botSessionInfo = sessionService.getSession();
+    final UserV2 botSessionInfo = botInfoService.getBotInfo();
     final ActivityRegistry activityRegistry = new ActivityRegistry(botSessionInfo, datafeedLoop);
     log.debug("{} activities found from context", activities.size());
     activities.forEach(activityRegistry::register);

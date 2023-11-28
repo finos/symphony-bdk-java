@@ -9,6 +9,7 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
+import com.symphony.bdk.spring.service.BotInfoService;
 import com.symphony.bdk.spring.service.DatafeedAsyncLauncherService;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,14 +40,14 @@ public class BdkDatafeedConfig {
       @Qualifier("datafeedApi") DatafeedApi datafeedApi,
       AuthSession botSession,
       DatafeedVersion datafeedVersion,
-      SessionService sessionService
+      BotInfoService botInfoService
   ) {
 
     if (datafeedVersion == DatafeedVersion.V2) {
-      return new DatafeedLoopV2(datafeedApi, botSession, properties, sessionService.getSession());
+      return new DatafeedLoopV2(datafeedApi, botSession, properties, botInfoService.getBotInfo());
     }
 
-    return new DatafeedLoopV1(datafeedApi, botSession, properties, sessionService.getSession());
+    return new DatafeedLoopV1(datafeedApi, botSession, properties, botInfoService.getBotInfo());
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")
