@@ -85,16 +85,6 @@ class BdkConfigLoaderTest {
   }
 
   @Test
-  void loadLegacyFromInputStreamTest() throws BdkConfigException {
-    final String configPath = "/config/legacy_config.json";
-    final InputStream inputStream = BdkConfigLoaderTest.class.getResourceAsStream(configPath);
-    final BdkConfig config = BdkConfigLoader.loadFromInputStream(inputStream);
-    assertThat(config.getBot().getUsername()).isEqualTo(BOT_USERNAME);
-    assertThat(config.getBot().getPrivateKeyPath()).isEqualTo("/Users/local/conf/agent/privatekey.pem");
-    assertThat(config.getApp().getPrivateKeyPath()).isEqualTo("/Users/local/conf/agent/privatekey.pem");
-  }
-
-  @Test
   void loadFromClasspathNotFoundTest() {
     assertThatThrownBy(() -> BdkConfigLoader.loadFromClasspath("/wrong_classpath/config.yaml"))
         .isInstanceOf(BdkConfigException.class)

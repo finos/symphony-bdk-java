@@ -117,8 +117,8 @@ public class JwtHelper {
     final Certificate x509Certificate = parseX509Certificate(certificate);
 
     try {
-      final Claims body = Jwts.parser().setSigningKey(x509Certificate.getPublicKey()).parseClaimsJws(jwt).getBody();
-
+      final Claims body = Jwts.parser().verifyWith(x509Certificate.getPublicKey())
+          .build().parseSignedClaims(jwt).getPayload();
       return mapper.convertValue(body.get("user"), UserClaim.class);
     } catch (JwtException e) {
       throw new AuthInitializationException("Unable to validate JWT", e);

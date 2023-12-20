@@ -2,7 +2,6 @@ package com.symphony.bdk.app.spring.properties;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apiguardian.api.API;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,13 +19,6 @@ public class CorsProperties {
   private List<String> allowedOrigins = Collections.singletonList("/**");
 
   /**
-   * @deprecated use property "allow-credentials" instead
-   */
-  @Deprecated
-  @API(status = API.Status.DEPRECATED, since = "2.0")
-  private Boolean allowedCredentials = null;
-
-  /**
    * Access-Control-Allow-Credentials response header for CORS request
    */
   private Boolean allowCredentials = false;
@@ -40,13 +32,6 @@ public class CorsProperties {
    * List of response headers that a response can have and can be exposed
    */
   private List<String> exposedHeaders = Collections.emptyList();
-
-  /**
-   * @deprecated use property "allow-credentials" instead
-   */
-  @Deprecated
-  @API(status = API.Status.DEPRECATED, since = "2.0")
-  private List<String> allowedMethod = null;
 
   /**
    * List of HTTP methods to allow

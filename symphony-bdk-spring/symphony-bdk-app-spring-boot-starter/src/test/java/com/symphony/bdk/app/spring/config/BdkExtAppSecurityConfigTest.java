@@ -1,86 +1,36 @@
 package com.symphony.bdk.app.spring.config;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import com.symphony.bdk.app.spring.SymphonyBdkAppProperties;
-
-import com.symphony.bdk.app.spring.properties.CorsProperties;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import com.symphony.bdk.app.spring.SymphonyBdkAppAutoConfiguration;
+import com.symphony.bdk.app.spring.SymphonyBdkMockedConfiguration;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.servlet.config.annotation.CorsRegistration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.Arrays;
-import java.util.Collections;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.web.filter.CorsFilter;
+import java.util.List;
 
 public class BdkExtAppSecurityConfigTest {
-
   @Test
-  void createCorsConfigurer() {
+  void corsFilters() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk-app.cors.[/**].allowed-origins=*",
+            "bdk-app.cors.[/**].allow-credentials=false",
+            "bdk-app.cors.[/**].allowed-methods=POST,GET",
+            "bdk-app.cors.[/**].allowed-headers=*",
+            "bdk-app.cors.[/**].exposed-headers=header-name-1,header-name-2",
+            "bdk-app.cors.[/magic/**].allowed-origins=magic",
+            "bdk-app.cors.[/magic/**].allow-credentials=false",
+            "bdk-app.cors.[/magic/**].allowed-methods=POST,GET,DELETE",
+            "bdk-app.cors.[/magic/**].allowed-headers=magic",
+            "bdk-app.cors.[/magic/**].exposed-headers=magic-1,magic-2"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAppAutoConfiguration.class));
 
-    final BdkExtAppSecurityConfig config = new BdkExtAppSecurityConfig();
-    final SymphonyBdkAppProperties props = new SymphonyBdkAppProperties();
-    final CorsProperties cors = new CorsProperties();
-    cors.setAllowedMethods(Collections.singletonList("GET"));
-    cors.setAllowCredentials(false);
-    cors.setExposedHeaders(Arrays.asList("header1", "header2"));
-    cors.setAllowedHeaders(Arrays.asList("header1", "header2"));
-    props.setCors(Collections.singletonMap("*", cors));
-
-    WebMvcConfigurer configurer = config.corsConfigurer(props);
-    CorsRegistry registry = mock(CorsRegistry.class);
-    CorsRegistration registration = mock(CorsRegistration.class);
-    when(registry.addMapping(any())).thenReturn(registration);
-    when(registration.allowedOrigins(any())).thenReturn(registration);
-    when(registration.allowCredentials(anyBoolean())).thenReturn(registration);
-    when(registration.allowedHeaders(any())).thenReturn(registration);
-    when(registration.allowedMethods(any())).thenReturn(registration);
-    when(registration.exposedHeaders(any())).thenReturn(registration);
-    configurer.addCorsMappings(registry);
-
-    verify(registry).addMapping("*");
-    verify(registration).allowedMethods("GET");
-    verify(registration).exposedHeaders("header1", "header2");
-    verify(registration).allowCredentials(false);
-    verify(registration).allowedOrigins("/**");
-    verify(registration).allowedHeaders("header1", "header2");
-  }
-
-  @Test
-  void createCorsConfigurer_withBackwardCompatibility() {
-
-    final BdkExtAppSecurityConfig config = new BdkExtAppSecurityConfig();
-    final SymphonyBdkAppProperties props = new SymphonyBdkAppProperties();
-    final CorsProperties cors = new CorsProperties();
-    cors.setAllowedMethod(Collections.singletonList("POST"));
-    cors.setAllowedMethods(Collections.singletonList("GET"));
-    cors.setAllowedCredentials(true);
-    cors.setAllowCredentials(false);
-    cors.setExposedHeaders(Arrays.asList("header1", "header2"));
-    cors.setAllowedHeaders(Arrays.asList("header1", "header2"));
-    props.setCors(Collections.singletonMap("*", cors));
-
-    WebMvcConfigurer configurer = config.corsConfigurer(props);
-    CorsRegistry registry = mock(CorsRegistry.class);
-    CorsRegistration registration = mock(CorsRegistration.class);
-    when(registry.addMapping(any())).thenReturn(registration);
-    when(registration.allowedOrigins(any())).thenReturn(registration);
-    when(registration.allowCredentials(anyBoolean())).thenReturn(registration);
-    when(registration.allowedHeaders(any())).thenReturn(registration);
-    when(registration.allowedMethods(any())).thenReturn(registration);
-    when(registration.exposedHeaders(any())).thenReturn(registration);
-    configurer.addCorsMappings(registry);
-
-    verify(registry).addMapping("*");
-    verify(registration).allowedMethods("POST");
-    verify(registration).exposedHeaders("header1", "header2");
-    verify(registration).allowCredentials(true);
-    verify(registration).allowedOrigins("/**");
-    verify(registration).allowedHeaders("header1", "header2");
+    contextRunner.run(context -> {
+      List<CorsFilter> corsFilters = (List<CorsFilter>) context.getBean("corsFilters");
+      assertThat(corsFilters).hasSize(2);
+    });
   }
 }

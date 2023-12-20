@@ -2,77 +2,24 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
-        No fix available
-        ]]></notes>
-        <gav>org.yaml:snakeyaml:1.30</gav>
-        <cve>CVE-2022-25857</cve>
-        <cve>CVE-2022-38751</cve>
-        <cve>CVE-2022-38749</cve>
-        <cve>CVE-2022-38752</cve>
-        <cve>CVE-2022-41854</cve>
-        <cve>CVE-2022-38750</cve>
-        <cve>CVE-2022-1471</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        No fix available
-        ]]></notes>
-        <gav>org.yaml:snakeyaml:1.31</gav>
-        <cve>CVE-2022-38751</cve>
-        <cve>CVE-2022-38752</cve>
-        <cve>CVE-2022-41854</cve>
-        <cve>CVE-2022-1471</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        No fix available
-        ]]></notes>
-        <gav>org.yaml:snakeyaml:1.33</gav>
-        <cve>CVE-2022-1471</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        Testing false positives by suppressing a CVE
-        https://github.com/jeremylong/DependencyCheck/issues/4528 (Do not use deprecated method)
-        ]]></notes>
-        <gav>org.springframework.security:spring-security-crypto:5.7.8</gav>
-        <cve>CVE-2020-5408</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-        Testing false positives by suppressing a CVE
-        https://github.com/spring-projects/spring-framework/issues/24434 (Do not expose HttpInvoker)
-        ]]></notes>
-        <gav>org.springframework:spring-web:5.3.27</gav>
-        <cve>CVE-2016-1000027</cve>
-    </suppress>
-    <suppress base="true">
-        <notes><![CDATA[
-       FP per issue #5121 - fix for commons
-       ]]></notes>
-      <packageUrl regex="true">^(?!pkg:maven/commons-net/commons-net).*$</packageUrl>
-      <cpe>cpe:/a:apache:commons_net</cpe>
-    </suppress>
-    <suppress>
-      <notes><![CDATA[
-          No fix available
+          Example project: bdk-multi-instances-example: hazelcast: no fix available
           ]]></notes>
-      <gav>org.json:json:20231013</gav>
-      <cve>CVE-2022-45688</cve>
-      <cve>CVE-2023-5072</cve>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <cve>CVE-2022-45688</cve>
+        <cve>CVE-2023-5072</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
           No fix available
           ]]></notes>
-        <gav>net.minidev:json-smart:2.4.8</gav>
-        <cve>CVE-2023-1370</cve>
+        <gav>ch.qos.logback:logback-core:1.4.11</gav>
+        <cve>CVE-2023-6378</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
           No fix available
           ]]></notes>
-        <gav>io.netty:netty-bom:4.1.101.Final</gav>
-        <cve>CVE-2023-4586</cve>
+        <gav>ch.qos.logback:logback-classic:1.4.11</gav>
+        <cve>CVE-2023-6378</cve>
     </suppress>
 </suppressions>

@@ -10,10 +10,10 @@ bdk:
     host: localhost
   bot:
     username: testbot
-    privateKeyPath: classpath:/privatekey.pem
+    privateKey.path: classpath:/privatekey.pem
   app:
     appId: testapp
-    privateKeyPath: classpath:/privatekey.pem
+    privateKey.path: classpath:/privatekey.pem
 
 bdk-app:
   auth:

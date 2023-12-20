@@ -18,7 +18,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
             "bdk.app.appId=test-app",
-            "bdk.app.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem",
             "bdk-app.auth.enabled=true",
             "bdk-app.auth.jwtCookies.enabled=true",
             "bdk-app.auth.jwtCookies.maxAge=1d",
@@ -33,7 +33,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
       assertThat(context).hasSingleBean(SymphonyBdkAppAutoConfiguration.class);
       assertThat(context).hasSingleBean(BdkExtAppControllerConfig.class);
       assertThat(context).hasSingleBean(CircleOfTrustController.class);
-      assertThat(context).hasBean("corsConfigurer");
+      assertThat(context).hasBean("corsFilters");
       assertThat(context).hasBean("tracingFilter");
 
       SymphonyBdkAppProperties properties = context.getBean(SymphonyBdkAppProperties.class);
@@ -47,7 +47,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
             "bdk.app.appId=test-app",
-            "bdk.app.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem",
             "bdk-app.auth.enabled=false"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
@@ -64,7 +64,7 @@ public class SymphonyBdkAppAutoConfigurationTest {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
             "bdk.app.appId=test-app",
-            "bdk.app.privateKeyPath=classpath:/privatekey.pem",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem",
             "bdk-app.tracing.enabled=false"
         )
         .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
