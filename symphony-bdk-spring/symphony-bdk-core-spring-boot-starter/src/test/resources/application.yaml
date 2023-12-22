@@ -13,5 +13,5 @@ bdk:
 
   bot:
     username: tibot
-    privateKeyPath: classpath:/privatekey.pem
+    privateKey.path: classpath:/privatekey.pem
 

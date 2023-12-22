@@ -1,8 +1,6 @@
 package com.symphony.bdk.core.config;
 
 import com.symphony.bdk.core.config.exception.BdkConfigException;
-import com.symphony.bdk.core.config.legacy.LegacyConfigMapper;
-import com.symphony.bdk.core.config.legacy.model.LegacySymConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -60,16 +58,7 @@ public class BdkConfigLoader {
    */
   public static BdkConfig loadFromInputStream(InputStream inputStream) throws BdkConfigException {
     BdkConfigParser parser = new BdkConfigParser();
-    return parseConfig(parser.parse(inputStream));
-  }
-
-  private static BdkConfig parseConfig(JsonNode jsonNode) {
-    if (jsonNode.at("/botUsername").isMissingNode()) {
-      return JSON_MAPPER.convertValue(jsonNode, BdkConfig.class);
-    } else {
-      LegacySymConfig legacySymConfig = JSON_MAPPER.convertValue(jsonNode, LegacySymConfig.class);
-      return LegacyConfigMapper.map(legacySymConfig);
-    }
+    return JSON_MAPPER.convertValue(parser.parse(inputStream), BdkConfig.class);
   }
 
   /**
@@ -118,9 +107,9 @@ public class BdkConfigLoader {
    * @param properties {@link Properties} with BDK properties
    * @return Symphony Bot Configuration
    */
+  @SuppressWarnings("unchecked")
   public static BdkConfig loadFromProperties(Properties properties) throws IOException {
-    final Map<String, String> propertyMap = (Map) properties;
-    return loadFromPropertyMap(propertyMap);
+    return loadFromPropertyMap((Map<String, String>) (Map<?, ?>) properties);
   }
 
   /**
@@ -132,5 +121,4 @@ public class BdkConfigLoader {
   public static BdkConfig loadFromPropertyMap(Map<String, String> properties) throws IOException {
     return PROPS_MAPPER.readMapAs(properties, BdkConfig.class);
   }
-
 }

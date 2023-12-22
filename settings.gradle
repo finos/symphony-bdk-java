@@ -23,7 +23,6 @@ include(':symphony-bdk-spring:symphony-bdk-app-spring-boot-starter')
 // examples
 include(':symphony-bdk-examples:bdk-core-examples')
 include(':symphony-bdk-examples:bdk-spring-boot-example')
-include(':symphony-bdk-examples:bdk-template-examples')
 include(':symphony-bdk-examples:bdk-app-spring-boot-example')
 include(':symphony-bdk-examples:bdk-multi-instances-example')
 include(':symphony-bdk-examples:bdk-group-example')
@@ -34,4 +33,3 @@ include(':symphony-bdk-extensions:symphony-group-extension')
 // test framework
 include(':symphony-bdk-test:symphony-bdk-test-spring-boot')
 include(':symphony-bdk-test:symphony-bdk-test-jupiter')
-

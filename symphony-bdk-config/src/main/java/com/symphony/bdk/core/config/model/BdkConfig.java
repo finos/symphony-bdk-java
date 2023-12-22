@@ -42,7 +42,7 @@ public class BdkConfig extends BdkServerConfig {
   }
 
   /**
-   * Check if Common JWT feature is enabled. Checks {@link BdkCommonJwtConfig#getEnabled()} ()} on field {@link #commonJwt}.
+   * Check if Common JWT feature is enabled. Checks {@link BdkCommonJwtConfig#enabled} ()} on field {@link #commonJwt}.
    *
    * @return true if Common JWT is enabled.
    */
@@ -53,7 +53,7 @@ public class BdkConfig extends BdkServerConfig {
   /**
    * Returns the retry configuration used for DataFeed services.
    *
-   * @return {@link BdkDatafeedConfig#getRetry()} from {@link #datafeed} if not null, {@link #retry} otherwise
+   * @return {@link BdkDatafeedConfig#retry} from {@link #datafeed} if not null, {@link #retry} otherwise
    */
   public BdkRetryConfig getDatafeedRetryConfig() {
     return datafeed.getRetry() == null ? retry : datafeed.getRetry();

@@ -30,6 +30,7 @@ public final class StreamUtil {
    * @return stream id after conversion
    * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil#toUrlSafeId(String)} instead.
    */
+  @Deprecated
   public static String toUrlSafeStreamId(String streamId) {
     return IdUtil.toUrlSafeIdIfNeeded(streamId);
   }
@@ -46,6 +47,7 @@ public final class StreamUtil {
    * @return stream id after conversion
    * @deprecated Use {@link com.symphony.bdk.core.util.IdUtil#fromUrlSafeId(String)} instead.
    */
+  @Deprecated
   public static String fromUrlSafeStreamId(String streamId) {
     return IdUtil.fromUrlSafeId(streamId);
   }
