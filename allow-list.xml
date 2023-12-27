@@ -8,18 +8,4 @@
         <cve>CVE-2022-45688</cve>
         <cve>CVE-2023-5072</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-          No fix available
-          ]]></notes>
-        <gav>ch.qos.logback:logback-core:1.4.11</gav>
-        <cve>CVE-2023-6378</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-          No fix available
-          ]]></notes>
-        <gav>ch.qos.logback:logback-classic:1.4.11</gav>
-        <cve>CVE-2023-6378</cve>
-    </suppress>
 </suppressions>
