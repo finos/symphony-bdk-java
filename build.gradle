@@ -3,7 +3,7 @@ plugins {
     id "org.owasp.dependencycheck" version "9.0.9"
 }
 
-ext.projectVersion = '3.0.0.RC5'
+ext.projectVersion = '3.0.0.RC6'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
