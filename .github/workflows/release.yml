@@ -11,21 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - run: |
-        mkdir -p ~/.gnupg/
-        printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
-        ./gradlew -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
-      env:
-        GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
-        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
-        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-        GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-        GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
+      - run: |
+          mkdir -p ~/.gnupg/
+          printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
+          ./gradlew -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
+        env:
+          GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
