@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -30,7 +30,7 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
   private final List<String> filters;
   private final RetryWithRecovery<Object> readEvents;
 
-  public DatahoseLoopImpl(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+  public DatahoseLoopImpl(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);
 
     String untruncatedTag = config.getDatahose().getTag();

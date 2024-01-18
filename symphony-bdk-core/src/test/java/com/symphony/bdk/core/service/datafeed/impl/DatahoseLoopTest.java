@@ -11,7 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
 import com.symphony.bdk.core.config.BdkConfigLoader;
@@ -53,7 +53,7 @@ class DatahoseLoopTest {
   private DatahoseLoopImpl datahoseLoop;
   private ApiClient apiClient;
   private DatafeedApi datafeedApi;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
   private BdkConfig bdkConfig;
   private UserV2 botInfo;
   private RealTimeEventListener listener;

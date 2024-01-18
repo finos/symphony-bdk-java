@@ -1,20 +1,20 @@
 package com.symphony.bdk.core.auth;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+
 import org.apiguardian.api.API;
+import org.apiguardian.api.API.Status;
 
 import javax.annotation.Nonnull;
 
-/**
- * Bot authenticator service.
- */
-@API(status = API.Status.STABLE)
-public interface BotAuthenticator {
+@API(status = Status.EXPERIMENTAL)
+public interface CustomEnhancedAuthAuthenticator {
 
   /**
-   * Authenticates a Bot's service account.
+   * Authenticates.
    *
    * @return the authentication session.
    */
-  @Nonnull BotAuthSession authenticateBot() throws AuthUnauthorizedException;
+  @Nonnull
+  String authenticate() throws AuthUnauthorizedException;
 }

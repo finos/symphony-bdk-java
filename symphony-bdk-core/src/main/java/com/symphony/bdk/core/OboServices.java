@@ -1,6 +1,6 @@
 package com.symphony.bdk.core;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.connection.OboConnectionService;
@@ -27,7 +27,7 @@ public class OboServices {
   private final OboSignalService oboSignalService;
   private final OboSessionService oboSessionService;
 
-  public OboServices(BdkConfig config, AuthSession oboSession) {
+  public OboServices(BdkConfig config, BotAuthSession oboSession) {
     final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config);
 
     oboStreamService = serviceFactory.getStreamService();

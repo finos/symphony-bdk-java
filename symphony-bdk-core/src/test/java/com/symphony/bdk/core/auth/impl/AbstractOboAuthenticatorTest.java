@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.http.api.ApiException;
@@ -61,14 +61,14 @@ class AbstractOboAuthenticatorTest {
 
     @Nonnull
     @Override
-    public AuthSession authenticateByUsername(@Nonnull String username) {
-      return mock(AuthSession.class);
+    public BotAuthSession authenticateByUsername(@Nonnull String username) {
+      return mock(BotAuthSession.class);
     }
 
     @Nonnull
     @Override
-    public AuthSession authenticateByUserId(@Nonnull Long userId) {
-      return mock(AuthSession.class);
+    public BotAuthSession authenticateByUserId(@Nonnull Long userId) {
+      return mock(BotAuthSession.class);
     }
   }
 
@@ -210,7 +210,7 @@ class AbstractOboAuthenticatorTest {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(401, "")).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
-    assertThrows(AuthUnauthorizedException.class, () -> authenticator.retrieveAppSessionToken());
+    assertThrows(AuthUnauthorizedException.class, authenticator::retrieveAppSessionToken);
     verify(authenticator, times(1)).authenticateAndRetrieveAppSessionToken();
   }
 
@@ -219,7 +219,7 @@ class AbstractOboAuthenticatorTest {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval()));
     doThrow(new ApiException(404, "")).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
-    assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveAppSessionToken());
+    assertThrows(ApiRuntimeException.class, authenticator::retrieveAppSessionToken);
     verify(authenticator, times(1)).authenticateAndRetrieveAppSessionToken();
   }
 
@@ -242,7 +242,7 @@ class AbstractOboAuthenticatorTest {
     AbstractOboAuthenticator authenticator = spy(new TestAbstractOboAuthenticator(ofMinimalInterval(2)));
     doThrow(new ApiException(429, "")).when(authenticator).authenticateAndRetrieveAppSessionToken();
 
-    assertThrows(ApiRuntimeException.class, () -> authenticator.retrieveAppSessionToken());
+    assertThrows(ApiRuntimeException.class, authenticator::retrieveAppSessionToken);
     verify(authenticator, times(2)).authenticateAndRetrieveAppSessionToken();
   }
 }

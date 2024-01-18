@@ -1,7 +1,7 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
@@ -49,7 +49,7 @@ public class SymphonyBdk {
   private final OboAuthenticator oboAuthenticator;
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
-  private final AuthSession botSession;
+  private final BotAuthSession botSession;
   private final UserV2 botInfo;
   private final DatafeedLoop datafeedLoop;
   private final DatahoseLoop datahoseLoop;
@@ -282,7 +282,7 @@ public class SymphonyBdk {
    * @param id User id
    * @return Obo authentication session
    */
-  public AuthSession obo(Long id) throws AuthUnauthorizedException {
+  public BotAuthSession obo(Long id) throws AuthUnauthorizedException {
     return this.getOboAuthenticator().authenticateByUserId(id);
   }
 
@@ -292,7 +292,7 @@ public class SymphonyBdk {
    * @param username Username
    * @return Obo authentication session
    */
-  public AuthSession obo(String username) throws AuthUnauthorizedException {
+  public BotAuthSession obo(String username) throws AuthUnauthorizedException {
     return this.getOboAuthenticator().authenticateByUsername(username);
   }
 
@@ -302,7 +302,7 @@ public class SymphonyBdk {
    * @param oboSession the OBO session to use
    * @return an {@link OboServices} instance using the provided OBO session
    */
-  public OboServices obo(AuthSession oboSession) {
+  public OboServices obo(BotAuthSession oboSession) {
     return new OboServices(config, oboSession);
   }
 
@@ -318,10 +318,10 @@ public class SymphonyBdk {
   /**
    * Returns the Bot session.
    *
-   * @return the bot {@link AuthSession}
+   * @return the bot {@link BotAuthSession}
    */
   @API(status = API.Status.EXPERIMENTAL)
-  public AuthSession botSession() {
+  public BotAuthSession botSession() {
     return this.botSession;
   }
 

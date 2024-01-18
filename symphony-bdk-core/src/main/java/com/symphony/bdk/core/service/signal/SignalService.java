@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.signal;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
@@ -41,27 +41,27 @@ import javax.annotation.Nullable;
 public class SignalService implements OboSignalService, OboService<OboSignalService> {
 
   private final SignalsApi signalsApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public SignalService(SignalsApi signalsApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public SignalService(SignalsApi signalsApi, BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.signalsApi = signalsApi;
     this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   public SignalService(SignalsApi signalsApi, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.signalsApi = signalsApi;
     this.authSession = null;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public OboSignalService obo(AuthSession oboSession) {
+  public OboSignalService obo(BotAuthSession oboSession) {
     return new SignalService(signalsApi, oboSession, retryBuilder);
   }
 

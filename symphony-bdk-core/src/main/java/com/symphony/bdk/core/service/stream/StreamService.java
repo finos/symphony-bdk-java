@@ -2,7 +2,7 @@ package com.symphony.bdk.core.service.stream;
 
 import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
@@ -66,16 +66,16 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   private final StreamsApi streamsApi;
   private final RoomMembershipApi roomMembershipApi;
   private final ShareApi shareApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
-      AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+      BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.streamsApi = streamsApi;
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
     this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
@@ -85,14 +85,14 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
     this.authSession = null;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public OboStreamService obo(AuthSession oboSession) {
+  public OboStreamService obo(BotAuthSession oboSession) {
     return new StreamService(streamsApi, roomMembershipApi, shareApi, oboSession, retryBuilder);
   }
 

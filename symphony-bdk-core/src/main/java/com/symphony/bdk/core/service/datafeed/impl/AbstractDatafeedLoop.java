@@ -2,7 +2,7 @@ package com.symphony.bdk.core.service.datafeed.impl;
 
 import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
 @API(status = API.Status.INTERNAL)
 abstract class AbstractDatafeedLoop implements DatafeedLoop {
 
-  protected final AuthSession authSession;
+  protected final BotAuthSession authSession;
   protected final BdkConfig bdkConfig;
   protected final UserV2 botInfo;
   protected final AtomicBoolean started = new AtomicBoolean();
@@ -44,7 +44,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   // access needs to be thread safe (DF loop is usually running on its own thread)
   private final List<RealTimeEventListener> listeners;
 
-  public AbstractDatafeedLoop(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+  public AbstractDatafeedLoop(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     this.datafeedApi = datafeedApi;
     this.listeners = new ArrayList<>();
     this.authSession = authSession;

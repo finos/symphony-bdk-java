@@ -2,7 +2,7 @@ package com.symphony.bdk.core;
 
 import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -71,12 +71,12 @@ class ServiceFactory {
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
   private final ApiClient datahoseAgentClient;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final TemplateEngine templateEngine;
   private final BdkConfig config;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
+  public ServiceFactory(ApiClientFactory apiClientFactory, BotAuthSession authSession, BdkConfig config) {
     this.config = config;
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
@@ -211,7 +211,7 @@ class ServiceFactory {
    * @return a new {@link HealthService} instance.
    */
   public HealthService getHealthService() {
-    return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession);
+    return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession, this.retryBuilder);
   }
 
 }

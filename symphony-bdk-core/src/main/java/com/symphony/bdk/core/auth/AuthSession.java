@@ -17,32 +17,15 @@ import javax.annotation.Nullable;
 public interface AuthSession {
 
   /**
-   * Pod's authentication token.
-   *
-   * @return the Pod session token
-   */
-  @Nullable String getSessionToken();
-
-  /**
-   * Pod's Common JWT authentication token. When commonJwt.enabled is set to true in the configuration, an OAuth
-   * authentication scheme is used where the session token acts as the refresh token and the authorization token is a
-   * short lived access token.
-   *
-   * @return the Pod Authorization token
-   */
-  @Nullable default String getAuthorizationToken() throws AuthUnauthorizedException {
-    return null;
-  }
-
-  /**
-   * KeyManager's authentication token.
-   *
-   * @return the KeyManager token, null if OBO
-   */
-  @Nullable String getKeyManagerToken();
-
-  /**
    * Trigger re-authentication to refresh tokens.
    */
   void refresh() throws AuthUnauthorizedException;
+
+  default String sessionId() {
+    return "";
+  }
+
+  default void register(AuthSessionRegistry authSessionRegistry) {
+    authSessionRegistry.register(this);
+  }
 }

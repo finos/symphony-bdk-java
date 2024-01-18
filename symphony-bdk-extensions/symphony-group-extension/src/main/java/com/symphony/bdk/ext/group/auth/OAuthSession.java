@@ -4,7 +4,7 @@ import static com.symphony.bdk.http.api.Pair.pair;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.http.api.ApiClient;
@@ -17,13 +17,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 
 @API(status = API.Status.INTERNAL)
 public class OAuthSession {
 
   private final ApiClient loginClient;
-  private final AuthSession session;
+  private final BotAuthSession session;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   @Getter
@@ -31,7 +34,7 @@ public class OAuthSession {
 
   public OAuthSession(
       @Nonnull ApiClient loginClient,
-      @Nonnull AuthSession session,
+      @Nonnull BotAuthSession session,
       @Nonnull RetryWithRecoveryBuilder<?> retryBuilder
   ) {
     this.loginClient = loginClient;
@@ -55,13 +58,15 @@ public class OAuthSession {
   }
 
   private String doRefresh() throws ApiException {
+    Map<String, String> headers = new HashMap<>(4);
+    headers.put("sessionToken", this.session.getSessionToken());
 
     final ApiResponse<TokenResponse> response = this.loginClient.invokeAPI(
         "/idm/tokens",
         "POST",
         singletonList(pair("scope", "profile-manager")),
         null,
-        singletonMap("sessionToken", this.session.getSessionToken()),
+        headers,
         null,
         null,
         "application/json",

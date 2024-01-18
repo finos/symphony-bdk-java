@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.session.SessionService;
@@ -35,7 +35,7 @@ class SessionServiceTest {
   private SessionApi sessionApi;
 
   @Mock
-  private AuthSession authSession;
+  private BotAuthSession authSession;
 
   private SessionService service;
 

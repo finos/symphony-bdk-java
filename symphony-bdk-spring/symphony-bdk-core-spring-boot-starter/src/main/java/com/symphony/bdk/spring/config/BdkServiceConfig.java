@@ -1,6 +1,6 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -52,53 +52,53 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public SessionService sessionService(SessionApi sessionApi, AuthSession botSession, BdkConfig config) {
+  public SessionService sessionService(SessionApi sessionApi, BotAuthSession botSession, BdkConfig config) {
     return new SessionService(sessionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
   public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi,
-      AuthSession botSession, BdkConfig config) {
+      BotAuthSession botSession, BdkConfig config) {
     return new StreamService(streamsApi, roomMembershipApi, shareApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession botSession, BdkConfig config) {
+  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, BotAuthSession botSession, BdkConfig config) {
     return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public DisclaimerService disclaimerService(DisclaimerApi disclaimerApi, AuthSession botSession, BdkConfig config) {
+  public DisclaimerService disclaimerService(DisclaimerApi disclaimerApi, BotAuthSession botSession, BdkConfig config) {
     return new DisclaimerService(disclaimerApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public PresenceService presenceService(PresenceApi presenceApi, AuthSession botSession, BdkConfig config) {
+  public PresenceService presenceService(PresenceApi presenceApi, BotAuthSession botSession, BdkConfig config) {
     return new PresenceService(presenceApi, botSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public ConnectionService connectionService(ConnectionApi connectionApi, AuthSession botSession, BdkConfig config) {
+  public ConnectionService connectionService(ConnectionApi connectionApi, BotAuthSession botSession, BdkConfig config) {
     return new ConnectionService(connectionApi, botSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public SignalService signalService(SignalsApi signalsApi, AuthSession botSession, BdkConfig config) {
+  public SignalService signalService(SignalsApi signalsApi, BotAuthSession botSession, BdkConfig config) {
     return new SignalService(signalsApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
   public ApplicationService applicationService(ApplicationApi applicationApi,
-      AppEntitlementApi appEntitlementApi, AuthSession botSession, BdkConfig config) {
+      AppEntitlementApi appEntitlementApi, BotAuthSession botSession, BdkConfig config) {
     return new ApplicationService(applicationApi, appEntitlementApi, botSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
@@ -106,9 +106,8 @@ public class BdkServiceConfig {
   @Bean
   @ConditionalOnProperty(value = "bdk.datafeed.enabled", havingValue = "true", matchIfMissing = true)
   @ConditionalOnMissingBean
-  public HealthService healthService(SystemApi systemApi, SignalsApi signalsApi, AuthSession botSession,
-      DatafeedLoop datafeedLoop) {
-    return new HealthService(systemApi, signalsApi, botSession, datafeedLoop);
+  public HealthService healthService(SystemApi systemApi, SignalsApi signalsApi, BotAuthSession botSession, DatafeedLoop datafeedLoop, BdkConfig config) {
+    return new HealthService(systemApi, signalsApi, datafeedLoop, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
@@ -121,7 +120,7 @@ public class BdkServiceConfig {
       final PodApi podApi,
       final AttachmentsApi attachmentsApi,
       final DefaultApi defaultApi,
-      final AuthSession botSession,
+      final BotAuthSession botSession,
       final TemplateEngine templateEngine,
       final BdkConfig config
   ) {

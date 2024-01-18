@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.application;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
@@ -38,15 +38,16 @@ public class ApplicationService {
 
   private final ApplicationApi applicationApi;
   private final AppEntitlementApi appEntitlementApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ApplicationService(ApplicationApi applicationApi, AppEntitlementApi appEntitlementApi,
-      AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+      BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.applicationApi = applicationApi;
     this.appEntitlementApi = appEntitlementApi;
     this.authSession = authSession;
-    this.retryBuilder = retryBuilder;
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
+        .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);;
   }
 
   /**

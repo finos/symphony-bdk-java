@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -11,10 +11,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * {@link AuthSession} impl for OBO Certificate authentication mode.
+ * {@link BotAuthSession} impl for OBO Certificate authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionOboCertImpl implements AuthSession {
+public class AuthSessionOboCertImpl implements BotAuthSession {
 
   private final OboAuthenticatorCertImpl authenticator;
   private final Long userId;

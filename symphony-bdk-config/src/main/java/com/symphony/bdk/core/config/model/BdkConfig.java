@@ -27,6 +27,7 @@ public class BdkConfig extends BdkServerConfig {
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
   private BdkDatahoseConfig datahose = new BdkDatahoseConfig();
   private BdkCommonJwtConfig commonJwt = new BdkCommonJwtConfig();
+  private BdkCustomEnhancedAuthConfig enhancedAuth = new BdkCustomEnhancedAuthConfig();
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.

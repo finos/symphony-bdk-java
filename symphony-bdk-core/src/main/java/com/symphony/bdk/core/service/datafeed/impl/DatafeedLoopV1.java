@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.config.model.BdkLoadBalancingConfig;
@@ -51,11 +51,11 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
   private final RetryWithRecovery<String> createDatafeed;
   private String datafeedId;
 
-  public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+  public DatafeedLoopV1(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     this(datafeedApi, authSession, config, botInfo, new OnDiskDatafeedIdRepository(config));
   }
 
-  public DatafeedLoopV1(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo,
+  public DatafeedLoopV1(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo,
       DatafeedIdRepository repository) {
     super(datafeedApi, authSession, config, botInfo);
 

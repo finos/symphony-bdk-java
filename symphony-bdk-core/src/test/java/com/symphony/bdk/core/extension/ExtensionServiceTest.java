@@ -3,7 +3,7 @@ package com.symphony.bdk.core.extension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.exception.BdkExtensionException;
@@ -23,7 +23,7 @@ class ExtensionServiceTest {
   @Mock
   private ApiClientFactory apiClientFactory;
   @Mock
-  private AuthSession authSession;
+  private BotAuthSession authSession;
   @Mock
   private RetryWithRecoveryBuilder<?> retryBuilder;
 

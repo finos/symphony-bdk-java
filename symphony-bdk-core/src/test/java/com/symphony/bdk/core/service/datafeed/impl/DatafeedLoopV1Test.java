@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.impl.AuthSessionImpl;
 import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
@@ -84,7 +84,7 @@ class DatafeedLoopV1Test {
   private DatafeedIdRepository datafeedIdRepository;
   private ApiClient datafeedApiClient;
   private DatafeedApi datafeedApi;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
   private UserV2 botInfo;
   private RealTimeEventListener listener;
 

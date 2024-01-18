@@ -15,7 +15,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.core.service.message.model.Message;
@@ -97,7 +97,7 @@ class MessageServiceTest {
   private StreamsApi streamsApi;
   private AttachmentsApi attachmentsApi;
   private TemplateEngine templateEngine;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
   private MessagesApi messagesApi;
   private MessageApi messageApi;
   private MessageSuppressionApi messageSuppressionApi;
@@ -106,7 +106,7 @@ class MessageServiceTest {
 
   @BeforeEach
   void setUp() {
-    authSession = mock(AuthSession.class);
+    authSession = mock(BotAuthSession.class);
     when(authSession.getSessionToken()).thenReturn(TOKEN);
     when(authSession.getKeyManagerToken()).thenReturn(TOKEN);
 

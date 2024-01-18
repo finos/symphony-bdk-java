@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.session;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
@@ -18,24 +18,24 @@ import org.apiguardian.api.API;
 public class SessionService implements OboSessionService, OboService<OboSessionService> {
 
   private final SessionApi sessionApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public SessionService(SessionApi sessionApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public SessionService(SessionApi sessionApi, BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.sessionApi = sessionApi;
     this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   public SessionService(SessionApi sessionApi, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.sessionApi = sessionApi;
     this.authSession = null;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   @Override
-  public OboSessionService obo(AuthSession oboSession) {
+  public OboSessionService obo(BotAuthSession oboSession) {
     return new SessionService(sessionApi, oboSession, retryBuilder);
   }
 

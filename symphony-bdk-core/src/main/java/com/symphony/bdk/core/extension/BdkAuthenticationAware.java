@@ -1,11 +1,11 @@
 package com.symphony.bdk.core.extension;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 
 import org.apiguardian.api.API;
 
 /**
- * Interface to be implemented by any {@link com.symphony.bdk.extension.BdkExtension} that wishes to use the {@link AuthSession}
+ * Interface to be implemented by any {@link com.symphony.bdk.extension.BdkExtension} that wishes to use the {@link BotAuthSession}
  * of the bot service account.
  *
  * @see com.symphony.bdk.extension.BdkExtension
@@ -14,9 +14,9 @@ import org.apiguardian.api.API;
 public interface BdkAuthenticationAware {
 
   /**
-   * Set the {@link AuthSession} object.
+   * Set the {@link BotAuthSession} object.
    *
    * @param session the {@code AuthSession} instance to be used by this object
    */
-  void setAuthSession(AuthSession session);
+  void setAuthSession(BotAuthSession session);
 }

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
@@ -97,12 +97,12 @@ class UserServiceTest {
   private MockApiClient mockApiClient;
   private UsersApi spiedUsersApi;
   private AuditTrailApi spiedAuditTrailApi;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    this.authSession = mock(AuthSession.class);
+    this.authSession = mock(BotAuthSession.class);
 
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApiClient agentClient = mockApiClient.getApiClient("/agent");

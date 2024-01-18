@@ -1,10 +1,16 @@
 
 bdk:
-  host: acme.symphony.com
+  host: develop2.symphony.com
   bot:
-    username: mybot
+    username: wdkbot
     privateKey:
-      path: path/to/bot-privatekey.pem
+      path: /Users/yinan.liu/Projects/certs/privatekey.pem
+
+  enhanced-auth:
+    id: apigee
+    enabled: true
+    header-name: X-APIGEE-TOKEN
+
 
 logging:
   level:

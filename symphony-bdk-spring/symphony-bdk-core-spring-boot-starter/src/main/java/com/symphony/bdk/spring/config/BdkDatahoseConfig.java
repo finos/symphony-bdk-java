@@ -1,6 +1,6 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.service.datafeed.DatahoseLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
@@ -25,7 +25,7 @@ public class BdkDatahoseConfig {
   @ConditionalOnMissingBean
   public DatahoseLoop datahoseLoop(SymphonyBdkCoreProperties properties,
                                        @Qualifier("datahoseApi") DatafeedApi datafeedApi,
-                                       AuthSession botSession,
+                                       BotAuthSession botSession,
                                        BotInfoService botInfoService) {
     return new DatahoseLoopImpl(datafeedApi, botSession, properties, botInfoService.getBotInfo());
   }

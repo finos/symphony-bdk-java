@@ -6,7 +6,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -46,7 +46,7 @@ public class ApplicationManagementServiceTest {
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
+    BotAuthSession authSession = mock(BotAuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApplicationApi applicationApi = new ApplicationApi(podClient);
     AppEntitlementApi appEntitlementApi = new AppEntitlementApi(podClient);

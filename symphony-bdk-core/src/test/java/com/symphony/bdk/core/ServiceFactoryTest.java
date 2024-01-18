@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.BdkConfigLoader;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
@@ -41,7 +41,7 @@ public class ServiceFactoryTest {
 
   private ServiceFactory serviceFactory;
   private ApiClientFactory apiClientFactory;
-  private AuthSession mAuthSession;
+  private BotAuthSession mAuthSession;
   private ApiClient mPodClient;
   private BdkConfig config;
   private UserV2 botInfo;
@@ -50,7 +50,7 @@ public class ServiceFactoryTest {
   void setUp() throws BdkConfigException {
     this.config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     this.botInfo = mock(UserV2.class);
-    this.mAuthSession = mock(AuthSession.class);
+    this.mAuthSession = mock(BotAuthSession.class);
     this.mPodClient = mock(ApiClient.class);
     this.apiClientFactory = mock(ApiClientFactory.class);
 

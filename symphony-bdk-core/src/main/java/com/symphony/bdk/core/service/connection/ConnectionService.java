@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.connection;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
@@ -36,27 +36,27 @@ import javax.annotation.Nullable;
 public class ConnectionService implements OboConnectionService, OboService<OboConnectionService> {
 
   private final ConnectionApi connectionApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public ConnectionService(ConnectionApi connectionApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public ConnectionService(ConnectionApi connectionApi, BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.connectionApi = connectionApi;
     this. authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   public ConnectionService(ConnectionApi connectionApi, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.connectionApi = connectionApi;
     this. authSession = null;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public OboConnectionService obo(AuthSession oboSession) {
+  public OboConnectionService obo(BotAuthSession oboSession) {
     return new ConnectionService(connectionApi, oboSession, retryBuilder);
   }
 

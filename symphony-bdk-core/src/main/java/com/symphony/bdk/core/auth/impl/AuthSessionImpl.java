@@ -1,6 +1,8 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.AuthSessionRegistry;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.gen.api.model.Token;
@@ -19,7 +21,7 @@ import javax.annotation.Nullable;
  * {@link AuthSession} impl for regular authentication mode.
  */
 @API(status = API.Status.INTERNAL)
-public class AuthSessionImpl implements AuthSession {
+public class AuthSessionImpl implements BotAuthSession {
 
   public static final Duration LEEWAY = Duration.ofSeconds(5);
   private final AbstractBotAuthenticator authenticator;
@@ -45,12 +47,16 @@ public class AuthSessionImpl implements AuthSession {
     this.authenticator = authenticator;
   }
 
+  public AuthSessionImpl(@Nonnull AbstractBotAuthenticator authenticator, @Nonnull AuthSessionRegistry sessionRegistry) {
+    this.authenticator = authenticator;
+    sessionRegistry.register(this);
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable
-  String getSessionToken() {
+  public @Nullable String getSessionToken() {
     return this.sessionToken;
   }
 
@@ -58,8 +64,7 @@ public class AuthSessionImpl implements AuthSession {
    * {@inheritDoc}
    */
   @Override
-  public @Nullable
-  String getAuthorizationToken() throws AuthUnauthorizedException {
+  public @Nullable String getAuthorizationToken() throws AuthUnauthorizedException {
     if(this.authorizationToken == null || this.authTokenExpirationDate == null) {
       throw new UnsupportedOperationException("Common JWT feature is not available in your pod, "
           + "SBE version should be at least 20.14.");
@@ -69,12 +74,12 @@ public class AuthSessionImpl implements AuthSession {
     }
     return this.authorizationToken;
   }
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public @Nullable
-  String getKeyManagerToken() {
+  public @Nullable String getKeyManagerToken() {
     return this.keyManagerToken;
   }
 

@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
@@ -45,7 +45,7 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
    */
   @Override
   @Nonnull
-  public AuthSession authenticateBot() throws AuthUnauthorizedException {
+  public BotAuthSession authenticateBot() throws AuthUnauthorizedException {
     AuthSessionImpl authSession = new AuthSessionImpl(this);
     authSession.refresh();
     return authSession;

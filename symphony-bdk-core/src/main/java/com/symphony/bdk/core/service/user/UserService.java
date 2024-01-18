@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.user;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
@@ -82,16 +82,16 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   private final UserApi userApi;
   private final UsersApi usersApi;
   private final AuditTrailApi auditTrailApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession authSession,
+  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, BotAuthSession authSession,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
     this.auditTrailApi = auditTrailApi;
     this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
@@ -100,11 +100,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     this.usersApi = usersApi;
     this.auditTrailApi = auditTrailApi;
     this.authSession = null;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   @Override
-  public OboUserService obo(AuthSession oboSession) {
+  public OboUserService obo(BotAuthSession oboSession) {
     return new UserService(userApi, usersApi, auditTrailApi, oboSession, retryBuilder);
   }
 

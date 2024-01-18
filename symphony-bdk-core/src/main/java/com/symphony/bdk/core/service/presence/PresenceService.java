@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.presence;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
@@ -37,27 +37,27 @@ import javax.annotation.Nullable;
 public class PresenceService implements OboPresenceService, OboService<OboPresenceService> {
 
   private final PresenceApi presenceApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public PresenceService(PresenceApi presenceApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public PresenceService(PresenceApi presenceApi, BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.presenceApi = presenceApi;
     this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   public PresenceService(PresenceApi presenceApi, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.presenceApi = presenceApi;
     this.authSession = null;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public OboPresenceService obo(AuthSession oboSession) {
+  public OboPresenceService obo(BotAuthSession oboSession) {
     return new PresenceService(presenceApi, oboSession, retryBuilder);
   }
 

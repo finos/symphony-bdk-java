@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -33,12 +33,12 @@ class DisclaimerServiceTest {
   private DisclaimerService disclaimerService;
   private MockApiClient mockApiClient;
   private DisclaimerApi spyDisclaimerApi;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    this.authSession = mock(AuthSession.class);
+    this.authSession = mock(BotAuthSession.class);
 
     ApiClient podClient = this.mockApiClient.getApiClient("/pod");
     this.spyDisclaimerApi = spy(new DisclaimerApi(podClient));
@@ -67,7 +67,7 @@ class DisclaimerServiceTest {
   @Test
   void listDisclaimers() throws IOException {
     String response = JsonHelper.readFromClasspath("/disclaimer/list_disclaimers.json");
-    this.mockApiClient.onGet(String.format(V1_LIST_DISCLAIMERS, "666"), response);
+    this.mockApiClient.onGet(V1_LIST_DISCLAIMERS, response);
     List<Disclaimer> disclaimers = this.disclaimerService.listDisclaimers();
 
     assertEquals(2, disclaimers.size());

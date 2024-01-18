@@ -13,7 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
@@ -82,14 +82,14 @@ public class StreamServiceTest {
   private StreamService service;
   private MockApiClient mockApiClient;
   private RoomMembershipApi spyRoomMembershipApi;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
   private StreamsApi streamsApi;
   private ShareApi shareApi;
 
   @BeforeEach
   void setUp() {
     this.mockApiClient = new MockApiClient();
-    this.authSession = mock(AuthSession.class);
+    this.authSession = mock(BotAuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
 

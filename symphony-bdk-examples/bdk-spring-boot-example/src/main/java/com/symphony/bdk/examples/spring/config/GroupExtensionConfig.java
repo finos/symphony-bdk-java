@@ -1,6 +1,6 @@
 package com.symphony.bdk.examples.spring.config;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.ext.group.SymphonyGroupService;
@@ -15,8 +15,7 @@ public class GroupExtensionConfig {
   public SymphonyGroupService groupService(
       final RetryWithRecoveryBuilder<?> retryBuilder,
       final ApiClientFactory apiClientFactory,
-      final AuthSession session
-  ) {
+      final BotAuthSession session) {
     return new SymphonyGroupService(retryBuilder, apiClientFactory, session);
   }
 }

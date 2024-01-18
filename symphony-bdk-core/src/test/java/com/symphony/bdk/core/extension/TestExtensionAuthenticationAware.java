@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.extension;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.extension.BdkExtension;
 import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.extension.BdkExtensionServiceProvider;
@@ -14,13 +14,13 @@ public class TestExtensionAuthenticationAware implements BdkExtension, BdkAuthen
   @Getter
   @Setter
   public static class TestService implements BdkExtensionService {
-    AuthSession authSession;
+    BotAuthSession authSession;
   }
 
   private final TestService service = new TestService();
 
   @Override
-  public void setAuthSession(AuthSession session) {
+  public void setAuthSession(BotAuthSession session) {
     this.service.setAuthSession(session);
   }
 

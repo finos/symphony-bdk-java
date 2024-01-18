@@ -148,6 +148,7 @@ public class BdkApiClientsConfig {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public PodApi podApi(@Qualifier("podApiClient") ApiClient podApiClient) {
     return new PodApi(podApiClient);
   }

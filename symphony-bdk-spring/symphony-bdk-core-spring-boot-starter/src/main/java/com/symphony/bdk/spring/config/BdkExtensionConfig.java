@@ -1,6 +1,6 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.ExtensionService;
@@ -30,7 +30,7 @@ public class BdkExtensionConfig {
   public ExtensionService extensionService(
       final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder,
       final ApiClientFactory apiClientFactory,
-      final Optional<AuthSession> botSession,
+      final Optional<BotAuthSession> botSession,
       final BdkConfig config,
       final List<BdkExtension> extensions
   ) {

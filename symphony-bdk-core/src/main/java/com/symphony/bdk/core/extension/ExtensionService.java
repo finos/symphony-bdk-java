@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.extension;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.extension.BdkConfigAware;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -33,13 +33,13 @@ public class ExtensionService {
   private final Map<Class<? extends BdkExtension>, BdkExtension> extensions;
 
   private final ApiClientFactory apiClientFactory;
-  private final AuthSession botSession;
+  private final BotAuthSession botSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
   private final BdkConfig config;
 
   public ExtensionService(
       @Nonnull ApiClientFactory apiClientFactory,
-      @Nullable AuthSession botSession,
+      @Nullable BotAuthSession botSession,
       @Nonnull RetryWithRecoveryBuilder<?> retryBuilder,
       @Nonnull BdkConfig config
   ) {

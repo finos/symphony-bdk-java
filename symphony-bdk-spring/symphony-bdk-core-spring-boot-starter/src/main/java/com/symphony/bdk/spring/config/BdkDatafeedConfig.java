@@ -1,12 +1,11 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
-import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 import com.symphony.bdk.spring.service.BotInfoService;
@@ -38,7 +37,7 @@ public class BdkDatafeedConfig {
   public DatafeedLoop datafeedLoop(
       SymphonyBdkCoreProperties properties,
       @Qualifier("datafeedApi") DatafeedApi datafeedApi,
-      AuthSession botSession,
+      BotAuthSession botSession,
       DatafeedVersion datafeedVersion,
       BotInfoService botInfoService
   ) {

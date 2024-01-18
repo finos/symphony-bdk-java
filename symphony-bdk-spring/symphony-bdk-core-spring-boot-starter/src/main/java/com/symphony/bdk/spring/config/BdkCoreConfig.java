@@ -2,8 +2,9 @@ package com.symphony.bdk.spring.config;
 
 import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.AuthSessionRegistry;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.impl.OAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthentication;
@@ -55,7 +56,7 @@ public class BdkCoreConfig {
   }
 
   @Bean(name = "podApiClient")
-  public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
+  public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<BotAuthSession> botSession, BdkConfig config) {
     ApiClient client = apiClientFactory.getPodClient();
     if (config.isCommonJwtEnabled()) {
       if (config.isOboConfigured()) {
@@ -114,11 +115,18 @@ public class BdkCoreConfig {
   @Bean
   @ConditionalOnMissingBean
   @ConditionalOnProperty("bdk.bot.username")
-  public AuthSession botSession(AuthenticatorFactory authenticatorFactory) {
+  public BotAuthSession botSession(AuthenticatorFactory authenticatorFactory, AuthSessionRegistry authSessionRegistry) {
     try {
-      return authenticatorFactory.getBotAuthenticator().authenticateBot();
+      BotAuthSession botAuthSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
+      botAuthSession.register(authSessionRegistry);
+      return botAuthSession;
     } catch (AuthUnauthorizedException | AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate bot", e);
     }
+  }
+
+  @Bean
+  public AuthSessionRegistry authSessionRegistry() {
+    return new AuthSessionRegistry();
   }
 }

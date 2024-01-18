@@ -9,7 +9,7 @@ import static org.mockito.Mockito.spy;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AppAuthSession;
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -160,7 +160,7 @@ public class SymphonyBdkTest {
     this.mockApiClient.onPost(LOGIN_PUBKEY_APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
     this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
 
-    AuthSession oboSession = this.symphonyBdk.obo(123456L);
+    BotAuthSession oboSession = this.symphonyBdk.obo(123456L);
     final OboServices obo = this.symphonyBdk.obo(oboSession);
 
     assertNotNull(obo);
@@ -171,12 +171,12 @@ public class SymphonyBdkTest {
     this.mockApiClient.onPost(LOGIN_PUBKEY_APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
 
     this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    AuthSession authSessionById = this.symphonyBdk.obo(123456L);
+    BotAuthSession authSessionById = this.symphonyBdk.obo(123456L);
     assertEquals(authSessionById.getSessionToken(), "1234");
     assertNull(authSessionById.getKeyManagerToken());
 
     this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERNAME_AUTHENTICATE.replace("{username}", "username"), "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
-    AuthSession authSessionByUsername = this.symphonyBdk.obo("username");
+    BotAuthSession authSessionByUsername = this.symphonyBdk.obo("username");
     assertEquals(authSessionByUsername.getSessionToken(), "1234");
     assertNull(authSessionByUsername.getKeyManagerToken());
   }

@@ -9,7 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.connection.constant.ConnectionStatus;
 import com.symphony.bdk.core.test.MockApiClient;
@@ -36,12 +36,12 @@ public class ConnectionServiceTest {
   private ConnectionService service;
   private ConnectionApi spiedConnectionApi;
   private MockApiClient mockApiClient;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    this.authSession = mock(AuthSession.class);
+    this.authSession = mock(BotAuthSession.class);
     this.spiedConnectionApi = spy(new ConnectionApi(mockApiClient.getApiClient("/pod")));
     this.service = new ConnectionService(this.spiedConnectionApi, authSession, new RetryWithRecoveryBuilder<>());
 

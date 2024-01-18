@@ -1,7 +1,5 @@
 package com.symphony.bdk.core.auth;
 
-import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-
 import org.apiguardian.api.API;
 
 import javax.annotation.Nullable;
@@ -14,7 +12,7 @@ import javax.annotation.Nullable;
  * </p>
  */
 @API(status = API.Status.STABLE)
-public interface AppAuthSession {
+public interface AppAuthSession extends AuthSession {
 
   /**
    * Symphony token for extension app session.
@@ -39,10 +37,5 @@ public interface AppAuthSession {
    */
   @Nullable
   Long expireAt();
-
-  /**
-   * Trigger re-authentication to refresh tokens.
-   */
-  void refresh() throws AuthUnauthorizedException;
 
 }

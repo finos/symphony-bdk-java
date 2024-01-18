@@ -1,6 +1,6 @@
 package com.symphony.bdk.ext.group;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -44,7 +44,7 @@ public class SymphonyGroupService implements BdkExtensionService {
   private final RetryWithRecoveryBuilder<?> retryBuilder;
   private final GroupApi groupApi;
 
-  public SymphonyGroupService(RetryWithRecoveryBuilder<?> retryBuilder, ApiClientFactory apiClientFactory, AuthSession session) {
+  public SymphonyGroupService(RetryWithRecoveryBuilder<?> retryBuilder, ApiClientFactory apiClientFactory, BotAuthSession session) {
 
     // oAuthSession does not need to be cached, it will be refreshed everytime an API call returns 401
     final OAuthSession oAuthSession = new OAuthSession(apiClientFactory.getLoginClient(), session, retryBuilder);

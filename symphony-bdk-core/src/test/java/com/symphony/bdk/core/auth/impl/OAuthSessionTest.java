@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.Test;
 
 class OAuthSessionTest {
-  private final AuthSession authSession = mock(AuthSession.class);
+  private final BotAuthSession authSession = mock(BotAuthSession.class);
 
   @Test
   void testGetBearerToken() throws AuthUnauthorizedException, ApiException {

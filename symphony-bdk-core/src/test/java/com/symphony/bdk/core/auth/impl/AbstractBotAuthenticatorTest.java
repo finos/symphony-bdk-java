@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
@@ -62,8 +62,8 @@ class AbstractBotAuthenticatorTest {
 
     @Override
     @Nonnull
-    public AuthSession authenticateBot() {
-      return mock(AuthSession.class);
+    public BotAuthSession authenticateBot() {
+      return mock(BotAuthSession.class);
     }
   }
 

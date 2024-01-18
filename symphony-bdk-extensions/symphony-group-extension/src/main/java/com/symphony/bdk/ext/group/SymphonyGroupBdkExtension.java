@@ -1,6 +1,6 @@
 package com.symphony.bdk.ext.group;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.extension.BdkApiClientFactoryAware;
 import com.symphony.bdk.core.extension.BdkAuthenticationAware;
@@ -24,7 +24,7 @@ public class SymphonyGroupBdkExtension implements
 
   private RetryWithRecoveryBuilder<?> retryBuilder;
   private ApiClientFactory apiClientFactory;
-  private AuthSession session;
+  private BotAuthSession session;
 
   private SymphonyGroupService groupService;
 
@@ -34,7 +34,7 @@ public class SymphonyGroupBdkExtension implements
   }
 
   @Override
-  public void setAuthSession(AuthSession session) {
+  public void setAuthSession(BotAuthSession session) {
     this.session = session;
   }
 

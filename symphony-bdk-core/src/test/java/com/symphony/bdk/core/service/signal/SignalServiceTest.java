@@ -8,7 +8,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
@@ -44,12 +44,12 @@ public class SignalServiceTest {
   private SignalService service;
   private SignalsApi spiedSignalApi;
   private MockApiClient mockApiClient;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
 
   @BeforeEach
   void init() {
     this.mockApiClient = new MockApiClient();
-    this.authSession = mock(AuthSession.class);
+    this.authSession = mock(BotAuthSession.class);
     this.spiedSignalApi = spy(new SignalsApi(mockApiClient.getApiClient("/agent")));
     this.service = new SignalService(spiedSignalApi, authSession, new RetryWithRecoveryBuilder<>());
 

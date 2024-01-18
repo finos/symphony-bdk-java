@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
@@ -39,8 +40,8 @@ public class OboAuthenticatorRsaImpl extends AbstractOboAuthenticator {
    */
   @Nonnull
   @Override
-  public AuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException {
-    AuthSession authSession = new AuthSessionOboImpl(this, username);
+  public BotAuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException {
+    BotAuthSession authSession = new AuthSessionOboImpl(this, username);
     authSession.refresh();
     return authSession;
   }
@@ -49,8 +50,8 @@ public class OboAuthenticatorRsaImpl extends AbstractOboAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
-    AuthSession authSession = new AuthSessionOboImpl(this, userId);
+  public @Nonnull BotAuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
+    BotAuthSession authSession = new AuthSessionOboImpl(this, userId);
     authSession.refresh();
     return authSession;
   }

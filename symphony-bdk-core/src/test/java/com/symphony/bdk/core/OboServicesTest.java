@@ -3,7 +3,7 @@ package com.symphony.bdk.core;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
 import com.symphony.bdk.core.service.connection.OboConnectionService;
@@ -24,7 +24,7 @@ public class OboServicesTest {
 
   @BeforeEach
   void setUp() {
-    oboServices = new OboServices(new BdkConfig(), mock(AuthSession.class));
+    oboServices = new OboServices(new BdkConfig(), mock(BotAuthSession.class));
   }
 
   @Test

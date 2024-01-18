@@ -6,10 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.OAuthSession;
-import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.http.api.ApiException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +23,7 @@ class OAuthenticationTest {
   @BeforeEach
   void setUp() throws AuthUnauthorizedException {
     this.headerParams = new HashMap<>();
-    AuthSession authSession = mock(AuthSession.class);
+    BotAuthSession authSession = mock(BotAuthSession.class);
     when(authSession.getAuthorizationToken()).thenReturn("Bearer jwt");
     final OAuthSession oAuthSession = new OAuthSession(authSession);
     this.auth = new OAuthentication(oAuthSession::getBearerToken);

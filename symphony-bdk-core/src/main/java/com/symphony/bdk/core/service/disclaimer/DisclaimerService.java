@@ -1,6 +1,6 @@
 package com.symphony.bdk.core.service.disclaimer;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
@@ -31,13 +31,13 @@ import javax.annotation.Nonnull;
 public class DisclaimerService {
 
   private final DisclaimerApi disclaimerApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public DisclaimerService(DisclaimerApi disclaimerApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public DisclaimerService(DisclaimerApi disclaimerApi, BotAuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.disclaimerApi = disclaimerApi;
     this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 

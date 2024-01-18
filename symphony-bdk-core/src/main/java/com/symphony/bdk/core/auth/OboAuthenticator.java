@@ -17,7 +17,7 @@ public interface OboAuthenticator {
    * @param username Username of the user.
    * @return the authentication session.
    */
-  @Nonnull AuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException;
+  @Nonnull BotAuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException;
 
   /**
    * Authenticates on behalf of a particular user using his userId.
@@ -25,5 +25,5 @@ public interface OboAuthenticator {
    * @param userId Id of the user.
    * @return the authentication sessions.
    */
-  @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException;
+  @Nonnull BotAuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException;
 }

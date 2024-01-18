@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -37,7 +37,7 @@ public class OboAuthenticatorCertImplTest {
     this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
     this.mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERNAME.replace("{username}", "username"), "{ \"sessionToken\": \"1234\" }");
 
-    final AuthSession session = this.authenticator.authenticateByUsername("username");
+    final BotAuthSession session = this.authenticator.authenticateByUsername("username");
 
     assertEquals(AuthSessionOboCertImpl.class, session.getClass());
     assertEquals(this.authenticator, ((AuthSessionOboCertImpl) session).getAuthenticator());
@@ -50,7 +50,7 @@ public class OboAuthenticatorCertImplTest {
     this.mockApiClient.onPost(APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
 
     this.mockApiClient.onPost(APP_AUTHENTICATE_OBO_USERID.replace("{uid}", "123456"), "{ \"sessionToken\": \"1234\" }");
-    final AuthSession session = this.authenticator.authenticateByUserId(123456L);
+    final BotAuthSession session = this.authenticator.authenticateByUserId(123456L);
 
     assertEquals(AuthSessionOboCertImpl.class, session.getClass());
     assertEquals(this.authenticator, ((AuthSessionOboCertImpl) session).getAuthenticator());

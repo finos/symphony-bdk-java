@@ -6,6 +6,7 @@ import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.equalsAny;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
@@ -68,7 +69,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   private final PodApi podApi;
   private final AttachmentsApi attachmentsApi;
   private final DefaultApi defaultApi;
-  private final AuthSession authSession;
+  private final BotAuthSession authSession;
   private final TemplateEngine templateEngine;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
@@ -80,7 +81,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       final PodApi podApi,
       final AttachmentsApi attachmentsApi,
       final DefaultApi defaultApi,
-      final AuthSession authSession,
+      final BotAuthSession authSession,
       final TemplateEngine templateEngine,
       final RetryWithRecoveryBuilder<?> retryBuilder
   ) {
@@ -93,7 +94,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     this.authSession = authSession;
     this.templateEngine = templateEngine;
     this.defaultApi = defaultApi;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
@@ -117,11 +118,11 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     this.authSession = null;
     this.templateEngine = templateEngine;
     this.defaultApi = defaultApi;
-    this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
+    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   @Override
-  public OboMessageService obo(AuthSession oboSession) {
+  public OboMessageService obo(BotAuthSession oboSession) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
         defaultApi, oboSession, templateEngine, retryBuilder);
   }

@@ -7,7 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.SignalsApi;
@@ -36,12 +37,13 @@ public class HealthServiceTest {
   @BeforeEach
   void setUp() {
     this.mockApiClient = new MockApiClient();
-    AuthSession authSession = mock(AuthSession.class);
+    BotAuthSession authSession = mock(BotAuthSession.class);
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
     this.service = new HealthService(
         new SystemApi(agentClient),
         new SignalsApi(agentClient),
-        authSession
+        authSession,
+        new RetryWithRecoveryBuilder<>()
     );
 
     when(authSession.getSessionToken()).thenReturn("1234");
@@ -153,9 +155,9 @@ public class HealthServiceTest {
   @Test
   void datafeedLoop_timestampUpdatedInTime_up() {
     DatafeedLoop df = mock(DatafeedLoop.class);
-    AuthSession authSession = mock(AuthSession.class);
+    BotAuthSession authSession = mock(BotAuthSession.class);
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
-    this.service = new HealthService(new SystemApi(agentClient), new SignalsApi(agentClient), authSession, df);
+    this.service = new HealthService(new SystemApi(agentClient), new SignalsApi(agentClient), df, authSession, new RetryWithRecoveryBuilder<>());
     when(df.lastPullTimestamp()).thenReturn(Instant.now().minusSeconds(10).toEpochMilli());
     assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.UP);
   }
