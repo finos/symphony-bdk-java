@@ -1,14 +1,15 @@
 package com.symphony.bdk.core.service.health;
 
-import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
-import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
 import com.symphony.bdk.gen.api.model.V3Health;
 import com.symphony.bdk.gen.api.model.V3HealthStatus;
+import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -25,24 +26,17 @@ public class HealthService {
 
   private final SystemApi systemApi;
   private final SignalsApi signalsApi;
-  private final AuthSession authSession;
-  private final RetryWithRecoveryBuilder<?> retryBuilder;
   private DatafeedLoop datafeedLoop;
 
-  public HealthService(SystemApi systemApi, SignalsApi signalsApi, AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public HealthService(SystemApi systemApi, SignalsApi signalsApi) {
     this.systemApi = systemApi;
     this.signalsApi = signalsApi;
-    this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
-  public HealthService(SystemApi systemApi, SignalsApi signalsApi, DatafeedLoop datafeedLoop, AuthSession authSession,
-      RetryWithRecoveryBuilder<?> retryBuilder) {
+  public HealthService(SystemApi systemApi, SignalsApi signalsApi, DatafeedLoop datafeedLoop) {
     this.systemApi = systemApi;
     this.signalsApi = signalsApi;
     this.datafeedLoop = datafeedLoop;
-    this.authSession = authSession;
-    this.retryBuilder = RetryWithRecoveryBuilder.from(retryBuilder);
   }
 
   public void setDatafeedLoop(DatafeedLoop datafeedLoop) {
@@ -57,8 +51,7 @@ public class HealthService {
    * @see <a href="https://developers.symphony.com/restapi/reference/health-check-v3">Health Check v3</a>
    */
   public V3Health healthCheck() {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, "healthCheck", systemApi.getApiClient().getBasePath(),
-        systemApi::v3Health);
+    return execute(systemApi::v3Health);
   }
 
   /**
@@ -70,8 +63,7 @@ public class HealthService {
    * v3</a>
    */
   public V3Health healthCheckExtended() {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, "healthCheckExtended",
-        systemApi.getApiClient().getBasePath(), systemApi::v3ExtendedHealth);
+    return execute(systemApi::v3ExtendedHealth);
   }
 
   /**
@@ -94,8 +86,15 @@ public class HealthService {
    * @see <a href="https://developers.symphony.com/restapi/reference/agent-info-v1">Agent Info v1</a>
    */
   public AgentInfo getAgentInfo() {
-    return RetryWithRecovery.executeAndRetry(retryBuilder, "agentInfo", signalsApi.getApiClient().getBasePath(),
-        signalsApi::v1InfoGet);
+    return execute(signalsApi::v1InfoGet);
+  }
+
+  private <T> T execute(SupplierWithApiException<T> supplier) {
+    try {
+      return supplier.get();
+    } catch (ApiException e) {
+      throw new ApiRuntimeException(e);
+    }
   }
 
   private V3HealthStatus lastRunHealthStatus(Supplier<Long> supplier) {

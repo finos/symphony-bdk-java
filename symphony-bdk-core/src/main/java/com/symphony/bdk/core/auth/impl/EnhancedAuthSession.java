@@ -1,9 +1,9 @@
 package com.symphony.bdk.core.auth.impl;
 
-import com.symphony.bdk.core.auth.AuthSessionRegistry;
 import com.symphony.bdk.core.auth.CustomEnhancedAuthAuthenticator;
 import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.http.api.ApiException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ public class EnhancedAuthSession implements CustomEnhancedAuthSession {
 
   private String authToken;
 
-  public EnhancedAuthSession(CustomEnhancedAuthAuthenticator authAuthenticator, AuthSessionRegistry sessionRegistry) {
-    this.authAuthenticator = authAuthenticator;
-    sessionRegistry.register( this);
+  @Override
+  public boolean isSessionExpired(ApiException exception) {
+    return authAuthenticator.isAuthTokenExpired(exception);
   }
 
   @Override

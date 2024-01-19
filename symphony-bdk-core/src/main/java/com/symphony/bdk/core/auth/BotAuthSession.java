@@ -10,9 +10,6 @@ import javax.annotation.Nullable;
 
 @API(status = Status.EXPERIMENTAL)
 public interface BotAuthSession extends AuthSession {
-  default String sessionId() {
-    return "botSession";
-  }
 
   /**
    * Pod's authentication token.

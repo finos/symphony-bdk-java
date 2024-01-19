@@ -1,6 +1,8 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
+import com.symphony.bdk.core.auth.impl.EnhancedAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -51,39 +53,39 @@ import org.springframework.context.annotation.Bean;
 public class BdkServiceConfig {
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({SessionService.class, CustomEnhancedAuthSession.class})
   public SessionService sessionService(SessionApi sessionApi, BotAuthSession botSession, BdkConfig config) {
     return new SessionService(sessionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({StreamService.class, CustomEnhancedAuthSession.class})
   public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi,
       BotAuthSession botSession, BdkConfig config) {
     return new StreamService(streamsApi, roomMembershipApi, shareApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({UserService.class, CustomEnhancedAuthSession.class})
   public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, BotAuthSession botSession, BdkConfig config) {
     return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({DisclaimerService.class, CustomEnhancedAuthSession.class})
   public DisclaimerService disclaimerService(DisclaimerApi disclaimerApi, BotAuthSession botSession, BdkConfig config) {
     return new DisclaimerService(disclaimerApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({PresenceService.class, EnhancedAuthSession.class})
   public PresenceService presenceService(PresenceApi presenceApi, BotAuthSession botSession, BdkConfig config) {
     return new PresenceService(presenceApi, botSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({ConnectionService.class, CustomEnhancedAuthSession.class})
   public ConnectionService connectionService(ConnectionApi connectionApi, BotAuthSession botSession, BdkConfig config) {
     return new ConnectionService(connectionApi, botSession,
         new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
@@ -96,7 +98,7 @@ public class BdkServiceConfig {
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({ApplicationService.class, CustomEnhancedAuthSession.class})
   public ApplicationService applicationService(ApplicationApi applicationApi,
       AppEntitlementApi appEntitlementApi, BotAuthSession botSession, BdkConfig config) {
     return new ApplicationService(applicationApi, appEntitlementApi, botSession,
@@ -106,12 +108,12 @@ public class BdkServiceConfig {
   @Bean
   @ConditionalOnProperty(value = "bdk.datafeed.enabled", havingValue = "true", matchIfMissing = true)
   @ConditionalOnMissingBean
-  public HealthService healthService(SystemApi systemApi, SignalsApi signalsApi, BotAuthSession botSession, DatafeedLoop datafeedLoop, BdkConfig config) {
-    return new HealthService(systemApi, signalsApi, datafeedLoop, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public HealthService healthService(SystemApi systemApi, SignalsApi signalsApi, DatafeedLoop datafeedLoop) {
+    return new HealthService(systemApi, signalsApi, datafeedLoop);
   }
 
   @Bean
-  @ConditionalOnMissingBean
+  @ConditionalOnMissingBean({MessageService.class, CustomEnhancedAuthSession.class})
   public MessageService messageService(
       final MessagesApi messagesApi,
       final MessageApi messageApi,

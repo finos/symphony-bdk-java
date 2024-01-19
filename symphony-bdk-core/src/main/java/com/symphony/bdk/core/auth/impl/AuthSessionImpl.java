@@ -1,7 +1,6 @@
 package com.symphony.bdk.core.auth.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AuthSessionRegistry;
 import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
@@ -45,11 +44,6 @@ public class AuthSessionImpl implements BotAuthSession {
 
   public AuthSessionImpl(@Nonnull AbstractBotAuthenticator authenticator) {
     this.authenticator = authenticator;
-  }
-
-  public AuthSessionImpl(@Nonnull AbstractBotAuthenticator authenticator, @Nonnull AuthSessionRegistry sessionRegistry) {
-    this.authenticator = authenticator;
-    sessionRegistry.register(this);
   }
 
   /**

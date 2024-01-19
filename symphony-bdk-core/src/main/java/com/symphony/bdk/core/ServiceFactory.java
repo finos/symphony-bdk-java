@@ -3,10 +3,13 @@ package com.symphony.bdk.core;
 import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
+import com.symphony.bdk.core.auth.impl.CustomEnhancedAuthAuthentication;
 import com.symphony.bdk.core.auth.impl.OAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.config.model.BdkCustomEnhancedAuthConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -95,6 +98,41 @@ class ServiceFactory {
         this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
       }
+    }
+  }
+
+  public ServiceFactory(ApiClientFactory apiClientFactory, BotAuthSession authSession, CustomEnhancedAuthSession enhancedAuthSession, BdkConfig config) {
+    this.config = config;
+    this.podClient = apiClientFactory.getPodClient();
+    this.agentClient = apiClientFactory.getAgentClient();
+    this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
+    this.datahoseAgentClient = apiClientFactory.getDatahoseAgentClient();
+    this.authSession = authSession;
+    this.templateEngine = TemplateEngine.getDefaultImplementation();
+    this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
+
+    if (config.isCommonJwtEnabled()) {
+      if (config.isOboConfigured()) {
+        throw new UnsupportedOperationException("Common JWT feature is not available yet in OBO mode,"
+            + " please set commonJwt.enabled to false.");
+      } else {
+        final OAuthSession oAuthSession = new OAuthSession(authSession);
+        this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+      }
+    }
+    if (config.isEnhancedAuthEnabled()) {
+      BdkCustomEnhancedAuthConfig enhancedAuthConfig = config.getEnhancedAuth();
+      if (config.isCommonJwtEnabled() && "Authorization".equals(enhancedAuthConfig.getHeaderName())) {
+        throw new UnsupportedOperationException(
+            "Common JWT feature is enabled, it use 'Authorization' header too, there is a conflict with the enhanced authentication.");
+      }
+      this.podClient.getAuthentications()
+          .put(enhancedAuthConfig.getId(), new CustomEnhancedAuthAuthentication(enhancedAuthConfig.getHeaderName(),
+              enhancedAuthSession::getEnhancedAuthToken));
+      this.podClient.addEnforcedAuthenticationScheme(enhancedAuthConfig.getId());
+      this.retryBuilder.recoveryStrategy((e) -> e.isUnauthorized() && enhancedAuthSession.isSessionExpired(e),
+          enhancedAuthSession::refresh);
     }
   }
 
@@ -211,7 +249,7 @@ class ServiceFactory {
    * @return a new {@link HealthService} instance.
    */
   public HealthService getHealthService() {
-    return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient), this.authSession, this.retryBuilder);
+    return new HealthService(new SystemApi(this.agentClient), new SignalsApi(this.agentClient));
   }
 
 }

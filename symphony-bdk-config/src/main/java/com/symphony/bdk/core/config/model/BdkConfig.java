@@ -51,6 +51,10 @@ public class BdkConfig extends BdkServerConfig {
     return this.getCommonJwt().getEnabled();
   }
 
+  public boolean isEnhancedAuthEnabled() {
+    return this.getEnhancedAuth().isEnabled();
+  }
+
   /**
    * Returns the retry configuration used for DataFeed services.
    *

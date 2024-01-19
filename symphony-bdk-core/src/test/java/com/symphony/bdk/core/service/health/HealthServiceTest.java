@@ -41,9 +41,7 @@ public class HealthServiceTest {
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
     this.service = new HealthService(
         new SystemApi(agentClient),
-        new SignalsApi(agentClient),
-        authSession,
-        new RetryWithRecoveryBuilder<>()
+        new SignalsApi(agentClient)
     );
 
     when(authSession.getSessionToken()).thenReturn("1234");
@@ -157,7 +155,7 @@ public class HealthServiceTest {
     DatafeedLoop df = mock(DatafeedLoop.class);
     BotAuthSession authSession = mock(BotAuthSession.class);
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
-    this.service = new HealthService(new SystemApi(agentClient), new SignalsApi(agentClient), df, authSession, new RetryWithRecoveryBuilder<>());
+    this.service = new HealthService(new SystemApi(agentClient), new SignalsApi(agentClient), df);
     when(df.lastPullTimestamp()).thenReturn(Instant.now().minusSeconds(10).toEpochMilli());
     assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.UP);
   }

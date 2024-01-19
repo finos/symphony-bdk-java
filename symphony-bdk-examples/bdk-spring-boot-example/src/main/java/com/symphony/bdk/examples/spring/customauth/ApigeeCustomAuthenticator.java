@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Nonnull;
 
+import java.util.List;
+
 @Component
 public class ApigeeCustomAuthenticator extends AbstractCustomAuthenticator {
 
@@ -17,6 +19,17 @@ public class ApigeeCustomAuthenticator extends AbstractCustomAuthenticator {
 
   @Override
   protected @Nonnull String doRetrieveToken() throws ApiException {
-    return "token";
+    return "Bearer token";
+  }
+
+  @Override
+  public boolean isAuthTokenExpired(ApiException exception) {
+    String responseBody = exception.getResponseBody();
+    List<String> defaultFaultHeader = exception.getResponseHeaders().get("DefaultFaultHeader");
+    if (defaultFaultHeader != null && defaultFaultHeader.contains("invalid_acccess_token") && responseBody.contains(
+        "IGTWY") && responseBody.contains("Unauthorized")) {
+      return true;
+    }
+    return false;
   }
 }
