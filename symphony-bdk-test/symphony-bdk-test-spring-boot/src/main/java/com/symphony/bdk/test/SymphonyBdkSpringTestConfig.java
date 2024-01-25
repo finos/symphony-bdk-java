@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -54,7 +55,7 @@ public class SymphonyBdkSpringTestConfig {
 
   @Bean
   public AuthSession botSession() {
-    AuthSession authSession = bdkTestMock.getBotSession();
+    BotAuthSession authSession = bdkTestMock.getBotSession();
     when(authSession.getSessionToken()).thenReturn("sessionToken");
     when(authSession.getKeyManagerToken()).thenReturn("kmToken");
     return authSession;

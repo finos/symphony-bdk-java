@@ -4,7 +4,7 @@ import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
@@ -61,7 +61,7 @@ public class BdkTestInitialisation implements BeforeAllCallback {
   }
 
   private void initAuthSessionMock(SymphonyBdk symphonyBdk) {
-    AuthSession authSession = bdkTestMock.getBotSession();
+    BotAuthSession authSession = bdkTestMock.getBotSession();
     when(authSession.getSessionToken()).thenReturn("sessionToken");
     when(authSession.getKeyManagerToken()).thenReturn("kmToken");
     when(symphonyBdk.botSession()).thenReturn(authSession);

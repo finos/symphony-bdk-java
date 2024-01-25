@@ -3,7 +3,7 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.gen.api.model.ApplicationDetail;
@@ -42,7 +42,7 @@ public class ServiceExampleMain {
     log.info("Company: {}", userDetailList.get(0).getUserAttributes().getCompanyName());
     log.info("Role: {}", userDetailList.get(0).getRoles());
 
-    AuthSession oboSession = bdk.obo("hong.le");
+    BotAuthSession oboSession = bdk.obo("hong.le");
 
     StreamFilter streamFilter = new StreamFilter().addStreamTypesItem(new StreamType().type(StreamType.TypeEnum.IM));
     final List<StreamAttributes> streamsList = bdk.obo(oboSession).streams().listStreams(streamFilter);

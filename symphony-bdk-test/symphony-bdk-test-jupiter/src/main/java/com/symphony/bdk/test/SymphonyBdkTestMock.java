@@ -3,7 +3,7 @@ package com.symphony.bdk.test;
 import static org.mockito.Mockito.mock;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
 import com.symphony.bdk.core.auth.OboAuthenticator;
 import com.symphony.bdk.core.extension.ExtensionService;
@@ -29,7 +29,7 @@ public class SymphonyBdkTestMock {
   private final SymphonyBdk symphonyBdk = mock(SymphonyBdk.class);
   private final OboAuthenticator oboAuthenticator = mock(OboAuthenticator.class);
   private final ExtensionAppAuthenticator extensionAppAuthenticator = mock(ExtensionAppAuthenticator.class);
-  private final AuthSession botSession = mock(AuthSession.class);
+  private final BotAuthSession botSession = mock(BotAuthSession.class);
   private final StreamService streamService = mock(StreamService.class);
   private final UserService userService = mock(UserService.class);
   private final MessageService messageService = mock(MessageService.class);

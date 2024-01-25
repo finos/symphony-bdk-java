@@ -3,7 +3,7 @@ package com.symphony.bdk.examples;
 import static com.symphony.bdk.core.config.BdkConfigLoader.loadFromSymphonyDir;
 
 import com.symphony.bdk.core.SymphonyBdk;
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
@@ -33,7 +33,7 @@ public class AuthMain {
     final V4Message regularMessage = bdk.messages().send(STREAM, MESSAGE);
     log.info("Regular message sent : {}", regularMessage.getMessageId());
 
-    AuthSession oboSession = bdk.obo("user.name");
+    BotAuthSession oboSession = bdk.obo("user.name");
 
     bdk.obo(oboSession).streams().listStreams(new StreamFilter());
     bdk.obo(oboSession).messages().send(STREAM, MESSAGE);
