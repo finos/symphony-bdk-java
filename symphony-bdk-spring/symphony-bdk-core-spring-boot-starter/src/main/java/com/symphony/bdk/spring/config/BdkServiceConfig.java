@@ -2,7 +2,6 @@ package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
-import com.symphony.bdk.core.auth.impl.EnhancedAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -45,6 +44,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
+import java.util.Optional;
+
 /**
  * Injection of Core services within the Spring application context.
  */
@@ -52,57 +53,64 @@ import org.springframework.context.annotation.Bean;
 @ConditionalOnBean(name = "botSession")
 public class BdkServiceConfig {
 
-  @Bean
-  @ConditionalOnMissingBean({SessionService.class, CustomEnhancedAuthSession.class})
-  public SessionService sessionService(SessionApi sessionApi, BotAuthSession botSession, BdkConfig config) {
-    return new SessionService(sessionApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  private final RetryWithRecoveryBuilder<?> retryBuilder;
+
+  public BdkServiceConfig(BdkConfig config, Optional<CustomEnhancedAuthSession> enhancedAuthSession) {
+    retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
+    enhancedAuthSession.ifPresent(
+        session -> retryBuilder.recoveryStrategy((e) -> e.isUnauthorized() && session.isSessionExpired(e),
+            session::refresh));
   }
 
   @Bean
-  @ConditionalOnMissingBean({StreamService.class, CustomEnhancedAuthSession.class})
+  @ConditionalOnMissingBean(SessionService.class)
+  public SessionService sessionService(SessionApi sessionApi, BotAuthSession botSession) {
+    return new SessionService(sessionApi, botSession, retryBuilder);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(StreamService.class)
   public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi,
-      BotAuthSession botSession, BdkConfig config) {
-    return new StreamService(streamsApi, roomMembershipApi, shareApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+      BotAuthSession botSession) {
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, botSession, retryBuilder);
   }
 
   @Bean
-  @ConditionalOnMissingBean({UserService.class, CustomEnhancedAuthSession.class})
-  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, BotAuthSession botSession, BdkConfig config) {
-    return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  @ConditionalOnMissingBean(UserService.class)
+  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi,
+      BotAuthSession botSession) {
+    return new UserService(userApi, usersApi, auditTrailApi, botSession, retryBuilder);
   }
 
   @Bean
-  @ConditionalOnMissingBean({DisclaimerService.class, CustomEnhancedAuthSession.class})
-  public DisclaimerService disclaimerService(DisclaimerApi disclaimerApi, BotAuthSession botSession, BdkConfig config) {
-    return new DisclaimerService(disclaimerApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  @ConditionalOnMissingBean(DisclaimerService.class)
+  public DisclaimerService disclaimerService(DisclaimerApi disclaimerApi, BotAuthSession botSession) {
+    return new DisclaimerService(disclaimerApi, botSession, retryBuilder);
   }
 
   @Bean
-  @ConditionalOnMissingBean({PresenceService.class, EnhancedAuthSession.class})
-  public PresenceService presenceService(PresenceApi presenceApi, BotAuthSession botSession, BdkConfig config) {
-    return new PresenceService(presenceApi, botSession,
-        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  @ConditionalOnMissingBean(PresenceService.class)
+  public PresenceService presenceService(PresenceApi presenceApi, BotAuthSession botSession) {
+    return new PresenceService(presenceApi, botSession, retryBuilder);
   }
 
   @Bean
-  @ConditionalOnMissingBean({ConnectionService.class, CustomEnhancedAuthSession.class})
-  public ConnectionService connectionService(ConnectionApi connectionApi, BotAuthSession botSession, BdkConfig config) {
-    return new ConnectionService(connectionApi, botSession,
-        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  @ConditionalOnMissingBean(ConnectionService.class)
+  public ConnectionService connectionService(ConnectionApi connectionApi, BotAuthSession botSession) {
+    return new ConnectionService(connectionApi, botSession, retryBuilder);
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public SignalService signalService(SignalsApi signalsApi, BotAuthSession botSession, BdkConfig config) {
-    return new SignalService(signalsApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public SignalService signalService(SignalsApi signalsApi, BotAuthSession botSession) {
+    return new SignalService(signalsApi, botSession, retryBuilder);
   }
 
   @Bean
-  @ConditionalOnMissingBean({ApplicationService.class, CustomEnhancedAuthSession.class})
-  public ApplicationService applicationService(ApplicationApi applicationApi,
-      AppEntitlementApi appEntitlementApi, BotAuthSession botSession, BdkConfig config) {
-    return new ApplicationService(applicationApi, appEntitlementApi, botSession,
-        new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  @ConditionalOnMissingBean(ApplicationService.class)
+  public ApplicationService applicationService(ApplicationApi applicationApi, AppEntitlementApi appEntitlementApi,
+      BotAuthSession botSession) {
+    return new ApplicationService(applicationApi, appEntitlementApi, botSession, retryBuilder);
   }
 
   @Bean
@@ -113,21 +121,13 @@ public class BdkServiceConfig {
   }
 
   @Bean
-  @ConditionalOnMissingBean({MessageService.class, CustomEnhancedAuthSession.class})
-  public MessageService messageService(
-      final MessagesApi messagesApi,
-      final MessageApi messageApi,
-      final MessageSuppressionApi messageSuppressionApi,
-      final StreamsApi streamsApi,
-      final PodApi podApi,
-      final AttachmentsApi attachmentsApi,
-      final DefaultApi defaultApi,
-      final BotAuthSession botSession,
-      final TemplateEngine templateEngine,
-      final BdkConfig config
-  ) {
+  @ConditionalOnMissingBean(MessageService.class)
+  public MessageService messageService(final MessagesApi messagesApi, final MessageApi messageApi,
+      final MessageSuppressionApi messageSuppressionApi, final StreamsApi streamsApi, final PodApi podApi,
+      final AttachmentsApi attachmentsApi, final DefaultApi defaultApi, final BotAuthSession botSession,
+      final TemplateEngine templateEngine) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, botSession, templateEngine, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+        defaultApi, botSession, templateEngine, retryBuilder);
   }
 
   @Bean

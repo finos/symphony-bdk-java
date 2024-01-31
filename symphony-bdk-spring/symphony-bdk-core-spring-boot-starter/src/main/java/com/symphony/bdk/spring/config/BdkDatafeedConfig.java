@@ -1,6 +1,7 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.DatafeedVersion;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
@@ -18,6 +19,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Injection of the {@link DatafeedLoop} instance into the Spring application context.
@@ -38,12 +40,16 @@ public class BdkDatafeedConfig {
       SymphonyBdkCoreProperties properties,
       @Qualifier("datafeedApi") DatafeedApi datafeedApi,
       BotAuthSession botSession,
+      Optional<CustomEnhancedAuthSession> enhancedAuthSession,
       DatafeedVersion datafeedVersion,
       BotInfoService botInfoService
   ) {
 
     if (datafeedVersion == DatafeedVersion.V2) {
-      return new DatafeedLoopV2(datafeedApi, botSession, properties, botInfoService.getBotInfo());
+      return enhancedAuthSession.map(
+              customEnhancedAuthSession -> new DatafeedLoopV2(datafeedApi, botSession, customEnhancedAuthSession,
+                  properties, botInfoService.getBotInfo()))
+          .orElseGet(() -> new DatafeedLoopV2(datafeedApi, botSession, properties, botInfoService.getBotInfo()));
     }
 
     return new DatafeedLoopV1(datafeedApi, botSession, properties, botInfoService.getBotInfo());

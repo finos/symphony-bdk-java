@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -29,6 +30,29 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
   private final String tag;
   private final List<String> filters;
   private final RetryWithRecovery<Object> readEvents;
+
+  public DatahoseLoopImpl(DatafeedApi datafeedApi, BotAuthSession authSession, CustomEnhancedAuthSession enhancedAuthSession, BdkConfig config, UserV2 botInfo) {
+    super(datafeedApi, authSession, config, botInfo);
+
+    String untruncatedTag = config.getDatahose().getTag();
+    if (StringUtils.isEmpty(untruncatedTag)) {
+      untruncatedTag = DATAHOSE + "-" + botInfo.getUsername();
+    }
+    this.tag = StringUtils.truncate(untruncatedTag, DATAHOSE_TAG_MAX_LENGTH);
+
+    this.filters = config.getDatahose().getEventTypes();
+
+    this.readEvents = new RetryWithRecoveryBuilder<>()
+        .basePath(datafeedApi.getApiClient().getBasePath())
+        .retryConfig(config.getDatahose().getRetry())
+        .name("readEvents")
+        .supplier(this::readAndHandleEvents)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorError)
+        .recoveryStrategy((e) -> e.isUnauthorized() && enhancedAuthSession.isSessionExpired(e),
+            enhancedAuthSession::refresh)
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh)
+        .build();
+  }
 
   public DatahoseLoopImpl(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);

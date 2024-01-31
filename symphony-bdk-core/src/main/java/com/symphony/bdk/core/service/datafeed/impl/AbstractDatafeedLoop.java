@@ -3,6 +3,7 @@ package com.symphony.bdk.core.service.datafeed.impl;
 import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -35,6 +36,7 @@ import javax.annotation.Nullable;
 abstract class AbstractDatafeedLoop implements DatafeedLoop {
 
   protected final BotAuthSession authSession;
+  protected final CustomEnhancedAuthSession enhancedAuthSession;
   protected final BdkConfig bdkConfig;
   protected final UserV2 botInfo;
   protected final AtomicBoolean started = new AtomicBoolean();
@@ -44,10 +46,20 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   // access needs to be thread safe (DF loop is usually running on its own thread)
   private final List<RealTimeEventListener> listeners;
 
+  public AbstractDatafeedLoop(DatafeedApi datafeedApi, BotAuthSession authSession, CustomEnhancedAuthSession enhancedAuthSession, BdkConfig config, UserV2 botInfo) {
+    this.datafeedApi = datafeedApi;
+    this.listeners = new ArrayList<>();
+    this.authSession = authSession;
+    this.enhancedAuthSession = enhancedAuthSession;
+    this.bdkConfig = config;
+    this.botInfo = botInfo;
+  }
+
   public AbstractDatafeedLoop(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     this.datafeedApi = datafeedApi;
     this.listeners = new ArrayList<>();
     this.authSession = authSession;
+    this.enhancedAuthSession = null;
     this.bdkConfig = config;
     this.botInfo = botInfo;
   }
@@ -161,6 +173,9 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
   protected void refresh() throws AuthUnauthorizedException {
     log.info("Re-authenticate and try again");
     this.authSession.refresh();
+    if (this.enhancedAuthSession != null) {
+      this.enhancedAuthSession.refresh();
+    }
   }
 
   /**

@@ -18,6 +18,8 @@ import jakarta.ws.rs.core.Form;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apiguardian.api.API;
@@ -54,6 +56,7 @@ import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
  * Jersey2 implementation for the {@link ApiClient} interface called by generated code.
  */
 @API(status = API.Status.STABLE)
+@Slf4j
 public class ApiClientJersey2 implements ApiClient {
 
   protected Client httpClient;
@@ -121,6 +124,10 @@ public class ApiClientJersey2 implements ApiClient {
         String value = entry.getValue();
         if (value != null) {
           invocationBuilder = invocationBuilder.header(entry.getKey(), value);
+          log.debug("request={}", target.getUri());
+          log.debug("method={}", method);
+          log.debug("header={}", entry.getKey());
+          log.debug("value={}", value);
         }
       }
     }

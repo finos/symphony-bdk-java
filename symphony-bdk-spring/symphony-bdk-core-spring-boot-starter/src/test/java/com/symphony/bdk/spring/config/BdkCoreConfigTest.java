@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
@@ -56,7 +56,7 @@ class BdkCoreConfigTest {
     bdkCommonJwtConfig.setEnabled(true);
     bdkConfig.setCommonJwt(bdkCommonJwtConfig);
     final ApiClientFactory factory = mock(ApiClientFactory.class);
-    final AuthSession authSession = mock(AuthSession.class);
+    final BotAuthSession authSession = mock(BotAuthSession.class);
     when(factory.getPodClient()).thenReturn(mock(ApiClient.class));
     assertNotNull(config.podApiClient(factory, Optional.ofNullable(authSession), bdkConfig));
   }

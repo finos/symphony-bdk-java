@@ -7,7 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.ext.group.auth.OAuthSession;
@@ -39,7 +39,7 @@ public class SymphonyGroupBdkExtensionTest {
 
     SymphonyGroupBdkExtension groupExtension = new SymphonyGroupBdkExtension();
     groupExtension.setApiClientFactory(clientFactory);
-    groupExtension.setAuthSession(mock(AuthSession.class));
+    groupExtension.setAuthSession(mock(BotAuthSession.class));
     groupExtension.setRetryBuilder(new RetryWithRecoveryBuilder<>());
 
     final SymphonyGroupService service = groupExtension.getService();

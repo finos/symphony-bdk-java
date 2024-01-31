@@ -4,6 +4,7 @@ import com.symphony.bdk.core.auth.impl.AbstractCustomAuthenticator;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiException;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Nonnull;
@@ -11,6 +12,7 @@ import jakarta.annotation.Nonnull;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(value = "bdk.enhanced-auth.enabled", havingValue = "true")
 public class ApigeeCustomAuthenticator extends AbstractCustomAuthenticator {
 
   public ApigeeCustomAuthenticator(BdkConfig bdkConfig) {

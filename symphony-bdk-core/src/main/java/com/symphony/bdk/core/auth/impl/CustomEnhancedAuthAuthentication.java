@@ -10,6 +10,9 @@ import org.apiguardian.api.API.Status;
 
 import java.util.Map;
 
+/**
+ *
+ */
 @RequiredArgsConstructor
 @API(status = Status.EXPERIMENTAL)
 public class CustomEnhancedAuthAuthentication implements Authentication {

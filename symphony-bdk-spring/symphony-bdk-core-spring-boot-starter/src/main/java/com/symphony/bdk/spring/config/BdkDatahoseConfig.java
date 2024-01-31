@@ -1,8 +1,10 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.service.datafeed.DatahoseLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
+import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
@@ -16,6 +18,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
+import java.util.Optional;
 
 @ConditionalOnProperty(value = "bdk.datahose.enabled", havingValue = "true")
 @ConditionalOnBean(name = "botSession")
@@ -26,8 +29,12 @@ public class BdkDatahoseConfig {
   public DatahoseLoop datahoseLoop(SymphonyBdkCoreProperties properties,
                                        @Qualifier("datahoseApi") DatafeedApi datafeedApi,
                                        BotAuthSession botSession,
+                                       Optional<CustomEnhancedAuthSession> enhancedAuthSession,
                                        BotInfoService botInfoService) {
-    return new DatahoseLoopImpl(datafeedApi, botSession, properties, botInfoService.getBotInfo());
+    return enhancedAuthSession.map(
+            customEnhancedAuthSession -> new DatahoseLoopImpl(datafeedApi, botSession, customEnhancedAuthSession,
+                properties, botInfoService.getBotInfo()))
+        .orElseGet(() -> new DatahoseLoopImpl(datafeedApi, botSession, properties, botInfoService.getBotInfo()));
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")

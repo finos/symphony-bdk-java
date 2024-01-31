@@ -127,10 +127,6 @@ class ServiceFactory {
         throw new UnsupportedOperationException(
             "Common JWT feature is enabled, it use 'Authorization' header too, there is a conflict with the enhanced authentication.");
       }
-      this.podClient.getAuthentications()
-          .put(enhancedAuthConfig.getId(), new CustomEnhancedAuthAuthentication(enhancedAuthConfig.getHeaderName(),
-              enhancedAuthSession::getEnhancedAuthToken));
-      this.podClient.addEnforcedAuthenticationScheme(enhancedAuthConfig.getId());
       this.retryBuilder.recoveryStrategy((e) -> e.isUnauthorized() && enhancedAuthSession.isSessionExpired(e),
           enhancedAuthSession::refresh);
     }

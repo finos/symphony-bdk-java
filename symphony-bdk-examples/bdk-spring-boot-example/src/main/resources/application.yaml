@@ -5,6 +5,8 @@ bdk:
     username: wdkbot
     privateKey:
       path: /Users/yinan.liu/Projects/certs/privatekey.pem
+  agent:
+    host: 34.49.130.230.nip.io
 
   enhanced-auth:
     id: apigee

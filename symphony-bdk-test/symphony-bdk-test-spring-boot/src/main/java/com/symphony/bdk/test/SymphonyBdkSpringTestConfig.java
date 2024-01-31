@@ -6,6 +6,10 @@ import com.symphony.bdk.core.activity.AbstractActivity;
 import com.symphony.bdk.core.activity.ActivityRegistry;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthAuthenticator;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
+import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.impl.EnhancedAuthSession;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -19,13 +23,16 @@ import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.spring.SymphonyBdkAutoConfiguration;
+import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 
 import lombok.Generated;
+import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +42,7 @@ import java.util.List;
 
 @TestConfiguration
 @EnableAutoConfiguration(exclude = {SymphonyBdkAutoConfiguration.class})
-@EnableConfigurationProperties(BdkSpringTestProperties.class)
+@EnableConfigurationProperties({BdkSpringTestProperties.class, SymphonyBdkCoreProperties.class})
 @Profile("integration-test")
 @Generated
 public class SymphonyBdkSpringTestConfig {
@@ -135,4 +142,16 @@ public class SymphonyBdkSpringTestConfig {
     return new SlashAnnotationProcessor();
   }
 
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnProperty(value = "bdk.enhanced-auth.enabled", havingValue = "true")
+  public CustomEnhancedAuthSession enhancedAuthSession(CustomEnhancedAuthAuthenticator enhancedAuthAuthenticator) {
+    CustomEnhancedAuthSession enhancedAuthSession = new EnhancedAuthSession((enhancedAuthAuthenticator));
+    try {
+      enhancedAuthSession.refresh();
+      return enhancedAuthSession;
+    } catch (AuthUnauthorizedException e) {
+      throw new BeanInitializationException("Unable to get enhanced authentication token.", e);
+    }
+  }
 }

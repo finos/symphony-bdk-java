@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -55,6 +56,41 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   private final RetryWithRecovery<Void> deleteDatafeed;
 
   private V5Datafeed datafeed;
+
+  public DatafeedLoopV2(DatafeedApi datafeedApi, BotAuthSession authSession, CustomEnhancedAuthSession enhancedAuthSession, BdkConfig config, UserV2 botInfo) {
+    super(datafeedApi, authSession, enhancedAuthSession, config, botInfo);
+
+    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+        .basePath(datafeedApi.getApiClient().getBasePath())
+        .retryConfig(config.getDatafeedRetryConfig())
+        .recoveryStrategy((e) -> e.isUnauthorized() && enhancedAuthSession.isSessionExpired(e),
+            enhancedAuthSession::refresh)
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
+
+    this.readDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Read Datafeed V2")
+        .supplier(this::readAndHandleEvents)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorErrorOrClientError)
+        .recoveryStrategy(ApiException::isClientError, this::recreateDatafeed)
+        .build();
+
+    this.retrieveDatafeed = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
+        .name("Retrieve Datafeed V2")
+        .supplier(this::doRetrieveDatafeed)
+        .build();
+
+    this.createDatafeed = RetryWithRecoveryBuilder.<V5Datafeed>from(retryWithRecoveryBuilder)
+        .name("Create Datafeed V2")
+        .supplier(this::doCreateDatafeed)
+        .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorErrorOrClientError)
+        .build();
+
+    this.deleteDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Delete Datafeed V2")
+        .supplier(this::doDeleteDatafeed)
+        .ignoreException(ApiException::isClientError)
+        .build();
+  }
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);

@@ -12,7 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.auth.BotAuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
@@ -52,7 +52,7 @@ class SymphonyGroupServiceTest {
   private ApiClientFactory clientFactory;
   private ApiClient loginClient;
   private ApiClient profileManagerClient;
-  private AuthSession authSession;
+  private BotAuthSession authSession;
   private SymphonyGroupService groupService;
 
   @BeforeEach
@@ -72,7 +72,7 @@ class SymphonyGroupServiceTest {
     when(clientFactory.getLoginClient()).thenReturn(loginClient);
     when(clientFactory.getPodClient(eq("/profile-manager"))).thenReturn(profileManagerClient);
 
-    authSession = mock(AuthSession.class);
+    authSession = mock(BotAuthSession.class);
 
     groupService = new SymphonyGroupService(ofMinimalInterval(2), clientFactory, authSession);
   }

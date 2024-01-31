@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
 import com.symphony.bdk.core.auth.BotAuthSession;
+import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.UserV2;
@@ -32,6 +33,11 @@ public abstract class AbstractAckIdEventLoop extends AbstractDatafeedLoop {
 
   @Getter(AccessLevel.PROTECTED)
   protected String ackId;
+
+  public AbstractAckIdEventLoop(DatafeedApi datafeedApi, BotAuthSession authSession, CustomEnhancedAuthSession enhancedAuthSession, BdkConfig config, UserV2 botInfo) {
+    super(datafeedApi, authSession, enhancedAuthSession, config, botInfo);
+    this.ackId = INITIAL_ACK_ID;
+  }
 
   public AbstractAckIdEventLoop(DatafeedApi datafeedApi, BotAuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);

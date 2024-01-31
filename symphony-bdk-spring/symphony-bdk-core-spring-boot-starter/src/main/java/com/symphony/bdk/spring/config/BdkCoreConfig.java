@@ -2,19 +2,14 @@ package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
 import com.symphony.bdk.core.auth.BotAuthSession;
-import com.symphony.bdk.core.auth.CustomEnhancedAuthAuthenticator;
-import com.symphony.bdk.core.auth.CustomEnhancedAuthSession;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
-import com.symphony.bdk.core.auth.impl.CustomEnhancedAuthAuthentication;
-import com.symphony.bdk.core.auth.impl.EnhancedAuthSession;
 import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
 import com.symphony.bdk.core.auth.impl.OAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
-import com.symphony.bdk.core.config.model.BdkCustomEnhancedAuthConfig;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
@@ -39,9 +34,9 @@ public class BdkCoreConfig {
 
   @Bean
   @ConditionalOnMissingBean
+  @ConditionalOnProperty(value = "bdk.enhanced-auth.enabled", havingValue = "false")
   public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties) {
-    return new ApiClientFactory(properties,
-        new ApiClientBuilderProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
+    return new ApiClientFactory(properties, new ApiClientBuilderProviderJersey2());
   }
 
   @Bean(name = "agentApiClient")
@@ -60,9 +55,8 @@ public class BdkCoreConfig {
   }
 
   @Bean(name = "podApiClient")
-//  @ConditionalOnMissingBean(CustomEnhancedAuthSession.class)
   public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<BotAuthSession> botSession,
-      Optional<CustomEnhancedAuthSession> optionalEnhancedAuthSession, BdkConfig config) {
+      BdkConfig config) {
     ApiClient client = apiClientFactory.getPodClient();
     if (config.isCommonJwtEnabled()) {
       if (config.isOboConfigured()) {
@@ -73,18 +67,6 @@ public class BdkCoreConfig {
         client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         client.addEnforcedAuthenticationScheme(BEARER_AUTH);
       }
-    }
-    if (config.isEnhancedAuthEnabled()) {
-      final CustomEnhancedAuthSession enhancedAuthSession = optionalEnhancedAuthSession.get();
-      BdkCustomEnhancedAuthConfig enhancedAuthConfig = config.getEnhancedAuth();
-      if (config.isCommonJwtEnabled() && "Authorization".equals(enhancedAuthConfig.getHeaderName())) {
-        throw new UnsupportedOperationException(
-            "Common JWT feature is enabled, it use 'Authorization' header too, there is a conflict with the enhanced authentication.");
-      }
-      client.getAuthentications()
-          .put(enhancedAuthConfig.getId(), new CustomEnhancedAuthAuthentication(enhancedAuthConfig.getHeaderName(),
-              enhancedAuthSession::getEnhancedAuthToken));
-      client.addEnforcedAuthenticationScheme(enhancedAuthConfig.getId());
     }
     return client;
   }
@@ -138,19 +120,6 @@ public class BdkCoreConfig {
       return authenticatorFactory.getBotAuthenticator().authenticateBot();
     } catch (AuthUnauthorizedException | AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate bot", e);
-    }
-  }
-
-  @Bean
-  @ConditionalOnMissingBean
-  @ConditionalOnProperty(value = "bdk.enhanced-auth.enabled", havingValue = "true")
-  public CustomEnhancedAuthSession enhancedAuthSession(CustomEnhancedAuthAuthenticator enhancedAuthAuthenticator) {
-    CustomEnhancedAuthSession enhancedAuthSession = new EnhancedAuthSession((enhancedAuthAuthenticator));
-    try {
-      enhancedAuthSession.refresh();
-      return enhancedAuthSession;
-    } catch (AuthUnauthorizedException e) {
-      throw new BeanInitializationException("Unable to get enhanced authentication token.", e);
     }
   }
 
