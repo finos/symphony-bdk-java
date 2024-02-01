@@ -1,10 +1,9 @@
 package com.symphony.bdk.app.spring;
 
 import com.symphony.bdk.app.spring.config.BdkExtAppControllerConfig;
-
 import com.symphony.bdk.app.spring.config.BdkExtAppSecurityConfig;
-
 import com.symphony.bdk.app.spring.config.BdkExtAppTracingFilterConfig;
+import com.symphony.bdk.app.spring.config.BdkHealthIndicatorConfig;
 
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
@@ -15,7 +14,8 @@ import org.springframework.context.annotation.Import;
 @Import({
     BdkExtAppControllerConfig.class,
     BdkExtAppSecurityConfig.class,
-    BdkExtAppTracingFilterConfig.class
+    BdkExtAppTracingFilterConfig.class,
+    BdkHealthIndicatorConfig.class
 })
 @EnableConfigurationProperties(SymphonyBdkAppProperties.class)
 public class SymphonyBdkAppAutoConfiguration {

@@ -5,6 +5,7 @@ import com.symphony.bdk.app.spring.properties.CorsProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -17,6 +18,7 @@ import java.util.List;
  */
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "bdk-app.auth.enabled", havingValue = "true")
 public class BdkExtAppSecurityConfig {
   private final SymphonyBdkAppProperties properties;
 

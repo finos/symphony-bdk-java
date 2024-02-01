@@ -14,6 +14,7 @@ public class BdkExtAppSecurityConfigTest {
   void corsFilters() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(
+            "bdk-app.auth.enabled=true",
             "bdk-app.cors.[/**].allowed-origins=*",
             "bdk-app.cors.[/**].allow-credentials=false",
             "bdk-app.cors.[/**].allowed-methods=POST,GET",
