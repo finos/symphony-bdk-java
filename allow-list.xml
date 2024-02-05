@@ -8,4 +8,11 @@
         <cve>CVE-2022-45688</cve>
         <cve>CVE-2023-5072</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          From SpringBoot bom dependency
+          ]]></notes>
+        <gav>com.jayway.jsonpath:json-path:2.8.0</gav>
+        <cve>CVE-2023-51074</cve>
+    </suppress>
 </suppressions>

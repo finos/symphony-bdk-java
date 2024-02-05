@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HttpCodeStatusMapper;
 import org.springframework.boot.actuate.health.Status;
 
 import java.util.Map;
@@ -49,8 +50,7 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
       V3Health health = healthService.healthCheckExtended();
       buildHealthDetail(builder, health);
     } catch (ApiRuntimeException e) {
-      log.debug("Health check failed, trying to parse the failure response body.", e);
-      log.trace("Health check failure response body - {}", e.getResponseBody());
+      log.warn("Health check response with exception, try parse the response entity - [{}]", e.getMessage());
       try {
         V3Health health = MAPPER.readValue(e.getResponseBody(), V3Health.class);
         buildHealthDetail(builder, health);
@@ -90,5 +90,36 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
         .withDetail(AGT, DOWN)
         .withDetail(CE, DOWN)
         .withDetail(DFL, DOWN);
+  }
+
+
+  /**
+   * A custom spring actuator health endpoint status code mapper.
+   *
+   * It will return 500 for all status except Status.UP
+   */
+  @API(status = API.Status.INTERNAL)
+  public static class CustomStatusCodeMapper implements HttpCodeStatusMapper {
+
+    @Override
+    public int getStatusCode(Status status) {
+      if (status == Status.DOWN) {
+        return 500;
+      }
+
+      if (status == Status.OUT_OF_SERVICE) {
+        return 503;
+      }
+
+      if (status == Status.UNKNOWN) {
+        return 500;
+      }
+
+      if (status.getCode().equals(WARNING)) {
+        return 500;
+      }
+
+      return 200;
+    }
   }
 }

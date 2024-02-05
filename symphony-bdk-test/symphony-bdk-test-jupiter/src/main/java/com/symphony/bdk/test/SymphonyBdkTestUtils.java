@@ -23,6 +23,7 @@ import net.bytebuddy.implementation.FieldAccessor;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class SymphonyBdkTestUtils {
   public static void pushEventToDataFeed(V4Event event) {
     final Optional<V4EventType> eventType = V4EventType.fromV4Event(event);
 
-    if (!eventType.isPresent()) {
+    if (eventType.isEmpty()) {
       return;
     }
     for (RealTimeEventListener listener : listeners) {
@@ -104,11 +105,11 @@ public class SymphonyBdkTestUtils {
           .implement(EventPayload.class).intercept(FieldAccessor.ofBeanProperty())
           .make()
           .load(event.getClass().getClassLoader(), ClassLoadingStrategy.Default.INJECTION)
-          .getLoaded().newInstance();
+          .getLoaded().getDeclaredConstructor().newInstance();
       ((Setter) proxyEvent).setEventId(realEvent.getId());
       ((Setter) proxyEvent).setEventTimestamp(realEvent.getTimestamp());
       return proxyEvent;
-    } catch (InstantiationException | IllegalAccessException e) {
+    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }
