@@ -1,4 +1,4 @@
-title: BDK 2.0 for Java
+title: BDK 3.0 for Java
 description: Reference documentation for using the Symphony BDK to build bots
 theme: just-the-docs
 plugins:
@@ -6,5 +6,5 @@ plugins:
 url: https://symphony-bdk-java.finos.org
 color_scheme: symphony
 aux_links:
-  "BDK 2.0 on GitHub":
+  "BDK 3.0 on GitHub":
     - "//github.com/finos/symphony-bdk-java"

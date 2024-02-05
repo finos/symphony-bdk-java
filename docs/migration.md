@@ -4,6 +4,129 @@ title: Migration Guide
 nav_order: 3
 ---
 
+# Migration guide to Symphony BDK 3.0 from 2.0
+
+This guide provides information about how to migrate from Symphony BDK 2.0 to BDK 3.0. Migration for the following topics will be detailed here:
+- JDK17
+- Dependencies
+
+## JDK17
+The major change in BDK 3.0 is the migration from JDK8 to JDK17, this migration requires 
+- IDE update
+- Package naming change
+- New compiler argument in build tool
+
+### IDE update
+BDK Bot developers needs install JDK17 in their development environment, and configure IDE to used JDK17 instead of JDK8.
+
+
+### Package naming change
+Replace all `javax.xxx` package imports to `jakarta.xxx`.
+
+Java BDK 2.0
+
+```java
+    import javax.ws.rs.ProcessingException;
+```
+Java BDK 3.0
+
+```java
+    import jakarta.ws.rs.ProcessingException;
+```
+
+### New compiler argument in build tool
+
+A new `-parameters` argument must be passed to the compiler, so that `@Slash` commands and/or other java annotations continue to work
+with JDK17.
+
+#### Maven
+
+```xml
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.version}</version>
+        <configuration>
+            <compilerArgs>
+                <arg>-parameters</arg>
+            </compilerArgs>
+        </configuration>
+    </plugin>
+```
+
+#### Gradle
+```groovy
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-parameters'
+    }
+```
+
+## Dependencies
+
+Simply update BDK dependency version to `3.0.0`
+
+### Spring Boot based project
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.finos.symphony.bdk</groupId>
+            <artifactId>symphony-bdk-bom</artifactId>
+            <version>3.0.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+### Non framework based project
+
+#### Java BDK 3.0
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.finos.symphony.bdk</groupId>
+            <artifactId>symphony-bdk-bom</artifactId>
+            <version>3.0.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-template-freemarker</artifactId>  <!-- or symphony-bdk-http-handlebars -->
+        <scope>runtime</scope>
+    </dependency>
+</dependencies>
+```
+
 # Migration guide to Symphony BDK 2.0
 
 This guide provides information about how to migrate from Symphony SDK 1.0 to BDK 2.0. Migration for the following topics will be detailed here:
@@ -51,14 +174,14 @@ If your project is not framework based, dependencies such as *jersey* and *freem
 </dependencyManagement>
 
 <dependencies>
-<dependency>
-    <groupId>org.finos.symphony.bdk</groupId>
-    <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
-</dependency>
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter</artifactId>
-</dependency>
+    <dependency>
+        <groupId>org.finos.symphony.bdk</groupId>
+        <artifactId>symphony-bdk-core-spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+    </dependency>
 </dependencies>
 ```
 
