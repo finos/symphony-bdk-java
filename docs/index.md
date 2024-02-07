@@ -6,17 +6,21 @@ nav_order: 1
 
 # Symphony BDK Reference Documentation
 
-> [!NOTE]
-> BDK version 3.0: Major change !
-> 
-> The newly introduced BDK version 3.0 relies on Java 17 and SpringBoot 3. This is a major change that allows Symphony to continue to propose the latest security fixes following the end of support of Spring Boot 2 and also to keep up with the latest evolutions of Java.
-> 
-> For the next 6 months Symphony will provide critical security fixes for BDK 2.0 where possible (since Spring gives no guarantees for their packages).
-> 
-> Please consider migrating your Bots in the coming months to benefit from the latest features and support. 
+{% hint style="info" %}
 
-> [!IMPORTANT]
-> As detailed above, the BDK version 2.0 will stop being supported by Symphony on August 15.
+### BDK version 3.0: Major change !
+ 
+ The newly introduced BDK version 3.0 relies on Java 17 and SpringBoot 3. This is a major change that allows Symphony to continue to propose the latest security fixes following the end of support of Spring Boot 2 and also to keep up with the latest evolutions of Java.
+ 
+ For the next 6 months Symphony will provide critical security fixes for BDK 2.0 where possible (since Spring gives no guarantees for their packages).
+ 
+ Please consider migrating your Bots in the coming months to benefit from the latest features and support. 
+
+{% endhint %}
+
+{% hint style="warning" %}
+ As detailed above, the BDK version 2.0 will stop being supported by Symphony on August 15.
+{% endhint %}
 
 This reference guide provides detailed information about the Symphony BDK. It provides a comprehensive documentation
 for all features and abstractions made on top of the [Symphony REST API](https://developers.symphony.com/restapi/reference/introduction).
