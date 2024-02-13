@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HttpCodeStatusMapper;
 import org.springframework.boot.actuate.health.Status;
 
 import java.util.Map;
@@ -70,10 +69,14 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
     V3HealthStatus agtStatus = users.get(AGT).getStatus();
     V3HealthStatus datafeedLoop = healthService.datafeedHealthCheck();
 
-    boolean global = podStatus == V3HealthStatus.UP && dfStatus == V3HealthStatus.UP && kmStatus == V3HealthStatus.UP
-        && agtStatus == V3HealthStatus.UP && datafeedLoop == V3HealthStatus.UP;
-
-    builder.status(global ? Status.UP.getCode() : WARNING)
+    if (datafeedLoop != V3HealthStatus.UP) {
+      builder.status(Status.OUT_OF_SERVICE);
+    } else {
+      boolean global = podStatus == V3HealthStatus.UP && dfStatus == V3HealthStatus.UP && kmStatus == V3HealthStatus.UP
+          && agtStatus == V3HealthStatus.UP;
+      builder.status(global ? Status.UP.getCode() : WARNING);
+    }
+    builder
         .withDetail(POD, services.get(POD))
         .withDetail(DF, services.get(DF))
         .withDetail(KM, services.get(KM))
@@ -90,36 +93,5 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
         .withDetail(AGT, DOWN)
         .withDetail(CE, DOWN)
         .withDetail(DFL, DOWN);
-  }
-
-
-  /**
-   * A custom spring actuator health endpoint status code mapper.
-   *
-   * It will return 500 for all status except Status.UP
-   */
-  @API(status = API.Status.INTERNAL)
-  public static class CustomStatusCodeMapper implements HttpCodeStatusMapper {
-
-    @Override
-    public int getStatusCode(Status status) {
-      if (status == Status.DOWN) {
-        return 500;
-      }
-
-      if (status == Status.OUT_OF_SERVICE) {
-        return 503;
-      }
-
-      if (status == Status.UNKNOWN) {
-        return 500;
-      }
-
-      if (status.getCode().equals(WARNING)) {
-        return 500;
-      }
-
-      return 200;
-    }
   }
 }

@@ -4,7 +4,7 @@ import com.symphony.bdk.core.service.health.HealthService;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 class BdkHealthIndicatorConfigTest {
@@ -15,7 +15,5 @@ class BdkHealthIndicatorConfigTest {
     final HealthService healthService = mock(HealthService.class);
 
     assertNotNull(config.symphonyBdkHealthIndicator(healthService));
-
-    assertNotNull(config.customStatusCodeMapper());
   }
 }
