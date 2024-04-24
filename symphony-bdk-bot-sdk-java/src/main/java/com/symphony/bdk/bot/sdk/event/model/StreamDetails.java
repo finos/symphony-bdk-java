@@ -24,6 +24,7 @@ public class StreamDetails {
   private List<UserDetails> members;
   private Boolean external;
   private Boolean crossPod;
+  private List<Integer> recipientTenantIds;
 
   public StreamDetails(Stream stream) {
     this.streamType = StreamType.value(stream.getStreamType().toUpperCase());
@@ -32,6 +33,7 @@ public class StreamDetails {
         : stream.getMembers().stream().map(UserDetails::new).collect(Collectors.toList());
     this.external = stream.getExternal();
     this.crossPod = stream.getCrossPod();
+    this.recipientTenantIds = stream.getRecipientTenantIds();
   }
 
 }
