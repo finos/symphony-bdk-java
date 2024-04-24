@@ -1,9 +1,12 @@
 package model.events;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import model.AdminStreamFilter;
 import model.AdminStreamInfo;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AdminStreamInfoList {
 
     private int count;
