@@ -10,11 +10,7 @@ dependencies {
     api 'com.github.jknack:handlebars'
     api 'com.github.jknack:handlebars-jackson2'
     api 'com.github.jknack:handlebars-guava-cache'
-    constraints {
-        api('com.google.guava:guava:30.0-jre') {
-            because 'version 18.0 pulled by com.github.jknack:handlebars-guava-cache:4.2.0 is way too old!'
-        }
-    }
+
     api 'com.googlecode.json-simple:json-simple'
 
     testImplementation 'junit:junit'
