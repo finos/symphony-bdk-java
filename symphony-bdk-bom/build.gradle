@@ -20,7 +20,7 @@ dependencies {
     // import Jackson's BOM
     api platform('com.fasterxml.jackson:jackson-bom:2.16.0')
     // import Jersey's BOM
-    api platform('org.glassfish.jersey:jersey-bom:3.1.5')
+    api platform('org.glassfish.jersey:jersey-bom:4.0.0-M1')
     // import Log4j's BOM
     api platform('org.apache.logging.log4j:log4j-bom:2.22.0')
 

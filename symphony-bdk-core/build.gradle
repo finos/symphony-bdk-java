@@ -53,8 +53,7 @@ dependencies {
     implementation 'io.github.resilience4j:resilience4j-retry'
     implementation 'io.swagger:swagger-annotations'
     implementation 'com.google.code.findbugs:jsr305'
-    implementation 'javax.annotation:jsr250-api:1.0'
-    implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
 
     testImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
@@ -116,7 +115,10 @@ apisToGenerate.each { api, path ->
                 supportingFiles: "false"
         ]
         configOptions = [
-                dateLibrary: "java8"
+                dateLibrary: "java8",
+                useSpringBoot3: "true",
+                useJakartaEe: "true",
+                annotationLibrary: "swagger1"
         ]
     }
 
