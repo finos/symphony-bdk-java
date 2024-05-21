@@ -1,5 +1,8 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OutboundImportMessage {
     private String message;
     private String data;

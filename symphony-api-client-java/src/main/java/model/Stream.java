@@ -12,6 +12,7 @@ public class Stream {
     private List<User> members;
     private Boolean external;
     private Boolean crossPod;
+    private List<Integer> recipientTenantIds;
 
     public String getStreamId() {
         return streamId;
@@ -59,5 +60,13 @@ public class Stream {
 
     public void setCrossPod(Boolean crossPod) {
         this.crossPod = crossPod;
+    }
+
+    public List<Integer> getRecipientTenantIds() {
+      return recipientTenantIds;
+    }
+
+    public void setRecipientTenantIds(List<Integer> recipientTenantIds) {
+      this.recipientTenantIds = recipientTenantIds;
     }
 }

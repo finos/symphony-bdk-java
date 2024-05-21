@@ -1,5 +1,8 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Password {
     private String hhSalt;
     private String hhPassword;

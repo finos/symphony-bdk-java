@@ -1,19 +1,21 @@
 package model.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import model.Stream;
+
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SymphonyElementsAction {
     private Map<String, String> formStream;
-    private Map<String, String> stream;
+    private Stream stream;
     private String formId;
     private Map<String, Object> formValues;
     private String formMessageId;
 
     public String getStreamId() {
-        if (stream != null && stream.get("streamId") != null) {
-            return stream.get("streamId");
+        if (stream != null && stream.getStreamId() != null) {
+            return stream.getStreamId();
         }
         if (formStream != null && formStream.get("streamId") != null) {
             return formStream.get("streamId")
@@ -25,17 +27,14 @@ public class SymphonyElementsAction {
     }
 
     public String getStreamType() {
-        if (stream != null && stream.get("streamType") != null) {
-            return stream.get("streamType");
-        }
-        return null;
+        return stream.getStreamType();
     }
 
     public void setFormStream(Map<String, String> formStream) {
         this.formStream = formStream;
     }
 
-    public void setStream(Map<String, String> stream) {
+    public void setStream(Stream stream) {
         this.stream = stream;
     }
 
