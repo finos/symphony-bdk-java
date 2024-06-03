@@ -6,14 +6,14 @@ nav_order: 14
 
 # Connection API
 
-The Connection Service is a component at the service layer of the BDK which aims to cover the Connections part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
+The Connection Service is a component at the service layer of the BDK which aims to cover the Connections part of the [REST API documentation](https://developers.symphony.com/restapi/main/connections).
 More precisely:
-* [Get connection](https://developers.symphony.com/restapi/reference#get-connection)
-* [List connections](https://developers.symphony.com/restapi/reference#list-connections)
-* [Create connection](https://developers.symphony.com/restapi/reference#create-connection)
-* [Accept connection](https://developers.symphony.com/restapi/reference#accepted-connection)
-* [Reject connection](https://developers.symphony.com/restapi/reference#reject-connection)
-* [Remove connection](https://developers.symphony.com/restapi/reference#remove-connection)
+* [Get connection](https://developers.symphony.com/restapi/main/connections/get-connection)
+* [List connections](https://developers.symphony.com/restapi/main/connections/list-connections)
+* [Create connection](https://developers.symphony.com/restapi/main/connections/create-connection)
+* [Accept connection](https://developers.symphony.com/restapi/main/connections/accepted-connection)
+* [Reject connection](https://developers.symphony.com/restapi/main/connections/reject-connection)
+* [Remove connection](https://developers.symphony.com/restapi/main/connections/remove-connection)
 
 
 ## How to use
