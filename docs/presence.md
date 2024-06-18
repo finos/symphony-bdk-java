@@ -6,17 +6,17 @@ nav_order: 11
 
 # Presence API
 
-The Presence Service is a component at the service layer of the BDK which covers the Presence part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
+The Presence Service is a component at the service layer of the BDK which covers the Presence part of the [REST API documentation](https://developers.symphony.com/restapi/main/presence).
 More precisely:
-* [Get presence](https://developers.symphony.com/restapi/reference#get-presence)
-* [Get All Presence](https://developers.symphony.com/restapi/reference#get-all-presence)
-* [Get User Presence](https://developers.symphony.com/restapi/reference#user-presence-v3)
-* [External Presence Interest](https://developers.symphony.com/restapi/reference#register-user-presence-interest)
-* [Set Presence](https://developers.symphony.com/restapi/reference#set-presence)
-* [Create Presence Feed](https://developers.symphony.com/restapi/reference#create-presence-feed)
-* [Read Presence Feed](https://developers.symphony.com/restapi/reference#read-presence-feed)
-* [Delete Presence Feed](https://developers.symphony.com/restapi/reference#delete-presence-feed)
-* [Set Other User's Presence](https://developers.symphony.com/restapi/reference#set-user-presence)
+* [Get presence](https://developers.symphony.com/restapi/main/presence/get-presence)
+* [Get All Presence](https://developers.symphony.com/restapi/main/presence/get-all-presence)
+* [Get User Presence](https://developers.symphony.com/restapi/main/presence/user-presence-v3)
+* [External Presence Interest](https://developers.symphony.com/restapi/main/presence/register-user-presence-interest)
+* [Set Presence](https://developers.symphony.com/restapi/main/presence/set-presence)
+* [Create Presence Feed](https://developers.symphony.com/restapi/deprecated-endpoints/create-presence-feed) :warning: **Deprecated**
+* [Read Presence Feed](https://developers.symphony.com/restapi/deprecated-endpoints/read-presence-feed) :warning: **Deprecated**
+* [Delete Presence Feed](https://developers.symphony.com/restapi/deprecated-endpoints/delete-presence-feed) :warning: **Deprecated**
+* [Set Other User's Presence](https://developers.symphony.com/restapi/main/presence/set-user-presence)
 
 
 ## How to use

@@ -6,11 +6,11 @@ nav_order: 15
 
 # Disclaimer API
 
-The Disclaimer Service is a component at the service layer of the BDK which aims to cover the Disclaimers part of the [REST API documentation](https://developers.symphony.com/restapi/reference).
+The Disclaimer Service is a component at the service layer of the BDK which aims to cover the Disclaimers part of the [REST API documentation](https://developers.symphony.com/restapi/main/disclaimers).
 More precisely:
-* [Get disclaimer](https://developers.symphony.com/restapi/reference/disclaimer)
-* [List disclaimers](https://developers.symphony.com/restapi/reference/list-disclaimers)
-* [List disclaimer Users](https://developers.symphony.com/restapi/reference/disclaimer-users)
+* [Get disclaimer](https://developers.symphony.com/restapi/main/disclaimers/disclaimer)
+* [List disclaimers](https://developers.symphony.com/restapi/main/disclaimers/list-disclaimers)
+* [List disclaimer Users](https://developers.symphony.com/restapi/main/disclaimers/disclaimer-users)
 
 
 ## How to use
