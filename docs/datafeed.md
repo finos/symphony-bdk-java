@@ -5,10 +5,9 @@ nav_order: 6
 ---
 
 # Datafeed
-> :warning: The datafeed 1 service will be fully replaced by the datafeed 2 service in the future.
-> Please consider using datafeed 2.
+> :warning: The datafeed 1 service has been replaced by the datafeed 2 service. Please use datafeed 2.
 >
-> For more information on the timeline as well as on the benefits of datafeed 2, please reach out to your Technical
+> For more information on the benefits of datafeed 2, please reach out to your Technical
 > Account Manager or to our [developer documentation](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed).
 
 The datafeed loop is a service used for handling the [_Real Time
@@ -69,9 +68,7 @@ datafeed:
 ```
 
 The minimal configuration for the datafeed service is the version to be used in the
-BDK. For the moment, not all customers have datafeed 2 available on their systems, that's why bot
-developers are able to choose the version that they wish to use on their bot. If the bot developers want to use
-datafeed 1, the version configuration have to be specified as `v1`. Otherwise, datafeed 2 will be used by default.
+BDK. If the bot developers want to use datafeed 1, the version configuration have to be specified as `v1`. Otherwise, datafeed 2 will be used by default.
 
 Bot developers can also configure a dedicated retry mechanism which will be used only by the datafeed service.
 Basically, the datafeed service retry configuration has the field same as the global retry configuration with the fields
@@ -146,9 +143,11 @@ bdk.datafeed.stop();
 ```
 
 # Datahose
-> :warning: Please note that Datahose is available as beta and will remain as beta until further notice.
+> [!NOTE] The Datahose API is an add-on to the Symphony Services, and is subject to additional charges.
+> Prior to using Datahose in your Symphony environment(s), you will need to enter into a specific contract.
+> Please reach out to sales@symphony.com to discuss the offering, its pricing or for any further information.
 
-Datahose is very similar to datafeed: it enables a bot to receive [_Real Time
+[Datahose](https://rest-api.symphony.com/main/datahose/datahose-read-events) is very similar to datafeed: it enables a bot to receive [_Real Time
 Events_](https://docs.developers.symphony.com/building-bots-on-symphony/datafeed/real-time-events) with the main
 difference that *all* events of the pod are received. The datahose loop is a core service built on top of the events API
 and provide a dedicated contract to bot developers to work with datahose. This is compatible with agent version 22.5 onwards.
