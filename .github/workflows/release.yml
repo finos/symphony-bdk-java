@@ -22,7 +22,7 @@ jobs:
       - run: |
           mkdir -p ~/.gnupg/
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
-          ./gradlew -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
+          ./gradlew --debug -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
         env:
           GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
