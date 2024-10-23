@@ -6,7 +6,7 @@ plugins {
 ext.projectVersion = '3.0.4'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
-ext.mavenRepoUrl = 'https://symphony-test.oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
 ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
 ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
 
@@ -47,6 +47,8 @@ nexusPublishing {
         sonatype {
             username = project.ext.mavenRepoUsername
             password = project.ext.mavenRepoPassword
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
 }
