@@ -41,12 +41,14 @@ allprojects {
 }
 
 nexusPublishing {
-    packageGroup = 'org.finos'
+    packageGroup = 'org.finos.symphony.bdk'
 
     repositories {
         sonatype {
             username = project.ext.mavenRepoUsername
             password = project.ext.mavenRepoPassword
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
 }
