@@ -41,7 +41,7 @@ allprojects {
 }
 
 nexusPublishing {
-    packageGroup = 'org.finos'
+    packageGroup = 'org.finos.symphony.bdk'
 
     repositories {
         sonatype {
