@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.JwtHelperTest;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.service.version.AgentVersionService;
-import com.symphony.bdk.core.service.version.constant.AgentVersions;
 import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.gen.api.model.Token;
 
@@ -170,7 +169,7 @@ class AuthSessionImplTest {
     when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
 
     when(auth.getAgentVersionService()).thenReturn(agentVersionService);
-    when(agentVersionService.retrieveAgentVersion()).thenReturn(Optional.of(AgentVersions.AGENT_24_12));
+    when(agentVersionService.retrieveAgentVersion()).thenReturn(Optional.of(AgentVersion.AGENT_24_12));
 
     final AuthSessionImpl session = new AuthSessionImpl(auth);
     session.refresh();

@@ -3,7 +3,6 @@ package com.symphony.bdk.core.auth.impl;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
-import com.symphony.bdk.core.service.version.constant.AgentVersions;
 import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.gen.api.model.Token;
 
@@ -132,6 +131,6 @@ public class AuthSessionImpl implements AuthSession {
    if (currentVersion.isEmpty()) {
      return  false;
    }
-   return currentVersion.get().isHigher(AgentVersions.AGENT_24_12);
+   return currentVersion.get().isHigher(AgentVersion.AGENT_24_12);
   }
 }

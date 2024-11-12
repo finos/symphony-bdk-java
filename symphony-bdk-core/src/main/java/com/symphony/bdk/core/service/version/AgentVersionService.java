@@ -44,11 +44,8 @@ public class AgentVersionService {
 
     String maj = matcher.group(1);
     String min = matcher.group(2);
-    try {
-      return Optional.of(new AgentVersion(Integer.parseInt(maj), Integer.parseInt(min)));
-    } catch (NumberFormatException nbe) {
-      return Optional.empty();
-    }
+
+    return Optional.of(new AgentVersion(Integer.parseInt(maj), Integer.parseInt(min)));
   }
 
 

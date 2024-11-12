@@ -2,6 +2,7 @@ package com.symphony.bdk.core.service.version.model;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AgentVersionTest {
@@ -16,5 +17,11 @@ public class AgentVersionTest {
     assertTrue(agent_24_12.isHigher(agent_20_9));
     assertTrue(agent_25_01.isHigher(agent_20_9));
     assertTrue(agent_25_01.isHigher(agent_24_12));
+  }
+
+  @Test
+  public void testConstants() {
+    assertEquals(24, AgentVersion.AGENT_24_12.getMajor());
+    assertEquals(12, AgentVersion.AGENT_24_12.getMinor());
   }
 }

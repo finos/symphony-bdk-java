@@ -4,6 +4,8 @@ import org.apiguardian.api.API;
 
 @API(status = API.Status.INTERNAL)
 public class AgentVersion {
+  public static final AgentVersion AGENT_24_12 = new AgentVersion(24,12);
+
 
   private final int major;
   private final int minor;

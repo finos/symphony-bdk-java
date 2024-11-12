@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.service.version;
 
-import com.symphony.bdk.core.service.version.constant.AgentVersions;
 import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.SignalsApi;
