@@ -4,6 +4,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.service.version.AgentVersionService;
 import com.symphony.bdk.gen.api.CertificateAuthenticationApi;
 import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiClient;
@@ -33,8 +34,9 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
       @Nonnull BdkCommonJwtConfig commonJwtConfig,
       @Nonnull ApiClient loginClient,
       @Nonnull ApiClient sessionAuthClient,
-      @Nonnull ApiClient keyAuthClient) {
-    super(retryConfig, commonJwtConfig, loginClient);
+      @Nonnull ApiClient keyAuthClient,
+      @Nonnull AgentVersionService agentVersionService) {
+    super(retryConfig, commonJwtConfig, loginClient, agentVersionService);
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
     this.username = username;

@@ -5,9 +5,13 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.service.health.HealthService;
+import com.symphony.bdk.core.service.version.AgentVersionService;
 import com.symphony.bdk.gen.api.AuthenticationApi;
+import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.model.AuthenticateRequest;
 import com.symphony.bdk.gen.api.model.Token;
+import com.symphony.bdk.gen.api.model.V3Health;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.ApiException;
 
@@ -38,9 +42,10 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
       @Nonnull BdkCommonJwtConfig commonJwtConfig,
       @Nonnull PrivateKey privateKey,
       @Nonnull ApiClient loginApiClient,
-      @Nonnull ApiClient relayApiClient
+      @Nonnull ApiClient relayApiClient,
+      @Nonnull AgentVersionService agentVersionService
   ) {
-    super(retryConfig, commonJwtConfig, loginApiClient);
+    super(retryConfig, commonJwtConfig, loginApiClient, agentVersionService);
     this.username = username;
     this.privateKey = privateKey;
     this.relayApiClient = relayApiClient;

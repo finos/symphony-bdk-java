@@ -1,8 +1,10 @@
 package com.symphony.bdk.core.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
@@ -45,6 +47,7 @@ public class JwtHelperTest {
       + "eyJleHAiOjE2NDEzMDgyNzgsInN1YiI6IjEzMDU2NzAwNTgwOTE1IiwiZXh0X3BvZF9pZCI6MTkwLCJwb2xpY3lfaWQiOiJhcHAiLCJlbnRpdGx"
       + "lbWVudHMiOiIifQ.signature";
   private static final String JWT_EXP_INVALID = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.zhWFI4bw81QLE49UnklwMlThgt2ktUOs5M1HKjENgRE.signature";
+  public static final String JWT_SKD_ENABLED = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiY2FuVXNlU2ltcGxpZmllZEtleURlbGl2ZXJ5Ijp0cnVlfQ.signature";
 
   @Test
   void loadPkcs8PrivateKey() throws GeneralSecurityException {
@@ -130,6 +133,12 @@ public class JwtHelperTest {
   @Test
   public void testExtractExpirationDateInvalidExpData() {
     assertThrows(AuthUnauthorizedException.class, () -> JwtHelper.extractExpirationDate(JWT_EXP_INVALID));
+  }
+
+  @Test
+  public void testCheckSkdEnabled() {
+    assertTrue(JwtHelper.isSkdEnabled(JWT_SKD_ENABLED));
+    assertFalse(JwtHelper.isSkdEnabled("invalid.jwt.value"));
   }
 
   @SneakyThrows

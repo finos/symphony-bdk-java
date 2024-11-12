@@ -30,6 +30,7 @@ import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.AuditTrailApi;
 import com.symphony.bdk.gen.api.ConnectionApi;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.DatahoseApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.DisclaimerApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -145,7 +146,7 @@ class ServiceFactory {
   }
 
   public DatahoseLoop getDatahoseLoop(UserV2 botInfo) {
-    return new DatahoseLoopImpl(new DatafeedApi(datahoseAgentClient), authSession, config, botInfo);
+    return new DatahoseLoopImpl(new DatafeedApi(datahoseAgentClient), authSession, config, botInfo, new DatahoseApi(datahoseAgentClient));
   }
 
   /**

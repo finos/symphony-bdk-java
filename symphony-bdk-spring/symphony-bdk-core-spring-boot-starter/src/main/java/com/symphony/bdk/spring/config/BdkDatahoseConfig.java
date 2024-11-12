@@ -27,7 +27,7 @@ public class BdkDatahoseConfig {
                                        @Qualifier("datahoseApi") DatafeedApi datafeedApi,
                                        AuthSession botSession,
                                        BotInfoService botInfoService) {
-    return new DatahoseLoopImpl(datafeedApi, botSession, properties, botInfoService.getBotInfo());
+    return new DatahoseLoopImpl(datafeedApi, botSession, properties, botInfoService.getBotInfo(), null);
   }
 
   @Bean(initMethod = "start", destroyMethod = "stop")

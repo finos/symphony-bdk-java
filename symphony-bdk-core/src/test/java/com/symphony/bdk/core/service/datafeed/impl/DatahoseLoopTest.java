@@ -21,6 +21,7 @@ import com.symphony.bdk.core.config.model.BdkDatahoseConfig;
 import com.symphony.bdk.core.service.datafeed.EventException;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.DatahoseApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V4Initiator;
@@ -53,6 +54,7 @@ class DatahoseLoopTest {
   private DatahoseLoopImpl datahoseLoop;
   private ApiClient apiClient;
   private DatafeedApi datafeedApi;
+  private DatahoseApi datahoseApi;
   private AuthSession authSession;
   private BdkConfig bdkConfig;
   private UserV2 botInfo;
@@ -76,6 +78,8 @@ class DatahoseLoopTest {
 
     this.datafeedApi = mock(DatafeedApi.class);
     when(this.datafeedApi.getApiClient()).thenReturn(this.apiClient);
+    this.datahoseApi = mock(DatahoseApi.class);
+    when(this.datahoseApi.getApiClient()).thenReturn(this.apiClient);
 
     this.bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
     this.bdkConfig.setRetry(ofMinimalInterval(2));
@@ -89,8 +93,8 @@ class DatahoseLoopTest {
         this.datafeedApi,
         this.authSession,
         this.bdkConfig,
-        this.botInfo
-    );
+        this.botInfo,
+        this.datahoseApi);
     this.listener = new RealTimeEventListener() {
       @Override
       public boolean isAcceptingEvent(V4Event event, UserV2 botInfo) {
@@ -107,13 +111,13 @@ class DatahoseLoopTest {
 
   @Test
   void testStart() throws ApiException, AuthUnauthorizedException {
-    when(datafeedApi.readEvents(any(), any(), any())).thenReturn(
+    when(datahoseApi.readEvents(any(), any(), any())).thenReturn(
         buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getValue(), tag, "");
   }
@@ -128,17 +132,17 @@ class DatahoseLoopTest {
         datafeedApi,
         authSession,
         bdkConfig,
-        botInfo
-    );
+        botInfo,
+        datahoseApi);
     datahoseLoop.subscribe(listener);
 
-    when(datafeedApi.readEvents(any(), any(), any())).thenReturn(
+    when(datahoseApi.readEvents(any(), any(), any())).thenReturn(
         buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getValue(), "datahose-username", "");
   }
@@ -152,17 +156,17 @@ class DatahoseLoopTest {
         datafeedApi,
         authSession,
         bdkConfig,
-        botInfo
-    );
+        botInfo,
+        datahoseApi);
     datahoseLoop.subscribe(listener);
 
-    when(datafeedApi.readEvents(any(), any(), any())).thenReturn(
+    when(datahoseApi.readEvents(any(), any(), any())).thenReturn(
         buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getValue(), tag, "");
   }
@@ -176,17 +180,17 @@ class DatahoseLoopTest {
         datafeedApi,
         authSession,
         bdkConfig,
-        botInfo
-    );
+        botInfo,
+        datahoseApi);
     datahoseLoop.subscribe(listener);
 
-    when(datafeedApi.readEvents(any(), any(), any())).thenReturn(
+    when(datahoseApi.readEvents(any(), any(), any())).thenReturn(
         buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(1)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getValue(), tag.substring(0, 80), "");
   }
@@ -194,14 +198,14 @@ class DatahoseLoopTest {
   @Test
   void testAckIdIsReused() throws ApiException, AuthUnauthorizedException {
     final String ackId = "ack-id";
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenReturn(buildV5Events(RealTimeEventType.ROOMCREATED, ackId))
         .thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id-2"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(2)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(2)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getAllValues().get(0), tag, "");
     assertEventsReadBody(bodyCaptor.getAllValues().get(1), tag, ackId);
@@ -228,14 +232,14 @@ class DatahoseLoopTest {
     });
 
     final String ackId = "ack-id";
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenReturn(buildV5Events(RealTimeEventType.ROOMCREATED, ackId))
         .thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id-2"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(2)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(2)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getAllValues().get(0), tag, "");
     assertEventsReadBody(bodyCaptor.getAllValues().get(1), tag, ackId);
@@ -261,14 +265,14 @@ class DatahoseLoopTest {
       }
     });
 
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenReturn(buildV5Events(RealTimeEventType.ROOMCREATED, "ack-id"))
         .thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ack-id-2"));
 
     datahoseLoop.start();
 
     ArgumentCaptor<V5EventsReadBody> bodyCaptor = ArgumentCaptor.forClass(V5EventsReadBody.class);
-    verify(datafeedApi, times(2)).readEvents(any(), any(), bodyCaptor.capture());
+    verify(datahoseApi, times(2)).readEvents(any(), any(), bodyCaptor.capture());
 
     assertEventsReadBody(bodyCaptor.getAllValues().get(0), tag, "");
     assertEventsReadBody(bodyCaptor.getAllValues().get(1), tag, "");
@@ -277,37 +281,37 @@ class DatahoseLoopTest {
   @ParameterizedTest
   @ValueSource(ints = {400, 404})
   void testErrorIsNotRetried(int statusCode) throws ApiException {
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenThrow(new ApiException(statusCode, ""));
 
     assertThrows(ApiException.class, () -> datahoseLoop.start());
 
-    verify(datafeedApi, times(1)).readEvents(any(), any(), any());
+    verify(datahoseApi, times(1)).readEvents(any(), any(), any());
   }
 
   @Test
   void testUnauthorizedTriggersRefresh() throws ApiException, AuthUnauthorizedException {
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenThrow(new ApiException(401, ""))
         .thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ackId"));
     doNothing().when(authSession).refresh();
 
     datahoseLoop.start();
 
-    verify(datafeedApi, times(2)).readEvents(any(), any(), any());
+    verify(datahoseApi, times(2)).readEvents(any(), any(), any());
     verify(authSession, times(1)).refresh();
   }
 
   @ParameterizedTest
   @ValueSource(ints = {429, 500, 501, 502, 503})
   void testHttpErrorIsRetried(int statusCode) throws ApiException, AuthUnauthorizedException {
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenThrow(new ApiException(statusCode, ""))
         .thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ackId"));
 
     datahoseLoop.start();
 
-    verify(datafeedApi, times(2)).readEvents(any(), any(), any());
+    verify(datahoseApi, times(2)).readEvents(any(), any(), any());
   }
 
   @ParameterizedTest
@@ -315,19 +319,19 @@ class DatahoseLoopTest {
       UnknownHostException.class})
   void testNetworkErrorsAreRetried(Class<? extends Exception> clazz)
       throws ApiException, AuthUnauthorizedException, InstantiationException, IllegalAccessException {
-    when(datafeedApi.readEvents(any(), any(), any()))
+    when(datahoseApi.readEvents(any(), any(), any()))
         .thenThrow(new RuntimeException(clazz.newInstance()))
         .thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ackId"));
     doNothing().when(authSession).refresh();
 
     datahoseLoop.start();
 
-    verify(datafeedApi, times(2)).readEvents(any(), any(), any());
+    verify(datahoseApi, times(2)).readEvents(any(), any(), any());
   }
 
   @Test
   void testLoopAlreadyStarted() throws ApiException, AuthUnauthorizedException {
-    when(datafeedApi.readEvents(any(), any(), any())).thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ackId"));
+    when(datahoseApi.readEvents(any(), any(), any())).thenReturn(buildV5Events(RealTimeEventType.MESSAGESENT, "ackId"));
 
     AtomicBoolean isIllegalExceptionThrown = new AtomicBoolean(false);
     this.datahoseLoop.subscribe(new RealTimeEventListener() {

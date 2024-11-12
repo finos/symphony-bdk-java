@@ -174,8 +174,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
         () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
-            authSession.getSessionToken(), authSession.getKeyManagerToken(), pagination.getSkip(),
-            pagination.getLimit()));
+            pagination.getSkip(),
+            pagination.getLimit(),
+            authSession.getSessionToken(),
+            authSession.getKeyManagerToken()));
   }
 
   /**
@@ -189,8 +191,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
-            authSession.getSessionToken(), authSession.getKeyManagerToken(), null, null));
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), null, null,
+            authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
   /**
@@ -229,14 +231,17 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       @Nullable SortDir sortDir) {
     validateMessageSearchQuery(query);
     return executeAndRetry("searchMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v1MessageSearchPost(authSession.getSessionToken(), authSession.getKeyManagerToken(), query,
+        () -> messagesApi.v1MessageSearchPost(
             pagination != null ? pagination.getSkip() : null,
             pagination != null ? pagination.getLimit() : null,
             // 'scope' argument is not documented for POST search, but is for GET:
             // "Specifies against which connector to perform the search, either Symphony content or one connector.".
             // We will assume (for now) that it as no real usage.
             null,
-            sortDir != null ? sortDir.name().toLowerCase() : null)
+            sortDir != null ? sortDir.name().toLowerCase() : null,
+            null, // tier is not supported for now
+            authSession.getSessionToken(), authSession.getKeyManagerToken(), query
+            )
     );
   }
 
@@ -489,8 +494,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
     return executeAndRetry("listAttachments", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v1StreamsSidAttachmentsGet(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(),
-            getEpochMillis(since), getEpochMillis(to), limit, sortDir));
+        () -> streamsApi.v1StreamsSidAttachmentsGet(toUrlSafeIdIfNeeded(streamId),
+            getEpochMillis(since), getEpochMillis(to), limit, sortDir, authSession.getSessionToken()));
   }
 
   /**

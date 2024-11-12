@@ -120,7 +120,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   public Signal createSignal(@Nonnull BaseSignal signal) {
     return executeAndRetry("createSignal",
-        () -> signalsApi.v1SignalsCreatePost(authSession.getSessionToken(), signal, authSession.getKeyManagerToken()));
+        () -> signalsApi.v1SignalsCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), signal));
   }
 
   /**
@@ -129,8 +129,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   public Signal updateSignal(@Nonnull String id, @Nonnull BaseSignal signal) {
     return executeAndRetry("updateSignal",
-        () -> signalsApi.v1SignalsIdUpdatePost(authSession.getSessionToken(), id, signal,
-            authSession.getKeyManagerToken()));
+        () -> signalsApi.v1SignalsIdUpdatePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), id, signal));
   }
 
   /**
@@ -139,7 +138,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   @Override
   public void deleteSignal(@Nonnull String id) {
     executeAndRetry("deleteSignal",
-        () -> signalsApi.v1SignalsIdDeletePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken()));
+        () -> signalsApi.v1SignalsIdDeletePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), id));
   }
 
   /**
@@ -149,7 +148,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
   public ChannelSubscriptionResponse subscribeUsersToSignal(@Nonnull String id, @Nullable Boolean pushed,
       @Nullable List<Long> userIds) {
     return executeAndRetry("subscribeUsersToSignal",
-        () -> signalsApi.v1SignalsIdSubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
+        () -> signalsApi.v1SignalsIdSubscribePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), id,
             pushed, userIds));
   }
 

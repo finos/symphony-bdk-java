@@ -4,6 +4,8 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.service.version.AgentVersionService;
+import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.JwtToken;
 import com.symphony.bdk.gen.api.model.Token;
 import com.symphony.bdk.http.api.ApiClient;
@@ -37,7 +39,7 @@ class AbstractBotAuthenticatorTest {
 
   private static class TestBotAuthenticator extends AbstractBotAuthenticator {
     public TestBotAuthenticator(BdkRetryConfig retryConfig, ApiClient apiClient) {
-      super(retryConfig, new BdkCommonJwtConfig(), apiClient);
+      super(retryConfig, new BdkCommonJwtConfig(), apiClient, new AgentVersionService(new SignalsApi(apiClient)));
     }
 
     @Override

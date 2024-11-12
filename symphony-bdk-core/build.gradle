@@ -75,7 +75,7 @@ dependencies {
 }
 
 // OpenAPI code generation
-def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/30fcab0fe6eaa26dcc46e7dc5909467332ec8d0d"
+def apiBaseUrl = "https://raw.githubusercontent.com/FabienVSymphony/symphony-api-spec/refs/heads/AGNT-585/"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public-deprecated.yaml',
@@ -116,7 +116,8 @@ apisToGenerate.each { api, path ->
                 supportingFiles: "false"
         ]
         configOptions = [
-                dateLibrary: "java8"
+                dateLibrary: "java8",
+                sortParamsByRequiredFlag: "false"
         ]
     }
 
