@@ -108,9 +108,9 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
   private Void readAndHandleEvents() throws ApiException {
     List<V4Event> events = this.datafeedApi.v4DatafeedIdReadGet(
         datafeedId,
+        null,
         authSession.getSessionToken(),
-        authSession.getKeyManagerToken(),
-        null
+        authSession.getKeyManagerToken()
     );
 
     try {

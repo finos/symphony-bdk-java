@@ -2,6 +2,7 @@ package com.symphony.bdk.core.auth.impl;
 
 import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -10,11 +11,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.symphony.bdk.core.auth.JwtHelperTest;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.service.version.AgentVersionService;
+import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.gen.api.model.Token;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.UUID;
 
 class AuthSessionImplTest {
@@ -148,6 +153,61 @@ class AuthSessionImplTest {
 
     verify(auth).retrieveAuthorizationToken(any());
     verify(auth, times(2)).retrieveSessionToken();
+  }
+
+
+  @Test
+  void testRefresh_skd() throws AuthUnauthorizedException {
+
+    Token authToken = new Token();
+    authToken.setToken(JwtHelperTest.JWT_SKD_ENABLED);
+    final String kmToken = UUID.randomUUID().toString();
+
+    final AgentVersionService agentVersionService = mock(AgentVersionService.class);
+    final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
+    when(auth.retrieveSessionToken()).thenReturn(authToken);
+    when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
+
+    when(auth.getAgentVersionService()).thenReturn(agentVersionService);
+    when(agentVersionService.retrieveAgentVersion()).thenReturn(Optional.of(AgentVersion.AGENT_24_12));
+
+    final AuthSessionImpl session = new AuthSessionImpl(auth);
+    session.refresh();
+
+    verify(auth, times(1)).retrieveSessionToken();
+    verify(auth, never()).retrieveKeyManagerToken();
+
+
+    assertEquals(JwtHelperTest.JWT_SKD_ENABLED, session.getSessionToken());
+    assertNull(session.getKeyManagerToken());
+
+  }
+
+  @Test
+  void testRefresh_skd_agentTooOld() throws AuthUnauthorizedException {
+
+    Token authToken = new Token();
+    authToken.setToken(JwtHelperTest.JWT_SKD_ENABLED);
+    final String kmToken = UUID.randomUUID().toString();
+
+    final AgentVersionService agentVersionService = mock(AgentVersionService.class);
+    final BotAuthenticatorRsaImpl auth = mock(BotAuthenticatorRsaImpl.class);
+    when(auth.retrieveSessionToken()).thenReturn(authToken);
+    when(auth.retrieveKeyManagerToken()).thenReturn(kmToken);
+
+    when(auth.getAgentVersionService()).thenReturn(agentVersionService);
+    when(agentVersionService.retrieveAgentVersion()).thenReturn(Optional.of(new AgentVersion(23, 11)));
+
+    final AuthSessionImpl session = new AuthSessionImpl(auth);
+    session.refresh();
+
+    verify(auth, times(1)).retrieveSessionToken();
+    verify(auth, times(1)).retrieveKeyManagerToken();
+
+
+    assertEquals(JwtHelperTest.JWT_SKD_ENABLED, session.getSessionToken());
+    assertEquals(kmToken, session.getKeyManagerToken());
+
   }
 
   private Token getToken(String sessionToken) {

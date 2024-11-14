@@ -172,8 +172,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public V2Message share(@Nonnull String streamId, @Nonnull ShareContent content) {
     return executeAndRetry("share", shareApi.getApiClient().getBasePath(),
-        () -> shareApi.v3StreamSidSharePost(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(), content,
-            authSession.getKeyManagerToken()));
+        () -> shareApi.v3StreamSidSharePost(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(), authSession.getKeyManagerToken(), content));
   }
 
   /**
@@ -252,7 +251,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query) {
     return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, null, null));
+        () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), null, null, query));
   }
 
   /**
@@ -261,8 +260,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("searchRooms", streamsApi.getApiClient().getBasePath(),
-        () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), query, pagination.getSkip(),
-            pagination.getLimit()));
+        () -> streamsApi.v3RoomSearchPost(authSession.getSessionToken(), pagination.getSkip(),
+            pagination.getLimit(), query));
   }
 
   /**

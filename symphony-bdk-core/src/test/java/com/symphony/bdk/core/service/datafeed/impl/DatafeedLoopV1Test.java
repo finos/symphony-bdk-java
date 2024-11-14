@@ -158,13 +158,13 @@ class DatafeedLoopV1Test {
   @Test
   void startTest() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenReturn(getMessageSentEvent());
 
     this.datafeedService.start();
 
     verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", null,"1234",  "1234");
 
     assertTrue(datafeedIdRepository.read().isPresent());
     assertEquals("test-id", datafeedIdRepository.read().get());
@@ -177,13 +177,13 @@ class DatafeedLoopV1Test {
     datafeedIdRepository.write("persisted-id");
     initializeDatafeedService(); // datafeedId is read from repository in constructor
 
-    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234"))
         .thenReturn(getMessageSentEvent());
 
     this.datafeedService.start();
 
     verify(datafeedApi, times(0)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234");
   }
 
   @Test
@@ -198,13 +198,13 @@ class DatafeedLoopV1Test {
     initializeDatafeedService();
 
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenReturn(getMessageSentEvent());
 
     this.datafeedService.start();
 
     verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", null,"1234",  "1234");
 
     assertTrue(datafeedIdRepository.read().isPresent());
     assertEquals("test-id", datafeedIdRepository.read().get());
@@ -225,13 +225,13 @@ class DatafeedLoopV1Test {
     initializeDatafeedApi();
     initializeDatafeedService();
 
-    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234"))
         .thenReturn(getMessageSentEvent());
 
     this.datafeedService.start();
 
     verify(datafeedApi, times(0)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234");
     verify(loadBalancedApiClient, times(1)).setBasePath("persisted-agent-path");
   }
 
@@ -240,17 +240,17 @@ class DatafeedLoopV1Test {
     datafeedIdRepository.write("persisted-id");
     initializeDatafeedService(); // datafeedId is read from repository in constructor
 
-    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234"))
         .thenThrow(new ApiException(400, "expired DF id"));
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenReturn(getMessageSentEvent());
 
     this.datafeedService.start();
 
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234");
     verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", null,"1234",  "1234");
     verify(datafeedApiClient, times(1)).rotate();
 
     assertTrue(datafeedIdRepository.read().isPresent());
@@ -264,14 +264,14 @@ class DatafeedLoopV1Test {
     datafeedIdRepository.write("persisted-id");
     initializeDatafeedService(); // datafeedId is read from repository in constructor
 
-    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234"))
         .thenThrow(new ApiException(400, "expired DF id"));
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234"))
         .thenThrow(new ApiException(404, "unhandled exception"));
 
     assertThrows(NestedRetryException.class, () -> this.datafeedService.start());
 
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234");
     verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
     verify(datafeedApiClient, times(2)).rotate();
   }
@@ -289,13 +289,13 @@ class DatafeedLoopV1Test {
   @Test
   void startTestWithRetryClientRead() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenThrow(new ApiException(400, "test_client_error"));
     doNothing().when(authSession).refresh();
 
     assertThrows(ApiException.class, this.datafeedService::start);
     verify(datafeedApi, times(3)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", null,"1234",  "1234");
     verify(datafeedApiClient, times(2)).rotate();
   }
 
@@ -321,35 +321,35 @@ class DatafeedLoopV1Test {
   @Test
   void startTestFailedAuthRead() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenThrow(new ApiException(401, "test_client_error"));
     doThrow(AuthUnauthorizedException.class).when(authSession).refresh();
 
     assertThrows(AuthUnauthorizedException.class, this.datafeedService::start);
     verify(datafeedApi, times(1)).v4DatafeedCreatePost("1234", "1234");
-    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(1)).v4DatafeedIdReadGet("test-id", null,"1234",  "1234");
     verify(datafeedApiClient, times(1)).rotate();
   }
 
   @Test
   void startTestFailedSocketTimeoutRead() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenThrow(new ProcessingException(new SocketTimeoutException()));
 
     this.datafeedService.start();
-    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", null,"1234", "1234");
     verify(datafeedApiClient, times(2)).rotate();
   }
 
   @Test
   void startTestFailedUnknownHost() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null,"1234",  "1234"))
         .thenThrow(new ProcessingException(new UnknownHostException()));
 
     this.datafeedService.start();
-    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", "1234", "1234", null);
+    verify(datafeedApi, times(2)).v4DatafeedIdReadGet("test-id", null,"1234",  "1234");
     verify(datafeedApiClient, times(2)).rotate();
   }
 
@@ -357,7 +357,7 @@ class DatafeedLoopV1Test {
   void startServiceAlreadyStarted() throws ApiException, AuthUnauthorizedException {
     AtomicInteger signal = new AtomicInteger(0);
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenReturn(new Datafeed().id("test-id"));
-    when(datafeedApi.v4DatafeedIdReadGet("test-id", "1234", "1234", null))
+    when(datafeedApi.v4DatafeedIdReadGet("test-id", null, "1234", "1234"))
         .thenReturn(getMessageSentEvent());
 
     this.datafeedService.unsubscribe(this.listener);

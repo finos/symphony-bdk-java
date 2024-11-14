@@ -257,7 +257,7 @@ public class SignalServiceTest {
 
     this.service.deleteSignal("signal-id");
 
-    verify(this.spiedSignalApi).v1SignalsIdDeletePost("1234", "signal-id", "1234");
+    verify(this.spiedSignalApi).v1SignalsIdDeletePost("1234", "1234","signal-id");
   }
 
   @Test

@@ -16,6 +16,10 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkAuthenticationConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import com.symphony.bdk.core.service.version.AgentVersionService;
+
+import com.symphony.bdk.gen.api.SignalsApi;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apiguardian.api.API;
@@ -77,7 +81,8 @@ public class AuthenticatorFactory {
           this.config.getCommonJwt(),
           this.apiClientFactory.getLoginClient(),
           this.apiClientFactory.getSessionAuthClient(),
-          this.apiClientFactory.getKeyAuthClient()
+          this.apiClientFactory.getKeyAuthClient(),
+          new AgentVersionService(new SignalsApi(this.apiClientFactory.getAgentClient()))
       );
     }
     if (this.config.getBot().isRsaAuthenticationConfigured()) {
@@ -91,7 +96,8 @@ public class AuthenticatorFactory {
           this.config.getCommonJwt(),
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getBot()),
           this.apiClientFactory.getLoginClient(),
-          this.apiClientFactory.getRelayClient()
+          this.apiClientFactory.getRelayClient(),
+          new AgentVersionService(new SignalsApi(this.apiClientFactory.getAgentClient()))
       );
     }
     throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");

@@ -85,7 +85,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
   @Override
   public V2Presence getUserPresence(@Nonnull Long userId, @Nullable Boolean local) {
     return executeAndRetry("getUserPresence",
-        () -> presenceApi.v3UserUidPresenceGet(userId, authSession.getSessionToken(), local));
+        () -> presenceApi.v3UserUidPresenceGet(userId, local, authSession.getSessionToken()));
   }
 
   /**
@@ -104,7 +104,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
   public V2Presence setPresence(@Nonnull PresenceStatus status, @Nullable Boolean soft) {
     V2PresenceStatus presenceStatus = new V2PresenceStatus().category(status.name());
     return executeAndRetry("setPresence",
-        () -> presenceApi.v2UserPresencePost(authSession.getSessionToken(), presenceStatus, soft));
+        () -> presenceApi.v2UserPresencePost(authSession.getSessionToken(), soft, presenceStatus));
   }
 
   /**
@@ -141,7 +141,7 @@ public class PresenceService implements OboPresenceService, OboService<OboPresen
   public V2Presence setUserPresence(@Nonnull Long userId, @Nonnull PresenceStatus status, @Nullable Boolean soft) {
     V2UserPresence userPresence = new V2UserPresence().userId(userId).category(status.name());
     return executeAndRetry("setUserPresence",
-        () -> presenceApi.v3UserPresencePost(authSession.getSessionToken(), userPresence, soft));
+        () -> presenceApi.v3UserPresencePost(authSession.getSessionToken(), soft, userPresence));
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {

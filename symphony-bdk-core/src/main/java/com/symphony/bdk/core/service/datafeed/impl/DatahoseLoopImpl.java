@@ -6,6 +6,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.DatahoseLoop;
 import com.symphony.bdk.gen.api.DatafeedApi;
+import com.symphony.bdk.gen.api.DatahoseApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.gen.api.model.V5EventsReadBody;
@@ -29,9 +30,12 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
   private final String tag;
   private final List<String> filters;
   private final RetryWithRecovery<Object> readEvents;
+  private final DatahoseApi datahoseApi;
 
-  public DatahoseLoopImpl(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+  public DatahoseLoopImpl(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo,
+      DatahoseApi datahoseApi) {
     super(datafeedApi, authSession, config, botInfo);
+    this.datahoseApi = datahoseApi;
 
     String untruncatedTag = config.getDatahose().getTag();
     if (StringUtils.isEmpty(untruncatedTag)) {
@@ -65,7 +69,7 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
 
   @Override
   protected V5EventList readEvents() throws ApiException {
-    return this.datafeedApi.readEvents(this.authSession.getSessionToken(), this.authSession.getKeyManagerToken(),
+    return this.datahoseApi.readEvents(this.authSession.getSessionToken(), this.authSession.getKeyManagerToken(),
         new V5EventsReadBody().ackId(this.ackId).eventTypes(this.filters).tag(this.tag).type(DATAHOSE));
   }
 }

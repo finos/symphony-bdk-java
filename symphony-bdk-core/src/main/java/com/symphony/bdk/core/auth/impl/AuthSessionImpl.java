@@ -3,6 +3,7 @@ package com.symphony.bdk.core.auth.impl;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
+import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.gen.api.model.Token;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,6 +11,7 @@ import org.apiguardian.api.API;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -102,7 +104,9 @@ public class AuthSessionImpl implements AuthSession {
     this.authorizationToken = authToken.getAuthorizationToken();
     this.sessionToken = authToken.getToken();
     refreshExpirationDate();
-    this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
+    if (!JwtHelper.isSkdEnabled(this.sessionToken) || !isSkdSupported()) {
+      this.keyManagerToken = this.authenticator.retrieveKeyManagerToken();
+    }
   }
 
   private void refreshExpirationDate() throws AuthUnauthorizedException {
@@ -120,5 +124,13 @@ public class AuthSessionImpl implements AuthSession {
    */
   protected AbstractBotAuthenticator getAuthenticator() {
     return this.authenticator;
+  }
+
+  protected  boolean isSkdSupported() {
+    Optional<AgentVersion> currentVersion = authenticator.getAgentVersionService().retrieveAgentVersion();
+   if (currentVersion.isEmpty()) {
+     return  false;
+   }
+   return currentVersion.get().isHigher(AgentVersion.AGENT_24_12);
   }
 }

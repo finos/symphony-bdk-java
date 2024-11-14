@@ -465,7 +465,7 @@ class MessageServiceTest {
         .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
 
     assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC));
-    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("ASC"));
+    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), eq("ASC"), any());
   }
 
   @Test
@@ -474,7 +474,7 @@ class MessageServiceTest {
         .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
 
     assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.DESC));
-    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("DESC"));
+    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), eq("DESC"), any());
   }
 
   @Test
@@ -483,7 +483,7 @@ class MessageServiceTest {
         .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
 
     assertNotNull(messageService.listAttachments(STREAM_ID, null, null, null, null));
-    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), any(), eq("ASC"));
+    verify(streamsApi).v1StreamsSidAttachmentsGet(eq(STREAM_ID), any(), any(), any(), eq("ASC"), any());
   }
 
   @Test

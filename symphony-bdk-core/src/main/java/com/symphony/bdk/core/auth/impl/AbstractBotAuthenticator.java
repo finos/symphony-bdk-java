@@ -4,6 +4,7 @@ import com.symphony.bdk.core.auth.BotAuthenticator;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
+import com.symphony.bdk.core.service.version.AgentVersionService;
 import com.symphony.bdk.gen.api.AuthenticationApi;
 import com.symphony.bdk.gen.api.model.JwtToken;
 import com.symphony.bdk.gen.api.model.Token;
@@ -29,14 +30,17 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
   private final AuthenticationRetry<String> kmAuthenticationRetry;
   private final AuthenticationRetry<Token> podAuthenticationRetry;
   private final AuthenticationRetry<JwtToken> idmAuthenticationRetry;
+  private final AgentVersionService agentVersionService;
 
   protected AbstractBotAuthenticator(BdkRetryConfig retryConfig,
-      @Nonnull BdkCommonJwtConfig commonJwtConfig, @Nonnull ApiClient loginApiClient) {
+      @Nonnull BdkCommonJwtConfig commonJwtConfig, @Nonnull ApiClient loginApiClient,
+      @Nonnull AgentVersionService agentVersionService) {
     kmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     podAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     idmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     this.commonJwtConfig = commonJwtConfig;
     this.loginApiClient = loginApiClient;
+    this.agentVersionService = agentVersionService;
   }
 
   protected abstract String retrieveKeyManagerToken() throws AuthUnauthorizedException;
@@ -83,5 +87,9 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
 
   public boolean isCommonJwtEnabled() {
     return commonJwtConfig.getEnabled();
+  }
+
+  public AgentVersionService getAgentVersionService() {
+    return agentVersionService;
   }
 }

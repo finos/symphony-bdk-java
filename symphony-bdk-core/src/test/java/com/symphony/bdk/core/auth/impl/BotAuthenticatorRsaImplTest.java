@@ -4,10 +4,12 @@ import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInter
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
+import com.symphony.bdk.core.service.version.AgentVersionService;
 import com.symphony.bdk.core.test.BdkMockServer;
 import com.symphony.bdk.core.test.BdkMockServerExtension;
 import com.symphony.bdk.core.test.RsaTestHelper;
@@ -37,7 +39,8 @@ class BotAuthenticatorRsaImplTest {
         "username",
         new BdkCommonJwtConfig(), PRIVATE_KEY,
         mockServer.newApiClient("/login"),
-        mockServer.newApiClient("/relay")
+        mockServer.newApiClient("/relay"),
+        mock(AgentVersionService.class)
     );
   }
 
