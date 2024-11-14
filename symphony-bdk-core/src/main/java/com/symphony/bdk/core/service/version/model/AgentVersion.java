@@ -2,6 +2,10 @@ package com.symphony.bdk.core.service.version.model;
 
 import org.apiguardian.api.API;
 
+/**
+ * AgentVersion model used by AgentVersionService.
+ * Allows to compare two versions of the Agent for feature gating
+ */
 @API(status = API.Status.INTERNAL)
 public class AgentVersion {
   public static final AgentVersion AGENT_24_12 = new AgentVersion(24,12);

@@ -12,6 +12,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Service class for retrieving and parsing Agent version
+ */
 @Slf4j
 @API(status = API.Status.INTERNAL)
 public class AgentVersionService {
