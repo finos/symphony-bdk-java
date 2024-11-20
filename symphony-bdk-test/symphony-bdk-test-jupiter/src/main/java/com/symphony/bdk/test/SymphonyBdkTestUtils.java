@@ -202,6 +202,11 @@ public class SymphonyBdkTestUtils {
       assert event.getPayload() != null;
       assert event.getPayload().getConnectionRequested() != null : "ConnectionRequested event must not null";
       listener.onConnectionRequested(event.getInitiator(), proxy(event.getPayload().getConnectionRequested(), event));
+    }),
+    GENERICSYSTEMEVENT((listener, event) -> {
+      assert event.getPayload() != null;
+      assert event.getPayload().getGenericSystemEvent() != null : "GenericSystemEvent event must not null";
+      listener.onGenericSystemEvent(event.getInitiator(), proxy(event.getPayload().getGenericSystemEvent(), event));
     });
 
     private final BiConsumer<RealTimeEventListener, V4Event> execConsumer;

@@ -80,7 +80,11 @@ enum RealTimeEventType {
   }),
   CONNECTIONREQUESTED((listener, event) -> {
     listener.onConnectionRequested(event.getInitiator(), proxy(event.getPayload().getConnectionRequested(), event));
+  }),
+  GENERICSYSTEMEVENT((listener, event) -> {
+    listener.onGenericSystemEvent(event.getInitiator(), proxy(event.getPayload().getGenericSystemEvent(), event));
   });
+
 
   private final BiConsumer<RealTimeEventListener, V4Event> execConsumer;
 

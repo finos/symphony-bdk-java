@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
+import com.symphony.bdk.gen.api.model.V4GenericSystemEvent;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -150,4 +151,10 @@ public class RealTimeEventsDispatcher implements RealTimeEventListener {
   public void onSymphonyElementsAction(V4Initiator initiator, V4SymphonyElementsAction event) {
     this.publisher.publishEvent(new RealTimeEvent<>(initiator, event));
   }
+
+  @Override
+  public void onGenericSystemEvent(V4Initiator initiator, V4GenericSystemEvent event) {
+    this.publisher.publishEvent(new RealTimeEvent<>(initiator, event));
+  }
+
 }
