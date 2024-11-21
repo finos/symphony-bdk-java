@@ -18,6 +18,7 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4ConnectionAccepted;
 import com.symphony.bdk.gen.api.model.V4ConnectionRequested;
 import com.symphony.bdk.gen.api.model.V4Event;
+import com.symphony.bdk.gen.api.model.V4GenericSystemEvent;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
@@ -469,7 +470,8 @@ class DatafeedLoopV1Test {
         .roomMemberPromotedToOwner(new V4RoomMemberPromotedToOwner())
         .userLeftRoom(new V4UserLeftRoom())
         .userJoinedRoom(new V4UserJoinedRoom())
-        .userRequestedToJoinRoom(new V4UserRequestedToJoinRoom());
+        .userRequestedToJoinRoom(new V4UserRequestedToJoinRoom())
+        .genericSystemEvent(new V4GenericSystemEvent());
 
     final V4Initiator initiator = new V4Initiator().user(new V4User().username("username").userId(123456789L));
     for (RealTimeEventType type : types) {
@@ -516,5 +518,6 @@ class DatafeedLoopV1Test {
     verify(spiedListener).onUserLeftRoom(eq(initiator), any(V4UserLeftRoom.class));
     verify(spiedListener).onUserJoinedRoom(eq(initiator), any(V4UserJoinedRoom.class));
     verify(spiedListener).onUserRequestedToJoinRoom(eq(initiator), any(V4UserRequestedToJoinRoom.class));
+    verify(spiedListener).onGenericSystemEvent(eq(initiator), any(V4GenericSystemEvent.class));
   }
 }

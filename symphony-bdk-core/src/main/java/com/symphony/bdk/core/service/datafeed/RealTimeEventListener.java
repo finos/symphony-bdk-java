@@ -208,4 +208,15 @@ public interface RealTimeEventListener {
   default void onSymphonyElementsAction(V4Initiator initiator, V4SymphonyElementsAction event) throws EventException {
   }
 
+  /**
+   * Called when a GENERICSYSTEMEVENT event is received.
+   *
+   * @param initiator Event initiator.
+   * @param event     Generic system event payload.
+   * @throws EventException Throw this exception if this method should fail the current events processing
+   *                        and re-queue the events in datafeed. Other exceptions will be caught silently.
+   */
+  default void onGenericSystemEvent(V4Initiator initiator, V4GenericSystemEvent event) throws EventException {
+  }
+
 }
