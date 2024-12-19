@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:3.3.4')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
     // import Jackson's BOM
     api platform('com.fasterxml.jackson:jackson-bom:2.18.0')
     // import Jersey's BOM
