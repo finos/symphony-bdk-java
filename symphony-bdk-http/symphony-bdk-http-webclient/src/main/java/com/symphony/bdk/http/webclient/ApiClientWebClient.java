@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfApiClientBodyPart;
 import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
 
 /**
@@ -241,8 +242,12 @@ public class ApiClientWebClient implements ApiClient {
       }
     } else if (paramValue instanceof ApiClientBodyPart) {
       serializeApiClientBodyPart(paramKey, (ApiClientBodyPart) paramValue, formValueMap);
+    } else if (isCollectionOfApiClientBodyPart(paramValue)) {
+      for (Object o : (Collection<?>) paramValue) {
+          serializeApiClientBodyPart(paramKey, (ApiClientBodyPart) o, formValueMap);
+      }
     } else {
-      formValueMap.add(paramKey, parameterToString(paramValue));
+        formValueMap.add(paramKey, parameterToString(paramValue));
     }
   }
 
