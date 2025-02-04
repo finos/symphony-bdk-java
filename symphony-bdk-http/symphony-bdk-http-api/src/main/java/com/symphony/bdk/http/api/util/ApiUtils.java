@@ -1,5 +1,7 @@
 package com.symphony.bdk.http.api.util;
 
+import com.symphony.bdk.http.api.ApiClientBodyPart;
+
 import org.apiguardian.api.API;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +57,22 @@ public final class ApiUtils {
   }
 
   public static boolean isCollectionOfFiles(Object paramValue) {
+    return isCollectionOf(paramValue, File.class);
+  }
+
+  public static boolean isCollectionOfApiClientBodyPart(Object paramValue) {
+    return isCollectionOf(paramValue, ApiClientBodyPart.class);
+  }
+
+
+  private static boolean isCollectionOf(Object paramValue, Class clazz) {
+
     if (!(paramValue instanceof Collection<?>)) {
       return false;
     }
 
     final Collection<?> collection = (Collection<?>) paramValue;
-    return !collection.isEmpty() && collection.stream().allMatch(p -> p instanceof File);
+    return !collection.isEmpty() && collection.stream().allMatch(clazz::isInstance);
   }
 
   private static String getBdkVersion() {

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBodyPart;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiResponse;
 import com.symphony.bdk.http.api.Pair;
@@ -24,8 +25,10 @@ import org.mockserver.model.Parameter;
 import org.mockserver.model.ParameterBody;
 import org.springframework.http.MediaType;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -281,6 +284,34 @@ class ApiClientWebClientTest {
             Collections.singletonMap("cookie", "test-cookie"), formParams, null, MediaType.MULTIPART_FORM_DATA_VALUE,
             new String[] {},
             new TypeReference<Response>() {});
+
+    assertEquals(200, response.getData().getCode());
+    assertEquals("success", response.getData().getMessage());
+  }
+
+  @Test
+  void testInvokeApiWithApiClientBodyPart(final BdkMockServer mockServer) throws ApiException {
+    mockServer.onRequestModifierWithResponse(200,
+        httpRequest -> httpRequest
+            .withMethod("POST")
+            .withPath("/test-api")
+            .withHeader(Header.header("sessionToken", "test-token"))
+            .withBody(anyString())
+            .withCookie("cookie", "test-cookie"),
+        httpResponse -> httpResponse
+            .withBody("{\"code\": 200, \"message\": \"success\"}"));
+    Map<String, Object> formParams = new HashMap<>();
+
+    formParams.put("attachment", Collections.singletonList(new ApiClientBodyPart(new ByteArrayInputStream("test".getBytes()), "filename")));
+
+
+    ApiResponse<Response> response =
+        this.apiClient.invokeAPI("/test-api", "POST", null, null,
+            Collections.singletonMap("sessionToken", "test-token"),
+            Collections.singletonMap("cookie", "test-cookie"), formParams, null, MediaType.MULTIPART_FORM_DATA_VALUE,
+            new String[] {},
+            new TypeReference<Response>() {});
+
 
     assertEquals(200, response.getData().getCode());
     assertEquals("success", response.getData().getMessage());
