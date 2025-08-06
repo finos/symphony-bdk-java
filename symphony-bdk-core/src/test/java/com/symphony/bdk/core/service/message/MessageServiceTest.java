@@ -60,6 +60,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -183,7 +184,6 @@ class MessageServiceTest {
         messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
   }
 
-
   @Test
   void testSearchMessages() throws IOException {
     mockApiClient.onPost(V4_SEARCH_MESSAGES,
@@ -238,71 +238,83 @@ class MessageServiceTest {
   @Test
   void testSendPassingMessageInstanceToStreamId(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
+    try (OutputStream out = new FileOutputStream(tempFilePath.toFile())) {
+      IOUtils.write("test", out, StandardCharsets.UTF_8);
+    }
+
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
-    InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Message message = Message.builder()
-        .content(MESSAGE)
-        .addAttachment(inputStream, "test.png")
-        .build();
+    try (InputStream inputStream = new FileInputStream(tempFilePath.toString())) {
+      Message message = Message.builder()
+          .content(MESSAGE)
+          .addAttachment(inputStream, "test.png")
+          .build();
 
-    final V4Message sentMessage = messageService.send(STREAM_ID, message);
+      final V4Message sentMessage = messageService.send(STREAM_ID, message);
 
-    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
-    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+      assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+      assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+    }
   }
 
   @Test
   void testSendPassingMessageInstanceToStream(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
+    try (OutputStream out = new FileOutputStream(tempFilePath.toFile())) {
+      IOUtils.write("test", out, StandardCharsets.UTF_8);
+    }
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
-    InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    Message message = Message.builder()
-        .content(MESSAGE)
-        .addAttachment(inputStream, "test.png")
-        .build();
+    try (InputStream inputStream = new FileInputStream(tempFilePath.toString())) {
+      Message message = Message.builder()
+          .content(MESSAGE)
+          .addAttachment(inputStream, "test.png")
+          .build();
 
-    final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
+      final V4Message sentMessage = messageService.send(new V4Stream().streamId(STREAM_ID), message);
 
-    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
-    assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+      assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+      assertEquals("gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA", sentMessage.getStream().getStreamId());
+    }
   }
 
   @Test
   void testSendPassingMessageInstanceToStreamWrongAttachmentName(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
+    try (OutputStream out = new FileOutputStream(tempFilePath.toFile())) {
+      IOUtils.write("test", out, StandardCharsets.UTF_8);
+    }
     mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
         JsonHelper.readFromClasspath("/message/send_message.json"));
 
-    InputStream inputStream = new FileInputStream(tempFilePath.toString());
-
-    assertThrows(MessageCreationException.class,
-        () -> {
-          final Message message = Message.builder()
-              .content(MESSAGE)
-              .addAttachment(inputStream, "wrong-name")
-              .build();
-          messageService.send(new V4Stream().streamId(STREAM_ID), message);
-        });
+    try (InputStream inputStream = new FileInputStream(tempFilePath.toString())) {
+      assertThrows(MessageCreationException.class,
+          () -> {
+            final Message message = Message.builder()
+                .content(MESSAGE)
+                .addAttachment(inputStream, "wrong-name")
+                .build();
+            messageService.send(new V4Stream().streamId(STREAM_ID), message);
+          });
+    }
   }
 
   @Test
   void testMessageCreationFailed(@TempDir Path tmpDir) throws IOException {
     Path tempFilePath = tmpDir.resolve("tempFile");
-    IOUtils.write("test", new FileOutputStream(tempFilePath.toFile()), StandardCharsets.UTF_8);
+    try (OutputStream out = new FileOutputStream(tempFilePath.toFile())) {
+      IOUtils.write("test", out, StandardCharsets.UTF_8);
+    }
 
-    InputStream inputStream = new FileInputStream(tempFilePath.toString());
-    assertThrows(MessageCreationException.class,
-        () -> Message.builder()
-            .content(MESSAGE)
-            .addAttachment(inputStream, "test.png")
-            .data(new MockObject("wrong object")).build());
+    try (InputStream inputStream = new FileInputStream(tempFilePath.toString())) {
+      assertThrows(MessageCreationException.class,
+          () -> Message.builder()
+              .content(MESSAGE)
+              .addAttachment(inputStream, "test.png")
+              .data(new MockObject("wrong object")).build());
+    }
   }
 
   @Test

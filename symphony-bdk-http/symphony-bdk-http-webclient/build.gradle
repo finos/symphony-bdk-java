@@ -35,4 +35,5 @@ dependencies {
     testImplementation 'org.mock-server:mockserver-netty'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.mockito:mockito-junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

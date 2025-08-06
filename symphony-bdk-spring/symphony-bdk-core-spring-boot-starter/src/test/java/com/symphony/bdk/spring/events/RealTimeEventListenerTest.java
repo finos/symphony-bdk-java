@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest(classes = RealTimeEventsTestListener.class)
@@ -37,7 +38,7 @@ public class RealTimeEventListenerTest {
   @Autowired
   private ApplicationEventPublisher publisher;
 
-  @SpyBean
+  @MockitoSpyBean
   private RealTimeEventsTestListener eventListener;
 
   private RealTimeEventsDispatcher dispatcher;

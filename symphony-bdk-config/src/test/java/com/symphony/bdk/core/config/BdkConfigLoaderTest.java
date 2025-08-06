@@ -16,6 +16,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -178,8 +179,12 @@ class BdkConfigLoaderTest {
     final String tmpConfigFileName = UUID.randomUUID().toString() + "-config.yaml";
     final Path tmpConfigPath = Paths.get(System.getProperty("user.home"), ".symphony", tmpConfigFileName);
     FileUtils.forceMkdirParent(tmpConfigPath.toFile());
-    final InputStream configInputStream = this.getClass().getResourceAsStream("/config/config.yaml");
-    IOUtils.copy(configInputStream, new FileOutputStream(tmpConfigPath.toFile()));
+    try (
+      InputStream configInputStream = this.getClass().getResourceAsStream("/config/config.yaml");
+      OutputStream out = new FileOutputStream(tmpConfigPath.toFile())
+    ) {
+        IOUtils.copy(configInputStream, out);
+    }
 
     final BdkConfig config = BdkConfigLoader.loadFromSymphonyDir(tmpConfigFileName);
     assertThat(config).isNotNull();

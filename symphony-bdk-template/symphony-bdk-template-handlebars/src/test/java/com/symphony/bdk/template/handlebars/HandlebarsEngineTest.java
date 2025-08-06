@@ -28,7 +28,7 @@ class HandlebarsEngineTest {
   void should_load_template_from_classpath() {
     final Template template = this.engine.newTemplateFromClasspath("/test.hbs");
     final String content = template.process(Collections.singletonMap("message", "hello"));
-    assertEquals(EXPECTED_TEST_HBS, content);
+    assertEquals(EXPECTED_TEST_HBS, content.replace("\r\n", "\n"));
   }
 
   @Test
@@ -46,7 +46,7 @@ class HandlebarsEngineTest {
 
     final Template template = this.engine.newTemplateFromFile(tempDir.resolve("test.hbs").toAbsolutePath().toString());
     final String content = template.process(Collections.singletonMap("message", "hello"));
-    assertEquals(EXPECTED_TEST_HBS, content);
+    assertEquals(EXPECTED_TEST_HBS, content.replace("\r\n", "\n"));
   }
 
   @Test

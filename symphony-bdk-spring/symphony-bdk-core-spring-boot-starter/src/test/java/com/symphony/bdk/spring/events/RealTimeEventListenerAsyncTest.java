@@ -26,6 +26,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ErrorHandler;
 
@@ -36,7 +37,7 @@ public class RealTimeEventListenerAsyncTest {
   @Autowired
   private ApplicationEventPublisher publisher;
 
-  @SpyBean
+  @MockitoSpyBean
   private RealTimeEventsAsyncTestListener eventListener;
 
   private RealTimeEventsDispatcher dispatcher;

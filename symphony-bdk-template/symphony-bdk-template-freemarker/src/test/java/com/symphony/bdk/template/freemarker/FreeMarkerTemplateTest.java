@@ -116,7 +116,7 @@ public class FreeMarkerTemplateTest {
   private void assertTemplateProducesOutput(Template freeMarkerTemplate, Object parameters, String expectedOutput)
       {
     assertEquals(FreeMarkerTemplate.class, freeMarkerTemplate.getClass());
-    assertEquals(expectedOutput, freeMarkerTemplate.process(parameters));
+    assertEquals(expectedOutput.replace("\r\n", "\n"), freeMarkerTemplate.process(parameters).replace("\r\n", "\n"));
   }
 
   public static class Class1 {

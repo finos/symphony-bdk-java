@@ -46,14 +46,18 @@ class BdkConfigParser {
   }
 
   public JsonNode parseJsonNode(InputStream inputStream) throws BdkConfigException {
-    String content = new BufferedReader(
-        new InputStreamReader(inputStream, StandardCharsets.UTF_8))
-        .lines()
-        .collect(Collectors.joining("\n"));
+    String content = "";
+    try (
+        InputStreamReader isr = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        BufferedReader reader = new BufferedReader(isr)) {
+      content = reader.lines().collect(Collectors.joining("\n"));
+    } catch (IOException e) {
+      log.error("Error: {}", e.getMessage());
+    }
     try {
       return JSON_MAPPER.readTree(content);
     } catch (IOException e) {
-      log.debug("Config file is not in JSON format, checking for YAML format.");
+      log.error("Error: {}", e.getMessage());
     }
 
     try {
