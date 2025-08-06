@@ -15,4 +15,5 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'ch.qos.logback:logback-classic'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

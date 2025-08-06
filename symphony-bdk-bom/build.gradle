@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:3.3.12')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.5.4')
     // import Jackson's BOM
     api platform('com.fasterxml.jackson:jackson-bom:2.18.2')
     // import Jersey's BOM
@@ -70,13 +70,14 @@ dependencies {
         api 'com.github.jknack:handlebars:4.3.1'
         api 'org.reflections:reflections:0.10.2'
 
-        api 'org.junit.jupiter:junit-jupiter:5.10.1'
-        api 'org.junit.jupiter:junit-jupiter-api:5.10.1'
-        api 'org.junit.jupiter:junit-jupiter-engine:5.10.1'
+        api "org.junit.jupiter:junit-jupiter:5.10.1"
+        api "org.junit.jupiter:junit-jupiter-api:5.10.1"
+        api "org.junit.jupiter:junit-jupiter-engine:5.10.1"
+        api "org.junit.platform:junit-platform-launcher:1.10.1"
         api 'com.tngtech.archunit:archunit-junit5:1.2.1'
         api 'org.mock-server:mockserver-netty:5.15.0'
-        api 'org.mockito:mockito-core:5.8.0'
-        api 'org.mockito:mockito-junit-jupiter:5.8.0'
+        api "org.mockito:mockito-core:5.11.0"
+        api "org.mockito:mockito-junit-jupiter:5.11.0"
         api 'org.assertj:assertj-core:3.24.2'
 
         api 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'

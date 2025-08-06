@@ -28,7 +28,7 @@ import com.symphony.bdk.test.spring.annotation.SymphonyBdkSpringBootTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ public class SampleSpringAppIntegrationTest {
   private final V4User initiator = new V4User().displayName("user").userId(2L);
   private final V4Stream stream = new V4Stream().streamId("my-room");
 
-  @MockBean SymphonyGroupService symphonyGroupService;
+  @MockitoBean SymphonyGroupService symphonyGroupService;
 
   @Test
   @DisplayName("Reply message upon received echo command")

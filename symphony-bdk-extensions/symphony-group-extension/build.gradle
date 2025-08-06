@@ -24,6 +24,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'com.tngtech.archunit:archunit-junit5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 def baseSpecsUrl = 'https://raw.githubusercontent.com/finos/symphony-api-spec/af73762a33357436edacca0b198cc18192e96606/profile-manager'

@@ -16,7 +16,7 @@ dependencies {
     api 'org.mockito:mockito-core'
     api 'org.mockito:mockito-junit-jupiter'
     api 'org.assertj:assertj-core'
-
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 }

@@ -225,10 +225,13 @@ public class AuthenticatorFactory {
         throw new AuthInitializationException(
             "Unable to find RSA private key as classpath resource from: " + privateKeyPath);
       }
+      try (InputStream resourceStream = is) {
+        return IOUtils.toString(resourceStream, StandardCharsets.UTF_8);
+      }
     } else {
-      is = new FileInputStream(privateKeyPath);
+      try (InputStream fileStream = new FileInputStream(privateKeyPath)) {
+        return IOUtils.toString(fileStream, StandardCharsets.UTF_8);
+      }
     }
-
-    return IOUtils.toString(is, StandardCharsets.UTF_8);
   }
 }

@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -387,6 +389,8 @@ class AuthenticatorFactoryTest {
 
   @SneakyThrows
   private static void writeContentToPath(String content, Path path) {
-    IOUtils.write(content, new FileOutputStream(path.toFile()), "utf-8");
+    try (OutputStream out = new FileOutputStream(path.toFile())) {
+      IOUtils.write(content, out, StandardCharsets.UTF_8);
+    }
   }
 }

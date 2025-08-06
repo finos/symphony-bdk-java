@@ -234,7 +234,7 @@ class ApiClientWebClientTest {
             .withMethod("POST")
             .withPath("/test-api")
             .withHeader(
-                Header.header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+                Header.header("Content-Type", "application/x-www-form-urlencoded")
             )
             .withBody(ParameterBody.params(
                 Parameter.param("param-1", "test-1"),
