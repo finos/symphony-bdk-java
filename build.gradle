@@ -6,7 +6,7 @@ plugins {
 ext.projectVersion = '3.2.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
-ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
 ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
 ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
 
@@ -40,6 +40,7 @@ allprojects {
     defaultTasks 'build'
 }
 
+// Publishing to Maven Central via Sonatype (https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuring-your-plugin)
 nexusPublishing {
     packageGroup = 'org.finos.symphony.bdk'
 
@@ -47,8 +48,8 @@ nexusPublishing {
         sonatype {
             username = project.ext.mavenRepoUsername
             password = project.ext.mavenRepoPassword
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots/"))
         }
     }
 }
