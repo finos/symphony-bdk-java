@@ -1,6 +1,7 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -22,7 +23,7 @@ import javax.annotation.Nullable;
  * Fluent builder for advanced configuration of the {@link SymphonyBdk} entry point.
  *
  * <p>Please note that some of the parameters (such as {@link ApiClientBuilderProvider}, {@link ApiClientFactory} or
- * {@link AuthenticatorFactory}) have to be used with caution.
+ * {@link AuthenticatorFactoryImpl}) have to be used with caution.
  */
 @Generated
 @API(status = API.Status.EXPERIMENTAL)
@@ -72,9 +73,9 @@ public class SymphonyBdkBuilder {
   }
 
   /**
-   * With custom {@link AuthenticatorFactory} instance.
+   * With custom {@link AuthenticatorFactoryImpl} instance.
    *
-   * @param authenticatorFactory a custom {@link AuthenticatorFactory} instance.
+   * @param authenticatorFactory a custom {@link AuthenticatorFactoryImpl} instance.
    * @return updated builder.
    */
   public SymphonyBdkBuilder authenticatorFactory(@Nullable AuthenticatorFactory authenticatorFactory) {
@@ -115,7 +116,7 @@ public class SymphonyBdkBuilder {
     }
 
     if (this.authenticatorFactory == null) {
-      this.authenticatorFactory = new AuthenticatorFactory(this.config, this.apiClientFactory);
+      this.authenticatorFactory = new AuthenticatorFactoryImpl(this.config, this.apiClientFactory);
     }
 
     final SymphonyBdk bdk = new SymphonyBdk(this.config, this.apiClientFactory, this.authenticatorFactory);

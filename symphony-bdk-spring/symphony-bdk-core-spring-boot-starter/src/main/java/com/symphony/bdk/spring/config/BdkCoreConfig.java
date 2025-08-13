@@ -4,6 +4,7 @@ import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
+import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
 import com.symphony.bdk.core.auth.impl.OAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthentication;
@@ -102,7 +103,7 @@ public class BdkCoreConfig {
   @ConditionalOnMissingBean
   public AuthenticatorFactory authenticatorFactory(SymphonyBdkCoreProperties properties,
       ApiClientFactory apiClientFactory, ExtensionAppTokensRepository extensionAppTokensRepository) {
-    return new AuthenticatorFactory(properties, apiClientFactory, extensionAppTokensRepository);
+    return new AuthenticatorFactoryImpl(properties, apiClientFactory, extensionAppTokensRepository);
   }
 
   @Bean
