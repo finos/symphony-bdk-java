@@ -1,12 +1,10 @@
 package com.symphony.bdk.core;
 
 import com.symphony.bdk.core.activity.ActivityRegistry;
-import com.symphony.bdk.core.auth.AuthSession;
-import com.symphony.bdk.core.auth.AuthenticatorFactory;
-import com.symphony.bdk.core.auth.ExtensionAppAuthenticator;
-import com.symphony.bdk.core.auth.OboAuthenticator;
+import com.symphony.bdk.core.auth.*;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -103,7 +101,7 @@ public class SymphonyBdk {
     }
 
     if (authenticatorFactory == null) {
-      authenticatorFactory = new AuthenticatorFactory(this.config, apiClientFactory);
+      authenticatorFactory = new AuthenticatorFactoryImpl(this.config, apiClientFactory);
     }
 
     this.oboAuthenticator = config.isOboConfigured() ? authenticatorFactory.getOboAuthenticator() : null;
