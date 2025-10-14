@@ -13,6 +13,7 @@ import org.apiguardian.api.API;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.transport.ProxyProvider;
@@ -21,7 +22,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -53,6 +56,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   protected String proxyUser;
   protected String proxyPassword;
   protected Map<String, Authentication> authentications;
+  protected List<ExchangeFilterFunction> filters;
 
   public ApiClientBuilderWebClient() {
     this.basePath = "";
@@ -64,6 +68,7 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
     this.proxyUser = null;
     this.proxyPassword = null;
     this.authentications = new HashMap<>();
+    this.filters = new ArrayList<>();
     this.withUserAgent(ApiUtils.getUserAgent());
   }
 
@@ -72,9 +77,11 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
    */
   @Override
   public ApiClient build() {
-    final WebClient webClient = WebClient.builder()
+    WebClient.Builder builder = WebClient.builder()
         .clientConnector(new ReactorClientHttpConnector(this.createHttpClient()))
-        .baseUrl(this.basePath)
+        .baseUrl(this.basePath);
+    this.filters.forEach(builder::filter);
+    final WebClient webClient = builder
         .build();
 
     final ApiClient apiClient = new ApiClientWebClient(webClient, this.basePath, this.defaultHeaders);
@@ -182,6 +189,18 @@ public class ApiClientBuilderWebClient implements ApiClientBuilder {
   @Override
   public ApiClientBuilder withAuthentication(String name, Authentication authentication) {
     this.authentications.put(name, authentication);
+    return this;
+  }
+
+  @Override
+  public ApiClientBuilder addFilter(Object filter) {
+    if (!(filter instanceof ExchangeFilterFunction)) {
+      throw new IllegalArgumentException(
+          "The filter " + filter.getClass().getName()
+              + " must be an instance of " + ExchangeFilterFunction.class.getName()
+              + " to be used with WebClient HTTP client");
+    }
+    this.filters.add((ExchangeFilterFunction) filter);
     return this;
   }
 
