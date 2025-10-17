@@ -58,11 +58,10 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
   @Override
   protected void runLoop() throws Throwable {
     log.info("Start reading events from datahose loop");
-    this.started.set(true);
 
-    do {
+    while (this.started.get()) {
       this.readEvents.execute();
-    } while (this.started.get());
+    }
 
     log.info("Datahose loop successfully stopped.");
   }
