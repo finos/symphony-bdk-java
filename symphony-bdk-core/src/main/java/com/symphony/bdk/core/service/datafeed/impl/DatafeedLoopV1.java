@@ -45,7 +45,6 @@ import java.util.Optional;
 public class DatafeedLoopV1 extends AbstractDatafeedLoop {
 
   private final ApiClient apiClient;
-  private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final DatafeedIdRepository datafeedRepository;
   private final RetryWithRecovery<Void> readDatafeed;
   private final RetryWithRecovery<String> createDatafeed;
@@ -60,11 +59,12 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
     super(datafeedApi, authSession, config, botInfo);
 
     this.apiClient = datafeedApi.getApiClient();
-    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+    RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .basePath(this.apiClient.getBasePath())
         .retryConfig(config.getDatafeedRetryConfig())
         .recoveryStrategy(Exception.class, this.apiClient::rotate)  // always rotate in case of any error
-        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh)
+        .active(this.started);
 
     final BdkLoadBalancingConfig loadBalancing = config.getAgent().getLoadBalancing();
     if (loadBalancing != null && !loadBalancing.isStickiness()) {

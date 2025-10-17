@@ -52,6 +52,7 @@ public class DatahoseLoopImpl extends AbstractAckIdEventLoop implements Datahose
         .supplier(this::readAndHandleEvents)
         .retryOnException(RetryWithRecoveryBuilder::isNetworkIssueOrMinorError)
         .recoveryStrategy(ApiException::isUnauthorized, this::refresh)
+        .active(this.started)
         .build();
   }
 
