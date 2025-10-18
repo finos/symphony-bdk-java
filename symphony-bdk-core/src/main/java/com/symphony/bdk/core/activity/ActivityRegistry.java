@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * This class allows to bind an {@link AbstractActivity} to the Real Time Events source, or Datafeed.
+ * This class allows to bind/unbind an {@link AbstractActivity} to the Real Time Events source, or Datafeed.
  * It also maintains the list of registered activities.
  * <p>
  * If an activity to be registered is already existing in the registry, then the old one will be replaced.
@@ -55,12 +55,12 @@ public class ActivityRegistry {
     this.activityList.add(activity);
   }
 
-  public List<AbstractActivity<?, ?>> getActivityList() {
-    return new ArrayList<>(activityList);
-  }
-
-  private void preProcessActivity(AbstractActivity<?, ?> activity) {
-
+  /**
+   * Unregisters an activity from the registry.
+   *
+   * @param activity An activity.
+   */
+  public void unregister(final AbstractActivity<?, ?> activity) {
     Optional<AbstractActivity<?, ?>> act = this.activityList.stream()
         .filter(a -> a.equals(activity))
         .findFirst();
@@ -68,9 +68,17 @@ public class ActivityRegistry {
     act.ifPresent(abstractActivity -> {
       abstractActivity.bindToRealTimeEventsSource(this.datafeedLoop::unsubscribe);
       this.activityList.remove(abstractActivity);
-      log.debug("One activity '{}' has been removed/unsubscribed in order to be replaced",
+      log.debug("One activity '{}' has been removed/unsubscribed",
           abstractActivity.getInfo().name());
     });
+  }
+
+  public List<AbstractActivity<?, ?>> getActivityList() {
+    return new ArrayList<>(activityList);
+  }
+
+  private void preProcessActivity(AbstractActivity<?, ?> activity) {
+    unregister(activity); // Unregister, in case it already exists
 
     // a command activity (potentially) needs the bot display name and user ID in order to parse the message text content
     // this way of passing this information is not very clean though, we should find something

@@ -68,6 +68,22 @@ class ActivityRegistryTest {
   }
 
   @Test
+  void shouldRemoveActivity() {
+    final CommandActivity<?> act = new TestCommandActivity("test");
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+
+    this.registry.register(act);
+    assertEquals(1, this.registry.getActivityList().size(), "Registry must contain only 1 activity");
+    verify(this.datafeedService, times(1)).subscribe(any(RealTimeEventListener.class));
+    assertEquals(this.botSession.getDisplayName(), act.getBotDisplayName());
+    assertEquals(this.botSession.getId(), act.getBotUserId());
+
+    this.registry.unregister(act);
+    assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
+    verify(this.datafeedService, times(1)).unsubscribe(any(RealTimeEventListener.class));
+  }
+
+  @Test
   void shouldReplaceHelpActivity() {
     final HelpCommand helpCommand = new HelpCommand(this.registry, this.messageService);
     assertTrue(this.registry.getActivityList().isEmpty(), "Registry must be empty");
