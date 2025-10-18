@@ -48,6 +48,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
    */
   private static final Pattern FANOUT_FEED_PATTERN = Pattern.compile("^[^\\s_]+_f(_[^\\s_]+)?$");
 
+  private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final RetryWithRecovery<Void> readDatafeed;
   private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
@@ -58,11 +59,10 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
     super(datafeedApi, authSession, config, botInfo);
 
-    RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
+    this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .basePath(datafeedApi.getApiClient().getBasePath())
         .retryConfig(config.getDatafeedRetryConfig())
-        .recoveryStrategy(ApiException::isUnauthorized, this::refresh)
-        .active(this.started);
+        .recoveryStrategy(ApiException::isUnauthorized, this::refresh);
 
     this.readDatafeed = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
         .name("Read Datafeed V2")

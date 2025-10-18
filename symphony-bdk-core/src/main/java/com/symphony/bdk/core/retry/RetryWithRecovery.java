@@ -13,7 +13,6 @@ import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -32,7 +31,6 @@ public abstract class RetryWithRecovery<T> {
   private final Predicate<Exception> ignoreException;
   private final List<RecoveryStrategy> recoveryStrategies;
   private final String address;
-  private final AtomicBoolean active;
 
   /**
    * This is a helper function designed to cover most of the retry cases.
@@ -75,21 +73,10 @@ public abstract class RetryWithRecovery<T> {
       List<RecoveryStrategy> recoveryStrategies,
       String address
   ) {
-    this(supplier, ignoreException, recoveryStrategies, address, new AtomicBoolean(true));
-  }
-
-  public RetryWithRecovery(
-      SupplierWithApiException<T> supplier,
-      Predicate<Exception> ignoreException,
-      List<RecoveryStrategy> recoveryStrategies,
-      String address,
-      AtomicBoolean active
-  ) {
     this.supplier = supplier;
     this.ignoreException = ignoreException;
     this.recoveryStrategies = recoveryStrategies;
     this.address = address;
-    this.active = active;
   }
 
   /**
@@ -106,8 +93,8 @@ public abstract class RetryWithRecovery<T> {
   /**
    * This implements the logic corresponding to one retry:
    * calls the {@link #supplier}, catches the potential {@link Exception},
-   * return null if it satisfies {@link #ignoreException} or if RetryWithRecovery has been deactivated by set active false,
-   * then runs the recovery functions if it matches its corresponding condition.
+   * return null if it satisfies {@link #ignoreException}
+   * and runs the recovery functions if it matches its corresponding condition.
    * This should be called by any implementation of {@link #execute()}.
    *
    * @return the object returned by the {@link #supplier}.
@@ -117,11 +104,6 @@ public abstract class RetryWithRecovery<T> {
     try {
       return supplier.get();
     } catch (Exception e) {
-      if (!active.get()) {
-        log.debug("Don't retry {} [{}] because RetryWithRecovery has been deactivated", e.getClass().getCanonicalName(), e.getMessage());
-        return null;
-      }
-
       if (ignoreException.test(e)) {
         log.debug("{} ignored: {}", e.getClass().getCanonicalName(), e.getMessage());
         return null;

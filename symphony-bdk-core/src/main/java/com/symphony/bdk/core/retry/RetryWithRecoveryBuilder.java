@@ -14,7 +14,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import javax.annotation.Nonnull;
@@ -34,7 +33,6 @@ public class RetryWithRecoveryBuilder<T> {
   private Predicate<Throwable> retryOnExceptionPredicate;
   private Predicate<Exception> ignoreException;
   private List<RecoveryStrategy> recoveryStrategies;
-  private AtomicBoolean active;
 
   /**
    * Default constructor which ignores no exception
@@ -67,7 +65,6 @@ public class RetryWithRecoveryBuilder<T> {
     copy.retryConfig = from.retryConfig;
     copy.retryOnExceptionPredicate = from.retryOnExceptionPredicate;
     copy.ignoreException = from.ignoreException;
-    copy.active = from.active;
     return copy;
   }
 
@@ -229,18 +226,6 @@ public class RetryWithRecoveryBuilder<T> {
   }
 
   /**
-   * Set active flag, to be able to interrupt retries
-   *
-   * @param active
-   *
-   * @return the modified builder instance.
-   */
-  public RetryWithRecoveryBuilder<T> active(AtomicBoolean active) {
-    this.active = active;
-    return this;
-  }
-
-  /**
    * Builds a {@link RetryWithRecovery} based on provided fields.
    *
    * @return a new instance of {@link RetryWithRecovery} based on the provided fields.
@@ -253,8 +238,7 @@ public class RetryWithRecoveryBuilder<T> {
         this.supplier,
         this.retryOnExceptionPredicate,
         this.ignoreException,
-        this.recoveryStrategies,
-        this.active != null ? this.active : new AtomicBoolean(true)
+        this.recoveryStrategies
     );
   }
 }
