@@ -77,7 +77,7 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    */
   @Override
   public void start() throws AuthUnauthorizedException, ApiException {
-    if (this.started.get()) {
+    if (!this.started.compareAndSet(false, true)) {
       throw new IllegalStateException("The datafeed service is already started");
     }
 
@@ -104,8 +104,11 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
    */
   @Override
   public void stop() {
-    log.info("Stopping the datafeed loop (will happen once the current read is finished)...");
-    this.started.set(false);
+    if (this.started.compareAndSet(true, false)) {
+      log.info("Stopping the datafeed loop (will happen once the current read is finished)...");
+    } else {
+      log.warn("Datafeed loop already stopping...");
+    }
   }
 
   private void updateLastPullTimestamp() {

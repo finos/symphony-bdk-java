@@ -97,12 +97,9 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
     }
 
     log.info("Start reading events from datafeed {}", this.datafeed.getId());
-    this.started.set(true);
-    do {
-
+    while (this.started.get()) {
       this.readDatafeed.execute();
-
-    } while (this.started.get());
+    }
     log.info("Datafeed loop successfully stopped.");
   }
 

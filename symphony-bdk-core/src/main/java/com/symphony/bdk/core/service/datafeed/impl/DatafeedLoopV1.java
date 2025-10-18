@@ -97,10 +97,9 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
     this.datafeedId = this.datafeedId == null ? this.createDatafeed.execute() : this.datafeedId;
     log.info("Start reading events from datafeed {}", datafeedId);
 
-    this.started.set(true);
-    do {
+    while (this.started.get()) {
       this.readDatafeed.execute();
-    } while (this.started.get());
+    }
 
     log.info("Datafeed loop successfully stopped.");
   }
