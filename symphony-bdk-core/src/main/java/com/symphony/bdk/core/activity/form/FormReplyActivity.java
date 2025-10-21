@@ -26,7 +26,7 @@ public abstract class FormReplyActivity<C extends FormReplyContext>
   /** {@inheritDoc} */
   @Override
   protected void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
-    bindOnSymphonyElementsAction(realTimeEventsSource, this::processEvent);
+    bindOnSymphonyElementsAction(realTimeEventsSource, this::processEvent, this);
   }
 
   /** {@inheritDoc} */
