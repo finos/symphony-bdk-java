@@ -38,7 +38,7 @@ class RealTimeEventsBinderTest {
   void testBindOnMessageSent() {
     final AtomicBoolean methodCalled = new AtomicBoolean(false);
     final BiConsumer<V4Initiator, V4MessageSent> methodToBind = (initiator, v4MessageSent) -> methodCalled.set(true);
-    RealTimeEventsBinder.bindOnMessageSent(this.realTimeEventsProvider::setListener, methodToBind);
+    RealTimeEventsBinder.bindOnMessageSent(this.realTimeEventsProvider::setListener, methodToBind, null);
     this.realTimeEventsProvider.trigger(l -> l.onMessageSent(new V4Initiator(), new V4MessageSent()));
     assertTrue(methodCalled.get());
   }
@@ -47,7 +47,7 @@ class RealTimeEventsBinderTest {
   void testBindOnSymphonyElementsAction() {
     final AtomicBoolean methodCalled = new AtomicBoolean(false);
     final BiConsumer<V4Initiator, V4SymphonyElementsAction> methodToBind = (initiator, v4SymphonyElementsAction) -> methodCalled.set(true);
-    RealTimeEventsBinder.bindOnSymphonyElementsAction(this.realTimeEventsProvider::setListener, methodToBind);
+    RealTimeEventsBinder.bindOnSymphonyElementsAction(this.realTimeEventsProvider::setListener, methodToBind, null);
     this.realTimeEventsProvider.trigger(l -> l.onSymphonyElementsAction(new V4Initiator(), new V4SymphonyElementsAction()));
     assertTrue(methodCalled.get());
   }
@@ -56,7 +56,7 @@ class RealTimeEventsBinderTest {
   void testBindOnUserJoinedRoom() {
     final AtomicBoolean methodCalled = new AtomicBoolean(false);
     final BiConsumer<V4Initiator, V4UserJoinedRoom> methodToBind = ((initiator, v4UserJoinedRoom) -> methodCalled.set(true));
-    RealTimeEventsBinder.bindOnUserJoinedRoom(this.realTimeEventsProvider::setListener, methodToBind);
+    RealTimeEventsBinder.bindOnUserJoinedRoom(this.realTimeEventsProvider::setListener, methodToBind, null);
     this.realTimeEventsProvider.trigger(l -> l.onUserJoinedRoom(new V4Initiator(), new V4UserJoinedRoom()));
     assertTrue(methodCalled.get());
   }
