@@ -22,7 +22,7 @@ public abstract class UserJoinedRoomActivity<C extends UserJoinedRoomContext>
    */
   @Override
   protected void bindToRealTimeEventsSource(Consumer<RealTimeEventListener> realTimeEventsSource) {
-    bindOnUserJoinedRoom(realTimeEventsSource, this::processEvent);
+    bindOnUserJoinedRoom(realTimeEventsSource, this::processEvent, this);
   }
 
   /**
