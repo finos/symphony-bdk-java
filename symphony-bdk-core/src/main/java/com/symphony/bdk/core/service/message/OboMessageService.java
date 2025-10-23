@@ -152,5 +152,12 @@ public interface OboMessageService {
    */
   List<String> getAttachmentTypes();
 
+  /**
+   * Retrieves the details of a message given its message ID.
+   *
+   * @param messageId the ID of the message to be retrieved
+   * @return a {@link V4Message} containing the message's details, null if the message was not found
+   * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
+   */
   V4Message getMessage(@Nonnull String messageId);
 }
