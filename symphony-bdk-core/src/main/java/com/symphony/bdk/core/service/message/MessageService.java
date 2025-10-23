@@ -135,41 +135,26 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
-   *
-   * @param stream     the stream where to look for messages
-   * @param since      instant of the earliest possible date of the first message returned.
-   * @param pagination The skip and limit for pagination.
-   * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   * {@inheritDoc}
    */
+  @Override
   public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
     return listMessages(stream.getStreamId(), since, pagination);
   }
 
   /**
-   * Get messages from an existing stream with default limit equals 50.
-   * Additionally returns any attachments associated with the message.
-   *
-   * @param stream the stream where to look for messages
-   * @param since  instant of the earliest possible date of the first message returned.
-   * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   * {@inheritDoc}
    */
+  @Override
   public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since) {
     return listMessages(stream.getStreamId(), since);
   }
 
   /**
-   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
-   *
-   * @param streamId   the streamID where to look for messages
-   * @param since      instant of the earliest possible date of the first message returned.
-   * @param pagination The skip and limit for pagination.
-   * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   * {@inheritDoc}
    */
+  @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
@@ -181,14 +166,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Get messages from an existing stream with default limit equals 50.
-   * Additionally returns any attachments associated with the message.
-   *
-   * @param streamId the streamID where to look for messages
-   * @param since    instant of the earliest possible date of the first message returned.
-   * @return the list of matching messages in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   * {@inheritDoc}
    */
+  @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
         () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), null, null,
@@ -472,6 +452,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a {@link V4Message} containing the message's details, null if the message was not found
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
    */
+  @Override
   public V4Message getMessage(@Nonnull String messageId) {
     return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),

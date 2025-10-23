@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.message;
 
 import com.symphony.bdk.core.service.message.model.Message;
+import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
@@ -9,6 +10,7 @@ import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
 
+import java.time.Instant;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -27,6 +29,50 @@ public interface OboMessageService {
    * @return the template engine
    */
   TemplateEngine templates();
+
+  /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
+   * @param stream     the stream where to look for messages
+   * @param since      instant of the earliest possible date of the first message returned.
+   * @param pagination The skip and limit for pagination.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, @Nonnull PaginationAttribute pagination);
+
+  /**
+   * Get messages from an existing stream with default limit equals 50.
+   * Additionally returns any attachments associated with the message.
+   *
+   * @param stream the stream where to look for messages
+   * @param since  instant of the earliest possible date of the first message returned.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since);
+
+  /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
+   * @param streamId   the streamID where to look for messages
+   * @param since      instant of the earliest possible date of the first message returned.
+   * @param pagination The skip and limit for pagination.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, @Nonnull PaginationAttribute pagination);
+
+  /**
+   * Get messages from an existing stream with default limit equals 50.
+   * Additionally returns any attachments associated with the message.
+   *
+   * @param streamId the streamID where to look for messages
+   * @param since    instant of the earliest possible date of the first message returned.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since);
 
   /**
    * Sends a message to the stream ID of the passed {@link V4Stream} object.
@@ -105,4 +151,6 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment-types">Attachment Types</a>
    */
   List<String> getAttachmentTypes();
+
+  V4Message getMessage(@Nonnull String messageId);
 }
