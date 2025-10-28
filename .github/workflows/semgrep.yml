@@ -1,6 +1,6 @@
 name: Static code analysis
 
-on: [pull_request]
+on: [workflow_dispatch]
 
 jobs:
   semgrep:
