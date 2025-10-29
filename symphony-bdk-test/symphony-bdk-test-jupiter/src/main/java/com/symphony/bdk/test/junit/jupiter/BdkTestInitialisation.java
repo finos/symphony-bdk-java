@@ -1,5 +1,6 @@
 package com.symphony.bdk.test.junit.jupiter;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.symphony.bdk.core.SymphonyBdk;
@@ -9,7 +10,6 @@ import com.symphony.bdk.core.service.message.MessageService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.template.api.TemplateEngine;
-import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
 import com.symphony.bdk.test.SymphonyBdkTestMock;
 import com.symphony.bdk.test.annotation.SymphonyBdkTest;
 
@@ -69,7 +69,7 @@ public class BdkTestInitialisation implements BeforeAllCallback {
 
   private void initMessageServiceMock(SymphonyBdk symphonyBdk) {
     MessageService messageService = bdkTestMock.getMessageService();
-    TemplateEngine templateEngine = new FreeMarkerEngine();
+    TemplateEngine templateEngine = mock(TemplateEngine.class);
     when(messageService.templates()).thenReturn(templateEngine);
     when(symphonyBdk.messages()).thenReturn(messageService);
   }
