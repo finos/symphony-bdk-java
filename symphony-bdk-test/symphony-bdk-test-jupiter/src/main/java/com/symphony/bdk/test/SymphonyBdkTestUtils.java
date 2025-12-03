@@ -50,6 +50,8 @@ public class SymphonyBdkTestUtils {
     listeners.remove(listener);
   }
 
+  public static void clearListeners() { listeners.clear(); }
+
   public static void pushMessageToDF(V4User initiator, V4Stream stream, String message) {
     pushMessageToDF(initiator, stream, message, null);
   }
