@@ -47,6 +47,10 @@ public class SymphonyBdkTestMock {
   @Data
   private static class MockDatafeedLoop implements DatafeedLoop {
 
+    public MockDatafeedLoop() {
+      SymphonyBdkTestUtils.clearListeners();
+    }
+
     @Override
     public void start() {
     }
