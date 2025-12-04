@@ -1,6 +1,7 @@
 package com.symphony.bdk.test;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
@@ -41,7 +42,7 @@ public class SymphonyBdkTestMock {
   private final SessionService sessionService = mock(SessionService.class);
   private final HealthService healthService = mock(HealthService.class);
   private final ExtensionService extensionService = mock(ExtensionService.class);
-  private final MockDatafeedLoop datafeedLoop = new MockDatafeedLoop();
+  private final MockDatafeedLoop datafeedLoop = spy(new MockDatafeedLoop());
 
 
   @Data
