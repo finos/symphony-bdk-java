@@ -37,7 +37,7 @@ public class BdkTestInitialisation implements BeforeAllCallback {
     initMessageServiceMock(symphonyBdk);
     initSessionServiceMock(symphonyBdk, botUser);
     initOtherMocks(symphonyBdk);
-    final ActivityRegistry activityRegistry = new ActivityRegistry(botUser, bdkTestMock.getDatafeedLoop());
+    final ActivityRegistry activityRegistry = spy(new ActivityRegistry(botUser, bdkTestMock.getDatafeedLoop()));
     when(symphonyBdk.activities()).thenReturn(activityRegistry);
   }
 
@@ -52,6 +52,7 @@ public class BdkTestInitialisation implements BeforeAllCallback {
     when(symphonyBdk.users()).thenReturn(bdkTestMock.getUserService());
     when(symphonyBdk.signals()).thenReturn(bdkTestMock.getSignalService());
     when(symphonyBdk.presences()).thenReturn(bdkTestMock.getPresenceService());
+    when(symphonyBdk.streams()).thenReturn(bdkTestMock.getStreamService());
   }
 
   private void initSessionServiceMock(SymphonyBdk symphonyBdk, UserV2 botUser) {

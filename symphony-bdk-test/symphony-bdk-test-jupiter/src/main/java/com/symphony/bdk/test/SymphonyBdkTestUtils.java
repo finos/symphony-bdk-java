@@ -7,6 +7,7 @@ import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V4Initiator;
+import com.symphony.bdk.gen.api.model.V4InstantMessageCreated;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageSent;
 import com.symphony.bdk.gen.api.model.V4Payload;
@@ -50,6 +51,8 @@ public class SymphonyBdkTestUtils {
     listeners.remove(listener);
   }
 
+  public static void clearListeners() { listeners.clear(); }
+
   public static void pushMessageToDF(V4User initiator, V4Stream stream, String message) {
     pushMessageToDF(initiator, stream, message, null);
   }
@@ -66,6 +69,14 @@ public class SymphonyBdkTestUtils {
     pushEventToDataFeed(new V4Event().initiator(new V4Initiator().user(initiator))
         .payload(new V4Payload().messageSent(new V4MessageSent().message(message)))
         .type(V4EventType.MESSAGESENT.name())
+        .id("event-id")
+        .timestamp(Instant.now().toEpochMilli()));
+  }
+
+  public static void pushMessageToDF(V4User initiator, V4InstantMessageCreated message) {
+    pushEventToDataFeed(new V4Event().initiator(new V4Initiator().user(initiator))
+        .payload(new V4Payload().instantMessageCreated(message))
+        .type(V4EventType.INSTANTMESSAGECREATED.name())
         .id("event-id")
         .timestamp(Instant.now().toEpochMilli()));
   }
