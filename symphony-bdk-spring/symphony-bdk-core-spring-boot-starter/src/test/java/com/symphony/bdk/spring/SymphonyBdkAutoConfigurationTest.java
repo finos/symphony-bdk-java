@@ -241,6 +241,51 @@ class SymphonyBdkAutoConfigurationTest {
   }
 
   @Test
+  void shouldFailOnOboWithCommonJwtEnabled() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.host=localhost",
+
+            "bdk.bot.username=testBot",
+            "bdk.bot.privateKey.path=classpath:/privatekey.pem",
+
+            "bdk.app.appId=my-app",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem",
+
+            "bdk.commonJwt.enabled=true"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+
+    contextRunner.run(context -> {
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasRootCauseInstanceOf(UnsupportedOperationException.class);
+    });
+  }
+
+  @Test
+  void shouldFailOnOboOnlyWithCommonJwtEnabled() {
+    final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+        .withPropertyValues(
+            "bdk.host=localhost",
+
+            "bdk.app.appId=my-app",
+            "bdk.app.privateKey.path=classpath:/privatekey.pem",
+
+            "bdk.commonJwt.enabled=true"
+        )
+        .withUserConfiguration(SymphonyBdkMockedConfiguration.class)
+        .withConfiguration(AutoConfigurations.of(SymphonyBdkAutoConfiguration.class));
+
+
+    contextRunner.run(context -> {
+      assertThat(context).hasFailed();
+      assertThat(context).getFailure().hasRootCauseInstanceOf(UnsupportedOperationException.class);
+    });
+  }
+
+  @Test
   void shouldFailOnOboAuthenticatorInitializationIfNotProperlyConfigured() {
     final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
         .withPropertyValues(

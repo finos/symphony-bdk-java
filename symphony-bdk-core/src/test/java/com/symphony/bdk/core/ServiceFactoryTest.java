@@ -155,4 +155,27 @@ public class ServiceFactoryTest {
     verify(mPodClient).getAuthentications();
     verify(mPodClient).addEnforcedAuthenticationScheme(eq("bearerAuth"));
   }
+
+  @Test
+  void testPodApiClientConfigWithCommonJwtInOboMode() {
+    BdkCommonJwtConfig bdkCommonJwtConfig = this.config.getCommonJwt();
+    bdkCommonJwtConfig.setEnabled(true);
+
+    assertTrue(config.isOboConfigured());
+    assertTrue(config.isBotConfigured());
+    assertTrue(config.isCommonJwtEnabled());
+    assertThrows(UnsupportedOperationException.class, ()-> new ServiceFactory(this.apiClientFactory, mAuthSession, config));
+  }
+
+  @Test
+  void testPodApiClientConfigWithCommonJwtInOboOnlyMode() {
+    BdkCommonJwtConfig bdkCommonJwtConfig = this.config.getCommonJwt();
+    bdkCommonJwtConfig.setEnabled(true);
+    config.setBot(new BdkBotConfig());
+
+    assertTrue(config.isOboConfigured());
+    assertFalse(config.isBotConfigured());
+    assertTrue(config.isCommonJwtEnabled());
+    assertThrows(UnsupportedOperationException.class, ()-> new ServiceFactory(this.apiClientFactory, mAuthSession, config));
+  }
 }

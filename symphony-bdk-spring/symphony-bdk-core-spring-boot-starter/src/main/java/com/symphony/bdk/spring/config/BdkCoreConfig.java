@@ -41,23 +41,34 @@ public class BdkCoreConfig {
   }
 
   @Bean(name = "agentApiClient")
-  public ApiClient agentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
-    return addCommonJwtConfig(apiClientFactory.getAgentClient(), botSession, config);
+  public ApiClient agentApiClient(ApiClientFactory apiClientFactory) {
+    return apiClientFactory.getAgentClient();
   }
 
   @Bean(name = "datafeedAgentApiClient")
-  public ApiClient datafeedAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
-    return addCommonJwtConfig(apiClientFactory.getDatafeedAgentClient(), botSession, config);
+  public ApiClient datafeedAgentApiClient(ApiClientFactory apiClientFactory) {
+    return apiClientFactory.getDatafeedAgentClient();
   }
 
   @Bean(name = "datahoseAgentApiClient")
-  public ApiClient datahoseAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
-    return addCommonJwtConfig(apiClientFactory.getDatahoseAgentClient(), botSession, config);
+  public ApiClient datahoseAgentApiClient(ApiClientFactory apiClientFactory) {
+    return apiClientFactory.getDatahoseAgentClient();
   }
 
   @Bean(name = "podApiClient")
   public ApiClient podApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
-    return addCommonJwtConfig(apiClientFactory.getPodClient(), botSession, config);
+    ApiClient client = apiClientFactory.getPodClient();
+    if (config.isCommonJwtEnabled()) {
+      if (config.isOboConfigured()) {
+        throw new UnsupportedOperationException(
+            "Common JWT feature is not available yet in OBO mode, please set commonJwt.enabled to false.");
+      } else if (botSession.isPresent()) {
+        final OAuthSession oAuthSession = new OAuthSession(botSession.get());
+        client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        client.addEnforcedAuthenticationScheme(BEARER_AUTH);
+      }
+    }
+    return client;
   }
 
   @Bean(name = "relayApiClient")
@@ -110,14 +121,5 @@ public class BdkCoreConfig {
     } catch (AuthUnauthorizedException | AuthInitializationException e) {
       throw new BeanInitializationException("Unable to authenticate bot", e);
     }
-  }
-
-  private ApiClient addCommonJwtConfig(ApiClient client, Optional<AuthSession> botSession, BdkConfig config) {
-    if (config.isCommonJwtEnabled() && botSession.isPresent()) {
-        final OAuthSession oAuthSession = new OAuthSession(botSession.get());
-        client.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
-        client.addEnforcedAuthenticationScheme(BEARER_AUTH);
-    }
-    return client;
   }
 }
