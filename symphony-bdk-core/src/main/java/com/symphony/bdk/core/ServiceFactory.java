@@ -93,8 +93,18 @@ class ServiceFactory {
             + " please set commonJwt.enabled to false.");
       } else {
         final OAuthSession oAuthSession = new OAuthSession(authSession);
+
         this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+
+        this.agentClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        this.agentClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+
+        this.datafeedAgentClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        this.datafeedAgentClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+
+        this.datahoseAgentClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+        this.datahoseAgentClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
       }
     }
   }
