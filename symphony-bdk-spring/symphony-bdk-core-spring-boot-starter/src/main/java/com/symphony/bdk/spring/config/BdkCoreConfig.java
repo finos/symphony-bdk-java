@@ -4,13 +4,13 @@ import static com.symphony.bdk.core.auth.impl.OAuthentication.BEARER_AUTH;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.auth.AuthenticatorFactory;
-import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.ExtensionAppTokensRepository;
-import com.symphony.bdk.core.auth.impl.OAuthSession;
-import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
+import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.impl.InMemoryTokensRepository;
+import com.symphony.bdk.core.auth.impl.OAuthSession;
+import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiClient;
@@ -41,21 +41,24 @@ public class BdkCoreConfig {
   }
 
   @Bean(name = "agentApiClient")
-  public ApiClient agentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
-    ApiClient client =  apiClientFactory.getAgentClient();
+  public ApiClient agentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession,
+      BdkConfig config) {
+    ApiClient client = apiClientFactory.getAgentClient();
     addCommonJwtConfig(client, botSession, config);
     return client;
   }
 
   @Bean(name = "datafeedAgentApiClient")
-  public ApiClient datafeedAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
-    ApiClient client =  apiClientFactory.getDatafeedAgentClient();
+  public ApiClient datafeedAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession,
+      BdkConfig config) {
+    ApiClient client = apiClientFactory.getDatafeedAgentClient();
     addCommonJwtConfig(client, botSession, config);
     return client;
   }
 
   @Bean(name = "datahoseAgentApiClient")
-  public ApiClient datahoseAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
+  public ApiClient datahoseAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession,
+      BdkConfig config) {
     ApiClient client = apiClientFactory.getDatahoseAgentClient();
     addCommonJwtConfig(client, botSession, config);
     return client;
