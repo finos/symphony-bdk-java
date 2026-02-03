@@ -14,6 +14,7 @@ import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.util.List;
@@ -91,8 +92,11 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         .build();
 
     datafeedCreateBody = new V5DatafeedCreateBody();
-    if(config.getDatafeed().isIncludeInvisible()) {
+    if (config.getDatafeed().isIncludeInvisible()) {
       datafeedCreateBody.setIncludeInvisible(true);
+    }
+    if (StringUtils.isNotBlank(config.getDatafeed().getTag())) {
+      datafeedCreateBody.setTag(config.getDatafeed().getTag());
     }
   }
 
@@ -125,10 +129,18 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         this.authSession.getKeyManagerToken(),
         null
     );
-    return feeds.stream().filter(this::isFanoutFeed).findFirst().orElse(null);
+    return feeds.stream().filter(this::isMatchingFeed).findFirst().orElse(null);
   }
 
-  private boolean isFanoutFeed(V5Datafeed d) {
+  private boolean isMatchingFeed(V5Datafeed d) {
+    if (this.datafeedCreateBody.getTag() != null) {
+      if (this.datafeedCreateBody.getTag().equals(d.getId())
+          && "fanout".equals(d.getType())) {
+        return true;
+      } else {
+        return false;
+      }
+    }
     final String datafeedId = d.getId();
     return datafeedId != null && FANOUT_FEED_PATTERN.matcher(datafeedId).matches();
   }
