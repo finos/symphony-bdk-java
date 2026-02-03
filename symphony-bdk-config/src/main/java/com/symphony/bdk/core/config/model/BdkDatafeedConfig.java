@@ -16,6 +16,7 @@ public class BdkDatafeedConfig {
   private String version = "v2";
   private String idFilePath;
   private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
+  private boolean includeInvisible = false;
 
   public void setVersion(String version) {
     if ("v1".equalsIgnoreCase(version)) {

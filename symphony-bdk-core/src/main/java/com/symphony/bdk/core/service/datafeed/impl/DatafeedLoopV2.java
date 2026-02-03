@@ -54,6 +54,8 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
 
+  private final V5DatafeedCreateBody datafeedCreateBody;
+
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
@@ -87,6 +89,11 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         .supplier(this::doDeleteDatafeed)
         .ignoreException(ApiException::isClientError)
         .build();
+
+    datafeedCreateBody = new V5DatafeedCreateBody();
+    if(config.getDatafeed().isIncludeInvisible()) {
+      datafeedCreateBody.setIncludeInvisible(true);
+    }
   }
 
   @Override
@@ -108,7 +115,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
     return this.datafeedApi.createDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
-        new V5DatafeedCreateBody()
+        datafeedCreateBody
     );
   }
 
