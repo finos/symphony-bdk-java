@@ -127,7 +127,6 @@ class DatafeedLoopV2Test {
   void testStartInvalidExistingFeeds(String invalidExistingFeedId) throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null))
         .thenReturn(Collections.singletonList(new V5Datafeed().id(invalidExistingFeedId)));
-    when(datafeedApi.createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody())).thenReturn(
     when(datafeedApi.createDatafeed(TOKEN, TOKEN, new V5DatafeedCreateBody().includeInvisible(true))).thenReturn(
         new V5Datafeed().id(DATAFEED_ID));
 
