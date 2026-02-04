@@ -2,6 +2,7 @@ package com.symphony.bdk.core.service.stream;
 
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
+import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
@@ -12,13 +13,11 @@ import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
-
 import org.apiguardian.api.API;
-
-import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage streams.
@@ -219,4 +218,13 @@ public interface OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference/demote-owner">Demote Owner</a>
    */
   void demoteUserToRoomParticipant(@Nonnull Long userId, @Nonnull String roomId);
+
+  /**
+   * Lists the current members of an existing room.
+   *
+   * @param roomId The room stream id
+   * @return List of members in the room with the given room id.
+   * @see <a href="https://developers.symphony.com/restapi/reference#room-members">Room Members</a>
+   */
+  List<MemberInfo> listRoomMembers(@Nonnull String roomId);
 }
