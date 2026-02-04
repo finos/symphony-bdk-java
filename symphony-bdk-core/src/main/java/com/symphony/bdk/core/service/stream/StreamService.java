@@ -492,6 +492,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * @return List of members in the room with the given room id.
    * @see <a href="https://developers.symphony.com/restapi/reference#room-members">Room Members</a>
    */
+  @Override
   public List<MemberInfo> listRoomMembers(@Nonnull String roomId) {
     return executeAndRetry("listRoomMembers", roomMembershipApi.getApiClient().getBasePath(),
         () -> roomMembershipApi.v2RoomIdMembershipListGet(toUrlSafeIdIfNeeded(roomId), authSession.getSessionToken()));
