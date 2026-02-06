@@ -48,6 +48,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
    * Datahose feeds are in the format *_p_*, e.g. "d25098517ec62f1fc65cd111667a8386_p_be940".
    */
   private static final Pattern FANOUT_FEED_PATTERN = Pattern.compile("^[^\\s_]+_f(_[^\\s_]+)?$");
+  private static final String FANOUT_TYPE = "fanout";
 
   private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final RetryWithRecovery<Void> readDatafeed;
@@ -135,7 +136,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   private boolean isMatchingFeed(V5Datafeed d) {
     if (this.datafeedCreateBody.getTag() != null) {
       if (this.datafeedCreateBody.getTag().equals(d.getId())
-          && "fanout".equals(d.getType())) {
+          && FANOUT_TYPE.equalsIgnoreCase(d.getType())) {
         return true;
       } else {
         return false;
