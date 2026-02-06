@@ -14,6 +14,7 @@ import com.symphony.bdk.gen.api.model.V5EventList;
 import com.symphony.bdk.http.api.ApiException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 
 import java.util.List;
@@ -47,12 +48,15 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
    * Datahose feeds are in the format *_p_*, e.g. "d25098517ec62f1fc65cd111667a8386_p_be940".
    */
   private static final Pattern FANOUT_FEED_PATTERN = Pattern.compile("^[^\\s_]+_f(_[^\\s_]+)?$");
+  private static final String FANOUT_TYPE = "fanout";
 
   private final RetryWithRecoveryBuilder<?> retryWithRecoveryBuilder;
   private final RetryWithRecovery<Void> readDatafeed;
   private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
+
+  private final V5DatafeedCreateBody datafeedCreateBody;
 
   private V5Datafeed datafeed;
 
@@ -87,6 +91,14 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         .supplier(this::doDeleteDatafeed)
         .ignoreException(ApiException::isClientError)
         .build();
+
+    datafeedCreateBody = new V5DatafeedCreateBody();
+    if (config.getDatafeed().isIncludeInvisible()) {
+      datafeedCreateBody.setIncludeInvisible(true);
+    }
+    if (StringUtils.isNotBlank(config.getDatafeed().getTag())) {
+      datafeedCreateBody.setTag(config.getDatafeed().getTag());
+    }
   }
 
   @Override
@@ -108,7 +120,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
     return this.datafeedApi.createDatafeed(
         this.authSession.getSessionToken(),
         this.authSession.getKeyManagerToken(),
-        new V5DatafeedCreateBody()
+        datafeedCreateBody
     );
   }
 
@@ -118,10 +130,18 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         this.authSession.getKeyManagerToken(),
         null
     );
-    return feeds.stream().filter(this::isFanoutFeed).findFirst().orElse(null);
+    return feeds.stream().filter(this::isMatchingFeed).findFirst().orElse(null);
   }
 
-  private boolean isFanoutFeed(V5Datafeed d) {
+  private boolean isMatchingFeed(V5Datafeed d) {
+    if (this.datafeedCreateBody.getTag() != null) {
+      if (this.datafeedCreateBody.getTag().equals(d.getId())
+          && FANOUT_TYPE.equalsIgnoreCase(d.getType())) {
+        return true;
+      } else {
+        return false;
+      }
+    }
     final String datafeedId = d.getId();
     return datafeedId != null && FANOUT_FEED_PATTERN.matcher(datafeedId).matches();
   }

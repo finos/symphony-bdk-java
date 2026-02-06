@@ -16,6 +16,11 @@ public class BdkDatafeedConfig {
   private String version = "v2";
   private String idFilePath;
   private BdkRetryConfig retry = new BdkRetryConfig(BdkRetryConfig.INFINITE_MAX_ATTEMPTS);
+  /**
+   * Agent 26.2.1 or later required to enable includeInvisible.
+   */
+  private boolean includeInvisible = false;
+  private String tag;
 
   public void setVersion(String version) {
     if ("v1".equalsIgnoreCase(version)) {
