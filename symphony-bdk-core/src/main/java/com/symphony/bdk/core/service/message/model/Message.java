@@ -206,8 +206,14 @@ public class Message {
       }
 
       // check if content is encapsulated in <messageML/> node
-      boolean isAlreadyWrapped = this.content.startsWith("<messageML") && this.content.endsWith("</messageML>");
-      if (!isAlreadyWrapped) {
+      String trimmedContent = this.content.trim();
+      boolean hasStartTag = trimmedContent.startsWith("<messageML");
+      boolean hasEndTag = trimmedContent.endsWith("</messageML>");
+      if (hasStartTag != hasEndTag) {
+        throw new MessageCreationException(
+            "Malformed <messageML> tag. Missing " + (hasStartTag ? "closing" : "opening") + " tag");
+      }
+      if (!hasStartTag) {
         log.trace("Processing content to prefix with <messageML> and suffix with </messageML>");
         if (Boolean.TRUE.equals(this.beta)) {
           this.content = "<messageML beta=\"true\">" + this.content + "</messageML>";
@@ -219,6 +225,9 @@ public class Message {
         throw new MessageCreationException(
             "Cannot set beta=true when content is already wrapped with <messageML> without the beta attribute. "
             + "Either remove the wrapper or include beta=\"true\" in your messageML tag.");
+      } else {
+        // content is already wrapped, but we can trim if needed
+        this.content = trimmedContent;
       }
 
       // check done below because it will rejected by the agent otherwise
@@ -228,5 +237,16 @@ public class Message {
 
       return new Message(this);
     }
+  }
+
+  private boolean isAlreadyWrapped(String content) {
+    boolean hasStart = content.startsWith("<messageML>");
+    boolean hasEnd = content.endsWith("</messageML>");
+
+    if (hasStart != hasEnd) {
+      throw new IllegalStateException("Malformed MessageML: missing " + (hasStart ? "closing" : "opening") + " tag.");
+    }
+
+    return hasStart; // Since they are equal, if hasStart is true, both are true.
   }
 }
