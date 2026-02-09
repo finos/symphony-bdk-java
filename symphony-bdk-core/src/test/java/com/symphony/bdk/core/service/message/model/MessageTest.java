@@ -32,6 +32,23 @@ class MessageTest {
   }
 
   @Test
+  void checkMessageMLNotAppendedToContentIfSetWithSpaces() {
+    assertEquals("<messageML>hello</messageML>", Message.builder().content(" <messageML>hello</messageML> ").build().getContent());
+  }
+
+  @Test
+  void checkMessageMLWithoutClosingTagThrowsException() {
+    MessageCreationException exception = assertThrows(MessageCreationException.class, Message.builder().content("<messageML>hello")::build);
+    assertEquals("Malformed <messageML> tag. Missing closing tag", exception.getMessage());
+  }
+
+  @Test
+  void checkMessageMLWithoutOpeningTagThrowsException() {
+    MessageCreationException exception = assertThrows(MessageCreationException.class, Message.builder().content("hello</messageML>")::build);
+    assertEquals("Malformed <messageML> tag. Missing opening tag", exception.getMessage());
+  }
+
+  @Test
   void checkMessageSilentValueIfSet() {
     assertEquals(Boolean.FALSE, Message.builder().content("<messageML>hello</messageML>").silent(Boolean.FALSE).build().getSilent());
   }
