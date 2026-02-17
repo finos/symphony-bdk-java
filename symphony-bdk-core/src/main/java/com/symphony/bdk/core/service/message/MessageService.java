@@ -143,6 +143,12 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     return listMessages(stream.getStreamId(), since, pagination);
   }
 
+  @Override
+  public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until,
+      @Nonnull PaginationAttribute pagination) {
+    return listMessages(stream.getStreamId(), since, until, pagination);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -151,14 +157,26 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     return listMessages(stream.getStreamId(), since);
   }
 
+  @Override
+  public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until) {
+    return listMessages(stream.getStreamId(), since, until);
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since,
       @Nonnull PaginationAttribute pagination) {
+    return listMessages(streamId, since, null, pagination);
+  }
+
+  @Override
+  public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until,
+      @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
         () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
+            getEpochMillis(until),
             pagination.getSkip(),
             pagination.getLimit(),
             authSession.getSessionToken(),
@@ -170,8 +188,13 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
+    return listMessages(streamId, since, (Instant) null);
+  }
+
+  @Override
+  public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), null, null,
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),  getEpochMillis(until),null, null,
             authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
