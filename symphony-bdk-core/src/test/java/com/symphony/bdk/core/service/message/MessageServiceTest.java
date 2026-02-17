@@ -64,6 +64,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -151,24 +152,60 @@ class MessageServiceTest {
   @Test
   void testGetMessagesWithStreamObject() {
     MessageService service = spy(messageService);
-    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any());
+    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(Instant.class), any(Instant.class));
 
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
     Instant now = Instant.now();
-    assertNotNull(service.listMessages(v4Stream, now));
-    verify(service).listMessages(STREAM_ID, now);
+    assertNotNull(service.listMessages(v4Stream, now, now.plus(10, ChronoUnit.SECONDS)));
+    verify(service).listMessages(STREAM_ID, now, now.plus(10, ChronoUnit.SECONDS));
   }
 
   @Test
   void testGetPaginationMessagesWithStreamObject() {
     MessageService service = spy(messageService);
-    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(), any());
+    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(Instant.class), any(PaginationAttribute.class));
 
     final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
     Instant now = Instant.now();
     PaginationAttribute pagination = new PaginationAttribute(2, 2);
     assertNotNull(service.listMessages(v4Stream, now, pagination));
     verify(service).listMessages(STREAM_ID, now, pagination);
+  }
+
+  @Test
+  void testGetPaginationMessagesWithStreamObjectUntil() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(Instant.class), any(Instant.class), any(PaginationAttribute.class));
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+    Instant now = Instant.now();
+    PaginationAttribute pagination = new PaginationAttribute(2, 2);
+    assertNotNull(service.listMessages(v4Stream, now, now.plus(10, ChronoUnit.SECONDS), pagination));
+    verify(service).listMessages(STREAM_ID, now, now.plus(10, ChronoUnit.SECONDS), pagination);
+  }
+
+  @Test
+  void testGetMessagesUntil() throws IOException {
+    final String streamId = "streamid";
+    mockApiClient.onGet(V4_STREAM_MESSAGE.replace("{sid}", streamId),
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final List<V4Message> messages = messageService.listMessages(streamId, Instant.now(), Instant.now());
+
+    assertEquals(2, messages.size());
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testGetMessagesWithStreamObjectUntil() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(Instant.class));
+
+    final V4Stream v4Stream = new V4Stream().streamId(STREAM_ID);
+    Instant now = Instant.now();
+    assertNotNull(service.listMessages(v4Stream, now));
+    verify(service).listMessages(STREAM_ID, now);
   }
 
   @Test
