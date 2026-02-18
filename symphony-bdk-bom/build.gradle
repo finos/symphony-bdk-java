@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:3.5.8')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.5.10')
     // import Jackson's BOM
     api platform('com.fasterxml.jackson:jackson-bom:2.18.2')
     // import Jersey's BOM
@@ -72,7 +72,7 @@ dependencies {
 
         api 'com.tngtech.archunit:archunit-junit5:1.2.1'
         api 'org.mock-server:mockserver-netty:5.15.0'
-        api 'org.assertj:assertj-core:3.24.2'
+        api 'org.assertj:assertj-core:3.27.7'
 
         api 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'
         api 'jakarta.validation:jakarta.validation-api:3.0.2'
