@@ -179,6 +179,43 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
     throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
   }
 
+  /**
+   * Creates a new instance of a {@link ExtAppAuthenticator} service.
+   *
+   * @return a new {@link ExtAppAuthenticator} instance.
+   */
+  @Nonnull
+  @Override
+  public ExtAppAuthenticator getExtAppAuthenticator() throws AuthInitializationException {
+    if (this.config.getApp().isBothCertificateAndRsaConfigured()) {
+      throw new AuthInitializationException(
+          "Both of certificate and rsa authentication are configured. Only one of them should be provided.");
+    }
+    if (this.config.getApp().isCertificateAuthenticationConfigured()) {
+      if (!this.config.getApp().isCertificateConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of certificate path or content should be configured for app authentication.");
+      }
+      return new ExtAppAuthenticatorCertImpl(
+          this.config.getRetry(),
+          this.config.getApp().getAppId(),
+          this.apiClientFactory.getExtAppSessionAuthClient());
+    }
+    if (this.config.getApp().isRsaAuthenticationConfigured()) {
+      if (!this.config.getApp().isRsaConfigurationValid()) {
+        throw new AuthInitializationException(
+            "Only one of private key path or content should be configured for app authentication.");
+      }
+      return new ExtAppAuthenticatorRsaImpl(
+          this.config.getRetry(),
+          this.config.getApp().getAppId(),
+          this.loadPrivateKeyFromAuthenticationConfig(this.config.getApp()),
+          this.apiClientFactory.getLoginClient()
+      );
+    }
+    throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
+  }
+
   private PrivateKey loadPrivateKeyFromAuthenticationConfig(BdkAuthenticationConfig config)
       throws AuthInitializationException {
     String privateKeyPath = "";

@@ -32,6 +32,7 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.EXPERIMENTAL)
 public class ApiClientFactory {
 
+  private static final String USERS_CONTEXT_PATH = "";
   private static final String LOGIN_CONTEXT_PATH = "/login";
   private static final String POD_CONTEXT_PATH = "/pod";
   private static final String AGENT_CONTEXT_PATH = "/agent";
@@ -78,6 +79,10 @@ public class ApiClientFactory {
    */
   public ApiClient getPodClient(String contextPath) {
     return buildClient(contextPath, this.config.getPod());
+  }
+
+  public ApiClient getUsersClient() {
+    return buildClient(USERS_CONTEXT_PATH, this.config.getPod());
   }
 
   /**

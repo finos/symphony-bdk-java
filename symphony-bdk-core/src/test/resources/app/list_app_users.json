@@ -1,0 +1,110 @@
+{
+    "users": [
+        {
+            "userId": 82806969466881,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "premium",
+                "type": "premium",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466882,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466883,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466884,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466885,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466886,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466887,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466888,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        },
+        {
+            "userId": 82806969466889,
+            "enable": true,
+            "listed": false,
+            "product": {
+                "name": "Standard",
+                "type": "default",
+                "subscribed": true
+            }
+        }
+    ],
+    "page": {
+        "size": 100,
+        "number": 0,
+        "totalElements": 9,
+        "totalPages": 1,
+        "first": true,
+        "last": true,
+        "hasNext": false,
+        "hasPrevious": false,
+        "sort": [
+            {
+                "property": "userId",
+                "direction": "ASC"
+            }
+        ]
+    }
+}

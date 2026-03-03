@@ -43,6 +43,11 @@ openApiGenerate {
     inputSpec = "$buildDir/profile-manager-api.yaml"
     apiPackage = 'com.symphony.bdk.ext.group.gen.api'
     modelPackage = 'com.symphony.bdk.ext.group.gen.api.model'
+    globalProperties = [
+            models: "",
+            apis: "",
+            supportingFiles: "false"
+    ]
 }
 
 tasks.openApiGenerate.dependsOn tasks.downloadFile
