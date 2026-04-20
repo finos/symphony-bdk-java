@@ -48,6 +48,7 @@ public class SymphonyBdk {
   private final ExtensionAppAuthenticator extensionAppAuthenticator;
 
   private final AuthSession botSession;
+  private final ExtAppAuthSession extAppAuthSession;
   private final UserV2 botInfo;
   private final DatafeedLoop datafeedLoop;
   private final DatahoseLoop datahoseLoop;
@@ -63,6 +64,9 @@ public class SymphonyBdk {
   private final SessionService sessionService;
   private final HealthService healthService;
   private final ExtensionService extensionService;
+
+  private final ExtAppServices extAppServices;
+
 
   /**
    * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
@@ -127,6 +131,15 @@ public class SymphonyBdk {
     this.applicationService = serviceFactory != null ? serviceFactory.getApplicationService() : null;
     this.messageService = serviceFactory != null ? serviceFactory.getMessageService() : null;
     this.disclaimerService = serviceFactory != null ? serviceFactory.getDisclaimerService() : null;
+
+    if (config.isOboConfigured()) {
+      ExtAppAuthenticator extAppAuthenticator = authenticatorFactory.getExtAppAuthenticator();
+      this.extAppAuthSession = extAppAuthenticator.authenticateExtApp();
+      this.extAppServices = new ExtAppServices(apiClientFactory, this.extAppAuthSession, this.config);
+    } else {
+      this.extAppServices = null;
+      this.extAppAuthSession = null;
+    }
 
     // retrieve bot session info
     this.botInfo = sessionService != null ? sessionService.getSession() : null;
@@ -305,12 +318,31 @@ public class SymphonyBdk {
   }
 
   /**
+   * Get an {@link ExtAppServices} gathering all extension app enabled services
+   * @return an {@link ExtAppServices} instance
+   */
+  public ExtAppServices app() {
+    return this.extAppServices;
+  }
+
+  /**
    * Returns the {@link ExtensionAppAuthenticator}.
    *
    * @return the {@link ExtensionAppAuthenticator}
    */
   public ExtensionAppAuthenticator appAuthenticator() {
     return this.getExtensionAppAuthenticator();
+  }
+
+  /**
+   * Returns the extension app auth session.
+   *
+   * @return extension app auth session.
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public ExtAppAuthSession extAppAuthSession() {
+    return Optional.ofNullable(this.extAppAuthSession)
+        .orElseThrow(() -> new IllegalStateException("Cannot get App auth session. Ext app is not configured."));
   }
 
   /**

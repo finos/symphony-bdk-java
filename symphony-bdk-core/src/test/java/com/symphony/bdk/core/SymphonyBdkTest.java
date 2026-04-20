@@ -68,6 +68,7 @@ public class SymphonyBdkTest {
 
     this.mockApiClient.onPost(LOGIN_PUBKEY_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
     this.mockApiClient.onPost(RELAY_PUBKEY_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"keyManagerToken\" }");
+    this.mockApiClient.onPost(LOGIN_PUBKEY_APP_AUTHENTICATE, "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
     this.mockApiClient.onGet(V2_SESSION_INFO, JsonHelper.readFromClasspath("/res_response/bot_info.json"));
 
     this.symphonyBdk = SymphonyBdk.builder()
@@ -195,6 +196,17 @@ public class SymphonyBdkTest {
     assertEquals(authSession.getSymphonyToken(), "SYMPHONY_TOKEN");
     assertEquals(authSession.getAppToken(), "APP_TOKEN");
     assertEquals(authSession.expireAt(), 1539636528288L);
+  }
+
+  @Test
+  void getAppServices() {
+    assertNotNull(this.symphonyBdk.app());
+    assertNotNull(this.symphonyBdk.app().appUsers());
+  }
+
+  @Test
+  void getAppSession() {
+    assertNotNull(this.symphonyBdk.extAppAuthSession());
   }
 
   @Test

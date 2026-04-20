@@ -76,13 +76,14 @@ dependencies {
 }
 
 // OpenAPI code generation
-def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/fc80c3204d8a92a0b82d3c951eab7f5cb78a7c53"
+def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/332b01730c016a26277d89c6525398df20b17613"
 def generatedFolder = "$buildDir/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public-deprecated.yaml',
         Pod  : 'pod/pod-api-public-deprecated.yaml',
         Auth : 'authenticator/authenticator-api-public-deprecated.yaml',
         Login: 'login/login-api-public.yaml',
+        Users: 'users/users-api-public.yaml'
 ]
 
 sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"

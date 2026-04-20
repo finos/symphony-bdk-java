@@ -40,6 +40,13 @@ class ApiClientFactoryTest {
   }
 
   @Test
+  void testGetUsersClient() {
+    final ApiClient usersClient = this.factory.getUsersClient();
+    assertEquals(ApiClientJersey2.class, usersClient.getClass());
+    assertEquals("https://pod-host:443", usersClient.getBasePath());
+  }
+
+  @Test
   void testGetRelayClient() {
     final ApiClient relayClient = this.factory.getRelayClient();
     assertEquals(ApiClientJersey2.class, relayClient.getClass());
