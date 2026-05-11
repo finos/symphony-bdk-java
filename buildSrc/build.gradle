@@ -14,13 +14,18 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        // openapi-generator 6.6.0 ships jackson-databind 2.14.0 which is missing NativeImageUtil.isInNativeImage(),
-        // required by owasp-dependencycheck 12.2.2+ via parent classloader delegation.
-        // Pin jackson-dataformat-yaml and snakeyaml explicitly to prevent collateral upgrades.
+        // owasp-dependencycheck 12.2.2 requires newer versions of several libraries than openapi-generator 6.6.0
+        // provides. Because buildSrc's classpath is the parent classloader for all plugin classloaders, OWASP
+        // inherits buildSrc's older versions via parent-first delegation and fails with NoSuchMethodError.
+        // Force all conflicting libraries to the versions OWASP 12.2.2 requires.
         force 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
         force 'com.fasterxml.jackson.core:jackson-core:2.18.2'
         force 'com.fasterxml.jackson.core:jackson-annotations:2.18.2'
         force 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0'
         force 'org.yaml:snakeyaml:1.33'
+        force 'org.apache.commons:commons-lang3:3.20.0'
+        force 'commons-io:commons-io:2.22.0'
+        force 'org.slf4j:slf4j-api:2.0.17'
+        force 'com.google.guava:guava:33.6.0-jre'
     }
 }
