@@ -132,3 +132,5 @@ apisToGenerate.each { api, path ->
 
 // Duplicated AuthRequest class, we need the one from auth API, so task order matters here
 tasks.generateAuth.dependsOn tasks.generateLogin
+// Duplicated SystemApi class, we need the one from agent API (contains v3Health/v3ExtendedHealth), so task order matters here
+tasks.generatePod.dependsOn tasks.generateAgent
