@@ -11,3 +11,16 @@ dependencies {
     implementation 'de.undercouch:gradle-download-task:5.0.2'
     implementation 'com.github.ben-manes:gradle-versions-plugin:0.42.0'
 }
+
+configurations.all {
+    resolutionStrategy {
+        // openapi-generator 6.6.0 ships jackson-databind 2.14.0 which is missing NativeImageUtil.isInNativeImage(),
+        // required by owasp-dependencycheck 12.2.2+ via parent classloader delegation.
+        // Pin jackson-dataformat-yaml and snakeyaml explicitly to prevent collateral upgrades.
+        force 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+        force 'com.fasterxml.jackson.core:jackson-core:2.18.2'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.18.2'
+        force 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.0'
+        force 'org.yaml:snakeyaml:1.33'
+    }
+}
