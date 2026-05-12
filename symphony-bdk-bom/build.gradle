@@ -16,13 +16,15 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:3.5.11')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.5.14')
     // import Jackson's BOM
     api platform('com.fasterxml.jackson:jackson-bom:2.18.2')
     // import Jersey's BOM
     api platform('org.glassfish.jersey:jersey-bom:3.1.9')
     // import Log4j's BOM
-    api platform('org.apache.logging.log4j:log4j-bom:2.24.2')
+    api platform('org.apache.logging.log4j:log4j-bom:2.26.0')
+    // override Netty (Spring Boot 3.5.14 ships 4.1.132 which is still vulnerable to CVE-2026-41417)
+    api platform('io.netty:netty-bom:4.1.133.Final')
 
     // define all our dependencies versions
     constraints {
@@ -69,7 +71,7 @@ dependencies {
         api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
         api 'org.freemarker:freemarker:2.3.33'
-        api 'com.github.jknack:handlebars:4.3.1'
+        api 'com.github.jknack:handlebars:4.5.1'
         api 'org.reflections:reflections:0.10.2'
 
         api 'com.tngtech.archunit:archunit-junit5:1.2.1'
