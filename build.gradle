@@ -61,5 +61,4 @@ repositories {
 dependencyCheck {
     failBuildOnCVSS=5
     suppressionFile="./allow-list.xml"
-    failOnError=false
 }
