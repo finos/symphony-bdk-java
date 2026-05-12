@@ -47,7 +47,9 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.commons:commons-text'
     implementation 'com.brsanthu:migbase64'
-    implementation 'io.jsonwebtoken:jjwt'
+    implementation 'io.jsonwebtoken:jjwt-api'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson'
     implementation 'org.bouncycastle:bcpkix-jdk18on'
     api 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'io.github.resilience4j:resilience4j-retry'
@@ -130,3 +132,5 @@ apisToGenerate.each { api, path ->
 
 // Duplicated AuthRequest class, we need the one from auth API, so task order matters here
 tasks.generateAuth.dependsOn tasks.generateLogin
+// Duplicated SystemApi class, we need the one from agent API (contains v3Health/v3ExtendedHealth), so task order matters here
+tasks.generatePod.dependsOn tasks.generateAgent

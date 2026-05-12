@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.apiguardian.api.API;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -65,7 +63,7 @@ public class JwtHelper {
 
 
   /**
-   * Creates a JWT with the provided user name and expiration date, signed with the provided private key.
+   * Creates a JWT with the provided username and expiration date, signed with the provided private key.
    *
    * @param user       the username to authenticate; will be verified by the pod
    * @param expiration of the authentication request in milliseconds; cannot be longer than the value defined on the
@@ -75,16 +73,16 @@ public class JwtHelper {
    *                   the public key stored for the user
    * @return a signed JWT for a specific user (or subject)
    */
-  public static String createSignedJwt(String user, long expiration, Key privateKey) {
+  public static String createSignedJwt(String user, long expiration, PrivateKey privateKey) {
     return Jwts.builder()
-        .setSubject(user)
-        .setExpiration(new Date(System.currentTimeMillis() + expiration))
-        .signWith(SignatureAlgorithm.RS512, privateKey)
+        .subject(user)
+        .expiration(new Date(System.currentTimeMillis() + expiration))
+        .signWith(privateKey, Jwts.SIG.RS512)
         .compact();
   }
 
   /**
-   * Creates a RSA Private Key from a PEM String. It supports PKCS#1 and PKCS#8 string formats.
+   * Creates an RSA Private Key from a PEM String. It supports PKCS#1 and PKCS#8 string formats.
    *
    * @param pemPrivateKey RSA Private Key content
    * @return a {@link PrivateKey} instance
@@ -110,18 +108,21 @@ public class JwtHelper {
   /**
    * Validates a jwt against a certificate.
    *
-   * @param jwt
+   * @param jwt string of the jwt to be validated
    * @param certificate string of the X.509 certificate content in pem format.
-   * @return the content of jwt clain "user" if jwt is successfully validated.
+   * @return the content of jwt claim "user" if jwt is successfully validated.
    * @throws AuthInitializationException if certificate or jwt are invalid.
    */
   public static UserClaim validateJwt(String jwt, String certificate) throws AuthInitializationException {
     final Certificate x509Certificate = parseX509Certificate(certificate);
 
     try {
-      final Claims body = Jwts.parser().setSigningKey(x509Certificate.getPublicKey())
-        .parseClaimsJws(jwt).getBody();
-      return mapper.convertValue(body.get("user"), UserClaim.class);
+      final Claims claims = Jwts.parser()
+          .verifyWith(x509Certificate.getPublicKey())
+          .build()
+          .parseSignedClaims(jwt)
+          .getPayload();
+      return mapper.convertValue(claims.get("user"), UserClaim.class);
     } catch (JwtException e) {
       throw new AuthInitializationException("Unable to validate JWT", e);
     }
