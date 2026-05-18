@@ -15,6 +15,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.migcomponents.migbase64.Base64;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.DeserializationException;
+import io.jsonwebtoken.io.Deserializer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -24,8 +26,13 @@ import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
@@ -36,6 +43,7 @@ import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.cert.Certificate;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Test class for the {@link JwtHelper}.
@@ -204,6 +212,90 @@ public class JwtHelperTest {
     assertEquals("test.user@symphony.com", userClaim.getUsername());
     assertEquals("../avatars/static/150/default.png", userClaim.getAvatarUrl());
     assertEquals("../avatars/static/50/default.png", userClaim.getAvatarSmallUrl());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testCreateSignedJwt() {
+    final KeyStore keyStore = getKeyStoreFromFile();
+    final PrivateKey privateKey = (PrivateKey) keyStore.getKey(CERT_ALIAS, CERT_PASSWORD.toCharArray());
+
+    String jwt = JwtHelper.createSignedJwt("alice", JwtHelper.JWT_EXPIRATION_MILLIS, privateKey);
+
+    assertNotNull(jwt);
+    // jjwt compact form must have exactly three dot-separated segments
+    assertEquals(3, jwt.split("\\.").length);
+  }
+
+  @Test
+  void loadUnknownFormatPrivateKey() {
+    String unknownFormat = "-----BEGIN SOMETHING ELSE-----\nabcdef\n-----END SOMETHING ELSE-----";
+    GeneralSecurityException ex = assertThrows(
+        GeneralSecurityException.class, () -> JwtHelper.parseRsaPrivateKey(unknownFormat));
+    assertTrue(ex.getMessage().contains("Header not recognized"));
+  }
+
+  @Test
+  public void testIsSkdEnabledMissingClaim() {
+    // JWT parses successfully but has no canUseSimplifiedKeyDelivery claim → final return false
+    assertFalse(JwtHelper.isSkdEnabled(JWT));
+  }
+
+  @Test
+  public void testIsSkdEnabledNonBooleanClaim() {
+    // canUseSimplifiedKeyDelivery present but as a string → falls through to final return false
+    // payload: {"sub":"123","canUseSimplifiedKeyDelivery":"yes"}
+    String jwtWithStringSkd =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+            + "eyJzdWIiOiIxMjMiLCJjYW5Vc2VTaW1wbGlmaWVkS2V5RGVsaXZlcnkiOiJ5ZXMifQ."
+            + "signature";
+    assertFalse(JwtHelper.isSkdEnabled(jwtWithStringSkd));
+  }
+
+  @Test
+  public void testIsSkdEnabledTriggersCatch() {
+    // Too few segments → extractDecodedClaims throws → catch returns false
+    assertFalse(JwtHelper.isSkdEnabled("only.two"));
+  }
+
+  @Test
+  public void testJwtHelperConstructor() {
+    // Cover the implicit default constructor of the utility class
+    assertNotNull(new JwtHelper());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testNormalizeSubjectDeserializerByteArray() {
+    // The byte[] overload is unreachable through jjwt's public API (Reader is used),
+    // so exercise it directly via reflection to cover both the success and the
+    // IOException catch path.
+    Method method = JwtHelper.class.getDeclaredMethod("normalizeSubjectDeserializer");
+    method.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Deserializer<Map<String, ?>> deserializer = (Deserializer<Map<String, ?>>) method.invoke(null);
+
+    Map<String, ?> result = deserializer.deserialize(
+        "{\"sub\":12345,\"user\":{\"id\":42}}".getBytes(StandardCharsets.UTF_8));
+    assertEquals("12345", result.get("sub"));
+
+    assertThrows(DeserializationException.class,
+        () -> deserializer.deserialize("not-json".getBytes(StandardCharsets.UTF_8)));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testNormalizeSubjectDeserializerReaderIOException() {
+    // Exercise the IOException catch in the Reader overload by feeding malformed JSON
+    Method method = JwtHelper.class.getDeclaredMethod("normalizeSubjectDeserializer");
+    method.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Deserializer<Map<String, ?>> deserializer = (Deserializer<Map<String, ?>>) method.invoke(null);
+
+    try (Reader reader = new InputStreamReader(
+        new ByteArrayInputStream("not-json".getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8)) {
+      assertThrows(DeserializationException.class, () -> deserializer.deserialize(reader));
+    }
   }
 
   @SneakyThrows
