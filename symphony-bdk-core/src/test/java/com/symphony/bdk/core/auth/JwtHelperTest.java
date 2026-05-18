@@ -26,12 +26,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Signature;
 import java.security.cert.Certificate;
 import java.util.Date;
 
@@ -139,6 +141,69 @@ public class JwtHelperTest {
   public void testCheckSkdEnabled() {
     assertTrue(JwtHelper.isSkdEnabled(JWT_SKD_ENABLED));
     assertFalse(JwtHelper.isSkdEnabled("invalid.jwt.value"));
+  }
+
+  /**
+   * The Symphony pod sets 'sub' as a numeric userId (Long) which violates RFC 7519 but is the real
+   * payload shape. jjwt 0.12+ rejects this unless we normalize it before claim validation.
+   */
+  @Test
+  @SneakyThrows
+  public void testValidateJwtWithNumericSubject() {
+    final KeyStore keyStore = getKeyStoreFromFile();
+    final Certificate certificate = keyStore.getCertificate(CERT_ALIAS);
+    final String certificatePem = java.util.Base64.getEncoder().encodeToString(certificate.getEncoded());
+    final PrivateKey privateKey = (PrivateKey) keyStore.getKey(CERT_ALIAS, CERT_PASSWORD.toCharArray());
+
+    // Build header + payload manually so 'sub' is serialised as a JSON number (Long),
+    // exactly as the Symphony pod does — jjwt builder would coerce it to String.
+    String header = java.util.Base64.getUrlEncoder().withoutPadding()
+        .encodeToString("{\"alg\":\"RS256\",\"typ\":\"JWT\"}".getBytes(StandardCharsets.UTF_8));
+
+    long expiration = System.currentTimeMillis() / 1000 + 3600;
+    String payloadJson = "{"
+        + "\"iss\":\"Symphony Communication Services LLC.\","
+        + "\"sub\":699220675788807,"
+        + "\"aud\":\"ai-agent-studio-local\","
+        + "\"user\":{"
+        +   "\"id\":699220675788807,"
+        +   "\"emailAddress\":\"test.user@symphony.com\","
+        +   "\"firstName\":\"Test\","
+        +   "\"lastName\":\"User\","
+        +   "\"displayName\":\"Test User\","
+        +   "\"company\":\"Test Company\","
+        +   "\"companyId\":\"10175\","
+        +   "\"username\":\"test.user@symphony.com\","
+        +   "\"avatarUrl\":\"../avatars/static/150/default.png\","
+        +   "\"avatarSmallUrl\":\"../avatars/static/50/default.png\""
+        + "},"
+        + "\"exp\":" + expiration
+        + "}";
+
+    String payload = java.util.Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+
+    String signingInput = header + "." + payload;
+    Signature signer = Signature.getInstance("SHA256withRSA");
+    signer.initSign(privateKey);
+    signer.update(signingInput.getBytes(StandardCharsets.UTF_8));
+    String signature = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(signer.sign());
+
+    String jwt = signingInput + "." + signature;
+
+    UserClaim userClaim = JwtHelper.validateJwt(jwt, certificatePem);
+
+    assertNotNull(userClaim);
+    assertEquals(699220675788807L, userClaim.getId());
+    assertEquals("test.user@symphony.com", userClaim.getEmailAddress());
+    assertEquals("Test", userClaim.getFirstName());
+    assertEquals("User", userClaim.getLastName());
+    assertEquals("Test User", userClaim.getDisplayName());
+    assertEquals("Test Company", userClaim.getCompany());
+    assertEquals("10175", userClaim.getCompanyId());
+    assertEquals("test.user@symphony.com", userClaim.getUsername());
+    assertEquals("../avatars/static/150/default.png", userClaim.getAvatarUrl());
+    assertEquals("../avatars/static/50/default.png", userClaim.getAvatarSmallUrl());
   }
 
   @SneakyThrows

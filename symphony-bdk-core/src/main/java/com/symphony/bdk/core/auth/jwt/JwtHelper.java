@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.DeserializationException;
+import io.jsonwebtoken.io.Deserializer;
 import org.apiguardian.api.API;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
@@ -19,6 +21,7 @@ import org.bouncycastle.util.io.pem.PemReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -32,6 +35,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * JWT helper class, used to :
@@ -119,6 +123,7 @@ public class JwtHelper {
     try {
       final Claims claims = Jwts.parser()
           .verifyWith(x509Certificate.getPublicKey())
+          .json(normalizeSubjectDeserializer())
           .build()
           .parseSignedClaims(jwt)
           .getPayload();
@@ -168,6 +173,39 @@ public class JwtHelper {
 
   private static String dropBearer(String jwt) {
     return jwt.replace("Bearer ", "");
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Deserializer<Map<String, ?>> normalizeSubjectDeserializer() {
+    // jjwt 0.12+ strictly requires 'sub' to be a String (RFC 7519), but the pod may send it
+    // as a numeric user ID (Long). Coerce it to String before jjwt validates registered claims.
+    return new Deserializer<Map<String, ?>>() {
+      @Override
+      public Map<String, ?> deserialize(byte[] bytes) throws DeserializationException {
+        try {
+          return normalize(mapper.readValue(bytes, Map.class));
+        } catch (IOException e) {
+          throw new DeserializationException("Unable to deserialize JWT claims", e);
+        }
+      }
+
+      @Override
+      public Map<String, ?> deserialize(Reader reader) throws DeserializationException {
+        try {
+          return normalize(mapper.readValue(reader, Map.class));
+        } catch (IOException e) {
+          throw new DeserializationException("Unable to deserialize JWT claims", e);
+        }
+      }
+
+      private Map<String, Object> normalize(Map<String, Object> map) {
+        Object sub = map.get("sub");
+        if (sub instanceof Number) {
+          map.put("sub", sub.toString());
+        }
+        return map;
+      }
+    };
   }
 
   private static PrivateKey parsePKCS1PrivateKey(String pemPrivateKey) throws GeneralSecurityException {
