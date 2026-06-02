@@ -61,4 +61,7 @@ repositories {
 dependencyCheck {
     failBuildOnCVSS=5
     suppressionFile="./allow-list.xml"
+    nvd {
+        delay = 16000
+    }
 }
