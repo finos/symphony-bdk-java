@@ -24,7 +24,7 @@ dependencies {
     // import Log4j's BOM
     api platform('org.apache.logging.log4j:log4j-bom:2.26.0')
     // override Netty (Spring Boot 3.5.14 ships 4.1.132 which is still vulnerable to CVE-2026-41417)
-    api platform('io.netty:netty-bom:4.1.133.Final')
+    api platform('io.netty:netty-bom:4.1.134.Final')
 
     // define all our dependencies versions
     constraints {
@@ -44,6 +44,11 @@ dependencies {
         api "org.finos.symphony.bdk.ext:symphony-group-extension:$project.version"
 
         // External dependencies
+
+        // override Tomcat (Spring Boot 3.5.14 ships 10.1.54 which is vulnerable to multiple CVEs)
+        api 'org.apache.tomcat.embed:tomcat-embed-core:10.1.55'
+        api 'org.apache.tomcat.embed:tomcat-embed-el:10.1.55'
+        api 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.55'
 
         api 'org.apiguardian:apiguardian-api:1.1.2'
 
