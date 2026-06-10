@@ -27,7 +27,7 @@ jobs:
         arguments: build jacocoTestReport jacocoTestCoverageVerification
 
     - name: Publish SNAPSHOT artifacts
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && secrets.MAVEN_USERNAME != '' && secrets.MAVEN_PASSWORD != ''
       uses: gradle/gradle-build-action@v2.4.2
       with:
         arguments: publishToSonatype -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }}
