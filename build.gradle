@@ -62,7 +62,7 @@ dependencyCheck {
     failBuildOnCVSS=5
     suppressionFile="./allow-list.xml"
     data {
-        directory = "${buildDir}/dependency-check-data"
+        directory = "${System.getProperty('user.home')}/.gradle/dependency-check-data"
     }
     nvd {
         apiKey = System.getenv("NVD_API_KEY") ?: (project.findProperty("dependencyCheck.nvd.apiKey") ?: "")
