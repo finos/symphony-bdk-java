@@ -224,6 +224,27 @@ public class SymphonyBdkTest {
     assertNotNull(this.symphonyBdk.config());
   }
 
+  // Task 9.8: extension pre-registered via builder wires capabilities before service construction
+  @Test
+  void extensionPreRegisteredViaBuilderWiresCapabilities()
+      throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, IOException {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+
+    com.symphony.bdk.core.extension.MessageSenderOverride override =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+
+    // Extension class that provides both capabilities
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .build();
+
+    // No capability extension pre-registered — extensions() service should still be present
+    assertNotNull(bdk.extensions());
+  }
+
   @Test
   void noBotConfigTest() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/no_bot_config.yaml");

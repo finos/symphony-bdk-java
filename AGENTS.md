@@ -1,5 +1,6 @@
 # AGENTS.md
 
+<<<<<<< HEAD
 This file provides guidance to AI Coding Assistants when working with code in this repository.
 
 ## Build & Test Commands
@@ -156,3 +157,195 @@ When spawning subagents (Agent/Task tool), the routing block is automatically in
 | `ctx stats` | Call the `ctx_stats` MCP tool and display the full output verbatim |
 | `ctx doctor` | Call the `ctx_doctor` MCP tool, run the returned shell command, display as checklist |
 | `ctx upgrade` | Call the `ctx_upgrade` MCP tool, run the returned shell command, display as checklist |
+=======
+Guidance for AI coding agents working in this repository.
+
+---
+
+## Coding Principles
+
+**Bias toward caution over speed. For trivial tasks, use judgment.**
+
+### Think Before Coding
+
+- State assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### Simplicity First
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+### Surgical Changes
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+
+When your changes create orphans: remove imports/variables/functions that **your** changes made unused. Don't remove pre-existing dead code unless asked.
+
+### Goal-Driven Execution
+
+Transform tasks into verifiable goals:
+- "Add validation" → write tests for invalid inputs, then make them pass
+- "Fix the bug" → write a test that reproduces it, then make it pass
+- "Refactor X" → ensure tests pass before and after
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+```
+
+---
+
+## Build Commands
+
+```bash
+# Full build (compile + test + package all modules)
+./gradlew build
+
+# Build + coverage report
+./gradlew build jacocoTestReport jacocoTestCoverageVerification
+
+# Install all jars to local Maven repository
+./gradlew publishToMavenLocal
+
+# Build a single module
+./gradlew :symphony-bdk-core:build
+
+# Run a specific test class
+./gradlew :symphony-bdk-core:test --tests "com.symphony.bdk.core.service.message.MessageServiceTest"
+
+# Run a single test method
+./gradlew :symphony-bdk-core:test --tests "com.symphony.bdk.core.service.message.MessageServiceTest.testSendMessage"
+
+# Run OWASP dependency vulnerability check
+./gradlew dependencyCheckAnalyze
+```
+
+Default Gradle task is `build`. Java 17 is required (Spring Boot 3).
+
+---
+
+## Architecture
+
+### Module layout
+
+| Module | Purpose |
+|--------|---------|
+| `symphony-bdk-core` | Main BDK entry point (`SymphonyBdk`), all services, auth, datafeed, activities |
+| `symphony-bdk-config` | Configuration model (`BdkConfig`) and YAML loading (`BdkConfigLoader`) |
+| `symphony-bdk-http/symphony-bdk-http-api` | HTTP client abstraction interfaces |
+| `symphony-bdk-http/symphony-bdk-http-jersey2` | Jersey 2 HTTP client implementation |
+| `symphony-bdk-http/symphony-bdk-http-webclient` | Spring WebClient HTTP implementation |
+| `symphony-bdk-template/symphony-bdk-template-api` | Template engine abstraction |
+| `symphony-bdk-template/symphony-bdk-template-freemarker` | FreeMarker implementation |
+| `symphony-bdk-template/symphony-bdk-template-handlebars` | Handlebars implementation |
+| `symphony-bdk-spring/symphony-bdk-core-spring-boot-starter` | Spring Boot autoconfiguration for bots |
+| `symphony-bdk-spring/symphony-bdk-app-spring-boot-starter` | Spring Boot autoconfiguration for extension apps |
+| `symphony-bdk-extension-api` | SPI for pluggable BDK extensions |
+| `symphony-bdk-extensions/symphony-group-extension` | Built-in group management extension |
+| `symphony-bdk-test/symphony-bdk-test-jupiter` | JUnit 5 test utilities (`@SymphonyBdkTest`, `SymphonyBdkTestMock`) |
+| `symphony-bdk-test/symphony-bdk-test-spring-boot` | Spring Boot test helpers |
+| `symphony-bdk-bom` | Bill of Materials for dependency management |
+| `symphony-bdk-examples` | Runnable example bots |
+
+### Core entry point
+
+`SymphonyBdk` (in `symphony-bdk-core`) is the single facade users instantiate. It owns:
+- **Authentication**: `AuthSession` (bot), `OboAuthenticator` (on-behalf-of), `ExtensionAppAuthenticator` — implemented for both RSA and certificate modes.
+- **Services**: `MessageService`, `StreamService`, `UserService`, `ConnectionService`, `PresenceService`, `SignalService`, `ApplicationService`, `SessionService`, `HealthService`, `DisclaimerService`.
+- **Datafeed/Datahose**: `DatafeedLoop` and `DatahoseLoop` for real-time event consumption.
+- **Activity framework**: `ActivityRegistry` — register slash commands and form replies via `bdk.activities().register(...)`.
+- **Extensions**: `ExtensionService` — register pluggable extensions via `bdk.extensions().register(...)` (post-construction, additive only) or `SymphonyBdk.builder().extension(MyExt.class).build()` (pre-construction, for capability-providing extensions).
+
+### Enhanced extension API (EXPERIMENTAL)
+
+The extension system supports the following capabilities (all `@API(status = EXPERIMENTAL)`):
+
+**Lifecycle and configuration** (`symphony-bdk-extension-api`):
+- `BdkExtensionLifecycle` — `onBdkStarted()` / `onBdkStopped()` callbacks.
+- `BdkExtensionConfigAware<C>` — typed per-extension config injected from `bdk.extensions.<key>` in YAML.
+- `BdkConfig.extensions` — `Map<String, Object>` populated from the `bdk.extensions` YAML block.
+
+**Capability SPIs** (`symphony-bdk-core/extension/`):
+- `BdkAware` — `setBdk(SymphonyBdk)` injection before lifecycle start; for extensions that need full BDK access.
+- `MessageSenderOverride` + `BdkMessageSenderOverrideProvider` — replaces all agent-facing message operations (send, update, blast, import, suppress, attachments). When active, `MessagesApi` is never called.
+- `DatafeedEventSource` + `BdkDatafeedEventSourceProvider` — replaces the datafeed read/ack cycle (stateless, no persistent datafeed ID). Loop dispatch and retry machinery are unchanged.
+
+**Construction order**: extensions pre-registered via `SymphonyBdkBuilder.extension(Class)` are instantiated, configured (Aware injection), and their capabilities extracted *before* `ServiceFactory` creates `MessageService` and `DatafeedLoopV2`. Extensions registered after construction (via `bdk.extensions().register(...)`) are additive only — capability providers registered post-construction log a warning and have no effect.
+
+### OpenAPI code generation
+
+Modules that talk directly to Symphony REST APIs use `bdk.java-codegen-conventions.gradle` from `buildSrc/`. The convention applies the `org.openapi.generator` Gradle plugin, reads `src/main/resources/api.yaml`, and generates Jersey 2 client code into `build/generated/openapi/`. Generated sources are on the compile classpath but not checked in.
+
+### HTTP client abstraction
+
+`symphony-bdk-http-api` defines provider interfaces. At runtime, either `jersey2` or `webclient` is on the classpath — `ServiceLookup` picks the implementation via `java.util.ServiceLoader`. This allows the same `symphony-bdk-core` to work in both plain-Java and Spring/Reactor environments.
+
+### Spring Boot integration
+
+Both starters (`bdk-core-spring-boot-starter`, `bdk-app-spring-boot-starter`) use Spring Boot 3 autoconfiguration. The core starter wires `SymphonyBdk` and all services as beans; the app starter adds Circle-of-Trust auth, tracing filter, and health indicators for extension apps.
+
+### Testing
+
+Use `@SymphonyBdkTest` (JUnit 5 extension from `symphony-bdk-test-jupiter`) to get an injected `SymphonyBdkTestMock` with pre-stubbed Mockito mocks for all services. `MessageMatchers` provides custom Mockito matchers for MessageML assertions.
+
+### Security
+
+`allow-list.xml` holds OWASP suppression entries for known false-positives. Build fails on CVSS ≥ 5. Add suppressions with a `<notes>` explaining why the CVE is not exploitable before merging dependency updates.
+
+### Build conventions (buildSrc)
+
+- `bdk.java-common-conventions.gradle` — applied to every subproject (Java version, checkstyle, etc.)
+- `bdk.java-library-conventions.gradle` — library-specific settings (javadoc jar, sources jar)
+- `bdk.java-publish-conventions.gradle` — Maven Central publishing via Sonatype OSSRH
+- `bdk.java-codegen-conventions.gradle` — OpenAPI generation (applied only to HTTP client modules)
+
+---
+
+## Tool Routing (context-mode)
+
+Context-mode MCP tools are available. These routing rules protect the context window from flooding — a single unrouted command can dump 56 KB into context.
+
+### Blocked commands
+
+| Command | Use instead |
+|---------|-------------|
+| `curl` / `wget` | `ctx_fetch_and_index(url, source)` or `ctx_execute(language: "javascript", ...)` |
+| Inline HTTP (`fetch('http...`, `requests.get(`, etc.) | `ctx_execute(language, code)` |
+| `WebFetch` | `ctx_fetch_and_index(url, source)` then `ctx_search(queries)` |
+
+### Tool hierarchy
+
+1. **GATHER**: `ctx_batch_execute(commands, queries)` — primary; runs all commands, auto-indexes, searches in one call
+2. **FOLLOW-UP**: `ctx_search(queries: [...])` — query indexed content; batch all questions in one call
+3. **PROCESSING**: `ctx_execute(language, code)` / `ctx_execute_file(path, language, code)` — sandbox execution, only stdout enters context
+4. **WEB**: `ctx_fetch_and_index(url, source)` → `ctx_search(queries)` — raw HTML never enters context
+5. **INDEX**: `ctx_index(content, source)` — store content in FTS5 knowledge base
+
+### Bash scope
+
+Bash is only for: `git`, `mkdir`, `rm`, `mv`, `ls`, `npm install`, `pip install`, and other short-output commands. For anything producing >20 lines, use `ctx_execute` or `ctx_batch_execute`.
+
+### Read scope
+
+- Reading to **edit** a file → `Read` is correct (Edit needs content in context)
+- Reading to **analyze or summarize** → use `ctx_execute_file` instead
+
+### ctx commands
+
+| Command | Action |
+|---------|--------|
+| `ctx stats` | Call `ctx_stats` MCP tool and display output verbatim |
+| `ctx doctor` | Call `ctx_doctor` MCP tool, run returned shell command, display as checklist |
+| `ctx upgrade` | Call `ctx_upgrade` MCP tool, run returned shell command, display as checklist |
+>>>>>>> e3443309 (Add enhanced extension API with lifecycle, config, and capability overrides)

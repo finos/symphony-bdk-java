@@ -7,6 +7,8 @@ import com.symphony.bdk.core.auth.impl.OAuthSession;
 import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.DatafeedEventSource;
+import com.symphony.bdk.core.extension.MessageSenderOverride;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -53,6 +55,8 @@ import com.symphony.bdk.template.api.TemplateEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import javax.annotation.Nullable;
+
 /**
  * Factory responsible for creating BDK service instances for Symphony Bdk entry point.
  * :
@@ -76,8 +80,20 @@ class ServiceFactory {
   private final TemplateEngine templateEngine;
   private final BdkConfig config;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
+  private final MessageSenderOverride messageSenderOverride;
+  private final DatafeedEventSource datafeedEventSource;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
+    this(apiClientFactory, authSession, config, null, null);
+  }
+
+  public ServiceFactory(
+      ApiClientFactory apiClientFactory,
+      AuthSession authSession,
+      BdkConfig config,
+      @Nullable MessageSenderOverride messageSenderOverride,
+      @Nullable DatafeedEventSource datafeedEventSource
+  ) {
     this.config = config;
     this.podClient = apiClientFactory.getPodClient();
     this.agentClient = apiClientFactory.getAgentClient();
@@ -86,6 +102,8 @@ class ServiceFactory {
     this.authSession = authSession;
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
+    this.messageSenderOverride = messageSenderOverride;
+    this.datafeedEventSource = datafeedEventSource;
 
     if (config.isCommonJwtEnabled()) {
       if (config.isOboConfigured()) {
@@ -150,7 +168,8 @@ class ServiceFactory {
    */
   public DatafeedLoop getDatafeedLoop(UserV2 botInfo) {
     if (DatafeedVersion.of(config.getDatafeed().getVersion()) == DatafeedVersion.V2) {
-      return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
+      return new DatafeedLoopV2(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo,
+          this.datafeedEventSource);
     }
     return new DatafeedLoopV1(new DatafeedApi(datafeedAgentClient), authSession, config, botInfo);
   }
@@ -175,7 +194,8 @@ class ServiceFactory {
         new DefaultApi(this.podClient),
         this.authSession,
         this.templateEngine,
-        this.retryBuilder
+        this.retryBuilder,
+        this.messageSenderOverride
     );
   }
 

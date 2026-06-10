@@ -97,6 +97,11 @@ public class SymphonyBdkBuilder {
   /**
    * Build new {@link SymphonyBdk}.
    *
+   * <p>Extensions pre-registered via {@link #extension(Class)} are instantiated and their capabilities
+   * (e.g. {@code BdkMessageSenderOverrideProvider}, {@code BdkDatafeedEventSourceProvider}) are extracted
+   * before {@code ServiceFactory} creates any services. Post-construction registration via
+   * {@code bdk.extensions().register(...)} remains available for additive extensions only.
+   *
    * @return a new {@link SymphonyBdk} instance.
    * @throws AuthInitializationException when unable to read/parse a RSA Private Key or a certificate
    * @throws AuthUnauthorizedException authentication issue (e.g. 401)
@@ -119,8 +124,6 @@ public class SymphonyBdkBuilder {
       this.authenticatorFactory = new AuthenticatorFactoryImpl(this.config, this.apiClientFactory);
     }
 
-    final SymphonyBdk bdk = new SymphonyBdk(this.config, this.apiClientFactory, this.authenticatorFactory);
-    this.extensions.forEach(bdk.extensions()::register);
-    return bdk;
+    return new SymphonyBdk(this.config, this.apiClientFactory, this.authenticatorFactory, this.extensions);
   }
 }
