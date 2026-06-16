@@ -25,6 +25,10 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Compute PR SNAPSHOT version
+      if: github.event_name == 'pull_request'
+      run: echo "SNAPSHOT_VERSION=PR-${{ github.event.pull_request.number }}-SNAPSHOT" >> $GITHUB_ENV
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2.4.2
       with:
@@ -34,5 +38,13 @@ jobs:
       if: github.event_name == 'pull_request' && env.MAVEN_USERNAME != ''
       uses: gradle/gradle-build-action@v2.4.2
       with:
-        arguments: publishToSonatype -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }}
+        arguments: publishToSonatype -PprojectVersion=${{ env.SNAPSHOT_VERSION }} -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }}
 
+    - name: Report published SNAPSHOT
+      if: github.event_name == 'pull_request' && env.MAVEN_USERNAME != ''
+      run: |
+        echo "## SNAPSHOT Published" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Version:** \`${SNAPSHOT_VERSION}\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Repository: \`https://central.sonatype.com/repository/maven-snapshots/\`" >> $GITHUB_STEP_SUMMARY
