@@ -12,6 +12,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+      MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+
     steps:
     - uses: actions/checkout@v4
 
@@ -21,7 +25,27 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Compute PR SNAPSHOT version
+      if: github.event_name == 'pull_request'
+      run: echo "SNAPSHOT_VERSION=PR-${{ github.event.pull_request.number }}-SNAPSHOT" >> $GITHUB_ENV
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2.4.2
       with:
         arguments: build jacocoTestReport jacocoTestCoverageVerification
+
+    - name: Publish SNAPSHOT artifacts
+      if: github.event_name == 'pull_request' && env.MAVEN_USERNAME != ''
+      uses: gradle/gradle-build-action@v2.4.2
+      with:
+        arguments: publishToSonatype -PprojectVersion=${{ env.SNAPSHOT_VERSION }} -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }}
+
+    - name: Report published SNAPSHOT
+      if: github.event_name == 'pull_request' && env.MAVEN_USERNAME != ''
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        BODY="**SNAPSHOT published:** \`${SNAPSHOT_VERSION}\`
+        Repository: https://central.sonatype.com/repository/maven-snapshots/"
+        gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body "${BODY}" --edit-last \
+          || gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body "${BODY}"

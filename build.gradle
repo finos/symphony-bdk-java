@@ -3,7 +3,7 @@ plugins {
     id "org.owasp.dependencycheck" version "12.2.2"
 }
 
-ext.projectVersion = '3.3.0-SNAPSHOT'
+ext.projectVersion = project.properties['projectVersion'] ?: '3.3.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
 ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
@@ -49,7 +49,7 @@ nexusPublishing {
             username = project.ext.mavenRepoUsername
             password = project.ext.mavenRepoPassword
             nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/content/repositories/snapshots/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
         }
     }
 }
@@ -61,11 +61,12 @@ repositories {
 dependencyCheck {
     failBuildOnCVSS=5
     suppressionFile="./allow-list.xml"
-    data {
-        directory = "${buildDir}/dependency-check-data"
-    }
-    nvd {
-        apiKey = System.getenv("NVD_API_KEY") ?: (project.findProperty("dependencyCheck.nvd.apiKey") ?: "")
-        delay = apiKey ? 2000 : 16000
-    }
+    data.directory = "${System.getProperty('user.home')}/.gradle/dependency-check-data"
+
+    nvd.apiKey = System.getenv("NVD_API_KEY") ?: (project.findProperty("dependencyCheck.nvd.apiKey") ?: "")
+    nvd.delay = System.getenv("NVD_API_KEY") ? 1000 : 16000
+
+    analyzers.assemblyEnabled = false
+    analyzers.retirejs.enabled = false
+    analyzers.nodeAudit.enabled = false
 }
