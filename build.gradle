@@ -61,11 +61,12 @@ repositories {
 dependencyCheck {
     failBuildOnCVSS=5
     suppressionFile="./allow-list.xml"
-    data {
-        directory = "${System.getProperty('user.home')}/.gradle/dependency-check-data"
-    }
-    nvd {
-        apiKey = System.getenv("NVD_API_KEY") ?: (project.findProperty("dependencyCheck.nvd.apiKey") ?: "")
-        delay = apiKey ? 2000 : 16000
-    }
+    data.directory = "${System.getProperty('user.home')}/.gradle/dependency-check-data"
+
+    nvd.apiKey = System.getenv("NVD_API_KEY") ?: (project.findProperty("dependencyCheck.nvd.apiKey") ?: "")
+    nvd.delay = System.getenv("NVD_API_KEY") ? 1000 : 16000
+
+    analyzers.assemblyEnabled = false
+    analyzers.retirejs.enabled = false
+    analyzers.nodeAudit.enabled = false
 }
