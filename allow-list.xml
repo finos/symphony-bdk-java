@@ -25,6 +25,15 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+          Netty 4.1.135.Final is the last release in the 4.1.x line; no patch exists for CVE-2026-42582.
+          Spring Boot 3.5.15 (the latest 3.5.x) pins Netty 4.1.135.Final. Suppressing pending either a
+          Netty 4.1.136+ fix or a Spring Boot upgrade to a version that ships a patched Netty.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@.*$</packageUrl>
+        <cve>CVE-2026-42582</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
           handlebars.java 4.5.0 still bundles handlebars-v4.7.7.js as a resource. We use the
           Java-native handlebars engine (symphony-bdk-template-handlebars), not the JS engine,
           so the bundled JS file is not executed and these JS-side CVEs are not reachable.
