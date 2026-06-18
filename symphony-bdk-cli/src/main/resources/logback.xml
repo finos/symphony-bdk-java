@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CLI logging configuration.
+
+  All logs are written to ~/.symphony/cli/cli.log so that stdout stays a clean,
+  parseable JSON channel for command results. The log file rolls daily and keeps
+  30 days of history capped at 50 MB total. The default level is WARN; the
+  verbose flag (-v) raises the root level to DEBUG programmatically at runtime
+  (see BdkCli).
+-->
+<configuration>
+
+  <property name="LOG_DIR" value="${user.home}/.symphony/cli"/>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_DIR}/cli.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/cli.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>30</maxHistory>
+      <totalSizeCap>50MB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="${LOG_LEVEL:-WARN}">
+    <appender-ref ref="FILE"/>
+  </root>
+
+</configuration>

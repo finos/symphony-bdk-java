@@ -42,6 +42,21 @@ public class BotApplication {
 }
 ```
 
+## Command-Line Interface
+The [`symphony-bdk-cli`](./symphony-bdk-cli) module provides an operational `bdk` command-line
+interface that authenticates as a configured bot and performs one-shot Symphony operations
+(messaging, streams, users, datafeed, health) straight from the shell, emitting JSON on `stdout`
+for easy scripting and agent consumption.
+
+```bash
+./gradlew :symphony-bdk-cli:installDist
+ln -s "$(pwd)/symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk" /usr/local/bin/bdk
+bdk whoami
+```
+
+See the [CLI documentation](./docs/cli.md) for the full command reference and the JSON / exit-code
+contract.
+
 ## Build from Source
 The Symphony BDK uses a [Gradle](https://docs.gradle.org/) build. The instructions below use the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html)
 from the root of the source tree. The wrapper script serves as a cross-platform, self-contained bootstrap mechanism for
