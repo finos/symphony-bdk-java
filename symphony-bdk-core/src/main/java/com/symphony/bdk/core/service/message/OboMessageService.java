@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage messages.
@@ -209,4 +210,41 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
    */
   V4Message getMessage(@Nonnull String messageId);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query the natural-language search query.
+   * @return the list of matching messages.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(@Nonnull String query);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query      the natural-language search query.
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable PaginationAttribute pagination);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query      the natural-language search query.
+   * @param streamId   the stream to restrict the search to. If {@code null}, all accessible streams are searched.
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable String streamId,
+      @Nullable PaginationAttribute pagination);
 }

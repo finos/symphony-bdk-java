@@ -77,6 +77,7 @@ class MessageServiceTest {
 
   private static final String V4_STREAM_MESSAGE = "/agent/v4/stream/{sid}/message";
   private static final String V4_SEARCH_MESSAGES = "/agent/v1/message/search";
+  private static final String V4_SEARCH_MESSAGES_SEMANTIC = "/agent/v4/message/search/semantic";
   private static final String V4_STREAM_MESSAGE_CREATE = "/agent/v4/stream/{sid}/message/create";
   private static final String V4_STREAM_MESSAGE_UPDATE = "/agent/v4/stream/{sid}/message/{mid}/update";
   private static final String V4_MESSAGE_IMPORT = "/agent/v4/message/import";
@@ -248,6 +249,65 @@ class MessageServiceTest {
         () -> messageService.searchMessages(query2),
         "text require streamId arg to be provided"
     );
+  }
+
+  @Test
+  void testSearchMessagesSemantic() throws IOException {
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final List<V4Message> messages = messageService.searchMessagesSemantic("find the budget discussion");
+
+    assertEquals(2, messages.size());
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithAllParameters() throws IOException {
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final List<V4Message> messages = messageService.searchMessagesSemantic("query", STREAM_ID,
+        new PaginationAttribute(0, 10));
+
+    assertEquals(2, messages.size());
+    assertEquals(Arrays.asList("messageId1", "messageId2"),
+        messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testSearchMessagesSemanticSimpleDelegates() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service)
+        .searchMessagesSemantic(anyString(), isNull(), isNull());
+
+    assertNotNull(service.searchMessagesSemantic("query"));
+    verify(service).searchMessagesSemantic("query", null, null);
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithPaginationDelegates() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service)
+        .searchMessagesSemantic(anyString(), isNull(), any(PaginationAttribute.class));
+
+    final PaginationAttribute pagination = new PaginationAttribute(2, 2);
+    assertNotNull(service.searchMessagesSemantic("query", pagination));
+    verify(service).searchMessagesSemantic("query", null, pagination);
+  }
+
+  @Test
+  void testSearchMessagesSemanticObo() throws IOException {
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
+        attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
+
+    final List<V4Message> messages = messageService.obo(authSession).searchMessagesSemantic("query");
+
+    assertEquals(2, messages.size());
   }
 
   @Test
