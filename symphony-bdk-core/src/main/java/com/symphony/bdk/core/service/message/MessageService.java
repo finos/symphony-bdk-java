@@ -27,6 +27,7 @@ import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
 import com.symphony.bdk.gen.api.model.MessageSearchQuery;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
+import com.symphony.bdk.gen.api.model.SemanticSearchQuery;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4ImportedMessage;
@@ -262,6 +263,38 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     if (query.getText() != null && query.getStreamId() == null) {
       throw new IllegalArgumentException("Message text queries require a streamId to be provided.");
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<V4Message> searchMessagesSemantic(@Nonnull String query) {
+    return searchMessagesSemantic(query, null, null);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable PaginationAttribute pagination) {
+    return searchMessagesSemantic(query, null, pagination);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable String streamId,
+      @Nullable PaginationAttribute pagination) {
+    final SemanticSearchQuery searchQuery = new SemanticSearchQuery()
+        .text(query)
+        .threadId(streamId != null ? toUrlSafeIdIfNeeded(streamId) : null);
+    return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
+        () -> messagesApi.v4MessageSearchSemanticPost(
+            pagination != null ? pagination.getSkip() : null,
+            pagination != null ? pagination.getLimit() : null,
+            authSession.getSessionToken(), authSession.getKeyManagerToken(), searchQuery));
   }
 
   /**
