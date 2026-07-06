@@ -43,6 +43,13 @@ dependencies {
 
         // External dependencies
 
+        // Security override: Spring Boot 3.5.16 pins Tomcat 10.1.55, vulnerable to
+        // CVE-2026-53434, CVE-2026-55276, CVE-2026-53404, CVE-2026-55955, CVE-2026-55956,
+        // CVE-2026-50229 — all fixed in 10.1.56. This higher constraint wins conflict resolution.
+        api 'org.apache.tomcat.embed:tomcat-embed-core:10.1.56'
+        api 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.56'
+        api 'org.apache.tomcat.embed:tomcat-embed-el:10.1.56'
+
         api 'org.apiguardian:apiguardian-api:1.1.2'
 
         api 'org.slf4j:slf4j-api:2.0.9'
