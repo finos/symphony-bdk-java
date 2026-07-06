@@ -73,4 +73,19 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
         <cve>CVE-2026-54515</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          False positive (CPE over-match). CVE-2026-54399 is a DoS in the HttpComponents Core *5.x*
+          HTTP/1.1 message parser (vendor-affected: httpcore5 <= 5.4.2 and 5.5-beta1; reports are all
+          against org.apache.httpcomponents.core5:httpcore5 5.3.x). Our jar is the separate, EOL 4.x
+          codebase org.apache.httpcomponents:httpcore 4.4.16 (transitive via
+          jersey-apache-connector -> httpclient 4.5.14), which has a different parser and is not in
+          the affected range. NVD's apache:httpcomponents_core CPE does not split the 4.x/5.x lines,
+          so dependency-check matches 4.4.16 against a 5.x-only CVE. 4.4.16 is the final 4.x release,
+          so there is no 4.x fix version. A genuine 5.x hit would carry the httpcore5 coordinates and
+          is not affected by this suppression.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <cve>CVE-2026-54399</cve>
+    </suppress>
 </suppressions>
