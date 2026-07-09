@@ -48,4 +48,44 @@
         <vulnerabilityName>GHSA-7rx3-28cr-v5wh</vulnerabilityName>
         <vulnerabilityName>GHSA-442j-39wm-28r2</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          CVE-2026-53914 is an unsafe-deserialization flaw in the Kotlin *compiler's* build-cache
+          metadata (a build-time tool), not in the kotlin-stdlib runtime jar. The NVD CPE
+          (jetbrains:kotlin) over-matches every kotlin artifact; we only ship kotlin-stdlib
+          transitively from Spring Boot (1.9.25) at runtime, and do not run the Kotlin compiler.
+          The stated fix version (2.4.20) is not published on Maven Central, so no override is
+          possible. Same CPE-over-match class as the CVE-2020-29582 suppression above.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin-stdlib(-jdk7|-jdk8|-common)?@.*$</packageUrl>
+        <cve>CVE-2026-53914</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          CVE-2026-54515 (case-insensitive deserialization reopening @JsonIgnoreProperties).
+          Spring Boot 3.5.16 pins the Jackson 2.x platform at 2.21.4. The advisory's 2.x fixes
+          (2.21.5 and 2.18.9) are NOT yet published on Maven Central (both return "Could not find"),
+          so the com.fasterxml.jackson.core 2.x line has no available patch. The only released fix
+          is 3.1.4 under the relocated tools.jackson.core coordinates (Jackson 3.x), which is a
+          breaking major migration, not a drop-in bump. Suppressing pending an upstream 2.x release
+          (2.21.5) or a Spring Boot upgrade that ships it.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
+        <cve>CVE-2026-54515</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          False positive (CPE over-match). CVE-2026-54399 is a DoS in the HttpComponents Core *5.x*
+          HTTP/1.1 message parser (vendor-affected: httpcore5 <= 5.4.2 and 5.5-beta1; reports are all
+          against org.apache.httpcomponents.core5:httpcore5 5.3.x). Our jar is the separate, EOL 4.x
+          codebase org.apache.httpcomponents:httpcore 4.4.16 (transitive via
+          jersey-apache-connector -> httpclient 4.5.14), which has a different parser and is not in
+          the affected range. NVD's apache:httpcomponents_core CPE does not split the 4.x/5.x lines,
+          so dependency-check matches 4.4.16 against a 5.x-only CVE. 4.4.16 is the final 4.x release,
+          so there is no 4.x fix version. A genuine 5.x hit would carry the httpcore5 coordinates and
+          is not affected by this suppression.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <cve>CVE-2026-54399</cve>
+    </suppress>
 </suppressions>
