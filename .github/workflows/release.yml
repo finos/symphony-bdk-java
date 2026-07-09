@@ -29,3 +29,14 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
           GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
+
+      - name: Build CLI distribution
+        run: ./gradlew :symphony-bdk-cli:installDist
+
+      - name: Upload CLI binaries to GitHub Release
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk \
+            symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk.bat
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

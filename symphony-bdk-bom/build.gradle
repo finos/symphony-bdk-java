@@ -79,6 +79,8 @@ dependencies {
         api 'com.github.jknack:handlebars:4.5.1'
         api 'org.reflections:reflections:0.10.2'
 
+        api 'info.picocli:picocli:4.7.6'
+
         api 'com.tngtech.archunit:archunit-junit5:1.2.1'
         api 'org.mock-server:mockserver-netty:5.15.0'
         api 'org.assertj:assertj-core:3.27.7'

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CLI logging configuration.
+
+  All logs are written to stderr so that stdout stays a clean, parseable JSON
+  channel for command results. The default level is WARN; the verbose flag (-v)
+  raises the root level to DEBUG programmatically at runtime (see BdkCli).
+-->
+<configuration>
+
+  <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="${LOG_LEVEL:-WARN}">
+    <appender-ref ref="STDERR"/>
+  </root>
+
+</configuration>

@@ -88,4 +88,19 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
         <cve>CVE-2026-54399</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          False positive (CPE over-match). CVE-2026-54428 is a DoS in the HttpComponents Core *5.x*
+          HTTP/2 HPACK decoder (vendor-affected: httpcore5 <= 5.4.2 and 5.5-beta1). HTTP/2 support
+          was introduced in the 5.x line; the separate, EOL 4.x codebase
+          org.apache.httpcomponents:httpcore 4.4.16 (transitive via
+          jersey-apache-connector -> httpclient 4.5.14) has no HTTP/2 HPACK decoder and is not
+          affected. NVD's apache:httpcomponents_core CPE does not split the 4.x/5.x lines, so
+          dependency-check matches 4.4.16 against a 5.x-only CVE. 4.4.16 is the final 4.x release,
+          so there is no 4.x fix version. A genuine 5.x hit would carry the httpcore5 coordinates and
+          is not affected by this suppression.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <cve>CVE-2026-54428</cve>
+    </suppress>
 </suppressions>
