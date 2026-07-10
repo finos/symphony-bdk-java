@@ -4,6 +4,11 @@
 *.iml
 *.ipr
 
+# Eclipse
+.project
+.classpath
+.factorypath
+
 # Log file
 *.log
 *.gz
