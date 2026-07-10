@@ -24,6 +24,7 @@ import static com.symphony.bdk.core.test.BdkRetryConfigTestHelper.ofMinimalInter
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -39,7 +40,12 @@ class AbstractBotAuthenticatorTest {
 
   private static class TestBotAuthenticator extends AbstractBotAuthenticator {
     public TestBotAuthenticator(BdkRetryConfig retryConfig, ApiClient apiClient) {
-      super(retryConfig, new BdkCommonJwtConfig(), apiClient, new AgentVersionService(new SignalsApi(apiClient)));
+      this(retryConfig, apiClient, true);
+    }
+
+    public TestBotAuthenticator(BdkRetryConfig retryConfig, ApiClient apiClient, boolean agentConfigured) {
+      super(retryConfig, new BdkCommonJwtConfig(), apiClient, new AgentVersionService(new SignalsApi(apiClient)),
+          agentConfigured);
     }
 
     @Override
@@ -177,5 +183,19 @@ class AbstractBotAuthenticatorTest {
     TestBotAuthenticator authenticator = new TestBotAuthenticator(ofMinimalInterval(), apiClient);
 
     assertFalse(authenticator.isCommonJwtEnabled());
+  }
+
+  @Test
+  void isAgentConfigured_true() {
+    TestBotAuthenticator authenticator = new TestBotAuthenticator(ofMinimalInterval(), apiClient, true);
+
+    assertTrue(authenticator.isAgentConfigured());
+  }
+
+  @Test
+  void isAgentConfigured_false() {
+    TestBotAuthenticator authenticator = new TestBotAuthenticator(ofMinimalInterval(), apiClient, false);
+
+    assertFalse(authenticator.isAgentConfigured());
   }
 }
