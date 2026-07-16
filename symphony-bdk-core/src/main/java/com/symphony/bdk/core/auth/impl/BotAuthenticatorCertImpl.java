@@ -35,8 +35,9 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
       @Nonnull ApiClient loginClient,
       @Nonnull ApiClient sessionAuthClient,
       @Nonnull ApiClient keyAuthClient,
-      @Nonnull AgentVersionService agentVersionService) {
-    super(retryConfig, commonJwtConfig, loginClient, agentVersionService);
+      @Nonnull AgentVersionService agentVersionService,
+      boolean agentConfigured) {
+    super(retryConfig, commonJwtConfig, loginClient, agentVersionService, agentConfigured);
     this.sessionAuthClient = sessionAuthClient;
     this.keyAuthClient = keyAuthClient;
     this.username = username;

@@ -31,16 +31,18 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
   private final AuthenticationRetry<Token> podAuthenticationRetry;
   private final AuthenticationRetry<JwtToken> idmAuthenticationRetry;
   private final AgentVersionService agentVersionService;
+  private final boolean agentConfigured;
 
   protected AbstractBotAuthenticator(BdkRetryConfig retryConfig,
       @Nonnull BdkCommonJwtConfig commonJwtConfig, @Nonnull ApiClient loginApiClient,
-      @Nonnull AgentVersionService agentVersionService) {
+      @Nonnull AgentVersionService agentVersionService, boolean agentConfigured) {
     kmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     podAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     idmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     this.commonJwtConfig = commonJwtConfig;
     this.loginApiClient = loginApiClient;
     this.agentVersionService = agentVersionService;
+    this.agentConfigured = agentConfigured;
   }
 
   protected abstract String retrieveKeyManagerToken() throws AuthUnauthorizedException;
@@ -91,5 +93,14 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
 
   public AgentVersionService getAgentVersionService() {
     return agentVersionService;
+  }
+
+  /**
+   * Whether an Agent is explicitly configured (as opposed to defaulting to the pod host).
+   *
+   * @return true if an Agent is explicitly configured.
+   */
+  public boolean isAgentConfigured() {
+    return agentConfigured;
   }
 }
