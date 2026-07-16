@@ -4,6 +4,9 @@ on:
   release:
     types: [ published ]
 
+permissions:
+  contents: write # upload CLI binaries to the release
+
 jobs:
   build:
     name: "Release"
@@ -13,16 +16,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Derive release version from tag
+        id: version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tag '$TAG' is not in the expected vMAJOR.MINOR.PATCH format (e.g. v3.3.16)"
+            exit 1
+          fi
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Releasing $VERSION"
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - run: |
+      - name: Publish release to Maven Central
+        run: |
           mkdir -p ~/.gnupg/
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
-          ./gradlew -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
+          ./gradlew -PprojectVersion=${{ steps.version.outputs.version }} -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
         env:
           GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
@@ -31,7 +47,7 @@ jobs:
           GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
 
       - name: Build CLI distribution
-        run: ./gradlew :symphony-bdk-cli:installDist
+        run: ./gradlew -PprojectVersion=${{ steps.version.outputs.version }} :symphony-bdk-cli:installDist
 
       - name: Upload CLI binaries to GitHub Release
         run: |

@@ -1,0 +1,27 @@
+plugins {
+    id 'bdk.java-common-conventions'
+}
+
+description = 'Symphony Java BDK Examples - AI Agent (LangChain4j + Vertex AI Gemini)'
+
+ext {
+    langchain4jVersion = '1.17.2'
+}
+
+dependencies {
+
+    implementation project(':symphony-bdk-core')
+
+    runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+
+    implementation platform("dev.langchain4j:langchain4j-bom:${langchain4jVersion}")
+    implementation 'dev.langchain4j:langchain4j'
+    implementation 'dev.langchain4j:langchain4j-google-genai'
+
+    runtimeOnly 'ch.qos.logback:logback-classic'
+    implementation 'org.slf4j:slf4j-api'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}

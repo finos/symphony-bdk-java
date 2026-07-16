@@ -56,6 +56,13 @@ Four Groovy convention plugins used by sub-modules:
 
 ## Publishing
 
-Snapshots are published to Sonatype OSSRH via the `publishToSonatype` Gradle task (nexus-publish-plugin). This task is automatically triggered in CI on every PR build. Releases use `publishToSonatype closeAndReleaseStagingRepository` and are triggered by a GitHub Release event.
+Snapshots are published to Sonatype OSSRH via the `publishToSonatype` Gradle task (nexus-publish-plugin). This task is automatically triggered in CI on every PR build (versioned `PR-<number>-SNAPSHOT`). Releases use `publishToSonatype closeAndReleaseStagingRepository`.
+
+Releasing is fully driven by publishing a GitHub Release (`.github/workflows/release.yml`):
+
+1. Draft a new release on the `main` branch with a `vMAJOR.MINOR.PATCH` tag (e.g. `v3.3.16`).
+2. On publish, the workflow derives the version from the tag (stripping the `v`), builds and signs the artifacts with `-PprojectVersion=<version>`, publishes them to Maven Central, and uploads the CLI binaries to the release.
+
+The `projectVersion` default in the root `build.gradle` stays fixed at `0.0.0-SNAPSHOT` on `main` — the real version is always supplied via `-PprojectVersion` in CI, so there is no version bump to commit.
 
 Credentials are passed as Gradle properties: `-PmavenRepoUsername` and `-PmavenRepoPassword`.
