@@ -62,6 +62,7 @@ Releasing is fully driven by publishing a GitHub Release (`.github/workflows/rel
 
 1. Draft a new release on the `main` branch with a `vMAJOR.MINOR.PATCH` tag (e.g. `v3.3.16`).
 2. On publish, the workflow derives the version from the tag (stripping the `v`), builds and signs the artifacts with `-PprojectVersion=<version>`, publishes them to Maven Central, and uploads the CLI binaries to the release.
-3. It then bumps the `-SNAPSHOT` default in the root `build.gradle` to the next patch on `main` automatically — no manual branch or version edit is needed.
+
+The `projectVersion` default in the root `build.gradle` stays fixed at `0.0.0-SNAPSHOT` on `main` — the real version is always supplied via `-PprojectVersion` in CI, so there is no version bump to commit.
 
 Credentials are passed as Gradle properties: `-PmavenRepoUsername` and `-PmavenRepoPassword`.

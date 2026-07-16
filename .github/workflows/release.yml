@@ -5,7 +5,7 @@ on:
     types: [ published ]
 
 permissions:
-  contents: write # upload CLI binaries to the release and push the snapshot bump to main
+  contents: write # upload CLI binaries to the release
 
 jobs:
   build:
@@ -25,11 +25,8 @@ jobs:
             exit 1
           fi
           VERSION="${TAG#v}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-          NEXT_SNAPSHOT="${MAJOR}.${MINOR}.$((PATCH + 1))-SNAPSHOT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "next_snapshot=$NEXT_SNAPSHOT" >> "$GITHUB_OUTPUT"
-          echo "Releasing $VERSION, next snapshot on main will be $NEXT_SNAPSHOT"
+          echo "Releasing $VERSION"
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -57,24 +54,5 @@ jobs:
           gh release upload "${{ github.event.release.tag_name }}" \
             symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk \
             symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk.bat
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Bump snapshot version on main
-        run: |
-          NEXT_SNAPSHOT="${{ steps.version.outputs.next_snapshot }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout main
-          # anchor on the line start so only the projectVersion default is rewritten
-          # (lines 9-11 also contain the "?: '...'" pattern and must stay untouched)
-          sed -i "s|^ext.projectVersion = .*|ext.projectVersion = project.properties['projectVersion'] ?: '${NEXT_SNAPSHOT}'|" build.gradle
-          if git diff --quiet build.gradle; then
-            echo "::notice::build.gradle already at ${NEXT_SNAPSHOT}, nothing to bump"
-            exit 0
-          fi
-          git commit -am "chore: bump snapshot version to ${NEXT_SNAPSHOT} [skip ci]"
-          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
