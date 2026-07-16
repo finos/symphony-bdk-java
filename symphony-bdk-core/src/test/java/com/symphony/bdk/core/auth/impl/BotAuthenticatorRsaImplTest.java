@@ -40,7 +40,8 @@ class BotAuthenticatorRsaImplTest {
         new BdkCommonJwtConfig(), PRIVATE_KEY,
         mockServer.newApiClient("/login"),
         mockServer.newApiClient("/relay"),
-        mock(AgentVersionService.class)
+        mock(AgentVersionService.class),
+        true
     );
   }
 

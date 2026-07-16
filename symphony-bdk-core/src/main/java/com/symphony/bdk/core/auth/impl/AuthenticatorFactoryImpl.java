@@ -78,7 +78,8 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
           this.apiClientFactory.getLoginClient(),
           this.apiClientFactory.getSessionAuthClient(),
           this.apiClientFactory.getKeyAuthClient(),
-          new AgentVersionService(new SignalsApi(this.apiClientFactory.getAgentClient()))
+          new AgentVersionService(new SignalsApi(this.apiClientFactory.getAgentClient())),
+          this.config.getAgent().overridesParentConfig()
       );
     }
     if (this.config.getBot().isRsaAuthenticationConfigured()) {
@@ -93,7 +94,8 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
           this.loadPrivateKeyFromAuthenticationConfig(this.config.getBot()),
           this.apiClientFactory.getLoginClient(),
           this.apiClientFactory.getRelayClient(),
-          new AgentVersionService(new SignalsApi(this.apiClientFactory.getAgentClient()))
+          new AgentVersionService(new SignalsApi(this.apiClientFactory.getAgentClient())),
+          this.config.getAgent().overridesParentConfig()
       );
     }
     throw new AuthInitializationException("Neither RSA private key nor certificate is configured.");
