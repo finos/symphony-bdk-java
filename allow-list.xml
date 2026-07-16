@@ -51,13 +51,14 @@
     <suppress>
         <notes><![CDATA[
           CVE-2026-53914 is an unsafe-deserialization flaw in the Kotlin *compiler's* build-cache
-          metadata (a build-time tool), not in the kotlin-stdlib runtime jar. The NVD CPE
-          (jetbrains:kotlin) over-matches every kotlin artifact; we only ship kotlin-stdlib
-          transitively from Spring Boot (1.9.25) at runtime, and do not run the Kotlin compiler.
-          The stated fix version (2.4.20) is not published on Maven Central, so no override is
-          possible. Same CPE-over-match class as the CVE-2020-29582 suppression above.
+          metadata (a build-time tool), not in kotlin-stdlib/kotlin-reflect runtime jars. The NVD
+          CPE (jetbrains:kotlin) over-matches every kotlin artifact; we only ship kotlin-stdlib
+          transitively from Spring Boot (1.9.25) and kotlin-reflect transitively from
+          langchain4j-google-genai's jackson-module-kotlin (2.1.21) at runtime, and do not run the
+          Kotlin compiler. The stated fix version (2.4.20) is not published on Maven Central, so no
+          override is possible. Same CPE-over-match class as the CVE-2020-29582 suppression above.
           ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin-stdlib(-jdk7|-jdk8|-common)?@.*$</packageUrl>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/(kotlin-stdlib(-jdk7|-jdk8|-common)?|kotlin-reflect)@.*$</packageUrl>
         <cve>CVE-2026-53914</cve>
     </suppress>
     <suppress>
