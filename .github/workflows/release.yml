@@ -4,6 +4,9 @@ on:
   release:
     types: [ published ]
 
+permissions:
+  contents: write # upload CLI binaries to the release and push the snapshot bump to main
+
 jobs:
   build:
     name: "Release"
@@ -13,16 +16,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Derive release version from tag
+        id: version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Release tag '$TAG' is not in the expected vMAJOR.MINOR.PATCH format (e.g. v3.3.16)"
+            exit 1
+          fi
+          VERSION="${TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          NEXT_SNAPSHOT="${MAJOR}.${MINOR}.$((PATCH + 1))-SNAPSHOT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "next_snapshot=$NEXT_SNAPSHOT" >> "$GITHUB_OUTPUT"
+          echo "Releasing $VERSION, next snapshot on main will be $NEXT_SNAPSHOT"
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - run: |
+      - name: Publish release to Maven Central
+        run: |
           mkdir -p ~/.gnupg/
           printf "$GPG_KEY_BASE64" | base64 --decode > ~/.gnupg/secring.gpg
-          ./gradlew -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
+          ./gradlew -PprojectVersion=${{ steps.version.outputs.version }} -PmavenRepoUsername=$MAVEN_USERNAME -PmavenRepoPassword=$MAVEN_PASSWORD -Psigning.keyId=$GPG_KEY_ID -Psigning.secretKeyRingFile=$HOME/.gnupg/secring.gpg -Psigning.password=$GPG_KEY_PASSPHRASE publishToSonatype closeAndReleaseStagingRepository
         env:
           GPG_KEY_BASE64: ${{ secrets.GPG_KEY_BASE64 }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
@@ -31,12 +50,31 @@ jobs:
           GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
 
       - name: Build CLI distribution
-        run: ./gradlew :symphony-bdk-cli:installDist
+        run: ./gradlew -PprojectVersion=${{ steps.version.outputs.version }} :symphony-bdk-cli:installDist
 
       - name: Upload CLI binaries to GitHub Release
         run: |
           gh release upload "${{ github.event.release.tag_name }}" \
             symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk \
             symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk.bat
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump snapshot version on main
+        run: |
+          NEXT_SNAPSHOT="${{ steps.version.outputs.next_snapshot }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          # anchor on the line start so only the projectVersion default is rewritten
+          # (lines 9-11 also contain the "?: '...'" pattern and must stay untouched)
+          sed -i "s|^ext.projectVersion = .*|ext.projectVersion = project.properties['projectVersion'] ?: '${NEXT_SNAPSHOT}'|" build.gradle
+          if git diff --quiet build.gradle; then
+            echo "::notice::build.gradle already at ${NEXT_SNAPSHOT}, nothing to bump"
+            exit 0
+          fi
+          git commit -am "chore: bump snapshot version to ${NEXT_SNAPSHOT} [skip ci]"
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

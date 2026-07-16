@@ -8,6 +8,8 @@
 .project
 .classpath
 .factorypath
+.settings/
+bin/
 
 # Log file
 *.log

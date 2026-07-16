@@ -17,7 +17,7 @@ dependencies {
 
     implementation platform("dev.langchain4j:langchain4j-bom:${langchain4jVersion}")
     implementation 'dev.langchain4j:langchain4j'
-    implementation 'dev.langchain4j:langchain4j-vertex-ai-gemini'
+    implementation 'dev.langchain4j:langchain4j-google-genai'
 
     runtimeOnly 'ch.qos.logback:logback-classic'
     implementation 'org.slf4j:slf4j-api'
