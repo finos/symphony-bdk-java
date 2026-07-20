@@ -11,7 +11,17 @@ import picocli.CommandLine.Command;
     subcommands = {
         StreamListCommand.class,
         StreamMembersCommand.class,
-        StreamGetCommand.class
+        StreamGetCommand.class,
+        StreamCreateRoomCommand.class,
+        StreamUpdateRoomCommand.class,
+        StreamGetRoomCommand.class,
+        StreamActivateRoomCommand.class,
+        StreamDeactivateRoomCommand.class,
+        StreamCreateImCommand.class,
+        StreamAddMemberCommand.class,
+        StreamRemoveMemberCommand.class,
+        StreamPromoteOwnerCommand.class,
+        StreamDemoteOwnerCommand.class
     })
 public class StreamCommand extends ContainerCommand {
 }
