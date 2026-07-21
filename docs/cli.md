@@ -110,6 +110,16 @@ bdk message list abc123StreamId --since 2026-06-01T00:00:00Z --limit 20
 | `bdk stream list [--limit N] [--skip N]` | List the streams the bot is a member of (JSON array). |
 | `bdk stream members <streamId>` | List the members of a stream. |
 | `bdk stream get <streamId>` | Get a stream's details (`3` if it does not exist). |
+| `bdk stream create-room <name> [--description <text>] [--public\|--private] [--discoverable] [--members-can-invite] [--read-only] [--view-history] [--cross-pod]` | Create a chatroom. |
+| `bdk stream update-room <roomId> [same options as create-room]` | Update a chatroom's attributes; only explicitly-passed options are changed (`3` if the room does not exist). |
+| `bdk stream get-room <roomId>` | Get a chatroom's full detail — attributes and system info (`3` if it does not exist). |
+| `bdk stream activate-room <roomId>` | Reactivate a deactivated chatroom. |
+| `bdk stream deactivate-room <roomId>` | Deactivate a chatroom. |
+| `bdk stream create-im <userId>...` | Create an IM (one user id) or MIM (several user ids), bot included. |
+| `bdk stream add-member <roomId> <userId>` | Add a member to a room (`3` if the room does not exist). |
+| `bdk stream remove-member <roomId> <userId>` | Remove a member from a room. |
+| `bdk stream promote-owner <roomId> <userId>` | Promote a room member to owner. |
+| `bdk stream demote-owner <roomId> <userId>` | Demote a room owner to participant. |
 
 ### `bdk user`
 
