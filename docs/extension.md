@@ -315,6 +315,53 @@ public class MyMessageSenderOverride implements MessageSenderOverride {
 > :bulb: If more than one registered extension provides a `MessageSenderOverride`, the first one registered is used
 > and a warning is logged.
 
+### Message Retriever Override
+An extension implementing `com.symphony.bdk.core.extension.BdkMessageRetrieverOverrideProvider` supplies a
+`MessageRetrieverOverride` that replaces **all** agent-facing message *read* operations in `MessageService` —
+`listMessages`, `searchMessages`, `searchMessagesSemantic` and `getMessage`. While an override is active, the agent
+`MessagesApi` is never called for those operations — the public `MessageService` API is unchanged. The same override
+instance handles both bot-context and OBO-context calls. Pod-backed reads (`getMessageStatus`, `listAttachments`,
+`listMessageReceipts`, `getMessageRelationships`, `getAttachmentTypes`) are unaffected.
+
+`MessageRetrieverOverride` is independent from `MessageSenderOverride`: an extension may provide one, the other, or
+both — for example to route reads through a local cache while sending normally through the agent.
+```java
+public class MyBdkExtension
+    implements BdkExtension, BdkMessageRetrieverOverrideProvider {
+
+    private final MessageRetrieverOverride override = new MyMessageRetrieverOverride();
+
+    @Override
+    public MessageRetrieverOverride getMessageRetrieverOverride() {
+        return this.override;
+    }
+}
+
+public class MyMessageRetrieverOverride implements MessageRetrieverOverride {
+
+    @Override
+    public List<V4Message> listMessages(String streamId, Instant since, Instant until,
+        PaginationAttribute pagination) throws Exception { /* ... */ }
+
+    @Override
+    public List<V4Message> searchMessages(MessageSearchQuery query, PaginationAttribute pagination, SortDir sortDir)
+        throws Exception { /* ... */ }
+
+    @Override
+    public List<V4Message> searchMessagesSemantic(String query, String streamId, PaginationAttribute pagination)
+        throws Exception { /* ... */ }
+
+    @Override
+    public V4Message getMessage(String messageId) throws Exception { /* ... */ }
+}
+```
+> :bulb: If more than one registered extension provides a `MessageRetrieverOverride`, the first one registered is
+> used and a warning is logged.
+
+> :bulb: To fully replace agent-facing message handling (both directions), implement `BdkMessageSenderOverrideProvider`
+> and `BdkMessageRetrieverOverrideProvider` on the same extension class, backed by one shared object that implements
+> both `MessageSenderOverride` and `MessageRetrieverOverride`.
+
 ### Datafeed Event Source
 An extension implementing `com.symphony.bdk.core.extension.BdkDatafeedEventSourceProvider` supplies a
 `DatafeedEventSource` that replaces the entire datafeed read/ack cycle in `DatafeedLoopV2`. The source is

@@ -10,6 +10,7 @@ import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.DatafeedEventSource;
 import com.symphony.bdk.core.extension.ExtensionService;
+import com.symphony.bdk.core.extension.MessageRetrieverOverride;
 import com.symphony.bdk.core.extension.MessageSenderOverride;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -147,6 +148,8 @@ public class SymphonyBdk {
     // Step 3: extract capabilities from extensions before constructing services
     final MessageSenderOverride messageSenderOverride =
         this.extensionService.findMessageSenderOverride().orElse(null);
+    final MessageRetrieverOverride messageRetrieverOverride =
+        this.extensionService.findMessageRetrieverOverride().orElse(null);
     final DatafeedEventSource datafeedEventSource =
         this.extensionService.findDatafeedEventSource().orElse(null);
     this.extensionService.markCapabilitiesExtracted();
@@ -155,7 +158,7 @@ public class SymphonyBdk {
     ServiceFactory serviceFactory = null;
     if (config.isBotConfigured()) {
       serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config,
-          messageSenderOverride, datafeedEventSource);
+          messageSenderOverride, messageRetrieverOverride, datafeedEventSource);
     }
 
     this.sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;

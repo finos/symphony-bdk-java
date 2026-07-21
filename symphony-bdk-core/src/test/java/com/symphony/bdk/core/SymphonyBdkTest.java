@@ -245,6 +245,52 @@ public class SymphonyBdkTest {
     assertNotNull(bdk.extensions());
   }
 
+  // Task 5.7: MessageRetrieverOverride extension pre-registered via builder is wired before
+  // service construction, alongside an already-covered MessageSenderOverride extension
+  static com.symphony.bdk.core.extension.MessageRetrieverOverride retrieverOverrideForBuilderTest;
+  static com.symphony.bdk.core.extension.MessageSenderOverride senderOverrideForBuilderTest;
+
+  public static class BothOverridesExtension implements com.symphony.bdk.extension.BdkExtension,
+      com.symphony.bdk.core.extension.BdkMessageRetrieverOverrideProvider,
+      com.symphony.bdk.core.extension.BdkMessageSenderOverrideProvider {
+
+    @Override
+    public com.symphony.bdk.core.extension.MessageRetrieverOverride getMessageRetrieverOverride() {
+      return retrieverOverrideForBuilderTest;
+    }
+
+    @Override
+    public com.symphony.bdk.core.extension.MessageSenderOverride getMessageSenderOverride() {
+      return senderOverrideForBuilderTest;
+    }
+  }
+
+  @Test
+  void extensionPreRegisteredViaBuilderWiresRetrieverAndSenderOverrides() throws Exception {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+
+    retrieverOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    senderOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+
+    com.symphony.bdk.gen.api.model.V4Message expected =
+        new com.symphony.bdk.gen.api.model.V4Message().messageId("wired-msg");
+    org.mockito.Mockito.when(retrieverOverrideForBuilderTest.getMessage("messageId")).thenReturn(expected);
+
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .extension(BothOverridesExtension.class)
+        .build();
+
+    MessageService messageService = bdk.messages();
+    assertEquals("wired-msg", messageService.getMessage("messageId").getMessageId());
+    org.mockito.Mockito.verify(retrieverOverrideForBuilderTest).getMessage("messageId");
+  }
+
   @Test
   void noBotConfigTest() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/no_bot_config.yaml");

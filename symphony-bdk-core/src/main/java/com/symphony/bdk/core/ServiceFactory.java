@@ -8,6 +8,7 @@ import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.DatafeedEventSource;
+import com.symphony.bdk.core.extension.MessageRetrieverOverride;
 import com.symphony.bdk.core.extension.MessageSenderOverride;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
@@ -81,10 +82,11 @@ class ServiceFactory {
   private final BdkConfig config;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
   private final MessageSenderOverride messageSenderOverride;
+  private final MessageRetrieverOverride messageRetrieverOverride;
   private final DatafeedEventSource datafeedEventSource;
 
   public ServiceFactory(ApiClientFactory apiClientFactory, AuthSession authSession, BdkConfig config) {
-    this(apiClientFactory, authSession, config, null, null);
+    this(apiClientFactory, authSession, config, null, null, null);
   }
 
   public ServiceFactory(
@@ -92,6 +94,7 @@ class ServiceFactory {
       AuthSession authSession,
       BdkConfig config,
       @Nullable MessageSenderOverride messageSenderOverride,
+      @Nullable MessageRetrieverOverride messageRetrieverOverride,
       @Nullable DatafeedEventSource datafeedEventSource
   ) {
     this.config = config;
@@ -103,6 +106,7 @@ class ServiceFactory {
     this.templateEngine = TemplateEngine.getDefaultImplementation();
     this.retryBuilder = new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry());
     this.messageSenderOverride = messageSenderOverride;
+    this.messageRetrieverOverride = messageRetrieverOverride;
     this.datafeedEventSource = datafeedEventSource;
 
     if (config.isCommonJwtEnabled()) {
@@ -195,7 +199,8 @@ class ServiceFactory {
         this.authSession,
         this.templateEngine,
         this.retryBuilder,
-        this.messageSenderOverride
+        this.messageSenderOverride,
+        this.messageRetrieverOverride
     );
   }
 

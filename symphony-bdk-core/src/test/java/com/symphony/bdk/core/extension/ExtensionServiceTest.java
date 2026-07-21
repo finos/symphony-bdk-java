@@ -179,6 +179,34 @@ class ExtensionServiceTest {
     assertThat(this.extensionService.findMessageSenderOverride()).isEmpty();
   }
 
+  // Task 5.1: findMessageRetrieverOverride returns first, warns on multiple
+  @Test
+  void shouldReturnFirstMessageRetrieverOverride() {
+    MessageRetrieverOverride override = mock(MessageRetrieverOverride.class);
+    BdkExtension ext = (BdkExtension & BdkMessageRetrieverOverrideProvider) () -> override;
+    this.extensionService.register(ext);
+
+    Optional<MessageRetrieverOverride> result = this.extensionService.findMessageRetrieverOverride();
+    assertThat(result).isPresent().contains(override);
+  }
+
+  @Test
+  void shouldReturnEmptyWhenNoMessageRetrieverOverrideProvider() {
+    this.extensionService.register(TestExtensionWithService.class);
+    assertThat(this.extensionService.findMessageRetrieverOverride()).isEmpty();
+  }
+
+  // Task 5.2: warn on post-construction MessageRetrieverOverride registration
+  @Test
+  void shouldNotThrowWhenMessageRetrieverOverrideExtensionRegisteredPostConstruction() {
+    this.extensionService.markCapabilitiesExtracted();
+
+    MessageRetrieverOverride override = mock(MessageRetrieverOverride.class);
+    BdkExtension ext = (BdkExtension & BdkMessageRetrieverOverrideProvider) () -> override;
+    // Should log a warning but not throw
+    this.extensionService.register(ext);
+  }
+
   // Task 9.4: findDatafeedEventSource returns first provider
   @Test
   void shouldReturnFirstDatafeedEventSource() {

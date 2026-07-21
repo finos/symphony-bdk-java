@@ -99,6 +99,11 @@ public class ExtensionService {
             + "constructed — the datafeed event source has no effect. Use SymphonyBdkBuilder.extension(Class) "
             + "to pre-register capability-providing extensions.", extClz);
       }
+      if (extension instanceof BdkMessageRetrieverOverrideProvider) {
+        log.warn("Extension <{}> implements BdkMessageRetrieverOverrideProvider but was registered after services "
+            + "were constructed — the message retriever override has no effect. Use "
+            + "SymphonyBdkBuilder.extension(Class) to pre-register capability-providing extensions.", extClz);
+      }
     }
 
     this.extensions.put(extClz, extension);
@@ -148,6 +153,30 @@ public class ExtensionService {
     }
     if (count > 1) {
       log.warn("More than one BdkMessageSenderOverrideProvider registered ({}). Only the first will be used.", count);
+    }
+    return Optional.ofNullable(first);
+  }
+
+  /**
+   * Returns the first registered {@link MessageRetrieverOverride} from a {@link BdkMessageRetrieverOverrideProvider}.
+   * Logs a warning if more than one provider is registered.
+   *
+   * @return an {@link Optional} containing the first override, or empty if no provider is registered
+   */
+  public Optional<MessageRetrieverOverride> findMessageRetrieverOverride() {
+    MessageRetrieverOverride first = null;
+    int count = 0;
+    for (BdkExtension ext : this.extensions.values()) {
+      if (ext instanceof BdkMessageRetrieverOverrideProvider) {
+        count++;
+        if (first == null) {
+          first = ((BdkMessageRetrieverOverrideProvider) ext).getMessageRetrieverOverride();
+        }
+      }
+    }
+    if (count > 1) {
+      log.warn("More than one BdkMessageRetrieverOverrideProvider registered ({}). Only the first will be used.",
+          count);
     }
     return Optional.ofNullable(first);
   }
