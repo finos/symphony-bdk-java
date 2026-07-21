@@ -200,7 +200,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until,
       @Nonnull PaginationAttribute pagination) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), getEpochMillis(Instant.now()),
             pagination.getSkip(),
             pagination.getLimit(),
             authSession.getSessionToken(),
@@ -218,7 +218,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until) {
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), null, null,
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), getEpochMillis(Instant.now()), null, null,
             authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
