@@ -783,7 +783,7 @@ class MessageServiceTest {
     com.symphony.bdk.core.extension.MessageSenderOverride override =
         mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
     V4Message expected = new V4Message().messageId("override-msg");
-    when(override.send(eq(STREAM_ID), any(Message.class))).thenReturn(expected);
+    when(override.send(eq(authSession), eq(STREAM_ID), any(Message.class))).thenReturn(expected);
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), override);
@@ -791,7 +791,8 @@ class MessageServiceTest {
     V4Message result = serviceWithOverride.send(STREAM_ID, Message.builder().content(MESSAGE).build());
 
     assertEquals("override-msg", result.getMessageId());
-    verify(override).send(eq(STREAM_ID), any(Message.class));
+    // Task 4.2: bot-context call passes the bot AuthSession to the override
+    verify(override).send(eq(authSession), eq(STREAM_ID), any(Message.class));
   }
 
   @Test
@@ -799,7 +800,7 @@ class MessageServiceTest {
     com.symphony.bdk.core.extension.MessageSenderOverride override =
         mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
     V4Message expected = new V4Message().messageId("updated-msg");
-    when(override.update(eq(STREAM_ID), eq(MESSAGE_ID), any(Message.class))).thenReturn(expected);
+    when(override.update(eq(authSession), eq(STREAM_ID), eq(MESSAGE_ID), any(Message.class))).thenReturn(expected);
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), override);
@@ -807,7 +808,7 @@ class MessageServiceTest {
     V4Message result = serviceWithOverride.update(STREAM_ID, MESSAGE_ID, Message.builder().content(MESSAGE).build());
 
     assertEquals("updated-msg", result.getMessageId());
-    verify(override).update(eq(STREAM_ID), eq(MESSAGE_ID), any(Message.class));
+    verify(override).update(eq(authSession), eq(STREAM_ID), eq(MESSAGE_ID), any(Message.class));
   }
 
   @Test
@@ -815,7 +816,7 @@ class MessageServiceTest {
     com.symphony.bdk.core.extension.MessageSenderOverride override =
         mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
     V4MessageBlastResponse expected = new V4MessageBlastResponse();
-    when(override.blast(any(), any(Message.class))).thenReturn(expected);
+    when(override.blast(eq(authSession), any(), any(Message.class))).thenReturn(expected);
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), override);
@@ -824,7 +825,7 @@ class MessageServiceTest {
         Collections.singletonList(STREAM_ID), Message.builder().content(MESSAGE).build());
 
     assertNotNull(result);
-    verify(override).blast(any(), any(Message.class));
+    verify(override).blast(eq(authSession), any(), any(Message.class));
   }
 
   @Test
@@ -841,20 +842,21 @@ class MessageServiceTest {
   void shouldDelegateSendThroughOboWhenOverrideRegistered() throws Exception {
     com.symphony.bdk.core.extension.MessageSenderOverride override =
         mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+    AuthSession oboSession = mock(AuthSession.class);
     V4Message expected = new V4Message().messageId("obo-override-msg");
-    when(override.send(eq(STREAM_ID), any(Message.class))).thenReturn(expected);
+    when(override.send(eq(oboSession), eq(STREAM_ID), any(Message.class))).thenReturn(expected);
 
-    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
-        podApi, attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
     // Override is passed through OBO
     MessageService serviceWithOverrideAndOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi,
         streamsApi, podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(),
         override);
 
-    OboMessageService oboService = serviceWithOverrideAndOverride.obo(authSession);
+    OboMessageService oboService = serviceWithOverrideAndOverride.obo(oboSession);
     V4Message result = oboService.send(STREAM_ID, Message.builder().content(MESSAGE).build());
 
     assertEquals("obo-override-msg", result.getMessageId());
+    // Task 4.3/4.4: OBO call passes the OBO AuthSession, not the bot session
+    verify(override).send(eq(oboSession), eq(STREAM_ID), any(Message.class));
   }
 
   // Task 5.3-5.6: MessageRetrieverOverride delegation tests
@@ -865,7 +867,7 @@ class MessageServiceTest {
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
     V4Message expected = new V4Message().messageId("override-listed-msg");
     Instant since = Instant.now();
-    when(override.listMessages(eq(STREAM_ID), eq(since), isNull(), isNull()))
+    when(override.listMessages(eq(authSession), eq(STREAM_ID), eq(since), isNull(), isNull()))
         .thenReturn(Collections.singletonList(expected));
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
@@ -876,7 +878,7 @@ class MessageServiceTest {
 
     assertEquals(Collections.singletonList("override-listed-msg"),
         result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
-    verify(override).listMessages(eq(STREAM_ID), eq(since), isNull(), isNull());
+    verify(override).listMessages(eq(authSession), eq(STREAM_ID), eq(since), isNull(), isNull());
   }
 
   @Test
@@ -885,7 +887,7 @@ class MessageServiceTest {
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
     V4Message expected = new V4Message().messageId("override-search-msg");
     final MessageSearchQuery query = new MessageSearchQuery();
-    when(override.searchMessages(eq(query), isNull(), isNull()))
+    when(override.searchMessages(eq(authSession), eq(query), isNull(), isNull()))
         .thenReturn(Collections.singletonList(expected));
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
@@ -896,7 +898,7 @@ class MessageServiceTest {
 
     assertEquals(Collections.singletonList("override-search-msg"),
         result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
-    verify(override).searchMessages(eq(query), isNull(), isNull());
+    verify(override).searchMessages(eq(authSession), eq(query), isNull(), isNull());
   }
 
   @Test
@@ -904,7 +906,7 @@ class MessageServiceTest {
     com.symphony.bdk.core.extension.MessageRetrieverOverride override =
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
     V4Message expected = new V4Message().messageId("override-semantic-msg");
-    when(override.searchMessagesSemantic(eq("query"), isNull(), isNull()))
+    when(override.searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull()))
         .thenReturn(Collections.singletonList(expected));
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
@@ -915,7 +917,7 @@ class MessageServiceTest {
 
     assertEquals(Collections.singletonList("override-semantic-msg"),
         result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
-    verify(override).searchMessagesSemantic(eq("query"), isNull(), isNull());
+    verify(override).searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull());
   }
 
   @Test
@@ -923,7 +925,7 @@ class MessageServiceTest {
     com.symphony.bdk.core.extension.MessageRetrieverOverride override =
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
     V4Message expected = new V4Message().messageId("override-get-msg");
-    when(override.getMessage(MESSAGE_ID)).thenReturn(expected);
+    when(override.getMessage(eq(authSession), eq(MESSAGE_ID))).thenReturn(expected);
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
@@ -932,7 +934,8 @@ class MessageServiceTest {
     V4Message result = serviceWithOverride.getMessage(MESSAGE_ID);
 
     assertEquals("override-get-msg", result.getMessageId());
-    verify(override).getMessage(MESSAGE_ID);
+    // Task 4.2: bot-context call passes the bot AuthSession to the override
+    verify(override).getMessage(eq(authSession), eq(MESSAGE_ID));
   }
 
   @Test
@@ -950,7 +953,7 @@ class MessageServiceTest {
     com.symphony.bdk.core.extension.MessageRetrieverOverride retrieverOverride =
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
     V4Message overriddenMessage = new V4Message().messageId("override-get-msg");
-    when(retrieverOverride.getMessage(MESSAGE_ID)).thenReturn(overriddenMessage);
+    when(retrieverOverride.getMessage(eq(authSession), eq(MESSAGE_ID))).thenReturn(overriddenMessage);
 
     MessageService serviceWithRetrieverOnly = new MessageService(messagesApi, messageApi, messageSuppressionApi,
         streamsApi, podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(),
@@ -970,24 +973,27 @@ class MessageServiceTest {
   void shouldThreadRetrieverOverrideThroughObo() throws Exception {
     com.symphony.bdk.core.extension.MessageRetrieverOverride override =
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    AuthSession oboSession = mock(AuthSession.class);
     V4Message expected = new V4Message().messageId("obo-override-get-msg");
-    when(override.getMessage(MESSAGE_ID)).thenReturn(expected);
+    when(override.getMessage(eq(oboSession), eq(MESSAGE_ID))).thenReturn(expected);
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
         override);
 
-    OboMessageService oboService = serviceWithOverride.obo(authSession);
+    OboMessageService oboService = serviceWithOverride.obo(oboSession);
     V4Message result = oboService.getMessage(MESSAGE_ID);
 
     assertEquals("obo-override-get-msg", result.getMessageId());
+    // Task 4.3/4.4: OBO call passes the OBO AuthSession, not the bot session
+    verify(override).getMessage(eq(oboSession), eq(MESSAGE_ID));
   }
 
   @Test
   void shouldWrapRetrieverOverrideExceptionAsBdkExtensionException() throws Exception {
     com.symphony.bdk.core.extension.MessageRetrieverOverride override =
         mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
-    when(override.getMessage(MESSAGE_ID)).thenThrow(new IllegalStateException("boom"));
+    when(override.getMessage(eq(authSession), eq(MESSAGE_ID))).thenThrow(new IllegalStateException("boom"));
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,

@@ -278,7 +278,11 @@ Service Provider Interfaces (SPIs) allow an extension to fully replace a core in
 An extension implementing `com.symphony.bdk.core.extension.BdkMessageSenderOverrideProvider` supplies a
 `MessageSenderOverride` that replaces **all** agent-facing message operations in `MessageService`. While an
 override is active, the agent `MessagesApi` is never called for those operations — the public `MessageService` API
-is unchanged. The same override instance handles both bot-context and OBO-context calls.
+is unchanged. A single override instance handles both bot-context and OBO-context calls: on each call,
+`MessageService` passes the `AuthSession` it is currently operating under as the first parameter — the bot session
+for a bot-context `MessageService`, or the OBO session for a `MessageService` obtained via `SymphonyBdk.obo(...)`,
+`OboServices.messages()`, or `MessageService.obo(...)`. Implementations route bot vs. OBO behavior from this
+parameter, keeping the instance stateless and safe under concurrent bot/OBO use.
 ```java
 public class MyBdkExtension
     implements BdkExtension, BdkMessageSenderOverrideProvider {
@@ -294,22 +298,26 @@ public class MyBdkExtension
 public class MyMessageSenderOverride implements MessageSenderOverride {
 
     @Override
-    public V4Message send(String streamId, Message message) throws Exception { /* ... */ }
+    public V4Message send(AuthSession session, String streamId, Message message) throws Exception { /* ... */ }
 
     @Override
-    public V4Message update(String streamId, String messageId, Message content) throws Exception { /* ... */ }
+    public V4Message update(AuthSession session, String streamId, String messageId, Message content)
+        throws Exception { /* ... */ }
 
     @Override
-    public V4MessageBlastResponse blast(List<String> streamIds, Message message) throws Exception { /* ... */ }
+    public V4MessageBlastResponse blast(AuthSession session, List<String> streamIds, Message message)
+        throws Exception { /* ... */ }
 
     @Override
-    public List<V4ImportResponse> importMessages(List<V4ImportedMessage> messages) throws Exception { /* ... */ }
+    public List<V4ImportResponse> importMessages(AuthSession session, List<V4ImportedMessage> messages)
+        throws Exception { /* ... */ }
 
     @Override
-    public MessageSuppressionResponse suppressMessage(String messageId) throws Exception { /* ... */ }
+    public MessageSuppressionResponse suppressMessage(AuthSession session, String messageId) throws Exception { /* ... */ }
 
     @Override
-    public byte[] getAttachment(String streamId, String messageId, String attachmentId) throws Exception { /* ... */ }
+    public byte[] getAttachment(AuthSession session, String streamId, String messageId, String attachmentId)
+        throws Exception { /* ... */ }
 }
 ```
 > :bulb: If more than one registered extension provides a `MessageSenderOverride`, the first one registered is used
@@ -319,9 +327,11 @@ public class MyMessageSenderOverride implements MessageSenderOverride {
 An extension implementing `com.symphony.bdk.core.extension.BdkMessageRetrieverOverrideProvider` supplies a
 `MessageRetrieverOverride` that replaces **all** agent-facing message *read* operations in `MessageService` —
 `listMessages`, `searchMessages`, `searchMessagesSemantic` and `getMessage`. While an override is active, the agent
-`MessagesApi` is never called for those operations — the public `MessageService` API is unchanged. The same override
-instance handles both bot-context and OBO-context calls. Pod-backed reads (`getMessageStatus`, `listAttachments`,
-`listMessageReceipts`, `getMessageRelationships`, `getAttachmentTypes`) are unaffected.
+`MessagesApi` is never called for those operations — the public `MessageService` API is unchanged. A single override
+instance handles both bot-context and OBO-context calls, routing from the `AuthSession` passed as the first
+parameter of each method — the same per-call session-passing scheme as `MessageSenderOverride` above. Pod-backed
+reads (`getMessageStatus`, `listAttachments`, `listMessageReceipts`, `getMessageRelationships`, `getAttachmentTypes`)
+are unaffected.
 
 `MessageRetrieverOverride` is independent from `MessageSenderOverride`: an extension may provide one, the other, or
 both — for example to route reads through a local cache while sending normally through the agent.
@@ -340,19 +350,19 @@ public class MyBdkExtension
 public class MyMessageRetrieverOverride implements MessageRetrieverOverride {
 
     @Override
-    public List<V4Message> listMessages(String streamId, Instant since, Instant until,
+    public List<V4Message> listMessages(AuthSession session, String streamId, Instant since, Instant until,
         PaginationAttribute pagination) throws Exception { /* ... */ }
 
     @Override
-    public List<V4Message> searchMessages(MessageSearchQuery query, PaginationAttribute pagination, SortDir sortDir)
-        throws Exception { /* ... */ }
+    public List<V4Message> searchMessages(AuthSession session, MessageSearchQuery query,
+        PaginationAttribute pagination, SortDir sortDir) throws Exception { /* ... */ }
 
     @Override
-    public List<V4Message> searchMessagesSemantic(String query, String streamId, PaginationAttribute pagination)
-        throws Exception { /* ... */ }
+    public List<V4Message> searchMessagesSemantic(AuthSession session, String query, String streamId,
+        PaginationAttribute pagination) throws Exception { /* ... */ }
 
     @Override
-    public V4Message getMessage(String messageId) throws Exception { /* ... */ }
+    public V4Message getMessage(AuthSession session, String messageId) throws Exception { /* ... */ }
 }
 ```
 > :bulb: If more than one registered extension provides a `MessageRetrieverOverride`, the first one registered is

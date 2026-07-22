@@ -73,6 +73,9 @@ public class SymphonyBdk {
 
   private final ExtAppServices extAppServices;
 
+  private final MessageSenderOverride messageSenderOverride;
+  private final MessageRetrieverOverride messageRetrieverOverride;
+
 
   /**
    * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
@@ -146,10 +149,8 @@ public class SymphonyBdk {
     preRegisteredExtensions.forEach(this.extensionService::register);
 
     // Step 3: extract capabilities from extensions before constructing services
-    final MessageSenderOverride messageSenderOverride =
-        this.extensionService.findMessageSenderOverride().orElse(null);
-    final MessageRetrieverOverride messageRetrieverOverride =
-        this.extensionService.findMessageRetrieverOverride().orElse(null);
+    this.messageSenderOverride = this.extensionService.findMessageSenderOverride().orElse(null);
+    this.messageRetrieverOverride = this.extensionService.findMessageRetrieverOverride().orElse(null);
     final DatafeedEventSource datafeedEventSource =
         this.extensionService.findDatafeedEventSource().orElse(null);
     this.extensionService.markCapabilitiesExtracted();
@@ -158,7 +159,7 @@ public class SymphonyBdk {
     ServiceFactory serviceFactory = null;
     if (config.isBotConfigured()) {
       serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config,
-          messageSenderOverride, messageRetrieverOverride, datafeedEventSource);
+          this.messageSenderOverride, this.messageRetrieverOverride, datafeedEventSource);
     }
 
     this.sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
@@ -352,7 +353,7 @@ public class SymphonyBdk {
    * @return an {@link OboServices} instance using the provided OBO session
    */
   public OboServices obo(AuthSession oboSession) {
-    return new OboServices(config, oboSession);
+    return new OboServices(config, oboSession, this.messageSenderOverride, this.messageRetrieverOverride);
   }
 
   /**
