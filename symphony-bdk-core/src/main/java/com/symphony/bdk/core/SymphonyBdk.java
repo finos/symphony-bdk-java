@@ -8,7 +8,10 @@ import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.exception.BotNotConfiguredException;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.DatafeedEventSource;
 import com.symphony.bdk.core.extension.ExtensionService;
+import com.symphony.bdk.core.extension.MessageRetrieverOverride;
+import com.symphony.bdk.core.extension.MessageSenderOverride;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.application.ApplicationService;
 import com.symphony.bdk.core.service.connection.ConnectionService;
@@ -23,6 +26,7 @@ import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.util.ServiceLookup;
+import com.symphony.bdk.extension.BdkExtension;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import com.symphony.bdk.http.api.HttpClient;
@@ -30,6 +34,8 @@ import com.symphony.bdk.http.api.HttpClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
@@ -67,6 +73,9 @@ public class SymphonyBdk {
 
   private final ExtAppServices extAppServices;
 
+  private final MessageSenderOverride messageSenderOverride;
+  private final MessageRetrieverOverride messageRetrieverOverride;
+
 
   /**
    * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
@@ -89,13 +98,22 @@ public class SymphonyBdk {
    * @throws AuthUnauthorizedException authentication issue (e.g. 401)
    */
   public SymphonyBdk(@Nonnull BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
-    this(config, null, null);
+    this(config, null, null, Collections.emptyList());
   }
 
   protected SymphonyBdk(
       @Nonnull BdkConfig config,
       @Nullable ApiClientFactory apiClientFactory,
       @Nullable AuthenticatorFactory authenticatorFactory
+  ) throws AuthInitializationException, AuthUnauthorizedException {
+    this(config, apiClientFactory, authenticatorFactory, Collections.emptyList());
+  }
+
+  protected SymphonyBdk(
+      @Nonnull BdkConfig config,
+      @Nullable ApiClientFactory apiClientFactory,
+      @Nullable AuthenticatorFactory authenticatorFactory,
+      @Nonnull List<Class<? extends BdkExtension>> preRegisteredExtensions
   ) throws AuthInitializationException, AuthUnauthorizedException {
 
     this.config = config;
@@ -112,16 +130,38 @@ public class SymphonyBdk {
     this.extensionAppAuthenticator =
         config.isOboConfigured() ? authenticatorFactory.getExtensionAppAuthenticator() : null;
 
-    ServiceFactory serviceFactory = null;
+    // Step 1: authenticate bot (needed for Aware injection in extensions)
     if (config.isBotConfigured()) {
       this.botSession = authenticatorFactory.getBotAuthenticator().authenticateBot();
-      // service init
-      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config);
     } else {
       log.info(
           "Bot (service account) credentials have not been configured. You can however use services in OBO mode if app authentication is configured.");
       this.botSession = null;
     }
+
+    // Step 2: create ExtensionService and register pre-registered extensions before ServiceFactory
+    this.extensionService = new ExtensionService(
+        apiClientFactory,
+        this.botSession,
+        new RetryWithRecoveryBuilder<>().retryConfig(this.config.getRetry()),
+        this.config
+    );
+    preRegisteredExtensions.forEach(this.extensionService::register);
+
+    // Step 3: extract capabilities from extensions before constructing services
+    this.messageSenderOverride = this.extensionService.findMessageSenderOverride().orElse(null);
+    this.messageRetrieverOverride = this.extensionService.findMessageRetrieverOverride().orElse(null);
+    final DatafeedEventSource datafeedEventSource =
+        this.extensionService.findDatafeedEventSource().orElse(null);
+    this.extensionService.markCapabilitiesExtracted();
+
+    // Step 4: construct ServiceFactory with extracted capabilities
+    ServiceFactory serviceFactory = null;
+    if (config.isBotConfigured()) {
+      serviceFactory = new ServiceFactory(apiClientFactory, this.botSession, config,
+          this.messageSenderOverride, this.messageRetrieverOverride, datafeedEventSource);
+    }
+
     this.sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
     this.userService = serviceFactory != null ? serviceFactory.getUserService() : null;
     this.streamService = serviceFactory != null ? serviceFactory.getStreamService() : null;
@@ -154,13 +194,12 @@ public class SymphonyBdk {
     // setup activities
     this.activityRegistry = this.datafeedLoop != null ? new ActivityRegistry(this.botInfo, this.datafeedLoop) : null;
 
-    // setup extension service
-    this.extensionService = new ExtensionService(
-        apiClientFactory,
-        this.botSession,
-        new RetryWithRecoveryBuilder<>().retryConfig(this.config.getRetry()),
-        this.config
-    );
+    // Step 5: notify extensions that BDK is fully started
+    this.extensionService.onBdkStarted(this);
+
+    // Step 6: wire shutdown hook for extension lifecycle
+    Runtime.getRuntime().addShutdownHook(new Thread(this.extensionService::onBdkStopped,
+        "bdk-extension-shutdown"));
   }
 
   /**
@@ -314,7 +353,7 @@ public class SymphonyBdk {
    * @return an {@link OboServices} instance using the provided OBO session
    */
   public OboServices obo(AuthSession oboSession) {
-    return new OboServices(config, oboSession);
+    return new OboServices(config, oboSession, this.messageSenderOverride, this.messageRetrieverOverride);
   }
 
   /**

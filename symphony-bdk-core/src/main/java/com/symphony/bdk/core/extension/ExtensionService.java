@@ -1,12 +1,15 @@
 package com.symphony.bdk.core.extension;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
-import com.symphony.bdk.core.config.extension.BdkConfigAware;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.extension.exception.BdkExtensionException;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.extension.BdkExtension;
+import com.symphony.bdk.extension.BdkExtensionConfigAware;
+import com.symphony.bdk.extension.BdkExtensionLifecycle;
 import com.symphony.bdk.extension.BdkExtensionService;
 import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
@@ -15,8 +18,9 @@ import org.apiguardian.api.API;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,12 +34,16 @@ import javax.annotation.Nullable;
 @API(status = API.Status.EXPERIMENTAL)
 public class ExtensionService {
 
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+
   private final Map<Class<? extends BdkExtension>, BdkExtension> extensions;
 
   private final ApiClientFactory apiClientFactory;
   private final AuthSession botSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
   private final BdkConfig config;
+
+  private boolean capabilitiesExtracted = false;
 
   public ExtensionService(
       @Nonnull ApiClientFactory apiClientFactory,
@@ -47,7 +55,7 @@ public class ExtensionService {
     this.botSession = botSession;
     this.retryBuilder = retryBuilder;
     this.config = config;
-    this.extensions = Collections.synchronizedMap(new HashMap<>());
+    this.extensions = Collections.synchronizedMap(new LinkedHashMap<>());
   }
 
   public void register(BdkExtension extension) {
@@ -75,9 +83,27 @@ public class ExtensionService {
       ((BdkRetryBuilderAware) extension).setRetryBuilder(this.retryBuilder);
     }
 
-    if (extension instanceof BdkConfigAware) {
-      log.debug("Extension <{}> uses the configuration", extClz);
-      ((BdkConfigAware) extension).setConfiguration(this.config);
+    if (extension instanceof BdkExtensionConfigAware) {
+      log.debug("Extension <{}> uses typed extension config", extClz);
+      injectExtensionConfig((BdkExtensionConfigAware<?>) extension);
+    }
+
+    if (capabilitiesExtracted) {
+      if (extension instanceof BdkMessageSenderOverrideProvider) {
+        log.warn("Extension <{}> implements BdkMessageSenderOverrideProvider but was registered after services were "
+            + "constructed — the message sender override has no effect. Use SymphonyBdkBuilder.extension(Class) "
+            + "to pre-register capability-providing extensions.", extClz);
+      }
+      if (extension instanceof BdkDatafeedEventSourceProvider) {
+        log.warn("Extension <{}> implements BdkDatafeedEventSourceProvider but was registered after services were "
+            + "constructed — the datafeed event source has no effect. Use SymphonyBdkBuilder.extension(Class) "
+            + "to pre-register capability-providing extensions.", extClz);
+      }
+      if (extension instanceof BdkMessageRetrieverOverrideProvider) {
+        log.warn("Extension <{}> implements BdkMessageRetrieverOverrideProvider but was registered after services "
+            + "were constructed — the message retriever override has no effect. Use "
+            + "SymphonyBdkBuilder.extension(Class) to pre-register capability-providing extensions.", extClz);
+      }
     }
 
     this.extensions.put(extClz, extension);
@@ -109,6 +135,104 @@ public class ExtensionService {
   }
 
   /**
+   * Returns the first registered {@link MessageSenderOverride} from a {@link BdkMessageSenderOverrideProvider}.
+   * Logs a warning if more than one provider is registered.
+   *
+   * @return an {@link Optional} containing the first override, or empty if no provider is registered
+   */
+  public Optional<MessageSenderOverride> findMessageSenderOverride() {
+    MessageSenderOverride first = null;
+    int count = 0;
+    for (BdkExtension ext : this.extensions.values()) {
+      if (ext instanceof BdkMessageSenderOverrideProvider) {
+        count++;
+        if (first == null) {
+          first = ((BdkMessageSenderOverrideProvider) ext).getMessageSenderOverride();
+        }
+      }
+    }
+    if (count > 1) {
+      log.warn("More than one BdkMessageSenderOverrideProvider registered ({}). Only the first will be used.", count);
+    }
+    return Optional.ofNullable(first);
+  }
+
+  /**
+   * Returns the first registered {@link MessageRetrieverOverride} from a {@link BdkMessageRetrieverOverrideProvider}.
+   * Logs a warning if more than one provider is registered.
+   *
+   * @return an {@link Optional} containing the first override, or empty if no provider is registered
+   */
+  public Optional<MessageRetrieverOverride> findMessageRetrieverOverride() {
+    MessageRetrieverOverride first = null;
+    int count = 0;
+    for (BdkExtension ext : this.extensions.values()) {
+      if (ext instanceof BdkMessageRetrieverOverrideProvider) {
+        count++;
+        if (first == null) {
+          first = ((BdkMessageRetrieverOverrideProvider) ext).getMessageRetrieverOverride();
+        }
+      }
+    }
+    if (count > 1) {
+      log.warn("More than one BdkMessageRetrieverOverrideProvider registered ({}). Only the first will be used.",
+          count);
+    }
+    return Optional.ofNullable(first);
+  }
+
+  /**
+   * Returns the first registered {@link DatafeedEventSource} from a {@link BdkDatafeedEventSourceProvider}.
+   *
+   * @return an {@link Optional} containing the first source, or empty if no provider is registered
+   */
+  public Optional<DatafeedEventSource> findDatafeedEventSource() {
+    return this.extensions.values().stream()
+        .filter(ext -> ext instanceof BdkDatafeedEventSourceProvider)
+        .map(ext -> ((BdkDatafeedEventSourceProvider) ext).getDatafeedEventSource())
+        .findFirst();
+  }
+
+  /**
+   * Marks capabilities as extracted. Called after capabilities have been read from this service
+   * and wired into {@code ServiceFactory}. Any provider registered after this point will trigger
+   * a warning.
+   */
+  public void markCapabilitiesExtracted() {
+    this.capabilitiesExtracted = true;
+  }
+
+  /**
+   * Injects {@link SymphonyBdk} into all {@link BdkAware} extensions, then calls
+   * {@link BdkExtensionLifecycle#onBdkStarted()} on all lifecycle extensions.
+   *
+   * @param bdk the fully constructed {@link SymphonyBdk} instance
+   */
+  public void onBdkStarted(@Nonnull SymphonyBdk bdk) {
+    for (BdkExtension ext : this.extensions.values()) {
+      if (ext instanceof BdkAware) {
+        ((BdkAware) ext).setBdk(bdk);
+      }
+    }
+    for (BdkExtension ext : this.extensions.values()) {
+      if (ext instanceof BdkExtensionLifecycle) {
+        ((BdkExtensionLifecycle) ext).onBdkStarted();
+      }
+    }
+  }
+
+  /**
+   * Calls {@link BdkExtensionLifecycle#onBdkStopped()} on all registered lifecycle extensions.
+   */
+  public void onBdkStopped() {
+    for (BdkExtension ext : this.extensions.values()) {
+      if (ext instanceof BdkExtensionLifecycle) {
+        ((BdkExtensionLifecycle) ext).onBdkStopped();
+      }
+    }
+  }
+
+  /**
    * Retrieves an extension service instance.
    *
    * @param extClz The extension class.
@@ -131,6 +255,26 @@ public class ExtensionService {
     }
 
     return ((BdkExtensionServiceProvider<S>) extension).getService();
+  }
+
+  @SuppressWarnings("unchecked")
+  private <C> void injectExtensionConfig(BdkExtensionConfigAware<C> extension) {
+    final String key = extension.getConfigKey();
+    final Object rawConfig = this.config.getExtensions().get(key);
+    if (rawConfig == null) {
+      throw new BdkExtensionException(
+          "Missing extension config key '" + key + "' for extension <" + extension.getClass() + ">. "
+              + "Add 'bdk.extensions." + key + "' to your configuration.");
+    }
+    try {
+      final C typed = MAPPER.convertValue(rawConfig, extension.getConfigClass());
+      extension.setExtensionConfig(typed);
+    } catch (IllegalArgumentException e) {
+      throw new BdkExtensionException(
+          "Failed to deserialize extension config key '" + key + "' into "
+              + extension.getConfigClass().getName() + " for extension <" + extension.getClass() + ">",
+          e);
+    }
   }
 
   private void checkAlreadyRegistered(Class<? extends BdkExtension> extClz) {

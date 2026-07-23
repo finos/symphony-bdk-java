@@ -6,6 +6,9 @@ import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.equalsAny;
 
 import com.symphony.bdk.core.auth.AuthSession;
+import com.symphony.bdk.core.extension.MessageRetrieverOverride;
+import com.symphony.bdk.core.extension.MessageSenderOverride;
+import com.symphony.bdk.core.extension.exception.BdkExtensionException;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.OboService;
@@ -53,6 +56,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+
 /**
  * Service class for managing messages.
  *
@@ -72,6 +76,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   private final AuthSession authSession;
   private final TemplateEngine templateEngine;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
+  @Nullable
+  private final MessageSenderOverride senderOverride;
+  @Nullable
+  private final MessageRetrieverOverride retrieverOverride;
 
   public MessageService(
       final MessagesApi messagesApi,
@@ -85,6 +93,41 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
       final TemplateEngine templateEngine,
       final RetryWithRecoveryBuilder<?> retryBuilder
   ) {
+    this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi,
+        authSession, templateEngine, retryBuilder, null);
+  }
+
+  public MessageService(
+      final MessagesApi messagesApi,
+      final MessageApi messageApi,
+      final MessageSuppressionApi messageSuppressionApi,
+      final StreamsApi streamsApi,
+      final PodApi podApi,
+      final AttachmentsApi attachmentsApi,
+      final DefaultApi defaultApi,
+      final AuthSession authSession,
+      final TemplateEngine templateEngine,
+      final RetryWithRecoveryBuilder<?> retryBuilder,
+      @Nullable final MessageSenderOverride senderOverride
+  ) {
+    this(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi, defaultApi,
+        authSession, templateEngine, retryBuilder, senderOverride, null);
+  }
+
+  public MessageService(
+      final MessagesApi messagesApi,
+      final MessageApi messageApi,
+      final MessageSuppressionApi messageSuppressionApi,
+      final StreamsApi streamsApi,
+      final PodApi podApi,
+      final AttachmentsApi attachmentsApi,
+      final DefaultApi defaultApi,
+      final AuthSession authSession,
+      final TemplateEngine templateEngine,
+      final RetryWithRecoveryBuilder<?> retryBuilder,
+      @Nullable final MessageSenderOverride senderOverride,
+      @Nullable final MessageRetrieverOverride retrieverOverride
+  ) {
     this.messagesApi = messagesApi;
     this.messageApi = messageApi;
     this.messageSuppressionApi = messageSuppressionApi;
@@ -94,6 +137,8 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     this.authSession = authSession;
     this.templateEngine = templateEngine;
     this.defaultApi = defaultApi;
+    this.senderOverride = senderOverride;
+    this.retrieverOverride = retrieverOverride;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
@@ -118,13 +163,15 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     this.authSession = null;
     this.templateEngine = templateEngine;
     this.defaultApi = defaultApi;
+    this.senderOverride = null;
+    this.retrieverOverride = null;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
 
   @Override
   public OboMessageService obo(AuthSession oboSession) {
     return new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi, attachmentsApi,
-        defaultApi, oboSession, templateEngine, retryBuilder);
+        defaultApi, oboSession, templateEngine, retryBuilder, senderOverride, retrieverOverride);
   }
 
   /**
@@ -175,13 +222,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until,
       @Nonnull PaginationAttribute pagination) {
-    return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),
-            getEpochMillis(until),
-            pagination.getSkip(),
-            pagination.getLimit(),
-            authSession.getSessionToken(),
-            authSession.getKeyManagerToken()));
+    return doListMessages(streamId, since, until, pagination);
   }
 
   /**
@@ -194,9 +235,22 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
 
   @Override
   public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until) {
+    return doListMessages(streamId, since, until, null);
+  }
+
+  private List<V4Message> doListMessages(@Nonnull String streamId, @Nonnull Instant since, @Nullable Instant until,
+      @Nullable PaginationAttribute pagination) {
+    if (retrieverOverride != null) {
+      return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(
+              () -> retrieverOverride.listMessages(authSession, streamId, since, until, pagination)));
+    }
     return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
-        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since),  getEpochMillis(until),null, null,
-            authSession.getSessionToken(), authSession.getKeyManagerToken()));
+        () -> messagesApi.v4StreamSidMessageGet(toUrlSafeIdIfNeeded(streamId), getEpochMillis(since), getEpochMillis(until),
+            pagination != null ? pagination.getSkip() : null,
+            pagination != null ? pagination.getLimit() : null,
+            authSession.getSessionToken(),
+            authSession.getKeyManagerToken()));
   }
 
   /**
@@ -234,6 +288,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination,
       @Nullable SortDir sortDir) {
     validateMessageSearchQuery(query);
+    if (retrieverOverride != null) {
+      return executeAndRetry("searchMessages", messageApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> retrieverOverride.searchMessages(authSession, query, pagination, sortDir)));
+    }
     return executeAndRetry("searchMessages", messageApi.getApiClient().getBasePath(),
         () -> messagesApi.v1MessageSearchPost(
             pagination != null ? pagination.getSkip() : null,
@@ -287,6 +345,11 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable String streamId,
       @Nullable PaginationAttribute pagination) {
+    if (retrieverOverride != null) {
+      return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(
+              () -> retrieverOverride.searchMessagesSemantic(authSession, query, streamId, pagination)));
+    }
     final SemanticSearchQuery searchQuery = new SemanticSearchQuery()
         .text(query)
         .threadId(streamId != null ? toUrlSafeIdIfNeeded(streamId) : null);
@@ -326,6 +389,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
+    if (senderOverride != null) {
+      return this.executeAndRetry("send", messagesApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> senderOverride.send(authSession, streamId, message)));
+    }
     return this.executeAndRetry("send", messagesApi.getApiClient().getBasePath(),
         () -> this.doSendMessage(streamId, message));
   }
@@ -365,6 +432,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   @API(status = API.Status.EXPERIMENTAL)
   public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message content) {
+    if (senderOverride != null) {
+      return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> senderOverride.update(authSession, streamId, messageId, content)));
+    }
     return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(), () ->  {
       final String path = String.format(
           "/v4/stream/%s/message/%s/update",
@@ -384,6 +455,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#blast-message">Blast Message</a>
    */
   public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
+    if (senderOverride != null) {
+      return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> senderOverride.blast(authSession, streamIds, message)));
+    }
     return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
         () -> doSendBlast(streamIds, message));
   }
@@ -461,6 +536,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
   public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
+    if (senderOverride != null) {
+      return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> senderOverride.getAttachment(authSession, streamId, messageId, attachmentId)));
+    }
     return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
         () -> attachmentsApi.v1StreamSidAttachmentGet(toUrlSafeIdIfNeeded(streamId), attachmentId, messageId,
             authSession.getSessionToken(), authSession.getKeyManagerToken()));
@@ -474,6 +553,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @see <a href="https://developers.symphony.com/restapi/reference#import-message-v4">Import Message</a>
    */
   public List<V4ImportResponse> importMessages(@Nonnull List<V4ImportedMessage> messages) {
+    if (senderOverride != null) {
+      return executeAndRetry("importMessages", messagesApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> senderOverride.importMessages(authSession, messages)));
+    }
     return executeAndRetry("importMessages", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v4MessageImportPost(authSession.getSessionToken(), authSession.getKeyManagerToken(),
             messages));
@@ -484,6 +567,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public MessageSuppressionResponse suppressMessage(@Nonnull String messageId) {
+    if (senderOverride != null) {
+      return executeAndRetry("suppressMessage", messageSuppressionApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> senderOverride.suppressMessage(authSession, messageId)));
+    }
     return executeAndRetry("suppressMessage", messageSuppressionApi.getApiClient().getBasePath(),
         () -> messageSuppressionApi.v1AdminMessagesuppressionIdSuppressPost(messageId, authSession.getSessionToken()));
   }
@@ -506,6 +593,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   public V4Message getMessage(@Nonnull String messageId) {
+    if (retrieverOverride != null) {
+      return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
+          () -> wrapOverrideException(() -> retrieverOverride.getMessage(authSession, messageId)));
+    }
     return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v1MessageIdGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
             toUrlSafeIdIfNeeded(messageId)));
@@ -566,5 +657,20 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
     return RetryWithRecovery.executeAndRetry(retryBuilder, name, address, supplier);
+  }
+
+  @FunctionalInterface
+  private interface OverrideCall<T> {
+    T call() throws Exception;
+  }
+
+  private <T> T wrapOverrideException(OverrideCall<T> call) throws ApiException {
+    try {
+      return call.call();
+    } catch (ApiException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new BdkExtensionException("Message override threw an unexpected exception", e);
+    }
   }
 }

@@ -2,12 +2,14 @@ package com.symphony.bdk.core.service.datafeed.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.DatafeedEventSource;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.service.datafeed.exception.NestedRetryException;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.AckId;
 import com.symphony.bdk.gen.api.model.UserV2;
+import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.gen.api.model.V5Datafeed;
 import com.symphony.bdk.gen.api.model.V5DatafeedCreateBody;
 import com.symphony.bdk.gen.api.model.V5EventList;
@@ -19,6 +21,8 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 /**
  * A class for implementing the datafeed v2 loop service.
@@ -55,13 +59,22 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
   private final RetryWithRecovery<V5Datafeed> retrieveDatafeed;
   private final RetryWithRecovery<V5Datafeed> createDatafeed;
   private final RetryWithRecovery<Void> deleteDatafeed;
+  private final RetryWithRecovery<Void> readFromEventSource;
 
   private final V5DatafeedCreateBody datafeedCreateBody;
 
+  @Nullable
+  private final DatafeedEventSource eventSource;
   private V5Datafeed datafeed;
 
   public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo) {
+    this(datafeedApi, authSession, config, botInfo, null);
+  }
+
+  public DatafeedLoopV2(DatafeedApi datafeedApi, AuthSession authSession, BdkConfig config, UserV2 botInfo,
+      @Nullable DatafeedEventSource eventSource) {
     super(datafeedApi, authSession, config, botInfo);
+    this.eventSource = eventSource;
 
     this.retryWithRecoveryBuilder = new RetryWithRecoveryBuilder<>()
         .basePath(datafeedApi.getApiClient().getBasePath())
@@ -92,10 +105,13 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         .ignoreException(ApiException::isClientError)
         .build();
 
+    this.readFromEventSource = RetryWithRecoveryBuilder.<Void>from(retryWithRecoveryBuilder)
+        .name("Read Event Source")
+        .supplier(this::readAndHandleFromSource)
+        .retryOnException(t -> true)
+        .build();
+
     datafeedCreateBody = new V5DatafeedCreateBody();
-    if (config.getDatafeed().isIncludeInvisible()) {
-      datafeedCreateBody.setIncludeInvisible(true);
-    }
     if (StringUtils.isNotBlank(config.getDatafeed().getTag())) {
       datafeedCreateBody.setTag(config.getDatafeed().getTag());
     }
@@ -103,6 +119,16 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
 
   @Override
   protected void runLoop() throws Throwable {
+    if (eventSource != null) {
+      log.info("Starting datafeed loop using agentless event source: {}", eventSource.getClass().getName());
+      this.ackId = null;
+      while (this.started.get()) {
+        this.readFromEventSource.execute();
+      }
+      log.info("Datafeed loop successfully stopped.");
+      return;
+    }
+
     this.datafeed = this.retrieveDatafeed.execute();
     if (this.datafeed == null) {
       this.datafeed = this.createDatafeed.execute();
@@ -113,6 +139,30 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
       this.readDatafeed.execute();
     }
     log.info("Datafeed loop successfully stopped.");
+  }
+
+  private Void readAndHandleFromSource() throws ApiException {
+    final List<V4Event> events;
+    try {
+      events = this.eventSource.readEvents(this.ackId);
+    } catch (ApiException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new ApiException(500, "DatafeedEventSource.readEvents() threw: " + e);
+    }
+    try {
+      this.handleV4EventList(events);
+      try {
+        this.ackId = this.eventSource.ackEvents(events);
+      } catch (Exception e) {
+        log.warn("Failed to ack events via event source, will not update ack id", e);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to process events from event source, will not update ack id, events will be re-queued", e);
+    }
+    return null;
   }
 
   private V5Datafeed doCreateDatafeed() throws ApiException {

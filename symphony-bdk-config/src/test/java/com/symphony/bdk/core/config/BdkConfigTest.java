@@ -88,6 +88,27 @@ public class BdkConfigTest {
     assertEquals(expected, bdkConfig.isOboConfigured());
   }
 
+  // Task 9.9: BdkConfig.extensions YAML loading
+  @Test
+  void testExtensionsMapLoadedFromYaml() throws Exception {
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config_with_extensions.yaml");
+
+    assertThat(config.getExtensions()).isNotNull();
+    assertThat(config.getExtensions()).containsKey("agentless");
+    assertThat(config.getExtensions()).containsKey("another");
+
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> agentless = (java.util.Map<String, Object>) config.getExtensions().get("agentless");
+    assertThat(agentless.get("host")).isEqualTo("crypto.internal");
+    assertThat(agentless.get("port")).isEqualTo(8443);
+  }
+
+  @Test
+  void testExtensionsMapDefaultsToEmpty() throws Exception {
+    final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    assertThat(config.getExtensions()).isNotNull().isEmpty();
+  }
+
   @Test
   void checkDefaultDatafeedRetryConfiguration() throws Exception {
     final BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/df_retry_config.yaml");

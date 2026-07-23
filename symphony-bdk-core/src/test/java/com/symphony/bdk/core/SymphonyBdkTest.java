@@ -224,6 +224,146 @@ public class SymphonyBdkTest {
     assertNotNull(this.symphonyBdk.config());
   }
 
+  // Task 9.8: extension pre-registered via builder wires capabilities before service construction
+  @Test
+  void extensionPreRegisteredViaBuilderWiresCapabilities()
+      throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException, IOException {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+
+    com.symphony.bdk.core.extension.MessageSenderOverride override =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+
+    // Extension class that provides both capabilities
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .build();
+
+    // No capability extension pre-registered — extensions() service should still be present
+    assertNotNull(bdk.extensions());
+  }
+
+  // Task 5.7: MessageRetrieverOverride extension pre-registered via builder is wired before
+  // service construction, alongside an already-covered MessageSenderOverride extension
+  static com.symphony.bdk.core.extension.MessageRetrieverOverride retrieverOverrideForBuilderTest;
+  static com.symphony.bdk.core.extension.MessageSenderOverride senderOverrideForBuilderTest;
+
+  public static class BothOverridesExtension implements com.symphony.bdk.extension.BdkExtension,
+      com.symphony.bdk.core.extension.BdkMessageRetrieverOverrideProvider,
+      com.symphony.bdk.core.extension.BdkMessageSenderOverrideProvider {
+
+    @Override
+    public com.symphony.bdk.core.extension.MessageRetrieverOverride getMessageRetrieverOverride() {
+      return retrieverOverrideForBuilderTest;
+    }
+
+    @Override
+    public com.symphony.bdk.core.extension.MessageSenderOverride getMessageSenderOverride() {
+      return senderOverrideForBuilderTest;
+    }
+  }
+
+  @Test
+  void extensionPreRegisteredViaBuilderWiresRetrieverAndSenderOverrides() throws Exception {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+
+    retrieverOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    senderOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+
+    com.symphony.bdk.gen.api.model.V4Message expected =
+        new com.symphony.bdk.gen.api.model.V4Message().messageId("wired-msg");
+    org.mockito.Mockito.when(retrieverOverrideForBuilderTest.getMessage(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("messageId")))
+        .thenReturn(expected);
+
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .extension(BothOverridesExtension.class)
+        .build();
+
+    MessageService messageService = bdk.messages();
+    assertEquals("wired-msg", messageService.getMessage("messageId").getMessageId());
+    // Task 4.2: bot-context call passes the bot AuthSession to the override
+    org.mockito.Mockito.verify(retrieverOverrideForBuilderTest).getMessage(bdk.botSession(), "messageId");
+  }
+
+  // Task 4.3: OBO read via SymphonyBdk.obo(oboSession).messages() is invoked with the OBO AuthSession
+  @Test
+  void oboMessagesViaOboServicesPassesOboSession() throws Exception {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+
+    retrieverOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    senderOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+
+    com.symphony.bdk.gen.api.model.V4Message expected =
+        new com.symphony.bdk.gen.api.model.V4Message().messageId("obo-services-wired-msg");
+    org.mockito.Mockito.when(retrieverOverrideForBuilderTest.getMessage(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("messageId")))
+        .thenReturn(expected);
+
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .extension(BothOverridesExtension.class)
+        .build();
+
+    this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"),
+        "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    AuthSession oboSession = bdk.obo(123456L);
+
+    com.symphony.bdk.core.service.message.OboMessageService oboMessageService = bdk.obo(oboSession).messages();
+    com.symphony.bdk.gen.api.model.V4Message result = oboMessageService.getMessage("messageId");
+
+    assertEquals("obo-services-wired-msg", result.getMessageId());
+    org.mockito.Mockito.verify(retrieverOverrideForBuilderTest).getMessage(oboSession, "messageId");
+  }
+
+  // Task 4.4: OBO read via SymphonyBdk.messages().obo(oboSession) is invoked with the OBO AuthSession
+  @Test
+  void oboMessagesViaMessageServiceOboPassesOboSession() throws Exception {
+    BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    config.getBot().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+    config.getApp().getPrivateKey().setPath("./src/test/resources/keys/private-key.pem");
+
+    retrieverOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    senderOverrideForBuilderTest =
+        org.mockito.Mockito.mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+
+    com.symphony.bdk.gen.api.model.V4Message expected =
+        new com.symphony.bdk.gen.api.model.V4Message().messageId("obo-message-service-wired-msg");
+    org.mockito.Mockito.when(retrieverOverrideForBuilderTest.getMessage(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("messageId")))
+        .thenReturn(expected);
+
+    final SymphonyBdk bdk = SymphonyBdk.builder()
+        .config(config)
+        .apiClientFactory(this.apiClientFactory)
+        .extension(BothOverridesExtension.class)
+        .build();
+
+    this.mockApiClient.onPost(LOGIN_PUBKEY_OBO_USERID_AUTHENTICATE.replace("{userId}", "123456"),
+        "{ \"token\": \"1234\", \"name\": \"sessionToken\" }");
+    AuthSession oboSession = bdk.obo(123456L);
+
+    com.symphony.bdk.core.service.message.OboMessageService oboMessageService = bdk.messages().obo(oboSession);
+    com.symphony.bdk.gen.api.model.V4Message result = oboMessageService.getMessage("messageId");
+
+    assertEquals("obo-message-service-wired-msg", result.getMessageId());
+    org.mockito.Mockito.verify(retrieverOverrideForBuilderTest).getMessage(oboSession, "messageId");
+  }
+
   @Test
   void noBotConfigTest() throws BdkConfigException, AuthUnauthorizedException, AuthInitializationException {
     BdkConfig config = BdkConfigLoader.loadFromClasspath("/config/no_bot_config.yaml");

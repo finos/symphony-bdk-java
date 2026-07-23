@@ -776,6 +776,234 @@ class MessageServiceTest {
     assertEquals(expectedPreviewFilenames, previewFileNames);
   }
 
+  // Task 9.5: MessageSenderOverride delegation tests
+
+  @Test
+  void shouldDelegateSendToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageSenderOverride override =
+        mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+    V4Message expected = new V4Message().messageId("override-msg");
+    when(override.send(eq(authSession), eq(STREAM_ID), any(Message.class))).thenReturn(expected);
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), override);
+
+    V4Message result = serviceWithOverride.send(STREAM_ID, Message.builder().content(MESSAGE).build());
+
+    assertEquals("override-msg", result.getMessageId());
+    // Task 4.2: bot-context call passes the bot AuthSession to the override
+    verify(override).send(eq(authSession), eq(STREAM_ID), any(Message.class));
+  }
+
+  @Test
+  void shouldDelegateUpdateToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageSenderOverride override =
+        mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+    V4Message expected = new V4Message().messageId("updated-msg");
+    when(override.update(eq(authSession), eq(STREAM_ID), eq(MESSAGE_ID), any(Message.class))).thenReturn(expected);
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), override);
+
+    V4Message result = serviceWithOverride.update(STREAM_ID, MESSAGE_ID, Message.builder().content(MESSAGE).build());
+
+    assertEquals("updated-msg", result.getMessageId());
+    verify(override).update(eq(authSession), eq(STREAM_ID), eq(MESSAGE_ID), any(Message.class));
+  }
+
+  @Test
+  void shouldDelegateBlastToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageSenderOverride override =
+        mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+    V4MessageBlastResponse expected = new V4MessageBlastResponse();
+    when(override.blast(eq(authSession), any(), any(Message.class))).thenReturn(expected);
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), override);
+
+    V4MessageBlastResponse result = serviceWithOverride.send(
+        Collections.singletonList(STREAM_ID), Message.builder().content(MESSAGE).build());
+
+    assertNotNull(result);
+    verify(override).blast(eq(authSession), any(), any(Message.class));
+  }
+
+  @Test
+  void shouldUseLegacyApiWhenNoOverride() throws Exception {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+
+    V4Message result = messageService.send(STREAM_ID, Message.builder().content(MESSAGE).build());
+
+    assertEquals(MESSAGE_ID, result.getMessageId());
+  }
+
+  @Test
+  void shouldDelegateSendThroughOboWhenOverrideRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageSenderOverride override =
+        mock(com.symphony.bdk.core.extension.MessageSenderOverride.class);
+    AuthSession oboSession = mock(AuthSession.class);
+    V4Message expected = new V4Message().messageId("obo-override-msg");
+    when(override.send(eq(oboSession), eq(STREAM_ID), any(Message.class))).thenReturn(expected);
+
+    // Override is passed through OBO
+    MessageService serviceWithOverrideAndOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi,
+        streamsApi, podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(),
+        override);
+
+    OboMessageService oboService = serviceWithOverrideAndOverride.obo(oboSession);
+    V4Message result = oboService.send(STREAM_ID, Message.builder().content(MESSAGE).build());
+
+    assertEquals("obo-override-msg", result.getMessageId());
+    // Task 4.3/4.4: OBO call passes the OBO AuthSession, not the bot session
+    verify(override).send(eq(oboSession), eq(STREAM_ID), any(Message.class));
+  }
+
+  // Task 5.3-5.6: MessageRetrieverOverride delegation tests
+
+  @Test
+  void shouldDelegateListMessagesToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    V4Message expected = new V4Message().messageId("override-listed-msg");
+    Instant since = Instant.now();
+    when(override.listMessages(eq(authSession), eq(STREAM_ID), eq(since), isNull(), isNull()))
+        .thenReturn(Collections.singletonList(expected));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    List<V4Message> result = serviceWithOverride.listMessages(STREAM_ID, since);
+
+    assertEquals(Collections.singletonList("override-listed-msg"),
+        result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+    verify(override).listMessages(eq(authSession), eq(STREAM_ID), eq(since), isNull(), isNull());
+  }
+
+  @Test
+  void shouldDelegateSearchMessagesToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    V4Message expected = new V4Message().messageId("override-search-msg");
+    final MessageSearchQuery query = new MessageSearchQuery();
+    when(override.searchMessages(eq(authSession), eq(query), isNull(), isNull()))
+        .thenReturn(Collections.singletonList(expected));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    List<V4Message> result = serviceWithOverride.searchMessages(query);
+
+    assertEquals(Collections.singletonList("override-search-msg"),
+        result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+    verify(override).searchMessages(eq(authSession), eq(query), isNull(), isNull());
+  }
+
+  @Test
+  void shouldDelegateSearchMessagesSemanticToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    V4Message expected = new V4Message().messageId("override-semantic-msg");
+    when(override.searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull()))
+        .thenReturn(Collections.singletonList(expected));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    List<V4Message> result = serviceWithOverride.searchMessagesSemantic("query");
+
+    assertEquals(Collections.singletonList("override-semantic-msg"),
+        result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+    verify(override).searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull());
+  }
+
+  @Test
+  void shouldDelegateGetMessageToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    V4Message expected = new V4Message().messageId("override-get-msg");
+    when(override.getMessage(eq(authSession), eq(MESSAGE_ID))).thenReturn(expected);
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    V4Message result = serviceWithOverride.getMessage(MESSAGE_ID);
+
+    assertEquals("override-get-msg", result.getMessageId());
+    // Task 4.2: bot-context call passes the bot AuthSession to the override
+    verify(override).getMessage(eq(authSession), eq(MESSAGE_ID));
+  }
+
+  @Test
+  void shouldUseLegacyApiWhenNoRetrieverOverride() throws IOException {
+    mockApiClient.onGet(V1_MESSAGE_GET.replace("{id}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/get_message.json"));
+
+    final V4Message message = messageService.getMessage(MESSAGE_ID);
+
+    assertEquals("E_U_0jnuzmQcBOr1CIGPqX___ouMNdY5bQ", message.getMessageId());
+  }
+
+  @Test
+  void retrieverAndSenderOverridesShouldBeIndependent() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride retrieverOverride =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    V4Message overriddenMessage = new V4Message().messageId("override-get-msg");
+    when(retrieverOverride.getMessage(eq(authSession), eq(MESSAGE_ID))).thenReturn(overriddenMessage);
+
+    MessageService serviceWithRetrieverOnly = new MessageService(messagesApi, messageApi, messageSuppressionApi,
+        streamsApi, podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(),
+        null, retrieverOverride);
+
+    // retriever override is used for reads
+    assertEquals("override-get-msg", serviceWithRetrieverOnly.getMessage(MESSAGE_ID).getMessageId());
+
+    // send still goes through the legacy agent API since no sender override is registered
+    mockApiClient.onPost(V4_STREAM_MESSAGE_CREATE.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/message/send_message.json"));
+    final V4Message sentMessage = serviceWithRetrieverOnly.send(STREAM_ID, MESSAGE);
+    assertEquals(MESSAGE_ID, sentMessage.getMessageId());
+  }
+
+  @Test
+  void shouldThreadRetrieverOverrideThroughObo() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    AuthSession oboSession = mock(AuthSession.class);
+    V4Message expected = new V4Message().messageId("obo-override-get-msg");
+    when(override.getMessage(eq(oboSession), eq(MESSAGE_ID))).thenReturn(expected);
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    OboMessageService oboService = serviceWithOverride.obo(oboSession);
+    V4Message result = oboService.getMessage(MESSAGE_ID);
+
+    assertEquals("obo-override-get-msg", result.getMessageId());
+    // Task 4.3/4.4: OBO call passes the OBO AuthSession, not the bot session
+    verify(override).getMessage(eq(oboSession), eq(MESSAGE_ID));
+  }
+
+  @Test
+  void shouldWrapRetrieverOverrideExceptionAsBdkExtensionException() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    when(override.getMessage(eq(authSession), eq(MESSAGE_ID))).thenThrow(new IllegalStateException("boom"));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    RuntimeException thrown = assertThrows(RuntimeException.class, () -> serviceWithOverride.getMessage(MESSAGE_ID));
+    assertEquals(com.symphony.bdk.core.extension.exception.BdkExtensionException.class, thrown.getCause().getClass());
+    assertEquals(IllegalStateException.class, thrown.getCause().getCause().getClass());
+  }
+
   private static class MockObject {
     private String content;
 
