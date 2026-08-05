@@ -87,7 +87,7 @@ dependencies {
         api 'info.picocli:picocli:4.7.6'
 
         api 'com.tngtech.archunit:archunit-junit5:1.5.0'
-        api 'org.mock-server:mockserver-netty:5.15.0'
+        api 'org.mock-server:mockserver-netty:7.5.0'
         api 'org.assertj:assertj-core:3.27.7'
 
         api 'jakarta.ws.rs:jakarta.ws.rs-api:3.1.0'

@@ -48,10 +48,12 @@
 
 ## 5. MockServer Replacement (D3)
 
-- [ ] 5.1 Check whether a current MockServer release tracks Netty 4.2; if so, reduce this section to a version bump and skip 5.2–5.4
-- [ ] 5.2 Choose the replacement (WireMock or OkHttp MockWebServer) and add it to the BOM
-- [ ] 5.3 Migrate the 4 test files using `mockserver` off it, preserving assertion coverage
-- [ ] 5.4 Remove `org.mock-server:mockserver-netty` from `symphony-bdk-bom` and from `symphony-bdk-core` / `symphony-bdk-http-webclient` test dependencies
+- [x] 5.1 Check whether a current MockServer release tracks Netty 4.2; if so, reduce this section to a version bump and skip 5.2–5.4
+- [x] ~~5.2 Choose the replacement (WireMock or OkHttp MockWebServer) and add it to the BOM~~ — not needed, D3 resolved to a bump
+- [x] ~~5.3 Migrate the 4 test files using `mockserver` off it, preserving assertion coverage~~ — not needed
+- [x] ~~5.4 Remove `org.mock-server:mockserver-netty` from `symphony-bdk-bom` and from `symphony-bdk-core` / `symphony-bdk-http-webclient` test dependencies~~ — not needed
+
+  **D3 result — bump, not replace.** `mockserver-netty:7.5.0`'s own POM explicitly documents it now depends on Netty 4.2 (comment: "MockServer's Netty 4.2"). Bumped `symphony-bdk-bom` straight from `5.15.0` to `7.5.0` — a 2-major-version jump — and ran the full test suite in `symphony-bdk-core` and `symphony-bdk-http-webclient` unmodified: all tests pass. The only `org.mockserver.*` surface in use (`BdkMockServer`/`BdkMockServerExtension` test helpers in both modules) is limited to `ClientAndServer.startClientAndServer()`, `HttpRequest.request()`, `HttpResponse.response()`, and basic builder methods — all stable across the 5.x→7.x line. No test files needed changes.
 
 ## 6. Dead Dependency Removal (D4 — own commit)
 
