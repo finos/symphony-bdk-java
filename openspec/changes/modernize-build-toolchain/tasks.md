@@ -68,9 +68,21 @@
 
 ## 7. Forward-Compatibility Verification (does not change committed config)
 
-- [ ] 7.1 On a throwaway branch, flip the toolchain to `JavaLanguageVersion.of(25)` and run `./gradlew build` — record every failure as a task in `adopt-java-25-baseline`, then discard the branch
-- [ ] 7.2 Specifically record: whether Mockito's dynamic agent attach warns or fails, whether ArchUnit reads class file 69, whether Lombok compiles, and whether `openApiGenerate` runs
-- [ ] 7.3 Confirm the chosen Gradle 9.x can provision a JDK 25 toolchain (needed by `adopt-java-25-baseline`)
+- [x] 7.1 On a throwaway branch, flip the toolchain to `JavaLanguageVersion.of(25)` and run `./gradlew build` — record every failure as a task in `adopt-java-25-baseline`, then discard the branch
+- [x] 7.2 Specifically record: whether Mockito's dynamic agent attach warns or fails, whether ArchUnit reads class file 69, whether Lombok compiles, and whether `openApiGenerate` runs
+- [x] 7.3 Confirm the chosen Gradle 9.x can provision a JDK 25 toolchain (needed by `adopt-java-25-baseline`)
+
+  **Result — zero failures.** `./gradlew clean build jacocoTestReport jacocoTestCoverageVerification` passes entirely on `JavaLanguageVersion.of(25)`, with every tooling bump from sections 3–6 already in place. Specifics:
+  - Gradle 9.6.1 auto-detected the SDKMAN-installed Temurin JDK 25 (`./gradlew javaToolchains`) with no `foojay-resolver` plugin needed — answers 7.3.
+  - Compiled classes carry major version `69` (verified via `javap -v` on `SymphonyBdk.class`), confirming the toolchain actually drove compilation, not just the daemon.
+  - No Mockito dynamic-agent-attach warnings or failures anywhere in the build log.
+  - All 3 architecture tests pass under JDK 25 (`CoreArchitectureTest`: 5/5, `SymphonyGroupExtensionArchitectureTest`: 1/1, `bdk-spring-boot-example/ArchitectureTest`: 2/2) — ArchUnit reads class file 69 fine.
+  - Lombok (1.18.46, pinned in task 4.1) compiles cleanly across all 13 consuming modules.
+  - `openApiGenerate`/the custom `generate$api` tasks run and produce output identically to JDK 17.
+  - `jacocoTestCoverageVerification` passes with no threshold changes needed.
+
+  **Nothing to record in `adopt-java-25-baseline` task 1.2** — the residual failure list it expects as its "authoritative starting inventory" is empty. The bytecode-tooling floor raised in sections 3–4 of this change appears sufficient on its own; `adopt-java-25-baseline` section 2 should still re-run this check for a fresh confirmation, since dependency resolution can shift between now and when that change lands.
+  - The toolchain-flip edit was made and tested on a throwaway branch (`spike/jdk25-forward-compat`) and discarded without merging, per the task; `bdk.java-common-conventions.gradle` stays pinned at `JavaLanguageVersion.of(17)` on this branch.
 
 ## 8. Release
 
