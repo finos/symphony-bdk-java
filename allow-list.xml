@@ -34,6 +34,15 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+          CVE-2026-56816 is a high-severity memory exhaustion vulnerability in Netty's HTTP/3 codec (Http3FrameCodec).
+          BDK does not use netty-codec-http3 or HTTP/3 capabilities, so this is unreachable.
+          Netty 4.1.136.Final is the latest 4.1.x release and no 4.1.x patch exists. Suppressing pending a 4.1.137+ release.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@.*$</packageUrl>
+        <cve>CVE-2026-56816</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
           handlebars.java 4.5.0 still bundles handlebars-v4.7.7.js as a resource. We use the
           Java-native handlebars engine (symphony-bdk-template-handlebars), not the JS engine,
           so the bundled JS file is not executed and these JS-side CVEs are not reachable.
