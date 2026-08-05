@@ -110,15 +110,15 @@ publishing {
     repositories {
         maven {
             credentials {
-                username rootProject.ext.mavenRepoUsername
-                password rootProject.ext.mavenRepoPassword
+                username = rootProject.ext.mavenRepoUsername
+                password = rootProject.ext.mavenRepoPassword
             }
-            url rootProject.ext.mavenRepoUrl
+            url = rootProject.ext.mavenRepoUrl
         }
     }
 }
 
 signing {
-    required { rootProject.isReleaseVersion }
+    required = { rootProject.isReleaseVersion }
     sign publishing.publications.bom
 }

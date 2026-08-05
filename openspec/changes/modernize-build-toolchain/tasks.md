@@ -1,19 +1,23 @@
 ## 1. Gradle 9 Compatibility Spike (blocking — resolves D1)
 
-- [ ] 1.1 Bump `gradle/wrapper/gradle-wrapper.properties` to the chosen Gradle 9.x on a throwaway branch and run `./gradlew :symphony-bdk-core:openApiGenerate` — record whether `openapi-generator-gradle-plugin:6.6.0` works
-- [ ] 1.2 Run `./gradlew build --warning-mode all` and capture the full deprecation list; this is the authoritative task list for section 2, superseding the statically-found call sites
-- [ ] 1.3 Verify `owasp-dependencycheck:12.2.2` and `com.github.ben-manes.versions` still resolve under Gradle 9 (`buildSrc/build.gradle` already carries a manual override block for a 6.6.0-vs-dependencycheck conflict)
-- [ ] 1.4 Per D1, choose and record the branch: proceed as scoped / (a) pull generator bump forward / (b) defer Gradle 9 to `adopt-java-25-baseline`. Update this change's proposal scope if (a) or (b)
+- [x] 1.1 Bump `gradle/wrapper/gradle-wrapper.properties` to the chosen Gradle 9.x on a throwaway branch and run `./gradlew :symphony-bdk-core:openApiGenerate` — record whether `openapi-generator-gradle-plugin:6.6.0` works
+- [x] 1.2 Run `./gradlew build --warning-mode all` and capture the full deprecation list; this is the authoritative task list for section 2, superseding the statically-found call sites
+- [x] 1.3 Verify `owasp-dependencycheck:12.2.2` and `com.github.ben-manes.versions` still resolve under Gradle 9 (`buildSrc/build.gradle` already carries a manual override block for a 6.6.0-vs-dependencycheck conflict)
+- [x] 1.4 Per D1, choose and record the branch: proceed as scoped / (a) pull generator bump forward / (b) defer Gradle 9 to `adopt-java-25-baseline`. Update this change's proposal scope if (a) or (b)
+
+  **D1 spike result — proceed as scoped.** `openapi-generator-gradle-plugin:6.6.0`'s `GenerateTask` runs cleanly under Gradle 9.6.1 (verified via `:symphony-bdk-core:generateAgent`); the default no-arg `openApiGenerate` task fails with "generator name must be specified" but that is pre-existing, unconfigured-task behaviour unrelated to Gradle 9. `com.github.ben-manes.versions` needed a bump from 0.42.0 → 0.54.0 (0.42.0 calls a `LenientConfiguration` API removed in Gradle 9); `org.owasp.dependencycheck:12.2.2` resolves and applies with no changes needed. Two additional Gradle-9 interlocks were found beyond D1's scope and fixed as part of section 2: cross-project `project(':x').sourceSets` access in two Spring Boot starter modules (dynamic property forwarding on `ProjectDependency` was removed — fixed via a top-level `project(':symphony-bdk-core')` accessor + `evaluationDependsOn`), and the `org.springframework.boot` Gradle plugin versions pinned in the two example modules (3.2.2, 3.5.4) predated Gradle 9 support and were bumped to 3.5.16 to match the BOM's existing `spring-boot-dependencies` constraint — no Spring Boot runtime version change.
 
 ## 2. Gradle 9 Migration
 
-- [ ] 2.1 Bump the wrapper to Gradle 9.x (`gradle/wrapper/gradle-wrapper.properties`, and commit the regenerated wrapper scripts)
-- [ ] 2.2 Replace `sourceCompatibility = JavaVersion.VERSION_17` in `bdk.java-common-conventions.gradle` with a `java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }` block (D2)
-- [ ] 2.3 Confirm `options.compilerArgs << '-parameters'` and `options.encoding = 'UTF-8'` survive the conventions rewrite — both are load-bearing (Spring constructor binding, Jackson parameter names)
-- [ ] 2.4 Replace `project.buildDir` with `layout.buildDirectory` in `bdk.java-codegen-conventions.gradle`, `symphony-bdk-core/build.gradle`, and `symphony-bdk-extensions/symphony-group-extension/build.gradle`
-- [ ] 2.5 Convert the two `tasks.create(...)` calls in `symphony-bdk-core/build.gradle`'s `apisToGenerate` loop (`download$api`, `generate$api`) to `tasks.register(...)`, preserving the `compileJava.dependsOn` / `sourcesJar.dependsOn` wiring
-- [ ] 2.6 Work through the remaining deprecations from 1.2 until `./gradlew build --warning-mode all` is clean
-- [ ] 2.7 Add an explicit `jacoco { toolVersion = '...' }` to `bdk.java-common-conventions.gradle` rather than relying on the Gradle-bundled default
+- [x] 2.1 Bump the wrapper to Gradle 9.x (`gradle/wrapper/gradle-wrapper.properties`, and commit the regenerated wrapper scripts)
+- [x] 2.2 Replace `sourceCompatibility = JavaVersion.VERSION_17` in `bdk.java-common-conventions.gradle` with a `java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }` block (D2)
+- [x] 2.3 Confirm `options.compilerArgs << '-parameters'` and `options.encoding = 'UTF-8'` survive the conventions rewrite — both are load-bearing (Spring constructor binding, Jackson parameter names)
+- [x] 2.4 Replace `project.buildDir` with `layout.buildDirectory` in `bdk.java-codegen-conventions.gradle`, `symphony-bdk-core/build.gradle`, and `symphony-bdk-extensions/symphony-group-extension/build.gradle`
+- [x] 2.5 Convert the two `tasks.create(...)` calls in `symphony-bdk-core/build.gradle`'s `apisToGenerate` loop (`download$api`, `generate$api`) to `tasks.register(...)`, preserving the `compileJava.dependsOn` / `sourcesJar.dependsOn` wiring
+- [x] 2.6 Work through the remaining deprecations from 1.2 until `./gradlew build --warning-mode all` is clean
+
+  Additional deprecations found beyond the statically-known 5: `Project.getProperties()` (root `build.gradle`, 4 call sites → `findProperty`), implicit parent-project property lookup of `projectVersion` in the `allprojects` block (→ `rootProject.ext.projectVersion`), and Groovy space-assignment syntax for `username`/`password`/`url`/`required` in the two publishing blocks (`bdk.java-publish-conventions.gradle` and `symphony-bdk-bom/build.gradle`). `./gradlew clean build --warning-mode all` is now warning-free.
+- [x] 2.7 Add an explicit `jacoco { toolVersion = '...' }` to `bdk.java-common-conventions.gradle` rather than relying on the Gradle-bundled default (pinned to `0.8.15`, latest stable)
 
 ## 3. Bytecode-Processing Tooling Bumps
 
