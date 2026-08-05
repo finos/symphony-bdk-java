@@ -9,7 +9,13 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
@@ -21,9 +27,8 @@ javadoc {
     options.addStringOption('Xdoclint:none', '-quiet')
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
+jacoco {
+    toolVersion = '0.8.15'
 }
 
 jar {

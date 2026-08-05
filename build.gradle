@@ -3,12 +3,12 @@ plugins {
     id "org.owasp.dependencycheck" version "12.2.2"
 }
 
-ext.projectVersion = project.properties['projectVersion'] ?: '0.0.0-SNAPSHOT'
+ext.projectVersion = project.findProperty('projectVersion') ?: '0.0.0-SNAPSHOT'
 ext.isReleaseVersion = !ext.projectVersion.endsWith('SNAPSHOT')
 
-ext.mavenRepoUrl = project.properties['mavenRepoUrl'] ?: 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
-ext.mavenRepoUsername = project.properties['mavenRepoUsername'] ?: 'Symphony artifactory user'
-ext.mavenRepoPassword = project.properties['mavenRepoPassword'] ?: 'Symphony artifactory password'
+ext.mavenRepoUrl = project.findProperty('mavenRepoUrl') ?: 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/'
+ext.mavenRepoUsername = project.findProperty('mavenRepoUsername') ?: 'Symphony artifactory user'
+ext.mavenRepoPassword = project.findProperty('mavenRepoPassword') ?: 'Symphony artifactory password'
 
 ext.pomDefinition = {
     url = 'https://symphony-bdk-java.finos.org'
@@ -35,7 +35,7 @@ ext.pomDefinition = {
 
 allprojects {
     group = 'org.finos.symphony.bdk'
-    version = projectVersion
+    version = rootProject.ext.projectVersion
 
     defaultTasks 'build'
 }

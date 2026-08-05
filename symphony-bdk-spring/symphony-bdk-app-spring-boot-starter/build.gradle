@@ -5,6 +5,9 @@ plugins {
 
 description = 'Spring Boot Starter that ease Application developments'
 
+def coreProject = project(':symphony-bdk-core')
+evaluationDependsOn(coreProject.path)
+
 jacocoTestCoverageVerification {
     violationRules {
         rule {
@@ -41,7 +44,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    testImplementation project(':symphony-bdk-core').sourceSets.test.output
+    testImplementation coreProject.sourceSets.test.output
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
         exclude group: 'junit', module: 'junit'

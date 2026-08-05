@@ -34,13 +34,13 @@ task downloadFile(type: Download) {
         "$baseSpecsUrl/profile-manager-api.yaml",
         "$baseSpecsUrl/symphony-common-definitions.yaml"
     ])
-    dest buildDir
+    dest layout.buildDirectory.get().asFile
     onlyIfModified true
     useETag "all"
 }
 
 openApiGenerate {
-    inputSpec = "$buildDir/profile-manager-api.yaml"
+    inputSpec = "${layout.buildDirectory.get()}/profile-manager-api.yaml"
     apiPackage = 'com.symphony.bdk.ext.group.gen.api'
     modelPackage = 'com.symphony.bdk.ext.group.gen.api.model'
     globalProperties = [
