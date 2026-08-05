@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Requirements
+
+The build runs on Gradle 9.x, which requires a JVM of **17 or higher** to run the Gradle daemon itself. Compilation targets Java 17 via the toolchain declared in `bdk.java-common-conventions` — the daemon JVM and the toolchain JVM are independent, so contributors on a newer daemon JDK still produce Java 17 bytecode.
+
 ## Build & Test Commands
 
 ```bash
@@ -49,7 +53,7 @@ OBO (On-Behalf-Of) flows are surfaced through `OboServices` / `OboService`, whic
 
 Four Groovy convention plugins used by sub-modules:
 
-- `bdk.java-common-conventions` — Java 17, UTF-8, JaCoCo, JUnit Platform, sources+javadoc jars, BOM platform import
+- `bdk.java-common-conventions` — Java 17 toolchain, UTF-8, JaCoCo, JUnit Platform, sources+javadoc jars, BOM platform import
 - `bdk.java-library-conventions` — extends common + `java-library` plugin (used by all published libs)
 - `bdk.java-publish-conventions` — `maven-publish` + `signing`; signing is **only required for release versions** (`isReleaseVersion = !version.endsWith('SNAPSHOT')`)
 - `bdk.java-codegen-conventions` — OpenAPI Generator (Jersey2, Java 8 date library) reading `src/main/resources/api.yaml`; generated sources land in `build/generated/openapi`

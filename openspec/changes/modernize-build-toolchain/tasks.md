@@ -86,7 +86,21 @@
 
 ## 8. Release
 
-- [ ] 8.1 Confirm `./gradlew build jacocoTestReport jacocoTestCoverageVerification` is green on JDK 17 (the CI command)
-- [ ] 8.2 Confirm `./gradlew publishToMavenLocal` produces the same module coordinates as 3.5.x
-- [ ] 8.3 Draft 3.6.0 release notes covering the two consumer-visible BOM changes from D4's migration plan
-- [ ] 8.4 Update `CLAUDE.md` with the new Gradle version and the minimum daemon JDK for contributors
+- [x] 8.1 Confirm `./gradlew build jacocoTestReport jacocoTestCoverageVerification` is green on JDK 17 (the CI command)
+- [x] 8.2 Confirm `./gradlew publishToMavenLocal` produces the same module coordinates as 3.5.x
+
+  Same `groupId`/`artifactId` set as before this change (verified against `~/.m2/repository/org/finos/symphony/bdk`, matching `symphony-bdk-bom`'s constraint list) — no module added, removed, or renamed. The BOM's published pom confirms the `lombok` constraint is present and `reactor-spring` is absent.
+- [x] 8.3 Draft 3.6.0 release notes covering the two consumer-visible BOM changes from D4's migration plan
+
+  Draft, ready to paste into the GitHub Release description when `v3.6.0` is cut:
+
+  > ## 3.6.0
+  >
+  > Build-tooling modernization: Gradle 8 → 9, and a floor raise across every bytecode-processing tool in the build (Byte Buddy, MapStruct, ArchUnit, JaCoCo, MockServer) ahead of a future Java 25 baseline. No source changes, no public API changes, no Java or Spring Boot version change.
+  >
+  > **Consumer-visible changes to `symphony-bdk-bom`:**
+  > - `org.projectreactor:reactor-spring` is no longer constrained by the BOM. It was a 2017 artifact that no BDK module depends on; if you relied on the BOM to pin its version, declare it yourself.
+  > - Lombok's version is now constrained directly by `symphony-bdk-bom` (`1.18.46`) instead of being inherited from `spring-boot-dependencies`. The resolved version is unchanged today — this just means a future Spring Boot bump will no longer move it implicitly.
+  >
+  > **Also updated:** `mockserver-netty` 5.15.0 → 7.5.0 (test-scope only, not consumer-visible).
+- [x] 8.4 Update `CLAUDE.md` with the new Gradle version and the minimum daemon JDK for contributors
