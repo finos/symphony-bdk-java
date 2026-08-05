@@ -42,9 +42,11 @@
 
 ## 4. Lombok Version Ownership
 
-- [ ] 4.1 Add an explicit `org.projectlombok:lombok` constraint to `symphony-bdk-bom/build.gradle`, at the version currently resolved from `spring-boot-dependencies:3.5.16` or newer
-- [ ] 4.2 Verify all 13 Lombok-consuming modules still compile with the pinned version
-- [ ] 4.3 Confirm the pinned version has published JDK 25 support (needed later by `adopt-java-25-baseline`, recorded here so the check isn't repeated)
+- [x] 4.1 Add an explicit `org.projectlombok:lombok` constraint to `symphony-bdk-bom/build.gradle`, at the version currently resolved from `spring-boot-dependencies:3.5.16` or newer
+- [x] 4.2 Verify all 13 Lombok-consuming modules still compile with the pinned version
+- [x] 4.3 Confirm the pinned version has published JDK 25 support (needed later by `adopt-java-25-baseline`, recorded here so the check isn't repeated)
+
+  Pinned at `1.18.46` — the same version already resolved from `spring-boot-dependencies:3.5.16`, so the constraint changes nothing today; it just stops future Spring Boot bumps from moving Lombok implicitly. 1.18.46 shipped JDK 26 support and had JDK 25 support since 1.18.40 (2025-09-04).
 
 ## 5. MockServer Replacement (D3)
 
@@ -57,10 +59,12 @@
 
 ## 6. Dead Dependency Removal (D4 — own commit)
 
-- [ ] 6.1 Remove `javax.xml.bind:jaxb-api:2.3.1` from `symphony-bdk-core/build.gradle` (verified: zero source usage anywhere in the tree)
-- [ ] 6.2 Replace `javax.annotation:jsr250-api:1.0` with `jakarta.annotation:jakarta.annotation-api` in `bdk.java-codegen-conventions.gradle`, and confirm the generated sources still compile
-- [ ] 6.3 Remove `org.projectreactor:reactor-spring:1.0.1.RELEASE` from `symphony-bdk-bom` after confirming no module resolves it
-- [ ] 6.4 Land 6.1–6.3 plus the Lombok constraint from 4.1 as a single commit whose message names each removed coordinate and why
+- [x] 6.1 Remove `javax.xml.bind:jaxb-api:2.3.1` from `symphony-bdk-core/build.gradle` (verified: zero source usage anywhere in the tree)
+- [x] 6.2 ~~Replace `javax.annotation:jsr250-api:1.0` with `jakarta.annotation:jakarta.annotation-api` in `bdk.java-codegen-conventions.gradle`, and confirm the generated sources still compile~~ — **does not compile, kept as-is**
+
+  Tested empirically per the task's own instruction. `openapi-generator` 6.6.0's `java`/`jersey2` generator emits `@javax.annotation.Generated(...)` fully-qualified (335 occurrences in `symphony-bdk-core`'s generated sources alone, plus all of `symphony-group-extension`'s). `jakarta.annotation-api` only provides `jakarta.annotation.Generated` (different package, verified via its jar contents) — swapping the dependency produced 36 "cannot find symbol" compile errors. `javax.annotation:jsr250-api:1.0` is **not dead** — it is a required compile-time dependency for every module using `bdk.java-codegen-conventions`, and the proposal's classification of it as a dead dependency was incorrect. Making the generator emit `jakarta.annotation.Generated` instead would require an `openapi-generator` config change affecting all 335+ generated classes' consumer-visible imports — out of scope for this build-only change (belongs with an eventual openapi-generator/Jakarta migration). Left unchanged in both `bdk.java-codegen-conventions.gradle` and `symphony-bdk-core/build.gradle` (which carries its own separate copy, also verified required — same `@javax.annotation.Generated` usage, ~335 files).
+- [x] 6.3 Remove `org.projectreactor:reactor-spring:1.0.1.RELEASE` from `symphony-bdk-bom` after confirming no module resolves it
+- [x] 6.4 Land 6.1 and 6.3 plus the Lombok constraint from 4.1 as a single commit whose message names each removed coordinate and why (jsr250-api excluded — see 6.2)
 
 ## 7. Forward-Compatibility Verification (does not change committed config)
 

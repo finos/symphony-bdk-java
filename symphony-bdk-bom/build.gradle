@@ -55,6 +55,11 @@ dependencies {
         api 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.57'
         api 'org.apache.tomcat.embed:tomcat-embed-el:10.1.57'
 
+        // Owned by this repo rather than inherited from spring-boot-dependencies: Lombok lags
+        // JDK releases and is used in 13 modules, so its version needs to move independently
+        // of the Spring Boot version.
+        api 'org.projectlombok:lombok:1.18.46'
+
         api 'org.apiguardian:apiguardian-api:1.1.2'
 
         api 'org.slf4j:slf4j-api:2.0.9'
@@ -77,8 +82,6 @@ dependencies {
 
         api 'io.swagger:swagger-annotations:1.6.14'
         api 'org.openapitools:jackson-databind-nullable:0.2.6'
-
-        api 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
 
         api 'org.freemarker:freemarker:2.3.33'
         api 'com.github.jknack:handlebars:4.5.1'
