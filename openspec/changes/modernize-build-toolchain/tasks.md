@@ -21,12 +21,24 @@
 
 ## 3. Bytecode-Processing Tooling Bumps
 
-- [ ] 3.1 Bump the explicit `net.bytebuddy:byte-buddy` pin in `symphony-bdk-core/build.gradle` (currently 1.12.19) to a release supporting class file version 69
-- [ ] 3.2 Bump `org.mapstruct:mapstruct` and `org.mapstruct:mapstruct-processor` in `symphony-bdk-core/build.gradle` (currently 1.4.2.Final) to 1.6.x
-- [ ] 3.3 Diff the generated `UserDetailMapperImpl` before and after the MapStruct bump; investigate any change in null-handling or unmapped-property behaviour (D5)
-- [ ] 3.4 Bump `com.tngtech.archunit:archunit-junit5` in the BOM (currently 1.2.1); confirm the 3 architecture tests still pass — `CoreArchitectureTest`, `SymphonyGroupExtensionArchitectureTest`, `bdk-spring-boot-example/ArchitectureTest`
-- [ ] 3.5 Bump `org.assertj:assertj-core` in the BOM if a newer release is available for the JaCoCo/JDK combination
-- [ ] 3.6 Verify `jacocoTestCoverageVerification` still passes in every module after the JaCoCo toolVersion bump; if thresholds shift because of JaCoCo counting changes rather than test changes, adjust them in a dedicated commit naming the JaCoCo version
+- [x] 3.1 Bump the explicit `net.bytebuddy:byte-buddy` pin in `symphony-bdk-core/build.gradle` (currently 1.12.19) to a release supporting class file version 69
+
+  Bumped to `1.18.11`, the latest release.
+- [x] 3.2 Bump `org.mapstruct:mapstruct` and `org.mapstruct:mapstruct-processor` in `symphony-bdk-core/build.gradle` (currently 1.4.2.Final) to 1.6.x
+
+  Bumped both to `1.6.3`, the latest 1.6.x patch.
+- [x] 3.3 Diff the generated `UserDetailMapperImpl` before and after the MapStruct bump; investigate any change in null-handling or unmapped-property behaviour (D5)
+
+  No behaviour change. The only diff is cosmetic: fully-qualified `com.symphony.bdk.gen.api.model.V2UserAttributes.AccountTypeEnum` references became simple `V2UserAttributes.AccountTypeEnum` (import already present), plus the `@Generated` comment's version/date. Null-handling, the `AccountTypeEnum` switch, and every field mapping are byte-for-byte identical in logic.
+- [x] 3.4 Bump `com.tngtech.archunit:archunit-junit5` in the BOM (currently 1.2.1); confirm the 3 architecture tests still pass — `CoreArchitectureTest`, `SymphonyGroupExtensionArchitectureTest`, `bdk-spring-boot-example/ArchitectureTest`
+
+  Bumped to `1.5.0`, the latest release. All 3 architecture tests pass (`CoreArchitectureTest`: 5/5, `SymphonyGroupExtensionArchitectureTest`: 1/1, `bdk-spring-boot-example/ArchitectureTest`: 2/2).
+- [x] 3.5 Bump `org.assertj:assertj-core` in the BOM if a newer release is available for the JaCoCo/JDK combination
+
+  No change — `3.27.7` is already the latest stable 3.x release (`4.0.0-M1` is a milestone, not stable).
+- [x] 3.6 Verify `jacocoTestCoverageVerification` still passes in every module after the JaCoCo toolVersion bump; if thresholds shift because of JaCoCo counting changes rather than test changes, adjust them in a dedicated commit naming the JaCoCo version
+
+  `./gradlew build jacocoTestReport jacocoTestCoverageVerification` passes in every module with no threshold adjustments needed.
 
 ## 4. Lombok Version Ownership
 

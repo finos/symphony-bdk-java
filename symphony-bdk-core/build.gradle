@@ -37,9 +37,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
-    implementation 'net.bytebuddy:byte-buddy:1.12.19'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    implementation 'net.bytebuddy:byte-buddy:1.18.11'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 
     api 'org.apiguardian:apiguardian-api'
     implementation 'org.slf4j:slf4j-api'
