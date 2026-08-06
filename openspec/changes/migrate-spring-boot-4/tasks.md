@@ -1,11 +1,11 @@
 ## 1. Investigation (blocking — resolves the open questions before any code moves)
 
-- [ ] 1.1 Determine where Spring Boot 4 places `@ConditionalOnMissingBean`, `@ConditionalOnProperty`, `@ConditionalOnBean`, `@ConditionalOnExpression`, `@SpringBootApplication`, and the `AutoConfigurations` test helper; record the old → new mapping (25 of 28 references are the three `@ConditionalOn*` annotations, so this sizes section 3)
-- [ ] 1.2 Determine which Jersey version `spring-boot-dependencies:4.x` pins, and whether it implements Jakarta REST 3.1 or 4.0
-- [ ] 1.3 Verify against the published `jackson-annotations` 3.x artifact that `com.fasterxml.jackson.annotation` is retained — this decides whether the generated-code cost is 0 files or 377
-- [ ] 1.4 Determine whether a Jackson 3 JSON provider exists for the Jersey version from 1.2 (the D2 gate)
-- [ ] 1.5 Record the D2 decision — Jackson 3, or ship 4.0 on Jackson 2 — and update this change's scope accordingly. Do not proceed to section 6 until this is written down
-- [ ] 1.6 Confirm the `AutoConfiguration.imports` file path/name is unchanged in Spring Boot 4 (`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`)
+- [x] 1.1 Determine where Spring Boot 4 places `@ConditionalOnMissingBean`, `@ConditionalOnProperty`, `@ConditionalOnBean`, `@ConditionalOnExpression`, `@SpringBootApplication`, and the `AutoConfigurations` test helper; record the old → new mapping (25 of 28 references are the three `@ConditionalOn*` annotations, so this sizes section 3)
+- [x] 1.2 Determine which Jersey version `spring-boot-dependencies:4.x` pins, and whether it implements Jakarta REST 3.1 or 4.0
+- [x] 1.3 Verify against the published `jackson-annotations` 3.x artifact that `com.fasterxml.jackson.annotation` is retained — this decides whether the generated-code cost is 0 files or 377
+- [x] 1.4 Determine whether a Jackson 3 JSON provider exists for the Jersey version from 1.2 (the D2 gate)
+- [x] 1.5 Record the D2 decision — Jackson 3, or ship 4.0 on Jackson 2 — and update this change's scope accordingly. Do not proceed to section 6 until this is written down
+- [x] 1.6 Confirm the `AutoConfiguration.imports` file path/name is unchanged in Spring Boot 4 (`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`)
 
 ## 2. Starter Smoke Tests — written first, against Spring Boot 3.5 (D5)
 
@@ -53,7 +53,7 @@
 - [ ] 6.3 *(Jackson 3 only)* Rewrite `JSON.java`'s `ContextResolver<ObjectMapper>` against the Jackson 3 provider from 1.4
 - [ ] 6.4 *(Jackson 3 only)* Migrate the 5 test-side databind usages (`MockApiClient`, `JwtHelperTest`, `CircleOfTrustControllerTest`, `SymphonyBdkMockedConfiguration`, the 3 CLI tests)
 - [ ] 6.5 *(Jackson 3 only)* Replace `com.fasterxml.jackson.datatype.jsr310.JavaTimeModule`, `YAMLMapper`, `JavaPropsMapper`, and `jackson-databind-nullable` with their Jackson 3 equivalents; if `org.openapitools:jackson-databind-nullable` has no Jackson 3 release, this feeds back into 1.5
-- [ ] 6.6 *(Jackson 2 only)* Verify Jackson 2 and Spring Boot 4 coexist, and document in the migration guide that BDK 4.0 remains on Jackson 2 with Jackson 3 targeted for 4.1
+- [ ] 6.6 *(Jackson 2 only)* Verify Jackson 2 and Spring Boot 4 coexist, and document in the migration guide that BDK 4.0 remains on Jackson 2 with Jackson 3 targeted for 4.1 — N/A, D2 adopted Jackson 3
 - [ ] 6.7 Assert there is exactly one Jackson databind implementation on the runtime classpath — a dependency-verification test, so the split classpath D2 rejects cannot appear later by accident
 
 ## 7. Module Rename: `http-jersey2` → `http-jersey` (D7 — own commit)

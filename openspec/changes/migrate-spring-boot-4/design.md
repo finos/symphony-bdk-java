@@ -59,10 +59,10 @@ A second reason: the Jackson decision (D2) is a framework question, not a JDK qu
 
 ### D2 — The Jackson major version is gated on the Jersey provider question; a split classpath is a rejected outcome, not a fallback
 
-**Decision**: Before committing to Jackson 3, determine whether a Jackson 3 JSON provider exists for the Jersey version Spring Boot 4 pins. Then:
+**Decision**:
+Jackson 3 JSON provider (`tools.jackson.jakarta:jackson-jakarta-rs-json-provider`) exists for Jersey 4.0.x (which is pinned by Spring Boot 4), and `jackson-annotations` 3.x retains core annotations under the legacy package name `com.fasterxml.jackson.annotation`.
 
-- **Provider exists** → adopt Jackson 3. Migrate the 22 hand-written `databind`/`core` usages to `tools.jackson.*`, change `BdkConfigParser`'s 3 public `JsonNode` signatures, and rewrite `symphony-bdk-http-jersey`'s `JSON.java` / `RFC3339DateFormat.java` against the Jackson 3 provider.
-- **No provider** → **ship BDK 4.0 on Jackson 2**, explicitly and documented, and revisit in 4.1. Do not adopt Jackson 3 in the Spring-facing modules while leaving the Jersey module on Jackson 2.
+Therefore, we **adopt Jackson 3**. We will migrate the 22 hand-written `databind`/`core` usages to `tools.jackson.*`, change `BdkConfigParser`'s 3 public `JsonNode` signatures, and rewrite `symphony-bdk-http-jersey`'s `JSON.java` / `RFC3339DateFormat.java` against the Jackson 3 provider.
 
 **Rationale**: The tempting middle option is the dangerous one. `symphony-bdk-http-jersey`'s `JSON.java` is a `ContextResolver<ObjectMapper>` — a Jackson 2 construct. If Spring brings Jackson 3 while that module stays on Jackson 2, both are on the classpath and the two HTTP implementations serialize differently:
 
