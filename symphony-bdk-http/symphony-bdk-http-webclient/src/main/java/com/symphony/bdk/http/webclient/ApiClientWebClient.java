@@ -183,7 +183,7 @@ public class ApiClientWebClient implements ApiClient {
   @SuppressWarnings("unchecked")
   private <T> Mono<ApiResponse<T>> toApiResponse(TypeReference<T> returnType, ClientResponse response) {
     Map<String, List<String>> headers = response
-        .headers().asHttpHeaders().entrySet()
+        .headers().asHttpHeaders().headerSet()
         .stream()
         .collect(Collectors.toMap(
             Map.Entry::getKey,

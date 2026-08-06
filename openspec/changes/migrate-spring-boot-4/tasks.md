@@ -27,15 +27,15 @@
 
 ## 4. Autoconfiguration Retargeting
 
-- [ ] 4.1 Update imports in `SymphonyBdkAutoConfiguration` and the rest of `symphony-bdk-core-spring-boot-starter` per the 1.1 mapping
-- [ ] 4.2 Update imports in `SymphonyBdkAppAutoConfiguration` and the rest of `symphony-bdk-app-spring-boot-starter` per the 1.1 mapping
-- [ ] 4.3 Update the 3 `AutoConfigurations` test-helper usages
-- [ ] 4.4 Update both `META-INF/spring/...AutoConfiguration.imports` files if 1.6 found the path changed
-- [ ] 4.5 Retarget starter dependency coordinates for Spring Boot 4's module split: `spring-boot-starter-web`, `-actuator`, `-validation`, `spring-boot-configuration-processor` (app starter); `spring-boot-starter` (core starter); `spring-boot-starter-webflux` (`symphony-bdk-http-webclient`); `spring-boot-starter-web` + `-test` (`symphony-bdk-test-spring-boot`)
-- [ ] 4.6 Fix `SymphonyBdkHealthIndicator` against Actuator / Micrometer 2
-- [ ] 4.7 Fix `CircleOfTrustController` and the app-layer exception handling against Spring Framework 7 MVC
-- [ ] 4.8 Fix `BdkActivityConfig.SlashAnnotationProcessor` if bean-post-processor or `@ConditionalOn*` semantics moved
-- [ ] 4.9 Run the section 2 smoke tests — they are the acceptance criterion for this section, not the unit tests
+- [x] 4.1 Update imports in `SymphonyBdkAutoConfiguration` and the rest of `symphony-bdk-core-spring-boot-starter` per the 1.1 mapping
+- [x] 4.2 Update imports in `SymphonyBdkAppAutoConfiguration` and the rest of `symphony-bdk-app-spring-boot-starter` per the 1.1 mapping
+- [x] 4.3 Update the 3 `AutoConfigurations` test-helper usages
+- [x] 4.4 Update both `META-INF/spring/...AutoConfiguration.imports` files if 1.6 found the path changed
+- [x] 4.5 Retarget starter dependency coordinates for Spring Boot 4's module split: `spring-boot-starter-web`, `-actuator`, `-validation`, `spring-boot-configuration-processor` (app starter); `spring-boot-starter` (core starter); `spring-boot-starter-webflux` (`symphony-bdk-http-webclient`); `spring-boot-starter-web` + `-test` (`symphony-bdk-test-spring-boot`)
+- [x] 4.6 Fix `SymphonyBdkHealthIndicator` against Actuator / Micrometer 2
+- [x] 4.7 Fix `CircleOfTrustController` and the app-layer exception handling against Spring Framework 7 MVC
+- [x] 4.8 Fix `BdkActivityConfig.SlashAnnotationProcessor` if bean-post-processor or `@ConditionalOn*` semantics moved
+- [x] 4.9 Run the section 2 smoke tests — they are the acceptance criterion for this section, not the unit tests
 
 ## 5. Jakarta EE 11 Fallout
 
