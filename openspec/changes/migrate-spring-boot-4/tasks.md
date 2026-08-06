@@ -74,11 +74,11 @@
 
 ## 9. Examples and Verification
 
-- [ ] 9.1 Build `bdk-spring-boot-example` and `bdk-app-spring-boot-example` against Spring Boot 4; fix `ApiExceptionHandler` and the example `ArchitectureTest`
-- [ ] 9.2 Build the non-Spring examples (`bdk-core-examples`, `bdk-multi-instances-example`, `bdk-group-example`, `bdk-ai-agent-example`) — the last one also pulls `langchain4j`, verify no Jackson or Netty conflict
-- [ ] 9.3 Build `symphony-bdk-cli` and verify `installDist` still produces a working `bin/bdk`
-- [ ] 9.4 Full green run of `./gradlew build jacocoTestReport jacocoTestCoverageVerification` on **Java 17** + Spring Boot 4 — the definition of done for this change (D1)
-- [ ] 9.5 Confirm `./gradlew publishToMavenLocal` publishes the expected coordinates, with `symphony-bdk-http-jersey2` absent
+- [x] 9.1 Build `bdk-spring-boot-example` and `bdk-app-spring-boot-example` against Spring Boot 4; fix `ApiExceptionHandler` and the example `ArchitectureTest`
+- [x] 9.2 Build the non-Spring examples (`bdk-core-examples`, `bdk-multi-instances-example`, `bdk-group-example`, `bdk-ai-agent-example`) — the last one also pulls `langchain4j`, verify no Jackson or Netty conflict
+- [x] 9.3 Build `symphony-bdk-cli` and verify `installDist` still produces a working `bin/bdk`
+- [x] 9.4 Full green run of `./gradlew build jacocoTestReport jacocoTestCoverageVerification` on **Java 17** + Spring Boot 4 — the definition of done for this change (D1)
+- [x] 9.5 Confirm `./gradlew publishToMavenLocal` publishes the expected coordinates, with `symphony-bdk-http-jersey2` absent
 
 ## 10. Documentation
 
@@ -88,3 +88,4 @@
 - [ ] 10.4 Update `docs/extension.md` and any doc referencing the `jersey2` coordinate or JSR-305 annotations
 - [ ] 10.5 Note the Java requirement in the migration guide as **25** (what 4.0.0 actually ships), not the 17 this intermediate state builds against
 - [ ] 10.6 Record the 3.x support window in the migration guide once decided — the guide cannot answer "what if I can't move to Java 25" without it
+- [ ] 10.7 Update the `README.md` making sure all prerequisites are correctly specified, and also mention that the `3.x` branch still exists 

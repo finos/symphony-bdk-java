@@ -122,6 +122,23 @@ apisToGenerate.each { api, path ->
                 dateLibrary: "java8",
                 sortParamsByRequiredFlag: "false"
         ]
+        // AbstractJavaCodegen.processOpts() hardcodes JsonSerialize/JsonDeserialize/ToStringSerializer
+        // as Jackson 2 databind imports (used for Set-typed properties) after any configured
+        // importMapping override is applied, so the only way to redirect them is a post-generation
+        // rewrite. BDK 4.x is Jackson 3 only (D2/task 6.7) — these must not reintroduce
+        // jackson-databind 2 on the classpath.
+        doLast {
+            fileTree(generatedFolder) { include '**/*.java' }.each { javaFile ->
+                def original = javaFile.text
+                def rewritten = original
+                        .replace('com.fasterxml.jackson.databind.annotation.JsonSerialize', 'tools.jackson.databind.annotation.JsonSerialize')
+                        .replace('com.fasterxml.jackson.databind.annotation.JsonDeserialize', 'tools.jackson.databind.annotation.JsonDeserialize')
+                        .replace('com.fasterxml.jackson.databind.ser.std.ToStringSerializer', 'tools.jackson.databind.ser.std.ToStringSerializer')
+                if (rewritten != original) {
+                    javaFile.text = rewritten
+                }
+            }
+        }
     }
 
     compileJava.dependsOn generateTask

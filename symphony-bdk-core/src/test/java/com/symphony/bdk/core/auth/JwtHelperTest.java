@@ -305,6 +305,50 @@ public class JwtHelperTest {
     }
   }
 
+  @Test
+  @SneakyThrows
+  public void testMapperSerializerByteArray() {
+    // The byte[] overload is unreachable through jjwt's public API (OutputStream is used),
+    // so exercise it directly via reflection to cover both the success and the
+    // JacksonException catch path.
+    Method method = JwtHelper.class.getDeclaredMethod("mapperSerializer");
+    method.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Serializer<Map<String, ?>> serializer = (Serializer<Map<String, ?>>) method.invoke(null);
+
+    byte[] bytes = serializer.serialize(Map.of("sub", "alice"));
+    assertNotNull(bytes);
+
+    Map<String, Object> unserializable = new java.util.HashMap<>();
+    unserializable.put("bad", new Object() {
+      public String getValue() {
+        throw new IllegalStateException("boom");
+      }
+    });
+    assertThrows(SerializationException.class, () -> serializer.serialize(unserializable));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testMapperSerializerOutputStreamException() {
+    // Exercise the JacksonException catch in the OutputStream overload; the success path is
+    // already covered by testCreateSignedJwt, which goes through jjwt's compact().
+    Method method = JwtHelper.class.getDeclaredMethod("mapperSerializer");
+    method.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    Serializer<Map<String, ?>> serializer = (Serializer<Map<String, ?>>) method.invoke(null);
+
+    Map<String, Object> unserializable = new java.util.HashMap<>();
+    unserializable.put("bad", new Object() {
+      public String getValue() {
+        throw new IllegalStateException("boom");
+      }
+    });
+    try (OutputStream out = new java.io.ByteArrayOutputStream()) {
+      assertThrows(SerializationException.class, () -> serializer.serialize(unserializable, out));
+    }
+  }
+
   @SneakyThrows
   private static String generatePkcs8RsaPrivateKey() {
     final KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
