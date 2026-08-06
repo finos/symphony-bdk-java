@@ -66,7 +66,11 @@ dependencies {
         api 'io.jsonwebtoken:jjwt-api:0.13.0'
         api 'io.jsonwebtoken:jjwt-impl:0.13.0'
         api 'org.bouncycastle:bcpkix-jdk18on:1.79'
+        // Needed by openapi-generator's jersey2 library templates, which emit @javax.annotation.Nullable
+        // on generated model getters/setters (symphony-bdk-core, symphony-group-extension) — confirmed by
+        // inspecting generated sources, not by trusting the generator's changelog.
         api 'com.google.code.findbugs:jsr305:3.0.2'
+        api 'org.jspecify:jspecify:1.0.0'
 
         api 'io.github.resilience4j:resilience4j-retry:2.3.0'
 

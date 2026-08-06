@@ -66,11 +66,11 @@
 
 ## 8. JSR-305 → JSpecify (D4 — own commit)
 
-- [ ] 8.1 Add JSpecify to `symphony-bdk-bom`
-- [ ] 8.2 Replace the 52 `javax.annotation.Nonnull` and 30 `javax.annotation.Nullable` usages, module by module — not as a global find-and-replace, because JSpecify's `@NullMarked` defaulting changes what an *unannotated* type means
-- [ ] 8.3 Decide per module whether to apply `@NullMarked` at package level, and verify the resulting contract matches the previous JSR-305 intent
-- [ ] 8.4 Drop `com.google.code.findbugs:jsr305` from modules that only used it for nullability; keep it where `bdk.java-codegen-conventions` requires it for generated code
-- [ ] 8.5 Confirm the 3 ArchUnit architecture tests still pass, and add a rule forbidding `javax.annotation.Nullable`/`Nonnull` so it cannot come back
+- [x] 8.1 Add JSpecify to `symphony-bdk-bom`
+- [x] 8.2 Replace the 52 `javax.annotation.Nonnull` and 30 `javax.annotation.Nullable` usages, module by module — not as a global find-and-replace, because JSpecify's `@NullMarked` defaulting changes what an *unannotated* type means
+- [x] 8.3 Decide per module whether to apply `@NullMarked` at package level, and verify the resulting contract matches the previous JSR-305 intent
+- [x] 8.4 Drop `com.google.code.findbugs:jsr305` from modules that only used it for nullability; keep it where `bdk.java-codegen-conventions` requires it for generated code
+- [x] 8.5 Confirm the 3 ArchUnit architecture tests still pass, and add a rule forbidding `javax.annotation.Nullable`/`Nonnull` so it cannot come back
 
 ## 9. Examples and Verification
 

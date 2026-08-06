@@ -30,8 +30,7 @@ import org.apiguardian.api.API;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing groups.
@@ -67,7 +66,7 @@ public class SymphonyGroupService implements BdkExtensionService {
    * @param group the details of the group to be created
    * @return the created group
    */
-  public ReadGroup insertGroup(@Nonnull final CreateGroup group) {
+  public ReadGroup insertGroup(final CreateGroup group) {
     return this.executeAndRetry("groupExt.insertGroup",
         () -> this.groupApi.insertGroup("", group)
     );
@@ -82,7 +81,7 @@ public class SymphonyGroupService implements BdkExtensionService {
    * @param updateGroup the group fields to be updated
    * @return
    */
-  public ReadGroup updateGroup(@Nonnull String ifMatch, @Nonnull String groupId, @Nonnull UpdateGroup updateGroup) {
+  public ReadGroup updateGroup(String ifMatch, String groupId, UpdateGroup updateGroup) {
     return this.executeAndRetry("groupExt.updateGroup",
         () -> this.groupApi.updateGroup("", ifMatch, groupId, updateGroup)
     );
@@ -97,7 +96,7 @@ public class SymphonyGroupService implements BdkExtensionService {
    *              The image must be a base64-encoded .jpg, .png, or .gif. Image size limit: 2 MB
    * @return the updated group
    */
-  public ReadGroup updateAvatar(@Nonnull String groupId, @Nonnull byte[] image) {
+  public ReadGroup updateAvatar(String groupId, byte[] image) {
     return this.executeAndRetry("groupExt.updateAvatar",
         () -> this.groupApi.updateAvatar("", groupId, new UploadAvatar().image(image))
     );
@@ -110,7 +109,7 @@ public class SymphonyGroupService implements BdkExtensionService {
    * @param groupId the ID of the group to retrive
    * @return the group details
    */
-  public ReadGroup getGroup(@Nonnull String groupId) {
+  public ReadGroup getGroup(String groupId) {
     return this.executeAndRetry("groupExt.getGroup",
         () -> this.groupApi.getGroup("", groupId)
     );
@@ -160,7 +159,7 @@ public class SymphonyGroupService implements BdkExtensionService {
    * @param userId The ID of the user to be added into the group
    * @return the updated group
    */
-  public ReadGroup addMemberToGroup(@Nonnull String groupId, @Nonnull Long userId) {
+  public ReadGroup addMemberToGroup(String groupId, Long userId) {
     return this.executeAndRetry("groupExt.addMemberToGroup",
         () -> this.groupApi.addMemberToGroup("", groupId,
             new AddMember().member(new Member().memberId(userId).memberTenant(UserIdUtil.extractTenantId(userId))))

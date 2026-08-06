@@ -22,7 +22,7 @@ import org.apiguardian.api.API;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A class for implementing the datafeed v2 loop service.

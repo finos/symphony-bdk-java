@@ -23,8 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing extensions.
@@ -47,10 +46,10 @@ public class ExtensionService {
   private boolean capabilitiesExtracted = false;
 
   public ExtensionService(
-      @Nonnull ApiClientFactory apiClientFactory,
+      ApiClientFactory apiClientFactory,
       @Nullable AuthSession botSession,
-      @Nonnull RetryWithRecoveryBuilder<?> retryBuilder,
-      @Nonnull BdkConfig config
+      RetryWithRecoveryBuilder<?> retryBuilder,
+      BdkConfig config
   ) {
     this.apiClientFactory = apiClientFactory;
     this.botSession = botSession;
@@ -209,7 +208,7 @@ public class ExtensionService {
    *
    * @param bdk the fully constructed {@link SymphonyBdk} instance
    */
-  public void onBdkStarted(@Nonnull SymphonyBdk bdk) {
+  public void onBdkStarted(SymphonyBdk bdk) {
     for (BdkExtension ext : this.extensions.values()) {
       if (ext instanceof BdkAware) {
         ((BdkAware) ext).setBdk(bdk);

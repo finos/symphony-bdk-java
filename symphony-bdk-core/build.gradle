@@ -53,7 +53,9 @@ dependencies {
     api 'tools.jackson.core:jackson-databind'
     implementation 'io.github.resilience4j:resilience4j-retry'
     implementation 'io.swagger:swagger-annotations'
+    // Generated model classes are annotated with @javax.annotation.Nullable by the jersey2 library templates.
     implementation 'com.google.code.findbugs:jsr305'
+    implementation 'org.jspecify:jspecify'
     implementation 'javax.annotation:jsr250-api:1.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
 

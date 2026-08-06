@@ -7,14 +7,12 @@ import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateEngine;
 
-
 import org.apiguardian.api.API;
 
 import java.time.Instant;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage messages.
@@ -40,7 +38,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, @Nonnull PaginationAttribute pagination);
+  List<V4Message> listMessages(V4Stream stream, Instant since, PaginationAttribute pagination);
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
@@ -52,7 +50,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until, @Nonnull PaginationAttribute pagination);
+  List<V4Message> listMessages(V4Stream stream, Instant since, Instant until, PaginationAttribute pagination);
 
   /**
    * Get messages from an existing stream with default limit equals 50.
@@ -63,7 +61,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since);
+  List<V4Message> listMessages(V4Stream stream, Instant since);
 
   /**
    * Get messages from an existing stream with default limit equals 50.
@@ -75,8 +73,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until);
-
+  List<V4Message> listMessages(V4Stream stream, Instant since, Instant until);
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
@@ -87,7 +84,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, @Nonnull PaginationAttribute pagination);
+  List<V4Message> listMessages(String streamId, Instant since, PaginationAttribute pagination);
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
@@ -99,7 +96,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until, @Nonnull PaginationAttribute pagination);
+  List<V4Message> listMessages(String streamId, Instant since, Instant until, PaginationAttribute pagination);
 
   /**
    * Get messages from an existing stream with default limit equals 50.
@@ -110,7 +107,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since);
+  List<V4Message> listMessages(String streamId, Instant since);
 
   /**
    * Get messages from an existing stream with default limit equals 50.
@@ -122,7 +119,7 @@ public interface OboMessageService {
    * @return the list of matching messages in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
-  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until);
+  List<V4Message> listMessages(String streamId, Instant since, Instant until);
 
   /**
    * Sends a message to the stream ID of the passed {@link V4Stream} object.
@@ -132,7 +129,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
-  V4Message send(@Nonnull V4Stream stream, @Nonnull String message);
+  V4Message send(V4Stream stream, String message);
 
   /**
    * Sends a message to the stream ID passed in parameter.
@@ -142,7 +139,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
-  V4Message send(@Nonnull String streamId, @Nonnull String message);
+  V4Message send(String streamId, String message);
 
   /**
    * Sends a message to the stream ID passed in parameter.
@@ -152,7 +149,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
-  V4Message send(@Nonnull V4Stream stream, @Nonnull Message message);
+  V4Message send(V4Stream stream, Message message);
 
   /**
    * Sends a message to the stream ID passed in parameter.
@@ -162,7 +159,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
-  V4Message send(@Nonnull String streamId, @Nonnull Message message);
+  V4Message send(String streamId, Message message);
 
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
@@ -172,7 +169,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */
-  V4Message update(@Nonnull V4Message messageToUpdate, @Nonnull Message content);
+  V4Message update(V4Message messageToUpdate, Message content);
 
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
@@ -183,7 +180,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */
-  V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message content);
+  V4Message update(String streamId, String messageId, Message content);
 
   /**
    * Suppresses a users message based on the messageID pass in parameter.
@@ -192,7 +189,7 @@ public interface OboMessageService {
    * @return a {@link MessageSuppressionResponse} object containing the details of the suppressed message
    * @see <a href="https://developers.symphony.com/restapi/reference/suppress-message">Suppress Message</a>
    */
-  MessageSuppressionResponse suppressMessage(@Nonnull String messageId);
+  MessageSuppressionResponse suppressMessage(String messageId);
 
   /**
    * Retrieves a list of supported file extensions for attachments.
@@ -209,7 +206,7 @@ public interface OboMessageService {
    * @return a {@link V4Message} containing the message's details, null if the message was not found
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
    */
-  V4Message getMessage(@Nonnull String messageId);
+  V4Message getMessage(String messageId);
 
   /**
    * Searches for messages using a natural-language semantic query. Unlike the keyword based
@@ -220,7 +217,7 @@ public interface OboMessageService {
    * @return the list of matching messages.
    * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
    */
-  List<V4Message> searchMessagesSemantic(@Nonnull String query);
+  List<V4Message> searchMessagesSemantic(String query);
 
   /**
    * Searches for messages using a natural-language semantic query. Unlike the keyword based
@@ -232,7 +229,7 @@ public interface OboMessageService {
    * @return the list of matching messages.
    * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
    */
-  List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable PaginationAttribute pagination);
+  List<V4Message> searchMessagesSemantic(String query, @Nullable PaginationAttribute pagination);
 
   /**
    * Searches for messages using a natural-language semantic query. Unlike the keyword based
@@ -245,6 +242,6 @@ public interface OboMessageService {
    * @return the list of matching messages.
    * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
    */
-  List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable String streamId,
+  List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId,
       @Nullable PaginationAttribute pagination);
 }

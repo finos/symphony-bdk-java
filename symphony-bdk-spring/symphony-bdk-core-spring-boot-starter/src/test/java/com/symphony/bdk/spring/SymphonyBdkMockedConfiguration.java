@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Nonnull;
-
 import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
 
 /**
@@ -66,7 +64,7 @@ public class SymphonyBdkMockedConfiguration {
     @Qualifier("loginMockApiClient")
     private MockApiClient loginApiClient;
 
-    public ApiClientFactoryMock(@Nonnull BdkConfig config) {
+    public ApiClientFactoryMock(BdkConfig config) {
       super(config);
     }
 

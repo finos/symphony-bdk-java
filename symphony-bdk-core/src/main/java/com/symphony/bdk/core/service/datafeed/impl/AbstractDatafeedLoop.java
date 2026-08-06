@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Base class for implementing the datafeed services. A datafeed services can help a bot subscribe or unsubscribe

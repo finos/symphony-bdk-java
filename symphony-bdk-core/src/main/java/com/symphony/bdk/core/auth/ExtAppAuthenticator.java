@@ -3,8 +3,6 @@ package com.symphony.bdk.core.auth;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Extension App authenticator service.
  */
@@ -16,5 +14,5 @@ public interface ExtAppAuthenticator {
    *
    * @return the authentication session.
    */
-  @Nonnull ExtAppAuthSession authenticateExtApp() throws AuthUnauthorizedException;
+  ExtAppAuthSession authenticateExtApp() throws AuthUnauthorizedException;
 }

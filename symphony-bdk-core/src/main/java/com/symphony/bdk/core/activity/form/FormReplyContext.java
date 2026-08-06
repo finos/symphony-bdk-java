@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.apiguardian.api.API;
 import tools.jackson.databind.JsonNode;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Default implementation of the {@link ActivityContext} handled by the {@link FormReplyActivity}.

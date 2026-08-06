@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation 'javax.annotation:jsr250-api:1.0'
     implementation 'io.swagger:swagger-annotations'
+    // Generated model classes are annotated with @javax.annotation.Nullable by the jersey2 library templates.
     implementation 'com.google.code.findbugs:jsr305'
 }
 
