@@ -48,6 +48,8 @@ dependencies {
         // of the Spring Boot version.
         api 'org.projectlombok:lombok:1.18.46'
 
+        api 'org.glassfish.jersey.connectors:jersey-apache5-connector:4.0.0'
+
         api 'org.apiguardian:apiguardian-api:1.1.2'
 
         api 'org.slf4j:slf4j-api:2.0.9'

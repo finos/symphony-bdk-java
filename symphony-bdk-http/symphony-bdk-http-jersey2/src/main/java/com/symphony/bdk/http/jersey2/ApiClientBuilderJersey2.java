@@ -10,16 +10,14 @@ import com.symphony.bdk.http.api.util.ApiUtils;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apiguardian.api.API;
 import org.glassfish.jersey.SslConfigurator;
-import org.glassfish.jersey.apache.connector.ApacheClientProperties;
-import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
+import org.glassfish.jersey.apache5.connector.Apache5ClientProperties;
+import org.glassfish.jersey.apache5.connector.Apache5ConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -249,19 +247,17 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
     // turn off compliance validation to be able to send payloads with DELETE calls
     clientConfig.property(ClientProperties.SUPPRESS_HTTP_COMPLIANCE_VALIDATION, true);
 
-    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext);
-    Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
-        .register("https", sslConnectionSocketFactory)
-        .register("http", new PlainConnectionSocketFactory())
+    SSLConnectionSocketFactory sslSocketFactory = SSLConnectionSocketFactoryBuilder.create()
+        .setSslContext(sslContext)
         .build();
 
-    // By default PoolingHttpClientConnectionManager, if not configured, has 20 connection in the
-    // pool BUT only 2 max connection per route.
-    final PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
-    connectionManager.setMaxTotal(this.connectionPoolMax);
-    connectionManager.setDefaultMaxPerRoute(this.connectionPoolPerRoute);
-    clientConfig.property(ApacheClientProperties.CONNECTION_MANAGER, connectionManager);
-    clientConfig.connectorProvider(new ApacheConnectorProvider());
+    final PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+        .setSSLSocketFactory(sslSocketFactory)
+        .setMaxConnTotal(this.connectionPoolMax)
+        .setMaxConnPerRoute(this.connectionPoolPerRoute)
+        .build();
+    clientConfig.property(Apache5ClientProperties.CONNECTION_MANAGER, connectionManager);
+    clientConfig.connectorProvider(new Apache5ConnectorProvider());
     return clientConfig;
   }
 

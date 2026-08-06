@@ -39,12 +39,12 @@
 
 ## 5. Jakarta EE 11 Fallout
 
-- [ ] 5.1 Rebuild and fix any `jakarta.validation` breakage from EE 10 → EE 11 (`@NotBlank` usages in the app starter models)
-- [ ] 5.2 Rebuild and fix `symphony-bdk-http-jersey2`'s `jakarta.ws.rs` usages against the version from 1.2 (24 imports across the module: `Client`, `WebTarget`, `Entity`, `Invocation`, `ClientRequestFilter`, `ClientResponseFilter`, `ContextResolver`, `Provider`, `MultivaluedHashMap`, `Form`, `GenericType`)
-- [ ] 5.3 Fix the `jakarta.servlet.http` usages in the app starter against Servlet 6.1
-- [ ] 5.4 Fix the `jakarta.annotation.PostConstruct` usages
-- [ ] 5.5 Confirm Netty 4.2 and Tomcat 11 cause no runtime breakage in `symphony-bdk-http-webclient` and the app starter — the smoke tests from section 2 are the check
-- [ ] 5.6 Re-run `./gradlew dependencyCheck` against the Spring Boot 4 platform; add only overrides that run genuinely justifies, with fresh comments (D3)
+- [x] 5.1 Rebuild and fix any `jakarta.validation` breakage from EE 10 → EE 11 (`@NotBlank` usages in the app starter models)
+- [x] 5.2 Rebuild and fix `symphony-bdk-http-jersey2`'s `jakarta.ws.rs` usages against the version from 1.2 (24 imports across the module: `Client`, `WebTarget`, `Entity`, `Invocation`, `ClientRequestFilter`, `ClientResponseFilter`, `ContextResolver`, `Provider`, `MultivaluedHashMap`, `Form`, `GenericType`)
+- [x] 5.3 Fix the `jakarta.servlet.http` usages in the app starter against Servlet 6.1
+- [x] 5.4 Fix the `jakarta.annotation.PostConstruct` usages
+- [x] 5.5 Confirm Netty 4.2 and Tomcat 11 cause no runtime breakage in `symphony-bdk-http-webclient` and the app starter — the smoke tests from section 2 are the check
+- [x] 5.6 Re-run `./gradlew dependencyCheck` against the Spring Boot 4 platform; add only overrides that run genuinely justifies, with fresh comments (D3)
 
 ## 6. Jackson — conditional on the D2 decision from 1.5
 
