@@ -28,7 +28,7 @@ jacocoTestCoverageVerification {
 dependencies {
     api project(':symphony-bdk-core')
     api project(':symphony-bdk-http:symphony-bdk-http-api')
-    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey')
 
     api project(':symphony-bdk-template:symphony-bdk-template-api')
     implementation project(':symphony-bdk-template:symphony-bdk-template-freemarker')

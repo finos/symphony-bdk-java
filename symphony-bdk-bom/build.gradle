@@ -32,7 +32,7 @@ dependencies {
         api "org.finos.symphony.bdk:symphony-bdk-config:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-extension-api:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-http-api:$project.version"
-        api "org.finos.symphony.bdk:symphony-bdk-http-jersey2:$project.version"
+        api "org.finos.symphony.bdk:symphony-bdk-http-jersey:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-http-webclient:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-core-spring-boot-starter:$project.version"
         api "org.finos.symphony.bdk:symphony-bdk-app-spring-boot-starter:$project.version"

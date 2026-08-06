@@ -24,7 +24,7 @@ dependencies {
     implementation project(':symphony-bdk-core')
 
     // self-contained distribution: bundle an HTTP implementation and a logging backend
-    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey')
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     // command-line parsing

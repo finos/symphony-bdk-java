@@ -3,7 +3,7 @@ plugins {
     id 'bdk.java-publish-conventions'
 }
 
-description = 'Symphony Java BDK Core Http Jersey2'
+description = 'Symphony Java BDK Core Http Jersey'
 
 dependencies {
     constraints {

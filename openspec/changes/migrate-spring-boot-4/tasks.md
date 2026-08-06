@@ -58,11 +58,11 @@
 
 ## 7. Module Rename: `http-jersey2` → `http-jersey` (D7 — own commit)
 
-- [ ] 7.1 Rename the directory `symphony-bdk-http/symphony-bdk-http-jersey2` → `symphony-bdk-http-jersey` and update `settings.gradle`
-- [ ] 7.2 Update the `symphony-bdk-bom` constraint to the new artifactId
-- [ ] 7.3 Update all consuming modules: `symphony-bdk-core` (test), `symphony-bdk-core-spring-boot-starter`, `symphony-bdk-cli`, `bdk-ai-agent-example`, and any other example
-- [ ] 7.4 Update `docs/` and every code sample referencing the old coordinate
-- [ ] 7.5 Confirm no relocation POM or forwarding artifact is published (D7)
+- [x] 7.1 Rename the directory `symphony-bdk-http/symphony-bdk-http-jersey2` → `symphony-bdk-http-jersey` and update `settings.gradle`
+- [x] 7.2 Update the `symphony-bdk-bom` constraint to the new artifactId
+- [x] 7.3 Update all consuming modules: `symphony-bdk-core` (test), `symphony-bdk-core-spring-boot-starter`, `symphony-bdk-cli`, `bdk-ai-agent-example`, and any other example
+- [x] 7.4 Update `docs/` and every code sample referencing the old coordinate
+- [x] 7.5 Confirm no relocation POM or forwarding artifact is published (D7)
 
 ## 8. JSR-305 → JSpecify (D4 — own commit)
 

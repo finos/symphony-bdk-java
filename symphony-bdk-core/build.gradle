@@ -57,7 +57,7 @@ dependencies {
     implementation 'javax.annotation:jsr250-api:1.0'
     implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
 
-    testImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    testImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey')
     testRuntimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
     testCompileOnly 'org.projectlombok:lombok'

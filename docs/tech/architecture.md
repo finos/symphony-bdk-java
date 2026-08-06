@@ -35,7 +35,7 @@ also provides a utility `com.symphony.bdk.http.api.HttpClient` class helping dev
 > Changing contract would break the build. See [Code Generation](#code-generation).
 
 At the moment, two different implementations have been created for the `com.symphony.bdk.http.api.ApiClient` interface:
-- `com.symphony.bdk.http.jersey2.ApiClientJersey2` contained in module `symphony-bdk-http-jersey2` (default implementation for [Core](#symphony-bdk-core))
+- `com.symphony.bdk.http.jersey2.ApiClientJersey2` contained in module `symphony-bdk-http-jersey` (default implementation for [Core](#symphony-bdk-core))
 - `com.symphony.bdk.http.webclient.ApiClientWebClient` contained in module `symphony-bdk-http-webclient` (default implementation for [Spring Boot](#symphony-bdk-spring))
 
 ### symphony-bdk-template

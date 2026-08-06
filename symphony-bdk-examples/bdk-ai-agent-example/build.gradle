@@ -13,7 +13,7 @@ dependencies {
     implementation project(':symphony-bdk-core')
 
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
-    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey')
 
     implementation platform("dev.langchain4j:langchain4j-bom:${langchain4jVersion}")
     implementation 'dev.langchain4j:langchain4j'

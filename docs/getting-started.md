@@ -59,7 +59,7 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
         </dependency>
         <dependency>
             <groupId>org.finos.symphony.bdk</groupId>
-            <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+            <artifactId>symphony-bdk-http-jersey</artifactId> <!-- or symphony-bdk-http-webclient -->
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -101,7 +101,7 @@ dependencies {
 
     // define dependencies without versions
     implementation 'org.finos.symphony.bdk:symphony-bdk-core'
-    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jersey2'           //  or symphony-bdk-http-webclient
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jersey'           //  or symphony-bdk-http-webclient
     runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'    // or symphony-bdk-http-handlebars
 
     // logger configuration
