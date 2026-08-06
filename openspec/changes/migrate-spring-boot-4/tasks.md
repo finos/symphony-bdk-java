@@ -9,11 +9,11 @@
 
 ## 2. Starter Smoke Tests — written first, against Spring Boot 3.5 (D5)
 
-- [ ] 2.1 Add a smoke test to `symphony-bdk-core-spring-boot-starter` that boots a minimal `@SpringBootApplication` depending only on the starter, and asserts `SymphonyBdk` and the core service beans are present via real autoconfiguration discovery (not `AutoConfigurations`)
-- [ ] 2.2 Add the equivalent smoke test to `symphony-bdk-app-spring-boot-starter`, asserting the app-layer beans, the health indicator, and the circle-of-trust endpoints are wired
-- [ ] 2.3 Add a consumer-perspective test for `symphony-bdk-test-spring-boot` that verifies the re-exported test stack works from a dependent module
-- [ ] 2.4 Confirm all three pass on Spring Boot 3.5.16 before any bump — a smoke test written after the bump proves nothing about whether it would have caught the failure
-- [ ] 2.5 Merge sections 1–2 to `next` and rebase on `main` before continuing
+- [x] 2.1 Add a smoke test to `symphony-bdk-core-spring-boot-starter` that boots a minimal `@SpringBootApplication` depending only on the starter, and asserts `SymphonyBdk` and the core service beans are present via real autoconfiguration discovery (not `AutoConfigurations`)
+- [x] 2.2 Add the equivalent smoke test to `symphony-bdk-app-spring-boot-starter`, asserting the app-layer beans, the health indicator, and the circle-of-trust endpoints are wired
+- [x] 2.3 Add a consumer-perspective test for `symphony-bdk-test-spring-boot` that verifies the re-exported test stack works from a dependent module
+- [x] 2.4 Confirm all three pass on Spring Boot 3.5.16 before any bump — a smoke test written after the bump proves nothing about whether it would have caught the failure
+- [x] 2.5 Merge sections 1–2 to `next` and rebase on `main` before continuing
 
 ## 3. Spring Boot 4 Platform Bump
 
