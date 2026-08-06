@@ -70,3 +70,7 @@ Releasing is fully driven by publishing a GitHub Release (`.github/workflows/rel
 The `projectVersion` default in the root `build.gradle` stays fixed at `0.0.0-SNAPSHOT` on `main` — the real version is always supplied via `-PprojectVersion` in CI, so there is no version bump to commit.
 
 Credentials are passed as Gradle properties: `-PmavenRepoUsername` and `-PmavenRepoPassword`.
+
+## OpenSpec
+
+- when applying a change, stop after completing a section so that we can clear the session and save tokens
