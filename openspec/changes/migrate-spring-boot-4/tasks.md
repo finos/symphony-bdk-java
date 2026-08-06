@@ -17,13 +17,13 @@
 
 ## 3. Spring Boot 4 Platform Bump
 
-- [ ] 3.1 Change `symphony-bdk-bom` to `platform('org.springframework.boot:spring-boot-dependencies:4.x')`
-- [ ] 3.2 Remove `platform('io.netty:netty-bom:4.1.136.Final')` and its CVE comment (D3)
-- [ ] 3.3 Remove the three `org.apache.tomcat.embed:tomcat-embed-*:10.1.57` constraints and their CVE comment (D3)
-- [ ] 3.4 Remove `jakarta.ws.rs:jakarta.ws.rs-api:3.1.0` and `jakarta.validation:jakarta.validation-api:3.0.2` from `symphony-bdk-bom`, and the duplicate `jakarta.validation-api:3.0.2` from `symphony-bdk-app-spring-boot-starter/build.gradle` — do this early so EE 11 incompatibilities surface now, not at the end
-- [ ] 3.5 Realign or remove the explicit `jersey-bom` import per 1.2
-- [ ] 3.6 Land 3.2–3.4 as their own commit naming each removed coordinate, matching the BOM-hygiene discipline from `modernize-build-toolchain`
-- [ ] 3.7 Confirm the toolchain in `bdk.java-common-conventions` is still `JavaLanguageVersion.of(17)` — this change must not flip it (D1)
+- [x] 3.1 Change `symphony-bdk-bom` to `platform('org.springframework.boot:spring-boot-dependencies:4.x')`
+- [x] 3.2 Remove `platform('io.netty:netty-bom:4.1.136.Final')` and its CVE comment (D3)
+- [x] 3.3 Remove the three `org.apache.tomcat.embed:tomcat-embed-*:10.1.57` constraints and their CVE comment (D3)
+- [x] 3.4 Remove `jakarta.ws.rs:jakarta.ws.rs-api:3.1.0` and `jakarta.validation:jakarta.validation-api:3.0.2` from `symphony-bdk-bom`, and the duplicate `jakarta.validation-api:3.0.2` from `symphony-bdk-app-spring-boot-starter/build.gradle` — do this early so EE 11 incompatibilities surface now, not at the end
+- [x] 3.5 Realign or remove the explicit `jersey-bom` import per 1.2
+- [x] 3.6 Land 3.2–3.4 as their own commit naming each removed coordinate, matching the BOM-hygiene discipline from `modernize-build-toolchain`
+- [x] 3.7 Confirm the toolchain in `bdk.java-common-conventions` is still `JavaLanguageVersion.of(17)` — this change must not flip it (D1)
 
 ## 4. Autoconfiguration Retargeting
 
