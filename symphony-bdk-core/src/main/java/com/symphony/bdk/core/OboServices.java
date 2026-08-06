@@ -3,6 +3,8 @@ package com.symphony.bdk.core;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.extension.MessageRetrieverOverride;
+import com.symphony.bdk.core.extension.MessageSenderOverride;
 import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.presence.OboPresenceService;
@@ -12,6 +14,8 @@ import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.user.OboUserService;
 
 import org.apiguardian.api.API;
+
+import javax.annotation.Nullable;
 
 /**
  * Entry point for OBO-enabled services.
@@ -28,7 +32,17 @@ public class OboServices {
   private final OboSessionService oboSessionService;
 
   public OboServices(BdkConfig config, AuthSession oboSession) {
-    final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config);
+    this(config, oboSession, null, null);
+  }
+
+  public OboServices(
+      BdkConfig config,
+      AuthSession oboSession,
+      @Nullable MessageSenderOverride messageSenderOverride,
+      @Nullable MessageRetrieverOverride messageRetrieverOverride
+  ) {
+    final ServiceFactory serviceFactory = new ServiceFactory(new ApiClientFactory(config), oboSession, config,
+        messageSenderOverride, messageRetrieverOverride, null);
 
     oboStreamService = serviceFactory.getStreamService();
     oboUserService = serviceFactory.getUserService();

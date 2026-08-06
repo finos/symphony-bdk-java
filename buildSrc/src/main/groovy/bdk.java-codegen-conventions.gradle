@@ -9,7 +9,7 @@ dependencies {
 }
 
 
-def generatedFolder = "$buildDir/generated/openapi"
+def generatedFolder = "${layout.buildDirectory.get()}/generated/openapi"
 sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 
 tasks.compileJava.dependsOn tasks.openApiGenerate

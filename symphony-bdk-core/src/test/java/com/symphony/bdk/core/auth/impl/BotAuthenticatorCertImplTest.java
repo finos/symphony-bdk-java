@@ -36,7 +36,8 @@ public class BotAuthenticatorCertImplTest {
         new BdkCommonJwtConfig(), mockServer.newApiClient("/login"),
         mockServer.newApiClient("/sessionauth"),
         mockServer.newApiClient("/keyauth"),
-        mock(AgentVersionService.class));
+        mock(AgentVersionService.class),
+        true);
 
   }
 

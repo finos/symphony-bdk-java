@@ -1,5 +1,5 @@
 [![Build](https://github.com/finos/symphony-bdk-java/actions/workflows/build.yml/badge.svg)](https://github.com/finos/symphony-bdk-java/actions/workflows/build.yml)
-[![FINOS - Active](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-active.svg)](https://community.finos.org/docs/governance/Software-Projects/stages/active)
+[![FINOS - Graduated](https://cdn.jsdelivr.net/gh/finos/contrib-toolbox@master/images/badge-graduated.svg)](https://community.finos.org/docs/governance/lifecycle-stages/graduated)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.finos.symphony.bdk/symphony-bdk-bom/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.finos.symphony.bdk/symphony-bdk-bom)
 [![javadoc](https://javadoc.io/badge2/org.finos.symphony.bdk/symphony-bdk-core/javadoc.svg)](https://javadoc.io/doc/org.finos.symphony.bdk/symphony-bdk-core)
@@ -41,6 +41,21 @@ public class BotApplication {
     }
 }
 ```
+
+## Command-Line Interface
+The [`symphony-bdk-cli`](./symphony-bdk-cli) module provides an operational `bdk` command-line
+interface that authenticates as a configured bot and performs one-shot Symphony operations
+(messaging, streams, users, datafeed, health) straight from the shell, emitting JSON on `stdout`
+for easy scripting and agent consumption.
+
+```bash
+./gradlew :symphony-bdk-cli:installDist
+ln -s "$(pwd)/symphony-bdk-cli/build/install/symphony-bdk-cli/bin/bdk" /usr/local/bin/bdk
+bdk whoami
+```
+
+See the [CLI documentation](./docs/cli.md) for the full command reference and the JSON / exit-code
+contract.
 
 ## Build from Source
 The Symphony BDK uses a [Gradle](https://docs.gradle.org/) build. The instructions below use the [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html)

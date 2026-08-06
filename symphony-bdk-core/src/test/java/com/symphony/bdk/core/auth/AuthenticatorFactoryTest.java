@@ -10,6 +10,8 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.impl.AuthenticatorFactoryImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.BotAuthenticatorRsaImpl;
+import com.symphony.bdk.core.auth.impl.ExtAppAuthenticatorCertImpl;
+import com.symphony.bdk.core.auth.impl.ExtAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorCertImpl;
 import com.symphony.bdk.core.auth.impl.ExtensionAppAuthenticatorRsaImpl;
 import com.symphony.bdk.core.auth.impl.OboAuthenticatorCertImpl;
@@ -52,6 +54,7 @@ class AuthenticatorFactoryTest {
     when(DUMMY_API_CLIENT_FACTORY.getRelayClient()).thenReturn(DUMMY_API_CLIENT);
     when(DUMMY_API_CLIENT_FACTORY.getSessionAuthClient()).thenReturn(DUMMY_API_CLIENT);
     when(DUMMY_API_CLIENT_FACTORY.getKeyAuthClient()).thenReturn(DUMMY_API_CLIENT);
+    when(DUMMY_API_CLIENT_FACTORY.getExtAppSessionAuthClient()).thenReturn(DUMMY_API_CLIENT);
   }
 
   @Test
@@ -212,6 +215,33 @@ class AuthenticatorFactoryTest {
   }
 
   @Test
+  void testGetNewExtAppAuthenticatorWithValidPrivateKey(@TempDir Path tempDir) throws AuthInitializationException {
+
+    final BdkConfig config = createRsaConfig(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath(RSA_PRIVATE_KEY, privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+
+    final AuthenticatorFactory factory = new AuthenticatorFactoryImpl(config, DUMMY_API_CLIENT_FACTORY);
+    final ExtAppAuthenticator extAppAuth = factory.getExtAppAuthenticator();
+
+    assertEquals(ExtAppAuthenticatorRsaImpl.class, extAppAuth.getClass());
+  }
+
+  @Test
+  void testGetNewExtAppAuthenticatorWithValidCertificatePath() throws AuthInitializationException {
+    final BdkConfig config = new BdkConfig();
+    config.getApp().getCertificate().setPath("/path/to/cert/file.p12");
+    config.getApp().getCertificate().setPassword("password");
+
+    final AuthenticatorFactory factory = new AuthenticatorFactoryImpl(config, DUMMY_API_CLIENT_FACTORY);
+    final ExtAppAuthenticator extAppAuthenticator = factory.getExtAppAuthenticator();
+
+    assertEquals(ExtAppAuthenticatorCertImpl.class, extAppAuthenticator.getClass());
+  }
+
+  @Test
   void testGetAuthenticatorWithBothCertificatePathAndContentConfigured() {
     final BdkConfig config = new BdkConfig();
     config.getBot().getCertificate().setPath("/path/to/cert/file.p12");
@@ -225,6 +255,7 @@ class AuthenticatorFactoryTest {
     assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
   }
 
   @Test
@@ -239,6 +270,7 @@ class AuthenticatorFactoryTest {
     assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
   }
 
   @Test
@@ -256,6 +288,20 @@ class AuthenticatorFactoryTest {
   }
 
   @Test
+  void testGetNewExtAppAuthenticatorWithInvalidPrivateKey(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfig(() -> {
+      final Path privateKeyPath = tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem");
+      writeContentToPath("invalid-private-key-content", privateKeyPath);
+      return privateKeyPath.toAbsolutePath().toString();
+    });
+
+    final AuthenticatorFactory factory = new AuthenticatorFactoryImpl(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
+  }
+
+  @Test
   void testGetExtAppAuthenticatorWithNotFoundPrivateKey(@TempDir Path tempDir) {
 
     final BdkConfig config = createRsaConfig(() -> tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem").toAbsolutePath().toString());
@@ -263,6 +309,16 @@ class AuthenticatorFactoryTest {
     final AuthenticatorFactory factory = new AuthenticatorFactoryImpl(config, DUMMY_API_CLIENT_FACTORY);
 
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+  }
+
+  @Test
+  void testGetNewExtAppAuthenticatorWithNotFoundPrivateKey(@TempDir Path tempDir) {
+
+    final BdkConfig config = createRsaConfig(() -> tempDir.resolve(UUID.randomUUID().toString() + "-privateKey.pem").toAbsolutePath().toString());
+
+    final AuthenticatorFactory factory = new AuthenticatorFactoryImpl(config, DUMMY_API_CLIENT_FACTORY);
+
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
   }
 
   @Test
@@ -275,6 +331,7 @@ class AuthenticatorFactoryTest {
     assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
   }
 
   @Test
@@ -308,6 +365,7 @@ class AuthenticatorFactoryTest {
 
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
   }
 
   @Test
@@ -327,6 +385,7 @@ class AuthenticatorFactoryTest {
     assertThrows(AuthInitializationException.class, factory::getBotAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getExtensionAppAuthenticator);
     assertThrows(AuthInitializationException.class, factory::getOboAuthenticator);
+    assertThrows(AuthInitializationException.class, factory::getExtAppAuthenticator);
   }
 
   @Test

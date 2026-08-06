@@ -15,4 +15,102 @@
         <gav>com.jayway.jsonpath:json-path:2.8.0</gav>
         <cve>CVE-2023-51074</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          False positive: CVE-2020-29582 was fixed in Kotlin 1.4.21. The NVD CPE entry matches
+          all kotlin 1.x versions; we're on 1.9.25 (transitive from Spring Boot) which is not affected.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin-stdlib(-jdk7|-jdk8|-common)?@.*$</packageUrl>
+        <cve>CVE-2020-29582</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          Netty 4.1.135.Final is the last release in the 4.1.x line; no patch exists for CVE-2026-42582.
+          Spring Boot 3.5.15 (the latest 3.5.x) pins Netty 4.1.135.Final. Suppressing pending either a
+          Netty 4.1.136+ fix or a Spring Boot upgrade to a version that ships a patched Netty.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@.*$</packageUrl>
+        <cve>CVE-2026-42582</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          CVE-2026-56816 is a high-severity memory exhaustion vulnerability in Netty's HTTP/3 codec (Http3FrameCodec).
+          BDK does not use netty-codec-http3 or HTTP/3 capabilities, so this is unreachable.
+          Netty 4.1.136.Final is the latest 4.1.x release and no 4.1.x patch exists. Suppressing pending a 4.1.137+ release.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/io\.netty/netty.*@.*$</packageUrl>
+        <cve>CVE-2026-56816</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          handlebars.java 4.5.0 still bundles handlebars-v4.7.7.js as a resource. We use the
+          Java-native handlebars engine (symphony-bdk-template-handlebars), not the JS engine,
+          so the bundled JS file is not executed and these JS-side CVEs are not reachable.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:javascript/handlebars@.*$</packageUrl>
+        <cve>CVE-2026-33916</cve>
+        <cve>CVE-2026-33937</cve>
+        <cve>CVE-2026-33938</cve>
+        <cve>CVE-2026-33939</cve>
+        <cve>CVE-2026-33940</cve>
+        <cve>CVE-2026-33941</cve>
+        <vulnerabilityName>GHSA-7rx3-28cr-v5wh</vulnerabilityName>
+        <vulnerabilityName>GHSA-442j-39wm-28r2</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          CVE-2026-53914 is an unsafe-deserialization flaw in the Kotlin *compiler's* build-cache
+          metadata (a build-time tool), not in kotlin-stdlib/kotlin-reflect runtime jars. The NVD
+          CPE (jetbrains:kotlin) over-matches every kotlin artifact; we only ship kotlin-stdlib
+          transitively from Spring Boot (1.9.25) and kotlin-reflect transitively from
+          langchain4j-google-genai's jackson-module-kotlin (2.1.21) at runtime, and do not run the
+          Kotlin compiler. The stated fix version (2.4.20) is not published on Maven Central, so no
+          override is possible. Same CPE-over-match class as the CVE-2020-29582 suppression above.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/(kotlin-stdlib(-jdk7|-jdk8|-common)?|kotlin-reflect)@.*$</packageUrl>
+        <cve>CVE-2026-53914</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          CVE-2026-54515 (case-insensitive deserialization reopening @JsonIgnoreProperties).
+          Spring Boot 3.5.16 pins the Jackson 2.x platform at 2.21.4. The advisory's 2.x fixes
+          (2.21.5 and 2.18.9) are NOT yet published on Maven Central (both return "Could not find"),
+          so the com.fasterxml.jackson.core 2.x line has no available patch. The only released fix
+          is 3.1.4 under the relocated tools.jackson.core coordinates (Jackson 3.x), which is a
+          breaking major migration, not a drop-in bump. Suppressing pending an upstream 2.x release
+          (2.21.5) or a Spring Boot upgrade that ships it.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson-databind@.*$</packageUrl>
+        <cve>CVE-2026-54515</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          False positive (CPE over-match). CVE-2026-54399 is a DoS in the HttpComponents Core *5.x*
+          HTTP/1.1 message parser (vendor-affected: httpcore5 <= 5.4.2 and 5.5-beta1; reports are all
+          against org.apache.httpcomponents.core5:httpcore5 5.3.x). Our jar is the separate, EOL 4.x
+          codebase org.apache.httpcomponents:httpcore 4.4.16 (transitive via
+          jersey-apache-connector -> httpclient 4.5.14), which has a different parser and is not in
+          the affected range. NVD's apache:httpcomponents_core CPE does not split the 4.x/5.x lines,
+          so dependency-check matches 4.4.16 against a 5.x-only CVE. 4.4.16 is the final 4.x release,
+          so there is no 4.x fix version. A genuine 5.x hit would carry the httpcore5 coordinates and
+          is not affected by this suppression.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <cve>CVE-2026-54399</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          False positive (CPE over-match). CVE-2026-54428 is a DoS in the HttpComponents Core *5.x*
+          HTTP/2 HPACK decoder (vendor-affected: httpcore5 <= 5.4.2 and 5.5-beta1). HTTP/2 support
+          was introduced in the 5.x line; the separate, EOL 4.x codebase
+          org.apache.httpcomponents:httpcore 4.4.16 (transitive via
+          jersey-apache-connector -> httpclient 4.5.14) has no HTTP/2 HPACK decoder and is not
+          affected. NVD's apache:httpcomponents_core CPE does not split the 4.x/5.x lines, so
+          dependency-check matches 4.4.16 against a 5.x-only CVE. 4.4.16 is the final 4.x release,
+          so there is no 4.x fix version. A genuine 5.x hit would carry the httpcore5 coordinates and
+          is not affected by this suppression.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
+        <cve>CVE-2026-54428</cve>
+    </suppress>
 </suppressions>

@@ -382,10 +382,20 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
    */
-  public void addRole(@Nonnull Long userId, @Nonnull RoleId roleId) {
-    StringId stringId = new StringId().id(roleId.name());
+  public void addRole(@Nonnull Long userId, @Nonnull StringId roleId) {
     executeAndRetry("addRole",
-        () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), userId, stringId));
+        () -> userApi.v1AdminUserUidRolesAddPost(authSession.getSessionToken(), userId, roleId));
+  }
+
+  /**
+   * Add a role to an user.
+   *
+   * @param userId User Id
+   * @param roleId Role Id
+   * @see <a href="https://developers.symphony.com/restapi/reference#add-role">Add Role</a>
+   */
+  public void addRole(@Nonnull Long userId, @Nonnull RoleId roleId) {
+    addRole(userId, new StringId().id(roleId.name()));
   }
 
   /**
@@ -406,10 +416,20 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param roleId Role Id
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
    */
-  public void removeRole(@Nonnull Long userId, @Nonnull RoleId roleId) {
-    StringId stringId = new StringId().id(roleId.name());
+  public void removeRole(@Nonnull Long userId, @Nonnull StringId roleId) {
     executeAndRetry("removeRole",
-        () -> userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), userId, stringId));
+        () -> userApi.v1AdminUserUidRolesRemovePost(authSession.getSessionToken(), userId, roleId));
+  }
+
+  /**
+   * Remove a role from an user.
+   *
+   * @param userId User Id
+   * @param roleId Role Id
+   * @see <a href="https://developers.symphony.com/restapi/reference#remove-role">Remove Role</a>
+   */
+  public void removeRole(@Nonnull Long userId, @Nonnull RoleId roleId) {
+    removeRole(userId, new StringId().id(roleId.name()));
   }
 
   /**

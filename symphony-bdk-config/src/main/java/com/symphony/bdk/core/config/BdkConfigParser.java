@@ -57,7 +57,7 @@ class BdkConfigParser {
     try {
       return JSON_MAPPER.readTree(content);
     } catch (IOException e) {
-      log.error("Error: {}", e.getMessage());
+      log.debug("Config file is not in JSON format.");
     }
 
     try {

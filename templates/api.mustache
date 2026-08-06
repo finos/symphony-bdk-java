@@ -51,6 +51,11 @@ public class {{classname}} {
    {{#allParams}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
    {{/allParams}}
+   {{#vendorExtensions.x-spring-paginated}}
+   * @param page Page number (0-based) (optional)
+   * @param size Number of records per page (optional)
+   * @param sort Sorting criteria in the format: property,asc|desc (optional)
+   {{/vendorExtensions.x-spring-paginated}}
    {{#returnType}}
    * @return {{returnType}}
    {{/returnType}}
@@ -75,8 +80,8 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException {
-    {{#returnType}}return {{/returnType}}{{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}){{#returnType}}.getData(){{/returnType}};
+  public {{#returnType}}{{{returnType}}} {{/returnType}}{{^returnType}}void {{/returnType}}{{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#vendorExtensions.x-spring-paginated}}{{#hasParams}}, {{/hasParams}}Integer page, Integer size, java.util.List<String> sort{{/vendorExtensions.x-spring-paginated}}) throws ApiException {
+    {{#returnType}}return {{/returnType}}{{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#vendorExtensions.x-spring-paginated}}{{#hasParams}}, {{/hasParams}}page, size, sort{{/vendorExtensions.x-spring-paginated}}){{#returnType}}.getData(){{/returnType}};
   }
   {{/vendorExtensions.x-group-parameters}}
 
@@ -87,6 +92,11 @@ public class {{classname}} {
    {{#allParams}}
    * @param {{paramName}} {{description}}{{#required}} (required){{/required}}{{^required}} (optional{{#defaultValue}}, default to {{.}}{{/defaultValue}}){{/required}}
    {{/allParams}}
+   {{#vendorExtensions.x-spring-paginated}}
+   * @param page Page number (0-based) (optional)
+   * @param size Number of records per page (optional)
+   * @param sort Sorting criteria in the format: property,asc|desc (optional)
+   {{/vendorExtensions.x-spring-paginated}}
    * @return ApiResponse&lt;{{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}Void{{/returnType}}&gt;
    * @throws ApiException if fails to make API call
    {{#responses.0}}
@@ -109,7 +119,7 @@ public class {{classname}} {
   {{#isDeprecated}}
   @Deprecated
   {{/isDeprecated}}
-  public{{/vendorExtensions.x-group-parameters}}{{#vendorExtensions.x-group-parameters}}private{{/vendorExtensions.x-group-parameters}} ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) throws ApiException {
+  public{{/vendorExtensions.x-group-parameters}}{{#vendorExtensions.x-group-parameters}}private{{/vendorExtensions.x-group-parameters}} ApiResponse<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> {{operationId}}WithHttpInfo({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#vendorExtensions.x-spring-paginated}}{{#hasParams}}, {{/hasParams}}Integer page, Integer size, java.util.List<String> sort{{/vendorExtensions.x-spring-paginated}}) throws ApiException {
     Object localVarPostBody = {{#bodyParam}}{{paramName}}{{/bodyParam}}{{^bodyParam}}null{{/bodyParam}};
     {{#allParams}}{{#required}}
     // verify the required parameter '{{paramName}}' is set
@@ -130,6 +140,18 @@ public class {{classname}} {
     {{#queryParams}}
     localVarQueryParams.addAll(apiClient.parameterToPairs("{{#collectionFormat}}{{{collectionFormat}}}{{/collectionFormat}}", "{{baseName}}", {{paramName}}));
     {{/queryParams}}
+
+    {{#vendorExtensions.x-spring-paginated}}
+    if (page != null) {
+      localVarQueryParams.addAll(apiClient.parameterToPairs("", "page", page));
+    }
+    if (size != null) {
+      localVarQueryParams.addAll(apiClient.parameterToPairs("", "size", size));
+    }
+    if (sort != null) {
+      localVarQueryParams.addAll(apiClient.parameterToPairs("multi", "sort", sort));
+    }
+    {{/vendorExtensions.x-spring-paginated}}
 
     {{#headerParams}}if ({{paramName}} != null)
       localVarHeaderParams.put("{{baseName}}", apiClient.parameterToString({{paramName}}));
@@ -170,6 +192,12 @@ public class {{classname}} {
     private {{#isRequired}}final {{/isRequired}}{{{dataType}}} {{paramName}};
     {{/allParams}}
 
+    {{#vendorExtensions.x-spring-paginated}}
+    private Integer page;
+    private Integer size;
+    private java.util.List<String> sort;
+    {{/vendorExtensions.x-spring-paginated}}
+
     private API{{operationId}}Request({{#pathParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/pathParams}}) {
       {{#pathParams}}
       this.{{paramName}} = {{paramName}};
@@ -189,6 +217,38 @@ public class {{classname}} {
     }
     {{/isPathParam}}
     {{/allParams}}
+
+    {{#vendorExtensions.x-spring-paginated}}
+    /**
+     * Set page
+     * @param page Page number (0-based) (optional)
+     * @return API{{operationId}}Request
+     */
+    public API{{operationId}}Request page(Integer page) {
+      this.page = page;
+      return this;
+    }
+
+    /**
+     * Set size
+     * @param size Number of records per page (optional)
+     * @return API{{operationId}}Request
+     */
+    public API{{operationId}}Request size(Integer size) {
+      this.size = size;
+      return this;
+    }
+
+    /**
+     * Set sort
+     * @param sort Sorting criteria in the format: property,asc|desc (optional)
+     * @return API{{operationId}}Request
+     */
+    public API{{operationId}}Request sort(java.util.List<String> sort) {
+      this.sort = sort;
+      return this;
+    }
+    {{/vendorExtensions.x-spring-paginated}}
 
     /**
      * Execute {{operationId}} request
@@ -230,7 +290,7 @@ public class {{classname}} {
     @Deprecated
     {{/isDeprecated}}
     public ApiResponse<{{#returnType}}{{{.}}}{{/returnType}}{{^returnType}}Void{{/returnType}}> executeWithHttpInfo() throws ApiException {
-      return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}});
+      return {{operationId}}WithHttpInfo({{#allParams}}{{paramName}}{{^-last}}, {{/-last}}{{/allParams}}{{#vendorExtensions.x-spring-paginated}}{{#hasParams}}, {{/hasParams}}page, size, sort{{/vendorExtensions.x-spring-paginated}});
     }
   }
 

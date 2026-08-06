@@ -43,9 +43,10 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
       @Nonnull PrivateKey privateKey,
       @Nonnull ApiClient loginApiClient,
       @Nonnull ApiClient relayApiClient,
-      @Nonnull AgentVersionService agentVersionService
+      @Nonnull AgentVersionService agentVersionService,
+      boolean agentConfigured
   ) {
-    super(retryConfig, commonJwtConfig, loginApiClient, agentVersionService);
+    super(retryConfig, commonJwtConfig, loginApiClient, agentVersionService, agentConfigured);
     this.username = username;
     this.privateKey = privateKey;
     this.relayApiClient = relayApiClient;

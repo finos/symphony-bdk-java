@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage messages.
@@ -42,6 +43,18 @@ public interface OboMessageService {
   List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, @Nonnull PaginationAttribute pagination);
 
   /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
+   * @param stream     the stream where to look for messages
+   * @param since      instant of the earliest possible date of the first message returned.
+   * @param until      instant of the last possible date of the last message returned.
+   * @param pagination The skip and limit for pagination.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until, @Nonnull PaginationAttribute pagination);
+
+  /**
    * Get messages from an existing stream with default limit equals 50.
    * Additionally returns any attachments associated with the message.
    *
@@ -51,6 +64,19 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
   List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since);
+
+  /**
+   * Get messages from an existing stream with default limit equals 50.
+   * Additionally returns any attachments associated with the message.
+   *
+   * @param stream the stream where to look for messages
+   * @param since  instant of the earliest possible date of the first message returned.
+   * @param until  instant of the last possible date of the last message returned.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until);
+
 
   /**
    * Get messages from an existing stream. Additionally returns any attachments associated with the message.
@@ -64,6 +90,18 @@ public interface OboMessageService {
   List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, @Nonnull PaginationAttribute pagination);
 
   /**
+   * Get messages from an existing stream. Additionally returns any attachments associated with the message.
+   *
+   * @param streamId   the streamID where to look for messages
+   * @param since      instant of the earliest possible date of the first message returned.
+   * @param until      instant of the last possible date of the last message returned.
+   * @param pagination The skip and limit for pagination.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until, @Nonnull PaginationAttribute pagination);
+
+  /**
    * Get messages from an existing stream with default limit equals 50.
    * Additionally returns any attachments associated with the message.
    *
@@ -73,6 +111,18 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
    */
   List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since);
+
+  /**
+   * Get messages from an existing stream with default limit equals 50.
+   * Additionally returns any attachments associated with the message.
+   *
+   * @param streamId the streamID where to look for messages
+   * @param since    instant of the earliest possible date of the first message returned.
+   * @param until    instant of the last possible date of the last message returned.
+   * @return the list of matching messages in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference/messages-v4">Messages</a>
+   */
+  List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until);
 
   /**
    * Sends a message to the stream ID of the passed {@link V4Stream} object.
@@ -160,4 +210,41 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#get-message-v1">Get Message v1</a>
    */
   V4Message getMessage(@Nonnull String messageId);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query the natural-language search query.
+   * @return the list of matching messages.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(@Nonnull String query);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query      the natural-language search query.
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable PaginationAttribute pagination);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query      the natural-language search query.
+   * @param streamId   the stream to restrict the search to. If {@code null}, all accessible streams are searched.
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable String streamId,
+      @Nullable PaginationAttribute pagination);
 }

@@ -1,0 +1,46 @@
+plugins {
+    id 'bdk.java-common-conventions'
+    id 'application'
+}
+
+description = 'Symphony Java BDK - Command Line Interface'
+
+application {
+    mainClass.set('com.symphony.bdk.cli.BdkCli')
+    // emit `bin/bdk` (and `bin/bdk.bat`) from `installDist` rather than the project name
+    applicationName = 'bdk'
+}
+
+// keep the install directory named after the module (build/install/symphony-bdk-cli/),
+// while the launcher script itself stays `bdk` (driven by applicationName above)
+distributions {
+    main {
+        distributionBaseName = 'symphony-bdk-cli'
+    }
+}
+
+dependencies {
+
+    implementation project(':symphony-bdk-core')
+
+    // self-contained distribution: bundle an HTTP implementation and a logging backend
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
+
+    // command-line parsing
+    implementation 'info.picocli:picocli'
+
+    // JSON serialisation of command results
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // logging: routed to stderr by the bundled logback.xml; compiled against so verbosity can be tuned
+    implementation 'ch.qos.logback:logback-classic'
+    implementation 'org.slf4j:slf4j-api'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}

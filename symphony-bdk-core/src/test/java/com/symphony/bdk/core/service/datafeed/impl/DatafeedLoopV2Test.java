@@ -353,7 +353,7 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).readDatafeed(DATAFEED_ID, TOKEN, TOKEN, initialAckId);
     assertEquals(secondAckId, datafeedService.getAckId());
   }
-
+  
   @Test
   void testClientErrorTriggersDatafeedRecreation() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null)).thenReturn(
@@ -661,5 +661,111 @@ class DatafeedLoopV2Test {
     verify(datafeedApi, times(1)).listDatafeed(TOKEN, TOKEN, null);
     verify(datafeedApi, times(1)).readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId);
     verify(datafeedApi, times(1)).deleteDatafeed(DATAFEED_ID, TOKEN, TOKEN);
+  }
+
+  // Task 9.6: DatafeedEventSource replaces datafeedApi
+
+  @Test
+  void testEventSourceUsedInsteadOfDatafeedApi() throws Exception {
+    com.symphony.bdk.core.extension.DatafeedEventSource source =
+        mock(com.symphony.bdk.core.extension.DatafeedEventSource.class);
+
+    BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    bdkConfig.getDatafeed().setVersion("v2");
+    bdkConfig.getDatafeed().setRetry(ofMinimalInterval(2));
+    bdkConfig.setRetry(ofMinimalInterval(2));
+
+    DatafeedLoopV2 loopWithSource = new DatafeedLoopV2(
+        this.datafeedApi, this.authSession, bdkConfig, mock(UserV2.class), source);
+
+    V4Event event = buildV4Event("evt-id");
+    AtomicBoolean dispatched = new AtomicBoolean(false);
+
+    when(source.readEvents(null)).thenReturn(Collections.singletonList(event));
+    when(source.ackEvents(any())).thenAnswer(inv -> {
+      loopWithSource.stop();
+      return "ack-1";
+    });
+
+    loopWithSource.subscribe(new RealTimeEventListener() {
+      @Override public boolean isAcceptingEvent(V4Event e, UserV2 b) { return true; }
+      @Override public void onMessageSent(V4Initiator i, V4MessageSent p) { dispatched.set(true); }
+    });
+
+    loopWithSource.start();
+
+    verify(source).readEvents(null);
+    verify(source).ackEvents(any());
+    verify(datafeedApi, never()).listDatafeed(any(), any(), any());
+    verify(datafeedApi, never()).createDatafeed(any(), any(), any());
+    verify(datafeedApi, never()).readDatafeed(any(), any(), any(), any());
+  }
+
+  @Test
+  void testEventSourceAckIdThreadedCorrectly() throws Exception {
+    com.symphony.bdk.core.extension.DatafeedEventSource source =
+        mock(com.symphony.bdk.core.extension.DatafeedEventSource.class);
+
+    BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    bdkConfig.getDatafeed().setVersion("v2");
+    bdkConfig.getDatafeed().setRetry(ofMinimalInterval(2));
+    bdkConfig.setRetry(ofMinimalInterval(2));
+
+    DatafeedLoopV2 loopWithSource = new DatafeedLoopV2(
+        this.datafeedApi, this.authSession, bdkConfig, mock(UserV2.class), source);
+
+    AtomicInteger callCount = new AtomicInteger(0);
+    when(source.readEvents(null)).thenReturn(Collections.emptyList());
+    when(source.ackEvents(any())).thenReturn("ack-1");
+    when(source.readEvents("ack-1")).thenAnswer(inv -> {
+      if (callCount.incrementAndGet() >= 1) {
+        loopWithSource.stop();
+      }
+      return Collections.emptyList();
+    });
+
+    loopWithSource.start();
+
+    verify(source).readEvents(null);
+    verify(source).readEvents("ack-1");
+  }
+
+  // Task 9.7: retry logic applies to eventSource.readEvents failures
+
+  @Test
+  void testEventSourceReadEventsRetryOnFailure() throws Exception {
+    com.symphony.bdk.core.extension.DatafeedEventSource source =
+        mock(com.symphony.bdk.core.extension.DatafeedEventSource.class);
+
+    BdkConfig bdkConfig = BdkConfigLoader.loadFromClasspath("/config/config.yaml");
+    bdkConfig.getDatafeed().setVersion("v2");
+    bdkConfig.getDatafeed().setRetry(ofMinimalInterval(2));
+    bdkConfig.setRetry(ofMinimalInterval(2));
+
+    DatafeedLoopV2 loopWithSource = new DatafeedLoopV2(
+        this.datafeedApi, this.authSession, bdkConfig, mock(UserV2.class), source);
+
+    AtomicInteger callCount = new AtomicInteger(0);
+    when(source.readEvents(null)).thenAnswer(inv -> {
+      int count = callCount.incrementAndGet();
+      if (count < 2) {
+        throw new RuntimeException("transient failure");
+      }
+      loopWithSource.stop();
+      return Collections.emptyList();
+    });
+    when(source.ackEvents(any())).thenReturn(null);
+
+    loopWithSource.start();
+
+    verify(source, times(2)).readEvents(null);
+  }
+
+  private V4Event buildV4Event(String id) {
+    return new V4Event()
+        .id(id)
+        .type(RealTimeEventType.MESSAGESENT.name())
+        .initiator(new V4Initiator())
+        .payload(new V4Payload().messageSent(new V4MessageSent()));
   }
 }

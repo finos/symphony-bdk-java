@@ -58,6 +58,12 @@ public class Message {
    * @since Agent 20.14
    */
   private final Boolean silent;
+  /**
+   * Optional boolean flag to enable beta features in MessageML.
+   * When set to true, the messageML wrapper will include the beta="true" attribute,
+   * enabling experimental features like sym-ai-context.
+   */
+  private final Boolean beta;
 
   Message(final MessageBuilder builder) {
     this.content = builder.content();
@@ -66,6 +72,7 @@ public class Message {
     this.attachments = builder.attachments();
     this.previews = builder.previews();
     this.silent = builder.silent();
+    this.beta = builder.beta();
   }
 
   /**
@@ -94,6 +101,7 @@ public class Message {
     private String content;
     private String data;
     private Boolean silent = Boolean.TRUE;
+    private Boolean beta;
     private List<Attachment> attachments = new ArrayList<>();
     @Setter(value = AccessLevel.PRIVATE) private List<Attachment> previews = new ArrayList<>();
 
@@ -150,6 +158,19 @@ public class Message {
     }
 
     /**
+     * Enable beta mode for the message.
+     * When set to true, the messageML wrapper will include the beta="true" attribute,
+     * enabling experimental features like sym-ai-context.
+     *
+     * @param beta true to enable beta features, false or null to disable.
+     * @return this builder with beta configured.
+     */
+    public MessageBuilder beta(Boolean beta) {
+      this.beta = beta;
+      return this;
+    }
+
+    /**
      * Add attachment to the message.
      * @param content Attachment content.
      * @param filename Filename of the attachment.
@@ -185,9 +206,28 @@ public class Message {
       }
 
       // check if content is encapsulated in <messageML/> node
-      if (!this.content.startsWith("<messageML>") && !this.content.endsWith("</messageML>")) {
+      String trimmedContent = this.content.trim();
+      boolean hasStartTag = trimmedContent.startsWith("<messageML");
+      boolean hasEndTag = trimmedContent.endsWith("</messageML>");
+      if (hasStartTag != hasEndTag) {
+        throw new MessageCreationException(
+            "Malformed <messageML> tag. Missing " + (hasStartTag ? "closing" : "opening") + " tag");
+      }
+      if (!hasStartTag) {
         log.trace("Processing content to prefix with <messageML> and suffix with </messageML>");
-        this.content = "<messageML>" + this.content + "</messageML>";
+        if (Boolean.TRUE.equals(this.beta)) {
+          this.content = "<messageML beta=\"true\">" + this.content + "</messageML>";
+        } else {
+          this.content = "<messageML>" + this.content + "</messageML>";
+        }
+      } else if (Boolean.TRUE.equals(this.beta) && this.content.startsWith("<messageML>")) {
+        // beta=true but content is already wrapped without beta attribute
+        throw new MessageCreationException(
+            "Cannot set beta=true when content is already wrapped with <messageML> without the beta attribute. "
+            + "Either remove the wrapper or include beta=\"true\" in your messageML tag.");
+      } else {
+        // content is already wrapped, but we can trim if needed
+        this.content = trimmedContent;
       }
 
       // check done below because it will rejected by the agent otherwise
@@ -197,5 +237,16 @@ public class Message {
 
       return new Message(this);
     }
+  }
+
+  private boolean isAlreadyWrapped(String content) {
+    boolean hasStart = content.startsWith("<messageML>");
+    boolean hasEnd = content.endsWith("</messageML>");
+
+    if (hasStart != hasEnd) {
+      throw new IllegalStateException("Malformed MessageML: missing " + (hasStart ? "closing" : "opening") + " tag.");
+    }
+
+    return hasStart; // Since they are equal, if hasStart is true, both are true.
   }
 }

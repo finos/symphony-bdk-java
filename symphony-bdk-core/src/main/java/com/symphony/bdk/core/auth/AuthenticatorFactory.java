@@ -43,4 +43,13 @@ public interface AuthenticatorFactory {
    */
   @Nonnull
   ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException;
+
+  /**
+   * Creates a new instance of a {@link ExtAppAuthenticator}.
+   *
+   * @return a new {@link ExtAppAuthenticator} instance.
+   * @throws AuthInitializationException if the authenticator cannot be instantiated.
+   */
+  @Nonnull
+  ExtAppAuthenticator getExtAppAuthenticator() throws AuthInitializationException;
 }

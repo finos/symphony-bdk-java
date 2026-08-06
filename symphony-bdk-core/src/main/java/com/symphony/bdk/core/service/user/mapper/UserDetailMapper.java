@@ -22,5 +22,6 @@ public interface UserDetailMapper {
   @Mapping(target = "userAttributes.instrument", ignore = true)
   @Mapping(target = "userAttributes.currentKey", ignore = true)
   @Mapping(target = "userAttributes.previousKey", ignore = true)
+  @Mapping(target = "userAttributes.userMetadata", ignore = true)
   V2UserDetail userDetailToV2UserDetail(UserDetail userDetail);
 }

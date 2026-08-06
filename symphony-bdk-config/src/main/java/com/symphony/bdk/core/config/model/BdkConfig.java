@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Class holding the whole BDK configuration
  */
@@ -27,6 +30,7 @@ public class BdkConfig extends BdkServerConfig {
   private BdkDatafeedConfig datafeed = new BdkDatafeedConfig();
   private BdkDatahoseConfig datahose = new BdkDatahoseConfig();
   private BdkCommonJwtConfig commonJwt = new BdkCommonJwtConfig();
+  private Map<String, Object> extensions = new LinkedHashMap<>();
 
   /**
    * Check if OBO is configured. Checks {@link BdkExtAppConfig#isConfigured()} on field {@link #app}.

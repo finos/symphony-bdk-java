@@ -127,6 +127,9 @@ public class AuthSessionImpl implements AuthSession {
   }
 
   protected  boolean isSkdSupported() {
+    if (!authenticator.isAgentConfigured()) {
+      return true;
+    }
     Optional<AgentVersion> currentVersion = authenticator.getAgentVersionService().retrieveAgentVersion();
    if (currentVersion.isEmpty()) {
      return  false;
