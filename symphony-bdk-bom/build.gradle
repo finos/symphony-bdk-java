@@ -5,6 +5,8 @@ plugins {
 }
 
 description = 'Symphony Java BDK Bom (Bill Of Materials)'
+// BDK 4.x requires Spring Boot 4.x. Spring Boot 3.x + BDK 4.x is not supported (D6 in
+// openspec/changes/migrate-spring-boot-4/design.md) — consumers on Spring Boot 3 should stay on BDK 3.x.
 
 javaPlatform {
     allowDependencies()

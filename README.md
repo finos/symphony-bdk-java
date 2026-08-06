@@ -7,16 +7,18 @@
 # Symphony BDK for Java
 
 > [!NOTE]
-> BDK version 3.0: Major change !
+> BDK version 4.0: Major change !
 >
-> The newly introduced BDK version 3.0 relies on Java 17 and SpringBoot 3. This is a major change that allows Symphony to continue to propose the latest security fixes following the end of support of Spring Boot 2 and also to keep up with the latest evolutions of Java.
+> The newly introduced BDK version 4.0 relies on Java 25 and Spring Boot 4. This is a major change that allows Symphony to continue to propose the latest security fixes following the end of support of Spring Boot 3 and also to keep up with the latest evolutions of Java.
 >
-> For the next 6 months Symphony will provide critical security fixes for BDK 2.0 where possible (since Spring gives no guarantees for their packages).
+> For the next 6 months Symphony will provide critical security fixes for BDK 3.x where possible (since Spring gives no guarantees for their packages).
 >
 > Please consider migrating your Bots in the coming months to benefit from the latest features and support.
+> See the [4.x Migration Guide](https://symphony-bdk-java.finos.org/migration-4.x.html) for details.
 
 > [!IMPORTANT]
-> As detailed above, the BDK version 2.0 will stop being supported by Symphony on August 15.
+> Spring Boot 3.x + BDK 4.x is not supported. If your application cannot move to Spring Boot 4 and Java 25 yet, stay
+> on BDK 3.x — its documentation and sources remain available on the [`3.x`](https://github.com/finos/symphony-bdk-java/tree/3.x) branch.
 
 The **official** Symphony BDK for Java helps you to create production-grade Chat Bots and Extension Applications on 
 top of the [Symphony REST APIs](https://developers.symphony.com/restapi/reference). 
@@ -63,12 +65,21 @@ from the root of the source tree. The wrapper script serves as a cross-platform,
 the build system.
 
 ### Before you start
-To build you will need [Git](https://docs.github.com/en/github/getting-started-with-github/set-up-git) and [JDK 8 or later](https://adoptopenjdk.net/).
-Be sure that your `JAVA_HOME` environment variable points to the `jdk1.8+` folder extracted from the JDK download.
+To build you will need [Git](https://docs.github.com/en/github/getting-started-with-github/set-up-git) and [JDK 17 or later](https://adoptium.net/).
+Be sure that your `JAVA_HOME` environment variable points to the JDK 17+ folder extracted from the JDK download.
+
+> This is the requirement to build from source on `main` today. The BDK 4.0.0 release itself will require Java 25
+> (see the [4.x Migration Guide](https://symphony-bdk-java.finos.org/migration-4.x.html)) — `main` has not yet moved
+> its build toolchain to 25.
 
 ### Build from the Command Line
-To compile, test and build all BDK2.0 jars, use:
+To compile, test and build all BDK jars, use:
 ```shell script
+./gradlew
+```
+To compile, test and build BDK 3.x jars:
+```shell script
+git checkout 3.x
 ./gradlew
 ```
 To compile, test and build legacy jars:

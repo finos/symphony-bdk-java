@@ -82,10 +82,10 @@
 
 ## 10. Documentation
 
-- [ ] 10.1 Write `docs/migration-4.x.md` covering all 7 items from the design's migration plan
-- [ ] 10.2 State prominently that BDK 4.x requires Spring Boot 4.x and that Spring Boot 3 + BDK 4 is unsupported (D6)
-- [ ] 10.3 Set up versioned documentation so `symphony-bdk-java.finos.org` serves 3.x and 4.x separately, and 3.x consumers are never shown 4.x instructions
-- [ ] 10.4 Update `docs/extension.md` and any doc referencing the `jersey2` coordinate or JSR-305 annotations
-- [ ] 10.5 Note the Java requirement in the migration guide as **25** (what 4.0.0 actually ships), not the 17 this intermediate state builds against
-- [ ] 10.6 Record the 3.x support window in the migration guide once decided — the guide cannot answer "what if I can't move to Java 25" without it
-- [ ] 10.7 Update the `README.md` making sure all prerequisites are correctly specified, and also mention that the `3.x` branch still exists 
+- [x] 10.1 Write `docs/migration-4.x.md` covering all 7 items from the design's migration plan
+- [x] 10.2 State prominently that BDK 4.x requires Spring Boot 4.x and that Spring Boot 3 + BDK 4 is unsupported (D6)
+- [x] 10.3 Set up versioned documentation so `symphony-bdk-java.finos.org` serves 3.x and 4.x separately, and 3.x consumers are never shown 4.x instructions
+- [x] 10.4 Update `docs/extension.md` and any doc referencing the `jersey2` coordinate or JSR-305 annotations
+- [x] 10.5 Note the Java requirement in the migration guide as **25** (what 4.0.0 actually ships), not the 17 this intermediate state builds against
+- [x] 10.6 Record the 3.x support window in the migration guide once decided — the guide cannot answer "what if I can't move to Java 25" without it
+- [x] 10.7 Update the `README.md` making sure all prerequisites are correctly specified, and also mention that the `3.x` branch still exists 
