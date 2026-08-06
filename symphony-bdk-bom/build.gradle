@@ -17,8 +17,9 @@ repositories {
 dependencies {
     // import Spring Boot's BOM
     api platform('org.springframework.boot:spring-boot-dependencies:4.0.0')
-    // import Jackson's BOM
-    api platform('com.fasterxml.jackson:jackson-bom:2.18.8')
+    // import Jackson 3's BOM. jackson-annotations has no 3.x release (JSTEP-1); the bom pins it at
+    // the matching 2.x version under its legacy com.fasterxml.jackson.core coordinate (D2).
+    api platform('tools.jackson:jackson-bom:3.2.1')
     // import Jersey's BOM
     api platform('org.glassfish.jersey:jersey-bom:4.0.0')
     // import Log4j's BOM
@@ -64,14 +65,15 @@ dependencies {
         api 'com.brsanthu:migbase64:2.2'
         api 'io.jsonwebtoken:jjwt-api:0.13.0'
         api 'io.jsonwebtoken:jjwt-impl:0.13.0'
-        api 'io.jsonwebtoken:jjwt-jackson:0.13.0'
         api 'org.bouncycastle:bcpkix-jdk18on:1.79'
         api 'com.google.code.findbugs:jsr305:3.0.2'
 
         api 'io.github.resilience4j:resilience4j-retry:2.3.0'
 
         api 'io.swagger:swagger-annotations:1.6.14'
-        api 'org.openapitools:jackson-databind-nullable:0.2.6'
+        // 0.2.11+ is a multi-release jar with a Jackson 3 backend (JsonNullableJackson3Module),
+        // auto-selected when tools.jackson.databind is on the classpath.
+        api 'org.openapitools:jackson-databind-nullable:0.2.11'
 
         api 'org.freemarker:freemarker:2.3.33'
         api 'com.github.jknack:handlebars:4.5.1'

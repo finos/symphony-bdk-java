@@ -4,10 +4,10 @@ import com.symphony.bdk.core.activity.ActivityContext;
 import com.symphony.bdk.gen.api.model.V4Initiator;
 import com.symphony.bdk.gen.api.model.V4SymphonyElementsAction;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
+import tools.jackson.databind.JsonNode;
 
 import javax.annotation.Nullable;
 

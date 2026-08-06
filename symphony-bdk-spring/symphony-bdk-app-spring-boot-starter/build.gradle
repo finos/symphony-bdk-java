@@ -43,6 +43,7 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 
     testImplementation coreProject.sourceSets.test.output
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

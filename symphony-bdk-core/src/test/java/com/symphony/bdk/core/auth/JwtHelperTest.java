@@ -11,12 +11,13 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.auth.jwt.UserClaim;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.migcomponents.migbase64.Base64;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.DeserializationException;
 import io.jsonwebtoken.io.Deserializer;
+import io.jsonwebtoken.io.SerializationException;
+import io.jsonwebtoken.io.Serializer;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.ASN1Encodable;
@@ -25,11 +26,15 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
@@ -58,6 +63,8 @@ public class JwtHelperTest {
       + "lbWVudHMiOiIifQ.signature";
   private static final String JWT_EXP_INVALID = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.zhWFI4bw81QLE49UnklwMlThgt2ktUOs5M1HKjENgRE.signature";
   public static final String JWT_SKD_ENABLED = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiY2FuVXNlU2ltcGxpZmllZEtleURlbGl2ZXJ5Ijp0cnVlfQ.signature";
+
+  private static final ObjectMapper MAPPER = new JsonMapper();
 
   @Test
   void loadPkcs8PrivateKey() throws GeneralSecurityException {
@@ -137,7 +144,7 @@ public class JwtHelperTest {
 
   @Test
   public void testExtractExpirationDateInvalidParsing() {
-    assertThrows(JsonProcessingException.class, () -> JwtHelper.extractExpirationDate("invalid.common.jwt"));
+    assertThrows(JacksonException.class, () -> JwtHelper.extractExpirationDate("invalid.common.jwt"));
   }
 
   @Test
@@ -344,6 +351,7 @@ public class JwtHelperTest {
     Date expiration = new Date(new Date().getTime() + (365L * 1000 * 3600 * 24));
 
     return Jwts.builder()
+        .json(testSerializer())
         .setIssuer("me")
         .setSubject("Bob")
         .setAudience("you")
@@ -354,5 +362,27 @@ public class JwtHelperTest {
         .signWith(SignatureAlgorithm.RS256, key)
         .setId("123")
         .compact();
+  }
+
+  private static Serializer<Map<String, ?>> testSerializer() {
+    return new Serializer<Map<String, ?>>() {
+      @Override
+      public byte[] serialize(Map<String, ?> map) throws SerializationException {
+        try {
+          return MAPPER.writeValueAsBytes(map);
+        } catch (JacksonException e) {
+          throw new SerializationException("Unable to serialize JWT claims", e);
+        }
+      }
+
+      @Override
+      public void serialize(Map<String, ?> map, OutputStream out) throws SerializationException {
+        try {
+          MAPPER.writeValue(out, map);
+        } catch (JacksonException e) {
+          throw new SerializationException("Unable to serialize JWT claims", e);
+        }
+      }
+    };
   }
 }

@@ -31,8 +31,7 @@ dependencies {
     implementation 'info.picocli:picocli'
 
     // JSON serialisation of command results
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'tools.jackson.core:jackson-databind'
 
     // logging: routed to stderr by the bundled logback.xml; compiled against so verbosity can be tuned
     implementation 'ch.qos.logback:logback-classic'

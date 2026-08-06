@@ -5,14 +5,14 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import com.symphony.bdk.core.service.message.util.EntityTypeEnum;
 import com.symphony.bdk.gen.api.model.V4Message;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;

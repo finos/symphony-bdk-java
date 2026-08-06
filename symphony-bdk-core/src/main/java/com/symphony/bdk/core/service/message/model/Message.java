@@ -6,9 +6,6 @@ import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.Template;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +14,10 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -95,7 +96,11 @@ public class Message {
   @API(status = API.Status.STABLE)
   public static class MessageBuilder {
 
-    private static final ObjectMapper MAPPER = new JsonMapper();
+    // Jackson 3 defaults FAIL_ON_EMPTY_BEANS off; re-enable it so a bean with no accessible
+    // properties still surfaces as a MessageCreationException instead of silently sending "{}".
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+        .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+        .build();
 
     private String version = "2.0";
     private String content;
@@ -147,7 +152,7 @@ public class Message {
       try {
         this.data = MAPPER.writeValueAsString(data);
         return this;
-      } catch (JsonProcessingException e) {
+      } catch (JacksonException e) {
         throw new MessageCreationException("Failed to serialize data (" + data.getClass() + ") to Json string", e);
       }
     }

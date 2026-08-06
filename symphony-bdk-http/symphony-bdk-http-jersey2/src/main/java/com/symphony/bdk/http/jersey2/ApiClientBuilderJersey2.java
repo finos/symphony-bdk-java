@@ -21,8 +21,8 @@ import org.glassfish.jersey.apache5.connector.Apache5ConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -264,7 +264,7 @@ public class ApiClientBuilderJersey2 implements ApiClientBuilder {
   @API(status = API.Status.EXPERIMENTAL)
   protected void configureJackson(ClientConfig clientConfig) {
     clientConfig.register(new JSON());
-    clientConfig.register(JacksonFeature.class);
+    clientConfig.register(JacksonJsonProvider.class);
   }
 
   @API(status = API.Status.EXPERIMENTAL)

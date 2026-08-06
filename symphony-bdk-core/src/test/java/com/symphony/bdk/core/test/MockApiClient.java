@@ -1,8 +1,5 @@
 package com.symphony.bdk.core.test;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.jersey2.ApiClientJersey2;
@@ -14,6 +11,9 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.mockito.ArgumentMatchers;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
@@ -33,10 +33,9 @@ import static org.mockito.Mockito.when;
 
 public class MockApiClient {
 
-  private static final ObjectMapper MAPPER = new JsonMapper();
-  static {
-    MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-  }
+  private static final ObjectMapper MAPPER = JsonMapper.builder()
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .build();
   private final Client httpClient = mock(Client.class);
   {
     when(this.httpClient.target(anyString())).thenThrow(new MockApiClientException("Calling the mocked ApiClient with wrong path"));

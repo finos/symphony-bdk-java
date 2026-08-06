@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.extension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -15,6 +14,8 @@ import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -269,7 +270,7 @@ public class ExtensionService {
     try {
       final C typed = MAPPER.convertValue(rawConfig, extension.getConfigClass());
       extension.setExtensionConfig(typed);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | JacksonException e) {
       throw new BdkExtensionException(
           "Failed to deserialize extension config key '" + key + "' into "
               + extension.getConfigClass().getName() + " for extension <" + extension.getClass() + ">",

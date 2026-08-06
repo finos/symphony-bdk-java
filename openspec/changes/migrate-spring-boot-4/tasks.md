@@ -48,13 +48,13 @@
 
 ## 6. Jackson — conditional on the D2 decision from 1.5
 
-- [ ] 6.1 *(Jackson 3 only)* Migrate the 22 hand-written `com.fasterxml.jackson.databind` / `.core` usages to `tools.jackson.*`, module by module: `symphony-bdk-config` (`BdkConfigLoader`, `BdkConfigParser`), `symphony-bdk-core` (7 files incl. `JwtHelper`, `AuthSessionImpl`, `MessageParser`, `Message`, `ExtensionService`, `FormReplyActivity`, `FormReplyContext`, `InputTokenizer`), `symphony-bdk-http-jersey` (`JSON`, `RFC3339DateFormat`), the starters, `symphony-group-extension`, `symphony-bdk-cli` (`internal/Json`)
-- [ ] 6.2 *(Jackson 3 only)* Change `BdkConfigParser`'s 3 public `JsonNode` signatures and note them in the migration guide as a breaking API change
-- [ ] 6.3 *(Jackson 3 only)* Rewrite `JSON.java`'s `ContextResolver<ObjectMapper>` against the Jackson 3 provider from 1.4
-- [ ] 6.4 *(Jackson 3 only)* Migrate the 5 test-side databind usages (`MockApiClient`, `JwtHelperTest`, `CircleOfTrustControllerTest`, `SymphonyBdkMockedConfiguration`, the 3 CLI tests)
-- [ ] 6.5 *(Jackson 3 only)* Replace `com.fasterxml.jackson.datatype.jsr310.JavaTimeModule`, `YAMLMapper`, `JavaPropsMapper`, and `jackson-databind-nullable` with their Jackson 3 equivalents; if `org.openapitools:jackson-databind-nullable` has no Jackson 3 release, this feeds back into 1.5
-- [ ] 6.6 *(Jackson 2 only)* Verify Jackson 2 and Spring Boot 4 coexist, and document in the migration guide that BDK 4.0 remains on Jackson 2 with Jackson 3 targeted for 4.1 — N/A, D2 adopted Jackson 3
-- [ ] 6.7 Assert there is exactly one Jackson databind implementation on the runtime classpath — a dependency-verification test, so the split classpath D2 rejects cannot appear later by accident
+- [x] 6.1 *(Jackson 3 only)* Migrate the 22 hand-written `com.fasterxml.jackson.databind` / `.core` usages to `tools.jackson.*`, module by module: `symphony-bdk-config` (`BdkConfigLoader`, `BdkConfigParser`), `symphony-bdk-core` (7 files incl. `JwtHelper`, `AuthSessionImpl`, `MessageParser`, `Message`, `ExtensionService`, `FormReplyActivity`, `FormReplyContext`, `InputTokenizer`), `symphony-bdk-http-jersey` (`JSON`, `RFC3339DateFormat`), the starters, `symphony-group-extension`, `symphony-bdk-cli` (`internal/Json`)
+- [x] 6.2 *(Jackson 3 only)* Change `BdkConfigParser`'s 3 public `JsonNode` signatures and note them in the migration guide as a breaking API change
+- [x] 6.3 *(Jackson 3 only)* Rewrite `JSON.java`'s `ContextResolver<ObjectMapper>` against the Jackson 3 provider from 1.4
+- [x] 6.4 *(Jackson 3 only)* Migrate the 5 test-side databind usages (`MockApiClient`, `JwtHelperTest`, `CircleOfTrustControllerTest`, `SymphonyBdkMockedConfiguration`, the 3 CLI tests)
+- [x] 6.5 *(Jackson 3 only)* Replace `com.fasterxml.jackson.datatype.jsr310.JavaTimeModule`, `YAMLMapper`, `JavaPropsMapper`, and `jackson-databind-nullable` with their Jackson 3 equivalents; if `org.openapitools:jackson-databind-nullable` has no Jackson 3 release, this feeds back into 1.5
+- [x] 6.6 *(Jackson 2 only)* Verify Jackson 2 and Spring Boot 4 coexist, and document in the migration guide that BDK 4.0 remains on Jackson 2 with Jackson 3 targeted for 4.1 — N/A, D2 adopted Jackson 3
+- [x] 6.7 Assert there is exactly one Jackson databind implementation on the runtime classpath — a dependency-verification test, so the split classpath D2 rejects cannot appear later by accident
 
 ## 7. Module Rename: `http-jersey2` → `http-jersey` (D7 — own commit)
 
