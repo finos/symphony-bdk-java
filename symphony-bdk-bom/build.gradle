@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     // import Spring Boot's BOM
-    api platform('org.springframework.boot:spring-boot-dependencies:4.0.0')
+    api platform('org.springframework.boot:spring-boot-dependencies:4.0.7')
     // import Jackson 3's BOM. jackson-annotations has no 3.x release (JSTEP-1); the bom pins it at
     // the matching 2.x version under its legacy com.fasterxml.jackson.core coordinate (D2).
     api platform('tools.jackson:jackson-bom:3.2.1')
@@ -26,6 +26,9 @@ dependencies {
     api platform('org.glassfish.jersey:jersey-bom:4.0.0')
     // import Log4j's BOM
     api platform('org.apache.logging.log4j:log4j-bom:2.26.1')
+    // Netty and Tomcat patch releases ahead of what spring-boot-dependencies:4.0.7 pins, for CVE fixes
+    // on the same minor line (Netty 4.2.x, Tomcat 11.0.x) — reviewed as part of adopt-java-25-baseline.
+    api platform('io.netty:netty-bom:4.2.16.Final')
 
     // define all our dependencies versions
     constraints {
@@ -52,6 +55,11 @@ dependencies {
         api 'org.projectlombok:lombok:1.18.46'
 
         api 'org.glassfish.jersey.connectors:jersey-apache5-connector:4.0.0'
+        // CVE-2026-64607 (httpclient5) and CVE-2026-54399/CVE-2026-54428 (httpcore5) fixes, ahead of
+        // what spring-boot-dependencies:4.0.7 pins (5.5.2 / 5.3.6)
+        api 'org.apache.httpcomponents.client5:httpclient5:5.6.4'
+        api 'org.apache.httpcomponents.core5:httpcore5:5.4.3'
+        api 'org.apache.httpcomponents.core5:httpcore5-h2:5.4.3'
 
         api 'org.apiguardian:apiguardian-api:1.1.2'
 
@@ -88,6 +96,8 @@ dependencies {
         api 'info.picocli:picocli:4.7.6'
 
         api 'com.tngtech.archunit:archunit-junit5:1.5.0'
+        api 'org.apache.tomcat.embed:tomcat-embed-core:11.0.24'
+        api 'org.apache.tomcat.embed:tomcat-embed-websocket:11.0.24'
         api 'org.mock-server:mockserver-netty:7.5.0'
         api 'org.assertj:assertj-core:3.27.7'
     }

@@ -65,12 +65,13 @@ from the root of the source tree. The wrapper script serves as a cross-platform,
 the build system.
 
 ### Before you start
-To build you will need [Git](https://docs.github.com/en/github/getting-started-with-github/set-up-git) and [JDK 17 or later](https://adoptium.net/).
-Be sure that your `JAVA_HOME` environment variable points to the JDK 17+ folder extracted from the JDK download.
+To build you will need [Git](https://docs.github.com/en/github/getting-started-with-github/set-up-git) and [JDK 25 or later](https://adoptium.net/).
+Be sure that your `JAVA_HOME` environment variable points to the JDK 25+ folder extracted from the JDK download.
 
-> This is the requirement to build from source on `main` today. The BDK 4.0.0 release itself will require Java 25
-> (see the [4.x Migration Guide](https://symphony-bdk-java.finos.org/migration-4.x.html)) — `main` has not yet moved
-> its build toolchain to 25.
+> `main`'s build toolchain targets Java 25 — required, not recommended, matching what the BDK 4.0.0 release itself
+> requires at runtime (see the [4.x Migration Guide](https://symphony-bdk-java.finos.org/migration-4.x.html)). To
+> build BDK 3.x instead, check out the [`3.x`](https://github.com/finos/symphony-bdk-java/tree/3.x) branch, which
+> still targets Java 17.
 
 ### Build from the Command Line
 To compile, test and build all BDK jars, use:

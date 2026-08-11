@@ -9,6 +9,11 @@ nav_order: 19
 This guide provides information to Symphony BDK Bot developers about how using Symphony BDK Test to build the
 integration tests for the Bots.
 
+> Since BDK 4.0.0, tests run on **Java 25**. Because `@SymphonyBdkTest` and `@SymphonyBdkSpringBootTest` bring in
+> Mockito, and Mockito's inline mock maker can no longer self-attach its agent on JDK 25, your own test build must
+> configure the Mockito agent explicitly via a `-javaagent` JVM argument. See
+> [4.x Migration Guide](./migration-4.x.html) (section 7, "Test dependencies") for the Gradle configuration.
+
 ## Java BDK Bots Integration tests
 
 To create an integration test for a Java BDK Bot application, developer needs to add annotation `@SymphonyBdkTest` on top
