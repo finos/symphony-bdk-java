@@ -112,6 +112,9 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
         .build();
 
     datafeedCreateBody = new V5DatafeedCreateBody();
+    if (config.getDatafeed().isIncludeInvisible()) {
+      datafeedCreateBody.setIncludeInvisible(true);
+    }
     if (StringUtils.isNotBlank(config.getDatafeed().getTag())) {
       datafeedCreateBody.setTag(config.getDatafeed().getTag());
     }
