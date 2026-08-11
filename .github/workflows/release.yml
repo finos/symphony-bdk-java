@@ -20,8 +20,9 @@ jobs:
         id: version
         run: |
           TAG="${{ github.event.release.tag_name }}"
-          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Release tag '$TAG' is not in the expected vMAJOR.MINOR.PATCH format (e.g. v3.3.16)"
+          # vMAJOR.MINOR.PATCH with optional SemVer pre-release (-alpha.1) and build metadata (+build.5)
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Release tag '$TAG' is not in the expected vMAJOR.MINOR.PATCH[-prerelease][+build] format (e.g. v3.3.16 or v4.0.0-alpha.1)"
             exit 1
           fi
           VERSION="${TAG#v}"
@@ -31,8 +32,9 @@ jobs:
             echo "::error::Release tag '$TAG' is a v3.x release but targets '$TARGET' instead of the '3.x' branch"
             exit 1
           fi
-          if [[ "$MAJOR" != "3" && "$TARGET" != "main" ]]; then
-            echo "::error::Release tag '$TAG' is a v${MAJOR}.x release but targets '$TARGET' instead of 'main'"
+          # 4.x is developed on 'next' until GA merges it to 'main'; both branches are valid release sources.
+          if [[ "$MAJOR" != "3" && "$TARGET" != "main" && "$TARGET" != "next" ]]; then
+            echo "::error::Release tag '$TAG' is a v${MAJOR}.x release but targets '$TARGET' instead of 'main' or 'next'"
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
