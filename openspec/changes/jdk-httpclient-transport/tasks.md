@@ -81,8 +81,10 @@
 - [ ] 10.2 Run `./gradlew :symphony-bdk-http:symphony-bdk-http-jdk:build` clean and confirm no Jersey/Apache-HC/Reactor-Netty transitive dependency appears in `dependencies` output
 - [ ] 10.3 Run the full `./gradlew build` to confirm no regression in `symphony-bdk-core` or other modules
 
-## 11. Documentation
+## 11. Documentation and Default Flip (D12)
 
-- [ ] 11.1 Update `docs/tech/architecture.md` to list `symphony-bdk-http-jdk` as a third `ApiClient` implementation
-- [ ] 11.2 Update `docs/getting-started.md`'s dependency snippet comment to include `symphony-bdk-http-jdk` as a runtime HTTP dependency option
-- [ ] 11.3 Update `docs/migration.md` with a module-selection section documenting the two semantic gaps (D1 timeout mapping, D3 filter support) so a consumer can decide before switching implementations
+- [ ] 11.1 Update `docs/tech/architecture.md` line 38 so `symphony-bdk-http-jdk` is listed as the default implementation for `symphony-bdk-core`, with `symphony-bdk-http-jersey2` reworded as deprecated-but-supported; leave line 39 (webclient as Spring Boot's default) unchanged
+- [ ] 11.2 Update `docs/getting-started.md`'s dependency snippets (Maven line ~62, Gradle line ~104) so `symphony-bdk-http-jdk` is the leading example, with jersey2/webclient in the "or" comment; call out the module's `EXPERIMENTAL` status next to the default snippet (per Open Questions/Risks)
+- [ ] 11.3 Update `docs/migration.md`'s equivalent dependency snippets (lines ~119, ~222) to match the new default, and add a short, explicitly optional "migrating off jersey2" section documenting the two semantic gaps (D1 timeout mapping, D3 filter support) so a consumer can decide before switching implementations
+- [ ] 11.4 Add `@API(status = API.Status.DEPRECATED)` and javadoc pointing at `symphony-bdk-http-jdk` to `ApiClientJersey2`, `ApiClientBuilderJersey2`, and `ApiClientBuilderProviderJersey2` in `symphony-bdk-http-jersey2` (replacing their current `@API(STABLE)`/`@API(INTERNAL)` status)
+- [ ] 11.5 Confirm `./gradlew :symphony-bdk-http:symphony-bdk-http-jersey2:build` still passes after the annotation-only change — no behavioral or test changes expected in that module
