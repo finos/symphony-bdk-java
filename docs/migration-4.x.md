@@ -130,6 +130,43 @@ dependencies, so applications depending on it for test support inherit Spring Bo
 whatever JUnit and Mockito versions Spring Boot 4 manages. Review your test code for any direct dependence on the
 previous JUnit/Mockito versions if you don't otherwise manage them explicitly.
 
+If your application uses `symphony-bdk-test-jupiter` or `symphony-bdk-test-spring-boot` (both bring in Mockito
+through `@SymphonyBdkTest` / `@SymphonyBdkSpringBootTest`), your own test JVM is subject to the same JDK 25
+self-attach restriction the BDK's own build hit: Mockito's inline mock maker can no longer self-attach its agent at
+runtime. Configure your build to pass the Mockito agent explicitly, e.g. in Gradle:
+
+```groovy
+configurations {
+    mockitoAgent
+}
+dependencies {
+    mockitoAgent('org.mockito:mockito-core') { transitive = false }
+}
+test {
+    doFirst {
+        jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}"
+    }
+}
+```
+
+Do not silence the self-attach warning with `-XX:+EnableDynamicAgentLoading` — it only postpones the failure to the
+JDK release that removes self-attach outright.
+
+## 8. Generated API changes: `openapi-generator` 6.6.0 → 7.x
+
+The generated classes under `com.symphony.bdk.gen.api` and `com.symphony.bdk.gen.api.model` were regenerated with
+`openapi-generator` 7.x (`jersey3` library, up from `jersey2`). All 377 classes were diffed between the two
+generator versions; the only consumer-visible change is:
+
+- **21 unreferenced `*AllOf` companion classes no longer exist** (e.g. `MessageAllOf`, `CreateGroupAllOf`,
+  `V2PresenceAllOf`). These were orphaned classes emitted for schemas using `allOf` composition that nothing in the
+  BDK, or any known consumer, ever referenced directly. If your code somehow imported one of these classes by name,
+  it needs to be removed — there is no replacement, because nothing replaced their function.
+
+No other generated class changes shape, method signatures, `equals`/`hashCode`/`toString`, or annotations in any
+consumer-visible way. Fluent builder method names (`addXxxItem`, `putXxxItem`, etc.) and all constructors are
+unchanged.
+
 ## Support window
 
 BDK 3.x will receive critical security fixes for **6 months** following the BDK 4.0.0 release, where Symphony is

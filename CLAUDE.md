@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Requirements
 
-The build runs on Gradle 9.x, which requires a JVM of **17 or higher** to run the Gradle daemon itself. Compilation targets Java 17 via the toolchain declared in `bdk.java-common-conventions` — the daemon JVM and the toolchain JVM are independent, so contributors on a newer daemon JDK still produce Java 17 bytecode.
+The build runs on Gradle 9.x, which requires a JVM of **17 or higher** to run the Gradle daemon itself. Compilation targets **Java 25** via the toolchain declared in `bdk.java-common-conventions` — the daemon JVM and the toolchain JVM are independent, but contributors still need a JDK 25 available for Gradle to provision or locate as the toolchain (it does not need to be the daemon JDK). Java 25 is BDK 4.x's baseline: a hard requirement, not a recommendation — see `docs/migration-4.x.md`.
 
 ## Build & Test Commands
 
@@ -28,8 +28,9 @@ The build runs on Gradle 9.x, which requires a JVM of **17 or higher** to run th
 # Publish to local Maven repository
 ./gradlew publishToMavenLocal
 
-# OWASP dependency vulnerability check (requires NVD_API_KEY env var for reasonable speed)
-./gradlew dependencyCheck
+# OWASP dependency vulnerability check across all modules (requires NVD_API_KEY env var for reasonable speed)
+# `dependencyCheck` alone is ambiguous under Gradle 9 (matches dependencyCheckAggregate/Analyze/Purge/Update)
+./gradlew dependencyCheckAggregate
 
 # Check for dependency updates
 ./gradlew dependencyUpdates
@@ -53,10 +54,10 @@ OBO (On-Behalf-Of) flows are surfaced through `OboServices` / `OboService`, whic
 
 Four Groovy convention plugins used by sub-modules:
 
-- `bdk.java-common-conventions` — Java 17 toolchain, UTF-8, JaCoCo, JUnit Platform, sources+javadoc jars, BOM platform import
+- `bdk.java-common-conventions` — Java 25 toolchain, UTF-8, JaCoCo, JUnit Platform (with an explicit Mockito `-javaagent`, since JVM self-attach is being withdrawn), sources+javadoc jars, BOM platform import
 - `bdk.java-library-conventions` — extends common + `java-library` plugin (used by all published libs)
 - `bdk.java-publish-conventions` — `maven-publish` + `signing`; signing is **only required for release versions** (`isReleaseVersion = !version.endsWith('SNAPSHOT')`)
-- `bdk.java-codegen-conventions` — OpenAPI Generator (Jersey2, Java 8 date library) reading `src/main/resources/api.yaml`; generated sources land in `build/generated/openapi`
+- `bdk.java-codegen-conventions` — OpenAPI Generator (Jersey3, Java 8 date library) reading `src/main/resources/api.yaml`; generated sources land in `build/generated/openapi`
 
 ## Publishing
 
