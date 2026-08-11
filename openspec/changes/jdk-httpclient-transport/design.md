@@ -1,0 +1,74 @@
+## Context
+
+`symphony-bdk-http-api` defines the transport-agnostic contract (`ApiClient`, `ApiClientBuilder`, `ApiClientBuilderProvider`, `ApiException`, `Pair`, `ApiClientBodyPart`, `DistributedTracingContext`) that OpenAPI-generated code and `symphony-bdk-core` call into. Two implementations exist today:
+
+- **`symphony-bdk-http-jersey2`** — Jersey 2 client + Apache HttpClient connector + `jjwt`/BouncyCastle for TLS material handling. `@API(STABLE)`, the module `symphony-bdk-core` itself depends on at `testImplementation` scope, and the one the Spring Boot starter (`BdkCoreConfig`) hardcodes via `new ApiClientBuilderProviderJersey2()`.
+- **`symphony-bdk-http-webclient`** — Spring `WebClient` + Reactor Netty, internally reactive but blocking (`.block()`) at the `invokeAPI` boundary to satisfy the same synchronous contract. `@API(EXPERIMENTAL)`.
+
+Both are selected at runtime purely via `ServiceLoader`: `ServiceLookup.lookupSingleService(ApiClientBuilderProvider.class)` in `symphony-bdk-core`'s `ApiClientFactory`/`SymphonyBdkBuilder` throws `IllegalStateException` if zero or more than one `ApiClientBuilderProvider` is found on the classpath. There is no classpath sniffing beyond this — a consumer picks exactly one http module as a runtime dependency.
+
+`RetryWithRecoveryBuilder.isNetworkIssueOrMinorError` in `symphony-bdk-core` inspects the root cause of exceptions surfaced from `invokeAPI` for exactly `java.net.SocketException`, `java.net.ConnectException`, `java.net.SocketTimeoutException`, and `java.net.UnknownHostException`. Both existing implementations translate their own transport-specific exceptions into these types at the `ApiClient` boundary; this is a real, load-bearing interop contract, not incidental to jersey2.
+
+This design adds a third implementation, `symphony-bdk-http-jdk`, built on `java.net.http.HttpClient` (JDK 11+, available since BDK's Java 17 toolchain baseline).
+
+## Goals / Non-Goals
+
+**Goals:**
+- Implement `ApiClient`/`ApiClientBuilder`/`ApiClientBuilderProvider` on `java.net.http.HttpClient` with zero new external HTTP dependencies.
+- Match jersey2's wire-level behavior (JSON shape, multipart encoding, trace-id header, file downloads) closely enough that a consumer switching implementations sees no functional difference.
+- Preserve `symphony-bdk-core`'s retry behavior unmodified by translating exceptions into the same root-cause types jersey2/webclient already produce.
+- Keep the module lean: reuse `symphony-bdk-http-api`'s shared helpers (`ApiUtils`, `DistributedTracingContext`, `Pair`) rather than re-deriving them.
+
+**Non-Goals:**
+- Making the Spring Boot starter's HTTP implementation choice pluggable. `BdkCoreConfig` keeps its hardcoded `ApiClientBuilderProviderJersey2`; this module is `symphony-bdk-core`-only for v1.
+- Closing the timeout and filter-chain semantic gaps described below by extending the shared `ApiClientBuilder` contract. Those gaps are documented and absorbed at the implementation level, not solved by changing `symphony-bdk-http-api`.
+- HTTP/2 push, WebSocket, or async (`sendAsync`) exposure through the public contract. `invokeAPI` is synchronous; internal use of `send` vs `sendAsync().join()` is an implementation detail (D-Sync).
+- Deprecating or replacing jersey2 as the documented default. This is an additive alternative.
+
+## Decisions
+
+**D1 — Timeout mapping.** JDK `HttpClient` exposes `Builder#connectTimeout(Duration)` at the client level and `HttpRequest.Builder#timeout(Duration)` as a per-request *total* timeout; there is no separate socket/read timeout concept the way Apache HttpClient (jersey2) or Reactor Netty (webclient) expose one. `ApiClientBuilder#withConnectionTimeout` maps directly to `HttpClient.Builder#connectTimeout`. `ApiClientBuilder#withReadTimeout` maps to `HttpRequest.Builder#timeout` on every built request — the closest available approximation, covering "the whole request took too long" rather than "no bytes arrived for N ms". This is called out explicitly in `ApiClientBuilderJdk`'s javadoc rather than presented as an exact equivalent.
+- *Alternative considered*: leave `withReadTimeout` a no-op. Rejected — a silently ignored timeout configuration is worse than an approximated one; a consumer who sets a read timeout expects *some* bound on hung requests.
+
+**D2 — Exception translation for retry compatibility.** `HttpConnectTimeoutException` already extends `java.net.ConnectException`, so it needs no translation. `HttpTimeoutException` extends `java.io.IOException` directly (not `SocketTimeoutException`), so a timeout during `send`/`sendAsync().join()` (`ExecutionException` unwrapped) is caught and rethrown as `java.net.SocketTimeoutException` with the original as cause, mirroring how jersey2 rewraps Apache HC's `ConnectTimeoutException`/`NoHttpResponseException`. `java.net.ConnectException` and `java.net.UnknownHostException` propagate as-is since JDK `HttpClient` already throws them directly for connection refusal and DNS failure.
+- *Alternative considered*: extend `RetryWithRecoveryBuilder.isNetworkIssueOrMinorError` to also check `HttpTimeoutException`. Rejected — that predicate is shared infrastructure used by every implementation; changing it to accommodate one new module's exception vocabulary is exactly the kind of blast-radius creep the existing two modules already avoided by translating locally instead.
+
+**D3 — Filter support (`addFilter`).** JDK `HttpClient` has no request/response filter chain API (unlike Jersey's `ClientRequestFilter`/`ClientResponseFilter` or WebClient's `ExchangeFilterFunction`). `ApiClientBuilderJdk#addFilter` accepts a new minimal functional type, `Function<HttpRequest.Builder, HttpRequest.Builder>` (request-mutation only, applied before send), and throws `IllegalArgumentException` for anything else — mirroring `ApiClientBuilderWebClient`'s defensive `instanceof` check rather than silently no-op'ing. Outgoing request/response logging (status, URL, elapsed time to `com.symphony.bdk.requests.outgoing`) is implemented as a manual wrap around the `send` call, not through this filter mechanism, since it needs response data a request-only filter can't see.
+- *Alternative considered*: full response-side filtering via a custom `HttpResponse.BodyHandler` wrapper. Rejected as unnecessary complexity — no current use case in the codebase (custom filters) needs response mutation, only request mutation (e.g., adding a header) or observation (logging, handled separately).
+
+**D4 — Connection pooling knobs remain no-ops.** JDK `HttpClient` has no per-instance connection-pool-size configuration (only JVM-wide system properties like `jdk.httpclient.connectionPoolSize`, outside any single `HttpClient.Builder`'s control). `withConnectionPoolMax`/`withConnectionPoolPerRoute` are left as the inherited no-op default from `ApiClientBuilder`, the same precedent `ApiClientBuilderWebClient` already sets.
+
+**D5 — JSON serialization: duplicate, don't extract.** A `JSON` class in the new module configures its own `ObjectMapper` (RFC3339 dates via the same `RFC3339DateFormat` pattern, `JavaTimeModule`, `JsonNullableModule`, `NON_NULL` inclusion, `FAIL_ON_UNKNOWN_PROPERTIES=false`, `FAIL_ON_INVALID_SUBTYPE=false`, enums via `toString`), duplicating jersey2's `JSON`/`RFC3339DateFormat` logic rather than extracting a shared helper into `symphony-bdk-http-api`. This is deliberate: it's ~50 lines, two implementations already exist without a shared abstraction, and a third module reaching for one is exactly the "wait for the third occurrence" point — but extracting now would touch the stable `symphony-bdk-http-api` module for the convenience of a module that doesn't need to be there yet. If a fourth implementation ever appears, that's the point to revisit.
+
+**D6 — Multipart body encoding is hand-rolled.** JDK `HttpClient` has no multipart body builder. `multipart/form-data` requests are encoded by hand: a boundary is generated per request, and each form param is written as a part per jersey2's supported value types — `File`, `Collection<File>`, `ApiClientBodyPart`, `ApiClientBodyPart[]`, or a plain string field — using `HttpRequest.BodyPublishers.ofByteArrays` (or an equivalent streaming publisher for large files, avoiding buffering entire files into memory). This is the largest implementation-risk area in the module and gets dedicated unit tests per value type (see tasks).
+
+**D7 — File download responses.** When `returnType` resolves to `File`, the response body is written directly to `temporaryFolderPath` using `HttpResponse.BodyHandlers.ofFile(Path)`, with the target filename derived from the `Content-Disposition` response header when present — matching jersey2's `downloadFileFromResponse`/`prepareDownloadFile` behavior.
+
+**D8 — TLS.** `ApiClientBuilderJdk` builds a `javax.net.ssl.SSLContext` from the supplied keystore/truststore bytes + passwords using standard `KeyManagerFactory`/`TrustManagerFactory` APIs (no Jersey `SslConfigurator` or Netty `SslContextBuilder` needed), reusing `ApiUtils.addDefaultRootCaCertificates` so a custom truststore doesn't shadow the JVM's default CAs — the same reuse pattern both existing modules already follow. The context is passed to `HttpClient.Builder#sslContext`.
+
+**D9 — Proxy.** Proxy host/port is configured via `ProxySelector.of(InetSocketAddress)` on `HttpClient.Builder#proxy`. Proxy credentials are handled via `HttpClient.Builder#authenticator(Authenticator)`, implementing `Authenticator#getPasswordAuthentication` to respond only to `RequestorType.PROXY` challenges — JDK `HttpClient` drives the proxy Basic-Auth handshake itself once an `Authenticator` is registered, so no manual `Proxy-Authorization` header construction is needed.
+
+**D10 — Sync vs async internally.** `invokeAPI` stays synchronous at the contract boundary (matching every existing implementation). Internally, the implementation uses the blocking `HttpClient#send(...)` overload rather than `sendAsync(...).join()` — no internal concurrency benefit is available to extract here since the contract is synchronous end-to-end, and `send` avoids the extra `CompletableFuture`/`ExecutionException` unwrapping `sendAsync().join()` would otherwise require at every call site.
+
+**D11 — Module structure.** New Gradle module `symphony-bdk-http/symphony-bdk-http-jdk`, applying `bdk.java-library-conventions` + `bdk.java-publish-conventions` (the same two plugins jersey2/webclient apply), `api project(':symphony-bdk-http:symphony-bdk-http-api')`, plus `jackson-databind`, `jackson-datatype-jsr310`, `jackson-databind-nullable`, `slf4j-api`, `apiguardian-api` — all already BOM-pinned, so no new BOM entries beyond the module's own artifact coordinate. No Jersey, Apache HttpClient, `jjwt`, BouncyCastle, or Reactor Netty dependency.
+
+## Risks / Trade-offs
+
+- **[Risk]** Hand-rolled multipart encoding has subtle correctness edge cases (boundary collision, charset handling, large-file memory use) that a mature library like Jersey's `FormDataMultiPart` already handles. → **Mitigation**: dedicated unit tests per value type (`File`, `Collection<File>`, `ApiClientBodyPart`, `ApiClientBodyPart[]`, plain field), plus an integration test that round-trips a real multipart upload against MockServer, mirroring `ApiClientBuilderJersey2Test`'s approach.
+- **[Risk]** `withReadTimeout`'s approximation (per-request total timeout instead of a true socket/read timeout) could surprise a consumer migrating from jersey2 who relies on the distinction (e.g., large file downloads that legitimately take longer than a fixed read timeout would allow under the old semantics). → **Mitigation**: explicit javadoc on `ApiClientBuilderJdk#withReadTimeout` and a callout in `docs/migration.md`'s module-selection section.
+- **[Risk]** `HttpTimeoutException`'s translation to `SocketTimeoutException` is a best-effort mapping done once, in one place (`ApiClientJdk`'s exception handling), and any future change to `RetryWithRecoveryBuilder`'s predicate could silently stop covering this module if the mapping isn't kept in sync. → **Mitigation**: a unit test that asserts the translated exception's root cause is exactly `SocketTimeoutException`, so a regression fails a test rather than surfacing as "retries stopped working" in production.
+- **[Trade-off]** No filter chain means consumers relying on Jersey-style response-inspecting filters (e.g., a custom auth-refresh-on-401 filter) cannot port that pattern to this module. Accepted: no such filter exists in the current codebase, and the request-mutation-only filter type covers the documented `addFilter` use cases (adding headers).
+- **[Trade-off]** Duplicated JSON configuration (D5) means a future date-format or Jackson-module change must be applied in two places (jersey2 and this module) plus a third if webclient's implicit Spring config ever needs the same explicit treatment. Accepted per the "wait for the third occurrence" reasoning in D5; revisit if a fourth implementation appears.
+
+## Migration Plan
+
+This is additive — there is no code migration for existing consumers. Adoption is opt-in:
+1. A consumer replaces their `symphony-bdk-http-jersey2` (or `-webclient`) runtime dependency with `symphony-bdk-http-jdk`.
+2. `ServiceLoader` picks up the new module's `ApiClientBuilderProvider` automatically; no code change to `SymphonyBdkBuilder` usage is required.
+3. `docs/migration.md` gets a short section listing the two documented gaps (D1 timeout semantics, D3 filter support) so a consumer can decide before switching, not discover it after.
+No rollback concern beyond reverting the dependency swap, since the module makes no change to shared code paths.
+
+## Open Questions
+
+- Should `symphony-bdk-http-jdk` be promoted to `@API(STABLE)` immediately (like jersey2) or ship `@API(EXPERIMENTAL)` (like webclient) for an initial release cycle before stabilizing? Leaning `EXPERIMENTAL` given it's a new module with a hand-rolled multipart encoder as its highest-risk component.
+- Is there consumer demand to eventually make the Spring Boot starter's HTTP implementation pluggable (closing the `BdkCoreConfig` TODO), and if so, should that be scoped as a follow-up change rather than folded in here? Left as a Non-Goal for this change either way.
