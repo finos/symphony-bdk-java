@@ -41,8 +41,13 @@ import javax.net.ssl.SSLContext;
  * <p><b>Please note that overriding this class is an {@link org.apiguardian.api.API.Status#EXPERIMENTAL} feature that we
  * offer to developers for {@link ApiClient} customization. The internal contract of this class (e.g. protected methods)
  * is subject to changes in the future.</b>
+ *
+ * @deprecated in favor of {@code com.symphony.bdk.http.jdk.ApiClientBuilderJdk} (module {@code symphony-bdk-http-jdk}),
+ * the new default HTTP implementation for {@code symphony-bdk-core}, which has no third-party HTTP dependency. This
+ * module keeps shipping and working exactly as before; this is a soft, non-removing signal, not a functional
+ * change. See the migration guide's "New default HTTP client module" section for details.
  */
-@API(status = API.Status.STABLE)
+@API(status = API.Status.DEPRECATED)
 public class ApiClientBuilderJersey2 implements ApiClientBuilder {
 
   private static final String TRUSTSTORE_FORMAT = "JKS";
