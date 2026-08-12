@@ -29,6 +29,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -436,7 +437,10 @@ public class ApiClientJdk implements ApiClient {
   }
 
   private URI buildUri(String path, List<Pair> queryParams) {
-    StringBuilder urlBuilder = new StringBuilder(this.basePath).append(path);
+    String normalizedBasePath =
+        this.basePath.endsWith("/") ? this.basePath.substring(0, this.basePath.length() - 1) : this.basePath;
+    String normalizedPath = path.startsWith("/") ? path : "/" + path;
+    StringBuilder urlBuilder = new StringBuilder(normalizedBasePath).append(normalizedPath);
     if (queryParams != null && !queryParams.isEmpty()) {
       String query = queryParams.stream()
           .filter(param -> param.getValue() != null)
@@ -543,6 +547,8 @@ public class ApiClientJdk implements ApiClient {
       publishers.add(HttpRequest.BodyPublishers.ofFile(file.toPath()));
     } catch (java.io.FileNotFoundException e) {
       throw new ApiException("Unable to read file for multipart upload: " + file, e);
+    } catch (InvalidPathException e) {
+      throw new ApiException("Invalid file path for multipart upload: " + file, e);
     }
     publishers.add(HttpRequest.BodyPublishers.ofByteArray(CRLF.getBytes(StandardCharsets.UTF_8)));
   }

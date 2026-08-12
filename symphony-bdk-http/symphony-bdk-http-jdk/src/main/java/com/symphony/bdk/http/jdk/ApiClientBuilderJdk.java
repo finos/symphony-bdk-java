@@ -231,6 +231,12 @@ public class ApiClientBuilderJdk implements ApiClientBuilder {
    * <p><b>Note:</b> {@code java.net.http.HttpClient} has no request/response filter chain. This implementation
    * only accepts {@code Function<HttpRequest.Builder, HttpRequest.Builder>} instances (request-mutation only,
    * applied before send) and throws {@link IllegalArgumentException} for anything else.</p>
+   *
+   * <p><b>Warning:</b> due to type erasure, this method can only verify that {@code filter} is a
+   * {@link Function}, not that its type parameters are actually
+   * {@code <HttpRequest.Builder, HttpRequest.Builder>}. Supplying a {@link Function} with a different
+   * signature will not fail here, but will throw a {@link ClassCastException} later, when the filter is
+   * applied to an actual request.</p>
    */
   @Override
   @SuppressWarnings("unchecked")
