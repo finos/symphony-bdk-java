@@ -167,19 +167,21 @@ No other generated class changes shape, method signatures, `equals`/`hashCode`/`
 consumer-visible way. Fluent builder method names (`addXxxItem`, `putXxxItem`, etc.) and all constructors are
 unchanged.
 
-## 9. New default HTTP client module: `symphony-bdk-http-jdk`
+## 9. `symphony-bdk-http-jdk` becomes the default HTTP client module — migrate off `symphony-bdk-http-jersey` / `symphony-bdk-http-webclient`
 
 BDK 4.x introduces `symphony-bdk-http-jdk`, a third `ApiClient` implementation built directly on
 `java.net.http.HttpClient` (available since Java 11, and part of the JDK itself), with **no third-party HTTP
-dependency**. It is now the module `docs/getting-started.md` and `docs/tech/architecture.md` present as the default
-for `symphony-bdk-core`, ahead of `symphony-bdk-http-jersey`.
+dependency**. Starting with 4.x, `symphony-bdk-http-jdk` **is the default and recommended `ApiClient` implementation**
+for both `symphony-bdk-core` and `symphony-bdk-spring` — `docs/getting-started.md` and `docs/tech/architecture.md`
+present it first, ahead of `symphony-bdk-http-jersey` and `symphony-bdk-http-webclient`.
 
-This is **not a required migration**. `symphony-bdk-http-jersey` keeps shipping and working exactly as before —
-existing consumers with an explicit `symphony-bdk-http-jersey` runtime dependency see no functional change, beyond
-its classes now being annotated `@API(status = API.Status.DEPRECATED)` (a documentation/IDE-warning signal only,
-not a removal notice).
+**Consumers on `symphony-bdk-http-jersey` or `symphony-bdk-http-webclient` should plan to migrate to
+`symphony-bdk-http-jdk`.** Both older modules keep shipping and working for now — existing consumers see no
+functional change beyond `symphony-bdk-http-jersey`'s classes now being annotated
+`@API(status = API.Status.DEPRECATED)` (a documentation/IDE-warning signal only, not yet a removal notice) — but they
+are no longer the modules new and existing projects should depend on going forward.
 
-If you want to switch, replace your `symphony-bdk-http-jersey` (or `symphony-bdk-http-webclient`) runtime dependency
+To switch, replace your `symphony-bdk-http-jersey` (or `symphony-bdk-http-webclient`) runtime dependency
 with `symphony-bdk-http-jdk` — `ServiceLoader` picks up the new module's `ApiClientBuilderProvider` automatically, no
 code change to `SymphonyBdkBuilder` usage required. Before switching, be aware of two behavioral differences from
 `symphony-bdk-http-jersey`:
