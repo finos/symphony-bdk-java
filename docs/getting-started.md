@@ -24,6 +24,11 @@ yo @finos/symphony
 ## Creating your project _from scratch_
 This section will help you to understand how to create your bot application from scratch.
 
+> :warning: The default HTTP client dependency below, `symphony-bdk-http-jdk`, is currently `@API(EXPERIMENTAL)`. It has
+> zero third-party HTTP dependencies (built directly on `java.net.http.HttpClient`), but if you need an `@API(STABLE)`-only
+> dependency tree, use `symphony-bdk-http-jersey` instead. See [Migration Guide](migration.md) for details on switching
+> between HTTP client implementations.
+
 ### Maven-based project
 If you want to use [Maven](https://maven.apache.org/) as build system, you have to configure your root `pom.xml` as such:
 ```xml
@@ -59,7 +64,7 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
         </dependency>
         <dependency>
             <groupId>org.finos.symphony.bdk</groupId>
-            <artifactId>symphony-bdk-http-jersey</artifactId> <!-- or symphony-bdk-http-webclient -->
+            <artifactId>symphony-bdk-http-jdk</artifactId> <!-- or symphony-bdk-http-jersey / symphony-bdk-http-webclient -->
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -101,7 +106,7 @@ dependencies {
 
     // define dependencies without versions
     implementation 'org.finos.symphony.bdk:symphony-bdk-core'
-    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jersey'           //  or symphony-bdk-http-webclient
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jdk'              //  or symphony-bdk-http-jersey / symphony-bdk-http-webclient
     runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'    // or symphony-bdk-http-handlebars
 
     // logger configuration

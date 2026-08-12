@@ -52,8 +52,13 @@ import static com.symphony.bdk.http.api.util.ApiUtils.isCollectionOfFiles;
 
 /**
  * Jersey2 implementation for the {@link ApiClient} interface called by generated code.
+ *
+ * @deprecated in favor of {@code com.symphony.bdk.http.jdk.ApiClientJdk} (module {@code symphony-bdk-http-jdk}),
+ * the new default HTTP implementation for {@code symphony-bdk-core}, which has no third-party HTTP dependency. This
+ * module keeps shipping and working exactly as before; this is a soft, non-removing signal, not a functional
+ * change. See the migration guide's "New default HTTP client module" section for details.
  */
-@API(status = API.Status.STABLE)
+@API(status = API.Status.DEPRECATED)
 public class ApiClientJersey2 implements ApiClient {
 
   protected Client httpClient;

@@ -34,8 +34,9 @@ also provides a utility `com.symphony.bdk.http.api.HttpClient` class helping dev
 > :warning: It is important to notice that interface `com.symphony.bdk.http.api.ApiClient` is used by generated code.
 > Changing contract would break the build. See [Code Generation](#code-generation).
 
-At the moment, two different implementations have been created for the `com.symphony.bdk.http.api.ApiClient` interface:
-- `com.symphony.bdk.http.jersey2.ApiClientJersey2` contained in module `symphony-bdk-http-jersey` (default implementation for [Core](#symphony-bdk-core))
+At the moment, three different implementations have been created for the `com.symphony.bdk.http.api.ApiClient` interface:
+- `com.symphony.bdk.http.jdk.ApiClientJdk` contained in module `symphony-bdk-http-jdk` (default implementation for [Core](#symphony-bdk-core), built on `java.net.http.HttpClient` with no third-party HTTP dependency)
+- `com.symphony.bdk.http.jersey2.ApiClientJersey2` contained in module `symphony-bdk-http-jersey` (deprecated as [Core](#symphony-bdk-core)'s default in favor of `symphony-bdk-http-jdk`, but still supported)
 - `com.symphony.bdk.http.webclient.ApiClientWebClient` contained in module `symphony-bdk-http-webclient` (default implementation for [Spring Boot](#symphony-bdk-spring))
 
 ### symphony-bdk-template
