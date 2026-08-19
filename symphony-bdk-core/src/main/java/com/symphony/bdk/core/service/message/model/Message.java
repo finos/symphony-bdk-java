@@ -6,9 +6,6 @@ import com.symphony.bdk.core.service.message.exception.MessageCreationException;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.Template;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +14,14 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apiguardian.api.API;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Nonnull;
 
 /**
  * Message model to be used in {@link com.symphony.bdk.core.service.message.MessageService#send(V4Stream, Message)}
@@ -95,7 +94,11 @@ public class Message {
   @API(status = API.Status.STABLE)
   public static class MessageBuilder {
 
-    private static final ObjectMapper MAPPER = new JsonMapper();
+    // Jackson 3 defaults FAIL_ON_EMPTY_BEANS off; re-enable it so a bean with no accessible
+    // properties still surfaces as a MessageCreationException instead of silently sending "{}".
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+        .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+        .build();
 
     private String version = "2.0";
     private String content;
@@ -111,7 +114,7 @@ public class Message {
      * @param   message    messageML.
      * @return  this builder with the content configured.
      */
-    public MessageBuilder content(@Nonnull String message) {
+    public MessageBuilder content(String message) {
       this.content = message;
       return this;
     }
@@ -123,7 +126,7 @@ public class Message {
      * @param   parameters  parameters to be used in the template.
      * @return  this builder with the content configured.
      */
-    public MessageBuilder template(@Nonnull Template template, @Nonnull Object parameters) {
+    public MessageBuilder template(Template template, Object parameters) {
       this.content = template.process(parameters);
       return this;
     }
@@ -134,7 +137,7 @@ public class Message {
      * @param   template a custom or built-in template.
      * @return  this builder with the content configured.
      */
-    public MessageBuilder template(@Nonnull Template template) {
+    public MessageBuilder template(Template template) {
       return this.template(template, emptyMap());
     }
 
@@ -143,16 +146,16 @@ public class Message {
      * @param   data Serializable data object.
      * @return  this builder with the data configured.
      */
-    public MessageBuilder data(@Nonnull Object data) {
+    public MessageBuilder data(Object data) {
       try {
         this.data = MAPPER.writeValueAsString(data);
         return this;
-      } catch (JsonProcessingException e) {
+      } catch (JacksonException e) {
         throw new MessageCreationException("Failed to serialize data (" + data.getClass() + ") to Json string", e);
       }
     }
 
-    public MessageBuilder silent(@Nonnull Boolean silent) {
+    public MessageBuilder silent(Boolean silent) {
       this.silent = silent;
       return this;
     }
@@ -176,7 +179,7 @@ public class Message {
      * @param filename Filename of the attachment.
      * @return  this builder with the data configured.
      */
-    public MessageBuilder addAttachment(@Nonnull InputStream content, @Nonnull String filename) {
+    public MessageBuilder addAttachment(InputStream content, String filename) {
       this.attachments.add(new Attachment(content, filename));
       return this;
     }
@@ -188,7 +191,7 @@ public class Message {
      * @param filename Filename of the attachment.
      * @return  this builder with the data configured.
      */
-    public MessageBuilder addAttachment(@Nonnull InputStream attachment, @Nonnull InputStream preview, @Nonnull String filename) {
+    public MessageBuilder addAttachment(InputStream attachment, InputStream preview, String filename) {
       this.attachments.add(new Attachment(attachment, filename));
       this.previews.add(new Attachment(preview, "preview-" + filename));
       return this;

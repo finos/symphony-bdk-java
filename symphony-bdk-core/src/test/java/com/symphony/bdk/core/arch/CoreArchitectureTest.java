@@ -1,6 +1,8 @@
 package com.symphony.bdk.core.arch;
 
+import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleName;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.resideInAnyPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
@@ -28,6 +30,7 @@ import org.slf4j.Logger;
  *     <li>Guava usage is not allowed (at the moment). This way we can control when and if we want to import it</li>
  *     <li>usage of System.out and System.err is not allowed</li>
  *     <li>usage of java.util.logging is not allowed</li>
+ *     <li>JSR-305 nullability annotations are not allowed (superseded by JSpecify)</li>
  *   </ul>
  * </p>
  */
@@ -49,8 +52,20 @@ public class CoreArchitectureTest {
           .areNotAnonymousClasses()
         .and()
           .areNotPrivate()
+        .and(not(simpleName("package-info")))
         .should()
           .beAnnotatedWith(API.class)
+    .check(classes);
+  }
+
+  @ArchTest
+  void no_jsr305_nullability_annotations(JavaClasses classes) {
+    noClasses()
+        .that()
+          .resideOutsideOfPackage("com.symphony.bdk.gen..") // generator's jersey2 templates still emit JSR-305
+        .should()
+          .dependOnClassesThat(resideInAPackage("javax.annotation"))
+        .because("JSR-305 is unmaintained; nullability is expressed with JSpecify (@Nullable / @NullMarked)")
     .check(classes);
   }
 

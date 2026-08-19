@@ -20,8 +20,6 @@ import org.apiguardian.api.API;
 
 import java.security.PrivateKey;
 
-import javax.annotation.Nonnull;
-
 /**
  * Bot authenticator RSA implementation.
  *
@@ -37,13 +35,13 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
   private final ApiClient relayApiClient;
 
   public BotAuthenticatorRsaImpl(
-      @Nonnull BdkRetryConfig retryConfig,
-      @Nonnull String username,
-      @Nonnull BdkCommonJwtConfig commonJwtConfig,
-      @Nonnull PrivateKey privateKey,
-      @Nonnull ApiClient loginApiClient,
-      @Nonnull ApiClient relayApiClient,
-      @Nonnull AgentVersionService agentVersionService,
+      BdkRetryConfig retryConfig,
+      String username,
+      BdkCommonJwtConfig commonJwtConfig,
+      PrivateKey privateKey,
+      ApiClient loginApiClient,
+      ApiClient relayApiClient,
+      AgentVersionService agentVersionService,
       boolean agentConfigured
   ) {
     super(retryConfig, commonJwtConfig, loginApiClient, agentVersionService, agentConfigured);
@@ -56,7 +54,7 @@ public class BotAuthenticatorRsaImpl extends AbstractBotAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull AuthSession authenticateBot() throws AuthUnauthorizedException {
+  public AuthSession authenticateBot() throws AuthUnauthorizedException {
     final AuthSessionImpl authSession = new AuthSessionImpl(this);
     authSession.refresh();
     return authSession;

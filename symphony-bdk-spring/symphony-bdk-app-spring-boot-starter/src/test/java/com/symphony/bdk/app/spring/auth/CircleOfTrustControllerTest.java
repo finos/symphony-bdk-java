@@ -18,11 +18,14 @@ import com.symphony.bdk.app.spring.properties.AppAuthProperties;
 import com.symphony.bdk.core.config.model.BdkExtAppConfig;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockCookie;
@@ -31,7 +34,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CircleOfTrustController.class)
+@Import(CircleOfTrustControllerTest.TestConfig.class)
 public class CircleOfTrustControllerTest {
+
+  @TestConfiguration
+  static class TestConfig {
+    @Bean
+    public ObjectMapper objectMapper() {
+      return new ObjectMapper();
+    }
+  }
 
   @Autowired
   private ObjectMapper objectMapper;

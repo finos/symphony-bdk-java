@@ -3,8 +3,11 @@ plugins {
 }
 
 dependencies {
-    implementation 'javax.annotation:jsr250-api:1.0'
+    // jersey3 forces useJakartaEe, so the generated @Generated annotation is jakarta.annotation.Generated.
+    implementation 'jakarta.annotation:jakarta.annotation-api'
     implementation 'io.swagger:swagger-annotations'
+    // Generated model classes are annotated with @javax.annotation.Nullable by our custom pojo.mustache
+    // template (JSR-305, never renamed to the jakarta namespace — unrelated to the jersey3/Jakarta EE move).
     implementation 'com.google.code.findbugs:jsr305'
 }
 
@@ -16,7 +19,7 @@ tasks.compileJava.dependsOn tasks.openApiGenerate
 
 openApiGenerate {
     generatorName = 'java'
-    library = 'jersey2'
+    library = 'jersey3'
     outputDir = generatedFolder
     inputSpec = "$projectDir/src/main/resources/api.yaml"
     skipOverwrite = true
@@ -34,4 +37,34 @@ openApiGenerate {
     configOptions = [
             dateLibrary: "java8"
     ]
+}
+
+// AbstractJavaCodegen.processOpts() hardcodes JsonSerialize/JsonDeserialize/ToStringSerializer as
+// Jackson 2 databind imports (used for Set-typed properties) after any configured importMapping
+// override is applied, so the only way to redirect them is a post-generation rewrite. BDK 4.x is
+// Jackson 3 only (D2/task 6.7) — these must not reintroduce jackson-databind 2 on the classpath.
+tasks.named('openApiGenerate').configure {
+    doLast {
+        fileTree(generatedFolder) { include '**/*.java' }.each { javaFile ->
+            def original = javaFile.text
+            def rewritten = original
+                    .replace('com.fasterxml.jackson.databind.annotation.JsonSerialize', 'tools.jackson.databind.annotation.JsonSerialize')
+                    .replace('com.fasterxml.jackson.databind.annotation.JsonDeserialize', 'tools.jackson.databind.annotation.JsonDeserialize')
+                    .replace('com.fasterxml.jackson.databind.ser.std.ToStringSerializer', 'tools.jackson.databind.ser.std.ToStringSerializer')
+            if (rewritten != original) {
+                javaFile.text = rewritten
+            }
+        }
+        // jersey3 forces useJakartaEe, so upstream imports must all resolve to the jakarta namespace.
+        // pojo.mustache's own @javax.annotation.Nullable is a JSR-305 annotation, applied inline without
+        // an import statement, so it never trips this check.
+        def strayJavaxImports = fileTree(generatedFolder) { include '**/*.java' }.findAll { javaFile ->
+            javaFile.text.readLines().any { it.startsWith('import javax.') }
+        }
+        if (!strayJavaxImports.isEmpty()) {
+            throw new GradleException("Generated sources import javax.* even though library=jersey3 " +
+                    "(useJakartaEe) is set — the Jakarta patch was lost in a template rebase: " +
+                    strayJavaxImports.collect { it.path }.join(', '))
+        }
+    }
 }

@@ -3,12 +3,12 @@ package com.symphony.bdk.core.service.message.util;
 import com.symphony.bdk.core.service.message.exception.MessageParserException;
 import com.symphony.bdk.gen.api.model.V4Message;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apiguardian.api.API;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,7 +99,7 @@ public final class MessageParser {
   private static JsonNode getJsonNode(String data) throws MessageParserException {
     try {
       return MAPPER.readTree(data);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new MessageParserException("Failed to extract payload from message data", e);
     }
   }

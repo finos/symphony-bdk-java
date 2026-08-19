@@ -15,8 +15,6 @@ import org.apiguardian.api.API;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import javax.annotation.Nonnull;
-
 /**
  * A "slash" command if the most basic action that can be performed by an end-user through the chat.
  */
@@ -37,7 +35,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @param slashCommandPattern Pattern of the command (ex: '/gif' or 'gif {option} {{@literal @}mention}').
    * @param callback            Callback to be processed when command is detected.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandPattern, @Nonnull Consumer<CommandContext> callback) {
+  public static SlashCommand slash(String slashCommandPattern, Consumer<CommandContext> callback) {
     return slash(slashCommandPattern, true, callback);
   }
 
@@ -49,8 +47,8 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @param callback            Callback to be processed when command is detected.
    * @throws IllegalArgumentException if command name if empty.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-      @Nonnull Consumer<CommandContext> callback) {
+  public static SlashCommand slash(String slashCommandPattern, boolean requiresBotMention,
+      Consumer<CommandContext> callback) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, false, callback, "");
   }
 
@@ -62,7 +60,7 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @param description         The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandPattern, @Nonnull Consumer<CommandContext> callback,
+  public static SlashCommand slash(String slashCommandPattern, Consumer<CommandContext> callback,
       String description) {
     return slash(slashCommandPattern, true, false, callback, description);
   }
@@ -76,8 +74,8 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @param description         The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention,
-      @Nonnull Consumer<CommandContext> callback, String description) {
+  public static SlashCommand slash(String slashCommandPattern, boolean requiresBotMention,
+      Consumer<CommandContext> callback, String description) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, false, callback, description);
   }
 
@@ -91,16 +89,16 @@ public class SlashCommand extends CommandActivity<CommandContext> {
    * @param description         The summary of the command.
    * @return a {@link SlashCommand} instance.
    */
-  public static SlashCommand slash(@Nonnull String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
-      @Nonnull Consumer<CommandContext> callback, String description) {
+  public static SlashCommand slash(String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
+      Consumer<CommandContext> callback, String description) {
     return new SlashCommand(slashCommandPattern, requiresBotMention, isAsync, callback, description);
   }
 
   /**
    * Default protected constructor, new instances from static methods only.
    */
-  protected SlashCommand(@Nonnull String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
-      @Nonnull Consumer<CommandContext> callback, String description) {
+  protected SlashCommand(String slashCommandPattern, boolean requiresBotMention, boolean isAsync,
+      Consumer<CommandContext> callback, String description) {
     this.slashCommandName = slashCommandPattern;
     this.commandPattern = new SlashCommandPattern(this.slashCommandName);
     this.requiresBotMention = requiresBotMention;

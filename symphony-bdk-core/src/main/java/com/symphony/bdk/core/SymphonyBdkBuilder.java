@@ -16,8 +16,7 @@ import org.apiguardian.api.API;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Fluent builder for advanced configuration of the {@link SymphonyBdk} entry point.
@@ -45,7 +44,7 @@ public class SymphonyBdkBuilder {
    * @return updated builder.
    * @see com.symphony.bdk.core.config.BdkConfigLoader
    */
-  public SymphonyBdkBuilder config(@Nonnull BdkConfig config) {
+  public SymphonyBdkBuilder config(BdkConfig config) {
     this.config = config;
     return this;
   }
@@ -89,7 +88,7 @@ public class SymphonyBdkBuilder {
    * @param extension {@link BdkExtension} class to be registered.
    * @return updated builder.
    */
-  public SymphonyBdkBuilder extension(@Nonnull Class<? extends BdkExtension> extension) {
+  public SymphonyBdkBuilder extension(Class<? extends BdkExtension> extension) {
     this.extensions.add(extension);
     return this;
   }

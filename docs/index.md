@@ -7,16 +7,17 @@ nav_order: 1
 # Symphony BDK Reference Documentation
 
 >
-> ### BDK version 3.0: Major change !
-> 
-> The newly introduced BDK version 3.0 relies on Java 17 and SpringBoot 3. This is a major change that allows Symphony to continue to propose the latest security fixes following the end of support of Spring Boot 2 and also to keep up with the latest evolutions of Java.
-> 
-> For the next 6 months Symphony will provide critical security fixes for BDK 2.0 where possible (since Spring gives no guarantees for their packages).
-> 
-> Please consider migrating your Bots in the coming months to benefit from the latest features and support. 
+> ### BDK version 4.0: Major change !
+>
+> The newly introduced BDK version 4.0 relies on Java 25 and Spring Boot 4. This is a major change that allows Symphony to continue to propose the latest security fixes following the end of support of Spring Boot 3 and also to keep up with the latest evolutions of Java.
+>
+> For the next 6 months Symphony will provide critical security fixes for BDK 3.x where possible (since Spring gives no guarantees for their packages).
+>
+> Please consider migrating your Bots in the coming months to benefit from the latest features and support.
+> See the [4.x Migration Guide](./migration-4.x.html) for details.
 >
 >> ### Note !
->> As detailed above, the BDK version 2.0 will stop being supported by Symphony on August 15.
+>> BDK 3.x documentation remains available at [symphony-bdk-java.finos.org/3.x/](./3.x/).
 >>
 
 This reference guide provides detailed information about the Symphony BDK. It provides a comprehensive documentation
@@ -30,7 +31,8 @@ The reference documentation consists of the following sections:
 | Section                                   | Description                                                           |
 |-------------------------------------------|:---------------------------------------------------------------------:|
 | [Getting Started](./getting-started.html) | Introducing Symphony BDK for beginners                                |
-| [Migration Guide](./migration.html)       | Guide to migrate to Symphony BDK 2.0                                  |
+| [Migration Guide (4.x)](./migration-4.x.html) | Guide to migrate to Symphony BDK 4.0 from 3.x                     |
+| [Migration Guide](./migration.html)       | Guide to migrate to Symphony BDK 2.0 / 3.0                            |
 | [Configuration](./configuration.html)     | Configuration structure, formats, how to load from code               |
 | [Authentication](./authentication.html)   | RSA or certificate authentication, OBO, extension app authentication  |
 | [Datafeed Loop](datafeed.html)            | Receiving real time events                                            |

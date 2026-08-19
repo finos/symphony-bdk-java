@@ -27,6 +27,7 @@ dependencies {
     api 'org.springframework.boot:spring-boot-starter'
     api 'org.springframework.boot:spring-boot-starter-web'
     api 'org.springframework.boot:spring-boot-starter-actuator'
+    api 'org.springframework.boot:spring-boot-health'
     implementation project(':symphony-bdk-spring:symphony-bdk-core-spring-boot-starter')
 
     compileOnly 'org.projectlombok:lombok'
@@ -36,13 +37,13 @@ dependencies {
     implementation 'org.apiguardian:apiguardian-api'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 
     testImplementation coreProject.sourceSets.test.output
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

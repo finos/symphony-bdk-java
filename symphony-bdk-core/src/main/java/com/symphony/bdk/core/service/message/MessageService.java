@@ -53,9 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing messages.
@@ -186,14 +184,14 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since,
-      @Nonnull PaginationAttribute pagination) {
+  public List<V4Message> listMessages(V4Stream stream, Instant since,
+      PaginationAttribute pagination) {
     return listMessages(stream.getStreamId(), since, pagination);
   }
 
   @Override
-  public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until,
-      @Nonnull PaginationAttribute pagination) {
+  public List<V4Message> listMessages(V4Stream stream, Instant since, Instant until,
+      PaginationAttribute pagination) {
     return listMessages(stream.getStreamId(), since, until, pagination);
   }
 
@@ -201,12 +199,12 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since) {
+  public List<V4Message> listMessages(V4Stream stream, Instant since) {
     return listMessages(stream.getStreamId(), since);
   }
 
   @Override
-  public List<V4Message> listMessages(@Nonnull V4Stream stream, @Nonnull Instant since, Instant until) {
+  public List<V4Message> listMessages(V4Stream stream, Instant since, Instant until) {
     return listMessages(stream.getStreamId(), since, until);
   }
 
@@ -214,14 +212,14 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since,
-      @Nonnull PaginationAttribute pagination) {
+  public List<V4Message> listMessages(String streamId, Instant since,
+      PaginationAttribute pagination) {
     return listMessages(streamId, since, null, pagination);
   }
 
   @Override
-  public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until,
-      @Nonnull PaginationAttribute pagination) {
+  public List<V4Message> listMessages(String streamId, Instant since, Instant until,
+      PaginationAttribute pagination) {
     return doListMessages(streamId, since, until, pagination);
   }
 
@@ -229,16 +227,16 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since) {
+  public List<V4Message> listMessages(String streamId, Instant since) {
     return listMessages(streamId, since, (Instant) null);
   }
 
   @Override
-  public List<V4Message> listMessages(@Nonnull String streamId, @Nonnull Instant since, Instant until) {
+  public List<V4Message> listMessages(String streamId, Instant since, Instant until) {
     return doListMessages(streamId, since, until, null);
   }
 
-  private List<V4Message> doListMessages(@Nonnull String streamId, @Nonnull Instant since, @Nullable Instant until,
+  private List<V4Message> doListMessages(String streamId, Instant since, @Nullable Instant until,
       @Nullable PaginationAttribute pagination) {
     if (retrieverOverride != null) {
       return executeAndRetry("getMessages", messageApi.getApiClient().getBasePath(),
@@ -260,7 +258,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return the list of matching messages
    * @see <a href="https://developers.symphony.com/restapi/reference#?message-search-post">Message Search (using POST)</a>
    */
-  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query) {
+  public List<V4Message> searchMessages(MessageSearchQuery query) {
     return this.searchMessages(query, null);
   }
 
@@ -272,7 +270,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return the list of matching messages
    * @see <a href="https://developers.symphony.com/restapi/reference/message-search-post">Message Search (using POST)</a>
    */
-  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination) {
+  public List<V4Message> searchMessages(MessageSearchQuery query, @Nullable PaginationAttribute pagination) {
     return this.searchMessages(query, pagination, null);
   }
 
@@ -285,7 +283,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return the list of matching messages
    * @see <a href="https://developers.symphony.com/restapi/reference/message-search-post">Message Search (using POST)</a>
    */
-  public List<V4Message> searchMessages(@Nonnull MessageSearchQuery query, @Nullable PaginationAttribute pagination,
+  public List<V4Message> searchMessages(MessageSearchQuery query, @Nullable PaginationAttribute pagination,
       @Nullable SortDir sortDir) {
     validateMessageSearchQuery(query);
     if (retrieverOverride != null) {
@@ -307,7 +305,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     );
   }
 
-  private static void validateMessageSearchQuery(@Nonnull MessageSearchQuery query) {
+  private static void validateMessageSearchQuery(MessageSearchQuery query) {
 
     // checks streamType value among accepted ones
     if (query.getStreamType() != null && !equalsAny(query.getStreamType(), "CHAT", "IM", "MIM", "ROOM", "POST")) {
@@ -327,7 +325,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> searchMessagesSemantic(@Nonnull String query) {
+  public List<V4Message> searchMessagesSemantic(String query) {
     return searchMessagesSemantic(query, null, null);
   }
 
@@ -335,7 +333,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable PaginationAttribute pagination) {
+  public List<V4Message> searchMessagesSemantic(String query, @Nullable PaginationAttribute pagination) {
     return searchMessagesSemantic(query, null, pagination);
   }
 
@@ -343,7 +341,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<V4Message> searchMessagesSemantic(@Nonnull String query, @Nullable String streamId,
+  public List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId,
       @Nullable PaginationAttribute pagination) {
     if (retrieverOverride != null) {
       return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
@@ -364,7 +362,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull String message) {
+  public V4Message send(V4Stream stream, String message) {
     return send(stream.getStreamId(), message);
   }
 
@@ -372,7 +370,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public V4Message send(@Nonnull String streamId, @Nonnull String message) {
+  public V4Message send(String streamId, String message) {
     return this.send(toUrlSafeIdIfNeeded(streamId), Message.builder().content(message).build());
   }
 
@@ -380,7 +378,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public V4Message send(@Nonnull V4Stream stream, @Nonnull Message message) {
+  public V4Message send(V4Stream stream, Message message) {
     return this.send(stream.getStreamId(), message);
   }
 
@@ -388,7 +386,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public V4Message send(@Nonnull String streamId, @Nonnull Message message) {
+  public V4Message send(String streamId, Message message) {
     if (senderOverride != null) {
       return this.executeAndRetry("send", messagesApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.send(authSession, streamId, message)));
@@ -416,7 +414,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public V4Message update(@Nonnull V4Message messageToUpdate, @Nonnull Message content) {
+  public V4Message update(V4Message messageToUpdate, Message content) {
     return this.update(messageToUpdate.getStream().getStreamId(), messageToUpdate.getMessageId(), content);
   }
 
@@ -431,7 +429,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public V4Message update(@Nonnull String streamId, @Nonnull String messageId, @Nonnull Message content) {
+  public V4Message update(String streamId, String messageId, Message content) {
     if (senderOverride != null) {
       return this.executeAndRetry("update", messagesApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.update(authSession, streamId, messageId, content)));
@@ -454,7 +452,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#blast-message">Blast Message</a>
    */
-  public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
+  public V4MessageBlastResponse send(List<String> streamIds, Message message) {
     if (senderOverride != null) {
       return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.blast(authSession, streamIds, message)));
@@ -467,7 +465,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * The generated {@link MessagesApi#v4StreamSidMessageCreatePost(String, String, String, String, String, String, File, File)}
    * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
    */
-  private V4Message doSendMessage(@Nonnull String streamId, @Nonnull Message message) throws ApiException {
+  private V4Message doSendMessage(String streamId, Message message) throws ApiException {
     final String path =
         "/v4/stream/" + this.messagesApi.getApiClient().escapeString(toUrlSafeIdIfNeeded(streamId)) + "/message/create";
 
@@ -478,7 +476,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * The generated {@link MessagesApi#v4MessageBlastPost(String, List, String, String, String, String, File, File)}
    * does not allow to send multiple attachments as well as in-memory files, so we have to "manually" process this call.
    */
-  private V4MessageBlastResponse doSendBlast(@Nonnull List<String> streamIds, @Nonnull Message message)
+  private V4MessageBlastResponse doSendBlast(List<String> streamIds, Message message)
       throws ApiException {
     final Map<String, Object> form = getForm(message);
     form.put("sids", String.join(",", streamIds));
@@ -535,7 +533,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a byte array of attachment encoded in base 64
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
-  public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
+  public byte[] getAttachment(String streamId, String messageId, String attachmentId) {
     if (senderOverride != null) {
       return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.getAttachment(authSession, streamId, messageId, attachmentId)));
@@ -552,7 +550,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return the list of imported messages
    * @see <a href="https://developers.symphony.com/restapi/reference#import-message-v4">Import Message</a>
    */
-  public List<V4ImportResponse> importMessages(@Nonnull List<V4ImportedMessage> messages) {
+  public List<V4ImportResponse> importMessages(List<V4ImportedMessage> messages) {
     if (senderOverride != null) {
       return executeAndRetry("importMessages", messagesApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.importMessages(authSession, messages)));
@@ -566,7 +564,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public MessageSuppressionResponse suppressMessage(@Nonnull String messageId) {
+  public MessageSuppressionResponse suppressMessage(String messageId) {
     if (senderOverride != null) {
       return executeAndRetry("suppressMessage", messageSuppressionApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.suppressMessage(authSession, messageId)));
@@ -583,7 +581,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a {@link MessageStatus} instance
    * @see <a href="https://developers.symphony.com/restapi/reference#message-status">Message Status</a>
    */
-  public MessageStatus getMessageStatus(@Nonnull String messageId) {
+  public MessageStatus getMessageStatus(String messageId) {
     return executeAndRetry("getMessageStatus", messageApi.getApiClient().getBasePath(),
         () -> messageApi.v1MessageMidStatusGet(toUrlSafeIdIfNeeded(messageId), authSession.getSessionToken()));
   }
@@ -592,7 +590,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public V4Message getMessage(@Nonnull String messageId) {
+  public V4Message getMessage(String messageId) {
     if (retrieverOverride != null) {
       return executeAndRetry("getMessage", messagesApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> retrieverOverride.getMessage(authSession, messageId)));
@@ -613,7 +611,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
-  public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since,
+  public List<StreamAttachmentItem> listAttachments(String streamId, @Nullable Instant since,
       @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort) {
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 
@@ -629,7 +627,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * @return a {@link MessageReceiptDetailResponse} object holding all receipt information.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-message-receipts">List Message Receipts</a>
    */
-  public MessageReceiptDetailResponse listMessageReceipts(@Nonnull String messageId) {
+  public MessageReceiptDetailResponse listMessageReceipts(String messageId) {
     return executeAndRetry("listMessageReceipts", defaultApi.getApiClient().getBasePath(), () ->
         defaultApi.v1AdminMessagesMessageIdReceiptsGet(authSession.getSessionToken(), toUrlSafeIdIfNeeded(messageId), null,
             null));
@@ -644,7 +642,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * (parent, replies, forwards and form replies).
    * @see <a href="https://developers.symphony.com/restapi/reference#message-metadata-relationship">Message Metadata</a>
    */
-  public MessageMetadataResponse getMessageRelationships(@Nonnull String messageId) {
+  public MessageMetadataResponse getMessageRelationships(String messageId) {
     return executeAndRetry("getMessageRelationships", defaultApi.getApiClient().getBasePath(),
         () -> defaultApi.v1AdminMessagesMessageIdMetadataRelationshipsGet(
             authSession.getSessionToken(), ApiUtils.getUserAgent(), toUrlSafeIdIfNeeded(messageId)));

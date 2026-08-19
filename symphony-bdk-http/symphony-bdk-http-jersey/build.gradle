@@ -1,0 +1,43 @@
+plugins {
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
+}
+
+description = 'Symphony Java BDK Core Http Jersey'
+
+dependencies {
+    constraints {
+        implementation('com.google.guava:guava:31.1-jre') {
+            because 'version 28.2-android that is pulled contains security issues'
+        }
+    }
+
+    api project(':symphony-bdk-http:symphony-bdk-http-api')
+
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.apiguardian:apiguardian-api'
+    implementation 'io.jsonwebtoken:jjwt-api'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl'
+    implementation 'org.bouncycastle:bcpkix-jdk18on'
+    implementation 'commons-io:commons-io'
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'io.swagger:swagger-annotations'
+    implementation 'tools.jackson.core:jackson-databind'
+    implementation 'tools.jackson.dataformat:jackson-dataformat-yaml'
+    implementation 'tools.jackson.jakarta.rs:jackson-jakarta-rs-json-provider'
+    implementation 'org.openapitools:jackson-databind-nullable'
+    implementation 'org.glassfish.jersey.core:jersey-client'
+    implementation 'org.glassfish.jersey.inject:jersey-hk2'
+    implementation 'org.glassfish.jersey.media:jersey-media-multipart'
+    implementation 'org.glassfish.jersey.connectors:jersey-apache5-connector'
+    implementation 'com.brsanthu:migbase64'
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
+    runtimeOnly 'commons-logging:commons-logging'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic'
+    testImplementation 'org.mock-server:mockserver-netty'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
