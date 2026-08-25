@@ -202,6 +202,18 @@ class OffsetBasedPaginatedServiceTest {
     verifyNoMoreInteractions(paginatedApi);
   }
 
+  @Test
+  void testApiThrowsInterruptedException() throws ApiException {
+    when(paginatedApi.get(anyInt(), anyInt())).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    try {
+      assertThrows(java.util.concurrent.CancellationException.class, () -> getList(new OffsetBasedPaginatedService<>(paginatedApi, 1, 2)));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
   private void assertServiceProducesList(int chunkSize, int maxSize, List<String> expected) {
     final List<String> list = getList(new OffsetBasedPaginatedService<>(paginatedApi, chunkSize, maxSize));
 

@@ -708,6 +708,22 @@ class DatafeedLoopV2Test {
   }
 
   @Test
+  void testStartInterruptedDeleteDatafeed() throws ApiException {
+    AckId ackId = new AckId().ackId(datafeedService.getAckId());
+    when(datafeedApi.listDatafeed(TOKEN, TOKEN, null)).thenReturn(
+        Collections.singletonList(new V5Datafeed().id(DATAFEED_ID)));
+    when(datafeedApi.readDatafeed(DATAFEED_ID, TOKEN, TOKEN, ackId)).thenThrow(new ApiException(400, "client-error"));
+    when(datafeedApi.deleteDatafeed(DATAFEED_ID, TOKEN, TOKEN)).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    try {
+      org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> this.datafeedService.start());
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
   void testStartAuthErrorDeleteDatafeed() throws ApiException, AuthUnauthorizedException {
     AckId ackId = new AckId().ackId(datafeedService.getAckId());
     when(datafeedApi.listDatafeed(TOKEN, TOKEN, null)).thenReturn(

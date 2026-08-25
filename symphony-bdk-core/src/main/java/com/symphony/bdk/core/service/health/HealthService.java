@@ -97,6 +97,7 @@ public class HealthService {
     try {
       return supplier.get();
     } catch (ApiException e) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Health check execution was interrupted");
       throw new ApiRuntimeException(e);
     }
   }

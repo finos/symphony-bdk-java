@@ -668,8 +668,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     try {
       return call.call();
     } catch (ApiException e) {
+      RetryWithRecovery.checkInterruptionAndThrow(e, "Message override execution was interrupted");
       throw e;
     } catch (Exception e) {
+      RetryWithRecovery.checkInterruptionAndThrow(e, "Message override execution was interrupted");
       throw new BdkExtensionException("Message override threw an unexpected exception", e);
     }
   }

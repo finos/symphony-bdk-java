@@ -128,6 +128,7 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
     try {
       datafeedId = this.createDatafeed.execute();
     } catch (Throwable throwable) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(throwable, "Datafeed recreation interrupted");
       throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }

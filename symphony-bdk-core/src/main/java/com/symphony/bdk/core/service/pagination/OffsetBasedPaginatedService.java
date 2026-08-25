@@ -90,6 +90,7 @@ public class OffsetBasedPaginatedService<T> extends PaginatedService {
         currentChunkSize = remainingItemsInChunk.size();
         currentOffset += chunkSize;
       } catch (ApiException e) {
+        com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Offset pagination execution was interrupted");
         throw new ApiRuntimeException(e);
       }
     }

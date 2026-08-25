@@ -51,6 +51,7 @@ public abstract class AbstractAckIdEventLoop extends AbstractDatafeedLoop {
       // updates ack id so that on next call DFv2 knows that events have been processed
       this.ackId = v5EventList.getAckId();
     } catch (Exception e) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Interrupted during event handling");
       // can happen if developer explicitly raised a RequeueEventException in handleV4EventList
       // we also catch all exceptions just to be extra careful and never break the DF loop
       log.warn("Failed to process events, will not update ack id, events will be re-queued", e);

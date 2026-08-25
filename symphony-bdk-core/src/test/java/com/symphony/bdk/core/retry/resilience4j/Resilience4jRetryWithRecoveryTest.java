@@ -317,4 +317,56 @@ class Resilience4jRetryWithRecoveryTest {
     assertThrows(RuntimeException.class,
         () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "serviceName", supplier));
   }
+
+  @Test
+  void testSupplierWithAlreadyInterruptedThreadShouldBypassRetriesAndThrowCancellationException() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    Thread.currentThread().interrupt();
+
+    try {
+      Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
+          ofMinimalInterval(), supplier, (t) -> true, Collections.emptyList());
+      assertThrows(java.util.concurrent.CancellationException.class, r::execute);
+      verifyNoInteractions(supplier);
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testSupplierThrowingInterruptedExceptionShouldBypassRetriesAndPropagateCancellationException() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new ProcessingException(new InterruptedException("Interrupted!")));
+
+    try {
+      Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
+          ofMinimalInterval(), supplier, (t) -> true, Collections.emptyList());
+      assertThrows(java.util.concurrent.CancellationException.class, r::execute);
+      verify(supplier, times(1)).get();
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testSupplierThrowingCancellationExceptionShouldBypassRetriesAndPropagateCancellationException() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new java.util.concurrent.CancellationException("Cancelled!"));
+
+    Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
+        ofMinimalInterval(), supplier, (t) -> true, Collections.emptyList());
+    assertThrows(java.util.concurrent.CancellationException.class, r::execute);
+    verify(supplier, times(1)).get();
+  }
+
+  @Test
+  void testExecuteAndRetryPropagatesCancellationException() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    when(supplier.get()).thenThrow(new java.util.concurrent.CancellationException("Cancelled!"));
+
+    assertThrows(java.util.concurrent.CancellationException.class,
+        () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "serviceName", supplier));
+  }
 }

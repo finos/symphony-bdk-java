@@ -89,6 +89,7 @@ class AuthenticationRetry<T> {
       }
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
+      RetryWithRecovery.checkInterruptionAndThrow(t, "Execution interrupted: " + t.getMessage());
       throw new RuntimeException(networkIssueMessageError(t,address), t);
     }
   }

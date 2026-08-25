@@ -149,10 +149,12 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
     try {
       events = this.eventSource.readEvents(this.ackId);
     } catch (ApiException e) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Datafeed read interrupted");
       throw e;
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Datafeed read interrupted");
       throw new ApiException(500, "DatafeedEventSource.readEvents() threw: " + e);
     }
     try {
@@ -160,9 +162,11 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
       try {
         this.ackId = this.eventSource.ackEvents(events);
       } catch (Exception e) {
+        com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Interrupted during event acknowledgement");
         log.warn("Failed to ack events via event source, will not update ack id", e);
       }
     } catch (Exception e) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Interrupted during event handling");
       log.warn("Failed to process events from event source, will not update ack id, events will be re-queued", e);
     }
     return null;
@@ -216,6 +220,7 @@ public class DatafeedLoopV2 extends AbstractAckIdEventLoop {
       log.info("Recreate a new datafeed and try again");
       this.datafeed = this.createDatafeed.execute();
     } catch (Throwable throwable) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(throwable, "Datafeed recreation interrupted");
       throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }

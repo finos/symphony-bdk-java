@@ -33,6 +33,44 @@ public abstract class RetryWithRecovery<T> {
   private final String address;
 
   /**
+   * Checks if the throwable or any exception in its cause chain is an {@link InterruptedException}
+   * or a {@link java.util.concurrent.CancellationException}.
+   *
+   * @param t the throwable to check
+   * @return true if an interruption or cancellation is detected in the cause chain
+   */
+  public static boolean isInterruption(Throwable t) {
+    Throwable current = t;
+    while (current != null) {
+      if (current instanceof InterruptedException || current instanceof java.util.concurrent.CancellationException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  /**
+   * Helper to check if a throwable is an interruption/cancellation. If so, restores the thread
+   * interrupted status and throws a standard {@link java.util.concurrent.CancellationException}.
+   *
+   * @param t the throwable to check
+   * @param message the message to set in the CancellationException
+   * @throws java.util.concurrent.CancellationException if interruption is detected
+   */
+  public static void checkInterruptionAndThrow(Throwable t, String message) {
+    if (isInterruption(t)) {
+      Thread.currentThread().interrupt();
+      if (t instanceof java.util.concurrent.CancellationException) {
+        throw (java.util.concurrent.CancellationException) t;
+      }
+      java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException(message);
+      ce.initCause(t);
+      throw ce;
+    }
+  }
+
+  /**
    * This is a helper function designed to cover most of the retry cases.
    * It retries on the conditions defined by {@link RetryWithRecoveryBuilder#isNetworkIssueOrMinorError}
    * and refreshes the authSession if we get an unauthorized error.
@@ -63,6 +101,7 @@ public abstract class RetryWithRecovery<T> {
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
+      checkInterruptionAndThrow(t, "Execution interrupted: " + t.getMessage());
       throw new RuntimeException(networkIssueMessageError(t, address), t);
     }
   }
@@ -101,9 +140,13 @@ public abstract class RetryWithRecovery<T> {
    * @throws Throwable in case an exception has been thrown by the {@link #supplier} or by the recovery functions.
    */
   protected T executeOnce() throws Throwable {
+    if (Thread.currentThread().isInterrupted()) {
+      throw new java.util.concurrent.CancellationException("Thread was interrupted prior to execution");
+    }
     try {
       return supplier.get();
     } catch (Exception e) {
+      checkInterruptionAndThrow(e, "Execution interrupted: " + e.getMessage());
       if (ignoreException.test(e)) {
         log.debug("{} ignored: {}", e.getClass().getCanonicalName(), e.getMessage());
         return null;

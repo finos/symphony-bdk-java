@@ -207,6 +207,19 @@ class CursorBasedPaginatedServiceTest {
     verifyNoMoreInteractions(paginatedApi);
   }
 
+  @Test
+  void testApiThrowsInterruptedException() throws ApiException {
+    when(paginatedApi.get(any(), anyInt())).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    final int chunkSize = 2;
+    try {
+      assertThrows(java.util.concurrent.CancellationException.class, () -> getAllItems(chunkSize, 5));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
 
   private List<String> getAllItems(int chunkSize, int maxSize) {
     return new CursorBasedPaginatedService<>(paginatedApi, chunkSize, maxSize)

@@ -128,4 +128,44 @@ class AuthenticationRetryTest {
     verifyNoMoreInteractions(supplier);
   }
 
+  @Test
+  void testCallWithAlreadyInterruptedThreadShouldBypassAndThrowCancellationException() {
+    AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
+    SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
+    Thread.currentThread().interrupt();
+
+    try {
+      assertThrows(java.util.concurrent.CancellationException.class,
+          () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testCallThrowingInterruptedExceptionShouldBypassAndThrowCancellationException() throws ApiException {
+    AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
+    SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
+    when(supplier.get()).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    try {
+      assertThrows(java.util.concurrent.CancellationException.class,
+          () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testCallThrowingCancellationExceptionShouldBypassAndThrowCancellationException() throws ApiException {
+    AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
+    SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
+    when(supplier.get()).thenThrow(new java.util.concurrent.CancellationException("Cancelled"));
+
+    assertThrows(java.util.concurrent.CancellationException.class,
+        () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+  }
+
 }

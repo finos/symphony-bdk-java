@@ -159,4 +159,25 @@ public class HealthServiceTest {
     when(df.lastPullTimestamp()).thenReturn(Instant.now().minusSeconds(10).toEpochMilli());
     assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.UP);
   }
+
+  @Test
+  void getAgentInfo_Interrupted() throws com.symphony.bdk.http.api.ApiException {
+    SignalsApi mockSignalsApi = mock(SignalsApi.class);
+    when(mockSignalsApi.v1InfoGet()).thenThrow(new com.symphony.bdk.http.api.ApiException(500, new InterruptedException("Interrupted")));
+    HealthService healthService = new HealthService(
+        mock(SystemApi.class),
+        mockSignalsApi,
+        mock(AuthSession.class)
+    );
+
+    try {
+      assertThrows(
+          java.util.concurrent.CancellationException.class,
+          healthService::getAgentInfo
+      );
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
 }

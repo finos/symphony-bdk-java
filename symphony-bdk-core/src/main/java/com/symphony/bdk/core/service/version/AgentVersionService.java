@@ -34,6 +34,7 @@ public class AgentVersionService {
       AgentInfo agentInfo = signalsApi.v1InfoGet();
       return parse(agentInfo.getVersion());
     } catch (ApiException e) {
+      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Retrieval of agent version was interrupted");
       return Optional.empty();
     }
   }

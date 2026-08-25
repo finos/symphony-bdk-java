@@ -1004,6 +1004,37 @@ class MessageServiceTest {
     assertEquals(IllegalStateException.class, thrown.getCause().getCause().getClass());
   }
 
+  @Test
+  void shouldPropagateCancellationExceptionFromOverrideWithoutWrapping() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    when(override.getMessage(eq(authSession), eq(MESSAGE_ID))).thenThrow(new java.util.concurrent.CancellationException("cancelled"));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    assertThrows(java.util.concurrent.CancellationException.class, () -> serviceWithOverride.getMessage(MESSAGE_ID));
+  }
+
+  @Test
+  void shouldPropagateCancellationExceptionWhenOverrideThrowsInterruptedException() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    when(override.getMessage(eq(authSession), eq(MESSAGE_ID))).thenThrow(new InterruptedException("interrupted"));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    try {
+      assertThrows(java.util.concurrent.CancellationException.class, () -> serviceWithOverride.getMessage(MESSAGE_ID));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
   private static class MockObject {
     private String content;
 

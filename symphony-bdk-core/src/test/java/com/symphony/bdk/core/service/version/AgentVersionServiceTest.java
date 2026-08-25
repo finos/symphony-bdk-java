@@ -55,4 +55,21 @@ public class AgentVersionServiceTest {
 
     assertFalse(agentVersion.isPresent());
   }
+
+  @Test
+  void testRetrieveVersion_Interrupted() throws com.symphony.bdk.http.api.ApiException {
+    SignalsApi mockSignalsApi = org.mockito.Mockito.mock(SignalsApi.class);
+    org.mockito.Mockito.when(mockSignalsApi.v1InfoGet()).thenThrow(new com.symphony.bdk.http.api.ApiException(500, new InterruptedException("Interrupted")));
+    AgentVersionService service = new AgentVersionService(mockSignalsApi);
+
+    try {
+      org.junit.jupiter.api.Assertions.assertThrows(
+          java.util.concurrent.CancellationException.class,
+          service::retrieveAgentVersion
+      );
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
 }

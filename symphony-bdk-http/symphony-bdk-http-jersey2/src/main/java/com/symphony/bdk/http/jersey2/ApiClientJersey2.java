@@ -197,8 +197,22 @@ public class ApiClientJersey2 implements ApiClient {
     }
   }
 
+  private static boolean isInterruption(Throwable t) {
+    Throwable current = t;
+    while (current != null) {
+      if (current instanceof InterruptedException || current instanceof java.util.concurrent.CancellationException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
   private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity)
       throws ApiException {
+    if (Thread.currentThread().isInterrupted()) {
+      throw new java.util.concurrent.CancellationException("Thread was interrupted prior to response retrieval");
+    }
     try {
       switch (method) {
         case HttpMethod.GET:
@@ -221,6 +235,12 @@ public class ApiClientJersey2 implements ApiClient {
           throw new ApiException(500, "unknown method type " + method);
       }
     } catch (ProcessingException e) {
+      if (isInterruption(e)) {
+        Thread.currentThread().interrupt();
+        java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Request execution was interrupted");
+        ce.initCause(e);
+        throw ce;
+      }
       if (e.getCause() instanceof ConnectTimeoutException) {
         throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
       }
