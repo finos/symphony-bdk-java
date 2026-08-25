@@ -43,6 +43,10 @@ See `proposal.md` for the core problem statement.
 **Decision**: In all services exposed to interruptions (specifically real-time datafeed loops like V1/V2, health check service, agent version query, and pagination/bulk retrieval APIs), we check and propagate `CancellationException` or restored interrupted flags immediately when caught, rather than wrapping them in `BdkExtensionException`, swallowing them, or logging them as warnings/errors.
 - **Rationale**: Real-time services (like Datafeed loops) are intended to exit cleanly and silently upon task cancellation. Throwing `CancellationException` and logging a simple info shutdown message ensures system resource teardown is clean, responsive, and logs remain silent under high concurrency.
 
+### D5 — Fail-Fast Resilience4j Retry Wrapper (`Resilience4jRetryWithRecovery.java`)
+**Decision**: Wrap Resilience4j's core `retryOnException` predicate to ensure it returns `false` if `isInterruption(throwable)` is `true` anywhere in the exception cause chain.
+- **Rationale**: BDK Core relies on Resilience4j's decoration logic. Even if an exception categorizes as a transient network exception (like a socket timeout), the moment it is caused by a thread interruption or cancellation, Resilience4j must instantly bypass retries and propagate the cancellation without scheduling retries or writing noisy log entries.
+
 ## Risks / Trade-offs
 
 - **[Risk]** Downstream callers might not expect `CancellationException`.

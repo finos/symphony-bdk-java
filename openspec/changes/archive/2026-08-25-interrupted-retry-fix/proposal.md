@@ -20,6 +20,7 @@ The Symphony BDK is frequently executed inside asynchronous thread pools or reac
 
 - **Code**:
   - `symphony-bdk-core/src/main/java/com/symphony/bdk/core/retry/RetryWithRecovery.java`: check and bypass retries on thread interruption.
+  - `symphony-bdk-core/src/main/java/com/symphony/bdk/core/retry/resilience4j/Resilience4jRetryWithRecovery.java`: wrap Resilience4j's retry predicate to fail-fast and immediately abort retries on thread interruptions or cancellations.
   - `symphony-bdk-core/src/main/java/com/symphony/bdk/core/auth/impl/AuthenticationRetry.java`: check and bypass retries on thread interruption in authentication loops.
   - `symphony-bdk-core/src/main/java/com/symphony/bdk/core/service/message/MessageService.java`: `wrapOverrideException` maps interruptions to `CancellationException`.
   - `symphony-bdk-core/src/main/java/com/symphony/bdk/core/service/datafeed/impl/AbstractAckIdEventLoop.java` / `AbstractDatafeedLoop.java` / `DatafeedLoopV1.java` / `DatafeedLoopV2.java`: detect thread cancellation or interruptions inside real-time datafeed loops to shut down cleanly and silently without false-positive error logs.
