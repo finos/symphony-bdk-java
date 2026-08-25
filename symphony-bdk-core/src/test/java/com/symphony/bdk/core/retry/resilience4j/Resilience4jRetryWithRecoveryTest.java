@@ -369,4 +369,21 @@ class Resilience4jRetryWithRecoveryTest {
     assertThrows(java.util.concurrent.CancellationException.class,
         () -> Resilience4jRetryWithRecovery.executeAndRetry(new RetryWithRecoveryBuilder<String>(), "test", "serviceName", supplier));
   }
+
+  @Test
+  void testResilience4jBypassesRetryOnInterruptionEvenIfPredicateMatches() throws Throwable {
+    SupplierWithApiException<String> supplier = mock(ConcreteSupplier.class);
+    // Throw a generic RuntimeException wrapping InterruptedException
+    when(supplier.get()).thenThrow(new RuntimeException("general error", new InterruptedException("Interrupted!")));
+
+    try {
+      Resilience4jRetryWithRecovery<String> r = new Resilience4jRetryWithRecovery<>("name", "localhost.symphony.com",
+          ofMinimalInterval(), supplier, (t) -> true, Collections.emptyList());
+      assertThrows(java.util.concurrent.CancellationException.class, r::execute);
+      verify(supplier, times(1)).get();
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
 }

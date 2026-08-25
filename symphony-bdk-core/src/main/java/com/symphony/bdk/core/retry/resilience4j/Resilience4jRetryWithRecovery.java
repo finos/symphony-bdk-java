@@ -71,10 +71,13 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
       final Predicate<Throwable> retryOnExceptionPredicate
   ) {
 
+    final Predicate<Throwable> safeRetryOnExceptionPredicate = throwable ->
+        !isInterruption(throwable) && retryOnExceptionPredicate.test(throwable);
+
     final RetryConfig retryConfig = RetryConfig.custom()
         .maxAttempts(bdkRetryConfig.getMaxAttempts())
         .intervalFunction(BdkExponentialFunction.ofExponentialBackoff(bdkRetryConfig))
-        .retryOnException(retryOnExceptionPredicate)
+        .retryOnException(safeRetryOnExceptionPredicate)
         .build();
 
     final Retry retry = Retry.of(name, retryConfig);
