@@ -90,14 +90,18 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
       runLoop();
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
       if (com.symphony.bdk.core.retry.RetryWithRecovery.isInterruption(exception)) {
-        Thread.currentThread().interrupt();
+        if (com.symphony.bdk.core.retry.RetryWithRecovery.isThreadInterruption(exception)) {
+          Thread.currentThread().interrupt();
+        }
         log.info("Datafeed loop interrupted, exiting cleanly");
       } else {
         throw exception;
       }
     } catch (Throwable throwable) {
       if (com.symphony.bdk.core.retry.RetryWithRecovery.isInterruption(throwable)) {
-        Thread.currentThread().interrupt();
+        if (com.symphony.bdk.core.retry.RetryWithRecovery.isThreadInterruption(throwable)) {
+          Thread.currentThread().interrupt();
+        }
         log.info("Datafeed loop interrupted, exiting cleanly");
       } else {
         log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);

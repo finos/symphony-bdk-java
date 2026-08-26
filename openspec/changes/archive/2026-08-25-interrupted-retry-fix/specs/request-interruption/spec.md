@@ -14,7 +14,7 @@ The BDK request execution pipeline and retry recovery handler SHALL immediately 
 
 #### Scenario: Immediate Abort on Interrupted Exception Cause
 - **WHEN** a BDK blocking request throws an exception caused by `java.lang.InterruptedException` or `java.util.concurrent.CancellationException`
-- **THEN** the operation SHALL bypass all retry logic, restore the thread's interrupted status, and throw a `java.util.concurrent.CancellationException`
+- **THEN** the operation SHALL bypass all retry logic and throw a `java.util.concurrent.CancellationException`. The thread's interrupted status SHALL only be restored if the cause chain contains an actual `java.lang.InterruptedException` or the thread's interrupted flag was already set, avoiding thread-pool poisoning from logical task cancellations.
 
 #### Scenario: Silenced Request Cancellation Logging
 - **WHEN** a BDK blocking request is cancelled or interrupted

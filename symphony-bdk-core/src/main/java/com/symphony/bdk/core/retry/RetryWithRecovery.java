@@ -51,8 +51,25 @@ public abstract class RetryWithRecovery<T> {
   }
 
   /**
+   * Checks if the throwable or any exception in its cause chain is an {@link InterruptedException}.
+   *
+   * @param t the throwable to check
+   * @return true if an InterruptedException is detected in the cause chain
+   */
+  public static boolean isThreadInterruption(Throwable t) {
+    Throwable current = t;
+    while (current != null) {
+      if (current instanceof InterruptedException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
+  /**
    * Helper to check if a throwable is an interruption/cancellation. If so, restores the thread
-   * interrupted status and throws a standard {@link java.util.concurrent.CancellationException}.
+   * interrupted status if the cause was a physical interruption and throws a standard {@link java.util.concurrent.CancellationException}.
    *
    * @param t the throwable to check
    * @param message the message to set in the CancellationException
@@ -60,7 +77,9 @@ public abstract class RetryWithRecovery<T> {
    */
   public static void checkInterruptionAndThrow(Throwable t, String message) {
     if (isInterruption(t)) {
-      Thread.currentThread().interrupt();
+      if (isThreadInterruption(t)) {
+        Thread.currentThread().interrupt();
+      }
       if (t instanceof java.util.concurrent.CancellationException) {
         throw (java.util.concurrent.CancellationException) t;
       }

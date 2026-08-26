@@ -208,6 +208,17 @@ public class ApiClientJersey2 implements ApiClient {
     return false;
   }
 
+  private static boolean isThreadInterruption(Throwable t) {
+    Throwable current = t;
+    while (current != null) {
+      if (current instanceof InterruptedException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
+  }
+
   private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity)
       throws ApiException {
     if (Thread.currentThread().isInterrupted()) {
@@ -236,7 +247,9 @@ public class ApiClientJersey2 implements ApiClient {
       }
     } catch (ProcessingException e) {
       if (isInterruption(e)) {
-        Thread.currentThread().interrupt();
+        if (isThreadInterruption(e)) {
+          Thread.currentThread().interrupt();
+        }
         java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Request execution was interrupted");
         ce.initCause(e);
         throw ce;
