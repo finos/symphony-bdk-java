@@ -222,7 +222,10 @@ public class ApiClientJersey2 implements ApiClient {
   private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity)
       throws ApiException {
     if (Thread.currentThread().isInterrupted()) {
-      throw new java.util.concurrent.CancellationException("Thread was interrupted prior to response retrieval");
+      InterruptedException ie = new InterruptedException("Thread was interrupted prior to response retrieval");
+      java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Thread was interrupted prior to response retrieval");
+      ce.initCause(ie);
+      throw ce;
     }
     try {
       switch (method) {

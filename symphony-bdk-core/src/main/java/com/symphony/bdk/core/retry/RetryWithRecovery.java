@@ -160,7 +160,10 @@ public abstract class RetryWithRecovery<T> {
    */
   protected T executeOnce() throws Throwable {
     if (Thread.currentThread().isInterrupted()) {
-      throw new java.util.concurrent.CancellationException("Thread was interrupted prior to execution");
+      InterruptedException ie = new InterruptedException("Thread was interrupted prior to execution");
+      java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Thread was interrupted prior to execution");
+      ce.initCause(ie);
+      throw ce;
     }
     try {
       return supplier.get();
