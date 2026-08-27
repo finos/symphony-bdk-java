@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.util.concurrent.CancellationException;
 
 class AuthenticationRetryTest {
 
@@ -135,7 +136,7 @@ class AuthenticationRetryTest {
     Thread.currentThread().interrupt();
 
     try {
-      assertThrows(java.util.concurrent.CancellationException.class,
+      assertThrows(CancellationException.class,
           () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
       org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
     } finally {
@@ -150,7 +151,7 @@ class AuthenticationRetryTest {
     when(supplier.get()).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
 
     try {
-      assertThrows(java.util.concurrent.CancellationException.class,
+      assertThrows(CancellationException.class,
           () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
       org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
     } finally {
@@ -162,9 +163,9 @@ class AuthenticationRetryTest {
   void testCallThrowingCancellationExceptionShouldBypassAndThrowCancellationException() throws ApiException {
     AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
     SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
-    when(supplier.get()).thenThrow(new java.util.concurrent.CancellationException("Cancelled"));
+    when(supplier.get()).thenThrow(new CancellationException("Cancelled"));
 
-    assertThrows(java.util.concurrent.CancellationException.class,
+    assertThrows(CancellationException.class,
         () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
   }
 

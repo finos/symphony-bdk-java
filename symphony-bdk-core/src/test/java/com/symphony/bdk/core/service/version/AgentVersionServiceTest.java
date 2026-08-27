@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -64,7 +65,7 @@ public class AgentVersionServiceTest {
 
     try {
       org.junit.jupiter.api.Assertions.assertThrows(
-          java.util.concurrent.CancellationException.class,
+          CancellationException.class,
           service::retrieveAgentVersion
       );
       assertTrue(Thread.currentThread().isInterrupted());

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.concurrent.CancellationException;
 
 public class HealthServiceTest {
 
@@ -172,7 +173,7 @@ public class HealthServiceTest {
 
     try {
       assertThrows(
-          java.util.concurrent.CancellationException.class,
+          CancellationException.class,
           healthService::getAgentInfo
       );
       assertTrue(Thread.currentThread().isInterrupted());

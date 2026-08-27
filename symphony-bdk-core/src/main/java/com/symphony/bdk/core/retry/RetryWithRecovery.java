@@ -9,6 +9,8 @@ import com.symphony.bdk.http.api.util.InterruptionUtil;
 import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
 import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
 
+import java.util.concurrent.CancellationException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
@@ -107,7 +109,7 @@ public abstract class RetryWithRecovery<T> {
   protected T executeOnce() throws Throwable {
     if (Thread.currentThread().isInterrupted()) {
       InterruptedException ie = new InterruptedException("Thread was interrupted prior to execution");
-      java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Thread was interrupted prior to execution");
+      CancellationException ce = new CancellationException("Thread was interrupted prior to execution");
       ce.initCause(ie);
       throw ce;
     }

@@ -10,6 +10,7 @@ import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
 import com.symphony.bdk.http.api.util.InterruptionUtil;
 import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
+import java.util.concurrent.CancellationException;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
@@ -203,7 +204,7 @@ public class ApiClientJersey2 implements ApiClient {
       throws ApiException {
     if (Thread.currentThread().isInterrupted()) {
       InterruptedException ie = new InterruptedException("Thread was interrupted prior to response retrieval");
-      java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Thread was interrupted prior to response retrieval");
+      CancellationException ce = new CancellationException("Thread was interrupted prior to response retrieval");
       ce.initCause(ie);
       throw ce;
     }
@@ -234,7 +235,7 @@ public class ApiClientJersey2 implements ApiClient {
         if (type == InterruptionType.THREAD_INTERRUPTION) {
           Thread.currentThread().interrupt();
         }
-        java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException("Request execution was interrupted");
+        CancellationException ce = new CancellationException("Request execution was interrupted");
         ce.initCause(e);
         throw ce;
       }

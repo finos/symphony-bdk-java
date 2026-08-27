@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
 @ExtendWith(MockitoExtension.class)
@@ -213,7 +214,7 @@ class CursorBasedPaginatedServiceTest {
 
     final int chunkSize = 2;
     try {
-      assertThrows(java.util.concurrent.CancellationException.class, () -> getAllItems(chunkSize, 5));
+      assertThrows(CancellationException.class, () -> getAllItems(chunkSize, 5));
       org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
     } finally {
       Thread.interrupted(); // Clear interrupted status
