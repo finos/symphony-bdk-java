@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.service.message;
 
 import static com.symphony.bdk.core.util.IdUtil.toUrlSafeIdIfNeeded;
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.apache.commons.lang3.StringUtils.equalsAny;
@@ -668,8 +669,10 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
     try {
       return call.call();
     } catch (ApiException e) {
+      checkInterruptionAndThrow(e, "Message override execution was interrupted");
       throw e;
     } catch (Exception e) {
+      checkInterruptionAndThrow(e, "Message override execution was interrupted");
       throw new BdkExtensionException("Message override threw an unexpected exception", e);
     }
   }

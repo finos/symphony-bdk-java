@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.pagination;
 
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
+
 import com.symphony.bdk.core.service.pagination.model.CursorPaginatedPayload;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
@@ -66,6 +68,7 @@ public class CursorBasedPaginatedService<T> extends PaginatedService {
         final List<T> data = currentPayload.getData();
         currentChunk = data == null ? Collections.emptyList() : new ArrayList<>(data);
       } catch (ApiException e) {
+        checkInterruptionAndThrow(e, "Cursor pagination execution was interrupted");
         throw new ApiRuntimeException(e);
       }
     }

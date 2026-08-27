@@ -21,6 +21,7 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.util.concurrent.CancellationException;
 
 class AuthenticationRetryTest {
 
@@ -126,6 +127,46 @@ class AuthenticationRetryTest {
         () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
     verify(supplier, times(1)).get();
     verifyNoMoreInteractions(supplier);
+  }
+
+  @Test
+  void testCallWithAlreadyInterruptedThreadShouldBypassAndThrowCancellationException() {
+    AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
+    SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
+    Thread.currentThread().interrupt();
+
+    try {
+      assertThrows(CancellationException.class,
+          () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testCallThrowingInterruptedExceptionShouldBypassAndThrowCancellationException() throws ApiException {
+    AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
+    SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
+    when(supplier.get()).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    try {
+      assertThrows(CancellationException.class,
+          () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testCallThrowingCancellationExceptionShouldBypassAndThrowCancellationException() throws ApiException {
+    AuthenticationRetry<String> authenticationRetry = new AuthenticationRetry<>(ofMinimalInterval(2));
+    SupplierWithApiException<String> supplier = mock(SupplierWithApiException.class);
+    when(supplier.get()).thenThrow(new CancellationException("Cancelled"));
+
+    assertThrows(CancellationException.class,
+        () -> authenticationRetry.executeAndRetry("test", "addressTest", supplier, ""));
   }
 
 }

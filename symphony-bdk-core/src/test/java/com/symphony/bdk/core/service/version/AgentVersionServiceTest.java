@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,5 +55,22 @@ public class AgentVersionServiceTest {
     Optional<AgentVersion> agentVersion = agentVersionService.retrieveAgentVersion();
 
     assertFalse(agentVersion.isPresent());
+  }
+
+  @Test
+  void testRetrieveVersion_Interrupted() throws com.symphony.bdk.http.api.ApiException {
+    SignalsApi mockSignalsApi = org.mockito.Mockito.mock(SignalsApi.class);
+    org.mockito.Mockito.when(mockSignalsApi.v1InfoGet()).thenThrow(new com.symphony.bdk.http.api.ApiException(500, new InterruptedException("Interrupted")));
+    AgentVersionService service = new AgentVersionService(mockSignalsApi);
+
+    try {
+      org.junit.jupiter.api.Assertions.assertThrows(
+          CancellationException.class,
+          service::retrieveAgentVersion
+      );
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
   }
 }
