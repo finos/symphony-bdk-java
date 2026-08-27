@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.datafeed.impl;
 
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.loadbalancing.LoadBalancedApiClient;
 import com.symphony.bdk.core.config.model.BdkConfig;
@@ -128,7 +130,7 @@ public class DatafeedLoopV1 extends AbstractDatafeedLoop {
     try {
       datafeedId = this.createDatafeed.execute();
     } catch (Throwable throwable) {
-      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(throwable, "Datafeed recreation interrupted");
+      checkInterruptionAndThrow(throwable, "Datafeed recreation interrupted");
       throw new NestedRetryException("Recreation of datafeed failed", throwable);
     }
   }

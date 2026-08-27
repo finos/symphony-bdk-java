@@ -61,4 +61,27 @@ public final class InterruptionUtil {
     }
     return hasCancellation ? InterruptionType.INTERRUPTION : InterruptionType.NONE;
   }
+
+  /**
+   * Helper to check if a throwable is an interruption/cancellation. If so, restores the thread
+   * interrupted status if the cause was a physical interruption and throws a standard {@link CancellationException}.
+   *
+   * @param t the throwable to check
+   * @param message the message to set in the CancellationException
+   * @throws CancellationException if interruption is detected
+   */
+  public static void checkInterruptionAndThrow(Throwable t, String message) {
+    final InterruptionType type = getInterruptionType(t);
+    if (type != InterruptionType.NONE) {
+      if (type == InterruptionType.THREAD_INTERRUPTION) {
+        Thread.currentThread().interrupt();
+      }
+      if (t instanceof CancellationException) {
+        throw (CancellationException) t;
+      }
+      CancellationException ce = new CancellationException(message);
+      ce.initCause(t);
+      throw ce;
+    }
+  }
 }

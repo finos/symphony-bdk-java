@@ -1,6 +1,10 @@
 package com.symphony.bdk.http.api.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
@@ -61,6 +65,48 @@ class InterruptionUtilTest {
     e2.setCustomCause(e3);
 
     assertEquals(InterruptionUtil.InterruptionType.THREAD_INTERRUPTION, InterruptionUtil.getInterruptionType(e1));
+  }
+
+  @Test
+  void testCheckInterruptionAndThrowNone() {
+    // Should not throw
+    InterruptionUtil.checkInterruptionAndThrow(new RuntimeException("Ordinary error"), "error");
+  }
+
+  @Test
+  void testCheckInterruptionAndThrowCancellation() {
+    CancellationException expected = new CancellationException("Cancelled!");
+    CancellationException thrown = assertThrows(CancellationException.class, () -> {
+      InterruptionUtil.checkInterruptionAndThrow(expected, "test message");
+    });
+    assertSame(expected, thrown);
+    assertFalse(Thread.currentThread().isInterrupted());
+  }
+
+  @Test
+  void testCheckInterruptionAndThrowThreadInterrupted() {
+    RuntimeException t = new RuntimeException("wrapped", new InterruptedException("Interrupted!"));
+    try {
+      CancellationException thrown = assertThrows(CancellationException.class, () -> {
+        InterruptionUtil.checkInterruptionAndThrow(t, "test message");
+      });
+      assertEquals("test message", thrown.getMessage());
+      assertSame(t, thrown.getCause());
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
+  void testCheckInterruptionAndThrowInterruptionOnly() {
+    RuntimeException t = new RuntimeException("wrapped", new CancellationException("Cancelled!"));
+    CancellationException thrown = assertThrows(CancellationException.class, () -> {
+      InterruptionUtil.checkInterruptionAndThrow(t, "test message");
+    });
+    assertEquals("test message", thrown.getMessage());
+    assertSame(t, thrown.getCause());
+    assertFalse(Thread.currentThread().isInterrupted());
   }
 
   private static class CircularException extends Exception {

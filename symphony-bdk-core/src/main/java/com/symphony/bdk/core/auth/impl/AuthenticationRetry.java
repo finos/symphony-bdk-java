@@ -1,6 +1,7 @@
 package com.symphony.bdk.core.auth.impl;
 
 import static com.symphony.bdk.core.retry.RetryWithRecovery.networkIssueMessageError;
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
 
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 import com.symphony.bdk.core.config.model.BdkRetryConfig;
@@ -89,7 +90,7 @@ class AuthenticationRetry<T> {
       }
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
-      RetryWithRecovery.checkInterruptionAndThrow(t, "Execution interrupted: " + t.getMessage());
+      checkInterruptionAndThrow(t, "Execution interrupted: " + t.getMessage());
       throw new RuntimeException(networkIssueMessageError(t,address), t);
     }
   }

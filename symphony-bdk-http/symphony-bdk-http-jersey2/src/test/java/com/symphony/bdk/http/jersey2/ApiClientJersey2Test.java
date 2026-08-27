@@ -19,11 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,15 +42,15 @@ class ApiClientJersey2Test {
 
   @BeforeEach
   void init() {
-    org.mockito.Mockito.lenient().when(client.target(anyString())).thenReturn(target);
-    org.mockito.Mockito.lenient().when(target.request()).thenReturn(builder);
-    org.mockito.Mockito.lenient().when(builder.accept(anyString())).thenReturn(builder);
-    org.mockito.Mockito.lenient().when(builder.header(anyString(), any())).thenReturn(builder);
-    org.mockito.Mockito.lenient().when(builder.post(any(Entity.class))).thenReturn(response);
-    org.mockito.Mockito.lenient().when(response.getStatusInfo()).thenReturn(statusInfo);
-    org.mockito.Mockito.lenient().when(statusInfo.getStatusCode()).thenReturn(200);
-    org.mockito.Mockito.lenient().when(statusInfo.getFamily()).thenReturn(Response.Status.Family.SUCCESSFUL);
-    org.mockito.Mockito.lenient().when(response.getHeaders()).thenReturn(new MultivaluedHashMap<>());
+    lenient().when(client.target(anyString())).thenReturn(target);
+    lenient().when(target.request()).thenReturn(builder);
+    lenient().when(builder.accept(anyString())).thenReturn(builder);
+    lenient().when(builder.header(anyString(), any())).thenReturn(builder);
+    lenient().when(builder.post(any(Entity.class))).thenReturn(response);
+    lenient().when(response.getStatusInfo()).thenReturn(statusInfo);
+    lenient().when(statusInfo.getStatusCode()).thenReturn(200);
+    lenient().when(statusInfo.getFamily()).thenReturn(Response.Status.Family.SUCCESSFUL);
+    lenient().when(response.getHeaders()).thenReturn(new MultivaluedHashMap<>());
     this.apiClient = new ApiClientJersey2(client, "", Collections.emptyMap(), "");
     this.apiClient.getAuthentications().put("testAuth", headerParams -> headerParams.put("Authorization", "test"));
   }
@@ -71,8 +74,8 @@ class ApiClientJersey2Test {
   void shouldThrowCancellationExceptionIfThreadAlreadyInterrupted() {
     Thread.currentThread().interrupt();
     try {
-      org.junit.jupiter.api.Assertions.assertThrows(
-          java.util.concurrent.CancellationException.class,
+      assertThrows(
+          CancellationException.class,
           () -> this.doInvokeAPI()
       );
       assertTrue(Thread.currentThread().isInterrupted());
@@ -83,12 +86,12 @@ class ApiClientJersey2Test {
 
   @Test
   void shouldThrowCancellationExceptionWhenProcessingExceptionWrapsInterruptedException() throws ApiException {
-    org.mockito.Mockito.lenient().doThrow(new jakarta.ws.rs.ProcessingException(new InterruptedException("Interrupted!")))
+    lenient().doThrow(new jakarta.ws.rs.ProcessingException(new InterruptedException("Interrupted!")))
         .when(builder).post(any(Entity.class));
 
     try {
-      org.junit.jupiter.api.Assertions.assertThrows(
-          java.util.concurrent.CancellationException.class,
+      assertThrows(
+          CancellationException.class,
           () -> this.doInvokeAPI()
       );
       assertTrue(Thread.currentThread().isInterrupted());
@@ -99,11 +102,11 @@ class ApiClientJersey2Test {
 
   @Test
   void shouldThrowCancellationExceptionWhenProcessingExceptionWrapsCancellationException() throws ApiException {
-    org.mockito.Mockito.lenient().doThrow(new jakarta.ws.rs.ProcessingException(new java.util.concurrent.CancellationException("Cancelled!")))
+    lenient().doThrow(new jakarta.ws.rs.ProcessingException(new CancellationException("Cancelled!")))
         .when(builder).post(any(Entity.class));
 
-    org.junit.jupiter.api.Assertions.assertThrows(
-        java.util.concurrent.CancellationException.class,
+    assertThrows(
+        CancellationException.class,
         () -> this.doInvokeAPI()
     );
   }

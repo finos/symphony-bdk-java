@@ -2,6 +2,7 @@ package com.symphony.bdk.core.service.datafeed.impl;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
+import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.gen.api.DatafeedApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V5EventList;
@@ -15,6 +16,8 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.apiguardian.api.API;
 
 import java.util.concurrent.TimeUnit;
+
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
 
 @API(status = API.Status.INTERNAL)
 @Slf4j
@@ -51,7 +54,7 @@ public abstract class AbstractAckIdEventLoop extends AbstractDatafeedLoop {
       // updates ack id so that on next call DFv2 knows that events have been processed
       this.ackId = v5EventList.getAckId();
     } catch (Exception e) {
-      com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Interrupted during event handling");
+      checkInterruptionAndThrow(e, "Interrupted during event handling");
       // can happen if developer explicitly raised a RequeueEventException in handleV4EventList
       // we also catch all exceptions just to be extra careful and never break the DF loop
       log.warn("Failed to process events, will not update ack id, events will be re-queued", e);

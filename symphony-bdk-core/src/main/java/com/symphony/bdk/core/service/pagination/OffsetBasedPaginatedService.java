@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.pagination;
 
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
+
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
@@ -90,7 +92,7 @@ public class OffsetBasedPaginatedService<T> extends PaginatedService {
         currentChunkSize = remainingItemsInChunk.size();
         currentOffset += chunkSize;
       } catch (ApiException e) {
-        com.symphony.bdk.core.retry.RetryWithRecovery.checkInterruptionAndThrow(e, "Offset pagination execution was interrupted");
+        checkInterruptionAndThrow(e, "Offset pagination execution was interrupted");
         throw new ApiRuntimeException(e);
       }
     }

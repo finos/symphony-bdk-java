@@ -7,6 +7,7 @@ import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 import com.symphony.bdk.http.api.util.InterruptionUtil;
 import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -33,29 +34,6 @@ public abstract class RetryWithRecovery<T> {
   private final Predicate<Exception> ignoreException;
   private final List<RecoveryStrategy> recoveryStrategies;
   private final String address;
-
-  /**
-   * Helper to check if a throwable is an interruption/cancellation. If so, restores the thread
-   * interrupted status if the cause was a physical interruption and throws a standard {@link java.util.concurrent.CancellationException}.
-   *
-   * @param t the throwable to check
-   * @param message the message to set in the CancellationException
-   * @throws java.util.concurrent.CancellationException if interruption is detected
-   */
-  public static void checkInterruptionAndThrow(Throwable t, String message) {
-    final InterruptionType type = InterruptionUtil.getInterruptionType(t);
-    if (type != InterruptionType.NONE) {
-      if (type == InterruptionType.THREAD_INTERRUPTION) {
-        Thread.currentThread().interrupt();
-      }
-      if (t instanceof java.util.concurrent.CancellationException) {
-        throw (java.util.concurrent.CancellationException) t;
-      }
-      java.util.concurrent.CancellationException ce = new java.util.concurrent.CancellationException(message);
-      ce.initCause(t);
-      throw ce;
-    }
-  }
 
   /**
    * This is a helper function designed to cover most of the retry cases.
