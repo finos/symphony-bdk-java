@@ -5,6 +5,8 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
+import com.symphony.bdk.http.api.util.InterruptionUtil;
+import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -33,41 +35,6 @@ public abstract class RetryWithRecovery<T> {
   private final String address;
 
   /**
-   * Checks if the throwable or any exception in its cause chain is an {@link InterruptedException}
-   * or a {@link java.util.concurrent.CancellationException}.
-   *
-   * @param t the throwable to check
-   * @return true if an interruption or cancellation is detected in the cause chain
-   */
-  public static boolean isInterruption(Throwable t) {
-    Throwable current = t;
-    while (current != null) {
-      if (current instanceof InterruptedException || current instanceof java.util.concurrent.CancellationException) {
-        return true;
-      }
-      current = current.getCause();
-    }
-    return false;
-  }
-
-  /**
-   * Checks if the throwable or any exception in its cause chain is an {@link InterruptedException}.
-   *
-   * @param t the throwable to check
-   * @return true if an InterruptedException is detected in the cause chain
-   */
-  public static boolean isThreadInterruption(Throwable t) {
-    Throwable current = t;
-    while (current != null) {
-      if (current instanceof InterruptedException) {
-        return true;
-      }
-      current = current.getCause();
-    }
-    return false;
-  }
-
-  /**
    * Helper to check if a throwable is an interruption/cancellation. If so, restores the thread
    * interrupted status if the cause was a physical interruption and throws a standard {@link java.util.concurrent.CancellationException}.
    *
@@ -76,8 +43,9 @@ public abstract class RetryWithRecovery<T> {
    * @throws java.util.concurrent.CancellationException if interruption is detected
    */
   public static void checkInterruptionAndThrow(Throwable t, String message) {
-    if (isInterruption(t)) {
-      if (isThreadInterruption(t)) {
+    final InterruptionType type = InterruptionUtil.getInterruptionType(t);
+    if (type != InterruptionType.NONE) {
+      if (type == InterruptionType.THREAD_INTERRUPTION) {
         Thread.currentThread().interrupt();
       }
       if (t instanceof java.util.concurrent.CancellationException) {

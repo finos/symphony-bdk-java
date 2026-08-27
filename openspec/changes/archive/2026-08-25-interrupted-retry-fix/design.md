@@ -47,6 +47,10 @@ See `proposal.md` for the core problem statement.
 **Decision**: Wrap Resilience4j's core `retryOnException` predicate to ensure it returns `false` if `isInterruption(throwable)` is `true` anywhere in the exception cause chain.
 - **Rationale**: BDK Core relies on Resilience4j's decoration logic. Even if an exception categorizes as a transient network exception (like a socket timeout), the moment it is caused by a thread interruption or cancellation, Resilience4j must instantly bypass retries and propagate the cancellation without scheduling retries or writing noisy log entries.
 
+### D6 — Centralized InterruptionUtil & Cycle Detection
+**Decision**: Create a centralized `InterruptionUtil` utility class under the `:symphony-bdk-http:symphony-bdk-http-api` module. It defines an `InterruptionType` enum (`NONE`, `INTERRUPTION`, `THREAD_INTERRUPTION`) and a single-pass `getInterruptionType(Throwable)` helper with identity-based cycle detection.
+- **Rationale**: Traversal of exception cause chains has a risk of infinite loops or CPU exhaustion if custom or third-party exceptions introduce circular references in their chains. By centralizing this logic in a shared module and returning an enum, we completely avoid code duplication, ensure identity-based cycle protection, and allow callers to check both interruption existence and specific thread-interrupted state in exactly one cause-chain traversal pass (saving performance and reducing complexity).
+
 ## Risks / Trade-offs
 
 - **[Risk]** Downstream callers might not expect `CancellationException`.
