@@ -22,4 +22,6 @@ dependencies {
         exclude group: 'junit', module: 'junit'
         exclude group: 'org.mockito'
     }
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

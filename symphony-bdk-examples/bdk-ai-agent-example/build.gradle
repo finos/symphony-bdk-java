@@ -13,11 +13,13 @@ dependencies {
     implementation project(':symphony-bdk-core')
 
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
-    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey')
 
     implementation platform("dev.langchain4j:langchain4j-bom:${langchain4jVersion}")
     implementation 'dev.langchain4j:langchain4j'
     implementation 'dev.langchain4j:langchain4j-google-genai'
+    // CVE-2026-63317 fix, ahead of what langchain4j 1.17.2 pulls transitively (2.5.9)
+    implementation 'org.apache.opennlp:opennlp-tools:2.5.11'
 
     runtimeOnly 'ch.qos.logback:logback-classic'
     implementation 'org.slf4j:slf4j-api'

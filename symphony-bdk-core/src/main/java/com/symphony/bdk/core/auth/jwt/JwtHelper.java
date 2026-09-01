@@ -3,14 +3,13 @@ package com.symphony.bdk.core.auth.jwt;
 import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.DeserializationException;
 import io.jsonwebtoken.io.Deserializer;
+import io.jsonwebtoken.io.SerializationException;
+import io.jsonwebtoken.io.Serializer;
 import org.apiguardian.api.API;
 import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
@@ -18,9 +17,13 @@ import org.bouncycastle.crypto.util.PrivateKeyInfoFactory;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -79,6 +82,7 @@ public class JwtHelper {
    */
   public static String createSignedJwt(String user, long expiration, PrivateKey privateKey) {
     return Jwts.builder()
+        .json(mapperSerializer())
         .subject(user)
         .expiration(new Date(System.currentTimeMillis() + expiration))
         .signWith(privateKey, Jwts.SIG.RS512)
@@ -152,9 +156,9 @@ public class JwtHelper {
    *
    * @param jwt to be parsed
    * @return expiration date in seconds
-   * @throws JsonProcessingException if parsing fails
+   * @throws JacksonException if parsing fails
    */
-  public static Long extractExpirationDate(String jwt) throws JsonProcessingException, AuthUnauthorizedException {
+  public static Long extractExpirationDate(String jwt) throws JacksonException, AuthUnauthorizedException {
     String claimsObj = extractDecodedClaims(dropBearer(jwt));
     ObjectNode claims = mapper.readValue(claimsObj, ObjectNode.class);
     if(claims.has(Claims.EXPIRATION) && claims.get(Claims.EXPIRATION).isNumber()) {
@@ -175,6 +179,30 @@ public class JwtHelper {
     return jwt.replace("Bearer ", "");
   }
 
+  private static Serializer<Map<String, ?>> mapperSerializer() {
+    // jjwt auto-discovers a Serializer from the classpath (jjwt-jackson) when none is set here;
+    // supplying our own keeps a single Jackson databind implementation on the classpath (D2).
+    return new Serializer<Map<String, ?>>() {
+      @Override
+      public byte[] serialize(Map<String, ?> map) throws SerializationException {
+        try {
+          return mapper.writeValueAsBytes(map);
+        } catch (JacksonException e) {
+          throw new SerializationException("Unable to serialize JWT claims", e);
+        }
+      }
+
+      @Override
+      public void serialize(Map<String, ?> map, OutputStream out) throws SerializationException {
+        try {
+          mapper.writeValue(out, map);
+        } catch (JacksonException e) {
+          throw new SerializationException("Unable to serialize JWT claims", e);
+        }
+      }
+    };
+  }
+
   @SuppressWarnings("unchecked")
   private static Deserializer<Map<String, ?>> normalizeSubjectDeserializer() {
     // jjwt 0.12+ strictly requires 'sub' to be a String (RFC 7519), but the pod may send it
@@ -184,7 +212,7 @@ public class JwtHelper {
       public Map<String, ?> deserialize(byte[] bytes) throws DeserializationException {
         try {
           return normalize(mapper.readValue(bytes, Map.class));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
           throw new DeserializationException("Unable to deserialize JWT claims", e);
         }
       }
@@ -193,7 +221,7 @@ public class JwtHelper {
       public Map<String, ?> deserialize(Reader reader) throws DeserializationException {
         try {
           return normalize(mapper.readValue(reader, Map.class));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
           throw new DeserializationException("Unable to deserialize JWT claims", e);
         }
       }

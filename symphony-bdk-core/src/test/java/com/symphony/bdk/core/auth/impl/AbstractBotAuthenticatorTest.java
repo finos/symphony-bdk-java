@@ -16,7 +16,6 @@ import jakarta.ws.rs.ProcessingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
 
@@ -69,7 +68,6 @@ class AbstractBotAuthenticatorTest {
     }
 
     @Override
-    @Nonnull
     public AuthSession authenticateBot() {
       return mock(AuthSession.class);
     }
