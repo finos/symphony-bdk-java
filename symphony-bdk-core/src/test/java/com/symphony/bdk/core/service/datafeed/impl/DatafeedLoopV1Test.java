@@ -278,6 +278,24 @@ class DatafeedLoopV1Test {
   }
 
   @Test
+  void startTestRecreateDatafeedInterrupted() throws ApiException {
+    datafeedIdRepository.write("persisted-id");
+    initializeDatafeedService();
+
+    when(datafeedApi.v4DatafeedIdReadGet("persisted-id", null,"1234",  "1234"))
+        .thenThrow(new ApiException(400, "expired DF id"));
+    when(datafeedApi.v4DatafeedCreatePost("1234", "1234"))
+        .thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    try {
+      org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> this.datafeedService.start());
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
+  }
+
+  @Test
   void startTestWithRetryCreate() throws ApiException, AuthUnauthorizedException {
     when(datafeedApi.v4DatafeedCreatePost("1234", "1234")).thenThrow(new ApiException(401, "test_unauthorized"));
     doNothing().when(authSession).refresh();

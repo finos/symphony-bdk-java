@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.concurrent.CancellationException;
 
 public class HealthServiceTest {
 
@@ -158,5 +159,26 @@ public class HealthServiceTest {
     this.service = new HealthService(new SystemApi(agentClient), new SignalsApi(agentClient), authSession, df);
     when(df.lastPullTimestamp()).thenReturn(Instant.now().minusSeconds(10).toEpochMilli());
     assertThat(this.service.datafeedHealthCheck()).isEqualTo(V3HealthStatus.UP);
+  }
+
+  @Test
+  void getAgentInfo_Interrupted() throws com.symphony.bdk.http.api.ApiException {
+    SignalsApi mockSignalsApi = mock(SignalsApi.class);
+    when(mockSignalsApi.v1InfoGet()).thenThrow(new com.symphony.bdk.http.api.ApiException(500, new InterruptedException("Interrupted")));
+    HealthService healthService = new HealthService(
+        mock(SystemApi.class),
+        mockSignalsApi,
+        mock(AuthSession.class)
+    );
+
+    try {
+      assertThrows(
+          CancellationException.class,
+          healthService::getAgentInfo
+      );
+      assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
   }
 }

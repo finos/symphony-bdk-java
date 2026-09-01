@@ -8,6 +8,9 @@ import com.symphony.bdk.http.api.Pair;
 import com.symphony.bdk.http.api.auth.Authentication;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
 import com.symphony.bdk.http.api.util.TypeReference;
+import com.symphony.bdk.http.api.util.InterruptionUtil;
+import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
+import java.util.concurrent.CancellationException;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.client.Client;
@@ -204,6 +207,12 @@ public class ApiClientJersey2 implements ApiClient {
 
   private Response getResponse(Invocation.Builder invocationBuilder, String method, Entity<?> entity)
       throws ApiException {
+    if (Thread.currentThread().isInterrupted()) {
+      InterruptedException ie = new InterruptedException("Thread was interrupted prior to response retrieval");
+      CancellationException ce = new CancellationException("Thread was interrupted prior to response retrieval");
+      ce.initCause(ie);
+      throw ce;
+    }
     try {
       switch (method) {
         case HttpMethod.GET:
@@ -226,6 +235,15 @@ public class ApiClientJersey2 implements ApiClient {
           throw new ApiException(500, "unknown method type " + method);
       }
     } catch (ProcessingException e) {
+      final InterruptionType type = InterruptionUtil.getInterruptionType(e);
+      if (type != InterruptionType.NONE) {
+        if (type == InterruptionType.THREAD_INTERRUPTION) {
+          Thread.currentThread().interrupt();
+        }
+        CancellationException ce = new CancellationException("Request execution was interrupted");
+        ce.initCause(e);
+        throw ce;
+      }
       if (e.getCause() instanceof ConnectTimeoutException) {
         throw new ProcessingException(new SocketTimeoutException(e.getCause().getMessage()));
       }

@@ -6,6 +6,8 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.util.BdkExponentialFunction;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.util.InterruptionUtil;
+import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
@@ -71,10 +73,13 @@ public class Resilience4jRetryWithRecovery<T> extends RetryWithRecovery<T> {
       final Predicate<Throwable> retryOnExceptionPredicate
   ) {
 
+    final Predicate<Throwable> safeRetryOnExceptionPredicate = throwable ->
+        InterruptionUtil.getInterruptionType(throwable) == InterruptionType.NONE && retryOnExceptionPredicate.test(throwable);
+
     final RetryConfig retryConfig = RetryConfig.custom()
         .maxAttempts(bdkRetryConfig.getMaxAttempts())
         .intervalFunction(BdkExponentialFunction.ofExponentialBackoff(bdkRetryConfig))
-        .retryOnException(retryOnExceptionPredicate)
+        .retryOnException(safeRetryOnExceptionPredicate)
         .build();
 
     final Retry retry = Retry.of(name, retryConfig);

@@ -19,6 +19,7 @@ import org.mockito.quality.Strictness;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -200,6 +201,18 @@ class OffsetBasedPaginatedServiceTest {
 
     verify(paginatedApi).get(0, 1);
     verifyNoMoreInteractions(paginatedApi);
+  }
+
+  @Test
+  void testApiThrowsInterruptedException() throws ApiException {
+    when(paginatedApi.get(anyInt(), anyInt())).thenThrow(new ApiException(500, new InterruptedException("Interrupted")));
+
+    try {
+      assertThrows(CancellationException.class, () -> getList(new OffsetBasedPaginatedService<>(paginatedApi, 1, 2)));
+      org.junit.jupiter.api.Assertions.assertTrue(Thread.currentThread().isInterrupted());
+    } finally {
+      Thread.interrupted(); // Clear interrupted status
+    }
   }
 
   private void assertServiceProducesList(int chunkSize, int maxSize, List<String> expected) {

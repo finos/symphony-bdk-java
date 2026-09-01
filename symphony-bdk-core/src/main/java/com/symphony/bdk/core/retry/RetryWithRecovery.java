@@ -5,6 +5,11 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.ApiRuntimeException;
+import com.symphony.bdk.http.api.util.InterruptionUtil;
+import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
+
+import java.util.concurrent.CancellationException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -63,6 +68,7 @@ public abstract class RetryWithRecovery<T> {
     } catch (ApiException e) {
       throw new ApiRuntimeException(e);
     } catch (Throwable t) {
+      checkInterruptionAndThrow(t, "Execution interrupted: " + t.getMessage());
       throw new RuntimeException(networkIssueMessageError(t, address), t);
     }
   }
@@ -101,9 +107,16 @@ public abstract class RetryWithRecovery<T> {
    * @throws Throwable in case an exception has been thrown by the {@link #supplier} or by the recovery functions.
    */
   protected T executeOnce() throws Throwable {
+    if (Thread.currentThread().isInterrupted()) {
+      InterruptedException ie = new InterruptedException("Thread was interrupted prior to execution");
+      CancellationException ce = new CancellationException("Thread was interrupted prior to execution");
+      ce.initCause(ie);
+      throw ce;
+    }
     try {
       return supplier.get();
     } catch (Exception e) {
+      checkInterruptionAndThrow(e, "Execution interrupted: " + e.getMessage());
       if (ignoreException.test(e)) {
         log.debug("{} ignored: {}", e.getClass().getCanonicalName(), e.getMessage());
         return null;

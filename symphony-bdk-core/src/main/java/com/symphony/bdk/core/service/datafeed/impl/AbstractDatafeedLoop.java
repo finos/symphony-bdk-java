@@ -14,6 +14,8 @@ import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.gen.api.model.V4Event;
 import com.symphony.bdk.http.api.ApiException;
 import com.symphony.bdk.http.api.tracing.DistributedTracingContext;
+import com.symphony.bdk.http.api.util.InterruptionUtil;
+import com.symphony.bdk.http.api.util.InterruptionUtil.InterruptionType;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
@@ -89,9 +91,25 @@ abstract class AbstractDatafeedLoop implements DatafeedLoop {
       updateLastPullTimestamp();
       runLoop();
     } catch (AuthUnauthorizedException | ApiException | NestedRetryException exception) {
-      throw exception;
+      final InterruptionType type = InterruptionUtil.getInterruptionType(exception);
+      if (type != InterruptionType.NONE) {
+        if (type == InterruptionType.THREAD_INTERRUPTION) {
+          Thread.currentThread().interrupt();
+        }
+        log.info("Datafeed loop interrupted, exiting cleanly");
+      } else {
+        throw exception;
+      }
     } catch (Throwable throwable) {
-      log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
+      final InterruptionType type = InterruptionUtil.getInterruptionType(throwable);
+      if (type != InterruptionType.NONE) {
+        if (type == InterruptionType.THREAD_INTERRUPTION) {
+          Thread.currentThread().interrupt();
+        }
+        log.info("Datafeed loop interrupted, exiting cleanly");
+      } else {
+        log.error("{}\n{}", networkIssueMessageError(throwable, datafeedApi.getApiClient().getBasePath()), throwable);
+      }
     } finally {
       DistributedTracingContext.clear();
     }

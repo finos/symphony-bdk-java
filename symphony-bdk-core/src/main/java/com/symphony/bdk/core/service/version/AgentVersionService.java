@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.version;
 
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
+
 import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.model.AgentInfo;
@@ -34,6 +36,7 @@ public class AgentVersionService {
       AgentInfo agentInfo = signalsApi.v1InfoGet();
       return parse(agentInfo.getVersion());
     } catch (ApiException e) {
+      checkInterruptionAndThrow(e, "Retrieval of agent version was interrupted");
       return Optional.empty();
     }
   }

@@ -1,5 +1,7 @@
 package com.symphony.bdk.core.service.health;
 
+import static com.symphony.bdk.http.api.util.InterruptionUtil.checkInterruptionAndThrow;
+
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
@@ -97,6 +99,7 @@ public class HealthService {
     try {
       return supplier.get();
     } catch (ApiException e) {
+      checkInterruptionAndThrow(e, "Health check execution was interrupted");
       throw new ApiRuntimeException(e);
     }
   }
