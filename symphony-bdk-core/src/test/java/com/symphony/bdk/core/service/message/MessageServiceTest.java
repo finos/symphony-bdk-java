@@ -152,6 +152,19 @@ class MessageServiceTest {
   }
 
   @Test
+  void testSendBlastObo() throws IOException {
+    mockApiClient.onPost(V4_BLAST_MESSAGE, JsonHelper.readFromClasspath("/message/blast_message.json"));
+
+    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
+        attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
+    final V4MessageBlastResponse blastResponse = messageService.obo(authSession)
+        .send(Arrays.asList("sid1", "sid2"), Message.builder().content(MESSAGE).build());
+
+    assertNotNull(blastResponse);
+    assertEquals(2, blastResponse.getMessages().size());
+  }
+
+  @Test
   void testGetMessagesWithStreamObject() {
     MessageService service = spy(messageService);
     doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(Instant.class), any(Instant.class));
