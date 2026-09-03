@@ -448,13 +448,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Sends a message to multiple existing streams.
-   *
-   * @param streamIds the list of stream IDs to send the message to
-   * @param message   the message to be sent
-   * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
-   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#blast-message">Blast Message</a>
+   * {@inheritDoc}
    */
+  @Override
   public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
     if (senderOverride != null) {
       return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
@@ -528,14 +524,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Downloads the attachment body by the stream ID, message ID and attachment ID.
-   *
-   * @param streamId     the stream ID where to look for the attachment
-   * @param messageId    the ID of the message containing the attachment
-   * @param attachmentId the ID of the attachment
-   * @return a byte array of attachment encoded in base 64
-   * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
+   * {@inheritDoc}
    */
+  @Override
   public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
     if (senderOverride != null) {
       return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
