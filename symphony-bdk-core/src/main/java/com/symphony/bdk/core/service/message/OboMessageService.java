@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
+import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateEngine;
 
@@ -163,6 +164,16 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
   V4Message send(@Nonnull String streamId, @Nonnull Message message);
+
+  /**
+   * Sends a message to multiple existing streams.
+   *
+   * @param streamIds the list of stream IDs to send the message to
+   * @param message   the message to be sent
+   * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
+   * @see <a href="https://developers.symphony.com/restapi/reference/blast-message">Blast Message</a>
+   */
+  V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message);
 
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
