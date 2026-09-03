@@ -206,6 +206,17 @@ public interface OboMessageService {
   MessageSuppressionResponse suppressMessage(@Nonnull String messageId);
 
   /**
+   * Downloads the attachment body by the stream ID, message ID and attachment ID.
+   *
+   * @param streamId     the stream ID where to look for the attachment
+   * @param messageId    the ID of the message containing the attachment
+   * @param attachmentId the ID of the attachment
+   * @return a byte array of attachment encoded in base 64
+   * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
+   */
+  byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId);
+
+  /**
    * Retrieves a list of supported file extensions for attachments.
    *
    * @return a list of String containing all allowed file extensions for attachments
