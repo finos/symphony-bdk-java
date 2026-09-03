@@ -494,6 +494,17 @@ class MessageServiceTest {
   }
 
   @Test
+  void testGetAttachmentObo() throws ApiException {
+    final String attachmentId = "attachmentId";
+
+    doReturn(new byte[0]).when(attachmentsApi).v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
+
+    assertNotNull(messageService.obo(authSession).getAttachment(STREAM_ID, MESSAGE_ID, attachmentId));
+    verify(attachmentsApi).v1StreamSidAttachmentGet(eq(STREAM_ID), eq(attachmentId), eq(MESSAGE_ID), anyString(),
+        anyString());
+  }
+
+  @Test
   void testGetAttachmentThrowingApiException() throws ApiException {
     doThrow(new ApiException(400, "error")).when(attachmentsApi)
         .v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
