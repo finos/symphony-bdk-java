@@ -448,13 +448,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * Sends a message to multiple existing streams.
-   *
-   * @param streamIds the list of stream IDs to send the message to
-   * @param message   the message to be sent
-   * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
-   * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#blast-message">Blast Message</a>
+   * {@inheritDoc}
    */
+  @Override
   public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
     if (senderOverride != null) {
       return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
