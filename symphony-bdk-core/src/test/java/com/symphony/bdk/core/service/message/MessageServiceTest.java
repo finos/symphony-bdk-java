@@ -594,6 +594,17 @@ class MessageServiceTest {
   }
 
   @Test
+  void testListAttachmentsObo() throws IOException {
+    mockApiClient.onGet(V1_STREAM_ATTACHMENTS.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/stream/list_attachments.json"));
+
+    List<StreamAttachmentItem> attachments =
+        messageService.obo(authSession).listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
+
+    assertEquals(2, attachments.size());
+  }
+
+  @Test
   void testListAttachmentWithSortDirAsc() throws ApiException {
     doReturn(Collections.emptyList()).when(streamsApi)
         .v1StreamsSidAttachmentsGet(any(), any(), any(), any(), any(), any());
