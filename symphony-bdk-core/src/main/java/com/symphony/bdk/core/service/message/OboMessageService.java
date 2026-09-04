@@ -2,7 +2,9 @@ package com.symphony.bdk.core.service.message;
 
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
+import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
+import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
 import com.symphony.bdk.gen.api.model.V4Stream;
@@ -215,6 +217,19 @@ public interface OboMessageService {
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
   byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId);
+
+  /**
+   * List attachments in a particular stream.
+   *
+   * @param streamId the stream ID where to look for the attachments
+   * @param since    optional instant of the first required attachment.
+   * @param to       optional instant of the last required attachment.
+   * @param limit    maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
+   * @param sort     Attachment date sort direction : ASC or DESC (default to ASC)
+   * @return the list of attachments in the stream.
+   * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
+   */
+  List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
 
   /**
    * Retrieves a list of supported file extensions for attachments.

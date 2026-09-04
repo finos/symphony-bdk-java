@@ -595,16 +595,9 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   /**
-   * List attachments in a particular stream.
-   *
-   * @param streamId the stream ID where to look for the attachments
-   * @param since    optional instant of the first required attachment.
-   * @param to       optional instant of the last required attachment.
-   * @param limit    maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
-   * @param sort     Attachment date sort direction : ASC or DESC (default to ASC)
-   * @return the list of attachments in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
+   * {@inheritDoc}
    */
+  @Override
   public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since,
       @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort) {
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
