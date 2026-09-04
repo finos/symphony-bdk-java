@@ -152,6 +152,19 @@ class MessageServiceTest {
   }
 
   @Test
+  void testSendBlastObo() throws IOException {
+    mockApiClient.onPost(V4_BLAST_MESSAGE, JsonHelper.readFromClasspath("/message/blast_message.json"));
+
+    messageService = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi, podApi,
+        attachmentsApi, defaultApi, templateEngine, new RetryWithRecoveryBuilder<>());
+    final V4MessageBlastResponse blastResponse = messageService.obo(authSession)
+        .send(Arrays.asList("sid1", "sid2"), Message.builder().content(MESSAGE).build());
+
+    assertNotNull(blastResponse);
+    assertEquals(2, blastResponse.getMessages().size());
+  }
+
+  @Test
   void testGetMessagesWithStreamObject() {
     MessageService service = spy(messageService);
     doReturn(Collections.emptyList()).when(service).listMessages(anyString(), any(Instant.class), any(Instant.class));
@@ -481,6 +494,17 @@ class MessageServiceTest {
   }
 
   @Test
+  void testGetAttachmentObo() throws ApiException {
+    final String attachmentId = "attachmentId";
+
+    doReturn(new byte[0]).when(attachmentsApi).v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
+
+    assertNotNull(messageService.obo(authSession).getAttachment(STREAM_ID, MESSAGE_ID, attachmentId));
+    verify(attachmentsApi).v1StreamSidAttachmentGet(eq(STREAM_ID), eq(attachmentId), eq(MESSAGE_ID), anyString(),
+        anyString());
+  }
+
+  @Test
   void testGetAttachmentThrowingApiException() throws ApiException {
     doThrow(new ApiException(400, "error")).when(attachmentsApi)
         .v1StreamSidAttachmentGet(any(), any(), any(), any(), any());
@@ -565,6 +589,17 @@ class MessageServiceTest {
 
     List<StreamAttachmentItem> attachments =
         messageService.listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
+
+    assertEquals(2, attachments.size());
+  }
+
+  @Test
+  void testListAttachmentsObo() throws IOException {
+    mockApiClient.onGet(V1_STREAM_ATTACHMENTS.replace("{sid}", STREAM_ID),
+        JsonHelper.readFromClasspath("/stream/list_attachments.json"));
+
+    List<StreamAttachmentItem> attachments =
+        messageService.obo(authSession).listAttachments(STREAM_ID, null, null, null, AttachmentSort.ASC);
 
     assertEquals(2, attachments.size());
   }
