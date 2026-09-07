@@ -204,9 +204,10 @@ public class Message {
      * @param filename Filename of the attachment.
      * @return  this builder with the data configured.
      */
-    public MessageBuilder addAttachment(InputStream attachment, InputStream preview, String filename) {
-      this.attachments.add(new Attachment(attachment, filename));
-      this.previews.add(new Attachment(preview, "preview-" + filename));
+    public MessageBuilder addAttachment(@Nonnull InputStream attachment, @Nonnull InputStream preview, @Nonnull String filename, String contentType) {
+      this.attachments.add(new Attachment(attachment, filename, contentType));
+      this.previews.add(new Attachment(preview, "preview-" + filename, contentType));
+
       return this;
     }
 
