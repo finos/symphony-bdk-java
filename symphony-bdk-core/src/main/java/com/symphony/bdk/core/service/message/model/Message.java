@@ -185,6 +185,19 @@ public class Message {
     }
 
     /**
+     * Add attachment to the message with an explicit content type.
+     * @param content Attachment content.
+     * @param filename Filename of the attachment.
+     * @param contentType MIME type of the attachment (e.g. {@code application/pdf}); defaults to
+     *                    {@code application/octet-stream} when {@code null}.
+     * @return  this builder with the data configured.
+     */
+    public MessageBuilder addAttachment(@Nonnull InputStream content, @Nonnull String filename, String contentType) {
+      this.attachments.add(new Attachment(content, filename, contentType));
+      return this;
+    }
+
+    /**
      * Add attachment (with preview) to the message.
      * @param attachment Input stream of the attachment content.
      * @param preview Optional attachment preview.

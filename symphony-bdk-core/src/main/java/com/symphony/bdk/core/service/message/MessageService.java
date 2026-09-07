@@ -494,7 +494,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
 
   private static ApiClientBodyPart[] toApiClientBodyParts(List<Attachment> attachments) {
     return attachments.stream()
-        .map(a -> new ApiClientBodyPart(a.getContent(), a.getFilename()))
+        .map(a -> new ApiClientBodyPart(a.getContent(), a.getFilename(), a.getContentType()))
         .toArray(ApiClientBodyPart[]::new);
   }
 
