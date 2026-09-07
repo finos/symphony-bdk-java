@@ -464,7 +464,7 @@ public class ApiClientJersey2 implements ApiClient {
       else if (param.getValue() instanceof ApiClientBodyPart[]) {
         for (ApiClientBodyPart attachment : (ApiClientBodyPart[]) param.getValue()) {
           final StreamDataBodyPart streamPart =
-              new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename());
+              new StreamDataBodyPart(param.getKey(), attachment.getContent(), attachment.getFilename(), toMediaType(attachment.getContentType()));
           multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
         }
       }
@@ -472,7 +472,7 @@ public class ApiClientJersey2 implements ApiClient {
       else if (param.getValue() instanceof ApiClientBodyPart) {
         final ApiClientBodyPart part = (ApiClientBodyPart) param.getValue();
         final StreamDataBodyPart streamPart =
-            new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename());
+            new StreamDataBodyPart(param.getKey(), part.getContent(), part.getFilename(), toMediaType(part.getContentType()));
         multiPart = (FormDataMultiPart) multiPart.bodyPart(streamPart);
       } else {
         multiPart = multiPart.field(param.getKey(), this.parameterToString(param.getValue()));
@@ -494,6 +494,10 @@ public class ApiClientJersey2 implements ApiClient {
         MediaType.APPLICATION_OCTET_STREAM_TYPE
     );
     return (FormDataMultiPart) multiPart.bodyPart(streamPart);
+  }
+
+  private static MediaType toMediaType(String contentType) {
+    return contentType == null ? MediaType.APPLICATION_OCTET_STREAM_TYPE : MediaType.valueOf(contentType);
   }
 
   /**
