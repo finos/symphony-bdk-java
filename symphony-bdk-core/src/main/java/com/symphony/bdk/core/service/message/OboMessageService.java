@@ -17,8 +17,6 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-
 /**
  * Service interface exposing OBO-enabled endpoints to manage messages.
  *
@@ -174,7 +172,7 @@ public interface OboMessageService {
    * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
    * @see <a href="https://developers.symphony.com/restapi/reference/blast-message">Blast Message</a>
    */
-  V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message);
+  V4MessageBlastResponse send(List<String> streamIds, Message message);
 
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
@@ -215,7 +213,7 @@ public interface OboMessageService {
    * @return a byte array of attachment encoded in base 64
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
-  byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId);
+  byte[] getAttachment(String streamId, String messageId, String attachmentId);
 
   /**
    * List attachments in a particular stream.
@@ -228,7 +226,7 @@ public interface OboMessageService {
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
-  List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
+  List<StreamAttachmentItem> listAttachments(String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
 
   /**
    * Retrieves a list of supported file extensions for attachments.
