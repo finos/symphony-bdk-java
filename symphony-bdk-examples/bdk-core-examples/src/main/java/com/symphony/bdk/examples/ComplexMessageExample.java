@@ -32,12 +32,14 @@ public class ComplexMessageExample {
         .addAttachment(
             loadAttachment("/lenna.png"),
             loadAttachment("/lenna-preview.png"),
-            "lenna.png"
+            "lenna.png",
+            "application/octet-stream"
         )
         .addAttachment(
             loadAttachment("/lenna.png"),
             loadAttachment("/lenna-preview.png"),
-            "lenna-2.png"
+            "lenna-2.png",
+            "application/octet-stream"
         )
         .build();
   }

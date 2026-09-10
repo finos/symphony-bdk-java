@@ -51,6 +51,7 @@ tasks.named('openApiGenerate').configure {
                     .replace('com.fasterxml.jackson.databind.annotation.JsonSerialize', 'tools.jackson.databind.annotation.JsonSerialize')
                     .replace('com.fasterxml.jackson.databind.annotation.JsonDeserialize', 'tools.jackson.databind.annotation.JsonDeserialize')
                     .replace('com.fasterxml.jackson.databind.ser.std.ToStringSerializer', 'tools.jackson.databind.ser.std.ToStringSerializer')
+                    .replace('javax.annotation.Generated', 'jakarta.annotation.Generated')
             if (rewritten != original) {
                 javaFile.text = rewritten
             }
