@@ -13,8 +13,6 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Bot authenticator certificate implementation.
  *
@@ -29,13 +27,13 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
   private final String username;
 
   public BotAuthenticatorCertImpl(
-      @Nonnull BdkRetryConfig retryConfig,
-      @Nonnull String username,
-      @Nonnull BdkCommonJwtConfig commonJwtConfig,
-      @Nonnull ApiClient loginClient,
-      @Nonnull ApiClient sessionAuthClient,
-      @Nonnull ApiClient keyAuthClient,
-      @Nonnull AgentVersionService agentVersionService,
+      BdkRetryConfig retryConfig,
+      String username,
+      BdkCommonJwtConfig commonJwtConfig,
+      ApiClient loginClient,
+      ApiClient sessionAuthClient,
+      ApiClient keyAuthClient,
+      AgentVersionService agentVersionService,
       boolean agentConfigured) {
     super(retryConfig, commonJwtConfig, loginClient, agentVersionService, agentConfigured);
     this.sessionAuthClient = sessionAuthClient;
@@ -47,7 +45,6 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  @Nonnull
   public AuthSession authenticateBot() throws AuthUnauthorizedException {
     AuthSessionImpl authSession = new AuthSessionImpl(this);
     authSession.refresh();
@@ -55,14 +52,12 @@ public class BotAuthenticatorCertImpl extends AbstractBotAuthenticator {
   }
 
   @Override
-  @Nonnull
   protected Token retrieveSessionToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving authentication tokens using certificate authentication...");
     return retrieveSessionToken(this.sessionAuthClient);
   }
 
   @Override
-  @Nonnull
   protected String retrieveKeyManagerToken() throws AuthUnauthorizedException {
     log.debug("Start retrieving keyManagerToken using certificate authentication...");
     return retrieveKeyManagerToken(this.keyAuthClient);

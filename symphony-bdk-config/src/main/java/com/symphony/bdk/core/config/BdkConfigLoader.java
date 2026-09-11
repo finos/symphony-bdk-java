@@ -3,13 +3,13 @@ package com.symphony.bdk.core.config;
 import com.symphony.bdk.core.config.exception.BdkConfigException;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.javaprop.JavaPropsMapper;
 import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.javaprop.JavaPropsMapper;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,10 +28,12 @@ public class BdkConfigLoader {
   private static final JavaPropsMapper PROPS_MAPPER;
 
   static {
-    JSON_MAPPER = new JsonMapper();
-    PROPS_MAPPER = new JavaPropsMapper();
-    PROPS_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    JSON_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    JSON_MAPPER = JsonMapper.builder()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .build();
+    PROPS_MAPPER = JavaPropsMapper.builder()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        .build();
   }
 
   /**

@@ -16,8 +16,6 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 /**
  * Service class for managing the applications and the application entitlements.
  * <p>
@@ -58,7 +56,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference/create-app">Create Application</a>
    * @see <a href="https://developers.symphony.com/restapi/reference/create-application-with-an-rsa-public-key">Create Application with an RSA Public Key</a>
    */
-  public ApplicationDetail createApplication(@Nonnull ApplicationDetail applicationDetail) {
+  public ApplicationDetail createApplication(ApplicationDetail applicationDetail) {
     return executeAndRetry("createApplication", applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppCreatePost(authSession.getSessionToken(), applicationDetail));
   }
@@ -73,7 +71,7 @@ public class ApplicationService {
    * @see <a href="https://developers.symphony.com/restapi/reference/update-application">Update Application</a>
    * @see <a href="https://developers.symphony.com/restapi/reference/update-application-with-an-rsa-public-key">Update Application with an RSA Public Key</a>
    */
-  public ApplicationDetail updateApplication(@Nonnull String appId, @Nonnull ApplicationDetail applicationDetail) {
+  public ApplicationDetail updateApplication(String appId, ApplicationDetail applicationDetail) {
     return executeAndRetry("updateApplication",  applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppIdUpdatePost(authSession.getSessionToken(), appId, applicationDetail));
   }
@@ -84,7 +82,7 @@ public class ApplicationService {
    * @param appId Id of the application needs to be deleted.
    * @see <a href="https://developers.symphony.com/restapi/reference/delete-application">Delete Application</a>
    */
-  public void deleteApplication(@Nonnull String appId) {
+  public void deleteApplication(String appId) {
     executeAndRetry("deleteApplication",  applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppIdDeletePost(authSession.getSessionToken(), appId));
   }
@@ -96,7 +94,7 @@ public class ApplicationService {
    * @return The detail of the lookup application.
    * @see <a href="https://developers.symphony.com/restapi/reference/get-application">Get Application</a>
    */
-  public ApplicationDetail getApplication(@Nonnull String appId) {
+  public ApplicationDetail getApplication(String appId) {
     return executeAndRetry("getApplication",  applicationApi.getApiClient().getBasePath(),
         () -> applicationApi.v1AdminAppIdGetGet(authSession.getSessionToken(), appId));
   }
@@ -119,7 +117,7 @@ public class ApplicationService {
    * @return The updated list of entitlements.
    * @see <a href="https://developers.symphony.com/restapi/reference/update-application-entitlements">Update App Entitlements</a>
    */
-  public List<PodAppEntitlement> updateApplicationEntitlements(@Nonnull List<PodAppEntitlement> entitlementList) {
+  public List<PodAppEntitlement> updateApplicationEntitlements(List<PodAppEntitlement> entitlementList) {
     return executeAndRetry("updateApplicationEntitlements", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminAppEntitlementListPost(authSession.getSessionToken(), entitlementList));
   }
@@ -131,7 +129,7 @@ public class ApplicationService {
    * @return The list of Symphony application entitlements for this user.
    * @see <a href="https://developers.symphony.com/restapi/reference/user-apps">User Apps</a>
    */
-  public List<UserAppEntitlement> listUserApplications(@Nonnull Long userId) {
+  public List<UserAppEntitlement> listUserApplications(Long userId) {
     return executeAndRetry("listUserApplications", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminUserUidAppEntitlementListGet(authSession.getSessionToken(), userId));
   }
@@ -144,8 +142,8 @@ public class ApplicationService {
    * @return The updated list of Symphony application entitlements for this user.
    * @see <a href="https://developers.symphony.com/restapi/reference/update-user-apps">Update All User Apps</a>
    */
-  public List<UserAppEntitlement> updateUserApplications(@Nonnull Long userId,
-      @Nonnull List<UserAppEntitlement> userAppEntitlementList) {
+  public List<UserAppEntitlement> updateUserApplications(Long userId,
+      List<UserAppEntitlement> userAppEntitlementList) {
     return executeAndRetry("updateUserApplications", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminUserUidAppEntitlementListPost(authSession.getSessionToken(), userId,
             userAppEntitlementList));
@@ -159,8 +157,8 @@ public class ApplicationService {
    * @return The updated list of Symphony application entitlements for this user.
    * @see <a href="https://developers.symphony.com/restapi/reference/partial-update-user-apps">Update User Apps</a>
    */
-  public List<UserAppEntitlement> patchUserApplications(@Nonnull Long userId,
-      @Nonnull List<UserAppEntitlementPatch> userAppEntitlementPatchList) {
+  public List<UserAppEntitlement> patchUserApplications(Long userId,
+      List<UserAppEntitlementPatch> userAppEntitlementPatchList) {
     return executeAndRetry("patchUserApplications", appEntitlementApi.getApiClient().getBasePath(),
         () -> appEntitlementApi.v1AdminUserUidAppEntitlementListPatch(authSession.getSessionToken(), userId,
             userAppEntitlementPatchList));

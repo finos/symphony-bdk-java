@@ -22,8 +22,7 @@ import org.apiguardian.api.API;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing signal information.
@@ -69,7 +68,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public List<Signal> listSignals(@Nonnull PaginationAttribute pagination) {
+  public List<Signal> listSignals(PaginationAttribute pagination) {
     return executeAndRetry("listSignals",
         () -> signalsApi.v1SignalsListGet(authSession.getSessionToken(), authSession.getKeyManagerToken(),
             pagination.getSkip(), pagination.getLimit()));
@@ -89,7 +88,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<Signal> listAllSignals(@Nonnull StreamPaginationAttribute pagination) {
+  public Stream<Signal> listAllSignals(StreamPaginationAttribute pagination) {
     OffsetBasedPaginatedApi<Signal> api = (offset, limit) -> listSignals(new PaginationAttribute(offset, limit));
     return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
@@ -109,7 +108,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public Signal getSignal(@Nonnull String id) {
+  public Signal getSignal(String id) {
     return executeAndRetry("getSignal",
         () -> signalsApi.v1SignalsIdGetGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken()));
   }
@@ -118,7 +117,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public Signal createSignal(@Nonnull BaseSignal signal) {
+  public Signal createSignal(BaseSignal signal) {
     return executeAndRetry("createSignal",
         () -> signalsApi.v1SignalsCreatePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), signal));
   }
@@ -127,7 +126,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public Signal updateSignal(@Nonnull String id, @Nonnull BaseSignal signal) {
+  public Signal updateSignal(String id, BaseSignal signal) {
     return executeAndRetry("updateSignal",
         () -> signalsApi.v1SignalsIdUpdatePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), id, signal));
   }
@@ -136,7 +135,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public void deleteSignal(@Nonnull String id) {
+  public void deleteSignal(String id) {
     executeAndRetry("deleteSignal",
         () -> signalsApi.v1SignalsIdDeletePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), id));
   }
@@ -145,7 +144,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public ChannelSubscriptionResponse subscribeUsersToSignal(@Nonnull String id, @Nullable Boolean pushed,
+  public ChannelSubscriptionResponse subscribeUsersToSignal(String id, @Nullable Boolean pushed,
       @Nullable List<Long> userIds) {
     return executeAndRetry("subscribeUsersToSignal",
         () -> signalsApi.v1SignalsIdSubscribePost(authSession.getSessionToken(), authSession.getKeyManagerToken(), id,
@@ -156,7 +155,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public ChannelSubscriptionResponse unsubscribeUsersFromSignal(@Nonnull String id, @Nullable List<Long> userIds) {
+  public ChannelSubscriptionResponse unsubscribeUsersFromSignal(String id, @Nullable List<Long> userIds) {
     return executeAndRetry("unsubscribeUsersFromSignal",
         () -> signalsApi.v1SignalsIdUnsubscribePost(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             userIds));
@@ -166,7 +165,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nonnull PaginationAttribute pagination) {
+  public List<ChannelSubscriber> listSubscribers(String id, PaginationAttribute pagination) {
     return executeAndRetry("listSubscribers",
         () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             pagination.getSkip(), pagination.getLimit())).getData();
@@ -176,7 +175,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    * {@inheritDoc}
    */
   @Override
-  public List<ChannelSubscriber> listSubscribers(@Nonnull String id) {
+  public List<ChannelSubscriber> listSubscribers(String id) {
     return executeAndRetry("listSubscribers",
         () -> signalsApi.v1SignalsIdSubscribersGet(authSession.getSessionToken(), id, authSession.getKeyManagerToken(),
             null, null)).getData();
@@ -187,8 +186,8 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id,
-      @Nonnull StreamPaginationAttribute pagination) {
+  public Stream<ChannelSubscriber> listAllSubscribers(String id,
+      StreamPaginationAttribute pagination) {
     OffsetBasedPaginatedApi<ChannelSubscriber> api =
         (((offset, limit) -> listSubscribers(id, new PaginationAttribute(offset, limit))));
     return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
@@ -199,7 +198,7 @@ public class SignalService implements OboSignalService, OboService<OboSignalServ
    */
   @Override
   @API(status = API.Status.EXPERIMENTAL)
-  public Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id) {
+  public Stream<ChannelSubscriber> listAllSubscribers(String id) {
     OffsetBasedPaginatedApi<ChannelSubscriber> api =
         (((offset, limit) -> listSubscribers(id, new PaginationAttribute(offset, limit))));
     return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,

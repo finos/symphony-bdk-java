@@ -8,7 +8,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.service.datafeed.DatafeedLoop;
 import com.symphony.bdk.core.service.datafeed.RealTimeEventListener;

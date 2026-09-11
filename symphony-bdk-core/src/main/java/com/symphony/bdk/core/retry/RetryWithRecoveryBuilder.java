@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import javax.annotation.Nonnull;
-
 /**
  * Builder class to facilitate the instantiation of a {@link RetryWithRecovery}.
  *
@@ -106,7 +104,7 @@ public class RetryWithRecoveryBuilder<T> {
    * located at different level of the list of causes. This method aims to process the list of underlying causes starting
    * from a given root exception.
    */
-  private static boolean hasRootCause(@Nonnull Throwable root, @Nonnull Class<? extends Exception> candidate) {
+  private static boolean hasRootCause(Throwable root, Class<? extends Exception> candidate) {
     Throwable ex = root;
     while (ex != null) {
       if (ex.getClass().equals(candidate)) {

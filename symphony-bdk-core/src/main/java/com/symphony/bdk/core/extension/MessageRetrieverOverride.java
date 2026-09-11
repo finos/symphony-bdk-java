@@ -11,8 +11,7 @@ import org.apiguardian.api.API;
 import java.time.Instant;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * SPI for replacing all agent-facing message *read* operations in {@code MessageService}.
@@ -39,14 +38,14 @@ import javax.annotation.Nullable;
 @API(status = API.Status.EXPERIMENTAL)
 public interface MessageRetrieverOverride {
 
-  List<V4Message> listMessages(@Nonnull AuthSession session, @Nonnull String streamId, @Nonnull Instant since,
+  List<V4Message> listMessages(AuthSession session, String streamId, Instant since,
       @Nullable Instant until, @Nullable PaginationAttribute pagination) throws Exception;
 
-  List<V4Message> searchMessages(@Nonnull AuthSession session, @Nonnull MessageSearchQuery query,
+  List<V4Message> searchMessages(AuthSession session, MessageSearchQuery query,
       @Nullable PaginationAttribute pagination, @Nullable SortDir sortDir) throws Exception;
 
-  List<V4Message> searchMessagesSemantic(@Nonnull AuthSession session, @Nonnull String query,
+  List<V4Message> searchMessagesSemantic(AuthSession session, String query,
       @Nullable String streamId, @Nullable PaginationAttribute pagination) throws Exception;
 
-  V4Message getMessage(@Nonnull AuthSession session, @Nonnull String messageId) throws Exception;
+  V4Message getMessage(AuthSession session, String messageId) throws Exception;
 }

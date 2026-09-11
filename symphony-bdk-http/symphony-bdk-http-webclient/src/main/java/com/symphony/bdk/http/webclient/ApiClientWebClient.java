@@ -183,7 +183,7 @@ public class ApiClientWebClient implements ApiClient {
   @SuppressWarnings("unchecked")
   private <T> Mono<ApiResponse<T>> toApiResponse(TypeReference<T> returnType, ClientResponse response) {
     Map<String, List<String>> headers = response
-        .headers().asHttpHeaders().entrySet()
+        .headers().asHttpHeaders().headerSet()
         .stream()
         .collect(Collectors.toMap(
             Map.Entry::getKey,
@@ -259,10 +259,14 @@ public class ApiClientWebClient implements ApiClient {
   private void serializeApiClientBodyPart(String paramKey, ApiClientBodyPart bodyPart,
       MultiValueMap<String, Object> formValueMap) {
 
+    final MediaType contentType = bodyPart.getContentType() == null
+        ? MediaType.APPLICATION_OCTET_STREAM : MediaType.parseMediaType(bodyPart.getContentType());
+
     final MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
     multipartBodyBuilder
         .part(paramKey, new InputStreamResource(bodyPart.getContent()))
-        .filename(bodyPart.getFilename());
+        .filename(bodyPart.getFilename())
+        .contentType(contentType);
 
     multipartBodyBuilder.build().forEach(formValueMap::addAll);
   }

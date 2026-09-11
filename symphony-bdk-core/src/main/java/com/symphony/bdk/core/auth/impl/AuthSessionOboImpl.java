@@ -6,8 +6,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link AuthSession} impl for OBO authentication mode.
@@ -26,7 +25,7 @@ public class AuthSessionOboImpl implements AuthSession {
    * @param authenticator
    * @param userId
    */
-  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRsaImpl authenticator, @Nonnull Long userId) {
+  public AuthSessionOboImpl(OboAuthenticatorRsaImpl authenticator, Long userId) {
     this.authenticator = authenticator;
     this.userId = userId;
     this.username = null;
@@ -37,7 +36,7 @@ public class AuthSessionOboImpl implements AuthSession {
    * @param authenticator
    * @param username
    */
-  public AuthSessionOboImpl(@Nonnull OboAuthenticatorRsaImpl authenticator, @Nonnull String username) {
+  public AuthSessionOboImpl(OboAuthenticatorRsaImpl authenticator, String username) {
     this.authenticator = authenticator;
     this.userId = null;
     this.username = username;

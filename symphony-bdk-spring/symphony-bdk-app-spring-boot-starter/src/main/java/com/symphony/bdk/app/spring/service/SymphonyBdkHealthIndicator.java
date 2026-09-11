@@ -6,13 +6,13 @@ import com.symphony.bdk.gen.api.model.V3HealthComponent;
 import com.symphony.bdk.gen.api.model.V3HealthStatus;
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
-import org.springframework.boot.actuate.health.AbstractHealthIndicator;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.health.contributor.AbstractHealthIndicator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.Status;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
@@ -53,7 +53,7 @@ public class SymphonyBdkHealthIndicator extends AbstractHealthIndicator {
       try {
         V3Health health = MAPPER.readValue(e.getResponseBody(), V3Health.class);
         buildHealthDetail(builder, health);
-      } catch (JsonProcessingException exception) {
+      } catch (JacksonException exception) {
         log.debug("Failed to parse the health check failure response body, assume the global health state is down.", e);
         buildHealthDownDetail(builder);
       }

@@ -4,8 +4,6 @@ import com.symphony.bdk.core.auth.exception.AuthInitializationException;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Factory responsible for creating different authenticators.
  * <ul>
@@ -23,7 +21,6 @@ public interface AuthenticatorFactory {
    * @return a new {@link BotAuthenticator} instance.
    * @throws AuthInitializationException if the authenticator cannot be instantiated.
    */
-  @Nonnull
   BotAuthenticator getBotAuthenticator() throws AuthInitializationException;
 
   /**
@@ -32,7 +29,6 @@ public interface AuthenticatorFactory {
    * @return a new {@link OboAuthenticator} instance.
    * @throws AuthInitializationException if the authenticator cannot be instantiated.
    */
-  @Nonnull
   OboAuthenticator getOboAuthenticator() throws AuthInitializationException;
 
   /**
@@ -41,7 +37,6 @@ public interface AuthenticatorFactory {
    * @return a new {@link ExtensionAppAuthenticator} instance.
    * @throws AuthInitializationException if the authenticator cannot be instantiated.
    */
-  @Nonnull
   ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException;
 
   /**
@@ -50,6 +45,5 @@ public interface AuthenticatorFactory {
    * @return a new {@link ExtAppAuthenticator} instance.
    * @throws AuthInitializationException if the authenticator cannot be instantiated.
    */
-  @Nonnull
   ExtAppAuthenticator getExtAppAuthenticator() throws AuthInitializationException;
 }

@@ -3,8 +3,6 @@ package com.symphony.bdk.core.service.pagination.model;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Pagination Attribute model to be used in default pagination methods provided by bdk services class.
  */
@@ -22,7 +20,7 @@ public class PaginationAttribute {
    */
   private final Integer limit;
 
-  public PaginationAttribute(@Nonnull Integer skip, @Nonnull Integer limit) {
+  public PaginationAttribute(Integer skip, Integer limit) {
     this.skip = skip;
     this.limit = limit;
   }

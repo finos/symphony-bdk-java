@@ -113,4 +113,17 @@
         <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpcore@.*$</packageUrl>
         <cve>CVE-2026-54428</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+          CVE-2026-66299 is a DoS in Apache Tomcat's bundled WebSocket *examples* web application
+          (the chat demo shipped in the full Tomcat distribution). The advisory states explicitly
+          that "users who have followed the security guidance to remove the examples web application
+          are not affected". BDK embeds Tomcat via tomcat-embed-core/tomcat-embed-websocket
+          (Spring Boot's embedded server), which never bundles the examples webapp in the first
+          place — there is nothing to remove. The fix version (11.0.25) was not yet published on
+          Maven Central at suppression time.
+          ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-embed-(core|websocket)@.*$</packageUrl>
+        <cve>CVE-2026-66299</cve>
+    </suppress>
 </suppressions>

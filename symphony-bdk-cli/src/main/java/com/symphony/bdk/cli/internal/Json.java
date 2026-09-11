@@ -1,13 +1,11 @@
 package com.symphony.bdk.cli.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import java.io.UncheckedIOException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Shared Jackson serialisation for CLI output.
@@ -18,11 +16,11 @@ import java.io.UncheckedIOException;
  */
 public final class Json {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper()
-      .registerModule(new JavaTimeModule())
-      .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+  private static final ObjectMapper MAPPER = JsonMapper.builder()
+      .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
       .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
-      .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+      .changeDefaultPropertyInclusion(inclusion -> inclusion.withValueInclusion(JsonInclude.Include.NON_NULL))
+      .build();
 
   private static final ObjectWriter PRETTY = MAPPER.writerWithDefaultPrettyPrinter();
   private static final ObjectWriter COMPACT = MAPPER.writer();
@@ -32,19 +30,11 @@ public final class Json {
 
   /** Serialise {@code value} as an indented, multi-line JSON document. */
   public static String pretty(Object value) {
-    return write(PRETTY, value);
+    return PRETTY.writeValueAsString(value);
   }
 
   /** Serialise {@code value} as a single-line JSON document (one NDJSON record). */
   public static String compact(Object value) {
-    return write(COMPACT, value);
-  }
-
-  private static String write(ObjectWriter writer, Object value) {
-    try {
-      return writer.writeValueAsString(value);
-    } catch (JsonProcessingException e) {
-      throw new UncheckedIOException(e);
-    }
+    return COMPACT.writeValueAsString(value);
   }
 }

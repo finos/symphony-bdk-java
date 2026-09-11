@@ -4,7 +4,7 @@ import com.symphony.bdk.core.auth.exception.AuthUnauthorizedException;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Authentication session handle. The {@link AuthSession#refresh()} will trigger a re-auth against the API endpoints.

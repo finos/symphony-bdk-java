@@ -11,7 +11,6 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 import jakarta.ws.rs.ProcessingException;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nonnull;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
@@ -53,7 +52,6 @@ class AbstractExtensionAppAuthenticatorTest {
       return "localhost.symphony.com";
     }
 
-    @Nonnull
     @Override
     public AppAuthSession authenticateExtensionApp(String appToken) {
       return mock(AppAuthSession.class);

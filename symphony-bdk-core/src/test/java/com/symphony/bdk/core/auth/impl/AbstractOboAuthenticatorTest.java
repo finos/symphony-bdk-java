@@ -12,7 +12,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 
-import javax.annotation.Nonnull;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -38,13 +37,13 @@ class AbstractOboAuthenticatorTest {
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull Long userId)
+    protected String authenticateAndRetrieveOboSessionToken(String appSessionToken, Long userId)
         throws ApiException {
       return null;
     }
 
     @Override
-    protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken, @Nonnull String username)
+    protected String authenticateAndRetrieveOboSessionToken(String appSessionToken, String username)
         throws ApiException {
       return null;
     }
@@ -59,15 +58,13 @@ class AbstractOboAuthenticatorTest {
       return "localhost.symphony.com";
     }
 
-    @Nonnull
     @Override
-    public AuthSession authenticateByUsername(@Nonnull String username) {
+    public AuthSession authenticateByUsername(String username) {
       return mock(AuthSession.class);
     }
 
-    @Nonnull
     @Override
-    public AuthSession authenticateByUserId(@Nonnull Long userId) {
+    public AuthSession authenticateByUserId(Long userId) {
       return mock(AuthSession.class);
     }
   }

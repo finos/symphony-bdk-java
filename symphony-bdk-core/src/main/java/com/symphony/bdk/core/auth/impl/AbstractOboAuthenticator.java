@@ -8,8 +8,6 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Abstract class to factorize the {@link OboAuthenticator} logic between RSA and certificate,
  * especially the retry logic on top of HTTP calls.
@@ -26,7 +24,7 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
     this.authenticationRetry = new AuthenticationRetry<>(retryConfig);
   }
 
-  protected String retrieveOboSessionTokenByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
+  protected String retrieveOboSessionTokenByUserId(Long userId) throws AuthUnauthorizedException {
     final String appSessionToken = retrieveAppSessionToken();
 
     final String unauthorizedErrorMessage = "Unable to authenticate on-behalf-of user with ID '" + userId + "'. "
@@ -36,7 +34,7 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
         () -> authenticateAndRetrieveOboSessionToken(appSessionToken, userId), unauthorizedErrorMessage);
   }
 
-  protected String retrieveOboSessionTokenByUsername(@Nonnull String username) throws AuthUnauthorizedException {
+  protected String retrieveOboSessionTokenByUsername(String username) throws AuthUnauthorizedException {
     final String appSessionToken = retrieveAppSessionToken();
 
     final String unauthorizedErrorMessage =
@@ -57,11 +55,11 @@ public abstract class AbstractOboAuthenticator implements OboAuthenticator {
         this::authenticateAndRetrieveAppSessionToken, unauthorizedErrorMessage);
   }
 
-  protected abstract String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
-      @Nonnull Long userId) throws ApiException;
+  protected abstract String authenticateAndRetrieveOboSessionToken(String appSessionToken,
+      Long userId) throws ApiException;
 
-  protected abstract String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
-      @Nonnull String username) throws ApiException;
+  protected abstract String authenticateAndRetrieveOboSessionToken(String appSessionToken,
+      String username) throws ApiException;
 
   protected abstract String authenticateAndRetrieveAppSessionToken() throws ApiException;
 

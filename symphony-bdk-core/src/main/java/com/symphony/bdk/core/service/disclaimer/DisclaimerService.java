@@ -13,8 +13,6 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 /**
  * Service class for managing disclaimers.
  * <p>
@@ -48,7 +46,7 @@ public class DisclaimerService {
    * @return  {@link Disclaimer} with disclaimer details
    * @see <a href="https://developers.symphony.com/restapi/reference#disclaimer">Disclaimer</a>
    */
-  public Disclaimer getDisclaimer(@Nonnull String disclaimerId) {
+  public Disclaimer getDisclaimer(String disclaimerId) {
     return executeAndRetry("getDisclaimer",
         () -> this.disclaimerApi.v1AdminDisclaimerDidGet(this.authSession.getSessionToken(), disclaimerId));
   }
@@ -71,7 +69,7 @@ public class DisclaimerService {
    * @return  {@link List} of users for the given disclaimer
    * @see <a href="https://developers.symphony.com/restapi/reference#disclaimer-users">List Disclaimer Users</a>
    */
-  public List<Long> listDisclaimerUsers(@Nonnull String disclaimerId) {
+  public List<Long> listDisclaimerUsers(String disclaimerId) {
     return executeAndRetry("getDisclaimer",
         () -> this.disclaimerApi.v1AdminDisclaimerDidUsersGet(this.authSession.getSessionToken(), disclaimerId));
   }

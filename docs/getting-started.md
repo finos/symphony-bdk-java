@@ -24,6 +24,13 @@ yo @finos/symphony
 ## Creating your project _from scratch_
 This section will help you to understand how to create your bot application from scratch.
 
+> :warning: As of BDK 4.x, `symphony-bdk-http-jdk` is the default HTTP client dependency, shown below. It has
+> zero third-party HTTP dependencies (built directly on `java.net.http.HttpClient`). `symphony-bdk-http-jersey` and
+> `symphony-bdk-http-webclient` are deprecated in favor of it — existing projects on either module should migrate to
+> `symphony-bdk-http-jdk`. It is currently `@API(EXPERIMENTAL)`; if you need an `@API(STABLE)`-only dependency tree,
+> use `symphony-bdk-http-jersey` instead in the meantime. See the [4.x migration guide](migration-4.x.md) (section 9)
+> for details on switching between HTTP client implementations.
+
 ### Maven-based project
 If you want to use [Maven](https://maven.apache.org/) as build system, you have to configure your root `pom.xml` as such:
 ```xml
@@ -59,7 +66,7 @@ If you want to use [Maven](https://maven.apache.org/) as build system, you have 
         </dependency>
         <dependency>
             <groupId>org.finos.symphony.bdk</groupId>
-            <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+            <artifactId>symphony-bdk-http-jdk</artifactId> <!-- default as of BDK 4.x; or the deprecated symphony-bdk-http-jersey / symphony-bdk-http-webclient -->
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -101,7 +108,7 @@ dependencies {
 
     // define dependencies without versions
     implementation 'org.finos.symphony.bdk:symphony-bdk-core'
-    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jersey2'           //  or symphony-bdk-http-webclient
+    runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-http-jdk'              // default as of BDK 4.x; or the deprecated symphony-bdk-http-jersey / symphony-bdk-http-webclient
     runtimeOnly 'org.finos.symphony.bdk:symphony-bdk-template-freemarker'    // or symphony-bdk-http-handlebars
 
     // logger configuration
