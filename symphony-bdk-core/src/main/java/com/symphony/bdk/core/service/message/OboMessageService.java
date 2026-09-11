@@ -172,17 +172,7 @@ public interface OboMessageService {
    * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
    * @see <a href="https://developers.symphony.com/restapi/reference/blast-message">Blast Message</a>
    */
-  V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message);
-
-  /**
-   * Sends a message to multiple existing streams.
-   *
-   * @param streamIds the list of stream IDs to send the message to
-   * @param message   the message to be sent
-   * @return a {@link V4MessageBlastResponse} object containing the details of the sent messages
-   * @see <a href="https://developers.symphony.com/restapi/reference/blast-message">Blast Message</a>
-   */
-  V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message);
+  V4MessageBlastResponse send(List<String> streamIds, Message message);
 
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
@@ -223,7 +213,7 @@ public interface OboMessageService {
    * @return a byte array of attachment encoded in base 64
    * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
    */
-  byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId);
+  byte[] getAttachment(String streamId, String messageId, String attachmentId);
 
   /**
    * List attachments in a particular stream.
@@ -236,31 +226,7 @@ public interface OboMessageService {
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
-  List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
-
-  /**
-   * Downloads the attachment body by the stream ID, message ID and attachment ID.
-   *
-   * @param streamId     the stream ID where to look for the attachment
-   * @param messageId    the ID of the message containing the attachment
-   * @param attachmentId the ID of the attachment
-   * @return a byte array of attachment encoded in base 64
-   * @see <a href="https://developers.symphony.com/restapi/reference#attachment">Attachment</a>
-   */
-  byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId);
-
-  /**
-   * List attachments in a particular stream.
-   *
-   * @param streamId the stream ID where to look for the attachments
-   * @param since    optional instant of the first required attachment.
-   * @param to       optional instant of the last required attachment.
-   * @param limit    maximum number of attachments to return. This optional value defaults to 50 and should be between 0 and 100.
-   * @param sort     Attachment date sort direction : ASC or DESC (default to ASC)
-   * @return the list of attachments in the stream.
-   * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
-   */
-  List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
+  List<StreamAttachmentItem> listAttachments(String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
 
   /**
    * Retrieves a list of supported file extensions for attachments.

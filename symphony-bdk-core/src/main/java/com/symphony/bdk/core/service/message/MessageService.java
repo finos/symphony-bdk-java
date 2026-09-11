@@ -54,8 +54,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing messages.
@@ -450,7 +449,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public V4MessageBlastResponse send(@Nonnull List<String> streamIds, @Nonnull Message message) {
+  public V4MessageBlastResponse send(List<String> streamIds, Message message) {
     if (senderOverride != null) {
       return this.executeAndRetry("sendBlast", messagesApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.blast(authSession, streamIds, message)));
@@ -526,7 +525,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public byte[] getAttachment(@Nonnull String streamId, @Nonnull String messageId, @Nonnull String attachmentId) {
+  public byte[] getAttachment(String streamId, String messageId, String attachmentId) {
     if (senderOverride != null) {
       return executeAndRetry("getAttachment", attachmentsApi.getApiClient().getBasePath(),
           () -> wrapOverrideException(() -> senderOverride.getAttachment(authSession, streamId, messageId, attachmentId)));
@@ -597,7 +596,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * {@inheritDoc}
    */
   @Override
-  public List<StreamAttachmentItem> listAttachments(@Nonnull String streamId, @Nullable Instant since,
+  public List<StreamAttachmentItem> listAttachments(String streamId, @Nullable Instant since,
       @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort) {
     final String sortDir = sort == null ? AttachmentSort.ASC.name() : sort.name();
 

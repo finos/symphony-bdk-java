@@ -23,8 +23,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 /**
  * Message model to be used in {@link com.symphony.bdk.core.service.message.MessageService#send(V4Stream, Message)}
  */
@@ -194,7 +192,7 @@ public class Message {
      *                    {@code application/octet-stream} when {@code null}.
      * @return  this builder with the data configured.
      */
-    public MessageBuilder addAttachment(@Nonnull InputStream content, @Nonnull String filename, String contentType) {
+    public MessageBuilder addAttachment(InputStream content, String filename, String contentType) {
       this.attachments.add(new Attachment(content, filename, contentType));
       return this;
     }
@@ -206,7 +204,7 @@ public class Message {
      * @param filename Filename of the attachment.
      * @return  this builder with the data configured.
      */
-    public MessageBuilder addAttachment(@Nonnull InputStream attachment, @Nonnull InputStream preview, @Nonnull String filename, String contentType) {
+    public MessageBuilder addAttachment(InputStream attachment, InputStream preview, String filename, String contentType) {
       this.attachments.add(new Attachment(attachment, filename, contentType));
       this.previews.add(new Attachment(preview, "preview-" + filename, contentType));
 
