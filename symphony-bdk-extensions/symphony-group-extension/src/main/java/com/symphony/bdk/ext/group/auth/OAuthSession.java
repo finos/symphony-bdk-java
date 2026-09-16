@@ -17,8 +17,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 @API(status = API.Status.INTERNAL)
 public class OAuthSession {
 
@@ -30,9 +28,9 @@ public class OAuthSession {
   private String bearerToken;
 
   public OAuthSession(
-      @Nonnull ApiClient loginClient,
-      @Nonnull AuthSession session,
-      @Nonnull RetryWithRecoveryBuilder<?> retryBuilder
+      ApiClient loginClient,
+      AuthSession session,
+      RetryWithRecoveryBuilder<?> retryBuilder
   ) {
     this.loginClient = loginClient;
     this.session = session;

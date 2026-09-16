@@ -12,8 +12,6 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 /**
  * SPI for replacing all agent-facing message operations in {@code MessageService}.
  *
@@ -36,20 +34,20 @@ import javax.annotation.Nonnull;
 @API(status = API.Status.EXPERIMENTAL)
 public interface MessageSenderOverride {
 
-  V4Message send(@Nonnull AuthSession session, @Nonnull String streamId, @Nonnull Message message) throws Exception;
+  V4Message send(AuthSession session, String streamId, Message message) throws Exception;
 
-  V4Message update(@Nonnull AuthSession session, @Nonnull String streamId, @Nonnull String messageId,
-      @Nonnull Message content) throws Exception;
+  V4Message update(AuthSession session, String streamId, String messageId,
+      Message content) throws Exception;
 
-  V4MessageBlastResponse blast(@Nonnull AuthSession session, @Nonnull List<String> streamIds,
-      @Nonnull Message message) throws Exception;
+  V4MessageBlastResponse blast(AuthSession session, List<String> streamIds,
+      Message message) throws Exception;
 
-  List<V4ImportResponse> importMessages(@Nonnull AuthSession session, @Nonnull List<V4ImportedMessage> messages)
+  List<V4ImportResponse> importMessages(AuthSession session, List<V4ImportedMessage> messages)
       throws Exception;
 
-  MessageSuppressionResponse suppressMessage(@Nonnull AuthSession session, @Nonnull String messageId)
+  MessageSuppressionResponse suppressMessage(AuthSession session, String messageId)
       throws Exception;
 
-  byte[] getAttachment(@Nonnull AuthSession session, @Nonnull String streamId, @Nonnull String messageId,
-      @Nonnull String attachmentId) throws Exception;
+  byte[] getAttachment(AuthSession session, String streamId, String messageId,
+      String attachmentId) throws Exception;
 }

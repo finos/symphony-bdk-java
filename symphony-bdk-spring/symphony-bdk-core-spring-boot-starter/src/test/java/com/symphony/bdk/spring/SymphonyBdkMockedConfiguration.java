@@ -6,14 +6,12 @@ import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.Nonnull;
 
 import static com.symphony.bdk.core.auth.JwtHelperTest.JWT;
 
@@ -66,7 +64,7 @@ public class SymphonyBdkMockedConfiguration {
     @Qualifier("loginMockApiClient")
     private MockApiClient loginApiClient;
 
-    public ApiClientFactoryMock(@Nonnull BdkConfig config) {
+    public ApiClientFactoryMock(BdkConfig config) {
       super(config);
     }
 

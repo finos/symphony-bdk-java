@@ -2,3 +2,33 @@ plugins {
     id 'bdk.java-common-conventions'
     id 'java-library'
 }
+
+// BDK 4.x is Jackson 3 only (design D2): a second databind implementation on a published
+// module's runtime classpath is a rejected outcome, not a fallback, because it lets two HTTP
+// modules serialize the same BDK call differently depending on which one happens to be present.
+tasks.register('verifySingleJacksonDatabind') {
+    group = 'verification'
+    description = 'Fails if the legacy Jackson 2 databind resolves alongside Jackson 3 on the runtime classpath.'
+    def runtimeClasspath = configurations.findByName('runtimeClasspath')
+    if (runtimeClasspath != null) {
+        inputs.files(runtimeClasspath)
+    }
+    doLast {
+        if (runtimeClasspath == null) {
+            return
+        }
+        def legacyDatabind = runtimeClasspath.resolvedConfiguration.resolvedArtifacts.find {
+            it.moduleVersion.id.group == 'com.fasterxml.jackson.core' && it.moduleVersion.id.name == 'jackson-databind'
+        }
+        if (legacyDatabind != null) {
+            throw new GradleException(
+                    "com.fasterxml.jackson.core:jackson-databind resolved on ${project.path}'s runtime classpath " +
+                            "alongside tools.jackson.core:jackson-databind. Find and remove whatever dependency " +
+                            "pulled in the Jackson 2 databind implementation.")
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifySingleJacksonDatabind')
+}

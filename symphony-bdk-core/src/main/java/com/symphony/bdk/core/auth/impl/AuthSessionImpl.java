@@ -6,16 +6,14 @@ import com.symphony.bdk.core.auth.jwt.JwtHelper;
 import com.symphony.bdk.core.service.version.model.AgentVersion;
 import com.symphony.bdk.gen.api.model.Token;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apiguardian.api.API;
+import tools.jackson.core.JacksonException;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link AuthSession} impl for regular authentication mode.
@@ -42,8 +40,7 @@ public class AuthSessionImpl implements AuthSession {
   private String authorizationToken;
   private Long authTokenExpirationDate;
 
-
-  public AuthSessionImpl(@Nonnull AbstractBotAuthenticator authenticator) {
+  public AuthSessionImpl(AbstractBotAuthenticator authenticator) {
     this.authenticator = authenticator;
   }
 
@@ -113,7 +110,7 @@ public class AuthSessionImpl implements AuthSession {
     if (this.authorizationToken != null) {
       try {
         this.authTokenExpirationDate = JwtHelper.extractExpirationDate(authorizationToken);
-      } catch (JsonProcessingException | AuthUnauthorizedException e) {
+      } catch (JacksonException | AuthUnauthorizedException e) {
         throw new AuthUnauthorizedException("Unable to parse the Authorization token received.");
       }
     }

@@ -15,7 +15,7 @@ import com.symphony.bdk.core.service.user.OboUserService;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Entry point for OBO-enabled services.

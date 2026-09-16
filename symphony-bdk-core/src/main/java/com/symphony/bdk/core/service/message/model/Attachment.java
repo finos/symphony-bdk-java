@@ -17,12 +17,18 @@ public class Attachment {
 
   private final InputStream content;
   private final String filename;
+  private final String contentType;
 
   public Attachment(InputStream content, String filename) {
+    this(content, filename, "application/octet-stream");
+  }
+
+  public Attachment(InputStream content, String filename, String contentType) {
     this.content = content;
     if (filename.split("\\.").length < 2 ) {
       throw new MessageCreationException("Invalid attachment's filename, extension is missing.");
     }
     this.filename = filename;
+    this.contentType = (contentType == null) ? "application/octet-stream" : contentType;
   }
 }

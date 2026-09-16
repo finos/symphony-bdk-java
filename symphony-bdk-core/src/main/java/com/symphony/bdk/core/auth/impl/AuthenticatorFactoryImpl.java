@@ -25,8 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 
-import javax.annotation.Nonnull;
-
 /**
  * Factory class that provides new instances for the main authenticators :
  * <ul>
@@ -42,12 +40,12 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
   private final ApiClientFactory apiClientFactory;
   private final ExtensionAppTokensRepository extensionAppTokensRepository;
 
-  public AuthenticatorFactoryImpl(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClientFactory apiClientFactory) {
+  public AuthenticatorFactoryImpl(BdkConfig bdkConfig, ApiClientFactory apiClientFactory) {
     this(bdkConfig, apiClientFactory, new InMemoryTokensRepository());
   }
 
-  public AuthenticatorFactoryImpl(@Nonnull BdkConfig bdkConfig, @Nonnull ApiClientFactory apiClientFactory,
-                                  @Nonnull ExtensionAppTokensRepository extensionAppTokensRepository) {
+  public AuthenticatorFactoryImpl(BdkConfig bdkConfig, ApiClientFactory apiClientFactory,
+                                  ExtensionAppTokensRepository extensionAppTokensRepository) {
     this.config = bdkConfig;
     this.apiClientFactory = apiClientFactory;
     this.extensionAppTokensRepository = extensionAppTokensRepository;
@@ -58,7 +56,6 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
    *
    * @return a new {@link BotAuthenticator} instance.
    */
-  @Nonnull
   @Override
   public
   BotAuthenticator getBotAuthenticator() throws AuthInitializationException {
@@ -106,7 +103,6 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
    *
    * @return a new {@link OboAuthenticator} instance.
    */
-  @Nonnull
   @Override
   public
   OboAuthenticator getOboAuthenticator() throws AuthInitializationException {
@@ -145,7 +141,6 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
    *
    * @return a new {@link ExtensionAppAuthenticator} instance.
    */
-  @Nonnull
   @Override
   public
   ExtensionAppAuthenticator getExtensionAppAuthenticator() throws AuthInitializationException {
@@ -186,7 +181,6 @@ public class AuthenticatorFactoryImpl implements AuthenticatorFactory {
    *
    * @return a new {@link ExtAppAuthenticator} instance.
    */
-  @Nonnull
   @Override
   public ExtAppAuthenticator getExtAppAuthenticator() throws AuthInitializationException {
     if (this.config.getApp().isBothCertificateAndRsaConfigured()) {

@@ -7,8 +7,7 @@ import org.apiguardian.api.API;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage user connection status.
@@ -24,7 +23,7 @@ public interface OboConnectionService {
    * @return Connection status with the specified user.
    * @see <a href="https://developers.symphony.com/restapi/reference/get-connection">Get Connection</a>
    */
-  UserConnection getConnection(@Nonnull Long userId);
+  UserConnection getConnection(Long userId);
 
   /**
    * List all current connection statuses with external or specified users.
@@ -49,7 +48,7 @@ public interface OboConnectionService {
    * @return Connection status with the specified user.
    * @see <a href="https://developers.symphony.com/restapi/reference#create-connection">Create Connection</a>
    */
-  UserConnection createConnection(@Nonnull Long userId);
+  UserConnection createConnection(Long userId);
 
   /**
    * Accept the connection request from a requesting user.
@@ -59,7 +58,7 @@ public interface OboConnectionService {
    * @return Connection status with the requesting user.
    * @see <a href="https://developers.symphony.com/restapi/reference#accepted-connection">Accept Connection</a>
    */
-  UserConnection acceptConnection(@Nonnull Long userId);
+  UserConnection acceptConnection(Long userId);
 
   /**
    * Reject the connection request from a requesting user.
@@ -69,7 +68,7 @@ public interface OboConnectionService {
    * @return Connection status with the requesting user.
    * @see <a href="https://developers.symphony.com/restapi/reference#reject-connection">Reject Connection</a>
    */
-  UserConnection rejectConnection(@Nonnull Long userId);
+  UserConnection rejectConnection(Long userId);
 
   /**
    * Removes a connection with a user.
@@ -78,5 +77,5 @@ public interface OboConnectionService {
    * @param userId The id of the user with whom we want to remove the connection.
    * @see <a href="https://developers.symphony.com/restapi/reference#remove-connection">Remove Connection</a>
    */
-  void removeConnection(@Nonnull Long userId);
+  void removeConnection(Long userId);
 }

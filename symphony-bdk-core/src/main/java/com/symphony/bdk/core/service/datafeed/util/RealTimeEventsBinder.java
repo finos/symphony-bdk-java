@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Utility class used to attach a method call (defined by a {@link BiConsumer}) to a specific real-time event.
@@ -105,7 +105,6 @@ public class RealTimeEventsBinder {
     }
   }
 
-
   private record OnSymphonyElementsAction(AbstractActivity<V4SymphonyElementsAction, ?> activity,
                                           BiConsumer<V4Initiator, V4SymphonyElementsAction> target)
       implements RealTimeEventListener {
@@ -128,7 +127,6 @@ public class RealTimeEventsBinder {
       return Objects.hashCode(activity);
     }
   }
-
 
   private record OnUserJoinedRoom(AbstractActivity<V4UserJoinedRoom, ?> activity,
                                   BiConsumer<V4Initiator, V4UserJoinedRoom> target) implements RealTimeEventListener {

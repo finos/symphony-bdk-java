@@ -6,6 +6,7 @@ on:
       - "main"
     paths:
       - "docs/**"
+  workflow_dispatch: { }
 
 permissions:
   contents: read
@@ -15,30 +16,71 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: docs
     steps:
-      - name: Checkout
+      - name: Checkout main (4.x docs)
         uses: actions/checkout@v4
+        with:
+          path: main
+
+      - name: Checkout 3.x branch (3.x docs), if it exists
+        id: checkout_3x
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: 3.x
+          path: 3.x-src
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
         with:
           ruby-version: '3.1'
           bundler-cache: true
           cache-version: 0
-          working-directory: '${{ github.workspace }}/docs'
+          working-directory: 'main/docs'
+
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
-      - name: Build with Jekyll
+
+      # Published at the site root: symphony-bdk-java.finos.org/
+      - name: Build 4.x docs with Jekyll
+        working-directory: main/docs
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
+
+      # Published under /3.x/: symphony-bdk-java.finos.org/3.x/ — 3.x consumers must never land on 4.x
+      # instructions, so this is a distinct subtree built from the 3.x branch's own docs/, not a copy.
+      - name: Setup Ruby for 3.x docs
+        if: steps.checkout_3x.outcome == 'success'
+        uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+          cache-version: 0
+          working-directory: '3.x-src/docs'
+
+      - name: Build 3.x docs with Jekyll
+        if: steps.checkout_3x.outcome == 'success'
+        working-directory: 3.x-src/docs
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}/3.x"
+        env:
+          JEKYLL_ENV: production
+
+      - name: Merge 3.x docs into the published tree
+        if: steps.checkout_3x.outcome == 'success'
+        run: |
+          mkdir -p main/docs/_site/3.x
+          cp -r 3.x-src/docs/_site/. main/docs/_site/3.x/
+
+      - name: Warn if 3.x branch is missing
+        if: steps.checkout_3x.outcome != 'success'
+        run: echo "::warning::'3.x' branch not found — publishing 4.x docs only, without a /3.x/ subtree."
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "docs/_site/"
+          path: "main/docs/_site/"
 
   deploy:
     environment:

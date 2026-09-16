@@ -15,8 +15,7 @@ import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
@@ -32,7 +31,7 @@ public interface OboStreamService {
    * @return The created IM
    * @see <a href="https://developers.symphony.com/restapi/reference/create-im-or-mim">Create IM or MIM</a>
    */
-   Stream create(@Nonnull Long... uids);
+   Stream create(Long... uids);
 
   /**
    * Create a new single or multi party instant message conversation between the caller and specified users.
@@ -51,7 +50,7 @@ public interface OboStreamService {
    * @return The created IM or MIM
    * @see <a href="https://developers.symphony.com/restapi/reference/create-im-or-mim">Create IM or MIM</a>
    */
-  Stream create(@Nonnull List<Long> uids);
+  Stream create(List<Long> uids);
 
   /**
    * Create a new chatroom.
@@ -61,7 +60,7 @@ public interface OboStreamService {
    * @return The created chatroom
    * @see <a href="https://developers.symphony.com/restapi/reference/create-room-v3">Create Room V3</a>
    */
-  V3RoomDetail create(@Nonnull V3RoomAttributes roomAttributes);
+  V3RoomDetail create(V3RoomAttributes roomAttributes);
 
   /**
    * {@link StreamService#getStream(String)}
@@ -70,7 +69,7 @@ public interface OboStreamService {
    * @return The information about the stream with the given id.
    * @see <a href="https://developers.symphony.com/restapi/reference/stream-info-v2">Stream Info V2</a>
    */
-  V2StreamAttributes getStream(@Nonnull String streamId);
+  V2StreamAttributes getStream(String streamId);
 
   /**
    * Get information about a particular room.
@@ -79,7 +78,7 @@ public interface OboStreamService {
    * @return The information about the room with the given room id.
    * @see <a href="https://developers.symphony.com/restapi/reference#room-info-v3">Room Info V3</a>
    */
-  V3RoomDetail getRoomInfo(@Nonnull String roomId);
+  V3RoomDetail getRoomInfo(String roomId);
 
   /**
    * {@link StreamService#listStreams(StreamFilter)}
@@ -98,7 +97,7 @@ public interface OboStreamService {
    * @return The list of streams retrieved according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
-  List<StreamAttributes> listStreams(@Nullable StreamFilter filter, @Nonnull PaginationAttribute pagination);
+  List<StreamAttributes> listStreams(@Nullable StreamFilter filter, PaginationAttribute pagination);
 
   /**
    * {@link StreamService#listAllStreams(StreamFilter)}
@@ -120,7 +119,7 @@ public interface OboStreamService {
    */
   @API(status = API.Status.EXPERIMENTAL)
   java.util.stream.Stream<StreamAttributes> listAllStreams(@Nullable StreamFilter filter,
-      @Nonnull StreamPaginationAttribute pagination);
+      StreamPaginationAttribute pagination);
 
   /**
    * Search rooms according to the specified criteria.
@@ -129,7 +128,7 @@ public interface OboStreamService {
    * @return The rooms returned according to the given criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
-  V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query);
+  V3RoomSearchResults searchRooms(V2RoomSearchCriteria query);
 
   /**
    * Search rooms according to the specified criteria.
@@ -139,7 +138,7 @@ public interface OboStreamService {
    * @return The rooms returned according to the given criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
-  V3RoomSearchResults searchRooms(@Nonnull V2RoomSearchCriteria query, @Nonnull PaginationAttribute pagination);
+  V3RoomSearchResults searchRooms(V2RoomSearchCriteria query, PaginationAttribute pagination);
 
   /**
    * Search rooms and return in a {@link java.util.stream.Stream} according to the specified criteria.
@@ -149,7 +148,7 @@ public interface OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query);
+  java.util.stream.Stream<V3RoomDetail> searchAllRooms(V2RoomSearchCriteria query);
 
   /**
    * Search rooms and return in a {@link java.util.stream.Stream} according to the specified criteria.
@@ -160,8 +159,8 @@ public interface OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference/search-rooms-v3">Search Rooms V3</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  java.util.stream.Stream<V3RoomDetail> searchAllRooms(@Nonnull V2RoomSearchCriteria query,
-      @Nonnull StreamPaginationAttribute pagination);
+  java.util.stream.Stream<V3RoomDetail> searchAllRooms(V2RoomSearchCriteria query,
+      StreamPaginationAttribute pagination);
 
   /**
    * Update the attributes of an existing chatroom.
@@ -171,7 +170,7 @@ public interface OboStreamService {
    * @return The information of the room after being updated.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-room-v3">Update Room V3</a>
    */
-  V3RoomDetail updateRoom(@Nonnull String roomId, @Nonnull V3RoomAttributes roomAttributes);
+  V3RoomDetail updateRoom(String roomId, V3RoomAttributes roomAttributes);
 
   /**
    * {@link StreamService#addMemberToRoom(Long, String)}
@@ -180,7 +179,7 @@ public interface OboStreamService {
    * @param roomId      The room id
    * @see <a href="https://developers.symphony.com/restapi/reference/add-member">Add Member</a>
    */
-  void addMemberToRoom(@Nonnull Long userId, @Nonnull String roomId);
+  void addMemberToRoom(Long userId, String roomId);
 
   /**
    * {@link StreamService#removeMemberFromRoom(Long, String)}
@@ -189,7 +188,7 @@ public interface OboStreamService {
    * @param roomId      The room id
    * @see <a href="https://developers.symphony.com/restapi/reference/remove-member">Remove Member</a>
    */
-  void removeMemberFromRoom(@Nonnull Long userId, @Nonnull String roomId);
+  void removeMemberFromRoom(Long userId, String roomId);
 
   /**
    * {@link StreamService#share(String, ShareContent)}
@@ -199,7 +198,7 @@ public interface OboStreamService {
    * @return Message contains share content
    * @see <a href="https://developers.symphony.com/restapi/reference/share-v3">Share</a>
    */
-  V2Message share(@Nonnull String streamId, @Nonnull ShareContent content);
+  V2Message share(String streamId, ShareContent content);
 
   /**
    * {@link StreamService#promoteUserToRoomOwner(Long, String)}
@@ -208,7 +207,7 @@ public interface OboStreamService {
    * @param roomId      The room id.
    * @see <a href="https://developers.symphony.com/restapi/reference/promote-owner">Promote Owner</a>
    */
-  void promoteUserToRoomOwner(@Nonnull Long userId, @Nonnull String roomId);
+  void promoteUserToRoomOwner(Long userId, String roomId);
 
   /**
    * {@link StreamService#demoteUserToRoomParticipant(Long, String)}
@@ -217,7 +216,7 @@ public interface OboStreamService {
    * @param roomId      The room id.
    * @see <a href="https://developers.symphony.com/restapi/reference/demote-owner">Demote Owner</a>
    */
-  void demoteUserToRoomParticipant(@Nonnull Long userId, @Nonnull String roomId);
+  void demoteUserToRoomParticipant(Long userId, String roomId);
 
   /**
    * Lists the current members of an existing room.
@@ -226,5 +225,5 @@ public interface OboStreamService {
    * @return List of members in the room with the given room id.
    * @see <a href="https://developers.symphony.com/restapi/reference#room-members">Room Members</a>
    */
-  List<MemberInfo> listRoomMembers(@Nonnull String roomId);
+  List<MemberInfo> listRoomMembers(String roomId);
 }

@@ -1,0 +1,66 @@
+plugins {
+    id 'bdk.java-library-conventions'
+    id 'bdk.java-publish-conventions'
+}
+
+description = 'Symphony Java BDK Core Http Jdk'
+
+// Dedicated source set + Test task for the "two ApiClientBuilderProvider implementations on the classpath"
+// SPI scenario (spec: SPI Discoverability / Coexisting with another HTTP implementation). This has to run with
+// its own classpath (adding symphony-bdk-http-jersey) that is disjoint from the main `test` task's classpath,
+// which must keep symphony-bdk-http-jdk as the *sole* provider for the "resolves automatically" scenario.
+sourceSets {
+    spiConflictTest {
+        java.srcDir 'src/spiConflictTest/java'
+        compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
+        runtimeClasspath += output + compileClasspath + configurations.testRuntimeClasspath
+    }
+}
+
+configurations {
+    spiConflictTestImplementation.extendsFrom testImplementation
+    spiConflictTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+tasks.register('spiConflictTest', Test) {
+    description = 'Verifies ServiceLookup#lookupSingleService fails fast when both symphony-bdk-http-jdk and ' +
+            'symphony-bdk-http-jersey are on the classpath.'
+    group = 'verification'
+    testClassesDirs = sourceSets.spiConflictTest.output.classesDirs
+    classpath = sourceSets.spiConflictTest.runtimeClasspath
+    useJUnitPlatform()
+}
+
+check.dependsOn spiConflictTest
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            element = 'CLASS'
+        }
+    }
+}
+
+dependencies {
+    api project(':symphony-bdk-http:symphony-bdk-http-api')
+
+    implementation 'org.slf4j:slf4j-api'
+    implementation 'org.apiguardian:apiguardian-api'
+    implementation 'tools.jackson.core:jackson-databind'
+    implementation 'org.openapitools:jackson-databind-nullable'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'ch.qos.logback:logback-classic'
+    testImplementation 'org.mock-server:mockserver-netty'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testImplementation project(':symphony-bdk-core')
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    spiConflictTestImplementation project(':symphony-bdk-http:symphony-bdk-http-jersey')
+}

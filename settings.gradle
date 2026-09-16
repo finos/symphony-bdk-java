@@ -11,7 +11,8 @@ include(':symphony-bdk-cli')
 
 // http client
 include(':symphony-bdk-http:symphony-bdk-http-api')
-include(':symphony-bdk-http:symphony-bdk-http-jersey2')
+include(':symphony-bdk-http:symphony-bdk-http-jersey')
+include(':symphony-bdk-http:symphony-bdk-http-jdk')
 include(':symphony-bdk-http:symphony-bdk-http-webclient')
 
 // template API

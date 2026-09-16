@@ -7,7 +7,7 @@ import com.symphony.bdk.gen.api.model.ExtensionAppTokens;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * {@link AppAuthSession} impl for rsa extension app authentication mode.

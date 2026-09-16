@@ -14,6 +14,13 @@ import java.io.InputStream;
 @API(status = API.Status.INTERNAL)
 public class ApiClientBodyPart {
 
+  private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
   private final InputStream content;
   private final String filename;
+  private final String contentType;
+
+  public ApiClientBodyPart(InputStream content, String filename) {
+    this(content, filename, DEFAULT_CONTENT_TYPE);
+  }
 }

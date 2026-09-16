@@ -9,7 +9,7 @@ dependencies {
     implementation project(':symphony-bdk-core')
 
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
-    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey2')
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jersey')
 
     // import the extension
     implementation project(':symphony-bdk-extensions:symphony-group-extension')

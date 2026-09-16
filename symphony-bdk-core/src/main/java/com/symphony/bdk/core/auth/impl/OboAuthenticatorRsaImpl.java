@@ -14,8 +14,6 @@ import org.apiguardian.api.API;
 
 import java.security.PrivateKey;
 
-import javax.annotation.Nonnull;
-
 /**
  * OBO authenticator RSA implementation.
  *
@@ -37,9 +35,8 @@ public class OboAuthenticatorRsaImpl extends AbstractOboAuthenticator {
   /**
    * {@inheritDoc}
    */
-  @Nonnull
   @Override
-  public AuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException {
+  public AuthSession authenticateByUsername(String username) throws AuthUnauthorizedException {
     AuthSession authSession = new AuthSessionOboImpl(this, username);
     authSession.refresh();
     return authSession;
@@ -49,19 +46,19 @@ public class OboAuthenticatorRsaImpl extends AbstractOboAuthenticator {
    * {@inheritDoc}
    */
   @Override
-  public @Nonnull AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
+  public AuthSession authenticateByUserId(Long userId) throws AuthUnauthorizedException {
     AuthSession authSession = new AuthSessionOboImpl(this, userId);
     authSession.refresh();
     return authSession;
   }
 
-  protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
-      @Nonnull Long userId) throws ApiException {
+  protected String authenticateAndRetrieveOboSessionToken(String appSessionToken,
+      Long userId) throws ApiException {
     return this.authenticationApi.pubkeyAppUserUserIdAuthenticatePost(appSessionToken, userId).getToken();
   }
 
-  protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
-      @Nonnull String username) throws ApiException {
+  protected String authenticateAndRetrieveOboSessionToken(String appSessionToken,
+      String username) throws ApiException {
     return this.authenticationApi.pubkeyAppUsernameUsernameAuthenticatePost(appSessionToken, username).getToken();
   }
 

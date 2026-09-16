@@ -20,8 +20,6 @@ import org.apiguardian.api.API;
 
 import java.security.PrivateKey;
 
-import javax.annotation.Nonnull;
-
 /**
  * Extension app authenticator RSA implementation.
  *
@@ -58,9 +56,8 @@ public class ExtensionAppAuthenticatorRsaImpl extends AbstractExtensionAppAuthen
   /**
    * {@inheritDoc}
    */
-  @Nonnull
   @Override
-  public AppAuthSession authenticateExtensionApp(@Nonnull String appToken) throws AuthUnauthorizedException {
+  public AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException {
     AppAuthSession authSession = new AppAuthSessionRsaImpl(this, appToken);
     authSession.refresh();
     return authSession;

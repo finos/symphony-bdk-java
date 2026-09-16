@@ -56,7 +56,7 @@ import com.symphony.bdk.template.api.TemplateEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Factory responsible for creating BDK service instances for Symphony Bdk entry point.

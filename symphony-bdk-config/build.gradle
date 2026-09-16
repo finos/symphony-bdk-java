@@ -17,9 +17,9 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.commons:commons-text'
 
-    api 'com.fasterxml.jackson.core:jackson-databind'
-    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml'
-    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-properties'
+    api 'tools.jackson.core:jackson-databind'
+    api 'tools.jackson.dataformat:jackson-dataformat-yaml'
+    api 'tools.jackson.dataformat:jackson-dataformat-properties'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'ch.qos.logback:logback-classic'

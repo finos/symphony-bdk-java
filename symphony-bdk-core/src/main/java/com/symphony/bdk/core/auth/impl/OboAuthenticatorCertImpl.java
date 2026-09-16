@@ -10,8 +10,6 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * OBO Certificate authenticator implementation
  *
@@ -31,9 +29,8 @@ public class OboAuthenticatorCertImpl extends AbstractOboAuthenticator {
   /**
    * {@inheritDoc}
    */
-  @Nonnull
   @Override
-  public AuthSession authenticateByUsername(@Nonnull String username) throws AuthUnauthorizedException {
+  public AuthSession authenticateByUsername(String username) throws AuthUnauthorizedException {
     AuthSession authSession = new AuthSessionOboCertImpl(this, username);
     authSession.refresh();
     return authSession;
@@ -42,21 +39,20 @@ public class OboAuthenticatorCertImpl extends AbstractOboAuthenticator {
   /**
    * {@inheritDoc}
    */
-  @Nonnull
   @Override
-  public AuthSession authenticateByUserId(@Nonnull Long userId) throws AuthUnauthorizedException {
+  public AuthSession authenticateByUserId(Long userId) throws AuthUnauthorizedException {
     AuthSession authSession = new AuthSessionOboCertImpl(this, userId);
     authSession.refresh();
     return authSession;
   }
 
-  protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
-      @Nonnull Long userId) throws ApiException {
+  protected String authenticateAndRetrieveOboSessionToken(String appSessionToken,
+      Long userId) throws ApiException {
     return this.authenticationApi.v1AppUserUidAuthenticatePost(userId, appSessionToken).getSessionToken();
   }
 
-  protected String authenticateAndRetrieveOboSessionToken(@Nonnull String appSessionToken,
-      @Nonnull String username) throws ApiException {
+  protected String authenticateAndRetrieveOboSessionToken(String appSessionToken,
+      String username) throws ApiException {
     return this.authenticationApi.v1AppUsernameUsernameAuthenticatePost(username, appSessionToken).getSessionToken();
   }
 

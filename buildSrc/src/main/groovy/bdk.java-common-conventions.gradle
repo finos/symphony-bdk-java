@@ -11,7 +11,7 @@ repositories {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(25)
     }
     withJavadocJar()
     withSourcesJar()
@@ -40,13 +40,27 @@ jar {
     }
 }
 
+configurations {
+    // Resolves the Mockito agent jar explicitly rather than relying on JVM self-attach, which the
+    // JDK warns about and is scheduled to deny.
+    mockitoAgent
+}
+
 test {
     useJUnitPlatform()
+    doFirst {
+        jvmArgs "-javaagent:${configurations.mockitoAgent.asPath}"
+    }
 }
 
 dependencies {
     implementation platform(project(':symphony-bdk-bom'))
     annotationProcessor platform(project(':symphony-bdk-bom'))
     testAnnotationProcessor platform(project(':symphony-bdk-bom'))
+
+    mockitoAgent platform(project(':symphony-bdk-bom'))
+    mockitoAgent('org.mockito:mockito-core') {
+        transitive = false
+    }
 }
 

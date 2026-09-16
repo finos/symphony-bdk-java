@@ -38,8 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * BDK entry point.
@@ -76,7 +75,6 @@ public class SymphonyBdk {
   private final MessageSenderOverride messageSenderOverride;
   private final MessageRetrieverOverride messageRetrieverOverride;
 
-
   /**
    * Returns a new {@link SymphonyBdkBuilder} for fluent initialization.
    *
@@ -97,12 +95,12 @@ public class SymphonyBdk {
    * @throws AuthInitializationException when unable to read/parse a RSA Private Key or a certificate
    * @throws AuthUnauthorizedException authentication issue (e.g. 401)
    */
-  public SymphonyBdk(@Nonnull BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
+  public SymphonyBdk(BdkConfig config) throws AuthInitializationException, AuthUnauthorizedException {
     this(config, null, null, Collections.emptyList());
   }
 
   protected SymphonyBdk(
-      @Nonnull BdkConfig config,
+      BdkConfig config,
       @Nullable ApiClientFactory apiClientFactory,
       @Nullable AuthenticatorFactory authenticatorFactory
   ) throws AuthInitializationException, AuthUnauthorizedException {
@@ -110,10 +108,10 @@ public class SymphonyBdk {
   }
 
   protected SymphonyBdk(
-      @Nonnull BdkConfig config,
+      BdkConfig config,
       @Nullable ApiClientFactory apiClientFactory,
       @Nullable AuthenticatorFactory authenticatorFactory,
-      @Nonnull List<Class<? extends BdkExtension>> preRegisteredExtensions
+      List<Class<? extends BdkExtension>> preRegisteredExtensions
   ) throws AuthInitializationException, AuthUnauthorizedException {
 
     this.config = config;

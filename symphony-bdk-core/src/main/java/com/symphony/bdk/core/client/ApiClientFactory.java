@@ -17,8 +17,6 @@ import com.symphony.bdk.http.api.ApiClientBuilderProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Factory responsible for creating {@link ApiClient} instances for each main Symphony's components
  * :
@@ -43,11 +41,11 @@ public class ApiClientFactory {
   private final BdkConfig config;
   private final ApiClientBuilderProvider apiClientBuilderProvider;
 
-  public ApiClientFactory(@Nonnull BdkConfig config) {
+  public ApiClientFactory(BdkConfig config) {
     this(config, ServiceLookup.lookupSingleService(ApiClientBuilderProvider.class));
   }
 
-  public ApiClientFactory(@Nonnull BdkConfig config, @Nonnull ApiClientBuilderProvider apiClientBuilderProvider) {
+  public ApiClientFactory(BdkConfig config, ApiClientBuilderProvider apiClientBuilderProvider) {
     this.config = config;
     this.apiClientBuilderProvider = apiClientBuilderProvider;
   }
@@ -242,7 +240,6 @@ public class ApiClientFactory {
           .withProxyCredentials(proxyConfig.getUsername(), proxyConfig.getPassword());
     }
   }
-
 
   /**
    * @deprecated to be removed if we want to move retry to another module

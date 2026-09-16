@@ -20,6 +20,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.slf4j:slf4j-api'
+    implementation 'org.jspecify:jspecify'
 
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.mockito:mockito-core'

@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-
 /**
  * A help command listing all the commands that can be performed by an end-user through the chat.
  */
@@ -26,7 +24,7 @@ public class HelpCommand extends SlashCommand {
   private final ActivityRegistry activityRegistry;
   private final MessageService messageService;
 
-  public HelpCommand(@Nonnull ActivityRegistry activityRegistry, @Nonnull MessageService messageService) {
+  public HelpCommand(ActivityRegistry activityRegistry, MessageService messageService) {
     super(HELP_COMMAND, true, false, c -> {}, DEFAULT_DESCRIPTION);
     this.activityRegistry = activityRegistry;
     this.messageService = messageService;

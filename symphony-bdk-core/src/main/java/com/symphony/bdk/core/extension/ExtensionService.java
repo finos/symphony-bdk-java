@@ -1,6 +1,5 @@
 package com.symphony.bdk.core.extension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.client.ApiClientFactory;
@@ -15,6 +14,8 @@ import com.symphony.bdk.extension.BdkExtensionServiceProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
@@ -22,8 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing extensions.
@@ -46,10 +46,10 @@ public class ExtensionService {
   private boolean capabilitiesExtracted = false;
 
   public ExtensionService(
-      @Nonnull ApiClientFactory apiClientFactory,
+      ApiClientFactory apiClientFactory,
       @Nullable AuthSession botSession,
-      @Nonnull RetryWithRecoveryBuilder<?> retryBuilder,
-      @Nonnull BdkConfig config
+      RetryWithRecoveryBuilder<?> retryBuilder,
+      BdkConfig config
   ) {
     this.apiClientFactory = apiClientFactory;
     this.botSession = botSession;
@@ -208,7 +208,7 @@ public class ExtensionService {
    *
    * @param bdk the fully constructed {@link SymphonyBdk} instance
    */
-  public void onBdkStarted(@Nonnull SymphonyBdk bdk) {
+  public void onBdkStarted(SymphonyBdk bdk) {
     for (BdkExtension ext : this.extensions.values()) {
       if (ext instanceof BdkAware) {
         ((BdkAware) ext).setBdk(bdk);
@@ -269,7 +269,7 @@ public class ExtensionService {
     try {
       final C typed = MAPPER.convertValue(rawConfig, extension.getConfigClass());
       extension.setExtensionConfig(typed);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | JacksonException e) {
       throw new BdkExtensionException(
           "Failed to deserialize extension config key '" + key + "' into "
               + extension.getConfigClass().getName() + " for extension <" + extension.getClass() + ">",

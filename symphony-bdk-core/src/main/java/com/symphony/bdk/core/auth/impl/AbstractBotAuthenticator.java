@@ -14,8 +14,6 @@ import com.symphony.bdk.http.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Abstract class to factorize the {@link BotAuthenticator} logic between RSA and certificate,
  * especially the retry logic on top of HTTP calls.
@@ -34,8 +32,8 @@ public abstract class AbstractBotAuthenticator implements BotAuthenticator {
   private final boolean agentConfigured;
 
   protected AbstractBotAuthenticator(BdkRetryConfig retryConfig,
-      @Nonnull BdkCommonJwtConfig commonJwtConfig, @Nonnull ApiClient loginApiClient,
-      @Nonnull AgentVersionService agentVersionService, boolean agentConfigured) {
+      BdkCommonJwtConfig commonJwtConfig, ApiClient loginApiClient,
+      AgentVersionService agentVersionService, boolean agentConfigured) {
     kmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     podAuthenticationRetry = new AuthenticationRetry<>(retryConfig);
     idmAuthenticationRetry = new AuthenticationRetry<>(retryConfig);

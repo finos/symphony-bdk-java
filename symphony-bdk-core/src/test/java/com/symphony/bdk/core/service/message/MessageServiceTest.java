@@ -438,7 +438,7 @@ class MessageServiceTest {
         () -> Message.builder()
             .content(MESSAGE)
             .addAttachment(firstAttachment, "test1.txt")
-            .addAttachment(secondAttachment, preview, "test2.txt")
+            .addAttachment(secondAttachment, preview, "test2.txt", "application/octet-stream")
             .data(new MockObject("wrong object")).build());
   }
 
@@ -684,7 +684,7 @@ class MessageServiceTest {
     final Message message = Message.builder()
         .content("<MessageML>Hello world</MessageML>")
         .addAttachment(IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8),
-            IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8), "file.txt")
+            IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8), "file.txt", "application/octet-stream")
         .build();
 
     assertInvokeApiCalledWithCorrectParams(mockServer, message,
@@ -697,7 +697,7 @@ class MessageServiceTest {
     final Message message = Message.builder()
         .content("<MessageML>Hello world</MessageML>")
         .addAttachment(IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8),
-            IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8), "file.txt")
+            IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8), "file.txt", "application/octet-stream")
         .build();
 
     ApiClient agentClient = spy(mockServer.newApiClient("/agent"));

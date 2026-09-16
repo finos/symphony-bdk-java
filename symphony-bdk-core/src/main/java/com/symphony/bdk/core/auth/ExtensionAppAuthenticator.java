@@ -8,8 +8,6 @@ import com.symphony.bdk.gen.api.model.PodCertificate;
 
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Extension App Authenticator Service.
  */
@@ -23,7 +21,6 @@ public interface ExtensionAppAuthenticator {
    * @return the extension app authentication session.
    * @throws AuthUnauthorizedException when the bot is unauthorized.
    */
-  @Nonnull
   AppAuthSession authenticateExtensionApp(String appToken) throws AuthUnauthorizedException;
 
   /**
@@ -41,7 +38,6 @@ public interface ExtensionAppAuthenticator {
    * @return true if symphonyToken associated to a previous session initiated with appToken
    */
   boolean validateTokens(String appToken, String symphonyToken);
-
 
   /**
    * Validates a JWT against the pod certificate

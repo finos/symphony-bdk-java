@@ -12,8 +12,7 @@ import org.apiguardian.api.API;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage signals information.
@@ -29,7 +28,7 @@ public interface OboSignalService {
    * @return List of signals that the user has created and public signals to which they have subscribed.
    * @see <a href="https://developers.symphony.com/restapi/reference/list-signals">List Signals</a>
    */
-  List<Signal> listSignals(@Nonnull PaginationAttribute pagination);
+  List<Signal> listSignals(PaginationAttribute pagination);
 
   /**
    * Lists signals on behalf of the user with default limit equal 50.
@@ -49,7 +48,7 @@ public interface OboSignalService {
    * @see <a href="https://developers.symphony.com/restapi/reference/list-signals">List Signals</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<Signal> listAllSignals(@Nonnull StreamPaginationAttribute pagination);
+  Stream<Signal> listAllSignals(StreamPaginationAttribute pagination);
 
   /**
    * Lists paginated stream of signals on behalf of the user with the default chunkSize and totalSize equal 100.
@@ -69,7 +68,7 @@ public interface OboSignalService {
    * @return Details of the specified signal.
    * @see <a href="https://developers.symphony.com/restapi/reference/get-signal">Get Signal</a>
    */
-  Signal getSignal(@Nonnull String id);
+  Signal getSignal(String id);
 
   /**
    * Create a new signal.
@@ -79,7 +78,7 @@ public interface OboSignalService {
    * @return A new created signal object.
    * @see <a href="https://developers.symphony.com/restapi/reference#create-signal">Create Signal</a>
    */
-  Signal createSignal(@Nonnull BaseSignal signal);
+  Signal createSignal(BaseSignal signal);
 
   /**
    * Update an existing signal.
@@ -90,7 +89,7 @@ public interface OboSignalService {
    * @return The updated signal.
    * @see <a href="https://developers.symphony.com/restapi/reference#update-signal">Update Signal</a>
    */
-  Signal updateSignal(@Nonnull String id, @Nonnull BaseSignal signal);
+  Signal updateSignal(String id, BaseSignal signal);
 
   /**
    * Delete an existing signal.
@@ -99,7 +98,7 @@ public interface OboSignalService {
    * @param id  The id of the signal to be deleted.
    * @see <a href="https://developers.symphony.com/restapi/reference#delete-signal">Delete Signal</a>
    */
-  void deleteSignal(@Nonnull String id);
+  void deleteSignal(String id);
 
   /**
    * Subscribe a list of users to a signal.
@@ -112,7 +111,7 @@ public interface OboSignalService {
    * @return The subscription information.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribe-signal">Subscribe Signal</a>
    */
-  ChannelSubscriptionResponse subscribeUsersToSignal(@Nonnull String id, @Nullable Boolean pushed, @Nullable List<Long> userIds);
+  ChannelSubscriptionResponse subscribeUsersToSignal(String id, @Nullable Boolean pushed, @Nullable List<Long> userIds);
 
   /**
    * Unsubscribe a list of users from a signal.
@@ -123,7 +122,7 @@ public interface OboSignalService {
    * @return The unsubscription information.
    * @see <a href="https://developers.symphony.com/restapi/reference#unsubscribe-signal">Unsubscribe Signal</a>
    */
-  ChannelSubscriptionResponse unsubscribeUsersFromSignal(@Nonnull String id, @Nullable List<Long> userIds);
+  ChannelSubscriptionResponse unsubscribeUsersFromSignal(String id, @Nullable List<Long> userIds);
 
   /**
    * Get the subscribers for a specified signal.
@@ -134,7 +133,7 @@ public interface OboSignalService {
    * @return List of subscribers of the signal.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  List<ChannelSubscriber> listSubscribers(@Nonnull String id, @Nonnull PaginationAttribute pagination);
+  List<ChannelSubscriber> listSubscribers(String id, PaginationAttribute pagination);
 
   /**
    * Get the subscribers for a specified signal with default limit equal to 100.
@@ -144,7 +143,7 @@ public interface OboSignalService {
    * @return List of subscribers of the signal.
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
-  List<ChannelSubscriber> listSubscribers(@Nonnull String id);
+  List<ChannelSubscriber> listSubscribers(String id);
 
   /**
    * Get the paginated stream of subscribers for a specified signal.
@@ -156,7 +155,7 @@ public interface OboSignalService {
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id, @Nonnull StreamPaginationAttribute pagination);
+  Stream<ChannelSubscriber> listAllSubscribers(String id, StreamPaginationAttribute pagination);
 
   /**
    * Get the paginated stream of subscribers for a specified signal with the default chunkSize and totalSize equal to 100.
@@ -167,5 +166,5 @@ public interface OboSignalService {
    * @see <a href="https://developers.symphony.com/restapi/reference#subscribers">Subscribers</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<ChannelSubscriber> listAllSubscribers(@Nonnull String id);
+  Stream<ChannelSubscriber> listAllSubscribers(String id);
 }

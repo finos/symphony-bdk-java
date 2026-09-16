@@ -116,7 +116,7 @@ Simply update BDK dependency version to `3.0.0`
     </dependency>
     <dependency>
         <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+        <artifactId>symphony-bdk-http-jersey</artifactId> <!-- or symphony-bdk-http-webclient -->
         <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -219,7 +219,7 @@ If your project is not framework based, dependencies such as *jersey* and *freem
     </dependency>
     <dependency>
         <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-http-jersey2</artifactId> <!-- or symphony-bdk-http-webclient -->
+        <artifactId>symphony-bdk-http-jersey</artifactId> <!-- or symphony-bdk-http-webclient -->
         <scope>runtime</scope>
     </dependency>
     <dependency>

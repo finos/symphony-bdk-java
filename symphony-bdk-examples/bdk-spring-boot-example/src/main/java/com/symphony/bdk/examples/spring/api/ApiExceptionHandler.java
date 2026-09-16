@@ -2,8 +2,7 @@ package com.symphony.bdk.examples.spring.api;
 
 import com.symphony.bdk.http.api.ApiRuntimeException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,7 +23,7 @@ public class ApiExceptionHandler {
   }
 
   @ExceptionHandler(value = ApiRuntimeException.class)
-  public ResponseEntity<ErrorMessage> resourceNotFoundException(final ApiRuntimeException ex) throws JsonProcessingException {
+  public ResponseEntity<ErrorMessage> resourceNotFoundException(final ApiRuntimeException ex) {
     return new ResponseEntity<>(this.objectMapper.readValue(ex.getResponseBody(), ErrorMessage.class), HttpStatus.valueOf(ex.getCode()));
   }
 }

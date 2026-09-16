@@ -3,8 +3,6 @@ package com.symphony.bdk.core.service.pagination.model;
 import lombok.Getter;
 import org.apiguardian.api.API;
 
-import javax.annotation.Nonnull;
-
 /**
  * Stream Pagination Attribute model to be used in stream pagination methods provided by bdk services class.
  */
@@ -22,7 +20,7 @@ public class StreamPaginationAttribute {
    */
   private final Integer totalSize;
 
-  public StreamPaginationAttribute(@Nonnull Integer chunkSize, @Nonnull Integer totalSize) {
+  public StreamPaginationAttribute(Integer chunkSize, Integer totalSize) {
     this.chunkSize = chunkSize;
     this.totalSize = totalSize;
   }

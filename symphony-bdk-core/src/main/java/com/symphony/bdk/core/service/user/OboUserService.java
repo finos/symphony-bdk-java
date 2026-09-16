@@ -10,8 +10,7 @@ import org.apiguardian.api.API;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage users.
@@ -32,7 +31,7 @@ public interface OboUserService {
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> listUsersByIds(@Nonnull List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active);
+  List<UserV2> listUsersByIds(List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active);
 
   /**
    * {@link UserService#listUsersByIds(List)}
@@ -41,7 +40,7 @@ public interface OboUserService {
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> listUsersByIds(@Nonnull List<Long> uidList);
+  List<UserV2> listUsersByIds(List<Long> uidList);
 
   /**
    * {@link UserService#listUsersByEmails(List, Boolean, Boolean)}
@@ -56,7 +55,7 @@ public interface OboUserService {
    * @return Users found by emails.
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> listUsersByEmails(@Nonnull List<String> emailList, @Nullable Boolean local, @Nullable Boolean active);
+  List<UserV2> listUsersByEmails(List<String> emailList, @Nullable Boolean local, @Nullable Boolean active);
 
   /**
    * {@link UserService#listUsersByEmails(List)}
@@ -65,7 +64,7 @@ public interface OboUserService {
    * @return Users found by emails
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> listUsersByEmails(@Nonnull List<String> emailList);
+  List<UserV2> listUsersByEmails(List<String> emailList);
 
   /**
    * {@link UserService#listUsersByUsernames(List, Boolean)}
@@ -77,7 +76,7 @@ public interface OboUserService {
    * @return Users found by usernames
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList, @Nullable Boolean active);
+  List<UserV2> listUsersByUsernames(List<String> usernameList, @Nullable Boolean active);
 
   /**
    * {@link UserService#listUsersByUsernames(List)}
@@ -86,7 +85,7 @@ public interface OboUserService {
    * @return Users found by usernames
    * @see <a href="https://developers.symphony.com/restapi/reference#users-lookup-v3">Users Lookup V3</a>
    */
-  List<UserV2> listUsersByUsernames(@Nonnull List<String> usernameList);
+  List<UserV2> listUsersByUsernames(List<String> usernameList);
 
   /**
    * {@link UserService#searchUsers(UserSearchQuery, Boolean)}
@@ -98,7 +97,7 @@ public interface OboUserService {
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  List<UserV2> searchUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+  List<UserV2> searchUsers(UserSearchQuery query, @Nullable Boolean local);
 
   /**
    * {@link UserService#searchUsers(UserSearchQuery, Boolean, PaginationAttribute)}
@@ -111,8 +110,8 @@ public interface OboUserService {
    * @return List of users found by query
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
-  List<UserV2> searchUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
-      @Nonnull PaginationAttribute pagination);
+  List<UserV2> searchUsers(UserSearchQuery query, @Nullable Boolean local,
+      PaginationAttribute pagination);
 
   /**
    * {@link UserService#searchAllUsers(UserSearchQuery, Boolean)}
@@ -125,7 +124,7 @@ public interface OboUserService {
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local);
+  Stream<UserV2> searchAllUsers(UserSearchQuery query, @Nullable Boolean local);
 
   /**
    * {@link UserService#searchAllUsers(UserSearchQuery, Boolean, StreamPaginationAttribute)}
@@ -139,8 +138,8 @@ public interface OboUserService {
    * @see <a href="https://developers.symphony.com/restapi/reference#search-users">Search Users</a>
    */
   @API(status = API.Status.EXPERIMENTAL)
-  Stream<UserV2> searchAllUsers(@Nonnull UserSearchQuery query, @Nullable Boolean local,
-      @Nonnull StreamPaginationAttribute pagination);
+  Stream<UserV2> searchAllUsers(UserSearchQuery query, @Nullable Boolean local,
+      StreamPaginationAttribute pagination);
 
   /**
    * Make a list of users to start following a specific user.
@@ -150,7 +149,7 @@ public interface OboUserService {
    * @param userId      The id of the user to be followed.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#follow-user">Follow User</a>
    */
-  void followUser(@Nonnull List<Long> followerIds, @Nonnull Long userId);
+  void followUser(List<Long> followerIds, Long userId);
 
   /**
    * Make a list of users to stop following a specific user.
@@ -160,5 +159,5 @@ public interface OboUserService {
    * @param userId      The id of the user to be unfollowed.
    * @see <a href="https://developers.symphony.com/restapi/v20.9/reference#unfollow-user">Unfollow User</a>
    */
-  void unfollowUser(@Nonnull List<Long> followerIds, @Nonnull Long userId);
+  void unfollowUser(List<Long> followerIds, Long userId);
 }
