@@ -92,7 +92,7 @@ dependencies {
         // auto-selected when tools.jackson.databind is on the classpath.
         api 'org.openapitools:jackson-databind-nullable:0.2.11'
 
-        api 'org.freemarker:freemarker:2.3.33'
+        api 'org.freemarker:freemarker:2.3.35'
         api 'com.github.jknack:handlebars:4.5.1'
         api 'org.reflections:reflections:0.10.2'
 
