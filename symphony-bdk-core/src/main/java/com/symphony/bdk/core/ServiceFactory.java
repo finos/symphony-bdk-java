@@ -45,6 +45,7 @@ import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
+import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
@@ -148,7 +149,7 @@ class ServiceFactory {
    */
   public StreamService getStreamService() {
     return new StreamService(new StreamsApi(podClient), new RoomMembershipApi(podClient), new ShareApi(agentClient),
-        authSession, retryBuilder);
+        new StreamContextApi(agentClient), authSession, retryBuilder);
   }
 
   public DisclaimerService getDisclaimerService() {

@@ -226,4 +226,17 @@ public interface OboStreamService {
    * @see <a href="https://developers.symphony.com/restapi/reference#room-members">Room Members</a>
    */
   List<MemberInfo> listRoomMembers(String roomId);
+
+  /**
+   * Return a representation of the conversation in Markdown format
+   * Returned data includes :
+   *  - stream title
+   *  - stream properties
+   *  - stream members
+   *  - stream last messages
+   *
+   * @param streamId
+   * @return A String containing markdown representation of the conversation
+   */
+  String getStreamContext(String streamId);
 }
