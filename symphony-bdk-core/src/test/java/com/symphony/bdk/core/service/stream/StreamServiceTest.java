@@ -21,6 +21,7 @@ import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
+import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
@@ -78,12 +79,14 @@ public class StreamServiceTest {
   private static final String V3_ROOM_INFO = "/pod/v3/room/{id}/info";
   private static final String V3_ROOM_UPDATE = "/pod/v3/room/{id}/update";
   private static final String V3_SHARE = "/agent/v3/stream/{sid}/share";
+  private static final String V1_STREAM_CONTEXT = "/agent/v1/stream/{sid}/context";
 
   private StreamService service;
   private MockApiClient mockApiClient;
   private RoomMembershipApi spyRoomMembershipApi;
   private AuthSession authSession;
   private StreamsApi streamsApi;
+  private StreamContextApi streamContextApi;
   private ShareApi shareApi;
 
   @BeforeEach
@@ -96,7 +99,8 @@ public class StreamServiceTest {
     this.spyRoomMembershipApi = spy(new RoomMembershipApi(podClient));
     this.streamsApi = spy(new StreamsApi(podClient));
     this.shareApi = new ShareApi(agentClient);
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
+    this.streamContextApi = new StreamContextApi(agentClient);
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
         this.authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
@@ -105,7 +109,7 @@ public class StreamServiceTest {
 
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
         new RetryWithRecoveryBuilder<>());
 
     assertThrows(IllegalStateException.class, () -> this.service.getStream(""));
@@ -116,7 +120,7 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"),
         JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
 
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi,
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
         new RetryWithRecoveryBuilder<>());
     V2StreamAttributes stream = this.service.obo(this.authSession).getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
@@ -504,6 +508,33 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(400, V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
+  }
+
+  @Test
+  void getStreamContextTest() {
+    this.mockApiClient.onGet(V1_STREAM_CONTEXT.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "\"Markdown Context\"");
+
+    String context = this.service.getStreamContext("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
+
+    assertEquals("Markdown Context", context);
+  }
+
+  @Test
+  void getStreamContextInOboMode() {
+    this.mockApiClient.onGet(V1_STREAM_CONTEXT.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "\"Markdown Context\"");
+
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
+        new RetryWithRecoveryBuilder<>());
+    String context = this.service.obo(this.authSession).getStreamContext("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
+
+    assertEquals("Markdown Context", context);
+  }
+
+  @Test
+  void getStreamContextTestFailed() {
+    this.mockApiClient.onGet(400, V1_STREAM_CONTEXT.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.getStreamContext("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
   }
 
   @Test
