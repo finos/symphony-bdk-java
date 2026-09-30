@@ -30,6 +30,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.UserOrganizationService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
@@ -55,6 +56,7 @@ public class ServiceFactoryTest {
     this.apiClientFactory = mock(ApiClientFactory.class);
 
     when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);
+    when(this.apiClientFactory.getUsersClient()).thenReturn(mock(ApiClient.class));
     when(this.apiClientFactory.getAgentClient()).thenReturn(mock(ApiClient.class));
 
     ApiClient datafeedAgentClient = mock(ApiClient.class);
@@ -69,6 +71,12 @@ public class ServiceFactoryTest {
   void getUserServiceTest() {
     UserService userService = this.serviceFactory.getUserService();
     assertNotNull(userService);
+  }
+
+  @Test
+  void getUserOrganizationServiceTest() {
+    UserOrganizationService userOrganizationService = this.serviceFactory.getUserOrganizationService();
+    assertNotNull(userOrganizationService);
   }
 
   @Test

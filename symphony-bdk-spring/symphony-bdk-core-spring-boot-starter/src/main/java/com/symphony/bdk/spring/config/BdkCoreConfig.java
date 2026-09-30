@@ -71,6 +71,13 @@ public class BdkCoreConfig {
     return client;
   }
 
+  @Bean(name = "usersApiClient")
+  public ApiClient usersApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession, BdkConfig config) {
+    ApiClient client = apiClientFactory.getUsersClient();
+    addCommonJwtConfig(client, botSession, config);
+    return client;
+  }
+
   @Bean(name = "relayApiClient")
   public ApiClient relayApiClient(ApiClientFactory apiClientFactory) {
     return apiClientFactory.getRelayClient();
