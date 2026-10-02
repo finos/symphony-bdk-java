@@ -12,6 +12,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.UserOrganizationService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.AuditTrailApi;
@@ -30,10 +31,12 @@ import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
 import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -82,6 +85,13 @@ public class BdkOboServiceConfig {
   @ConditionalOnMissingBean
   public UserService oboUserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, BdkConfig config) {
     return new UserService(userApi, usersApi, auditTrailApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public UserOrganizationService oboUserOrganizationService(
+      @Qualifier("usersApiClient") ApiClient usersApiClient, BdkConfig config) {
+    return new UserOrganizationService(usersApiClient, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

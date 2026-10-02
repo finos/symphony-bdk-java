@@ -26,6 +26,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.user.UserOrganizationService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -75,6 +76,7 @@ import org.jspecify.annotations.Nullable;
 class ServiceFactory {
 
   private final ApiClient podClient;
+  private final ApiClient usersClient;
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
   private final ApiClient datahoseAgentClient;
@@ -100,6 +102,7 @@ class ServiceFactory {
   ) {
     this.config = config;
     this.podClient = apiClientFactory.getPodClient();
+    this.usersClient = apiClientFactory.getUsersClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.datahoseAgentClient = apiClientFactory.getDatahoseAgentClient();
@@ -119,6 +122,11 @@ class ServiceFactory {
 
         this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+
+        if (this.usersClient != null) {
+          this.usersClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+          this.usersClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+        }
 
         this.agentClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         this.agentClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
@@ -140,6 +148,15 @@ class ServiceFactory {
   public UserService getUserService() {
     return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession,
         retryBuilder);
+  }
+
+  /**
+   * Returns a fully initialized {@link UserOrganizationService}.
+   *
+   * @return a new {@link UserOrganizationService} instance.
+   */
+  public UserOrganizationService getUserOrganizationService() {
+    return new UserOrganizationService(this.usersClient, this.authSession, this.retryBuilder);
   }
 
   /**

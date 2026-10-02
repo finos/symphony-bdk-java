@@ -82,6 +82,11 @@ public class SymphonyBdkMockedConfiguration {
     }
 
     @Override
+    public ApiClient getUsersClient() {
+      return this.podApiClient.getApiClient("");
+    }
+
+    @Override
     public ApiClient getRelayClient() {
 
       this.relayApiClient.onPost("/relay/pubkey/authenticate",

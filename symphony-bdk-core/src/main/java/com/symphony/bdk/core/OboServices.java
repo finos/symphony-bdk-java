@@ -12,6 +12,7 @@ import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.signal.OboSignalService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
 import com.symphony.bdk.core.service.user.OboUserService;
+import com.symphony.bdk.core.service.user.UserOrganizationService;
 
 import org.apiguardian.api.API;
 
@@ -25,6 +26,7 @@ public class OboServices {
 
   private final OboStreamService oboStreamService;
   private final OboUserService oboUserService;
+  private final UserOrganizationService oboUserOrganizationService;
   private final OboMessageService oboMessageService;
   private final OboPresenceService oboPresenceService;
   private final OboConnectionService oboConnectionService;
@@ -46,6 +48,7 @@ public class OboServices {
 
     oboStreamService = serviceFactory.getStreamService();
     oboUserService = serviceFactory.getUserService();
+    oboUserOrganizationService = serviceFactory.getUserOrganizationService();
     oboMessageService = serviceFactory.getMessageService();
     oboPresenceService = serviceFactory.getPresenceService();
     oboConnectionService = serviceFactory.getConnectionService();
@@ -69,6 +72,24 @@ public class OboServices {
    */
   public OboUserService users() {
     return oboUserService;
+  }
+
+  /**
+   * Get the {@link UserOrganizationService} using the provided OBO session in constructor.
+   *
+   * @return a {@link UserOrganizationService} instance with the provided OBO session.
+   */
+  public UserOrganizationService userOrganization() {
+    return oboUserOrganizationService;
+  }
+
+  /**
+   * Get the {@link UserOrganizationService} using the provided OBO session in constructor.
+   *
+   * @return a {@link UserOrganizationService} instance with the provided OBO session.
+   */
+  public UserOrganizationService getUserOrganizationService() {
+    return oboUserOrganizationService;
   }
 
   /**
