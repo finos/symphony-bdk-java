@@ -116,7 +116,7 @@ Simply update BDK dependency version to `3.0.0`
     </dependency>
     <dependency>
         <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-http-jersey</artifactId> <!-- or symphony-bdk-http-webclient -->
+        <artifactId>symphony-bdk-http-jdk</artifactId> <!-- or the deprecated symphony-bdk-http-jersey / symphony-bdk-http-webclient -->
         <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -138,7 +138,7 @@ This guide provides information about how to migrate from Symphony SDK 1.0 to BD
 
 ## Dependencies
 In Java SDK 1.0, the bot had dependencies on `symphony-api-client-java` in addition to the application framework (SpringBoot for e.g). With BDK 2.0, we can replace both of them with `symphony-bdk-core-spring-boot-starter`.
-If your project is not framework based, dependencies such as *jersey* and *freemarker* should be added as well.
+If your project is not framework based, dependencies such as *http-jdk* and *freemarker* should be added as well.
 ### Spring Boot based project
 
 #### Java SDK 1.0
@@ -219,7 +219,7 @@ If your project is not framework based, dependencies such as *jersey* and *freem
     </dependency>
     <dependency>
         <groupId>org.finos.symphony.bdk</groupId>
-        <artifactId>symphony-bdk-http-jersey</artifactId> <!-- or symphony-bdk-http-webclient -->
+        <artifactId>symphony-bdk-http-jdk</artifactId> <!-- or the deprecated symphony-bdk-http-jersey / symphony-bdk-http-webclient -->
         <scope>runtime</scope>
     </dependency>
     <dependency>
