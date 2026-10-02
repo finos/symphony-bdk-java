@@ -5,6 +5,7 @@ import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.jdk.ApiClientBuilderProviderJdk;
 
 import tools.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -65,7 +66,7 @@ public class SymphonyBdkMockedConfiguration {
     private MockApiClient loginApiClient;
 
     public ApiClientFactoryMock(BdkConfig config) {
-      super(config);
+      super(config, new ApiClientBuilderProviderJdk());
     }
 
     @Override

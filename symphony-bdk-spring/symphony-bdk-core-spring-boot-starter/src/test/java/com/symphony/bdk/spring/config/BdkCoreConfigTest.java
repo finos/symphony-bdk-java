@@ -2,6 +2,7 @@ package com.symphony.bdk.spring.config;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,6 +14,8 @@ import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkCommonJwtConfig;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiClient;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
+import com.symphony.bdk.http.jdk.ApiClientBuilderProviderJdk;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 
 import org.junit.jupiter.api.Test;
@@ -43,6 +46,22 @@ class BdkCoreConfigTest {
     final BdkCoreConfig config = new BdkCoreConfig();
     final SymphonyBdkCoreProperties props = new SymphonyBdkCoreProperties();
     assertNotNull(config.apiClientFactory(props));
+  }
+
+  @Test
+  void shouldCreateApiClientBuilderProvider() {
+    final BdkCoreConfig config = new BdkCoreConfig();
+    final ApiClientBuilderProvider provider = config.apiClientBuilderProvider();
+    assertNotNull(provider);
+    assertTrue(provider instanceof ApiClientBuilderProviderJdk);
+  }
+
+  @Test
+  void shouldCreateApiClientFactoryWithCustomProvider() {
+    final BdkCoreConfig config = new BdkCoreConfig();
+    final SymphonyBdkCoreProperties props = new SymphonyBdkCoreProperties();
+    final ApiClientBuilderProvider provider = mock(ApiClientBuilderProvider.class);
+    assertNotNull(config.apiClientFactory(props, provider));
   }
 
   @Test
