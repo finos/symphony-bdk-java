@@ -22,7 +22,7 @@ import java.util.List;
 class UserOrganizationServiceTest {
 
   private static final String SESSION_TOKEN = "test-session-token";
-  private static final String ORGANISATIONS_PATH = "/v5/users/organisations";
+  private static final String ORGANISATIONS_PATH = "/v5/users/current/organisations";
 
   private static final String ORGANISATIONS_JSON = "{\n"
       + "  \"directories\": [\n"
