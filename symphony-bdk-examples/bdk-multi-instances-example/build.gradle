@@ -9,6 +9,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     implementation project(':symphony-bdk-core')
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jdk')
     implementation 'org.slf4j:slf4j-api'
 
     implementation 'com.hazelcast:hazelcast:5.3.6'
