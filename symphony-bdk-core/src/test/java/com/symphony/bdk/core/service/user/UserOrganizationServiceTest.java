@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.test.MockApiClient;
+import com.symphony.bdk.gen.api.model.BlastList;
 import com.symphony.bdk.gen.api.model.OrganisationStructure;
 import com.symphony.bdk.gen.api.model.UserOrganisationsResponse;
 import com.symphony.bdk.http.api.ApiClient;
@@ -32,7 +33,9 @@ class UserOrganizationServiceTest {
       + "    {\"id\": \"tab-1001\", \"name\": \"SRE Workspace\", \"streamIds\": [\"sre-stream-1\", \"sre-stream-2\"]}\n"
       + "  ],\n"
       + "  \"blastLists\": [\n"
-      + "    {\"id\": \"a97be35a\", \"name\": \"Blast People\", \"streamIds\": [\"blast-stream-1\"]}\n"
+      + "    {\"id\": \"a97be35a\", \"name\": \"Blast People\", \"recipients\": ["
+      + "       {\"id\": \"user-1\", \"type\": \"user\"},"
+      + "       {\"id\": \"blast-stream-1\", \"type\": \"stream\"}]}\n"
       + "  ]\n"
       + "}";
 
@@ -70,10 +73,14 @@ class UserOrganizationServiceTest {
     assertEquals(List.of("sre-stream-1", "sre-stream-2"), ws.getStreamIds());
 
     assertEquals(1, org.getBlastLists().size());
-    OrganisationStructure bl = org.getBlastLists().get(0);
+    BlastList bl = org.getBlastLists().get(0);
     assertEquals("a97be35a", bl.getId());
     assertEquals("Blast People", bl.getName());
-    assertEquals(List.of("blast-stream-1"), bl.getStreamIds());
+    assertEquals(2, bl.getRecipients().size());
+    assertEquals("user-1", bl.getRecipients().get(0).getId());
+    assertEquals("user", bl.getRecipients().get(0).getType());
+    assertEquals("blast-stream-1", bl.getRecipients().get(1).getId());
+    assertEquals("stream", bl.getRecipients().get(1).getType());
   }
 
   @Test
@@ -100,11 +107,12 @@ class UserOrganizationServiceTest {
   void testGetUserDistributionLists() {
     this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
 
-    List<OrganisationStructure> blastLists = this.service.getUserDistributionLists();
+    List<BlastList> blastLists = this.service.getUserDistributionLists();
     assertEquals(1, blastLists.size());
     assertEquals("a97be35a", blastLists.get(0).getId());
     assertEquals("Blast People", blastLists.get(0).getName());
-    assertEquals(List.of("blast-stream-1"), blastLists.get(0).getStreamIds());
+    assertEquals(2, blastLists.get(0).getRecipients().size());
+    assertEquals("stream", blastLists.get(0).getRecipients().get(1).getType());
   }
 
   @Test
@@ -127,7 +135,7 @@ class UserOrganizationServiceTest {
     assertNotNull(oboService);
 
     this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
-    List<OrganisationStructure> blastLists = oboService.getUserDistributionLists();
+    List<BlastList> blastLists = oboService.getUserDistributionLists();
     assertEquals(1, blastLists.size());
     assertEquals("a97be35a", blastLists.get(0).getId());
   }

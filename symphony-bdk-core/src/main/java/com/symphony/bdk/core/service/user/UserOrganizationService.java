@@ -6,6 +6,7 @@ import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.gen.api.UserOrganisationsApi;
+import com.symphony.bdk.gen.api.model.BlastList;
 import com.symphony.bdk.gen.api.model.OrganisationStructure;
 import com.symphony.bdk.gen.api.model.UserOrganisationsResponse;
 import com.symphony.bdk.http.api.ApiClient;
@@ -80,11 +81,11 @@ public class UserOrganizationService implements OboService<UserOrganizationServi
   }
 
   /**
-   * Retrieves the authenticated user's blast distribution lists.
+   * Retrieves the authenticated user's blast distribution lists, each with its recipients.
    *
-   * @return a list of {@link OrganisationStructure} blast lists.
+   * @return a list of {@link BlastList} blast lists.
    */
-  public List<OrganisationStructure> getUserDistributionLists() {
+  public List<BlastList> getUserDistributionLists() {
     return getUserOrganization().getBlastLists();
   }
 
