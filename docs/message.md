@@ -45,6 +45,31 @@ public class Example {
 
 > `PresentationMLParser.getTextContent(message.getMessage())` can be used on incoming messages to extract the message content
 > stripped of all tags.
+
+### Update a message with an attachment
+An existing message can also be updated with new content and file attachments:
+```java
+@Slf4j
+public class Example {
+  public static final String STREAM_ID = "gXFV8vN37dNqjojYS_y2wX___o2KxfmUdA";
+  public static final String MESSAGE_ID = "j7-VAoCY_1pGAYSye_MtI3___oPXo8VHbQ";
+
+  public static void main(String[] args) throws Exception {
+    final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
+
+    final InputStream attachment = Example.class.getResourceAsStream("/attachment.pdf");
+    final Message updatedContent = Message.builder()
+        .content("Updated message content")
+        .addAttachment(attachment, "attachment.pdf")
+        .build();
+
+    final V4Message updatedMessage = bdk.messages().update(STREAM_ID, MESSAGE_ID, updatedContent);
+    log.info("Message updated, id: " + updatedMessage.getMessageId());
+  }
+}
+```
+> :information_source: Attachments and previews on message update are supported only starting from SBE v24.1.
+
 ## Using templates
 The `Message.Builder` also allows you to build a message from a template. So far, the BDK supports two different template
 engine implementations:
