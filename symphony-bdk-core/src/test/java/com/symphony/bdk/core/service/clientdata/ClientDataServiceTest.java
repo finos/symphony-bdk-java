@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.service.user;
+package com.symphony.bdk.core.service.clientdata;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-class UserOrganizationServiceTest {
+class ClientDataServiceTest {
 
   private static final String SESSION_TOKEN = "test-session-token";
   private static final String ORGANISATIONS_PATH = "/v5/users/current/organisations";
@@ -41,7 +41,7 @@ class UserOrganizationServiceTest {
 
   private MockApiClient mockApiClient;
   private AuthSession authSession;
-  private UserOrganizationService service;
+  private ClientDataService service;
 
   @BeforeEach
   void setUp() {
@@ -50,14 +50,14 @@ class UserOrganizationServiceTest {
     when(this.authSession.getSessionToken()).thenReturn(SESSION_TOKEN);
 
     ApiClient usersClient = this.mockApiClient.getApiClient("");
-    this.service = new UserOrganizationService(usersClient, this.authSession, new RetryWithRecoveryBuilder<>());
+    this.service = new ClientDataService(usersClient, this.authSession, new RetryWithRecoveryBuilder<>());
   }
 
   @Test
-  void testGetUserOrganizationSuccess() {
+  void testGetClientDataSuccess() {
     this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
 
-    UserOrganisationsResponse org = this.service.getUserOrganization();
+    UserOrganisationsResponse org = this.service.getClientData();
     assertNotNull(org);
 
     assertEquals(1, org.getDirectories().size());
@@ -81,6 +81,15 @@ class UserOrganizationServiceTest {
     assertEquals("user", bl.getRecipients().get(0).getType());
     assertEquals("blast-stream-1", bl.getRecipients().get(1).getId());
     assertEquals("stream", bl.getRecipients().get(1).getType());
+  }
+
+  @Test
+  void testGetUserOrganizationBackwardsCompatibility() {
+    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
+
+    UserOrganisationsResponse org = this.service.getUserOrganization();
+    assertNotNull(org);
+    assertEquals(1, org.getDirectories().size());
   }
 
   @Test
@@ -119,7 +128,7 @@ class UserOrganizationServiceTest {
   void testEmptyResponseReturnsEmptyLists() {
     this.mockApiClient.onGet(ORGANISATIONS_PATH, "{}");
 
-    UserOrganisationsResponse org = this.service.getUserOrganization();
+    UserOrganisationsResponse org = this.service.getClientData();
     assertNotNull(org);
     assertTrue(org.getDirectories().isEmpty());
     assertTrue(org.getWorkspaces().isEmpty());
@@ -131,7 +140,7 @@ class UserOrganizationServiceTest {
     AuthSession oboSession = mock(AuthSession.class);
     when(oboSession.getSessionToken()).thenReturn("obo-token");
 
-    UserOrganizationService oboService = this.service.obo(oboSession);
+    OboClientDataService oboService = this.service.obo(oboSession);
     assertNotNull(oboService);
 
     this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
@@ -143,9 +152,9 @@ class UserOrganizationServiceTest {
   @Test
   void testMissingAuthSessionThrowsIllegalStateException() {
     ApiClient usersClient = this.mockApiClient.getApiClient("");
-    UserOrganizationService unauthenticatedService =
-        new UserOrganizationService(usersClient, new RetryWithRecoveryBuilder<>());
+    ClientDataService unauthenticatedService =
+        new ClientDataService(usersClient, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(IllegalStateException.class, unauthenticatedService::getUserOrganization);
+    assertThrows(IllegalStateException.class, unauthenticatedService::getClientData);
   }
 }

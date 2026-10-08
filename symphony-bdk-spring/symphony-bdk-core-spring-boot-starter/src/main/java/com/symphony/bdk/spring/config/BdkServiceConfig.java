@@ -13,7 +13,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserOrganizationService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -75,9 +75,9 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserOrganizationService userOrganizationService(
+  public ClientDataService clientDataService(
       @Qualifier("usersApiClient") ApiClient usersApiClient, AuthSession botSession, BdkConfig config) {
-    return new UserOrganizationService(usersApiClient, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+    return new ClientDataService(usersApiClient, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

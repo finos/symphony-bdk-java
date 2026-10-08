@@ -12,7 +12,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserOrganizationService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.AuditTrailApi;
@@ -89,9 +89,9 @@ public class BdkOboServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserOrganizationService oboUserOrganizationService(
+  public ClientDataService oboClientDataService(
       @Qualifier("usersApiClient") ApiClient usersApiClient, BdkConfig config) {
-    return new UserOrganizationService(usersApiClient, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+    return new ClientDataService(usersApiClient, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

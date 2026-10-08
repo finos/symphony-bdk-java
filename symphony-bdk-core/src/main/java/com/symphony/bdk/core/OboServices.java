@@ -11,8 +11,8 @@ import com.symphony.bdk.core.service.presence.OboPresenceService;
 import com.symphony.bdk.core.service.session.OboSessionService;
 import com.symphony.bdk.core.service.signal.OboSignalService;
 import com.symphony.bdk.core.service.stream.OboStreamService;
+import com.symphony.bdk.core.service.clientdata.OboClientDataService;
 import com.symphony.bdk.core.service.user.OboUserService;
-import com.symphony.bdk.core.service.user.UserOrganizationService;
 
 import org.apiguardian.api.API;
 
@@ -26,7 +26,7 @@ public class OboServices {
 
   private final OboStreamService oboStreamService;
   private final OboUserService oboUserService;
-  private final UserOrganizationService oboUserOrganizationService;
+  private final OboClientDataService oboClientDataService;
   private final OboMessageService oboMessageService;
   private final OboPresenceService oboPresenceService;
   private final OboConnectionService oboConnectionService;
@@ -48,7 +48,7 @@ public class OboServices {
 
     oboStreamService = serviceFactory.getStreamService();
     oboUserService = serviceFactory.getUserService();
-    oboUserOrganizationService = serviceFactory.getUserOrganizationService();
+    oboClientDataService = serviceFactory.getClientDataService();
     oboMessageService = serviceFactory.getMessageService();
     oboPresenceService = serviceFactory.getPresenceService();
     oboConnectionService = serviceFactory.getConnectionService();
@@ -75,21 +75,21 @@ public class OboServices {
   }
 
   /**
-   * Get the {@link UserOrganizationService} using the provided OBO session in constructor.
+   * Get the {@link OboClientDataService} using the provided OBO session in constructor.
    *
-   * @return a {@link UserOrganizationService} instance with the provided OBO session.
+   * @return an {@link OboClientDataService} instance with the provided OBO session.
    */
-  public UserOrganizationService userOrganization() {
-    return oboUserOrganizationService;
+  public OboClientDataService clientData() {
+    return oboClientDataService;
   }
 
   /**
-   * Get the {@link UserOrganizationService} using the provided OBO session in constructor.
+   * Get the {@link OboClientDataService} using the provided OBO session in constructor.
    *
-   * @return a {@link UserOrganizationService} instance with the provided OBO session.
+   * @return an {@link OboClientDataService} instance with the provided OBO session.
    */
-  public UserOrganizationService getUserOrganizationService() {
-    return oboUserOrganizationService;
+  public OboClientDataService getClientDataService() {
+    return oboClientDataService;
   }
 
   /**

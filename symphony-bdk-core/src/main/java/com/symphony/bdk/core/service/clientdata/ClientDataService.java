@@ -1,4 +1,4 @@
-package com.symphony.bdk.core.service.user;
+package com.symphony.bdk.core.service.clientdata;
 
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
@@ -18,19 +18,19 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Service to retrieve the authenticated user's personal chat organization structures &mdash;
- * custom directories/folders, multi-chat workspaces, and blast distribution lists &mdash; from the
+ * Service to retrieve the authenticated user's client data organization structures &mdash;
+ * custom folders, multi-chat workspaces, and distribution lists &mdash; from the
  * {@code GET /v5/users/organisations} endpoint.
  */
-@API(status = API.Status.EXPERIMENTAL)
-public class UserOrganizationService implements OboService<UserOrganizationService> {
+@API(status = API.Status.STABLE)
+public class ClientDataService implements OboClientDataService, OboService<OboClientDataService> {
 
   private final ApiClient apiClient;
   private final UserOrganisationsApi userOrganisationsApi;
   private final @Nullable AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public UserOrganizationService(ApiClient apiClient, AuthSession authSession,
+  public ClientDataService(ApiClient apiClient, AuthSession authSession,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.apiClient = apiClient;
     this.userOrganisationsApi = new UserOrganisationsApi(apiClient);
@@ -39,7 +39,7 @@ public class UserOrganizationService implements OboService<UserOrganizationServi
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
-  public UserOrganizationService(ApiClient apiClient, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public ClientDataService(ApiClient apiClient, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.apiClient = apiClient;
     this.userOrganisationsApi = new UserOrganisationsApi(apiClient);
     this.authSession = null;
@@ -47,46 +47,41 @@ public class UserOrganizationService implements OboService<UserOrganizationServi
   }
 
   @Override
-  public UserOrganizationService obo(AuthSession oboSession) {
-    return new UserOrganizationService(this.apiClient, oboSession, this.retryBuilder);
+  public OboClientDataService obo(AuthSession oboSession) {
+    return new ClientDataService(this.apiClient, oboSession, this.retryBuilder);
   }
 
   /**
-   * Retrieves the authenticated user's aggregated organization data (directories, workspaces, and
-   * blast distribution lists) for the default {@code symphonyPrime} application.
-   *
-   * @return a {@link UserOrganisationsResponse} containing the user's organization data.
+   * {@inheritDoc}
    */
-  public UserOrganisationsResponse getUserOrganization() {
+  @Override
+  public UserOrganisationsResponse getClientData() {
     return executeAndRetry("getUserOrganisations",
         () -> this.userOrganisationsApi.getUserOrganisations(this.authSession.getSessionToken(), null));
   }
 
   /**
-   * Retrieves the authenticated user's custom directories/folders.
-   *
-   * @return a list of {@link OrganisationStructure} directories.
+   * {@inheritDoc}
    */
+  @Override
   public List<OrganisationStructure> getUserDirectories() {
-    return getUserOrganization().getDirectories();
+    return getClientData().getDirectories();
   }
 
   /**
-   * Retrieves the authenticated user's workspaces.
-   *
-   * @return a list of {@link OrganisationStructure} workspaces.
+   * {@inheritDoc}
    */
+  @Override
   public List<OrganisationStructure> getUserWorkspaces() {
-    return getUserOrganization().getWorkspaces();
+    return getClientData().getWorkspaces();
   }
 
   /**
-   * Retrieves the authenticated user's blast distribution lists, each with its recipients.
-   *
-   * @return a list of {@link BlastList} blast lists.
+   * {@inheritDoc}
    */
+  @Override
   public List<BlastList> getUserDistributionLists() {
-    return getUserOrganization().getBlastLists();
+    return getClientData().getBlastLists();
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {

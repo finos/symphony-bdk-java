@@ -30,7 +30,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserOrganizationService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
@@ -74,9 +74,9 @@ public class ServiceFactoryTest {
   }
 
   @Test
-  void getUserOrganizationServiceTest() {
-    UserOrganizationService userOrganizationService = this.serviceFactory.getUserOrganizationService();
-    assertNotNull(userOrganizationService);
+  void getClientDataServiceTest() {
+    ClientDataService clientDataService = this.serviceFactory.getClientDataService();
+    assertNotNull(clientDataService);
   }
 
   @Test

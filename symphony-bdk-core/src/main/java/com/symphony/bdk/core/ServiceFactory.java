@@ -26,7 +26,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserOrganizationService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -151,12 +151,12 @@ class ServiceFactory {
   }
 
   /**
-   * Returns a fully initialized {@link UserOrganizationService}.
+   * Returns a fully initialized {@link ClientDataService}.
    *
-   * @return a new {@link UserOrganizationService} instance.
+   * @return a new {@link ClientDataService} instance.
    */
-  public UserOrganizationService getUserOrganizationService() {
-    return new UserOrganizationService(this.usersClient, this.authSession, this.retryBuilder);
+  public ClientDataService getClientDataService() {
+    return new ClientDataService(this.usersClient, this.authSession, this.retryBuilder);
   }
 
   /**

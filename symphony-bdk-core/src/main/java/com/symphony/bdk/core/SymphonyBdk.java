@@ -24,7 +24,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
-import com.symphony.bdk.core.service.user.UserOrganizationService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.core.util.ServiceLookup;
 import com.symphony.bdk.extension.BdkExtension;
@@ -61,7 +61,7 @@ public class SymphonyBdk {
   private final ActivityRegistry activityRegistry;
   private final StreamService streamService;
   private final UserService userService;
-  private final UserOrganizationService userOrganizationService;
+  private final ClientDataService clientDataService;
   private final MessageService messageService;
   private final PresenceService presenceService;
   private final ConnectionService connectionService;
@@ -164,7 +164,7 @@ public class SymphonyBdk {
 
     this.sessionService = serviceFactory != null ? serviceFactory.getSessionService() : null;
     this.userService = serviceFactory != null ? serviceFactory.getUserService() : null;
-    this.userOrganizationService = serviceFactory != null ? serviceFactory.getUserOrganizationService() : null;
+    this.clientDataService = serviceFactory != null ? serviceFactory.getClientDataService() : null;
     this.streamService = serviceFactory != null ? serviceFactory.getStreamService() : null;
     this.presenceService = serviceFactory != null ? serviceFactory.getPresenceService() : null;
     this.connectionService = serviceFactory != null ? serviceFactory.getConnectionService() : null;
@@ -247,21 +247,21 @@ public class SymphonyBdk {
   }
 
   /**
-   * Get the {@link UserOrganizationService} from a Bdk entry point.
+   * Get the {@link ClientDataService} from a Bdk entry point.
    *
-   * @return {@link UserOrganizationService} instance.
+   * @return {@link ClientDataService} instance.
    */
-  public UserOrganizationService userOrganization() {
-    return getOrThrowNoBotConfig(this.userOrganizationService);
+  public ClientDataService clientData() {
+    return getOrThrowNoBotConfig(this.clientDataService);
   }
 
   /**
-   * Get the {@link UserOrganizationService} from a Bdk entry point.
+   * Get the {@link ClientDataService} from a Bdk entry point.
    *
-   * @return {@link UserOrganizationService} instance.
+   * @return {@link ClientDataService} instance.
    */
-  public UserOrganizationService getUserOrganizationService() {
-    return this.userOrganizationService;
+  public ClientDataService getClientDataService() {
+    return this.clientDataService;
   }
 
   /**
