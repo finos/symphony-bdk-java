@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.config.model.BdkConfig;
 
+import com.symphony.bdk.core.service.clientdata.OboClientDataService;
 import com.symphony.bdk.core.service.connection.OboConnectionService;
 import com.symphony.bdk.core.service.message.OboMessageService;
 import com.symphony.bdk.core.service.presence.OboPresenceService;
@@ -67,5 +68,11 @@ public class OboServicesTest {
   void testOboSessions() {
     OboSessionService sessionService = oboServices.sessions();
     assertNotNull(sessionService);
+  }
+
+  @Test
+  void testOboClientData() {
+    OboClientDataService clientDataService = oboServices.clientData();
+    assertNotNull(clientDataService);
   }
 }
