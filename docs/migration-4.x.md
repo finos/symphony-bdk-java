@@ -199,6 +199,41 @@ code change to `SymphonyBdkBuilder` usage required. Before switching, be aware o
 `symphony-bdk-http-jdk` is currently `@API(status = API.Status.EXPERIMENTAL)`. If you need an `@API(STABLE)`-only
 dependency tree, stay on `symphony-bdk-http-jersey` for now.
 
+### 4.2: Spring modules complete the default-to-JDK migration
+
+Through 4.0 and 4.1, `symphony-bdk-core-spring-boot-starter` was the one exception to the above: `BdkCoreConfig`
+still depended on `symphony-bdk-http-jersey` at `implementation` scope and hardcoded
+`new ApiClientBuilderProviderJersey2()`, so Spring Boot consumers kept getting the Jersey transport by default
+regardless of the rest of the BDK's direction. BDK 4.2 closes that last gap: the starter now depends on
+`symphony-bdk-http-jdk` at `implementation` scope instead, and `BdkCoreConfig` exposes a
+`@Bean @ConditionalOnMissingBean ApiClientBuilderProvider` returning `ApiClientBuilderProviderJdk`, wired into the
+`ApiClientFactory` bean — mirroring plain `symphony-bdk-core`'s behaviour.
+
+**For most Spring Boot applications, this is transparent.** If your application only consumes the starter's
+auto-configured beans (`agentApiClient`, `podApiClient`, `loginApiClient`, and the services built on top of them) and
+does not declare its own `ApiClientBuilderProvider` or `ApiClientFactory` bean, no code change is required — Spring
+Boot's dependency management pulls in `symphony-bdk-http-jdk` transitively and the transport switches automatically.
+
+**Possible breaking changes to check before upgrading:**
+
+- **The Jersey-vs-JDK behavioral differences described above now reach Spring consumers too.** The read-timeout
+  (total timeout vs. read-only timeout) and filter-support (`Function<HttpRequest.Builder, HttpRequest.Builder>`-only
+  vs. JAX-RS `ClientRequestFilter`/`ClientResponseFilter`) differences apply to every Spring Boot application using
+  the default starter configuration, not just direct `symphony-bdk-core` users. Check any custom `ApiClientBuilder`
+  filter or read-timeout-dependent long-running request after upgrading.
+- **`BdkCoreConfig` subclasses overriding `apiClientFactory(SymphonyBdkCoreProperties)` lose bean registration.** That
+  single-argument method is no longer annotated `@Bean` — it is kept only as a source-compatible overload delegating
+  to the new two-argument, `@Bean`-annotated `apiClientFactory(properties, apiClientBuilderProvider)`. A custom
+  configuration that subclassed `BdkCoreConfig` and overrode the single-argument method expecting Spring to invoke it
+  as the factory bean will now see that override silently ignored; override the two-argument method instead, or
+  declare your own `ApiClientBuilderProvider` bean.
+- **`symphony-bdk-http-jersey` no longer rides in transitively through the starter.** It is retained at
+  `testImplementation` scope inside the starter module itself (for internal `MockApiClient` test fixture
+  compatibility only), not exposed to consumer applications. If your application relied on Jersey/JAX-RS classes
+  being present purely because the starter pulled them in, add `symphony-bdk-http-jersey` (or
+  `symphony-bdk-http-webclient`) explicitly and declare your own `ApiClientBuilderProvider` bean to keep the previous
+  transport.
+
 ## Support window
 
 BDK 3.x will receive critical security fixes for **6 months** following the BDK 4.0.0 release, where Symphony is

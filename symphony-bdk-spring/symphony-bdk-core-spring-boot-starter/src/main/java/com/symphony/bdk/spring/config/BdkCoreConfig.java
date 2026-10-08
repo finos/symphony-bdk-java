@@ -14,7 +14,8 @@ import com.symphony.bdk.core.auth.impl.OAuthentication;
 import com.symphony.bdk.core.client.ApiClientFactory;
 import com.symphony.bdk.core.config.model.BdkConfig;
 import com.symphony.bdk.http.api.ApiClient;
-import com.symphony.bdk.http.jersey2.ApiClientBuilderProviderJersey2;
+import com.symphony.bdk.http.api.ApiClientBuilderProvider;
+import com.symphony.bdk.http.jdk.ApiClientBuilderProviderJdk;
 import com.symphony.bdk.spring.SymphonyBdkCoreProperties;
 import com.symphony.bdk.template.api.TemplateEngine;
 import com.symphony.bdk.template.freemarker.FreeMarkerEngine;
@@ -35,9 +36,19 @@ public class BdkCoreConfig {
 
   @Bean
   @ConditionalOnMissingBean
+  public ApiClientBuilderProvider apiClientBuilderProvider() {
+    return new ApiClientBuilderProviderJdk();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties,
+      ApiClientBuilderProvider apiClientBuilderProvider) {
+    return new ApiClientFactory(properties, apiClientBuilderProvider);
+  }
+
   public ApiClientFactory apiClientFactory(SymphonyBdkCoreProperties properties) {
-    return new ApiClientFactory(properties,
-        new ApiClientBuilderProviderJersey2()); // TODO create RestTemplate/or WebClient implementation
+    return apiClientFactory(properties, apiClientBuilderProvider());
   }
 
   @Bean(name = "agentApiClient")

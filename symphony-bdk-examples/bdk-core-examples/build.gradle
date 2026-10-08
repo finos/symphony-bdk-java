@@ -10,10 +10,7 @@ dependencies {
 
     runtimeOnly project(':symphony-bdk-template:symphony-bdk-template-freemarker')
 
-    // for advanced configuration of the JerseyClient
-    implementation project(':symphony-bdk-http:symphony-bdk-http-jersey')
-    implementation 'org.glassfish.jersey.core:jersey-client'
-    implementation 'org.glassfish.jersey.media:jersey-media-multipart'
+    runtimeOnly project(':symphony-bdk-http:symphony-bdk-http-jdk')
 
     runtimeOnly 'ch.qos.logback:logback-classic'
 
