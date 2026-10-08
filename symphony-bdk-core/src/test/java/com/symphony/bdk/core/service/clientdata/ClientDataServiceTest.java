@@ -94,16 +94,6 @@ class ClientDataServiceTest {
   }
 
   @Test
-  void testGetUserDirectoriesBackwardsCompatibility() {
-    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
-
-    List<ClientDataStructure> directories = this.service.getUserDirectories();
-    assertEquals(1, directories.size());
-    assertEquals("folder-27001", directories.get(0).getId());
-    assertEquals(List.of("stream-a", "stream-b"), directories.get(0).getStreamIds());
-  }
-
-  @Test
   void testGetUserWorkspaces() {
     this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
 

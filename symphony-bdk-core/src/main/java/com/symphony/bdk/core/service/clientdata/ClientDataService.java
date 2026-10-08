@@ -72,14 +72,6 @@ public class ClientDataService implements OboClientDataService, OboService<OboCl
    * {@inheritDoc}
    */
   @Override
-  public List<ClientDataStructure> getUserDirectories() {
-    return getUserFolders();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public List<ClientDataStructure> getUserWorkspaces() {
     return getClientData().getWorkspaces();
   }

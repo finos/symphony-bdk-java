@@ -32,17 +32,6 @@ public interface OboClientDataService {
   List<ClientDataStructure> getUserFolders();
 
   /**
-   * Retrieves the authenticated user's custom directories/folders.
-   *
-   * @deprecated Use {@link #getUserFolders()} instead.
-   * @return a list of {@link ClientDataStructure} directories.
-   */
-  @Deprecated
-  default List<ClientDataStructure> getUserDirectories() {
-    return getUserFolders();
-  }
-
-  /**
    * Retrieves the authenticated user's workspaces.
    * {@link ClientDataService#getUserWorkspaces()}
    *
