@@ -1,8 +1,8 @@
 package com.symphony.bdk.core.service.clientdata;
 
-import com.symphony.bdk.gen.api.model.BlastList;
-import com.symphony.bdk.gen.api.model.OrganisationStructure;
-import com.symphony.bdk.gen.api.model.UserOrganisationsResponse;
+import com.symphony.bdk.gen.api.model.ClientDataResponse;
+import com.symphony.bdk.gen.api.model.DistributionLists;
+import com.symphony.bdk.gen.api.model.ClientDataStructure;
 
 import org.apiguardian.api.API;
 
@@ -15,46 +15,46 @@ import java.util.List;
 public interface OboClientDataService {
 
   /**
-   * Retrieves the authenticated user's aggregated client data (directories, workspaces, and
-   * blast distribution lists) for the default {@code symphonyPrime} application.
+   * Retrieves the authenticated user's aggregated client data (folders, workspaces, and
+   * distribution lists) for the default {@code symphonyPrime} application.
    * {@link ClientDataService#getClientData()}
    *
-   * @return a {@link UserOrganisationsResponse} containing the user's client data.
+   * @return a {@link ClientDataResponse} containing the user's client data.
    */
-  UserOrganisationsResponse getClientData();
+  ClientDataResponse getClientData();
 
   /**
-   * Retrieves the authenticated user's aggregated organization data.
+   * Retrieves the authenticated user's custom folders.
+   * {@link ClientDataService#getUserFolders()}
    *
-   * @deprecated Use {@link #getClientData()} instead.
-   * @return a {@link UserOrganisationsResponse} containing the user's organization data.
+   * @return a list of {@link ClientDataStructure} folders.
    */
-  @Deprecated
-  default UserOrganisationsResponse getUserOrganization() {
-    return getClientData();
-  }
+  List<ClientDataStructure> getUserFolders();
 
   /**
    * Retrieves the authenticated user's custom directories/folders.
-   * {@link ClientDataService#getUserDirectories()}
    *
-   * @return a list of {@link OrganisationStructure} directories.
+   * @deprecated Use {@link #getUserFolders()} instead.
+   * @return a list of {@link ClientDataStructure} directories.
    */
-  List<OrganisationStructure> getUserDirectories();
+  @Deprecated
+  default List<ClientDataStructure> getUserDirectories() {
+    return getUserFolders();
+  }
 
   /**
    * Retrieves the authenticated user's workspaces.
    * {@link ClientDataService#getUserWorkspaces()}
    *
-   * @return a list of {@link OrganisationStructure} workspaces.
+   * @return a list of {@link ClientDataStructure} workspaces.
    */
-  List<OrganisationStructure> getUserWorkspaces();
+  List<ClientDataStructure> getUserWorkspaces();
 
   /**
-   * Retrieves the authenticated user's blast distribution lists, each with its recipients.
+   * Retrieves the authenticated user's distribution lists, each with its recipients.
    * {@link ClientDataService#getUserDistributionLists()}
    *
-   * @return a list of {@link BlastList} blast lists.
+   * @return a list of {@link DistributionLists} distribution lists.
    */
-  List<BlastList> getUserDistributionLists();
+  List<DistributionLists> getUserDistributionLists();
 }

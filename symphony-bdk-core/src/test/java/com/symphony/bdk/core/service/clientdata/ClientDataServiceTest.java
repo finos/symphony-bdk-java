@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.test.MockApiClient;
-import com.symphony.bdk.gen.api.model.BlastList;
-import com.symphony.bdk.gen.api.model.OrganisationStructure;
-import com.symphony.bdk.gen.api.model.UserOrganisationsResponse;
+import com.symphony.bdk.gen.api.model.ClientDataResponse;
+import com.symphony.bdk.gen.api.model.DistributionLists;
+import com.symphony.bdk.gen.api.model.ClientDataStructure;
 import com.symphony.bdk.http.api.ApiClient;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -23,16 +23,16 @@ import java.util.List;
 class ClientDataServiceTest {
 
   private static final String SESSION_TOKEN = "test-session-token";
-  private static final String ORGANISATIONS_PATH = "/v5/users/current/organisations";
+  private static final String CLIENT_DATA_PATH = "/v5/users/clientdata";
 
-  private static final String ORGANISATIONS_JSON = "{\n"
-      + "  \"directories\": [\n"
+  private static final String CLIENT_DATA_JSON = "{\n"
+      + "  \"folders\": [\n"
       + "    {\"id\": \"folder-27001\", \"name\": \"Other Teams\", \"streamIds\": [\"stream-a\", \"stream-b\"]}\n"
       + "  ],\n"
       + "  \"workspaces\": [\n"
       + "    {\"id\": \"tab-1001\", \"name\": \"SRE Workspace\", \"streamIds\": [\"sre-stream-1\", \"sre-stream-2\"]}\n"
       + "  ],\n"
-      + "  \"blastLists\": [\n"
+      + "  \"distributionLists\": [\n"
       + "    {\"id\": \"a97be35a\", \"name\": \"Blast People\", \"recipients\": ["
       + "       {\"id\": \"user-1\", \"type\": \"user\"},"
       + "       {\"id\": \"blast-stream-1\", \"type\": \"stream\"}]}\n"
@@ -55,25 +55,25 @@ class ClientDataServiceTest {
 
   @Test
   void testGetClientDataSuccess() {
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
 
-    UserOrganisationsResponse org = this.service.getClientData();
+    ClientDataResponse org = this.service.getClientData();
     assertNotNull(org);
 
-    assertEquals(1, org.getDirectories().size());
-    OrganisationStructure dir = org.getDirectories().get(0);
+    assertEquals(1, org.getFolders().size());
+    ClientDataStructure dir = org.getFolders().get(0);
     assertEquals("folder-27001", dir.getId());
     assertEquals("Other Teams", dir.getName());
     assertEquals(List.of("stream-a", "stream-b"), dir.getStreamIds());
 
     assertEquals(1, org.getWorkspaces().size());
-    OrganisationStructure ws = org.getWorkspaces().get(0);
+    ClientDataStructure ws = org.getWorkspaces().get(0);
     assertEquals("tab-1001", ws.getId());
     assertEquals("SRE Workspace", ws.getName());
     assertEquals(List.of("sre-stream-1", "sre-stream-2"), ws.getStreamIds());
 
-    assertEquals(1, org.getBlastLists().size());
-    BlastList bl = org.getBlastLists().get(0);
+    assertEquals(1, org.getDistributionLists().size());
+    DistributionLists bl = org.getDistributionLists().get(0);
     assertEquals("a97be35a", bl.getId());
     assertEquals("Blast People", bl.getName());
     assertEquals(2, bl.getRecipients().size());
@@ -84,19 +84,20 @@ class ClientDataServiceTest {
   }
 
   @Test
-  void testGetUserOrganizationBackwardsCompatibility() {
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
+  void testGetUserFolders() {
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
 
-    UserOrganisationsResponse org = this.service.getUserOrganization();
-    assertNotNull(org);
-    assertEquals(1, org.getDirectories().size());
+    List<ClientDataStructure> folders = this.service.getUserFolders();
+    assertEquals(1, folders.size());
+    assertEquals("folder-27001", folders.get(0).getId());
+    assertEquals(List.of("stream-a", "stream-b"), folders.get(0).getStreamIds());
   }
 
   @Test
-  void testGetUserDirectories() {
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
+  void testGetUserDirectoriesBackwardsCompatibility() {
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
 
-    List<OrganisationStructure> directories = this.service.getUserDirectories();
+    List<ClientDataStructure> directories = this.service.getUserDirectories();
     assertEquals(1, directories.size());
     assertEquals("folder-27001", directories.get(0).getId());
     assertEquals(List.of("stream-a", "stream-b"), directories.get(0).getStreamIds());
@@ -104,9 +105,9 @@ class ClientDataServiceTest {
 
   @Test
   void testGetUserWorkspaces() {
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
 
-    List<OrganisationStructure> workspaces = this.service.getUserWorkspaces();
+    List<ClientDataStructure> workspaces = this.service.getUserWorkspaces();
     assertEquals(1, workspaces.size());
     assertEquals("tab-1001", workspaces.get(0).getId());
     assertEquals("SRE Workspace", workspaces.get(0).getName());
@@ -114,25 +115,25 @@ class ClientDataServiceTest {
 
   @Test
   void testGetUserDistributionLists() {
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
 
-    List<BlastList> blastLists = this.service.getUserDistributionLists();
-    assertEquals(1, blastLists.size());
-    assertEquals("a97be35a", blastLists.get(0).getId());
-    assertEquals("Blast People", blastLists.get(0).getName());
-    assertEquals(2, blastLists.get(0).getRecipients().size());
-    assertEquals("stream", blastLists.get(0).getRecipients().get(1).getType());
+    List<DistributionLists> distributionLists = this.service.getUserDistributionLists();
+    assertEquals(1, distributionLists.size());
+    assertEquals("a97be35a", distributionLists.get(0).getId());
+    assertEquals("Blast People", distributionLists.get(0).getName());
+    assertEquals(2, distributionLists.get(0).getRecipients().size());
+    assertEquals("stream", distributionLists.get(0).getRecipients().get(1).getType());
   }
 
   @Test
   void testEmptyResponseReturnsEmptyLists() {
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, "{}");
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, "{}");
 
-    UserOrganisationsResponse org = this.service.getClientData();
+    ClientDataResponse org = this.service.getClientData();
     assertNotNull(org);
-    assertTrue(org.getDirectories().isEmpty());
+    assertTrue(org.getFolders().isEmpty());
     assertTrue(org.getWorkspaces().isEmpty());
-    assertTrue(org.getBlastLists().isEmpty());
+    assertTrue(org.getDistributionLists().isEmpty());
   }
 
   @Test
@@ -143,10 +144,10 @@ class ClientDataServiceTest {
     OboClientDataService oboService = this.service.obo(oboSession);
     assertNotNull(oboService);
 
-    this.mockApiClient.onGet(ORGANISATIONS_PATH, ORGANISATIONS_JSON);
-    List<BlastList> blastLists = oboService.getUserDistributionLists();
-    assertEquals(1, blastLists.size());
-    assertEquals("a97be35a", blastLists.get(0).getId());
+    this.mockApiClient.onGet(CLIENT_DATA_PATH, CLIENT_DATA_JSON);
+    List<DistributionLists> distributionLists = oboService.getUserDistributionLists();
+    assertEquals(1, distributionLists.size());
+    assertEquals("a97be35a", distributionLists.get(0).getId());
   }
 
   @Test
