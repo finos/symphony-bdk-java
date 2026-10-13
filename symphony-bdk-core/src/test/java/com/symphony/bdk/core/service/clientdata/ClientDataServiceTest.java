@@ -34,7 +34,7 @@ class ClientDataServiceTest {
       + "  ],\n"
       + "  \"distributionLists\": [\n"
       + "    {\"id\": \"a97be35a\", \"name\": \"Blast People\", \"recipients\": ["
-      + "       {\"id\": \"user-1\", \"type\": \"user\", \"name\": \"Jerome Michel\"},"
+      + "       {\"id\": \"user-1\", \"type\": \"user\", \"name\": \"Test Name\"},"
       + "       {\"id\": \"folder-1\", \"type\": \"folder\", \"streamIds\": [\"stream-a\"]},"
       + "       {\"id\": \"blast-stream-1\", \"type\": \"stream\"}]}\n"
       + "  ]\n"
@@ -80,7 +80,7 @@ class ClientDataServiceTest {
     assertEquals(3, bl.getRecipients().size());
     assertEquals("user-1", bl.getRecipients().get(0).getId());
     assertEquals("user", bl.getRecipients().get(0).getType());
-    assertEquals("Jerome Michel", bl.getRecipients().get(0).getName());
+    assertEquals("Test Name", bl.getRecipients().get(0).getName());
     assertEquals("folder-1", bl.getRecipients().get(1).getId());
     assertEquals("folder", bl.getRecipients().get(1).getType());
     assertEquals(List.of("stream-a"), bl.getRecipients().get(1).getStreamIds());
