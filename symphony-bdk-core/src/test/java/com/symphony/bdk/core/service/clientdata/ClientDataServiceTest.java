@@ -34,7 +34,8 @@ class ClientDataServiceTest {
       + "  ],\n"
       + "  \"distributionLists\": [\n"
       + "    {\"id\": \"a97be35a\", \"name\": \"Blast People\", \"recipients\": ["
-      + "       {\"id\": \"user-1\", \"type\": \"user\"},"
+      + "       {\"id\": \"user-1\", \"type\": \"user\", \"name\": \"Jerome Michel\"},"
+      + "       {\"id\": \"folder-1\", \"type\": \"folder\", \"streamIds\": [\"stream-a\"]},"
       + "       {\"id\": \"blast-stream-1\", \"type\": \"stream\"}]}\n"
       + "  ]\n"
       + "}";
@@ -76,11 +77,15 @@ class ClientDataServiceTest {
     DistributionLists bl = org.getDistributionLists().get(0);
     assertEquals("a97be35a", bl.getId());
     assertEquals("Blast People", bl.getName());
-    assertEquals(2, bl.getRecipients().size());
+    assertEquals(3, bl.getRecipients().size());
     assertEquals("user-1", bl.getRecipients().get(0).getId());
     assertEquals("user", bl.getRecipients().get(0).getType());
-    assertEquals("blast-stream-1", bl.getRecipients().get(1).getId());
-    assertEquals("stream", bl.getRecipients().get(1).getType());
+    assertEquals("Jerome Michel", bl.getRecipients().get(0).getName());
+    assertEquals("folder-1", bl.getRecipients().get(1).getId());
+    assertEquals("folder", bl.getRecipients().get(1).getType());
+    assertEquals(List.of("stream-a"), bl.getRecipients().get(1).getStreamIds());
+    assertEquals("blast-stream-1", bl.getRecipients().get(2).getId());
+    assertEquals("stream", bl.getRecipients().get(2).getType());
   }
 
   @Test
@@ -111,8 +116,8 @@ class ClientDataServiceTest {
     assertEquals(1, distributionLists.size());
     assertEquals("a97be35a", distributionLists.get(0).getId());
     assertEquals("Blast People", distributionLists.get(0).getName());
-    assertEquals(2, distributionLists.get(0).getRecipients().size());
-    assertEquals("stream", distributionLists.get(0).getRecipients().get(1).getType());
+    assertEquals(3, distributionLists.get(0).getRecipients().size());
+    assertEquals("stream", distributionLists.get(0).getRecipients().get(2).getType());
   }
 
   @Test
@@ -138,6 +143,7 @@ class ClientDataServiceTest {
     List<DistributionLists> distributionLists = oboService.getUserDistributionLists();
     assertEquals(1, distributionLists.size());
     assertEquals("a97be35a", distributionLists.get(0).getId());
+    assertEquals(3, distributionLists.get(0).getRecipients().size());
   }
 
   @Test
