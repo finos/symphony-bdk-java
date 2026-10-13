@@ -18,8 +18,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 /**
- * Service to retrieve the authenticated user's client data organization structures &mdash;
- * custom folders, multi-chat workspaces, and distribution lists &mdash; from the
+ * Service to retrieve the authenticated user's client data organization structures
+ * custom folders, multi-chat workspaces, and distribution lists from the
  * {@code GET /v5/users/clientdata} endpoint.
  */
 @API(status = API.Status.STABLE)
