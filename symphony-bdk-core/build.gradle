@@ -81,6 +81,12 @@ dependencies {
 
 // OpenAPI code generation
 def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/a8efe8a6193769d0657fc57758918138aa4483bb"
+// TEMP (BE-9865): the /v5/users/organisations endpoint is not yet in the pinned FINOS commit.
+// Source the Users spec from the PR branch until the FINOS PR merges, then DELETE this override
+// and bump apiBaseUrl above to the merged commit SHA.
+def apiBaseUrlOverrides = [
+        Users: "https://raw.githubusercontent.com/jameshanna-symphony/symphony-api-spec/BE-9865_Add_User_Organisation_Endpoint"
+]
 def generatedFolder = "${layout.buildDirectory.get()}/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public-deprecated.yaml',
@@ -94,7 +100,7 @@ sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 
 apisToGenerate.each { api, path ->
     def downloadTask = tasks.register("download$api", Download) {
-        src "$apiBaseUrl/$path"
+        src "${apiBaseUrlOverrides.getOrDefault(api, apiBaseUrl)}/$path"
         dest "${layout.buildDirectory.get()}/openapi/$api/${path.split("/")[1]}"
         overwrite false
         useETag  "all"
