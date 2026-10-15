@@ -23,7 +23,7 @@ import java.util.List;
 class ClientDataServiceTest {
 
   private static final String SESSION_TOKEN = "test-session-token";
-  private static final String CLIENT_DATA_PATH = "/v5/users/clientdata";
+  private static final String CLIENT_DATA_PATH = "/v5/users/current/clientdata";
 
   private static final String CLIENT_DATA_JSON = "{\n"
       + "  \"folders\": [\n"

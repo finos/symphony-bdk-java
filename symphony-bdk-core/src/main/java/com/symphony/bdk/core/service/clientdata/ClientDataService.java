@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Service to retrieve the authenticated user's client data organization structures
  * custom folders, multi-chat workspaces, and distribution lists from the
- * {@code GET /v5/users/clientdata} endpoint.
+ * {@code GET /v5/users/current/clientdata} endpoint.
  */
 @API(status = API.Status.STABLE)
 public class ClientDataService implements OboClientDataService, OboService<OboClientDataService> {
