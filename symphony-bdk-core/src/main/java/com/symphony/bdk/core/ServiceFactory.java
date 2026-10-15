@@ -49,6 +49,7 @@ import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
+import com.symphony.bdk.gen.api.UserStreamsApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.UserV2;
 import com.symphony.bdk.http.api.ApiClient;
@@ -77,6 +78,7 @@ class ServiceFactory {
   private final ApiClient podClient;
   private final ApiClient usersClient;
   private final ApiClient agentClient;
+  private final ApiClient streamClient;
   private final ApiClient datafeedAgentClient;
   private final ApiClient datahoseAgentClient;
   private final AuthSession authSession;
@@ -103,6 +105,7 @@ class ServiceFactory {
     this.podClient = apiClientFactory.getPodClient();
     this.usersClient = apiClientFactory.getUsersClient();
     this.agentClient = apiClientFactory.getAgentClient();
+    this.streamClient = apiClientFactory.getStreamClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.datahoseAgentClient = apiClientFactory.getDatahoseAgentClient();
     this.authSession = authSession;
@@ -165,7 +168,7 @@ class ServiceFactory {
    */
   public StreamService getStreamService() {
     return new StreamService(new StreamsApi(podClient), new RoomMembershipApi(podClient), new ShareApi(agentClient),
-        new MessagesApi(agentClient), authSession, retryBuilder);
+        new MessagesApi(agentClient), new UserStreamsApi(streamClient), authSession, retryBuilder);
   }
 
   public DisclaimerService getDisclaimerService() {
