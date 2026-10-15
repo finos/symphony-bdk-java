@@ -81,20 +81,25 @@ dependencies {
 
 // OpenAPI code generation
 def apiBaseUrl = "https://raw.githubusercontent.com/finos/symphony-api-spec/a8efe8a6193769d0657fc57758918138aa4483bb"
+
+def apiBaseUrlOverrides = [
+        Streams: "https://raw.githubusercontent.com/Tahak-symphony/symphony-api-spec/BE-9867_user_streams"
+]
 def generatedFolder = "${layout.buildDirectory.get()}/generated/openapi"
 def apisToGenerate = [
         Agent: 'agent/agent-api-public-deprecated.yaml',
         Pod  : 'pod/pod-api-public-deprecated.yaml',
         Auth : 'authenticator/authenticator-api-public-deprecated.yaml',
         Login: 'login/login-api-public.yaml',
-        Users: 'users/users-api-public.yaml'
+        Users: 'users/users-api-public.yaml',
+        Streams: 'streams/streams-api-public.yaml'
 ]
 
 sourceSets.main.java.srcDirs += "$generatedFolder/src/main/java"
 
 apisToGenerate.each { api, path ->
     def downloadTask = tasks.register("download$api", Download) {
-        src "$apiBaseUrl/$path"
+        src  "${apiBaseUrlOverrides.getOrDefault(api, apiBaseUrl)}/$path"
         dest "${layout.buildDirectory.get()}/openapi/$api/${path.split("/")[1]}"
         overwrite false
         useETag  "all"
