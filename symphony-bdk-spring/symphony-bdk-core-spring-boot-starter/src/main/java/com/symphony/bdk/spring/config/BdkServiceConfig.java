@@ -31,10 +31,10 @@ import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
 import com.symphony.bdk.gen.api.StreamContextApi;
+import com.symphony.bdk.gen.api.StreamSearchApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
-import com.symphony.bdk.gen.api.UserStreamsApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.spring.service.BotInfoService;
 import com.symphony.bdk.template.api.TemplateEngine;
@@ -61,8 +61,8 @@ public class BdkServiceConfig {
   @Bean
   @ConditionalOnMissingBean
   public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi, StreamContextApi streamContextApi,
-      UserStreamsApi userStreamsApi, AuthSession botSession, BdkConfig config) {
-    return new StreamService(streamsApi, roomMembershipApi, shareApi, streamContextApi, userStreamsApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+      StreamSearchApi streamSearchApi, AuthSession botSession, BdkConfig config) {
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, streamContextApi, streamSearchApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
