@@ -27,9 +27,9 @@ import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
+import com.symphony.bdk.gen.api.StreamSearchApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.UserApi;
-import com.symphony.bdk.gen.api.UserStreamsApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.template.api.TemplateEngine;
@@ -77,8 +77,8 @@ public class BdkOboServiceConfig {
   @Bean
   @ConditionalOnMissingBean
   public StreamService oboStreamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi,
-      MessagesApi messagesApi, UserStreamsApi userStreamsApi, BdkConfig config) {
-    return new StreamService(streamsApi, roomMembershipApi, shareApi, messagesApi, userStreamsApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+      MessagesApi messagesApi, StreamSearchApi streamSearchApi, BdkConfig config) {
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, messagesApi, streamSearchApi, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

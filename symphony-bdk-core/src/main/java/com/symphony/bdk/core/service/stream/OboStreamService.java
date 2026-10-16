@@ -8,6 +8,7 @@ import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.StreamArrayResponse;
+import com.symphony.bdk.gen.api.model.StreamResponse;
 import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
@@ -245,10 +246,10 @@ public interface OboStreamService {
   /**
    * Lists the authenticated user's active chat streams matching specified filtering criteria.
    *
-   * @param limit The maximum number of streams to return.
+   * @param limit The maximum number of streams to return (maximum 100).
    * @param includeHidden Whether to include hidden streams in the results.
    * @param onlyUnread If true, only returns streams that contain unread messages.
-   * @param channel Filter streams by channel type. Allowed values: Whatsapp, Wechat, Line, SMS, Symphony.
+   * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
    * @param external Filter streams to include external chats.
    * @param internal Filter streams to include internal chats.
    * @param cursor Opaque pagination cursor returned as nextCursor by a previous call.
@@ -262,5 +263,24 @@ public interface OboStreamService {
       @Nullable Boolean external,
       @Nullable Boolean internal,
       @Nullable String cursor);
+
+  /**
+   * Retrieve streams for a list of stream IDs via query parameters matching specified filtering criteria.
+   *
+   * @param streamIds List of stream IDs (maximum 50 allowed).
+   * @param includeHidden Whether to include hidden streams in the results.
+   * @param onlyUnread If true, only returns streams that contain unread messages.
+   * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
+   * @param external Filter streams to include external chats.
+   * @param internal Filter streams to include internal chats.
+   * @return A list of {@link StreamResponse} matching the provided IDs and criteria.
+   * @see <a href="https://developers.symphony.com/restapi/reference/search-streams">Search Streams</a>
+   */
+  List<StreamResponse> searchStreams(List<String> streamIds,
+      @Nullable Boolean includeHidden,
+      @Nullable Boolean onlyUnread,
+      @Nullable String channel,
+      @Nullable Boolean external,
+      @Nullable Boolean internal);
 
 }
