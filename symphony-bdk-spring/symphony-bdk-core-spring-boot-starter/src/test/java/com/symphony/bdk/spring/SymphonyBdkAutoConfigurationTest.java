@@ -13,8 +13,8 @@ import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV1;
 import com.symphony.bdk.core.service.datafeed.impl.DatafeedLoopV2;
 import com.symphony.bdk.core.service.datafeed.impl.DatahoseLoopImpl;
 import com.symphony.bdk.core.service.health.HealthService;
+import com.symphony.bdk.gen.api.StreamSearchApi;
 import com.symphony.bdk.gen.api.SystemApi;
-import com.symphony.bdk.gen.api.UserStreamsApi;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.spring.annotation.SlashAnnotationProcessor;
 import com.symphony.bdk.spring.config.BdkActivityConfig;
@@ -65,7 +65,7 @@ class SymphonyBdkAutoConfigurationTest {
       assertThat(context).hasSingleBean(HealthService.class);
       assertThat(context).hasSingleBean(DatafeedAsyncLauncherService.class);
       assertThat(context).hasSingleBean(RealTimeEventsDispatcher.class);
-      assertThat(context).hasSingleBean(UserStreamsApi.class);
+      assertThat(context).hasSingleBean(StreamSearchApi.class);
       assertThat(context).hasBean("streamApiClient");
 
       // verify datahose not enabled by default

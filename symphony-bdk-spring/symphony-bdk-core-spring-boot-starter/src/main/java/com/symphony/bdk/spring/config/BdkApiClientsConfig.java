@@ -1,7 +1,7 @@
 package com.symphony.bdk.spring.config;
 
 import com.symphony.bdk.gen.api.StreamContextApi;
-import com.symphony.bdk.gen.api.UserStreamsApi;
+import com.symphony.bdk.gen.api.StreamSearchApi;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -204,8 +204,8 @@ public class BdkApiClientsConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserStreamsApi userStreamsApi(@Qualifier("streamApiClient") ApiClient streamApiClient) {
-    return new UserStreamsApi(streamApiClient);
+  public StreamSearchApi streamSearchApi(@Qualifier("streamApiClient") ApiClient streamApiClient) {
+    return new StreamSearchApi(streamApiClient);
   }
 
   @Bean
