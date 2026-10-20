@@ -12,9 +12,9 @@ import com.symphony.bdk.core.service.pagination.OffsetBasedPaginatedService;
 import com.symphony.bdk.core.service.pagination.PaginatedService;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
+import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
-import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
@@ -66,29 +66,29 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   private final StreamsApi streamsApi;
   private final RoomMembershipApi roomMembershipApi;
   private final ShareApi shareApi;
-  private final StreamContextApi streamContextApi;
+  private final MessagesApi messagesApi;
   private final AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
-      StreamContextApi streamContextApi,
+      MessagesApi messagesApi,
       AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.streamsApi = streamsApi;
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
-    this.streamContextApi = streamContextApi;
+    this.messagesApi = messagesApi;
     this.authSession = authSession;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
-      StreamContextApi streamContextApi,
+      MessagesApi messagesApi,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.streamsApi = streamsApi;
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
-    this.streamContextApi = streamContextApi;
+    this.messagesApi = messagesApi;
     this.authSession = null;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
@@ -98,7 +98,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public OboStreamService obo(AuthSession oboSession) {
-    return new StreamService(streamsApi, roomMembershipApi, shareApi, streamContextApi, oboSession, retryBuilder);
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, messagesApi, oboSession, retryBuilder);
   }
 
   /**
@@ -505,8 +505,8 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
 
   @Override
   public String getStreamContext(String streamId) {
-    return executeAndRetry("getStreamContext", streamContextApi.getApiClient().getBasePath(),
-        () -> streamContextApi.v1StreamContext(toUrlSafeIdIfNeeded(streamId), authSession.getSessionToken(), authSession.getKeyManagerToken()));
+    return executeAndRetry("getStreamContext", messagesApi.getApiClient().getBasePath(),
+        () -> messagesApi.v1StreamContext(toUrlSafeIdIfNeeded(streamId), null, null, null, null, authSession.getSessionToken(), authSession.getKeyManagerToken()));
   }
 
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
