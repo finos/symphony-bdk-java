@@ -13,6 +13,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -30,15 +31,16 @@ import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
-import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
+import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.spring.service.BotInfoService;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -59,15 +61,22 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi, StreamContextApi streamContextApi,
+  public StreamService streamService(StreamsApi streamsApi, RoomMembershipApi roomMembershipApi, ShareApi shareApi, MessagesApi messagesApi,
       AuthSession botSession, BdkConfig config) {
-    return new StreamService(streamsApi, roomMembershipApi, shareApi, streamContextApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, messagesApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean
   @ConditionalOnMissingBean
   public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession botSession, BdkConfig config) {
     return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public ClientDataService clientDataService(
+      @Qualifier("usersApiClient") ApiClient usersApiClient, AuthSession botSession, BdkConfig config) {
+    return new ClientDataService(usersApiClient, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

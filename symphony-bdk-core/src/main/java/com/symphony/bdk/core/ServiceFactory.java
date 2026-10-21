@@ -26,6 +26,7 @@ import com.symphony.bdk.core.service.presence.PresenceService;
 import com.symphony.bdk.core.service.session.SessionService;
 import com.symphony.bdk.core.service.signal.SignalService;
 import com.symphony.bdk.core.service.stream.StreamService;
+import com.symphony.bdk.core.service.clientdata.ClientDataService;
 import com.symphony.bdk.core.service.user.UserService;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -45,7 +46,6 @@ import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
-import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.SystemApi;
 import com.symphony.bdk.gen.api.UserApi;
@@ -75,6 +75,7 @@ import org.jspecify.annotations.Nullable;
 class ServiceFactory {
 
   private final ApiClient podClient;
+  private final ApiClient usersClient;
   private final ApiClient agentClient;
   private final ApiClient datafeedAgentClient;
   private final ApiClient datahoseAgentClient;
@@ -100,6 +101,7 @@ class ServiceFactory {
   ) {
     this.config = config;
     this.podClient = apiClientFactory.getPodClient();
+    this.usersClient = apiClientFactory.getUsersClient();
     this.agentClient = apiClientFactory.getAgentClient();
     this.datafeedAgentClient = apiClientFactory.getDatafeedAgentClient();
     this.datahoseAgentClient = apiClientFactory.getDatahoseAgentClient();
@@ -119,6 +121,11 @@ class ServiceFactory {
 
         this.podClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         this.podClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+
+        if (this.usersClient != null) {
+          this.usersClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
+          this.usersClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
+        }
 
         this.agentClient.getAuthentications().put(BEARER_AUTH, new OAuthentication(oAuthSession::getBearerToken));
         this.agentClient.addEnforcedAuthenticationScheme(BEARER_AUTH);
@@ -143,13 +150,22 @@ class ServiceFactory {
   }
 
   /**
+   * Returns a fully initialized {@link ClientDataService}.
+   *
+   * @return a new {@link ClientDataService} instance.
+   */
+  public ClientDataService getClientDataService() {
+    return new ClientDataService(this.usersClient, this.authSession, this.retryBuilder);
+  }
+
+  /**
    * Returns a fully initialized {@link StreamService}.
    *
    * @return a new {@link StreamService} instance.
    */
   public StreamService getStreamService() {
     return new StreamService(new StreamsApi(podClient), new RoomMembershipApi(podClient), new ShareApi(agentClient),
-        new StreamContextApi(agentClient), authSession, retryBuilder);
+        new MessagesApi(agentClient), authSession, retryBuilder);
   }
 
   public DisclaimerService getDisclaimerService() {

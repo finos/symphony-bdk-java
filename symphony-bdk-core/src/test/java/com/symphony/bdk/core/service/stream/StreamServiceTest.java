@@ -21,7 +21,7 @@ import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
-import com.symphony.bdk.gen.api.StreamContextApi;
+import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
@@ -86,7 +86,7 @@ public class StreamServiceTest {
   private RoomMembershipApi spyRoomMembershipApi;
   private AuthSession authSession;
   private StreamsApi streamsApi;
-  private StreamContextApi streamContextApi;
+  private MessagesApi messagesApi;
   private ShareApi shareApi;
 
   @BeforeEach
@@ -99,8 +99,8 @@ public class StreamServiceTest {
     this.spyRoomMembershipApi = spy(new RoomMembershipApi(podClient));
     this.streamsApi = spy(new StreamsApi(podClient));
     this.shareApi = new ShareApi(agentClient);
-    this.streamContextApi = new StreamContextApi(agentClient);
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
+    this.messagesApi = new MessagesApi(agentClient);
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         this.authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
@@ -109,7 +109,7 @@ public class StreamServiceTest {
 
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         new RetryWithRecoveryBuilder<>());
 
     assertThrows(IllegalStateException.class, () -> this.service.getStream(""));
@@ -120,7 +120,7 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V2_STREAM_INFO.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"),
         JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
 
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         new RetryWithRecoveryBuilder<>());
     V2StreamAttributes stream = this.service.obo(this.authSession).getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
@@ -523,7 +523,7 @@ public class StreamServiceTest {
   void getStreamContextInOboMode() {
     this.mockApiClient.onGet(V1_STREAM_CONTEXT.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "\"Markdown Context\"");
 
-    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.streamContextApi,
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         new RetryWithRecoveryBuilder<>());
     String context = this.service.obo(this.authSession).getStreamContext("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 

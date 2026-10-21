@@ -1,6 +1,5 @@
 package com.symphony.bdk.spring.config;
 
-import com.symphony.bdk.gen.api.StreamContextApi;
 import com.symphony.bdk.http.api.ApiClient;
 import com.symphony.bdk.gen.api.AppEntitlementApi;
 import com.symphony.bdk.gen.api.ApplicationApi;
@@ -193,12 +192,6 @@ public class BdkApiClientsConfig {
   @ConditionalOnMissingBean
   public StreamsApi streamsApi(@Qualifier("podApiClient") ApiClient podApiClient) {
     return new StreamsApi(podApiClient);
-  }
-
-  @Bean
-  @ConditionalOnMissingBean
-  public StreamContextApi streamsContextApi(@Qualifier("agentApiClient") ApiClient agentApiClient) {
-    return new StreamContextApi(agentApiClient);
   }
 
   @Bean
