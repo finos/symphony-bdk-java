@@ -15,11 +15,14 @@ import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
+import com.symphony.bdk.gen.api.StreamSearchApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
 import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
+import com.symphony.bdk.gen.api.model.StreamArrayResponse;
+import com.symphony.bdk.gen.api.model.StreamResponse;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.UserId;
@@ -67,28 +70,31 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   private final RoomMembershipApi roomMembershipApi;
   private final ShareApi shareApi;
   private final MessagesApi messagesApi;
+  private final StreamSearchApi streamSearchApi;
   private final AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
-      MessagesApi messagesApi,
+      MessagesApi messagesApi, StreamSearchApi streamSearchApi,
       AuthSession authSession, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.streamsApi = streamsApi;
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
     this.messagesApi = messagesApi;
+    this.streamSearchApi = streamSearchApi;
     this.authSession = authSession;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
   public StreamService(StreamsApi streamsApi, RoomMembershipApi membershipApi, ShareApi shareApi,
-      MessagesApi messagesApi,
+      MessagesApi messagesApi, StreamSearchApi streamSearchApi,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.streamsApi = streamsApi;
     this.roomMembershipApi = membershipApi;
     this.shareApi = shareApi;
     this.messagesApi = messagesApi;
+    this.streamSearchApi = streamSearchApi;
     this.authSession = null;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
@@ -98,7 +104,7 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public OboStreamService obo(AuthSession oboSession) {
-    return new StreamService(streamsApi, roomMembershipApi, shareApi, messagesApi, oboSession, retryBuilder);
+    return new StreamService(streamsApi, roomMembershipApi, shareApi, messagesApi, streamSearchApi, oboSession, retryBuilder);
   }
 
   /**
@@ -507,6 +513,28 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   public String getStreamContext(String streamId) {
     return executeAndRetry("getStreamContext", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v1StreamContext(toUrlSafeIdIfNeeded(streamId), null, null, null, null, authSession.getSessionToken(), authSession.getKeyManagerToken()));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public StreamArrayResponse getUserStreams(@Nullable Integer limit, @Nullable Boolean includeHidden,
+      @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal,
+      @Nullable Boolean includeAgentStreams, @Nullable String cursor) {
+    return executeAndRetry("getUserStreams", streamSearchApi.getApiClient().getBasePath(),
+        () -> streamSearchApi.listUserStreams(authSession.getSessionToken(), limit, includeHidden, onlyUnread, channel, external, internal, includeAgentStreams, cursor));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<StreamResponse> searchStreams(List<String> streamIds, @Nullable Boolean includeHidden,
+      @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal,
+      @Nullable Boolean includeAgentStreams) {
+    return executeAndRetry("searchStreams", streamSearchApi.getApiClient().getBasePath(),
+        () -> streamSearchApi.getStreamsSearch(authSession.getSessionToken(), streamIds, includeHidden, onlyUnread, channel, external, internal, includeAgentStreams));
   }
 
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
