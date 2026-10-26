@@ -551,14 +551,14 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V4_USER_STREAMS,
         "{\"streams\": [{\"id\": \"p9B316LKDto7iOECc8Xuz3qeWsc0bdA\", \"active\": true}], \"nextCursor\": \"cursor123\"}");
 
-    StreamArrayResponse response = this.service.getUserStreams(10, false, true, "WHATSAPP", true, false, "cursor000");
+    StreamArrayResponse response = this.service.getUserStreams(10, false, true, "WHATSAPP", true, false, true, "cursor000");
 
     assertNotNull(response);
     assertEquals("cursor123", response.getNextCursor());
     assertEquals(1, response.getStreams().size());
     assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.getStreams().get(0).getId());
     assertTrue(response.getStreams().get(0).getActive());
-    verify(this.streamSearchApi).listUserStreams(eq("1234"), eq(10), eq(false), eq(true), eq("WHATSAPP"), eq(true), eq(false), eq("cursor000"));
+    verify(this.streamSearchApi).listUserStreams(eq("1234"), eq(10), eq(false), eq(true), eq("WHATSAPP"), eq(true), eq(false), eq(true), eq("cursor000"));
   }
 
   @Test
@@ -568,20 +568,20 @@ public class StreamServiceTest {
 
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         this.streamSearchApi, new RetryWithRecoveryBuilder<>());
-    StreamArrayResponse response = this.service.obo(this.authSession).getUserStreams(null, null, null, null, null, null, null);
+    StreamArrayResponse response = this.service.obo(this.authSession).getUserStreams(null, null, null, null, null, null, null, null);
 
     assertNotNull(response);
     assertEquals("cursor123", response.getNextCursor());
     assertEquals(1, response.getStreams().size());
     assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.getStreams().get(0).getId());
-    verify(this.streamSearchApi).listUserStreams(eq("1234"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null));
+    verify(this.streamSearchApi).listUserStreams(eq("1234"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null));
   }
 
   @Test
   void getUserStreamsTestFailed() {
     this.mockApiClient.onGet(400, V4_USER_STREAMS, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.getUserStreams(10, false, true, "WHATSAPP", true, false, "cursor000"));
+    assertThrows(ApiRuntimeException.class, () -> this.service.getUserStreams(10, false, true, "WHATSAPP", true, false, true, "cursor000"));
   }
 
   @Test
@@ -589,7 +589,7 @@ public class StreamServiceTest {
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         this.streamSearchApi, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(IllegalStateException.class, () -> this.service.getUserStreams(null, null, null, null, null, null, null));
+    assertThrows(IllegalStateException.class, () -> this.service.getUserStreams(null, null, null, null, null, null, null, null));
   }
 
   @Test
@@ -597,13 +597,13 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V4_SEARCH_STREAMS,
         "[{\"id\": \"p9B316LKDto7iOECc8Xuz3qeWsc0bdA\", \"active\": true}]");
 
-    List<StreamResponse> response = this.service.searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), false, true, "WHATSAPP", true, false);
+    List<StreamResponse> response = this.service.searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), false, true, "WHATSAPP", true, false, true);
 
     assertNotNull(response);
     assertEquals(1, response.size());
     assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.get(0).getId());
     assertTrue(response.get(0).getActive());
-    verify(this.streamSearchApi).getStreamsSearch(eq("1234"), eq(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA")), eq(false), eq(true), eq("WHATSAPP"), eq(true), eq(false));
+    verify(this.streamSearchApi).getStreamsSearch(eq("1234"), eq(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA")), eq(false), eq(true), eq("WHATSAPP"), eq(true), eq(false), eq(true));
   }
 
   @Test
@@ -613,19 +613,19 @@ public class StreamServiceTest {
 
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         this.streamSearchApi, new RetryWithRecoveryBuilder<>());
-    List<StreamResponse> response = this.service.obo(this.authSession).searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), null, null, null, null, null);
+    List<StreamResponse> response = this.service.obo(this.authSession).searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), null, null, null, null, null, null);
 
     assertNotNull(response);
     assertEquals(1, response.size());
     assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.get(0).getId());
-    verify(this.streamSearchApi).getStreamsSearch(eq("1234"), eq(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA")), eq(null), eq(null), eq(null), eq(null), eq(null));
+    verify(this.streamSearchApi).getStreamsSearch(eq("1234"), eq(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA")), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null));
   }
 
   @Test
   void searchStreamsTestFailed() {
     this.mockApiClient.onGet(400, V4_SEARCH_STREAMS, "{}");
 
-    assertThrows(ApiRuntimeException.class, () -> this.service.searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), false, true, "WHATSAPP", true, false));
+    assertThrows(ApiRuntimeException.class, () -> this.service.searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), false, true, "WHATSAPP", true, false, true));
   }
 
   @Test
@@ -633,7 +633,7 @@ public class StreamServiceTest {
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
         this.streamSearchApi, new RetryWithRecoveryBuilder<>());
 
-    assertThrows(IllegalStateException.class, () -> this.service.searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), null, null, null, null, null));
+    assertThrows(IllegalStateException.class, () -> this.service.searchStreams(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), null, null, null, null, null, null));
   }
 
   @Test

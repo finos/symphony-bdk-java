@@ -521,9 +521,9 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
   @Override
   public StreamArrayResponse getUserStreams(@Nullable Integer limit, @Nullable Boolean includeHidden,
       @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal,
-      @Nullable String cursor) {
+      @Nullable Boolean includeAgentStreams, @Nullable String cursor) {
     return executeAndRetry("getUserStreams", streamSearchApi.getApiClient().getBasePath(),
-        () -> streamSearchApi.listUserStreams(authSession.getSessionToken(), limit, includeHidden, onlyUnread, channel, external, internal, cursor));
+        () -> streamSearchApi.listUserStreams(authSession.getSessionToken(), limit, includeHidden, onlyUnread, channel, external, internal, includeAgentStreams, cursor));
   }
 
   /**
@@ -531,9 +531,10 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    */
   @Override
   public List<StreamResponse> searchStreams(List<String> streamIds, @Nullable Boolean includeHidden,
-      @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal) {
+      @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal,
+      @Nullable Boolean includeAgentStreams) {
     return executeAndRetry("searchStreams", streamSearchApi.getApiClient().getBasePath(),
-        () -> streamSearchApi.getStreamsSearch(authSession.getSessionToken(), streamIds, includeHidden, onlyUnread, channel, external, internal));
+        () -> streamSearchApi.getStreamsSearch(authSession.getSessionToken(), streamIds, includeHidden, onlyUnread, channel, external, internal, includeAgentStreams));
   }
 
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {

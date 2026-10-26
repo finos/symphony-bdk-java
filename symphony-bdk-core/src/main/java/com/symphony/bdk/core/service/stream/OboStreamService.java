@@ -252,6 +252,7 @@ public interface OboStreamService {
    * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
    * @param external Filter streams to include external chats.
    * @param internal Filter streams to include internal chats.
+   * @param includeAgentStreams Whether to include AI_AGENT subtype streams in the results.
    * @param cursor Opaque pagination cursor returned as nextCursor by a previous call.
    * @return A {@link StreamArrayResponse} containing the list of active chat streams and next cursor.
    * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List User Streams</a>
@@ -262,6 +263,7 @@ public interface OboStreamService {
       @Nullable String channel,
       @Nullable Boolean external,
       @Nullable Boolean internal,
+      @Nullable Boolean includeAgentStreams,
       @Nullable String cursor);
 
   /**
@@ -273,6 +275,7 @@ public interface OboStreamService {
    * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
    * @param external Filter streams to include external chats.
    * @param internal Filter streams to include internal chats.
+   * @param includeAgentStreams Whether to include AI_AGENT subtype streams in the results.
    * @return A list of {@link StreamResponse} matching the provided IDs and criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/search-streams">Search Streams</a>
    */
@@ -281,6 +284,7 @@ public interface OboStreamService {
       @Nullable Boolean onlyUnread,
       @Nullable String channel,
       @Nullable Boolean external,
-      @Nullable Boolean internal);
+      @Nullable Boolean internal,
+      @Nullable Boolean includeAgentStreams);
 
 }
