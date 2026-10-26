@@ -409,7 +409,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
    *
    * @param messageToUpdate the message to be updated
-   * @param content the update content (attachments are not supported yet)
+   * @param content the update content (attachments and previews are supported only starting from SBE v24.1)
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */
@@ -424,7 +424,7 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
    *
    * @param streamId the ID of the stream where the message to be updated comes from
    * @param messageId the ID of the message to be updated
-   * @param content the update content (attachments are not supported yet)
+   * @param content the update content (attachments and previews are supported only starting from SBE v24.1)
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */

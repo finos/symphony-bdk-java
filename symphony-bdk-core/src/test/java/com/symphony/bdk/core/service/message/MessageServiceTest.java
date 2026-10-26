@@ -97,6 +97,7 @@ class MessageServiceTest {
   private static final String TOKEN = "1234";
 
   private MockApiClient mockApiClient;
+  private ApiClient agentClient;
   private MessageService messageService;
   private StreamsApi streamsApi;
   private AttachmentsApi attachmentsApi;
@@ -116,7 +117,7 @@ class MessageServiceTest {
 
     mockApiClient = new MockApiClient();
     ApiClient podClient = mockApiClient.getApiClient("/pod");
-    ApiClient agentClient = mockApiClient.getApiClient("/agent");
+    agentClient = spy(mockApiClient.getApiClient("/agent"));
 
     templateEngine = mock(TemplateEngine.class);
     streamsApi = spy(new StreamsApi(podClient));
@@ -480,6 +481,133 @@ class MessageServiceTest {
 
     assertEquals(MESSAGE_ID, updateMessage.getMessageId());
     assertEquals(false, updateMessage.getSilent());
+  }
+
+  private Map<String, Object> captureUpdateFormParams(Message message) throws IOException, ApiException {
+    return captureUpdateFormParams(message, null);
+  }
+
+  private Map<String, Object> captureUpdateFormParams(Message message, AuthSession oboSession)
+      throws IOException, ApiException {
+    mockApiClient.onPost(V4_STREAM_MESSAGE_UPDATE.replace("{sid}", STREAM_ID).replace("{mid}", MESSAGE_ID),
+        JsonHelper.readFromClasspath("/message/update_message.json"));
+
+    final V4Message messageToUpdate = new V4Message().stream(new V4Stream().streamId(STREAM_ID)).messageId(MESSAGE_ID);
+
+    final V4Message updateMessage;
+    if (oboSession != null) {
+      updateMessage = this.messageService.obo(oboSession).update(messageToUpdate, message);
+    } else {
+      updateMessage = this.messageService.update(messageToUpdate, message);
+    }
+
+    assertNotNull(updateMessage);
+    assertEquals(MESSAGE_ID, updateMessage.getMessageId());
+
+    final Map<String, String> expectedHeaders = new HashMap<>();
+    expectedHeaders.put("sessionToken", oboSession != null ? oboSession.getSessionToken() : TOKEN);
+    expectedHeaders.put("keyManagerToken", oboSession != null ? oboSession.getKeyManagerToken() : TOKEN);
+
+    final ArgumentCaptor<Map<String, Object>> captor = ArgumentCaptor.forClass(Map.class);
+
+    verify(agentClient)
+        .invokeAPI(
+            eq(String.format("/v4/stream/%s/message/%s/update", STREAM_ID, MESSAGE_ID)),
+            eq("POST"),
+            eq(Collections.emptyList()),
+            isNull(),
+            eq(expectedHeaders),
+            eq(Collections.emptyMap()),
+            captor.capture(),
+            eq("application/json"),
+            eq("multipart/form-data"),
+            eq(new String[0]),
+            any());
+
+    return captor.getValue();
+  }
+
+  @Test
+  void testUpdateWithAttachmentAndPreview() throws IOException, ApiException {
+    final InputStream attachmentStream = IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8);
+    final InputStream previewStream = IOUtils.toInputStream("Preview file", StandardCharsets.UTF_8);
+    final Message content = Message.builder()
+        .content("This is a message update")
+        .addAttachment(attachmentStream, previewStream, "file.txt", "text/plain")
+        .build();
+
+    final Map<String, Object> form = captureUpdateFormParams(content);
+
+    final ApiClientBodyPart[] attachments = (ApiClientBodyPart[]) form.get("attachment");
+    assertNotNull(attachments);
+    assertEquals(1, attachments.length);
+    assertEquals("file.txt", attachments[0].getFilename());
+    assertEquals("text/plain", attachments[0].getContentType());
+
+    final ApiClientBodyPart[] previews = (ApiClientBodyPart[]) form.get("preview");
+    assertNotNull(previews);
+    assertEquals(1, previews.length);
+    assertEquals("preview-file.txt", previews[0].getFilename());
+    assertEquals("text/plain", previews[0].getContentType());
+  }
+
+  @Test
+  void testUpdateWithMultipleAttachments() throws IOException, ApiException {
+    final InputStream firstAttachment = IOUtils.toInputStream("First attached file", StandardCharsets.UTF_8);
+    final InputStream secondAttachment = IOUtils.toInputStream("Second attached file", StandardCharsets.UTF_8);
+    final Message content = Message.builder()
+        .content("This is a message update")
+        .addAttachment(firstAttachment, "file1.txt")
+        .addAttachment(secondAttachment, "file2.txt")
+        .build();
+
+    final Map<String, Object> form = captureUpdateFormParams(content);
+
+    final ApiClientBodyPart[] attachments = (ApiClientBodyPart[]) form.get("attachment");
+    assertNotNull(attachments);
+    assertEquals(2, attachments.length);
+    assertEquals("file1.txt", attachments[0].getFilename());
+    assertEquals("file2.txt", attachments[1].getFilename());
+
+    final ApiClientBodyPart[] previews = (ApiClientBodyPart[]) form.get("preview");
+    assertNotNull(previews);
+    assertEquals(0, previews.length);
+  }
+
+  @Test
+  void testUpdateWithTextOnlySendsNoAttachmentOrPreviewParts() throws IOException, ApiException {
+    final Message content = Message.builder().content("This is a message update with text only").build();
+
+    final Map<String, Object> form = captureUpdateFormParams(content);
+
+    final ApiClientBodyPart[] attachments = (ApiClientBodyPart[]) form.get("attachment");
+    assertNotNull(attachments);
+    assertEquals(0, attachments.length);
+
+    final ApiClientBodyPart[] previews = (ApiClientBodyPart[]) form.get("preview");
+    assertNotNull(previews);
+    assertEquals(0, previews.length);
+  }
+
+  @Test
+  void testUpdateWithAttachmentObo() throws IOException, ApiException {
+    final AuthSession oboSession = mock(AuthSession.class);
+    when(oboSession.getSessionToken()).thenReturn("oboSessionToken");
+    when(oboSession.getKeyManagerToken()).thenReturn("oboKmToken");
+
+    final InputStream attachmentStream = IOUtils.toInputStream("Attached file", StandardCharsets.UTF_8);
+    final Message content = Message.builder()
+        .content("This is an OBO message update")
+        .addAttachment(attachmentStream, "obo-file.txt", "text/plain")
+        .build();
+
+    final Map<String, Object> form = captureUpdateFormParams(content, oboSession);
+
+    final ApiClientBodyPart[] attachments = (ApiClientBodyPart[]) form.get("attachment");
+    assertNotNull(attachments);
+    assertEquals(1, attachments.length);
+    assertEquals("obo-file.txt", attachments[0].getFilename());
+    assertEquals("text/plain", attachments[0].getContentType());
   }
 
   @Test
