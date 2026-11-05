@@ -6,6 +6,7 @@
 
 # Symphony BDK for Java
 
+
 > [!NOTE]
 > BDK version 4.0: Major change !
 >
