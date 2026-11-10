@@ -22,9 +22,9 @@ import com.symphony.bdk.gen.api.model.RoomDetail;
 import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamArrayResponse;
-import com.symphony.bdk.gen.api.model.StreamResponse;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
+import com.symphony.bdk.gen.api.model.StreamSubtype;
 import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V1IMAttributes;
 import com.symphony.bdk.gen.api.model.V1IMDetail;
@@ -519,22 +519,12 @@ public class StreamService implements OboStreamService, OboService<OboStreamServ
    * {@inheritDoc}
    */
   @Override
-  public StreamArrayResponse getUserStreams(@Nullable Integer limit, @Nullable Boolean includeHidden,
-      @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal,
-      @Nullable Boolean includeAgentStreams, @Nullable String cursor) {
-    return executeAndRetry("getUserStreams", streamSearchApi.getApiClient().getBasePath(),
-        () -> streamSearchApi.listUserStreams(authSession.getSessionToken(), limit, includeHidden, onlyUnread, channel, external, internal, includeAgentStreams, cursor));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public List<StreamResponse> searchStreams(List<String> streamIds, @Nullable Boolean includeHidden,
-      @Nullable Boolean onlyUnread, @Nullable String channel, @Nullable Boolean external, @Nullable Boolean internal,
-      @Nullable Boolean includeAgentStreams) {
-    return executeAndRetry("searchStreams", streamSearchApi.getApiClient().getBasePath(),
-        () -> streamSearchApi.getStreamsSearch(authSession.getSessionToken(), streamIds, includeHidden, onlyUnread, channel, external, internal, includeAgentStreams));
+  public StreamArrayResponse listStreamsInfo(@Nullable List<String> streamIds, @Nullable Integer limit,
+      @Nullable String lastStreamId, @Nullable Boolean includeHidden, @Nullable Boolean onlyUnread,
+      @Nullable String channel, @Nullable String origin, @Nullable List<StreamSubtype> includeSubtypes) {
+    return executeAndRetry("listStreamsInfo", streamSearchApi.getApiClient().getBasePath(),
+        () -> streamSearchApi.listStreamsInfo(authSession.getSessionToken(), streamIds, limit, lastStreamId,
+            includeHidden, onlyUnread, channel, origin, includeSubtypes));
   }
 
   private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {

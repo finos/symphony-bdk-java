@@ -7,8 +7,8 @@ import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
+import com.symphony.bdk.gen.api.model.StreamSubtype;
 import com.symphony.bdk.gen.api.model.StreamArrayResponse;
-import com.symphony.bdk.gen.api.model.StreamResponse;
 import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
@@ -244,47 +244,39 @@ public interface OboStreamService {
   String getStreamContext(String streamId);
 
   /**
-   * Lists the authenticated user's active chat streams matching specified filtering criteria.
+   * Lists the authenticated user's streams matching specified filtering criteria.
+   * <p>
+   * Two modes:
+   * <ul>
+   *   <li>Without {@code streamIds}: lists the user's active streams, most recently active first, one page at a time
+   *   using {@code limit} and {@code lastStreamId}.</li>
+   *   <li>With {@code streamIds}: returns only the requested streams the user is authorized to access, in a single
+   *   response. {@code limit} is ignored, {@code lastStreamId} must not be set and {@code nextStreamId} is never
+   *   returned. Inaccessible or unknown ids are silently dropped.</li>
+   * </ul>
    *
-   * @param limit The maximum number of streams to return (maximum 100).
+   * @param streamIds List of stream IDs to restrict the result to (maximum 50 allowed). Cannot be combined with
+   *                  {@code lastStreamId}.
+   * @param limit The maximum number of streams to return (maximum 100). Ignored when {@code streamIds} is set.
+   * @param lastStreamId Last stream id received from the previous call, as returned in {@code nextStreamId}.
    * @param includeHidden Whether to include hidden streams in the results.
    * @param onlyUnread If true, only returns streams that contain unread messages.
    * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
-   * @param external Filter streams to include external chats.
-   * @param internal Filter streams to include internal chats.
-   * @param includeAgentStreams Whether to include AI_AGENT subtype streams in the results.
-   * @param cursor Opaque pagination cursor returned as nextCursor by a previous call.
-   * @return A {@link StreamArrayResponse} containing the list of active chat streams and next cursor.
-   * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List User Streams</a>
+   * @param origin Origin of the streams: {@code INTERNAL} or {@code EXTERNAL}. If not set, both internal and
+   *               external streams are returned.
+   * @param includeSubtypes Stream subtypes to restrict the result to: only streams of these subtypes are returned.
+   *                        If not set, only regular streams are returned, INVISIBLE and AI_AGENT streams are
+   *                        excluded.
+   * @return A {@link StreamArrayResponse} containing the matching streams and the next stream id, if any.
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-streams-info">List Streams Info</a>
    */
-  StreamArrayResponse getUserStreams(@Nullable Integer limit,
+  StreamArrayResponse listStreamsInfo(@Nullable List<String> streamIds,
+      @Nullable Integer limit,
+      @Nullable String lastStreamId,
       @Nullable Boolean includeHidden,
       @Nullable Boolean onlyUnread,
       @Nullable String channel,
-      @Nullable Boolean external,
-      @Nullable Boolean internal,
-      @Nullable Boolean includeAgentStreams,
-      @Nullable String cursor);
-
-  /**
-   * Retrieve streams for a list of stream IDs via query parameters matching specified filtering criteria.
-   *
-   * @param streamIds List of stream IDs (maximum 50 allowed).
-   * @param includeHidden Whether to include hidden streams in the results.
-   * @param onlyUnread If true, only returns streams that contain unread messages.
-   * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
-   * @param external Filter streams to include external chats.
-   * @param internal Filter streams to include internal chats.
-   * @param includeAgentStreams Whether to include AI_AGENT subtype streams in the results.
-   * @return A list of {@link StreamResponse} matching the provided IDs and criteria.
-   * @see <a href="https://developers.symphony.com/restapi/reference/search-streams">Search Streams</a>
-   */
-  List<StreamResponse> searchStreams(List<String> streamIds,
-      @Nullable Boolean includeHidden,
-      @Nullable Boolean onlyUnread,
-      @Nullable String channel,
-      @Nullable Boolean external,
-      @Nullable Boolean internal,
-      @Nullable Boolean includeAgentStreams);
+      @Nullable String origin,
+      @Nullable List<StreamSubtype> includeSubtypes);
 
 }
