@@ -9,9 +9,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -387,6 +389,62 @@ class MessageServiceTest {
     final PaginationAttribute pagination = new PaginationAttribute(2, 2);
     assertNotNull(service.searchMessagesSemantic("query", pagination));
     verify(service).searchMessagesSemantic("query", null, pagination);
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithDateRangeDelegatesToQuery() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service)
+        .searchMessagesSemantic(any(SemanticSearchQuery.class), any(PaginationAttribute.class));
+    final Instant from = Instant.parse("2026-07-23T00:00:00Z");
+    final Instant to = Instant.parse("2026-07-26T00:00:00Z");
+
+    final PaginationAttribute pagination = new PaginationAttribute(2, 2);
+    assertNotNull(service.searchMessagesSemantic("query", STREAM_ID, from, to, pagination));
+    verify(service).searchMessagesSemantic(new SemanticSearchQuery()
+        .text("query")
+        .threadId(STREAM_ID)
+        .fromDate(from.toEpochMilli())
+        .toDate(to.toEpochMilli()), pagination);
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithQuery() throws IOException {
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    final SemanticSearchQuery query = new SemanticSearchQuery()
+        .text("query")
+        .threadId(STREAM_ID)
+        .fromDate(1_700_000_000_000L)
+        .toDate(1_800_000_000_000L)
+        .mode(SemanticSearchQuery.ModeEnum.ADVANCED)
+        .semanticWeight(70)
+        .exactWeight(30);
+    final List<V4Message> messages = messageService.searchMessagesSemantic(query, new PaginationAttribute(0, 10));
+
+    assertEquals(2, messages.size());
+  }
+
+  @Test
+  void testSearchMessagesSemanticAdvancedModeWithoutWeights() {
+    final SemanticSearchQuery query = new SemanticSearchQuery()
+        .text("query")
+        .mode(SemanticSearchQuery.ModeEnum.ADVANCED)
+        .semanticWeight(70);
+
+    assertThrows(IllegalArgumentException.class, () -> messageService.searchMessagesSemantic(query, null));
+  }
+
+  @Test
+  void testSearchMessagesSemanticAdvancedModeWithWeightOutOfRange() {
+    final SemanticSearchQuery query = new SemanticSearchQuery()
+        .text("query")
+        .mode(SemanticSearchQuery.ModeEnum.ADVANCED)
+        .semanticWeight(101)
+        .exactWeight(0);
+
+    assertThrows(IllegalArgumentException.class, () -> messageService.searchMessagesSemantic(query, null));
   }
 
   @Test
@@ -1017,11 +1075,12 @@ class MessageServiceTest {
 
   @Test
   void shouldDelegateSearchMessagesSemanticToOverrideWhenRegistered() throws Exception {
+    // only the legacy method is stubbed, the default query-based method is really called
     com.symphony.bdk.core.extension.MessageRetrieverOverride override =
-        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class, CALLS_REAL_METHODS);
     V4Message expected = new V4Message().messageId("override-semantic-msg");
-    when(override.searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull()))
-        .thenReturn(Collections.singletonList(expected));
+    doReturn(Collections.singletonList(expected)).when(override)
+        .searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull());
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
@@ -1036,13 +1095,14 @@ class MessageServiceTest {
 
   @Test
   void shouldDelegateSearchMessagesSemanticWithDateRangeToOverrideWhenRegistered() throws Exception {
+    // only the date range method is stubbed, the default query-based method is really called
     com.symphony.bdk.core.extension.MessageRetrieverOverride override =
-        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class, CALLS_REAL_METHODS);
     final Instant from = Instant.parse("2026-07-23T00:00:00Z");
     final Instant to = Instant.parse("2026-07-26T00:00:00Z");
     V4Message expected = new V4Message().messageId("override-semantic-msg");
-    when(override.searchMessagesSemantic(eq(authSession), eq("query"), isNull(), eq(from), eq(to), isNull()))
-        .thenReturn(Collections.singletonList(expected));
+    doReturn(Collections.singletonList(expected)).when(override)
+        .searchMessagesSemantic(eq(authSession), eq("query"), isNull(), eq(from), eq(to), isNull());
 
     MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
         podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
@@ -1085,6 +1145,81 @@ class MessageServiceTest {
 
     assertThrows(UnsupportedOperationException.class, () -> override.searchMessagesSemantic(authSession, "query",
         null, Instant.parse("2026-07-23T00:00:00Z"), null, null));
+    assertThrows(UnsupportedOperationException.class, () -> override.searchMessagesSemantic(authSession,
+        new SemanticSearchQuery().text("query").fromDate(1_700_000_000_000L), null));
+  }
+
+  @Test
+  void shouldRejectSemanticSearchModeWhenOverrideOnlyImplementsLegacyMethods() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class, CALLS_REAL_METHODS);
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    final SemanticSearchQuery query = new SemanticSearchQuery().text("query").mode(SemanticSearchQuery.ModeEnum.EXACT);
+    RuntimeException thrown =
+        assertThrows(RuntimeException.class, () -> serviceWithOverride.searchMessagesSemantic(query, null));
+
+    assertEquals(com.symphony.bdk.core.extension.exception.BdkExtensionException.class, thrown.getCause().getClass());
+    assertEquals(UnsupportedOperationException.class, thrown.getCause().getCause().getClass());
+    verify(override, never()).searchMessagesSemantic(any(), anyString(), any(), any());
+    verify(override, never()).searchMessagesSemantic(any(), anyString(), any(), any(), any(), any());
+  }
+
+  @Test
+  void shouldIgnoreSemanticSearchWeightsOutsideAdvancedModeWhenOverrideOnlyImplementsLegacyMethods()
+      throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class, CALLS_REAL_METHODS);
+    V4Message expected = new V4Message().messageId("override-semantic-msg");
+    doReturn(Collections.singletonList(expected)).when(override)
+        .searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull());
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    final SemanticSearchQuery query = new SemanticSearchQuery()
+        .text("query")
+        .mode(SemanticSearchQuery.ModeEnum.BALANCED)
+        .semanticWeight(70)
+        .exactWeight(30);
+    List<V4Message> result = serviceWithOverride.searchMessagesSemantic(query, null);
+
+    assertEquals(Collections.singletonList("override-semantic-msg"),
+        result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+    verify(override).searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull());
+  }
+
+  @Test
+  void shouldPassFullSemanticSearchQueryToOverrideWithUrlSafeThreadId() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    when(override.searchMessagesSemantic(eq(authSession), any(SemanticSearchQuery.class), any(PaginationAttribute.class)))
+        .thenReturn(Collections.emptyList());
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    final PaginationAttribute pagination = new PaginationAttribute(0, 10);
+    serviceWithOverride.searchMessagesSemantic(new SemanticSearchQuery()
+        .text("query")
+        .threadId("ab+/")
+        .fromDate(1_700_000_000_000L)
+        .toDate(1_800_000_000_000L)
+        .mode(SemanticSearchQuery.ModeEnum.EXACT), pagination);
+
+    final ArgumentCaptor<SemanticSearchQuery> captor = ArgumentCaptor.forClass(SemanticSearchQuery.class);
+    verify(override).searchMessagesSemantic(eq(authSession), captor.capture(), eq(pagination));
+    final SemanticSearchQuery passed = captor.getValue();
+    assertEquals("query", passed.getText());
+    assertEquals("ab-_", passed.getThreadId());
+    assertEquals(1_700_000_000_000L, passed.getFromDate());
+    assertEquals(1_800_000_000_000L, passed.getToDate());
+    assertEquals(SemanticSearchQuery.ModeEnum.EXACT, passed.getMode());
   }
 
   @Test

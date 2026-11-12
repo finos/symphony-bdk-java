@@ -362,9 +362,20 @@ public class MyMessageRetrieverOverride implements MessageRetrieverOverride {
         PaginationAttribute pagination) throws Exception { /* ... */ }
 
     @Override
+    public List<V4Message> searchMessagesSemantic(AuthSession session, SemanticSearchQuery query,
+        PaginationAttribute pagination) throws Exception { /* ... */ }
+
+    @Override
     public V4Message getMessage(AuthSession session, String messageId) throws Exception { /* ... */ }
 }
 ```
+> :bulb: All `MessageService.searchMessagesSemantic(...)` overloads call the `SemanticSearchQuery`-based method. Its
+> default implementation throws an `UnsupportedOperationException` if the query sets a `mode` other than `balanced`
+> (`semanticWeight` and `exactWeight` only apply in `advanced` mode, and are ignored otherwise). Otherwise, it
+> delegates to the `Instant` date range method when `fromDate` or `toDate` is set (whose default implementation also
+> throws an `UnsupportedOperationException`), or else to the `String`-based one. Override it to support search modes
+> and weights.
+
 > :bulb: If more than one registered extension provides a `MessageRetrieverOverride`, the first one registered is
 > used and a warning is logged.
 

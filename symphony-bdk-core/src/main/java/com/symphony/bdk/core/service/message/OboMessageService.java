@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
+import com.symphony.bdk.gen.api.model.SemanticSearchQuery;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
@@ -11,11 +12,10 @@ import com.symphony.bdk.gen.api.model.V4Stream;
 import com.symphony.bdk.template.api.TemplateEngine;
 
 import org.apiguardian.api.API;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;
-
-import org.jspecify.annotations.Nullable;
 
 /**
  * Service interface exposing OBO-enabled endpoints to manage messages.
@@ -138,7 +138,7 @@ public interface OboMessageService {
    * Sends a message to the stream ID passed in parameter.
    *
    * @param streamId the ID of the stream to send the message to
-   * @param message the MessageML content. Note: <code>&lt;messageML&gt;&lt;/messageML&gt;</code> is automatically appended if not set.
+   * @param message  the MessageML content. Note: <code>&lt;messageML&gt;&lt;/messageML&gt;</code> is automatically appended if not set.
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
@@ -147,8 +147,8 @@ public interface OboMessageService {
   /**
    * Sends a message to the stream ID passed in parameter.
    *
-   * @param stream    the stream to send the message to
-   * @param message   the message to send to the stream
+   * @param stream  the stream to send the message to
+   * @param message the message to send to the stream
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
@@ -157,8 +157,8 @@ public interface OboMessageService {
   /**
    * Sends a message to the stream ID passed in parameter.
    *
-   * @param streamId    the ID of the stream to send the message to
-   * @param message     the message to send to the stream
+   * @param streamId the ID of the stream to send the message to
+   * @param message  the message to send to the stream
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference/create-message-v4">Create Message v4</a>
    */
@@ -178,7 +178,7 @@ public interface OboMessageService {
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
    *
    * @param messageToUpdate the message to be updated
-   * @param content the update content (attachments are not supported yet)
+   * @param content         the update content (attachments are not supported yet)
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */
@@ -187,9 +187,9 @@ public interface OboMessageService {
   /**
    * Update an existing message. The existing message must be a valid social message, that has not been deleted.
    *
-   * @param streamId the ID of the stream where the message to be updated comes from
+   * @param streamId  the ID of the stream where the message to be updated comes from
    * @param messageId the ID of the message to be updated
-   * @param content the update content (attachments are not supported yet)
+   * @param content   the update content (attachments are not supported yet)
    * @return a {@link V4Message} object containing the details of the sent message
    * @see <a href="https://developers.symphony.com/restapi/reference#update-message-v4">Create Update v4</a>
    */
@@ -198,7 +198,7 @@ public interface OboMessageService {
   /**
    * Suppresses a users message based on the messageID pass in parameter.
    *
-   * @param messageId   the ID of the message to suppress
+   * @param messageId the ID of the message to suppress
    * @return a {@link MessageSuppressionResponse} object containing the details of the suppressed message
    * @see <a href="https://developers.symphony.com/restapi/reference/suppress-message">Suppress Message</a>
    */
@@ -226,7 +226,8 @@ public interface OboMessageService {
    * @return the list of attachments in the stream.
    * @see <a href="https://developers.symphony.com/restapi/reference#list-attachments">List Attachments</a>
    */
-  List<StreamAttachmentItem> listAttachments(String streamId, @Nullable Instant since, @Nullable Instant to, @Nullable Integer limit, @Nullable AttachmentSort sort);
+  List<StreamAttachmentItem> listAttachments(String streamId, @Nullable Instant since, @Nullable Instant to,
+      @Nullable Integer limit, @Nullable AttachmentSort sort);
 
   /**
    * Retrieves a list of supported file extensions for attachments.
@@ -298,4 +299,23 @@ public interface OboMessageService {
    */
   List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId, @Nullable Instant from,
       @Nullable Instant to, @Nullable PaginationAttribute pagination);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * <p>On top of the text and stream, the query can restrict the search to a time range
+   * ({@code fromDate}/{@code toDate}, epoch milliseconds) and select the hybrid ranking {@code mode}. When
+   * {@code mode} is {@code advanced}, both {@code semanticWeight} and {@code exactWeight} (0 to 100) must be set.
+   * In any other mode, {@code semanticWeight} and {@code exactWeight} are ignored.
+   *
+   * @param query      the semantic search query.
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @throws IllegalArgumentException if {@code fromDate} is not before {@code toDate}, or if {@code mode} is
+   *                                  {@code advanced} and a weight is missing or out of range.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(SemanticSearchQuery query, @Nullable PaginationAttribute pagination);
 }
