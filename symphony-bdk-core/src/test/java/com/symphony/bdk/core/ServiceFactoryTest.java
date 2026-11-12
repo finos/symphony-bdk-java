@@ -58,6 +58,7 @@ public class ServiceFactoryTest {
     when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);
     when(this.apiClientFactory.getUsersClient()).thenReturn(mock(ApiClient.class));
     when(this.apiClientFactory.getAgentClient()).thenReturn(mock(ApiClient.class));
+    when(this.apiClientFactory.getStreamClient()).thenReturn(mock(ApiClient.class));
 
     ApiClient datafeedAgentClient = mock(ApiClient.class);
     when(datafeedAgentClient.getBasePath()).thenReturn("/agent");
@@ -83,6 +84,7 @@ public class ServiceFactoryTest {
   void getStreamServiceTest() {
     StreamService streamService = this.serviceFactory.getStreamService();
     assertNotNull(streamService);
+    verify(this.apiClientFactory).getStreamClient();
   }
 
   @Test

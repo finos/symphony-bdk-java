@@ -59,6 +59,14 @@ public class BdkCoreConfig {
     return client;
   }
 
+  @Bean(name = "streamApiClient")
+  public ApiClient streamApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession,
+      BdkConfig config) {
+    ApiClient client = apiClientFactory.getStreamClient();
+    addCommonJwtConfig(client, botSession, config);
+    return client;
+  }
+
   @Bean(name = "datafeedAgentApiClient")
   public ApiClient datafeedAgentApiClient(ApiClientFactory apiClientFactory, Optional<AuthSession> botSession,
       BdkConfig config) {

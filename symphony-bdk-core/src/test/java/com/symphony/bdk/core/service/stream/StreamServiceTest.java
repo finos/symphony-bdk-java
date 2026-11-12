@@ -3,6 +3,8 @@ package com.symphony.bdk.core.service.stream;
 import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,13 +24,16 @@ import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.MessagesApi;
+import com.symphony.bdk.gen.api.StreamSearchApi;
 import com.symphony.bdk.gen.api.StreamsApi;
 import com.symphony.bdk.gen.api.model.MemberInfo;
 import com.symphony.bdk.gen.api.model.RoomDetail;
 import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
+import com.symphony.bdk.gen.api.model.StreamArrayResponse;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
+import com.symphony.bdk.gen.api.model.StreamSubtype;
 import com.symphony.bdk.gen.api.model.StreamType;
 import com.symphony.bdk.gen.api.model.UserId;
 import com.symphony.bdk.gen.api.model.V1IMAttributes;
@@ -80,6 +85,7 @@ public class StreamServiceTest {
   private static final String V3_ROOM_UPDATE = "/pod/v3/room/{id}/update";
   private static final String V3_SHARE = "/agent/v3/stream/{sid}/share";
   private static final String V1_STREAM_CONTEXT = "/agent/v1/stream/{sid}/context";
+  private static final String V4_STREAMS_INFO = "/v4/streams/info";
 
   private StreamService service;
   private MockApiClient mockApiClient;
@@ -87,6 +93,7 @@ public class StreamServiceTest {
   private AuthSession authSession;
   private StreamsApi streamsApi;
   private MessagesApi messagesApi;
+  private StreamSearchApi streamSearchApi;
   private ShareApi shareApi;
 
   @BeforeEach
@@ -95,13 +102,15 @@ public class StreamServiceTest {
     this.authSession = mock(AuthSession.class);
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
+    ApiClient streamClient = mockApiClient.getApiClient("");
 
     this.spyRoomMembershipApi = spy(new RoomMembershipApi(podClient));
     this.streamsApi = spy(new StreamsApi(podClient));
     this.shareApi = new ShareApi(agentClient);
     this.messagesApi = new MessagesApi(agentClient);
+    this.streamSearchApi = spy(new StreamSearchApi(streamClient));
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
-        this.authSession, new RetryWithRecoveryBuilder<>());
+        this.streamSearchApi, this.authSession, new RetryWithRecoveryBuilder<>());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
@@ -110,7 +119,7 @@ public class StreamServiceTest {
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
-        new RetryWithRecoveryBuilder<>());
+        this.streamSearchApi, new RetryWithRecoveryBuilder<>());
 
     assertThrows(IllegalStateException.class, () -> this.service.getStream(""));
   }
@@ -121,7 +130,7 @@ public class StreamServiceTest {
         JsonHelper.readFromClasspath("/stream/v2_stream_attributes.json"));
 
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
-        new RetryWithRecoveryBuilder<>());
+        this.streamSearchApi, new RetryWithRecoveryBuilder<>());
     V2StreamAttributes stream = this.service.obo(this.authSession).getStream("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
     assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", stream.getId());
@@ -524,7 +533,7 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(V1_STREAM_CONTEXT.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "\"Markdown Context\"");
 
     this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
-        new RetryWithRecoveryBuilder<>());
+        this.streamSearchApi, new RetryWithRecoveryBuilder<>());
     String context = this.service.obo(this.authSession).getStreamContext("p9B316LKDto7iOECc8Xuz3qeWsc0bdA");
 
     assertEquals("Markdown Context", context);
@@ -535,6 +544,66 @@ public class StreamServiceTest {
     this.mockApiClient.onGet(400, V1_STREAM_CONTEXT.replace("{sid}", "p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), "{}");
 
     assertThrows(ApiRuntimeException.class, () -> this.service.getStreamContext("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"));
+  }
+
+  @Test
+  void listStreamsInfoTest() throws ApiException {
+    this.mockApiClient.onGet(V4_STREAMS_INFO,
+        "{\"streams\": [{\"id\": \"p9B316LKDto7iOECc8Xuz3qeWsc0bdA\", \"active\": true}], \"nextStreamId\": \"stream123\"}");
+
+    StreamArrayResponse response = this.service.listStreamsInfo(null, 10, "stream000", false, true, "WHATSAPP", "INTERNAL", List.of(StreamSubtype.AI_AGENT));
+
+    assertNotNull(response);
+    assertEquals("stream123", response.getNextStreamId());
+    assertEquals(1, response.getStreams().size());
+    assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.getStreams().get(0).getId());
+    assertTrue(response.getStreams().get(0).getActive());
+    verify(this.streamSearchApi).listStreamsInfo(eq("1234"), eq(null), eq(10), eq("stream000"), eq(false), eq(true), eq("WHATSAPP"), eq("INTERNAL"), eq(List.of(StreamSubtype.AI_AGENT)));
+  }
+
+  @Test
+  void listStreamsInfoWithStreamIdsTest() throws ApiException {
+    this.mockApiClient.onGet(V4_STREAMS_INFO,
+        "{\"streams\": [{\"id\": \"p9B316LKDto7iOECc8Xuz3qeWsc0bdA\", \"active\": true}]}");
+
+    StreamArrayResponse response = this.service.listStreamsInfo(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA"), null, null, false, true, "WHATSAPP", "INTERNAL", List.of(StreamSubtype.AI_AGENT));
+
+    assertNotNull(response);
+    assertNull(response.getNextStreamId());
+    assertEquals(1, response.getStreams().size());
+    assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.getStreams().get(0).getId());
+    verify(this.streamSearchApi).listStreamsInfo(eq("1234"), eq(List.of("p9B316LKDto7iOECc8Xuz3qeWsc0bdA")), eq(null), eq(null), eq(false), eq(true), eq("WHATSAPP"), eq("INTERNAL"), eq(List.of(StreamSubtype.AI_AGENT)));
+  }
+
+  @Test
+  void listStreamsInfoInOboMode() throws ApiException {
+    this.mockApiClient.onGet(V4_STREAMS_INFO,
+        "{\"streams\": [{\"id\": \"p9B316LKDto7iOECc8Xuz3qeWsc0bdA\", \"active\": true}], \"nextStreamId\": \"stream123\"}");
+
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
+        this.streamSearchApi, new RetryWithRecoveryBuilder<>());
+    StreamArrayResponse response = this.service.obo(this.authSession).listStreamsInfo(null, null, null, null, null, null, null, null);
+
+    assertNotNull(response);
+    assertEquals("stream123", response.getNextStreamId());
+    assertEquals(1, response.getStreams().size());
+    assertEquals("p9B316LKDto7iOECc8Xuz3qeWsc0bdA", response.getStreams().get(0).getId());
+    verify(this.streamSearchApi).listStreamsInfo(eq("1234"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null));
+  }
+
+  @Test
+  void listStreamsInfoTestFailed() {
+    this.mockApiClient.onGet(400, V4_STREAMS_INFO, "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.listStreamsInfo(null, 10, "stream000", false, true, "WHATSAPP", "INTERNAL", List.of(StreamSubtype.AI_AGENT)));
+  }
+
+  @Test
+  void listStreamsInfoShouldThrowExceptionWhenNoSession() {
+    this.service = new StreamService(this.streamsApi, this.spyRoomMembershipApi, this.shareApi, this.messagesApi,
+        this.streamSearchApi, new RetryWithRecoveryBuilder<>());
+
+    assertThrows(IllegalStateException.class, () -> this.service.listStreamsInfo(null, null, null, null, null, null, null, null));
   }
 
   @Test

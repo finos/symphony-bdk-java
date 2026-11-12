@@ -7,15 +7,18 @@ import com.symphony.bdk.gen.api.model.ShareContent;
 import com.symphony.bdk.gen.api.model.Stream;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
+import com.symphony.bdk.gen.api.model.StreamSubtype;
+import com.symphony.bdk.gen.api.model.StreamArrayResponse;
 import com.symphony.bdk.gen.api.model.V2Message;
 import com.symphony.bdk.gen.api.model.V2RoomSearchCriteria;
 import com.symphony.bdk.gen.api.model.V2StreamAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomAttributes;
 import com.symphony.bdk.gen.api.model.V3RoomDetail;
 import com.symphony.bdk.gen.api.model.V3RoomSearchResults;
-import org.apiguardian.api.API;
 
+import org.apiguardian.api.API;
 import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 /**
@@ -31,7 +34,7 @@ public interface OboStreamService {
    * @return The created IM
    * @see <a href="https://developers.symphony.com/restapi/reference/create-im-or-mim">Create IM or MIM</a>
    */
-   Stream create(Long... uids);
+  Stream create(Long... uids);
 
   /**
    * Create a new single or multi party instant message conversation between the caller and specified users.
@@ -65,7 +68,7 @@ public interface OboStreamService {
   /**
    * {@link StreamService#getStream(String)}
    *
-   * @param streamId    The stream id.
+   * @param streamId The stream id.
    * @return The information about the stream with the given id.
    * @see <a href="https://developers.symphony.com/restapi/reference/stream-info-v2">Stream Info V2</a>
    */
@@ -83,7 +86,7 @@ public interface OboStreamService {
   /**
    * {@link StreamService#listStreams(StreamFilter)}
    *
-   * @param filter      The stream searching criteria.
+   * @param filter The stream searching criteria.
    * @return The list of streams retrieved according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
@@ -92,8 +95,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#listStreams(StreamFilter, PaginationAttribute)}
    *
-   * @param filter      The stream searching criteria.
-   * @param pagination  The skip and limit for pagination.
+   * @param filter     The stream searching criteria.
+   * @param pagination The skip and limit for pagination.
    * @return The list of streams retrieved according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
@@ -112,8 +115,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#listAllStreams(StreamFilter, StreamPaginationAttribute)}
    *
-   * @param filter      The stream searching criteria.
-   * @param pagination  The chunkSize and totalSize for pagination.
+   * @param filter     The stream searching criteria.
+   * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link java.util.stream.Stream} of matching streams according to the searching criteria.
    * @see <a href="https://developers.symphony.com/restapi/reference/list-user-streams">List Streams</a>
    */
@@ -175,8 +178,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#addMemberToRoom(Long, String)}
    *
-   * @param userId      The id of the user to be added to the given room
-   * @param roomId      The room id
+   * @param userId The id of the user to be added to the given room
+   * @param roomId The room id
    * @see <a href="https://developers.symphony.com/restapi/reference/add-member">Add Member</a>
    */
   void addMemberToRoom(Long userId, String roomId);
@@ -184,8 +187,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#removeMemberFromRoom(Long, String)}
    *
-   * @param userId      The id of the user to be removed from the given room
-   * @param roomId      The room id
+   * @param userId The id of the user to be removed from the given room
+   * @param roomId The room id
    * @see <a href="https://developers.symphony.com/restapi/reference/remove-member">Remove Member</a>
    */
   void removeMemberFromRoom(Long userId, String roomId);
@@ -193,8 +196,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#share(String, ShareContent)}
    *
-   * @param streamId    The stream id.
-   * @param content     The third-party {@link ShareContent} to be shared.
+   * @param streamId The stream id.
+   * @param content  The third-party {@link ShareContent} to be shared.
    * @return Message contains share content
    * @see <a href="https://developers.symphony.com/restapi/reference/share-v3">Share</a>
    */
@@ -203,8 +206,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#promoteUserToRoomOwner(Long, String)}
    *
-   * @param userId      The id of the user to be promoted to room owner.
-   * @param roomId      The room id.
+   * @param userId The id of the user to be promoted to room owner.
+   * @param roomId The room id.
    * @see <a href="https://developers.symphony.com/restapi/reference/promote-owner">Promote Owner</a>
    */
   void promoteUserToRoomOwner(Long userId, String roomId);
@@ -212,8 +215,8 @@ public interface OboStreamService {
   /**
    * {@link StreamService#demoteUserToRoomParticipant(Long, String)}
    *
-   * @param userId      The id of the user to be demoted to room participant.
-   * @param roomId      The room id.
+   * @param userId The id of the user to be demoted to room participant.
+   * @param roomId The room id.
    * @see <a href="https://developers.symphony.com/restapi/reference/demote-owner">Demote Owner</a>
    */
   void demoteUserToRoomParticipant(Long userId, String roomId);
@@ -230,13 +233,50 @@ public interface OboStreamService {
   /**
    * Return a representation of the conversation in Markdown format
    * Returned data includes :
-   *  - stream title
-   *  - stream properties
-   *  - stream members
-   *  - stream last messages
+   * - stream title
+   * - stream properties
+   * - stream members
+   * - stream last messages
    *
    * @param streamId
    * @return A String containing markdown representation of the conversation
    */
   String getStreamContext(String streamId);
+
+  /**
+   * Lists the authenticated user's streams matching specified filtering criteria.
+   * <p>
+   * Two modes:
+   * <ul>
+   *   <li>Without {@code streamIds}: lists the user's active streams, most recently active first, one page at a time
+   *   using {@code limit} and {@code lastStreamId}.</li>
+   *   <li>With {@code streamIds}: returns only the requested streams the user is authorized to access, in a single
+   *   response. {@code limit} is ignored, {@code lastStreamId} must not be set and {@code nextStreamId} is never
+   *   returned. Inaccessible or unknown ids are silently dropped.</li>
+   * </ul>
+   *
+   * @param streamIds List of stream IDs to restrict the result to (maximum 50 allowed). Cannot be combined with
+   *                  {@code lastStreamId}.
+   * @param limit The maximum number of streams to return (maximum 100). Ignored when {@code streamIds} is set.
+   * @param lastStreamId Last stream id received from the previous call, as returned in {@code nextStreamId}.
+   * @param includeHidden Whether to include hidden streams in the results.
+   * @param onlyUnread If true, only returns streams that contain unread messages.
+   * @param channel Filter streams by channel type (e.g. SYMPHONY, WHATSAPP, WCHT...).
+   * @param origin Origin of the streams: {@code INTERNAL} or {@code EXTERNAL}. If not set, both internal and
+   *               external streams are returned.
+   * @param includeSubtypes Stream subtypes to restrict the result to: only streams of these subtypes are returned.
+   *                        If not set, only regular streams are returned, INVISIBLE and AI_AGENT streams are
+   *                        excluded.
+   * @return A {@link StreamArrayResponse} containing the matching streams and the next stream id, if any.
+   * @see <a href="https://developers.symphony.com/restapi/reference/list-streams-info">List Streams Info</a>
+   */
+  StreamArrayResponse listStreamsInfo(@Nullable List<String> streamIds,
+      @Nullable Integer limit,
+      @Nullable String lastStreamId,
+      @Nullable Boolean includeHidden,
+      @Nullable Boolean onlyUnread,
+      @Nullable String channel,
+      @Nullable String origin,
+      @Nullable List<StreamSubtype> includeSubtypes);
+
 }
