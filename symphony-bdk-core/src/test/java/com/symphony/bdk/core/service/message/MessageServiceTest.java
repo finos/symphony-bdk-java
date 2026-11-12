@@ -3,6 +3,7 @@ package com.symphony.bdk.core.service.message;
 import static com.symphony.bdk.core.util.IdUtil.fromUrlSafeId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -38,6 +39,7 @@ import com.symphony.bdk.gen.api.model.MessageReceiptDetailResponse;
 import com.symphony.bdk.gen.api.model.MessageSearchQuery;
 import com.symphony.bdk.gen.api.model.MessageStatus;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
+import com.symphony.bdk.gen.api.model.SemanticSearchQuery;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4ImportResponse;
 import com.symphony.bdk.gen.api.model.V4Message;
@@ -288,6 +290,82 @@ class MessageServiceTest {
     assertEquals(2, messages.size());
     assertEquals(Arrays.asList("messageId1", "messageId2"),
         messages.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithDateRange() throws Exception {
+    MessagesApi spiedMessagesApi = spy(new MessagesApi(mockApiClient.getApiClient("/agent")));
+    MessageService service = new MessageService(spiedMessagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+    final Instant from = Instant.parse("2026-07-23T00:00:00Z");
+    final Instant to = Instant.parse("2026-07-26T00:00:00Z");
+
+    final List<V4Message> messages = service.searchMessagesSemantic("query", null, from, to, null);
+
+    assertEquals(2, messages.size());
+    ArgumentCaptor<SemanticSearchQuery> queryCaptor = ArgumentCaptor.forClass(SemanticSearchQuery.class);
+    verify(spiedMessagesApi).v4MessageSearchSemanticPost(isNull(), isNull(), eq(TOKEN), eq(TOKEN),
+        queryCaptor.capture());
+    assertEquals("query", queryCaptor.getValue().getText());
+    assertEquals(1784764800000L, queryCaptor.getValue().getFromDate());
+    assertEquals(1785024000000L, queryCaptor.getValue().getToDate());
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithOpenEndedDateRange() throws Exception {
+    MessagesApi spiedMessagesApi = spy(new MessagesApi(mockApiClient.getApiClient("/agent")));
+    MessageService service = new MessageService(spiedMessagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+    final Instant from = Instant.parse("2026-07-23T00:00:00Z");
+
+    service.searchMessagesSemantic("query", STREAM_ID, from, null, new PaginationAttribute(0, 10));
+
+    ArgumentCaptor<SemanticSearchQuery> queryCaptor = ArgumentCaptor.forClass(SemanticSearchQuery.class);
+    verify(spiedMessagesApi).v4MessageSearchSemanticPost(eq(0), eq(10), eq(TOKEN), eq(TOKEN),
+        queryCaptor.capture());
+    assertEquals(1784764800000L, queryCaptor.getValue().getFromDate());
+    assertNull(queryCaptor.getValue().getToDate());
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithoutDateRangeSendsNoDates() throws Exception {
+    MessagesApi spiedMessagesApi = spy(new MessagesApi(mockApiClient.getApiClient("/agent")));
+    MessageService service = new MessageService(spiedMessagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    service.searchMessagesSemantic("query", STREAM_ID, null);
+
+    ArgumentCaptor<SemanticSearchQuery> queryCaptor = ArgumentCaptor.forClass(SemanticSearchQuery.class);
+    verify(spiedMessagesApi).v4MessageSearchSemanticPost(isNull(), isNull(), eq(TOKEN), eq(TOKEN),
+        queryCaptor.capture());
+    assertNull(queryCaptor.getValue().getFromDate());
+    assertNull(queryCaptor.getValue().getToDate());
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithInvalidDateRangeThrows() {
+    final Instant date = Instant.parse("2026-07-23T00:00:00Z");
+
+    assertThrows(IllegalArgumentException.class,
+        () -> messageService.searchMessagesSemantic("query", null, date, date, null));
+    assertThrows(IllegalArgumentException.class,
+        () -> messageService.searchMessagesSemantic("query", null, date.plusSeconds(1), date, null));
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithStreamDelegatesWithoutDateRange() {
+    MessageService service = spy(messageService);
+    doReturn(Collections.emptyList()).when(service)
+        .searchMessagesSemantic(anyString(), anyString(), isNull(), isNull(), isNull());
+
+    assertNotNull(service.searchMessagesSemantic("query", STREAM_ID, null));
+    verify(service).searchMessagesSemantic("query", STREAM_ID, null, null, null);
   }
 
   @Test
@@ -954,6 +1032,59 @@ class MessageServiceTest {
     assertEquals(Collections.singletonList("override-semantic-msg"),
         result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
     verify(override).searchMessagesSemantic(eq(authSession), eq("query"), isNull(), isNull());
+  }
+
+  @Test
+  void shouldDelegateSearchMessagesSemanticWithDateRangeToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    final Instant from = Instant.parse("2026-07-23T00:00:00Z");
+    final Instant to = Instant.parse("2026-07-26T00:00:00Z");
+    V4Message expected = new V4Message().messageId("override-semantic-msg");
+    when(override.searchMessagesSemantic(eq(authSession), eq("query"), isNull(), eq(from), eq(to), isNull()))
+        .thenReturn(Collections.singletonList(expected));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    List<V4Message> result = serviceWithOverride.searchMessagesSemantic("query", null, from, to, null);
+
+    assertEquals(Collections.singletonList("override-semantic-msg"),
+        result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+    verify(override).searchMessagesSemantic(eq(authSession), eq("query"), isNull(), eq(from), eq(to), isNull());
+  }
+
+  @Test
+  void overrideWithoutDateRangeSupport_rejectsSemanticSearchWithDateRange() {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        new com.symphony.bdk.core.extension.MessageRetrieverOverride() {
+          @Override
+          public List<V4Message> listMessages(AuthSession session, String streamId, Instant since, Instant until,
+              PaginationAttribute pagination) {
+            return Collections.emptyList();
+          }
+
+          @Override
+          public List<V4Message> searchMessages(AuthSession session, MessageSearchQuery query,
+              PaginationAttribute pagination, com.symphony.bdk.core.service.message.model.SortDir sortDir) {
+            return Collections.emptyList();
+          }
+
+          @Override
+          public List<V4Message> searchMessagesSemantic(AuthSession session, String query, String streamId,
+              PaginationAttribute pagination) {
+            return Collections.emptyList();
+          }
+
+          @Override
+          public V4Message getMessage(AuthSession session, String messageId) {
+            return null;
+          }
+        };
+
+    assertThrows(UnsupportedOperationException.class, () -> override.searchMessagesSemantic(authSession, "query",
+        null, Instant.parse("2026-07-23T00:00:00Z"), null, null));
   }
 
   @Test

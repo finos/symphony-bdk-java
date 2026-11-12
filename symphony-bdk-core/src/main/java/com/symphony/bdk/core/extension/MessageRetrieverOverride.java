@@ -47,5 +47,16 @@ public interface MessageRetrieverOverride {
   List<V4Message> searchMessagesSemantic(AuthSession session, String query,
       @Nullable String streamId, @Nullable PaginationAttribute pagination) throws Exception;
 
+  /**
+   * Semantic search restricted to a date range, called only when {@code from} or {@code to} is set.
+   *
+   * <p>The default implementation rejects the call, so that overrides predating the date range never
+   * silently return messages outside of it.
+   */
+  default List<V4Message> searchMessagesSemantic(AuthSession session, String query, @Nullable String streamId,
+      @Nullable Instant from, @Nullable Instant to, @Nullable PaginationAttribute pagination) throws Exception {
+    throw new UnsupportedOperationException("Semantic search with a date range is not supported by this override");
+  }
+
   V4Message getMessage(AuthSession session, String messageId) throws Exception;
 }

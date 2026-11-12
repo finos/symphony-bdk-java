@@ -281,4 +281,21 @@ public interface OboMessageService {
    */
   List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId,
       @Nullable PaginationAttribute pagination);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query      the natural-language search query.
+   * @param streamId   the stream to restrict the search to. If {@code null}, all accessible streams are searched.
+   * @param from       only messages sent on or after this instant are returned. If {@code null}, no lower bound.
+   * @param to         only messages sent before this instant are returned. If {@code null}, no upper bound.
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @throws IllegalArgumentException if {@code from} is not before {@code to}.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId, @Nullable Instant from,
+      @Nullable Instant to, @Nullable PaginationAttribute pagination);
 }
