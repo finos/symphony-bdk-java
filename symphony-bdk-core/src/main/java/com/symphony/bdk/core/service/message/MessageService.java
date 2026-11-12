@@ -344,14 +344,30 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId,
       @Nullable PaginationAttribute pagination) {
+    return searchMessagesSemantic(query, streamId, null, null, pagination);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId, @Nullable Instant from,
+      @Nullable Instant to, @Nullable PaginationAttribute pagination) {
+    if (from != null && to != null && !from.isBefore(to)) {
+      throw new IllegalArgumentException("The 'from' instant must be before the 'to' instant.");
+    }
     if (retrieverOverride != null) {
+      // overrides predating the date range only implement the search without it
       return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
-          () -> wrapOverrideException(
-              () -> retrieverOverride.searchMessagesSemantic(authSession, query, streamId, pagination)));
+          () -> wrapOverrideException(() -> from == null && to == null
+              ? retrieverOverride.searchMessagesSemantic(authSession, query, streamId, pagination)
+              : retrieverOverride.searchMessagesSemantic(authSession, query, streamId, from, to, pagination)));
     }
     final SemanticSearchQuery searchQuery = new SemanticSearchQuery()
         .text(query)
-        .threadId(streamId != null ? toUrlSafeIdIfNeeded(streamId) : null);
+        .threadId(streamId != null ? toUrlSafeIdIfNeeded(streamId) : null)
+        .fromDate(from != null ? from.toEpochMilli() : null)
+        .toDate(to != null ? to.toEpochMilli() : null);
     return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v4MessageSearchSemanticPost(
             pagination != null ? pagination.getSkip() : null,
