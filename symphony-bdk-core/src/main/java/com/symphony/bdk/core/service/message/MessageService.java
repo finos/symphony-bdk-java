@@ -12,13 +12,13 @@ import com.symphony.bdk.core.extension.MessageSenderOverride;
 import com.symphony.bdk.core.extension.exception.BdkExtensionException;
 import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
+import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.OboService;
 import com.symphony.bdk.core.service.message.model.Attachment;
 import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.message.model.SortDir;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
-import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.gen.api.AttachmentsApi;
 import com.symphony.bdk.gen.api.DefaultApi;
 import com.symphony.bdk.gen.api.MessageApi;
@@ -47,14 +47,13 @@ import com.symphony.bdk.template.api.TemplateEngine;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apiguardian.api.API;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jspecify.annotations.Nullable;
 
 /**
  * Service class for managing messages.
@@ -353,26 +352,49 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId, @Nullable Instant from,
       @Nullable Instant to, @Nullable PaginationAttribute pagination) {
-    if (from != null && to != null && !from.isBefore(to)) {
-      throw new IllegalArgumentException("The 'from' instant must be before the 'to' instant.");
+    return searchMessagesSemantic(new SemanticSearchQuery()
+        .text(query)
+        .threadId(streamId)
+        .fromDate(from != null ? from.toEpochMilli() : null)
+        .toDate(to != null ? to.toEpochMilli() : null), pagination);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<V4Message> searchMessagesSemantic(SemanticSearchQuery query, @Nullable PaginationAttribute pagination) {
+    validateSemanticSearchQuery(query);
+    if (query.getThreadId() != null) {
+      query.setThreadId(toUrlSafeIdIfNeeded(query.getThreadId()));
     }
     if (retrieverOverride != null) {
-      // overrides predating the date range only implement the search without it
       return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
-          () -> wrapOverrideException(() -> from == null && to == null
-              ? retrieverOverride.searchMessagesSemantic(authSession, query, streamId, pagination)
-              : retrieverOverride.searchMessagesSemantic(authSession, query, streamId, from, to, pagination)));
+          () -> wrapOverrideException(
+              () -> retrieverOverride.searchMessagesSemantic(authSession, query, pagination)));
     }
-    final SemanticSearchQuery searchQuery = new SemanticSearchQuery()
-        .text(query)
-        .threadId(streamId != null ? toUrlSafeIdIfNeeded(streamId) : null)
-        .fromDate(from != null ? from.toEpochMilli() : null)
-        .toDate(to != null ? to.toEpochMilli() : null);
     return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v4MessageSearchSemanticPost(
             pagination != null ? pagination.getSkip() : null,
             pagination != null ? pagination.getLimit() : null,
-            authSession.getSessionToken(), authSession.getKeyManagerToken(), searchQuery));
+            authSession.getSessionToken(), authSession.getKeyManagerToken(), query));
+  }
+
+  private static void validateSemanticSearchQuery(SemanticSearchQuery query) {
+    if (query.getFromDate() != null && query.getToDate() != null && query.getFromDate() >= query.getToDate()) {
+      throw new IllegalArgumentException("The 'from' date must be before the 'to' date.");
+    }
+
+    // advanced mode requires both weights to be provided, within [0, 100]
+    if (query.getMode() == SemanticSearchQuery.ModeEnum.ADVANCED
+        && (!isValidSemanticWeight(query.getSemanticWeight()) || !isValidSemanticWeight(query.getExactWeight()))) {
+      throw new IllegalArgumentException(
+          "Advanced mode requires semanticWeight and exactWeight to be provided, between 0 and 100.");
+    }
+  }
+
+  private static boolean isValidSemanticWeight(@Nullable Integer weight) {
+    return weight != null && weight >= 0 && weight <= 100;
   }
 
   /**

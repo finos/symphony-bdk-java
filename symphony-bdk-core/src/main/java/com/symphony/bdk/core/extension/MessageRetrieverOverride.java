@@ -4,14 +4,14 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.model.SortDir;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.MessageSearchQuery;
+import com.symphony.bdk.gen.api.model.SemanticSearchQuery;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.apiguardian.api.API;
+import org.jspecify.annotations.Nullable;
 
 import java.time.Instant;
 import java.util.List;
-
-import org.jspecify.annotations.Nullable;
 
 /**
  * SPI for replacing all agent-facing message *read* operations in {@code MessageService}.
@@ -56,6 +56,28 @@ public interface MessageRetrieverOverride {
   default List<V4Message> searchMessagesSemantic(AuthSession session, String query, @Nullable String streamId,
       @Nullable Instant from, @Nullable Instant to, @Nullable PaginationAttribute pagination) throws Exception {
     throw new UnsupportedOperationException("Semantic search with a date range is not supported by this override");
+  }
+
+  /**
+   * Called by every {@code MessageService.searchMessagesSemantic(...)} overload. The threadId, if set, is already
+   * URL-safe encoded.
+   * The default implementation routes to the narrower methods, so that overrides predating this method keep working.
+   * The {@code semanticWeight} and {@code exactWeight} only matter when {@code mode} is {@code advanced}, and can be
+   * ignored otherwise.
+   */
+  default List<V4Message> searchMessagesSemantic(AuthSession session, SemanticSearchQuery query,
+      @Nullable PaginationAttribute pagination) throws Exception {
+    // weights only apply in advanced mode, which is itself rejected here
+    if (query.getMode() != null && query.getMode() != SemanticSearchQuery.ModeEnum.BALANCED) {
+      throw new UnsupportedOperationException(
+          "Semantic search with a mode other than balanced is not supported by this override");
+    }
+    if (query.getFromDate() != null || query.getToDate() != null) {
+      return searchMessagesSemantic(session, query.getText(), query.getThreadId(),
+          query.getFromDate() != null ? Instant.ofEpochMilli(query.getFromDate()) : null,
+          query.getToDate() != null ? Instant.ofEpochMilli(query.getToDate()) : null, pagination);
+    }
+    return searchMessagesSemantic(session, query.getText(), query.getThreadId(), pagination);
   }
 
   V4Message getMessage(AuthSession session, String messageId) throws Exception;

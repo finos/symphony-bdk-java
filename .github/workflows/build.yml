@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ 'main', '*-rc' ]
+    branches: [ 'main', '*-rc', 'SEARCH-3361-semantic-search-date-range', 'SEARCH-3337' ]
   pull_request:
     branches: [ 'main', '*-rc' ]
 
@@ -29,13 +29,17 @@ jobs:
       if: github.event_name == 'pull_request'
       run: echo "SNAPSHOT_VERSION=PR-${{ github.event.pull_request.number }}-SNAPSHOT" >> $GITHUB_ENV
 
+    - name: Compute branch SNAPSHOT version
+      if: github.event_name == 'push' && github.ref_name == 'SEARCH-3337'
+      run: echo "SNAPSHOT_VERSION=SEARCH-3337-SNAPSHOT" >> $GITHUB_ENV
+
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2.4.2
       with:
         arguments: build jacocoTestReport jacocoTestCoverageVerification
 
     - name: Publish SNAPSHOT artifacts
-      if: github.event_name == 'pull_request' && env.MAVEN_USERNAME != ''
+      if: env.SNAPSHOT_VERSION != '' && env.MAVEN_USERNAME != ''
       uses: gradle/gradle-build-action@v2.4.2
       with:
         arguments: publishToSonatype -PprojectVersion=${{ env.SNAPSHOT_VERSION }} -PmavenRepoUsername=${{ secrets.MAVEN_USERNAME }} -PmavenRepoPassword=${{ secrets.MAVEN_PASSWORD }}
