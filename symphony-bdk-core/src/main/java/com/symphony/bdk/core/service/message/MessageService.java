@@ -381,7 +381,6 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   }
 
   private static void validateSemanticSearchQuery(SemanticSearchQuery query) {
-    // the date range, if bounded on both ends, must not be empty
     if (query.getFromDate() != null && query.getToDate() != null && query.getFromDate() >= query.getToDate()) {
       throw new IllegalArgumentException("The 'from' date must be before the 'to' date.");
     }

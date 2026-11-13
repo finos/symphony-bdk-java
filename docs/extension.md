@@ -373,8 +373,7 @@ public class MyMessageRetrieverOverride implements MessageRetrieverOverride {
 > default implementation throws an `UnsupportedOperationException` if the query sets a `mode` other than `balanced`
 > (`semanticWeight` and `exactWeight` only apply in `advanced` mode, and are ignored otherwise). Otherwise, it
 > delegates to the `Instant` date range method when `fromDate` or `toDate` is set (whose default implementation also
-> throws an `UnsupportedOperationException`), or else to the `String`-based one. Override it to support search modes
-> and weights.
+> throws an `UnsupportedOperationException`), or else to the `String`-based one.
 
 > :bulb: If more than one registered extension provides a `MessageRetrieverOverride`, the first one registered is
 > used and a warning is logged.
