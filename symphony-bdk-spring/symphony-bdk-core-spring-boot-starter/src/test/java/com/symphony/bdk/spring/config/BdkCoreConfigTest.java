@@ -76,6 +76,20 @@ class BdkCoreConfigTest {
     when(factory.getPodClient()).thenReturn(mock(ApiClient.class));
     assertNotNull(config.podApiClient(factory, Optional.ofNullable(authSession), bdkConfig));
   }
+
+  @Test
+  void shouldCreateUsersApiClient() {
+    final BdkCoreConfig config = new BdkCoreConfig();
+    final BdkConfig bdkConfig = new BdkConfig();
+    BdkCommonJwtConfig bdkCommonJwtConfig = new BdkCommonJwtConfig();
+    bdkCommonJwtConfig.setEnabled(true);
+    bdkConfig.setCommonJwt(bdkCommonJwtConfig);
+    final ApiClientFactory factory = mock(ApiClientFactory.class);
+    final AuthSession authSession = mock(AuthSession.class);
+    when(factory.getUsersClient()).thenReturn(mock(ApiClient.class));
+    assertNotNull(config.usersApiClient(factory, Optional.ofNullable(authSession), bdkConfig));
+  }
+
   @Test
   void shouldCreateKeyAuthApiClient() {
     final BdkCoreConfig config = new BdkCoreConfig();

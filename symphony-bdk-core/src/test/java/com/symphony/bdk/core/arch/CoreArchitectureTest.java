@@ -9,6 +9,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 import static com.tngtech.archunit.library.GeneralCodingRules.*;
 
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
+import com.symphony.bdk.core.service.user.mapper.UserLookupMapper;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -48,6 +49,8 @@ public class CoreArchitectureTest {
     classes()
         .that()
           .doNotImplement(UserDetailMapper.class) // MapStruct generated code cannot be annotated with @API
+        .and()
+          .doNotImplement(UserLookupMapper.class)
         .and()
           .areNotAnonymousClasses()
         .and()

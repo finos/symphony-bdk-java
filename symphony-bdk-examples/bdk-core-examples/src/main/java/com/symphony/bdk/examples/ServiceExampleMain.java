@@ -6,6 +6,7 @@ import com.symphony.bdk.core.SymphonyBdk;
 import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.pagination.model.CursorPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
+import com.symphony.bdk.core.service.user.model.UserListFilter;
 import com.symphony.bdk.gen.api.model.ApplicationDetail;
 import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
@@ -13,8 +14,7 @@ import com.symphony.bdk.gen.api.model.Signal;
 import com.symphony.bdk.gen.api.model.StreamAttributes;
 import com.symphony.bdk.gen.api.model.StreamFilter;
 import com.symphony.bdk.gen.api.model.StreamType;
-import com.symphony.bdk.gen.api.model.UserFilter;
-import com.symphony.bdk.gen.api.model.V2UserDetail;
+import com.symphony.bdk.gen.api.model.UserResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,19 +28,19 @@ public class ServiceExampleMain {
 
     final SymphonyBdk bdk = new SymphonyBdk(loadFromSymphonyDir("config.yaml"));
 
-    final UserFilter filter = new UserFilter()
-        .status(UserFilter.StatusEnum.DISABLED)
-        .feature(UserFeature.canCreatePublicRoom.name());
+    final UserListFilter filter = new UserListFilter()
+        .active(false)
+        .enabledEntitlements(Collections.singletonList(UserFeature.canCreatePublicRoom));
 
     log.info("Get user by filter");
-    final List<V2UserDetail> userDetailList = bdk.users().listUsersDetail(filter);
+    final List<UserResponse> userList = bdk.users().listAllUsers(filter).toList();
 
-    log.info("Retrieve {} records", userDetailList.size());
+    log.info("Retrieve {} records", userList.size());
     log.info("First record: ");
-    log.info(userDetailList.get(0).getUserAttributes().getUserName());
-    log.info("Account type: {}", userDetailList.get(0).getUserAttributes().getAccountType());
-    log.info("Company: {}", userDetailList.get(0).getUserAttributes().getCompanyName());
-    log.info("Role: {}", userDetailList.get(0).getRoles());
+    log.info(userList.get(0).getUsername());
+    log.info("Account type: {}", userList.get(0).getAccountType());
+    log.info("Company: {}", userList.get(0).getCompany());
+    log.info("Role: {}", userList.get(0).getRoles());
 
     AuthSession oboSession = bdk.obo("hong.le");
 

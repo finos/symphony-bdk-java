@@ -173,6 +173,7 @@ class SymphonyBdkAutoConfigurationTest {
       assertThat(context).hasBean("connectionService");
       assertThat(context).hasBean("signalService");
       assertThat(context).hasBean("messageService");
+      assertThat(context).hasBean("sbeUsersApi");
 
       assertThat(context).doesNotHaveBean("oboSessionService");
       assertThat(context).doesNotHaveBean("oboStreamService");
@@ -237,6 +238,11 @@ class SymphonyBdkAutoConfigurationTest {
       ApiClient podClient = (ApiClient) context.getBean("podApiClient");
       assertThat(podClient.getAuthentications()).isNotEmpty();
       assertThat(podClient.getAuthentications()).containsKey("bearerAuth");
+
+      assertThat(context).hasBean("usersApiClient");
+      ApiClient usersClient = (ApiClient) context.getBean("usersApiClient");
+      assertThat(usersClient.getAuthentications()).isNotEmpty();
+      assertThat(usersClient.getAuthentications()).containsKey("bearerAuth");
     });
   }
 

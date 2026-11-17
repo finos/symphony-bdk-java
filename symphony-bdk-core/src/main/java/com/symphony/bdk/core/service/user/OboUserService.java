@@ -19,6 +19,20 @@ import org.jspecify.annotations.Nullable;
 public interface OboUserService {
 
   /**
+   * {@link UserService#listUsersByIds(List, Boolean)}
+   * <p>
+   * Null, non-positive and duplicate ids are dropped, and lists longer than 100 elements, the maximum accepted by the
+   * {@code /v5/users} lookup endpoint, are split into several calls.
+   *
+   * @param uidList List of user ids
+   * @param active  If not set all user status will be returned,
+   *                if true all active users will be returned,
+   *                if false all inactive users will be returned
+   * @return Users found by user ids
+   */
+  List<UserV2> listUsersByIds(List<Long> uidList, @Nullable Boolean active);
+
+  /**
    * {@link UserService#listUsersByIds(List, Boolean, Boolean)}
    *
    * @param uidList List of user ids
@@ -30,17 +44,39 @@ public interface OboUserService {
    *                if false all inactive users will be returned
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
+   * @deprecated Use {@link #listUsersByIds(List, Boolean)} instead, which calls the /v5/users lookup endpoint.
+   *             See the BDK 4.x migration guide for the differences.
    */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   List<UserV2> listUsersByIds(List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active);
 
   /**
    * {@link UserService#listUsersByIds(List)}
+   * <p>
+   * Same as {@link #listUsersByIds(List, Boolean)}, returning users of any status.
    *
    * @param uidList List of user ids
    * @return Users found by user ids
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
    */
   List<UserV2> listUsersByIds(List<Long> uidList);
+
+  /**
+   * {@link UserService#listUsersByEmails(List, Boolean)}
+   * <p>
+   * Values are stripped of surrounding whitespace, null, blank and duplicate (ignoring case) values are dropped, and
+   * lists longer than 100 elements, the maximum accepted by the {@code /v5/users} lookup endpoint, are split into
+   * several calls. A call rejected with a 400 because none of its emails is valid matches no user, so that the users
+   * found by the other calls are still returned. The 400 is raised if every call is rejected.
+   *
+   * @param emailList List of emails
+   * @param active    If not set all user status will be returned,
+   *                  if true all active users will be returned,
+   *                  if false all inactive users will be returned
+   * @return Users found by emails.
+   */
+  List<UserV2> listUsersByEmails(List<String> emailList, @Nullable Boolean active);
 
   /**
    * {@link UserService#listUsersByEmails(List, Boolean, Boolean)}
@@ -54,11 +90,17 @@ public interface OboUserService {
    *                  if false all inactive users will be returned
    * @return Users found by emails.
    * @see <a href="https://developers.symphony.com/restapi/reference/users-lookup-v3">Users Lookup V3</a>
+   * @deprecated Use {@link #listUsersByEmails(List, Boolean)} instead, which calls the /v5/users lookup endpoint.
+   *             See the BDK 4.x migration guide for the differences.
    */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   List<UserV2> listUsersByEmails(List<String> emailList, @Nullable Boolean local, @Nullable Boolean active);
 
   /**
    * {@link UserService#listUsersByEmails(List)}
+   * <p>
+   * Same as {@link #listUsersByEmails(List, Boolean)}, returning users of any status.
    *
    * @param emailList List of emails
    * @return Users found by emails
@@ -68,6 +110,8 @@ public interface OboUserService {
 
   /**
    * {@link UserService#listUsersByUsernames(List, Boolean)}
+   * <p>
+   * Values are prepared and split into several calls as in {@link #listUsersByEmails(List, Boolean)}.
    *
    * @param usernameList List of usernames
    * @param active       If not set all user status will be returned,
@@ -80,6 +124,8 @@ public interface OboUserService {
 
   /**
    * {@link UserService#listUsersByUsernames(List)}
+   * <p>
+   * Same as {@link #listUsersByUsernames(List, Boolean)}, returning users of any status.
    *
    * @param usernameList List of usernames
    * @return Users found by usernames

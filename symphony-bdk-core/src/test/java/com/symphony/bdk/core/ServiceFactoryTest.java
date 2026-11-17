@@ -44,6 +44,7 @@ public class ServiceFactoryTest {
   private ApiClientFactory apiClientFactory;
   private AuthSession mAuthSession;
   private ApiClient mPodClient;
+  private ApiClient mUsersClient;
   private BdkConfig config;
   private UserV2 botInfo;
 
@@ -53,10 +54,11 @@ public class ServiceFactoryTest {
     this.botInfo = mock(UserV2.class);
     this.mAuthSession = mock(AuthSession.class);
     this.mPodClient = mock(ApiClient.class);
+    this.mUsersClient = mock(ApiClient.class);
     this.apiClientFactory = mock(ApiClientFactory.class);
 
     when(this.apiClientFactory.getPodClient()).thenReturn(mPodClient);
-    when(this.apiClientFactory.getUsersClient()).thenReturn(mock(ApiClient.class));
+    when(this.apiClientFactory.getUsersClient()).thenReturn(mUsersClient);
     when(this.apiClientFactory.getAgentClient()).thenReturn(mock(ApiClient.class));
 
     ApiClient datafeedAgentClient = mock(ApiClient.class);
@@ -162,6 +164,8 @@ public class ServiceFactoryTest {
     assertTrue(config.isCommonJwtEnabled());
     verify(mPodClient).getAuthentications();
     verify(mPodClient).addEnforcedAuthenticationScheme(eq("bearerAuth"));
+    verify(mUsersClient).getAuthentications();
+    verify(mUsersClient).addEnforcedAuthenticationScheme(eq("bearerAuth"));
   }
 
   @Test

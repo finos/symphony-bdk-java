@@ -54,8 +54,8 @@ public class Example {
     public static void main(String[] args) {
         // Initialize the BDK entry point
         final SymphonyBdk bdk = new SymphonyBdk(loadFromClasspath("/config.yaml"));
-        // Using users service
-        final List<V2UserDetail> userDetails = bdk.users().listUsersDetail(new UserFilter());
+        // Using users service, to list the first 100 active users of the pod
+        final List<UserResponse> users = bdk.users().listUsers(new UserListFilter().active(true), null, 100).getUsers();
         // Using datafeed service
         bdk.datafeed().start();
     }

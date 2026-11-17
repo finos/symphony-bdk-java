@@ -234,6 +234,110 @@ Boot's dependency management pulls in `symphony-bdk-http-jdk` transitively and t
   `symphony-bdk-http-webclient`) explicitly and declare your own `ApiClientBuilderProvider` bean to keep the previous
   transport.
 
+## 10. `UserService` lookups move to `/v5/users`, the `local` overloads are deprecated
+
+`UserService#listUsersByIds`, `listUsersByEmails` and `listUsersByUsernames` (and their `OboUserService`
+counterparts) now call the `/v5/users` lookup endpoint instead of `/pod/v3/users`, except for the overloads taking a
+`local` parameter. Those are deprecated and will be removed in a future major version. They keep calling
+`/pod/v3/users` unchanged in the meantime. Drop the `local` argument to move to `/v5/users`:
+
+- `listUsersByIds(List<Long> uidList, Boolean local, Boolean active)` → `listUsersByIds(List<Long> uidList, Boolean active)`
+- `listUsersByEmails(List<String> emailList, Boolean local, Boolean active)` → `listUsersByEmails(List<String> emailList, Boolean active)`
+
+`searchUsers` and `searchAllUsers` still accept `local`.
+
+On `/v5/users`, the caller no longer chooses whether users are looked up locally or in Directory:
+
+- IDs of the caller's pod are resolved locally, IDs from other pods through Directory, as `/pod/v3/users` did without
+  `local=true`.
+- Emails are matched against the caller's pod first, and only those without a local match are looked up in Directory.
+  `/pod/v3/users` without `local=true` looked up every email in Directory.
+- Usernames are only resolved in the caller's pod, as before.
+- Directory lookups only return users when the caller is entitled to external IMs or external rooms.
+- `active` also filters the users found in Directory, `/pod/v3/users` only applied it to the caller's pod.
+
+This also applies to the `listUsersByIds(List<Long>)` and `listUsersByEmails(List<String>)` overloads, which
+previously always passed `local=false`.
+
+Values are deduplicated and sent in batches of 100, so lists longer than 100 elements, which `/pod/v3/users` rejected
+with a 400, are now accepted. An empty list returns no user without calling the endpoint. A batch in which every email
+is malformed matches no user, unless every batch is rejected, in which case the 400 is raised as an
+`ApiRuntimeException`.
+
+`OboUserService` gained the `listUsersByIds(List<Long>, Boolean)` and `listUsersByEmails(List<String>, Boolean)`
+methods. Classes implementing `OboUserService` themselves must implement them too.
+
+`/v5/users` is served from the pod root rather than `/pod`, so `UserService` now also takes a `SbeUsersApi` built on
+`ApiClientFactory#getUsersClient()`. Both public constructors gained a `SbeUsersApi` parameter after `AuditTrailApi`:
+
+- `UserService(UserApi, UsersApi, AuditTrailApi, AuthSession, RetryWithRecoveryBuilder)` → `UserService(UserApi, UsersApi, AuditTrailApi, SbeUsersApi, AuthSession, RetryWithRecoveryBuilder)`
+- `UserService(UserApi, UsersApi, AuditTrailApi, RetryWithRecoveryBuilder)` → `UserService(UserApi, UsersApi, AuditTrailApi, SbeUsersApi, RetryWithRecoveryBuilder)`
+
+This only affects code that instantiates `UserService` directly, e.g. a custom `userService` or `oboUserService` bean.
+`SymphonyBdk#users()` and the Spring Boot starter are already wired, and the starter exposes a `SbeUsersApi` bean
+built on its `usersApiClient` bean.
+
+The generated `ClientDataApi` class is removed: its `getClientData` operation is now generated on `SbeUsersApi`, with
+the same signature. Code calling it directly should build a `SbeUsersApi` on the same `ApiClient` instead, or use
+`ClientDataService`.
+
+## 11. `UserService#listUsersDetail` and `listAllUsersDetail` deprecated in favor of `listUsers` and `listAllUsers`
+
+The `listUsersDetail` and `listAllUsersDetail` overloads, which call `/pod/v2/admin/user/list` and
+`/pod/v1/admin/user/find`, are deprecated and will be removed in a future major version. They keep working
+unchanged, so you can migrate gradually.
+
+Their replacements are `UserService#listUsers`, which returns one page, and `UserService#listAllUsers`, which returns
+a `Stream` over the pages. They call the `/v5/users/list` endpoint, which pages on the user ID rather than with skip
+and limit. It requires the Administrator, Super Administrator or User Provisioning role, where the deprecated methods
+only accepted User Provisioning.
+
+`/v5/users/list` only returns normal users and service accounts. SDL accounts, which `/pod/v2/admin/user/list`
+returned too, are left out.
+
+| Deprecated | Replacement |
+|------------|-------------|
+| `listUsersDetail()` | `listUsers(null, null, 100)`, as `listUsers` returns 50 users when no `limit` is given |
+| `listUsersDetail(PaginationAttribute)` | `listUsers(null, lastUserId, limit)` |
+| `listAllUsersDetail()`, `listAllUsersDetail(StreamPaginationAttribute)` | `listAllUsers(null)`, `listAllUsers(null, pagination)` |
+| `listUsersDetail(UserFilter)`, `listUsersDetail(UserFilter, PaginationAttribute)` | `listUsers(UserListFilter, lastUserId, limit)` |
+| `listAllUsersDetail(UserFilter)`, `listAllUsersDetail(UserFilter, StreamPaginationAttribute)` | `listAllUsers(UserListFilter)`, `listAllUsers(UserListFilter, pagination)` |
+
+`listUsers` takes the `lastUserId` of the previous page instead of a skip, and returns at most 100 users per page: a
+larger `limit` is reduced to 100. Keep paging while `getHasNext()` is true.
+
+Like `listAllUsersDetail()`, `listAllUsers(filter)` stops after 100 users. Pass a `StreamPaginationAttribute` with a
+larger total size to `listAllUsers(filter, pagination)` to retrieve more.
+
+`UserListFilter` replaces the generated `UserFilter`:
+
+- `role(String)` → `roles(List<RoleId>)`, matching users having at least one of the roles. Use
+  `roleNames(List<String>)` for roles not listed in `RoleId`.
+- `feature(String)` → `enabledEntitlements(List<UserFeature>)`, matching users having all of the entitlements
+  enabled. Use `enabledEntitlementNames(List<String>)` for entitlements not listed in `UserFeature`.
+- `status(ENABLED | DISABLED)` → `active(true | false)`.
+- New: `disabledEntitlements(List<UserFeature>)` (or `disabledEntitlementNames(List<String>)`), matching users
+  having all of the entitlements disabled.
+- New: `userId`, `createdDateFrom` and `createdDateTo`.
+
+Role and entitlement names are not validated: an unknown role or enabled entitlement matches no user, and an unknown
+disabled entitlement excludes none, instead of the call being rejected.
+
+Users are returned as a flat `UserResponse` rather than a `V2UserDetail`:
+
+- `userAttributes` fields are directly on `UserResponse`: `getUserAttributes().getUserName()` → `getUsername()`,
+  `getCompanyName()` → `getCompany()`, `getDepartment()`, `getTitle()`, `getAccountType()`, etc.
+- `userSystemInfo` fields are directly on `UserResponse` too: `getId()` → `getUserId()`,
+  `getStatus()` → `getActive()`, `getCreatedDate()`, `getLastLoginDate()`, `getDeactivatedDate()`, `getSuspended()`,
+  etc.
+- `getAvatars()` and `getEntitlements()` are filled, where the deprecated methods left `avatar` and `features` empty.
+  `getEntitlements()` returns the names of the entitlements enabled on the user, as in `UserFeature`. These may not
+  match what the `enabledEntitlements` and `disabledEntitlements` filters select, as the filters also take pod and
+  feature level values into account.
+- `userMetadata`, `twoFactorAuthPhone`, `recommendedLanguage`, `currentKey`, `previousKey` and `lastPasswordReset`
+  are not returned, nor are `apps`, `groups` and `disclaimers`, which the deprecated methods left empty too. Use
+  `UserService#getUserDetail(Long)` to get them for a given user.
+
 ## Support window
 
 BDK 3.x will receive critical security fixes for **6 months** following the BDK 4.0.0 release, where Symphony is

@@ -16,7 +16,10 @@ import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
+import com.symphony.bdk.core.service.user.mapper.UserLookupMapper;
+import com.symphony.bdk.core.service.user.model.UserListFilter;
 import com.symphony.bdk.gen.api.AuditTrailApi;
+import com.symphony.bdk.gen.api.SbeUsersApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -29,8 +32,11 @@ import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.RoleDetail;
 import com.symphony.bdk.gen.api.model.StringId;
+import com.symphony.bdk.gen.api.model.UserArrayResponse;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
+import com.symphony.bdk.gen.api.model.UserLookupList;
+import com.symphony.bdk.gen.api.model.UserResponse;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserSearchResults;
 import com.symphony.bdk.gen.api.model.UserStatus;
@@ -43,6 +49,7 @@ import com.symphony.bdk.gen.api.model.V2UserCreate;
 import com.symphony.bdk.gen.api.model.V2UserDetail;
 import com.symphony.bdk.gen.api.model.V2UserList;
 import com.symphony.bdk.http.api.ApiException;
+import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -50,10 +57,16 @@ import org.apiguardian.api.API;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,25 +90,40 @@ import org.jspecify.annotations.Nullable;
 @API(status = API.Status.STABLE)
 public class UserService implements OboUserService, OboService<OboUserService> {
 
+  /**
+   * Maximum number of uids, emails or usernames accepted by a single /v5/users lookup call.
+   */
+  private static final int LOOKUP_BATCH_SIZE = 100;
+
+  /**
+   * Maximum number of users returned by a single /v5/users/list call.
+   */
+  private static final int LIST_USERS_MAX_LIMIT = 100;
+
   private final UserApi userApi;
   private final UsersApi usersApi;
+  private final SbeUsersApi sbeUsersApi;
   private final AuditTrailApi auditTrailApi;
   private final AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession authSession,
+  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi,
+      SbeUsersApi sbeUsersApi, AuthSession authSession,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
+    this.sbeUsersApi = sbeUsersApi;
     this.auditTrailApi = auditTrailApi;
     this.authSession = authSession;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
   }
 
-  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, RetryWithRecoveryBuilder<?> retryBuilder) {
+  public UserService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi,
+      SbeUsersApi sbeUsersApi, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.userApi = userApi;
     this.usersApi = usersApi;
+    this.sbeUsersApi = sbeUsersApi;
     this.auditTrailApi = auditTrailApi;
     this.authSession = null;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
@@ -103,13 +131,30 @@ public class UserService implements OboUserService, OboService<OboUserService> {
 
   @Override
   public OboUserService obo(AuthSession oboSession) {
-    return new UserService(userApi, usersApi, auditTrailApi, oboSession, retryBuilder);
+    return new UserService(userApi, usersApi, auditTrailApi, sbeUsersApi, oboSession, retryBuilder);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
+  public List<UserV2> listUsersByIds(List<Long> uidList, @Nullable Boolean active) {
+    // the server reports uids lower than 1 as invalid, they cannot match any user
+    List<String> uids = uidList.stream()
+        .filter(uid -> uid != null && uid > 0)
+        .distinct()
+        .map(String::valueOf)
+        .collect(Collectors.toList());
+    return this.lookupUsersInBatches("searchUserByIds", uids,
+        batch -> () -> sbeUsersApi.lookupUsers(authSession.getSessionToken(), batch, null, null, active));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public List<UserV2> listUsersByIds(List<Long> uidList, @Nullable Boolean local, @Nullable Boolean active) {
     String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
     V2UserList v2UserList = executeAndRetry("searchUserByIds",
@@ -122,18 +167,25 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   public List<UserV2> listUsersByIds(List<Long> uidList) {
-    String uids = uidList.stream().map(String::valueOf).collect(Collectors.joining(","));
-    V2UserList v2UserList = executeAndRetry("searchUserByIds",
-        () -> usersApi.v3UsersGet(uids, null, null, false, null, authSession.getSessionToken()));
-    return this.getUsersOrEmpty(v2UserList);
+    return this.listUsersByIds(uidList, null);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public List<UserV2> listUsersByEmails(List<String> emailList,
-      @Nullable Boolean local, @Nullable Boolean active) {
+  public List<UserV2> listUsersByEmails(List<String> emailList, @Nullable Boolean active) {
+    return this.lookupUsersInBatches("searchUserByEmails", emailList,
+        batch -> () -> sbeUsersApi.lookupUsers(authSession.getSessionToken(), null, batch, null, active));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
+  public List<UserV2> listUsersByEmails(List<String> emailList, @Nullable Boolean local, @Nullable Boolean active) {
     String emails = String.join(",", emailList);
     V2UserList v2UserList = executeAndRetry("searchUserByEmails",
         () -> usersApi.v3UsersGet(null, emails, null, local, active, authSession.getSessionToken()));
@@ -145,10 +197,7 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   public List<UserV2> listUsersByEmails(List<String> emailList) {
-    String emails = String.join(",", emailList);
-    V2UserList v2UserList = executeAndRetry("searchUserByEmails",
-        () -> usersApi.v3UsersGet( null, emails, null, false, null, authSession.getSessionToken()));
-    return this.getUsersOrEmpty(v2UserList);
+    return this.listUsersByEmails(emailList, null);
   }
 
   /**
@@ -156,10 +205,8 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   public List<UserV2> listUsersByUsernames(List<String> usernameList, @Nullable Boolean active) {
-    String usernames = String.join(",", usernameList);
-    V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
-        () -> usersApi.v3UsersGet(null, null, usernames, true, active, authSession.getSessionToken()));
-    return this.getUsersOrEmpty(v2UserList);
+    return this.lookupUsersInBatches("searchUserByUsernames", usernameList,
+        batch -> () -> sbeUsersApi.lookupUsers(authSession.getSessionToken(), null, null, batch, active));
   }
 
   /**
@@ -167,10 +214,54 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    */
   @Override
   public List<UserV2> listUsersByUsernames(List<String> usernameList) {
-    String usernames = String.join(",", usernameList);
-    V2UserList v2UserList = executeAndRetry("searchUserByUsernames",
-        () -> usersApi.v3UsersGet( null, null, usernames, true, null, authSession.getSessionToken()));
-    return this.getUsersOrEmpty(v2UserList);
+    return this.listUsersByUsernames(usernameList, null);
+  }
+
+  private List<UserV2> lookupUsersInBatches(String name, List<String> values,
+      Function<List<String>, SupplierWithApiException<UserLookupList>> lookup) {
+    // the server only deduplicates (ignoring case, which matters for emails and usernames) within a call, so do it
+    // upfront to avoid repeats across batches. Blank values are dropped, a batch made only of them would be rejected
+    // with a 400. Values are stripped as /pod/v3/users did, /v5/users would report " a@b.com" as invalid
+    Set<String> seen = new HashSet<>();
+    List<String> distinctValues = new ArrayList<>();
+    for (String value : values) {
+      String stripped = value == null ? null : value.strip();
+      if (stripped != null && !stripped.isEmpty() && seen.add(stripped.toUpperCase(Locale.ROOT))) {
+        distinctValues.add(stripped);
+      }
+    }
+    if (distinctValues.isEmpty()) {
+      return Collections.emptyList();
+    }
+    List<UserV2> users = new ArrayList<>();
+    ApiRuntimeException firstRejection = null;
+    boolean anyBatchAccepted = false;
+    for (int i = 0; i < distinctValues.size(); i += LOOKUP_BATCH_SIZE) {
+      List<String> batch = distinctValues.subList(i, Math.min(i + LOOKUP_BATCH_SIZE, distinctValues.size()));
+      try {
+        UserLookupList userLookupList = executeAndRetryUsers(name, lookup.apply(batch));
+        if (userLookupList != null && userLookupList.getErrors() != null && !userLookupList.getErrors().isEmpty()) {
+          log.debug("{} could not resolve {} values", name, userLookupList.getErrors().size());
+        }
+        users.addAll(this.getUsersOrEmpty(userLookupList));
+        anyBatchAccepted = true;
+      } catch (ApiRuntimeException e) {
+        // a batch with no valid value is rejected with a 400, which only happens with malformed emails as uids and
+        // usernames are already filtered: skip it so the other batches' users are kept, but raise it if no batch is
+        // accepted, as it may also be a malformed request
+        if (e.getCode() != HttpURLConnection.HTTP_BAD_REQUEST) {
+          throw e;
+        }
+        log.warn("{} rejected a batch of {} values: {}", name, batch.size(), e.getResponseBody());
+        if (firstRejection == null) {
+          firstRejection = e;
+        }
+      }
+    }
+    if (!anyBatchAccepted) {
+      throw firstRejection;
+    }
+    return users;
   }
 
   private List<UserV2> getUsersOrEmpty(V2UserList v2UserList) {
@@ -179,6 +270,15 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     }
 
     return v2UserList.getUsers();
+  }
+
+  private List<UserV2> getUsersOrEmpty(UserLookupList userLookupList) {
+    if (userLookupList == null || userLookupList.getUsers() == null) {
+      return Collections.emptyList();
+    }
+    return userLookupList.getUsers().stream()
+        .map(UserLookupMapper.INSTANCE::userLookupToUserV2)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -263,7 +363,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @return List of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
+   * @deprecated Use {@link #listUsers(UserListFilter, Long, Integer)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public List<V2UserDetail> listUsersDetail() {
     return executeAndRetry("listUsersDetail",
         () -> userApi.v2AdminUserListGet(authSession.getSessionToken(), null, null));
@@ -275,7 +379,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param pagination The skip and limit for pagination.
    * @return List of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
+   * @deprecated Use {@link #listUsers(UserListFilter, Long, Integer)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public List<V2UserDetail> listUsersDetail(PaginationAttribute pagination) {
     return executeAndRetry("listUsersDetail",
         () -> userApi.v2AdminUserListGet(authSession.getSessionToken(), pagination.getSkip(), pagination.getLimit()));
@@ -286,8 +394,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    *
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
+   * @deprecated Use {@link #listAllUsers(UserListFilter)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
-  @API(status = API.Status.EXPERIMENTAL)
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public Stream<V2UserDetail> listAllUsersDetail() {
     OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
     return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
@@ -300,8 +411,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @param pagination The chunkSize and totalSize for pagination.
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/list-users-v2">List Users V2</a>
+   * @deprecated Use {@link #listAllUsers(UserListFilter, StreamPaginationAttribute)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
-  @API(status = API.Status.EXPERIMENTAL)
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public Stream<V2UserDetail> listAllUsersDetail(StreamPaginationAttribute pagination) {
     OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(new PaginationAttribute(offset, limit));
     return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
@@ -314,7 +428,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return List of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   * @deprecated Use {@link #listUsers(UserListFilter, Long, Integer)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public List<V2UserDetail> listUsersDetail(UserFilter filter) {
     List<UserDetail> userDetailList = executeAndRetry("listUsersDetail",
         () -> userApi.v1AdminUserFindPost(authSession.getSessionToken(), null, null, filter));
@@ -331,7 +449,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return List of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   * @deprecated Use {@link #listUsers(UserListFilter, Long, Integer)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public List<V2UserDetail> listUsersDetail(UserFilter filter, PaginationAttribute pagination) {
     List<UserDetail> userDetailList = executeAndRetry("listUsersDetail",
         () -> userApi.v1AdminUserFindPost(authSession.getSessionToken(), pagination.getSkip(),
@@ -348,8 +470,11 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference/find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   * @deprecated Use {@link #listAllUsers(UserListFilter)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
-  @API(status = API.Status.EXPERIMENTAL)
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public Stream<V2UserDetail> listAllUsersDetail(UserFilter filter) {
     OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
     return new OffsetBasedPaginatedService<>(api, PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
@@ -364,12 +489,80 @@ public class UserService implements OboUserService, OboService<OboUserService> {
    * @return a {@link Stream} of retrieved users
    * @see <a href="https://developers.symphony.com/restapi/reference#find-users">Find Users V1</a>
    * @see com.symphony.bdk.core.service.user.constant.UserFeature
+   * @deprecated Use {@link #listAllUsers(UserListFilter, StreamPaginationAttribute)} instead, which pages on the user id.
+   *             See the BDK 4.x migration guide for the differences.
    */
-  @API(status = API.Status.EXPERIMENTAL)
+  @Deprecated
+  @API(status = API.Status.DEPRECATED)
   public Stream<V2UserDetail> listAllUsersDetail(UserFilter filter,
       StreamPaginationAttribute pagination) {
     OffsetBasedPaginatedApi<V2UserDetail> api = (offset, limit) -> listUsersDetail(filter, new PaginationAttribute(offset, limit));
     return new OffsetBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
+  }
+
+  /**
+   * Retrieve one page of the users in the company (pod), ordered by user id. Requires the Administrator, Super
+   * Administrator or User Provisioning role.
+   * <p>
+   * Each user comes with its profile, system information, roles and enabled entitlements. Apps, groups and disclaimers
+   * are not returned, use {@link #getUserDetail(Long)} to get them for a given user.
+   *
+   * @param filter     criteria the returned users must match, all users are returned if null.
+   * @param lastUserId {@link UserArrayResponse#getLastUserId()} of the previous page, to get the next one. The first
+   *                   page is returned if null.
+   * @param limit      maximum number of users to return, at least 1. Defaults to 50 if null. Values larger than 100,
+   *                   the maximum accepted by the endpoint, are reduced to 100.
+   * @return the page of users, {@link UserArrayResponse#getHasNext()} telling whether there is a next one.
+   * @throws IllegalArgumentException if limit is lower than 1.
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public UserArrayResponse listUsers(@Nullable UserListFilter filter, @Nullable Long lastUserId,
+      @Nullable Integer limit) {
+    if (limit != null && limit < 1) {
+      throw new IllegalArgumentException("limit must be a strict positive integer");
+    }
+    UserListFilter listFilter = filter == null ? new UserListFilter() : filter;
+    Integer cappedLimit = limit == null ? null : Math.min(limit, LIST_USERS_MAX_LIMIT);
+    Long createdDateFrom =
+        listFilter.getCreatedDateFrom() == null ? null : listFilter.getCreatedDateFrom().toEpochMilli();
+    Long createdDateTo = listFilter.getCreatedDateTo() == null ? null : listFilter.getCreatedDateTo().toEpochMilli();
+    return executeAndRetryUsers("listUsers",
+        () -> sbeUsersApi.listUsers(authSession.getSessionToken(), cappedLimit, lastUserId, listFilter.getRoles(),
+            listFilter.getUserId(), listFilter.getActive(), createdDateFrom, createdDateTo,
+            listFilter.getEnabledEntitlements(), listFilter.getDisabledEntitlements()));
+  }
+
+  /**
+   * Retrieve the users in the company (pod) matching a filter, ordered by user id, and return them in a
+   * {@link Stream} with default chunk size and total size equals 100. Use
+   * {@link #listAllUsers(UserListFilter, StreamPaginationAttribute)} with a larger total size to retrieve more.
+   * Requires the Administrator, Super Administrator or User Provisioning role.
+   *
+   * @param filter criteria the returned users must match, all users are returned if null.
+   * @return a {@link Stream} of retrieved users
+   * @see #listUsers(UserListFilter, Long, Integer)
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<UserResponse> listAllUsers(@Nullable UserListFilter filter) {
+    return listAllUsers(filter, new StreamPaginationAttribute(PaginatedService.DEFAULT_PAGINATION_CHUNK_SIZE,
+        PaginatedService.DEFAULT_PAGINATION_TOTAL_SIZE));
+  }
+
+  /**
+   * Retrieve all the users in the company (pod) matching a filter, ordered by user id, and return them in a
+   * {@link Stream}. Requires the Administrator, Super Administrator or User Provisioning role.
+   *
+   * @param filter     criteria the returned users must match, all users are returned if null.
+   * @param pagination The chunkSize and totalSize for pagination. Chunks larger than 100 are reduced to 100.
+   * @return a {@link Stream} of retrieved users
+   * @throws IllegalArgumentException if the chunk size is lower than 1.
+   * @see #listUsers(UserListFilter, Long, Integer)
+   */
+  @API(status = API.Status.EXPERIMENTAL)
+  public Stream<UserResponse> listAllUsers(@Nullable UserListFilter filter, StreamPaginationAttribute pagination) {
+    CursorBasedPaginatedApi<UserResponse> api = (after, limit) ->
+        new UserArrayResponseAdapter(listUsers(filter, after == null ? null : Long.valueOf(after), limit));
+    return new CursorBasedPaginatedService<>(api, pagination.getChunkSize(), pagination.getTotalSize()).stream();
   }
 
   /**
@@ -809,8 +1002,16 @@ public class UserService implements OboUserService, OboService<OboUserService> {
   }
 
   private <T> T executeAndRetry(String name, SupplierWithApiException<T> supplier) {
+    return executeAndRetry(name, userApi.getApiClient().getBasePath(), supplier);
+  }
+
+  private <T> T executeAndRetryUsers(String name, SupplierWithApiException<T> supplier) {
+    return executeAndRetry(name, sbeUsersApi.getApiClient().getBasePath(), supplier);
+  }
+
+  private <T> T executeAndRetry(String name, String address, SupplierWithApiException<T> supplier) {
     checkAuthSession(authSession);
-    return RetryWithRecovery.executeAndRetry(retryBuilder, name, userApi.getApiClient().getBasePath(), supplier);
+    return RetryWithRecovery.executeAndRetry(retryBuilder, name, address, supplier);
   }
 
   private static class AuditTrailInitiatorListAdapter implements CursorPaginatedPayload<V1AuditTrailInitiatorResponse> {
@@ -876,6 +1077,28 @@ public class UserService implements OboUserService, OboService<OboUserService> {
     @Override
     public List<Long> getData() {
       return payload.getFollowing();
+    }
+  }
+
+  private static class UserArrayResponseAdapter implements CursorPaginatedPayload<UserResponse> {
+
+    private UserArrayResponse payload;
+
+    public UserArrayResponseAdapter(UserArrayResponse payload) {
+      this.payload = payload;
+    }
+
+    @Override
+    public String getNext() {
+      if (Boolean.TRUE.equals(payload.getHasNext()) && payload.getLastUserId() != null) {
+        return payload.getLastUserId().toString();
+      }
+      return null;
+    }
+
+    @Override
+    public List<UserResponse> getData() {
+      return payload.getUsers();
     }
   }
 }
