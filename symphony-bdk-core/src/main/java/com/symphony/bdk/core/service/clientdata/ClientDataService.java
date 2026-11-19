@@ -5,7 +5,7 @@ import com.symphony.bdk.core.retry.RetryWithRecovery;
 import com.symphony.bdk.core.retry.RetryWithRecoveryBuilder;
 import com.symphony.bdk.core.retry.function.SupplierWithApiException;
 import com.symphony.bdk.core.service.OboService;
-import com.symphony.bdk.gen.api.ClientDataApi;
+import com.symphony.bdk.gen.api.SbeUsersApi;
 import com.symphony.bdk.gen.api.model.ClientDataResponse;
 import com.symphony.bdk.gen.api.model.DistributionLists;
 import com.symphony.bdk.gen.api.model.ClientDataStructure;
@@ -26,14 +26,14 @@ import java.util.List;
 public class ClientDataService implements OboClientDataService, OboService<OboClientDataService> {
 
   private final ApiClient apiClient;
-  private final ClientDataApi clientDataApi;
+  private final SbeUsersApi sbeUsersApi;
   private final @Nullable AuthSession authSession;
   private final RetryWithRecoveryBuilder<?> retryBuilder;
 
   public ClientDataService(ApiClient apiClient, AuthSession authSession,
       RetryWithRecoveryBuilder<?> retryBuilder) {
     this.apiClient = apiClient;
-    this.clientDataApi = new ClientDataApi(apiClient);
+    this.sbeUsersApi = new SbeUsersApi(apiClient);
     this.authSession = authSession;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder)
         .recoveryStrategy(ApiException::isUnauthorized, authSession::refresh);
@@ -41,7 +41,7 @@ public class ClientDataService implements OboClientDataService, OboService<OboCl
 
   public ClientDataService(ApiClient apiClient, RetryWithRecoveryBuilder<?> retryBuilder) {
     this.apiClient = apiClient;
-    this.clientDataApi = new ClientDataApi(apiClient);
+    this.sbeUsersApi = new SbeUsersApi(apiClient);
     this.authSession = null;
     this.retryBuilder = RetryWithRecoveryBuilder.copyWithoutRecoveryStrategies(retryBuilder);
   }
@@ -57,7 +57,7 @@ public class ClientDataService implements OboClientDataService, OboService<OboCl
   @Override
   public ClientDataResponse getClientData() {
     return executeAndRetry("getClientData",
-        () -> this.clientDataApi.getClientData(this.authSession.getSessionToken(), null));
+        () -> this.sbeUsersApi.getClientData(this.authSession.getSessionToken(), null));
   }
 
   /**

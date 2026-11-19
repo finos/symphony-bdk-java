@@ -43,6 +43,7 @@ import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
+import com.symphony.bdk.gen.api.SbeUsersApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
@@ -145,8 +146,8 @@ class ServiceFactory {
    * @return a new {@link UserService} instance.
    */
   public UserService getUserService() {
-    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient), authSession,
-        retryBuilder);
+    return new UserService(new UserApi(podClient), new UsersApi(podClient), new AuditTrailApi(agentClient),
+        new SbeUsersApi(usersClient), authSession, retryBuilder);
   }
 
   /**

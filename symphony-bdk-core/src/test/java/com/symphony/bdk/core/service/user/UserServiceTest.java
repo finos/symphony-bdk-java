@@ -1,8 +1,13 @@
 package com.symphony.bdk.core.service.user;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,9 +21,11 @@ import com.symphony.bdk.core.service.pagination.model.StreamPaginationAttribute;
 import com.symphony.bdk.core.service.user.constant.RoleId;
 import com.symphony.bdk.core.service.user.constant.UserFeature;
 import com.symphony.bdk.core.service.user.mapper.UserDetailMapper;
+import com.symphony.bdk.core.service.user.model.UserListFilter;
 import com.symphony.bdk.core.test.JsonHelper;
 import com.symphony.bdk.core.test.MockApiClient;
 import com.symphony.bdk.gen.api.AuditTrailApi;
+import com.symphony.bdk.gen.api.SbeUsersApi;
 import com.symphony.bdk.gen.api.UserApi;
 import com.symphony.bdk.gen.api.UsersApi;
 import com.symphony.bdk.gen.api.model.Avatar;
@@ -31,9 +38,11 @@ import com.symphony.bdk.gen.api.model.FollowersListResponse;
 import com.symphony.bdk.gen.api.model.FollowingListResponse;
 import com.symphony.bdk.gen.api.model.RoleDetail;
 import com.symphony.bdk.gen.api.model.StringId;
+import com.symphony.bdk.gen.api.model.UserArrayResponse;
 import com.symphony.bdk.gen.api.model.UserAttributes;
 import com.symphony.bdk.gen.api.model.UserDetail;
 import com.symphony.bdk.gen.api.model.UserFilter;
+import com.symphony.bdk.gen.api.model.UserResponse;
 import com.symphony.bdk.gen.api.model.UserSearchFilter;
 import com.symphony.bdk.gen.api.model.UserSearchQuery;
 import com.symphony.bdk.gen.api.model.UserStatus;
@@ -50,17 +59,22 @@ import com.symphony.bdk.http.api.ApiRuntimeException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.verification.VerificationMode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 class UserServiceTest {
   private static final String V2_USER_DETAIL_BY_ID = "/pod/v2/admin/user/{uid}";
@@ -83,6 +97,8 @@ class UserServiceTest {
   private static final String GET_STATUS_OF_USER = "/pod/v1/admin/user/{uid}/status";
   private static final String UPDATE_STATUS_OF_USER = "/pod/v1/admin/user/{uid}/status/update";
   private static final String SEARCH_USERS_V3 = "/pod/v3/users";
+  private static final String LOOKUP_USERS_V5 = "/v5/users";
+  private static final String LIST_USERS_V5 = "/v5/users/list";
   private static final String SEARCH_USER_BY_QUERY = "/pod/v1/user/search";
   private static final String V1_USER_FOLLOW = "/pod/v1/user/{uid}/follow";
   private static final String V1_USER_UNFOLLOW = "/pod/v1/user/{uid}/unfollow";
@@ -97,6 +113,7 @@ class UserServiceTest {
   private MockApiClient mockApiClient;
   private UsersApi spiedUsersApi;
   private AuditTrailApi spiedAuditTrailApi;
+  private SbeUsersApi spiedSbeUsersApi;
   private AuthSession authSession;
 
   @BeforeEach
@@ -106,10 +123,13 @@ class UserServiceTest {
 
     ApiClient podClient = mockApiClient.getApiClient("/pod");
     ApiClient agentClient = mockApiClient.getApiClient("/agent");
+    ApiClient usersClient = mockApiClient.getApiClient("");
     this.spiedUserApi = spy(new UserApi(podClient));
     this.spiedUsersApi = spy(new UsersApi(podClient));
     this.spiedAuditTrailApi = spy(new AuditTrailApi(agentClient));
-    this.service = new UserService(this.spiedUserApi, spiedUsersApi, this.spiedAuditTrailApi, authSession, new RetryWithRecoveryBuilder());
+    this.spiedSbeUsersApi = spy(new SbeUsersApi(usersClient));
+    this.service = new UserService(this.spiedUserApi, spiedUsersApi, this.spiedAuditTrailApi, this.spiedSbeUsersApi, authSession,
+        new RetryWithRecoveryBuilder());
 
     when(authSession.getSessionToken()).thenReturn("1234");
     when(authSession.getKeyManagerToken()).thenReturn("1234");
@@ -117,14 +137,15 @@ class UserServiceTest {
 
   @Test
   void nonOboEndpointShouldThrowExceptionInOboMode() {
-    this.service = new UserService(this.spiedUserApi, spiedUsersApi, this.spiedAuditTrailApi, new RetryWithRecoveryBuilder());
+    this.service = new UserService(this.spiedUserApi, spiedUsersApi, this.spiedAuditTrailApi, this.spiedSbeUsersApi,
+        new RetryWithRecoveryBuilder());
     assertThrows(IllegalStateException.class, () -> this.service.getUserDetail(1234L));
   }
 
   @Test
   void listUsersByIdOboMode() throws IOException {
     String response = JsonHelper.readFromClasspath("/user/users.json");
-    this.mockApiClient.onGet(SEARCH_USERS_V3, response);
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
 
     List<UserV2> users = this.service.obo(this.authSession).listUsersByIds(Collections.singletonList(1234L));
     assertEquals(users.size(), 1);
@@ -562,16 +583,19 @@ class UserServiceTest {
   }
 
   @Test
-  void searchUserV3Test() throws IOException {
+  void lookupUsersTest() throws IOException {
     String response = JsonHelper.readFromClasspath("/user/users.json");
-    this.mockApiClient.onGet(SEARCH_USERS_V3, response);
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
 
-    List<UserV2> users1 = this.service.listUsersByIds(Collections.singletonList(1234L), true, true);
+    List<UserV2> users1 = this.service.listUsersByIds(Collections.singletonList(1234L), true);
 
     assertEquals(users1.size(), 1);
     assertEquals(users1.get(0).getDisplayName(), "Test Bot");
+    assertEquals(UserV2.AccountTypeEnum.SYSTEM, users1.get(0).getAccountType());
+    assertEquals(2, users1.get(0).getAvatars().size());
+    assertEquals("small", users1.get(0).getAvatars().get(1).getSize());
 
-    List<UserV2> users2 = this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"), true, true);
+    List<UserV2> users2 = this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"), true);
 
     assertEquals(users2.size(), 1);
     assertEquals(users2.get(0).getUsername(), "tibot");
@@ -598,14 +622,419 @@ class UserServiceTest {
   }
 
   @Test
-  void searchUserV3TestFailed() {
+  void listUsersByIdsInBatches() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+    List<Long> uids = LongStream.rangeClosed(1, 250).boxed().collect(Collectors.toList());
+    List<Long> uidsWithDuplicates = Stream.concat(uids.stream(), uids.stream()).collect(Collectors.toList());
+
+    List<UserV2> users = this.service.listUsersByIds(uidsWithDuplicates, true);
+
+    assertEquals(3, users.size());
+    verify(spiedSbeUsersApi, times(3)).lookupUsers(eq("1234"), any(), isNull(), isNull(), eq(true));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), eq(toStrings(uids.subList(0, 100))), isNull(), isNull(), eq(true));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), eq(toStrings(uids.subList(100, 200))), isNull(), isNull(), eq(true));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), eq(toStrings(uids.subList(200, 250))), isNull(), isNull(), eq(true));
+  }
+
+  @Test
+  void listUsersByEmailsInBatches() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+    List<String> emails = IntStream.rangeClosed(1, 101).mapToObj(i -> "user" + i + "@symphony.com")
+        .collect(Collectors.toList());
+
+    List<UserV2> users = this.service.listUsersByEmails(emails);
+
+    assertEquals(2, users.size());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(emails.subList(0, 100)), isNull(), isNull());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(emails.subList(100, 101)), isNull(), isNull());
+  }
+
+  @Test
+  void listUsersByUsernamesInBatches() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+    List<String> usernames = IntStream.rangeClosed(1, 200).mapToObj(i -> "user" + i).collect(Collectors.toList());
+
+    List<UserV2> users = this.service.listUsersByUsernames(usernames);
+
+    assertEquals(2, users.size());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), isNull(), eq(usernames.subList(0, 100)), isNull());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), isNull(), eq(usernames.subList(100, 200)), isNull());
+  }
+
+  @Test
+  void lookupUsersWithEmptyListDoesNotCallApi() throws ApiException {
+    assertEquals(Collections.emptyList(), this.service.listUsersByIds(Collections.emptyList()));
+    assertEquals(Collections.emptyList(), this.service.listUsersByEmails(Collections.emptyList()));
+    assertEquals(Collections.emptyList(), this.service.listUsersByUsernames(Collections.emptyList()));
+    verify(spiedSbeUsersApi, never()).lookupUsers(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void lookupUsersWithOnlyNullElementsDoesNotCallApi() throws ApiException {
+    assertEquals(Collections.emptyList(), this.service.listUsersByIds(Collections.singletonList(null)));
+    assertEquals(Collections.emptyList(), this.service.listUsersByEmails(Collections.singletonList(null)));
+    assertEquals(Collections.emptyList(), this.service.listUsersByUsernames(Collections.singletonList(null)));
+    verify(spiedSbeUsersApi, never()).lookupUsers(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void lookupUsersWithOnlyBlankElementsDoesNotCallApi() throws ApiException {
+    assertEquals(Collections.emptyList(), this.service.listUsersByEmails(Arrays.asList("", " ")));
+    assertEquals(Collections.emptyList(), this.service.listUsersByUsernames(Arrays.asList("", " ")));
+    verify(spiedSbeUsersApi, never()).lookupUsers(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void lookupUsersWithBlankElementsFiltersBlanks() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+
+    this.service.listUsersByEmails(Arrays.asList("tibot@symphony.com", " "));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(Collections.singletonList("tibot@symphony.com")), isNull(), isNull());
+
+    this.service.listUsersByUsernames(Arrays.asList("", "tibot"));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), isNull(), eq(Collections.singletonList("tibot")), isNull());
+  }
+
+  @Test
+  void listUsersByIdsWithOnlyNonPositiveIdsDoesNotCallApi() throws ApiException {
+    assertEquals(Collections.emptyList(), this.service.listUsersByIds(Arrays.asList(0L, -1L)));
+    verify(spiedSbeUsersApi, never()).lookupUsers(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void listUsersByIdsFiltersNonPositiveIds() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+
+    this.service.listUsersByIds(Arrays.asList(0L, 1234L, -1L));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), eq(Collections.singletonList("1234")), isNull(), isNull(), isNull());
+  }
+
+  @Test
+  void lookupUsersWithSingleRejectedBatchFails() {
+    this.mockApiClient.onGet(400, LOOKUP_USERS_V5, "{\"message\": \"All emails are invalid.\"}");
+
+    ApiRuntimeException exception = assertThrows(ApiRuntimeException.class,
+        () -> this.service.listUsersByEmails(Collections.singletonList("not-an-email")));
+
+    assertEquals(400, exception.getCode());
+  }
+
+  @Test
+  void lookupUsersWithAllBatchesRejectedFails() throws ApiException {
+    this.mockApiClient.onGet(400, LOOKUP_USERS_V5, "{\"message\": \"All emails are invalid.\"}");
+    List<String> emails = IntStream.rangeClosed(1, 101).mapToObj(i -> "not-an-email" + i)
+        .collect(Collectors.toList());
+
+    ApiRuntimeException exception = assertThrows(ApiRuntimeException.class,
+        () -> this.service.listUsersByEmails(emails));
+
+    assertEquals(400, exception.getCode());
+    verify(spiedSbeUsersApi, times(2)).lookupUsers(eq("1234"), isNull(), any(), isNull(), isNull());
+  }
+
+  @Test
+  void lookupUsersWithMissingSessionTokenFails() throws ApiException {
+    when(authSession.getSessionToken()).thenReturn(null);
+
+    ApiRuntimeException exception = assertThrows(ApiRuntimeException.class,
+        () -> this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com")));
+
+    assertEquals(400, exception.getCode());
+    verify(spiedSbeUsersApi).lookupUsers(isNull(), isNull(), eq(Collections.singletonList("tibot@symphony.com")),
+        isNull(), isNull());
+  }
+
+  @Test
+  void lookupUsersWithErrorsReturnsFoundUsers() {
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, "{\"users\": [{\"id\": 1234, \"username\": \"tibot\"}], "
+        + "\"errors\": [{\"error\": \"invalid.format\", \"email\": \"not-an-email\"}]}");
+
+    List<UserV2> users = this.service.listUsersByEmails(Arrays.asList("tibot@symphony.com", "not-an-email"));
+
+    assertEquals(1, users.size());
+    assertEquals(1234L, users.get(0).getId());
+  }
+
+  @Test
+  void listUsersByEmailsKeepsOtherBatchesWhenOneIsRejected() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+    List<String> emails = IntStream.rangeClosed(1, 101).mapToObj(i -> "user" + i + "@symphony.com")
+        .collect(Collectors.toList());
+    doThrow(new ApiException(400, "All emails are invalid.", Collections.emptyMap(), "All emails are invalid."))
+        .when(spiedSbeUsersApi)
+        .lookupUsers(eq("1234"), isNull(), eq(emails.subList(0, 100)), isNull(), isNull());
+
+    List<UserV2> users = this.service.listUsersByEmails(emails);
+
+    assertEquals(1, users.size());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(emails.subList(100, 101)), isNull(), isNull());
+  }
+
+  @Test
+  void listUsersByEmailsDeduplicatesIgnoringCase() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+    List<String> emails = IntStream.rangeClosed(1, 100).mapToObj(i -> "user" + i + "@symphony.com")
+        .collect(Collectors.toList());
+    List<String> emailsWithDuplicates = new ArrayList<>(emails);
+    emailsWithDuplicates.add("USER1@symphony.com");
+
+    this.service.listUsersByEmails(emailsWithDuplicates);
+
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(emails), isNull(), isNull());
+  }
+
+  @Test
+  void lookupUsersStripsWhitespace() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+
+    this.service.listUsersByEmails(Arrays.asList(" tibot@symphony.com ", "tibot@symphony.com"));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(Collections.singletonList("tibot@symphony.com")), isNull(), isNull());
+
+    this.service.listUsersByUsernames(Collections.singletonList("\ttibot "));
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), isNull(), eq(Collections.singletonList("tibot")), isNull());
+  }
+
+  @Test
+  void lookupUsersWithNullElementsFiltersNulls() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, response);
+
+    List<UserV2> users1 = this.service.listUsersByIds(Arrays.asList(1234L, null));
+    assertEquals(1, users1.size());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), eq(Collections.singletonList("1234")), isNull(), isNull(), isNull());
+
+    List<UserV2> users2 = this.service.listUsersByEmails(Arrays.asList("tibot@symphony.com", null));
+    assertEquals(1, users2.size());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), eq(Collections.singletonList("tibot@symphony.com")), isNull(), isNull());
+
+    List<UserV2> users3 = this.service.listUsersByUsernames(Arrays.asList("tibot", null));
+    assertEquals(1, users3.size());
+    verify(spiedSbeUsersApi).lookupUsers(eq("1234"), isNull(), isNull(), eq(Collections.singletonList("tibot")), isNull());
+  }
+
+  @Test
+  void listUsersWithFilterTest() throws ApiException {
+    this.mockApiClient.onGet(LIST_USERS_V5, "{\"users\": [{\"userId\": 1234, \"username\": \"tibot\", "
+        + "\"active\": true, \"createdDate\": 1700000000000, \"roles\": [\"INDIVIDUAL\"], "
+        + "\"displayName\": \"Ti Bot\", \"company\": \"Symphony\", \"accountType\": \"SYSTEM\", "
+        + "\"entitlements\": [\"canCreatePublicRoom\"], \"lastLoginDate\": 1700000001000}], "
+        + "\"lastUserId\": 1234, \"hasNext\": true}");
+    Instant from = Instant.ofEpochMilli(1600000000000L);
+    Instant to = Instant.ofEpochMilli(1800000000000L);
+    UserListFilter filter = new UserListFilter()
+        .userId(1234L)
+        .active(true)
+        .roles(Arrays.asList(RoleId.INDIVIDUAL, RoleId.USER_PROVISIONING))
+        .enabledEntitlements(Arrays.asList(UserFeature.canCreatePublicRoom, UserFeature.sendFilesEnabled))
+        .disabledEntitlements(Collections.singletonList(UserFeature.isExternalIMEnabled))
+        .createdDateFrom(from)
+        .createdDateTo(to);
+
+    UserArrayResponse response = this.service.listUsers(filter, 1000L, 10);
+
+    assertEquals(1, response.getUsers().size());
+    assertEquals(1234L, response.getUsers().get(0).getUserId());
+    assertEquals("tibot", response.getUsers().get(0).getUsername());
+    assertEquals(Collections.singletonList("INDIVIDUAL"), response.getUsers().get(0).getRoles());
+    assertEquals("Ti Bot", response.getUsers().get(0).getDisplayName());
+    assertEquals("Symphony", response.getUsers().get(0).getCompany());
+    assertEquals(UserResponse.AccountTypeEnum.SYSTEM, response.getUsers().get(0).getAccountType());
+    assertEquals(Collections.singletonList("canCreatePublicRoom"), response.getUsers().get(0).getEntitlements());
+    assertEquals(1700000001000L, response.getUsers().get(0).getLastLoginDate());
+    assertEquals(1234L, response.getLastUserId());
+    assertTrue(response.getHasNext());
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), eq(10), eq(1000L), eq(Arrays.asList("INDIVIDUAL", "USER_PROVISIONING")),
+        eq(1234L), eq(true), eq(1600000000000L), eq(1800000000000L),
+        eq(Arrays.asList("canCreatePublicRoom", "sendFilesEnabled")),
+        eq(Collections.singletonList("isExternalIMEnabled")));
+  }
+
+  @Test
+  void listUsersWithRoleAndEntitlementNamesTest() throws ApiException {
+    this.mockApiClient.onGet(LIST_USERS_V5, "{\"users\": [], \"hasNext\": false}");
+    UserListFilter filter = new UserListFilter()
+        .roleNames(Arrays.asList("NEW_ROLE", null))
+        .enabledEntitlementNames(Arrays.asList("canUseDialIn", null))
+        .disabledEntitlementNames(Arrays.asList(null, "canUseDialOut"));
+
+    this.service.listUsers(filter, null, null);
+
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), isNull(), isNull(), eq(Collections.singletonList("NEW_ROLE")),
+        isNull(), isNull(), isNull(), isNull(),
+        eq(Collections.singletonList("canUseDialIn")), eq(Collections.singletonList("canUseDialOut")));
+  }
+
+  @Test
+  void listUsersCapsLimitTest() throws ApiException {
+    this.mockApiClient.onGet(LIST_USERS_V5, "{\"users\": [], \"hasNext\": false}");
+
+    this.service.listUsers(null, null, 500);
+
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), eq(100), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+        isNull(), isNull());
+  }
+
+  @Test
+  void listUsersRejectsNonPositiveLimitTest() throws ApiException {
+    assertThrows(IllegalArgumentException.class, () -> this.service.listUsers(null, null, 0));
+    assertThrows(IllegalArgumentException.class, () -> this.service.listUsers(null, null, -1));
+    verifyListUsersCalls(never());
+  }
+
+  @Test
+  void listUsersWithoutFilterTest() throws ApiException {
+    this.mockApiClient.onGet(LIST_USERS_V5, "{\"users\": [], \"hasNext\": false}");
+
+    UserArrayResponse response = this.service.listUsers(null, null, null);
+
+    assertEquals(Collections.emptyList(), response.getUsers());
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+        isNull(), isNull());
+  }
+
+  @Test
+  void listUsersTestFailed() {
+    this.mockApiClient.onGet(403, LIST_USERS_V5, "{}");
+
+    assertThrows(ApiRuntimeException.class, () -> this.service.listUsers(null, null, null));
+  }
+
+  @Test
+  void listAllUsersPaginationTest() throws ApiException {
+    whenListUsers(
+        new UserArrayResponse().users(Arrays.asList(new UserResponse().userId(1L), new UserResponse().userId(2L)))
+            .lastUserId(2L).hasNext(true),
+        new UserArrayResponse().users(Collections.singletonList(new UserResponse().userId(3L)))
+            .lastUserId(3L).hasNext(false));
+    UserListFilter filter = new UserListFilter().active(true);
+
+    List<Long> userIds = this.service.listAllUsers(filter, new StreamPaginationAttribute(2, 10))
+        .map(UserResponse::getUserId)
+        .collect(Collectors.toList());
+
+    assertEquals(Arrays.asList(1L, 2L, 3L), userIds);
+    verifyListUsersCalls(times(2));
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), eq(2), isNull(), isNull(), isNull(), eq(true), isNull(), isNull(),
+        isNull(), isNull());
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), eq(2), eq(2L), isNull(), isNull(), eq(true), isNull(), isNull(),
+        isNull(), isNull());
+  }
+
+  @Test
+  void listAllUsersStopsAtTotalSizeTest() throws ApiException {
+    whenListUsers(
+        new UserArrayResponse().users(Arrays.asList(new UserResponse().userId(1L), new UserResponse().userId(2L)))
+            .lastUserId(2L).hasNext(true));
+
+    List<UserResponse> users = this.service.listAllUsers(null, new StreamPaginationAttribute(2, 2))
+        .collect(Collectors.toList());
+
+    assertEquals(2, users.size());
+    verifyListUsersCalls(times(1));
+  }
+
+  @Test
+  void listAllUsersCapsChunkSizeTest() throws ApiException {
+    this.mockApiClient.onGet(LIST_USERS_V5, "{\"users\": [{\"userId\": 1234}], \"lastUserId\": 1234, \"hasNext\": false}");
+
+    List<UserResponse> users = this.service.listAllUsers(null, new StreamPaginationAttribute(500, 1000))
+        .collect(Collectors.toList());
+
+    assertEquals(1, users.size());
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), eq(100), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+        isNull(), isNull());
+  }
+
+  @Test
+  void listAllUsersRejectsNonPositiveChunkSizeTest() throws ApiException {
+    assertThrows(IllegalArgumentException.class,
+        () -> this.service.listAllUsers(null, new StreamPaginationAttribute(0, 10)));
+    verifyListUsersCalls(never());
+  }
+
+  @Test
+  void listAllUsersDefaultPaginationTest() throws ApiException {
+    this.mockApiClient.onGet(LIST_USERS_V5, "{\"users\": [{\"userId\": 1234}], \"hasNext\": false}");
+
+    assertEquals(1, this.service.listAllUsers(null).count());
+    verify(spiedSbeUsersApi).listUsers(eq("1234"), eq(100), isNull(), isNull(), isNull(), isNull(), isNull(), isNull(),
+        isNull(), isNull());
+  }
+
+  @Test
+  void listUsersByIdsWithLocalCallsV3() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(SEARCH_USERS_V3, response);
+
+    List<UserV2> users = this.service.listUsersByIds(Arrays.asList(1234L, 5678L), true, true);
+
+    assertEquals(1, users.size());
+    assertEquals("Test Bot", users.get(0).getDisplayName());
+    verify(spiedUsersApi).v3UsersGet(eq("1234,5678"), isNull(), isNull(), eq(true), eq(true), eq("1234"));
+    verify(spiedSbeUsersApi, never()).lookupUsers(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void listUsersByEmailsWithLocalCallsV3() throws IOException, ApiException {
+    String response = JsonHelper.readFromClasspath("/user/users.json");
+    this.mockApiClient.onGet(SEARCH_USERS_V3, response);
+
+    List<UserV2> users = this.service.listUsersByEmails(Arrays.asList("tibot@symphony.com", "x@x.com"), false, null);
+
+    assertEquals(1, users.size());
+    assertEquals("tibot", users.get(0).getUsername());
+    verify(spiedUsersApi).v3UsersGet(isNull(), eq("tibot@symphony.com,x@x.com"), isNull(), eq(false), isNull(),
+        eq("1234"));
+    verify(spiedSbeUsersApi, never()).lookupUsers(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void lookupUsersWithLocalNoContent() {
+    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+
+    assertEquals(Collections.emptyList(), this.service.listUsersByIds(Collections.singletonList(1234L), true, true));
+    assertEquals(Collections.emptyList(),
+        this.service.listUsersByEmails(Collections.singletonList("x@x.com"), true, true));
+  }
+
+  @Test
+  void lookupUsersWithLocalFailed() {
     this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
 
     assertThrows(ApiRuntimeException.class,
         () -> this.service.listUsersByIds(Collections.singletonList(1234L), true, true));
-    this.mockApiClient.onGet(400, SEARCH_USERS_V3, "{}");
     assertThrows(ApiRuntimeException.class,
         () -> this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"), true, true));
+  }
+
+  private static List<String> toStrings(List<Long> values) {
+    return values.stream().map(String::valueOf).collect(Collectors.toList());
+  }
+
+  private void whenListUsers(UserArrayResponse page, UserArrayResponse... nextPages) throws ApiException {
+    doReturn(page, (Object[]) nextPages).when(spiedSbeUsersApi).listUsers(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+  }
+
+  private void verifyListUsersCalls(VerificationMode mode) throws ApiException {
+    verify(spiedSbeUsersApi, mode).listUsers(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void lookupUsersTestFailed() {
+    this.mockApiClient.onGet(403, LOOKUP_USERS_V5, "{}");
+
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.listUsersByIds(Collections.singletonList(1234L), true));
+    assertThrows(ApiRuntimeException.class,
+        () -> this.service.listUsersByEmails(Collections.singletonList("tibot@symphony.com"), true));
     assertThrows(ApiRuntimeException.class,
         () -> this.service.listUsersByUsernames(Collections.singletonList("tibot"), true));
     assertThrows(ApiRuntimeException.class, () -> this.service.listUsersByIds(Collections.singletonList(1234L)));
@@ -616,45 +1045,23 @@ class UserServiceTest {
   }
 
   @Test
-  void searchUserV3ByIds_withParams_Content() {
-    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
-    assertEquals(Collections.emptyList(),
-        this.service.listUsersByIds(Collections.singletonList(1234L), true, true));
-  }
+  void lookupUsersEmptyBody() {
+    this.mockApiClient.onGet(LOOKUP_USERS_V5, "{}");
 
-  @Test
-  void searchUserV3ByIds_noParams_noContent() {
-    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
-    assertEquals(Collections.emptyList(),
-        this.service.listUsersByIds(Collections.singletonList(1234L)));
-  }
-
-  @Test
-  void searchUserV3ByEmails_withParams_noContent() {
-    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
-    assertEquals(Collections.emptyList(),
-        this.service.listUsersByEmails(Collections.singletonList("x@x.com"), true, true));
-  }
-
-  @Test
-  void searchUserV3ByUsernames_noParams_noContent() {
-    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
-    assertEquals(Collections.emptyList(),
-        this.service.listUsersByEmails(Collections.singletonList("user-name")));
-  }
-
-  @Test
-  void searchUserV3ByUsernames_withParams_noContent() {
-    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+    assertEquals(Collections.emptyList(), this.service.listUsersByIds(Collections.singletonList(1234L), true));
+    assertEquals(Collections.emptyList(), this.service.listUsersByIds(Collections.singletonList(1234L)));
+    assertEquals(Collections.emptyList(), this.service.listUsersByEmails(Collections.singletonList("x@x.com"), true));
+    assertEquals(Collections.emptyList(), this.service.listUsersByEmails(Collections.singletonList("x@x.com")));
     assertEquals(Collections.emptyList(),
         this.service.listUsersByUsernames(Collections.singletonList("user-name"), true));
+    assertEquals(Collections.emptyList(), this.service.listUsersByUsernames(Collections.singletonList("user-name")));
   }
 
   @Test
-  void searchUserV3ByEmails_noParams_noContent() {
-    this.mockApiClient.onGet(SEARCH_USERS_V3, "{}");
+  void lookupUsersNoContent() {
+    this.mockApiClient.onGet(204, LOOKUP_USERS_V5, "");
     assertEquals(Collections.emptyList(),
-        this.service.listUsersByUsernames(Collections.singletonList("x@x.com")));
+        this.service.listUsersByIds(Collections.singletonList(1234L)));
   }
 
   @Test

@@ -28,6 +28,7 @@ import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
+import com.symphony.bdk.gen.api.SbeUsersApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
 import com.symphony.bdk.gen.api.SignalsApi;
@@ -68,8 +69,8 @@ public class BdkServiceConfig {
 
   @Bean
   @ConditionalOnMissingBean
-  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, AuthSession botSession, BdkConfig config) {
-    return new UserService(userApi, usersApi, auditTrailApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
+  public UserService userService(UserApi userApi, UsersApi usersApi, AuditTrailApi auditTrailApi, SbeUsersApi sbeUsersApi, AuthSession botSession, BdkConfig config) {
+    return new UserService(userApi, usersApi, auditTrailApi, sbeUsersApi, botSession, new RetryWithRecoveryBuilder<>().retryConfig(config.getRetry()));
   }
 
   @Bean

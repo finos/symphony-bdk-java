@@ -18,6 +18,7 @@ import com.symphony.bdk.gen.api.MessagesApi;
 import com.symphony.bdk.gen.api.PodApi;
 import com.symphony.bdk.gen.api.PresenceApi;
 import com.symphony.bdk.gen.api.RoomMembershipApi;
+import com.symphony.bdk.gen.api.SbeUsersApi;
 import com.symphony.bdk.gen.api.SecurityApi;
 import com.symphony.bdk.gen.api.SessionApi;
 import com.symphony.bdk.gen.api.ShareApi;
@@ -210,6 +211,12 @@ public class BdkApiClientsConfig {
   @ConditionalOnMissingBean
   public UsersApi usersApi(@Qualifier("podApiClient") ApiClient podApiClient) {
     return new UsersApi(podApiClient);
+  }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public SbeUsersApi sbeUsersApi(@Qualifier("usersApiClient") ApiClient usersApiClient) {
+    return new SbeUsersApi(usersApiClient);
   }
 
   @Bean
