@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -366,6 +367,54 @@ class MessageServiceTest {
 
     assertNotNull(service.searchMessagesSemantic("query", STREAM_ID, null));
     verify(service).searchMessagesSemantic("query", STREAM_ID, null, null, null);
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithRoomFilters() throws Exception {
+    MessagesApi spiedMessagesApi = spy(new MessagesApi(mockApiClient.getApiClient("/agent")));
+    MessageService service = new MessageService(spiedMessagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+    final SemanticSearchQuery query = new SemanticSearchQuery().text("query")
+        .channels(List.of(SemanticSearchQuery.ChannelsEnum.WECHAT, SemanticSearchQuery.ChannelsEnum.PHONE))
+        .audience(SemanticSearchQuery.AudienceEnum.EXTERNAL);
+
+    final List<V4Message> messages = service.searchMessagesSemantic(query, new PaginationAttribute(0, 10));
+
+    assertEquals(2, messages.size());
+    ArgumentCaptor<SemanticSearchQuery> queryCaptor = ArgumentCaptor.forClass(SemanticSearchQuery.class);
+    verify(spiedMessagesApi).v4MessageSearchSemanticPost(eq(0), eq(10), eq(TOKEN), eq(TOKEN),
+        queryCaptor.capture());
+    assertEquals("query", queryCaptor.getValue().getText());
+    assertEquals(List.of(SemanticSearchQuery.ChannelsEnum.WECHAT, SemanticSearchQuery.ChannelsEnum.PHONE),
+        queryCaptor.getValue().getChannels());
+    assertEquals(SemanticSearchQuery.AudienceEnum.EXTERNAL, queryCaptor.getValue().getAudience());
+  }
+
+  @Test
+  void testSearchMessagesSemanticWithoutRoomFiltersSendsNone() throws Exception {
+    MessagesApi spiedMessagesApi = spy(new MessagesApi(mockApiClient.getApiClient("/agent")));
+    MessageService service = new MessageService(spiedMessagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>());
+    mockApiClient.onPost(V4_SEARCH_MESSAGES_SEMANTIC,
+        JsonHelper.readFromClasspath("/message/get_message_stream_id.json"));
+
+    service.searchMessagesSemantic(new SemanticSearchQuery().text("query").channels(List.of()), null);
+
+    ArgumentCaptor<SemanticSearchQuery> queryCaptor = ArgumentCaptor.forClass(SemanticSearchQuery.class);
+    verify(spiedMessagesApi).v4MessageSearchSemanticPost(isNull(), isNull(), eq(TOKEN), eq(TOKEN),
+        queryCaptor.capture());
+    assertNull(queryCaptor.getValue().getChannels());
+    assertNull(queryCaptor.getValue().getAudience());
+  }
+
+  @Test
+  void testSearchMessagesSemanticQueryWithInvalidDateRangeThrows() {
+    final SemanticSearchQuery query = new SemanticSearchQuery().text("query")
+        .fromDate(1785024000000L).toDate(1784764800000L);
+
+    assertThrows(IllegalArgumentException.class, () -> messageService.searchMessagesSemantic(query, null));
   }
 
   @Test
@@ -1085,6 +1134,49 @@ class MessageServiceTest {
 
     assertThrows(UnsupportedOperationException.class, () -> override.searchMessagesSemantic(authSession, "query",
         null, Instant.parse("2026-07-23T00:00:00Z"), null, null));
+  }
+
+  @Test
+  void shouldDelegateSearchMessagesSemanticWithRoomFiltersToOverrideWhenRegistered() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    final SemanticSearchQuery query = new SemanticSearchQuery().text("query")
+        .audience(SemanticSearchQuery.AudienceEnum.INTERNAL);
+    V4Message expected = new V4Message().messageId("override-semantic-msg");
+    when(override.searchMessagesSemantic(eq(authSession), eq(query), isNull()))
+        .thenReturn(Collections.singletonList(expected));
+
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    List<V4Message> result = serviceWithOverride.searchMessagesSemantic(query, null);
+
+    assertEquals(Collections.singletonList("override-semantic-msg"),
+        result.stream().map(V4Message::getMessageId).collect(Collectors.toList()));
+    verify(override).searchMessagesSemantic(eq(authSession), eq(query), isNull());
+  }
+
+  @Test
+  void shouldDelegateSearchMessagesSemanticQueryWithoutRoomFiltersToOverrideTextSearch() throws Exception {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class);
+    MessageService serviceWithOverride = new MessageService(messagesApi, messageApi, messageSuppressionApi, streamsApi,
+        podApi, attachmentsApi, defaultApi, authSession, templateEngine, new RetryWithRecoveryBuilder<>(), null,
+        override);
+
+    serviceWithOverride.searchMessagesSemantic(new SemanticSearchQuery().text("query").threadId(STREAM_ID), null);
+
+    verify(override).searchMessagesSemantic(eq(authSession), eq("query"), eq(STREAM_ID), isNull());
+  }
+
+  @Test
+  void overrideWithoutRoomFiltersSupport_rejectsSemanticSearchWithRoomFilters() {
+    com.symphony.bdk.core.extension.MessageRetrieverOverride override =
+        mock(com.symphony.bdk.core.extension.MessageRetrieverOverride.class, CALLS_REAL_METHODS);
+
+    assertThrows(UnsupportedOperationException.class, () -> override.searchMessagesSemantic(authSession,
+        new SemanticSearchQuery().text("query").audience(SemanticSearchQuery.AudienceEnum.EXTERNAL), null));
   }
 
   @Test

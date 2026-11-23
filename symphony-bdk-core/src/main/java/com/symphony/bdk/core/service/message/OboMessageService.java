@@ -4,6 +4,7 @@ import com.symphony.bdk.core.service.message.model.Message;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.core.service.stream.constant.AttachmentSort;
 import com.symphony.bdk.gen.api.model.MessageSuppressionResponse;
+import com.symphony.bdk.gen.api.model.SemanticSearchQuery;
 import com.symphony.bdk.gen.api.model.StreamAttachmentItem;
 import com.symphony.bdk.gen.api.model.V4Message;
 import com.symphony.bdk.gen.api.model.V4MessageBlastResponse;
@@ -298,4 +299,19 @@ public interface OboMessageService {
    */
   List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId, @Nullable Instant from,
       @Nullable Instant to, @Nullable PaginationAttribute pagination);
+
+  /**
+   * Searches for messages using a natural-language semantic query. Unlike the keyword based
+   * {@code /v1/message/search} endpoint, the query is interpreted by meaning rather than matched as
+   * {@code field:value} pairs.
+   *
+   * @param query      the natural-language {@code text}, optionally restricted to a stream ({@code threadId}), to a
+   *                   time range ({@code fromDate} on or after, {@code toDate} before, epoch ms), to streams of some
+   *                   {@code channels} and to internal or external streams ({@code audience}).
+   * @param pagination the skip and limit for pagination.
+   * @return the list of matching messages.
+   * @throws IllegalArgumentException if {@code fromDate} is not before {@code toDate}.
+   * @see <a href="https://developers.symphony.com/restapi/reference/semantic-search-messages">Semantic search messages</a>
+   */
+  List<V4Message> searchMessagesSemantic(SemanticSearchQuery query, @Nullable PaginationAttribute pagination);
 }

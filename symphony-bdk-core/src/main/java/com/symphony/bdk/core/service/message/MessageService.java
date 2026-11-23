@@ -353,21 +353,49 @@ public class MessageService implements OboMessageService, OboService<OboMessageS
   @Override
   public List<V4Message> searchMessagesSemantic(String query, @Nullable String streamId, @Nullable Instant from,
       @Nullable Instant to, @Nullable PaginationAttribute pagination) {
-    if (from != null && to != null && !from.isBefore(to)) {
+    return searchMessagesSemantic(new SemanticSearchQuery()
+        .text(query)
+        .threadId(streamId)
+        .fromDate(from != null ? from.toEpochMilli() : null)
+        .toDate(to != null ? to.toEpochMilli() : null), pagination);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<V4Message> searchMessagesSemantic(SemanticSearchQuery query, @Nullable PaginationAttribute pagination) {
+    final Long fromDate = query.getFromDate();
+    final Long toDate = query.getToDate();
+    if (fromDate != null && toDate != null && fromDate >= toDate) {
       throw new IllegalArgumentException("The 'from' instant must be before the 'to' instant.");
     }
+    final boolean roomFiltered = (query.getChannels() != null && !query.getChannels().isEmpty())
+        || query.getAudience() != null;
     if (retrieverOverride != null) {
-      // overrides predating the date range only implement the search without it
+      final String text = query.getText();
+      final String streamId = query.getThreadId();
+      final Instant from = fromDate != null ? Instant.ofEpochMilli(fromDate) : null;
+      final Instant to = toDate != null ? Instant.ofEpochMilli(toDate) : null;
+      // overrides predating the date range or the room filters only implement the search without them
       return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
-          () -> wrapOverrideException(() -> from == null && to == null
-              ? retrieverOverride.searchMessagesSemantic(authSession, query, streamId, pagination)
-              : retrieverOverride.searchMessagesSemantic(authSession, query, streamId, from, to, pagination)));
+          () -> wrapOverrideException(() -> {
+            if (roomFiltered) {
+              return retrieverOverride.searchMessagesSemantic(authSession, query, pagination);
+            }
+            return from == null && to == null
+                ? retrieverOverride.searchMessagesSemantic(authSession, text, streamId, pagination)
+                : retrieverOverride.searchMessagesSemantic(authSession, text, streamId, from, to, pagination);
+          }));
     }
+    // the caller query is left untouched
     final SemanticSearchQuery searchQuery = new SemanticSearchQuery()
-        .text(query)
-        .threadId(streamId != null ? toUrlSafeIdIfNeeded(streamId) : null)
-        .fromDate(from != null ? from.toEpochMilli() : null)
-        .toDate(to != null ? to.toEpochMilli() : null);
+        .text(query.getText())
+        .threadId(query.getThreadId() != null ? toUrlSafeIdIfNeeded(query.getThreadId()) : null)
+        .fromDate(fromDate)
+        .toDate(toDate)
+        .channels(query.getChannels() != null && !query.getChannels().isEmpty() ? query.getChannels() : null)
+        .audience(query.getAudience());
     return executeAndRetry("searchMessagesSemantic", messagesApi.getApiClient().getBasePath(),
         () -> messagesApi.v4MessageSearchSemanticPost(
             pagination != null ? pagination.getSkip() : null,
