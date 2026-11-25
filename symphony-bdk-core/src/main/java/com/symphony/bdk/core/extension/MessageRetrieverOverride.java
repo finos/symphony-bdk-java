@@ -4,6 +4,7 @@ import com.symphony.bdk.core.auth.AuthSession;
 import com.symphony.bdk.core.service.message.model.SortDir;
 import com.symphony.bdk.core.service.pagination.model.PaginationAttribute;
 import com.symphony.bdk.gen.api.model.MessageSearchQuery;
+import com.symphony.bdk.gen.api.model.SemanticSearchQuery;
 import com.symphony.bdk.gen.api.model.V4Message;
 
 import org.apiguardian.api.API;
@@ -56,6 +57,18 @@ public interface MessageRetrieverOverride {
   default List<V4Message> searchMessagesSemantic(AuthSession session, String query, @Nullable String streamId,
       @Nullable Instant from, @Nullable Instant to, @Nullable PaginationAttribute pagination) throws Exception {
     throw new UnsupportedOperationException("Semantic search with a date range is not supported by this override");
+  }
+
+  /**
+   * Semantic search restricted to streams of some channels or to internal or external streams, called only when
+   * the query {@code channels} or {@code audience} is set.
+   *
+   * <p>The default implementation rejects the call, so that overrides predating the room filters never
+   * silently return messages of other streams.
+   */
+  default List<V4Message> searchMessagesSemantic(AuthSession session, SemanticSearchQuery query,
+      @Nullable PaginationAttribute pagination) throws Exception {
+    throw new UnsupportedOperationException("Semantic search with room filters is not supported by this override");
   }
 
   V4Message getMessage(AuthSession session, String messageId) throws Exception;
